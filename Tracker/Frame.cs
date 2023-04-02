@@ -26,31 +26,31 @@ namespace WaveTracker.Tracker
                     }
                     else
                     {
-                        sb.Append((char)count + "%");
-                        sb.Append((char)(value) + "%");
+                        sb.Append((char)(count + 33));
+                        sb.Append((char)(value + 33));
                         value = pattern[y][x];
                         count = 1;
                     }
                 }
-                sb.Append(count + "%");
-                sb.Append(value + "%&");
+                sb.Append((char)(count + 33));
+                sb.Append((char)(value + 33) + "" + (char)16);
             }
+            Debug.WriteLine(sb.ToString());
             return sb.ToString();
         }
 
         public void Unpack(string str)
         {
-            string[] elements = str.Split('&');
+            string[] elements = str.Split((char)16);
             int x = 0;
             int y = 0;
             foreach (string element in elements)
             {
-                string[] columnData = element.Split('%');
                 y = 0;
-                for (int i = 0; i < columnData.Length - 1; i += 2)
+                for (int i = 0; i < element.Length; i += 2)
                 {
-                    short count = short.Parse(columnData[i]);
-                    short value = short.Parse(columnData[i + 1]);
+                    short count = (short)(element[i] - 33);
+                    short value = (short)(element[i + 1] - 33);
                     for (int j = 0; j < count; j++)
                     {
                         pattern[y][x] = value;

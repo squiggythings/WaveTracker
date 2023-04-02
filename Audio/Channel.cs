@@ -272,8 +272,9 @@ namespace WaveTracker.Audio
             waveEnv.Start();
             if (currentMacro.macroType == MacroType.Wave)
             {
-                if (!waveEnv.envelopeEnded)
-                    SetWave(waveEnv.Evaluate());
+                if (waveEnv.toPlay.isActive)
+                    if (!waveEnv.envelopeEnded)
+                        SetWave(waveEnv.Evaluate());
             }
 
             _tickTime = 0;
@@ -390,8 +391,9 @@ namespace WaveTracker.Audio
                 arpCounter = 0;
             if (currentMacro.macroType == MacroType.Wave)
             {
-                if (!waveEnv.envelopeEnded)
-                    SetWave(waveEnv.Evaluate());
+                if (waveEnv.toPlay.isActive)
+                    if (!waveEnv.envelopeEnded)
+                        SetWave(waveEnv.Evaluate());
                 waveEnv.Step();
             }
             volumeEnv.Step();

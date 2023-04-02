@@ -13,7 +13,7 @@ namespace WaveTracker.Tracker
     {
         public ResamplingModes resamplingMode;
         public byte[] samples = new byte[64];
-        
+
         public Wave()
         {
             for (int i = 0; i < 64; i++)
@@ -165,13 +165,38 @@ namespace WaveTracker.Tracker
 
         public string Pack()
         {
-            return this.ToString() + "" + (int)resamplingMode;
+            if (ToString() == "GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG")
+            {
+
+                return "" + (int)resamplingMode;
+            }
+            string s = "";
+            for (int i = 0; i < samples.Length; i += 2)
+            {
+                s += (char)(samples[i] * 32 + samples[i + 1] + 33);
+            }
+            return s + "" + (int)resamplingMode;
         }
 
         public void Unpack(string s)
         {
-            SetWaveformFromString(s.Substring(0, 64));
-            resamplingMode = (ResamplingModes)int.Parse(s[64] + "");
+            if (s.Length == 1)
+            {
+                for (int i = 0; i < 64; i++)
+                {
+                    samples[i] = 16;
+                }
+                resamplingMode = (ResamplingModes)int.Parse(s[0] + "");
+
+                return;
+            }
+            for (int i = 0; i < 32; ++i)
+            {
+                int c = s[i] - 33;
+                samples[i * 2] = (byte)(c / 32);
+                samples[i * 2 + 1] = (byte)(c % 32);
+            }
+            resamplingMode = (ResamplingModes)int.Parse(s[32] + "");
         }
 
         public bool isEqualTo(Wave other)
@@ -243,6 +268,6 @@ namespace WaveTracker.Tracker
 
 
         byte convertCharToDecimal(char c) { return (byte)"0123456789ABCDEFGHIJKLMNOPQRSTUV".IndexOf(c); }
-        char convertDecimalToChar(byte i) { return "0123456789ABCDEFGHIJKLMNOPQRSTUV"[i]; }
+        char convertDecimalToChar(int i) { return "0123456789ABCDEFGHIJKLMNOPQRSTUV"[Math.Clamp(i, 0, 31)]; }
     }
 }

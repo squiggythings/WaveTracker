@@ -22,7 +22,7 @@ namespace WaveTracker
 
         public static bool isSaved { get { if (Game1.currentSong.Equals(Game1.newSong)) return true; if (savedSong == null) return false; else return savedSong.Equals(Game1.currentSong); } }
         public static string filePath = "";
-        static char delimiter = (char)(2);
+        static char delimiter = (char)(9);
         const string fileHeaderCheck = "WaveTrackerModule_v1.0";
         public static bool isWorking;
         public static string fileName { get { if (filePath == "") return "Untitled.wtm"; return Path.GetFileName(filePath); } }
@@ -34,56 +34,60 @@ namespace WaveTracker
 
         static void SaveTo(string path)
         {
-            using (StreamWriter fileStream = new StreamWriter(path))
+            //using (StreamWriter fileStream = new StreamWriter(path))
+            //{
+            Stopwatch sw = Stopwatch.StartNew();
+            savedSong = Game1.currentSong.Clone();
+            StringBuilder str = new StringBuilder();
+
+            str.Append(fileHeaderCheck + delimiter);
+            str.Append(savedSong.name + delimiter);
+            str.Append(savedSong.author + delimiter);
+            str.Append(savedSong.year + delimiter);
+            str.Append(savedSong.comment + delimiter);
+            str.Append("" + savedSong.ticksPerRow.Length + delimiter);
+            foreach (int t in savedSong.ticksPerRow)
             {
-                Stopwatch sw = Stopwatch.StartNew();
-                savedSong = Game1.currentSong.Clone();
-                StringBuilder str = new StringBuilder();
-
-                str.Append(fileHeaderCheck + delimiter);
-                str.Append(savedSong.name + delimiter);
-                str.Append(savedSong.author + delimiter);
-                str.Append(savedSong.name + delimiter);
-                str.Append(savedSong.year + delimiter);
-                str.Append(savedSong.comment + delimiter);
-                str.Append("" + savedSong.ticksPerRow.Length + delimiter);
-                foreach (int i in savedSong.ticksPerRow)
-                {
-                    str.Append("" + i + delimiter);
-                }
-                str.Append("" + savedSong.rowsPerFrame + delimiter);
-                str.Append("" + savedSong.tickRate + delimiter);
-                str.Append("" + savedSong.quantizeChannelAmplitude + delimiter);
-
-                foreach (Wave wave in savedSong.waves)
-                {
-                    str.Append(wave.Pack() + delimiter);
-                }
-
-                str.Append("" + savedSong.instruments.Count + delimiter);
-                foreach (Macro m in savedSong.instruments)
-                {
-                    str.Append(m.Pack());
-                    str.Append(m.sample.stringBuild.ToString() + delimiter);
-                }
-
-                str.Append(savedSong.frames.Count + delimiter);
-                foreach (Frame frame in savedSong.frames)
-                {
-                    str.Append(frame.Pack() + delimiter);
-                }
-
-                str.Append(FrameEditor.primaryHighlight + delimiter);
-                str.Append(FrameEditor.secondaryHighlight + delimiter);
-                //File.WriteAllText(path, str.ToString());
-                foreach (char c in str.ToString())
-                {
-                    fileStream.Write(Encrypt(1, c));
-                }
-                fileStream.Flush();
-                sw.Stop();
-                Debug.WriteLine("done " + sw.ElapsedMilliseconds);
+                str.Append("" + t + delimiter);
             }
+            str.Append("" + savedSong.rowsPerFrame + delimiter);
+            str.Append("" + savedSong.tickRate + delimiter);
+            str.Append("" + savedSong.quantizeChannelAmplitude + delimiter);
+
+            foreach (Wave wave in savedSong.waves)
+            {
+                str.Append(wave.Pack() + delimiter);
+            }
+
+            str.Append("" + savedSong.instruments.Count + delimiter);
+            foreach (Macro m in savedSong.instruments)
+            {
+                str.Append(m.Pack());
+                str.Append(m.sample.stringBuild.ToString() + delimiter);
+            }
+
+            str.Append("" + savedSong.frames.Count + delimiter);
+            foreach (Frame frame in savedSong.frames)
+            {
+                str.Append(frame.Pack() + delimiter);
+            }
+
+            str.Append("" + FrameEditor.primaryHighlight + delimiter);
+            str.Append("" + FrameEditor.secondaryHighlight + delimiter);
+            byte[] bytes = new byte[str.Length * 2];
+
+            int i = 0;
+            foreach (char c in str.ToString())
+            {
+                bytes[i++] = (byte)(256 - BitConverter.GetBytes(c)[0]);
+                bytes[i++] = (byte)(256 - BitConverter.GetBytes(c)[1]);
+            }
+            File.WriteAllBytes(path, bytes);
+
+            // fileStream.Flush();
+            sw.Stop();
+            Debug.WriteLine("done " + sw.ElapsedMilliseconds);
+            //}
 
             return;
 
@@ -152,53 +156,56 @@ namespace WaveTracker
 
         static bool LoadFrom(string path)
         {
-
+            Stopwatch stopwatch = new Stopwatch();
+            stopwatch.Start();
             using (FileStream fs = File.OpenRead(path))
             {
                 if (ReadNextAsString(fs) != fileHeaderCheck)
                 {
+                    stopwatch.Stop();
+                //    Debug.WriteLine("file header match failed" + stopwatch.ElapsedMilliseconds);
                     return false;
                 }
                 savedSong = new Song();
-                Debug.WriteLine("name");
+              //  Debug.WriteLine("name");
                 savedSong.name = ReadNextAsString(fs);
-                Debug.WriteLine("author");
+              //  Debug.WriteLine("author");
                 savedSong.author = ReadNextAsString(fs);
-                Debug.WriteLine("year");
+              //  Debug.WriteLine("year");
                 savedSong.year = ReadNextAsString(fs);
-                Debug.WriteLine("comment");
+               // Debug.WriteLine("comment");
                 savedSong.comment = ReadNextAsString(fs);
-                Debug.WriteLine("ticks per row");
+               // Debug.WriteLine("ticks per row");
                 int count = ReadNextAsInt(fs);
                 savedSong.ticksPerRow = new int[count];
                 for (int i = 0; i < count; i++)
                 {
                     savedSong.ticksPerRow[i] = ReadNextAsInt(fs);
                 }
-                Debug.WriteLine("rows per frame");
+                //Debug.WriteLine("rows per frame");
                 savedSong.rowsPerFrame = ReadNextAsInt(fs);
-                Debug.WriteLine("tick rate");
+                //Debug.WriteLine("tick rate");
                 savedSong.tickRate = ReadNextAsInt(fs);
-                Debug.WriteLine("quantize");
+                //Debug.WriteLine("quantize");
                 savedSong.quantizeChannelAmplitude = ReadNextAsBool(fs);
-                Debug.WriteLine("waves");
+                //Debug.WriteLine("waves");
                 for (int i = 0; i < 100; ++i)
                 {
                     savedSong.waves[i].Unpack(ReadNextAsString(fs));
                 }
-                Debug.WriteLine("instruments count");
+                //Debug.WriteLine("instruments count");
                 count = ReadNextAsInt(fs);
-                Debug.WriteLine("instruments");
+                //Debug.WriteLine("instruments");
                 savedSong.instruments.Clear();
                 for (int i = 0; i < count; i++)
                 {
-                    Debug.WriteLine(" > instrument " + i);
+                   // Debug.WriteLine(" > instrument " + i);
                     savedSong.instruments.Add(new Macro(MacroType.Wave));
                     savedSong.instruments[i].Unpack(ReadNextAsString(fs));
                 }
-                Debug.WriteLine("frames count");
+                //Debug.WriteLine("frames count");
                 count = ReadNextAsInt(fs);
-                Debug.WriteLine("frames");
+                //Debug.WriteLine("frames");
                 savedSong.frames.Clear();
                 for (int i = 0; i < count; i++)
                 {
@@ -208,8 +215,10 @@ namespace WaveTracker
                 FrameEditor.primaryHighlight = ReadNextAsInt(fs);
                 FrameEditor.secondaryHighlight = ReadNextAsInt(fs);
                 Game1.currentSong = savedSong.Clone();
-                return true;
             }
+            stopwatch.Stop();
+            Debug.WriteLine("opened in " + stopwatch.ElapsedMilliseconds);
+            return true;
         }
 
         static string ReadNextAsString(FileStream fs)
@@ -219,6 +228,7 @@ namespace WaveTracker
 
         static int ReadNextAsInt(FileStream fs)
         {
+
             return int.Parse(next(fs));
         }
 
@@ -234,60 +244,23 @@ namespace WaveTracker
 
         static string next(FileStream fs)
         {
-            string ret = "";
-            UTF8Encoding temp = new UTF8Encoding(true);
+            StringBuilder sb = new StringBuilder();
             int readLen;
-            byte[] b = new byte[1];
-            while ((readLen = fs.Read(b, 0, 1)) > 0)
+            byte[] b = new byte[2];
+            while ((readLen = fs.Read(b, 0, 2)) > 0)
             {
                 //Encrypt(b);
-                char c = (temp.GetString(b, 0, readLen))[0];
-                if (c == delimiter)
+                int c = (256 - b[1]) * 256;
+                c += (256 - b[0]);
+                if ((char)c == delimiter)
                     break;
-                ret += c;
+                sb.Append((char)c);
             }
-            return ret;
-        }
-
-        public static string Next(FileStream fs, char delimiter)
-        {
-            string ret = "";
-            UTF8Encoding temp = new UTF8Encoding(true);
-            int readLen;
-            byte[] b = new byte[1];
-            while ((readLen = fs.Read(b, 0, 1)) > 0)
-            {
-                //Encrypt(b);
-                char c = (temp.GetString(b, 0, readLen))[0];
-                if (c == delimiter || c == SaveLoad.delimiter)
-                    break;
-                ret += c;
-            }
-            return ret;
+            return sb.ToString();
         }
 
 
-        public static string Encrypt(string input)
-        {
-            StringBuilder stringBuilder = new StringBuilder();
-            foreach (char c in input)
-            {
-                stringBuilder.Append((char)(16383 - c));
-            }
-            return stringBuilder.ToString();
-        }
 
-        static char Encrypt(int direction, char c)
-        {
-            if (direction > 0) // encrypting
-            {
-                return (char)(16383 - c);
-            }
-            else // decrypting
-            {
-                return (char)(16383 - c);
-            }
-        }
 
         public static bool SetFilePathThroughOpenDialog()
         {
