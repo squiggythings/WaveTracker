@@ -16,7 +16,10 @@ bld/
 Content/
 /Content
 /Content/bin
-Content/bin
+/obj/Debug
+obj/
+obj/Debug/
+Content/bin/
 /.vs
 
 #Visual Studio files
