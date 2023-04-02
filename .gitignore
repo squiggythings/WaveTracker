@@ -15,6 +15,7 @@ bld/
 [Ll]og/
 Content/
 /Content
+/.vs
 
 #Visual Studio files
 *.pidb
