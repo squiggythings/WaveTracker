@@ -57,3 +57,7 @@ monodroid*.msi
 *.cachefile
 *.dll
 bin/Debug/net6.0-windows/WaveTracker.dll
+.vs/WaveTracker/v17/.suo
+bin/Debug/net6.0-windows/WaveTracker.dll
+bin/Debug/net6.0-windows/WaveTracker.dll
+*.dll
