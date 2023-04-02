@@ -56,3 +56,4 @@ monodroid*.msi
 /CompiledContent/Windows/IgnoreMe.dll
 *.cachefile
 *.dll
+bin/Debug/net6.0-windows/WaveTracker.dll
