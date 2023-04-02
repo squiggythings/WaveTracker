@@ -263,7 +263,7 @@ namespace WaveTracker.Rendering
 
                         if (Input.GetClick(KeyModifier.None))
                         {
-                            Game1.currentSong.waves[WaveBank.currentWave].samples[canvasPosX] = canvasPosY;
+                            Game1.currentSong.waves[WaveBank.currentWave].samples[canvasPosX] = (byte)canvasPosY;
                         }
                         if (Input.GetClickUp(KeyModifier.Shift))
                         {
@@ -274,20 +274,20 @@ namespace WaveTracker.Rendering
                                 {
                                     for (int i = holdPosX; i <= canvasPosX; ++i)
                                     {
-                                        Game1.currentSong.waves[WaveBank.currentWave].samples[i] = (int)Math.Round(Lerp(holdPosY, canvasPosY, (float)(i - holdPosX) / diff));
+                                        Game1.currentSong.waves[WaveBank.currentWave].samples[i] = (byte)Math.Round(Lerp(holdPosY, canvasPosY, (float)(i - holdPosX) / diff));
                                     }
                                 }
                                 else
                                 {
                                     for (int i = canvasPosX; i <= holdPosX; ++i)
                                     {
-                                        Game1.currentSong.waves[WaveBank.currentWave].samples[i] = (int)Math.Round(Lerp(canvasPosY, holdPosY, (float)(i - canvasPosX) / diff));
+                                        Game1.currentSong.waves[WaveBank.currentWave].samples[i] = (byte)Math.Round(Lerp(canvasPosY, holdPosY, (float)(i - canvasPosX) / diff));
                                     }
                                 }
                             }
                             else
                             {
-                                Game1.currentSong.waves[WaveBank.currentWave].samples[canvasPosX] = canvasPosY;
+                                Game1.currentSong.waves[WaveBank.currentWave].samples[canvasPosX] = (byte)canvasPosY;
                             }
                         }
                     }

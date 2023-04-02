@@ -9,7 +9,6 @@ namespace WaveTracker.Tracker
 {
     public class Frame
     {
-        //public List<List<short>> pattern;
         public short[][] pattern;
         StringBuilder sb;
         public string Pack()
