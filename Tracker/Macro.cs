@@ -91,12 +91,6 @@ namespace WaveTracker.Tracker
             return true;
         }
 
-        public void packunpack()
-        {
-            sample.CreateString();
-            Unpack(Pack() + sample.stringBuild.ToString());
-        }
-
         public Macro Clone()
         {
             Debug.WriteLine("cloned " + name);
@@ -354,6 +348,20 @@ namespace WaveTracker.Tracker
             //System.Diagnostics.Debug.WriteLine(stringBuild.ToString());
         }
 
+        public void TrimSilence()
+        {
+            bool zero = true;
+            for (int i = sampleDataLeft.Count - 1; i >= 0; --i)
+            {
+                if (Math.Abs(sampleDataLeft[i]) > 0.001f || Math.Abs(sampleDataRight[i]) > 0.001f)
+                {
+                    return;
+                }
+                sampleDataLeft.RemoveAt(i);
+                sampleDataRight.RemoveAt(i);
+            }
+            CreateString();
+        }
 
         public void DataFromString(string st)
         {

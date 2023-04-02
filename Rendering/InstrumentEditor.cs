@@ -89,7 +89,7 @@ namespace WaveTracker.Rendering
                         {
 
                             macro.sample.Normalize();
-                            macro.sample.CreateString();
+                            macro.sample.TrimSilence();
                             macro.name = "" + fileName;
                         }
                         else

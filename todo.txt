@@ -1,6 +1,6 @@
 ﻿TODO:
-* Design instrument editor
 * Add instrument editor
+* Add CTRL+SHIFT + Mouse scroll to scale volume values
 * add B00, C00, D00 commands
 * Add visualization mode
 * Add export to wav
