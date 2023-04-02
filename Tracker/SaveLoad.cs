@@ -79,8 +79,8 @@ namespace WaveTracker
             int i = 0;
             foreach (char c in str.ToString())
             {
-                bytes[i++] = (byte)(BitConverter.GetBytes(c)[0]);
-                bytes[i++] = (byte)(BitConverter.GetBytes(c)[1]);
+                bytes[i++] = (byte)(256 - BitConverter.GetBytes(c)[0]);
+                bytes[i++] = (byte)(256 - BitConverter.GetBytes(c)[1]);
             }
             File.WriteAllBytes(path, bytes);
 
@@ -250,8 +250,8 @@ namespace WaveTracker
             while ((readLen = fs.Read(b, 0, 2)) > 0)
             {
                 //Encrypt(b);
-                int c = (b[1]) * 256;
-                c += (b[0]);
+                int c = (256 - b[1]) * 256;
+                c += (256 - b[0]);
                 if ((char)c == delimiter)
                     break;
                 sb.Append((char)c);
