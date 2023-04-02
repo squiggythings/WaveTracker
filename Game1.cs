@@ -151,6 +151,7 @@ namespace WaveTracker
             toolbar.Update();
             base.Update(gameTime);
             lastPianoKey = pianoInput;
+            GC.Collect();
         }
 
         protected override void Draw(GameTime gameTime)
