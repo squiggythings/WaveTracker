@@ -10,7 +10,7 @@ namespace WaveTracker.Tracker
     public class Frame
     {
         public short[][] pattern;
-        StringBuilder sb;
+        public StringBuilder sb = new StringBuilder();
         public string Pack()
         {
             sb = new StringBuilder();
@@ -35,7 +35,6 @@ namespace WaveTracker.Tracker
                 sb.Append((char)(count + 33));
                 sb.Append((char)(value + 33) + "" + (char)16);
             }
-            Debug.WriteLine(sb.ToString());
             return sb.ToString();
         }
 

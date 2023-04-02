@@ -13,6 +13,8 @@ bld/
 [Bb]in/
 [Oo]bj/
 [Ll]og/
+Content/
+/Content
 
 #Visual Studio files
 *.pidb

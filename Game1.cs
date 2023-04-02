@@ -124,7 +124,7 @@ namespace WaveTracker
             waveBank.editor.Update();
             if (waveBank.editor.pianoInput() > -1)
                 pianoInput = waveBank.editor.pianoInput();
-            if (FrameEditor.currentColumn % 5 == 0)
+            if (FrameEditor.currentColumn % 5 == 0 || Rendering.WaveEditor.enabled)
             {
                 if (pianoInput != -1 && lastPianoKey != pianoInput && !Tracker.Playback.isPlaying)
                 {
@@ -134,7 +134,9 @@ namespace WaveTracker
                 }
             }
             if (pianoInput == -1 && lastPianoKey != -1 && !Tracker.Playback.isPlaying)
-            { channelManager.channels[previewChannel].Cut(); }
+            {
+                channelManager.channels[previewChannel].PreviewCut();
+            }
             if (Rendering.WaveEditor.enabled)
             {
                 if (!Audio.ChannelManager.instance.channels[previewChannel].waveEnv.toPlay.isActive)

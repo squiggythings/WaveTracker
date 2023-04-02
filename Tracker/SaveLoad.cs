@@ -22,7 +22,7 @@ namespace WaveTracker
 
         public static bool isSaved { get { if (Game1.currentSong.Equals(Game1.newSong)) return true; if (savedSong == null) return false; else return savedSong.Equals(Game1.currentSong); } }
         public static string filePath = "";
-        static char delimiter = (char)(9);
+        static char delimiter = (char)(10);
         const string fileHeaderCheck = "WaveTrackerModule_v1.0";
         public static bool isWorking;
         public static string fileName { get { if (filePath == "") return "Untitled.wtm"; return Path.GetFileName(filePath); } }
@@ -79,8 +79,8 @@ namespace WaveTracker
             int i = 0;
             foreach (char c in str.ToString())
             {
-                bytes[i++] = (byte)(256 - BitConverter.GetBytes(c)[0]);
-                bytes[i++] = (byte)(256 - BitConverter.GetBytes(c)[1]);
+                bytes[i++] = (byte)(BitConverter.GetBytes(c)[0]);
+                bytes[i++] = (byte)(BitConverter.GetBytes(c)[1]);
             }
             File.WriteAllBytes(path, bytes);
 
@@ -163,19 +163,19 @@ namespace WaveTracker
                 if (ReadNextAsString(fs) != fileHeaderCheck)
                 {
                     stopwatch.Stop();
-                //    Debug.WriteLine("file header match failed" + stopwatch.ElapsedMilliseconds);
+                    //    Debug.WriteLine("file header match failed" + stopwatch.ElapsedMilliseconds);
                     return false;
                 }
                 savedSong = new Song();
-              //  Debug.WriteLine("name");
+                //  Debug.WriteLine("name");
                 savedSong.name = ReadNextAsString(fs);
-              //  Debug.WriteLine("author");
+                //  Debug.WriteLine("author");
                 savedSong.author = ReadNextAsString(fs);
-              //  Debug.WriteLine("year");
+                //  Debug.WriteLine("year");
                 savedSong.year = ReadNextAsString(fs);
-               // Debug.WriteLine("comment");
+                // Debug.WriteLine("comment");
                 savedSong.comment = ReadNextAsString(fs);
-               // Debug.WriteLine("ticks per row");
+                // Debug.WriteLine("ticks per row");
                 int count = ReadNextAsInt(fs);
                 savedSong.ticksPerRow = new int[count];
                 for (int i = 0; i < count; i++)
@@ -199,7 +199,7 @@ namespace WaveTracker
                 savedSong.instruments.Clear();
                 for (int i = 0; i < count; i++)
                 {
-                   // Debug.WriteLine(" > instrument " + i);
+                    // Debug.WriteLine(" > instrument " + i);
                     savedSong.instruments.Add(new Macro(MacroType.Wave));
                     savedSong.instruments[i].Unpack(ReadNextAsString(fs));
                 }
@@ -250,8 +250,8 @@ namespace WaveTracker
             while ((readLen = fs.Read(b, 0, 2)) > 0)
             {
                 //Encrypt(b);
-                int c = (256 - b[1]) * 256;
-                c += (256 - b[0]);
+                int c = (b[1]) * 256;
+                c += (b[0]);
                 if ((char)c == delimiter)
                     break;
                 sb.Append((char)c);

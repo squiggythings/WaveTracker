@@ -174,6 +174,16 @@ namespace WaveTracker.Rendering
                 GetCurrentInstrument.sample.sampleBaseKey++;
                 GetCurrentInstrument.name = "base key " + GetCurrentInstrument.sample.sampleBaseKey;
             }
+            if (Input.GetKeyDown(Microsoft.Xna.Framework.Input.Keys.T, KeyModifier.Ctrl))
+            {
+                GetCurrentInstrument.packunpack();
+                GetCurrentInstrument.name = "data";
+            }
+            if (Input.GetKeyDown(Microsoft.Xna.Framework.Input.Keys.L, KeyModifier.Ctrl))
+            {
+                GetCurrentInstrument.sample.sampleLoopType = SampleLoopType.Forward;
+                GetCurrentInstrument.name = "loop";
+            }
         }
 
         public void Goto(int index)

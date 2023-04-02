@@ -7,6 +7,7 @@ using System.Windows.Forms;
 using System.Threading;
 using Microsoft.Xna.Framework;
 using System.IO;
+using System.Diagnostics;
 
 namespace WaveTracker.Tracker
 {
@@ -24,6 +25,7 @@ namespace WaveTracker.Tracker
         public Envelope pitchEnvelope;
         public Envelope waveEnvelope;
         public Sample sample;
+        public const char delimiter = '%';
 
         public Macro(MacroType type)
         {
@@ -38,6 +40,21 @@ namespace WaveTracker.Tracker
             arpEnvelope = new Envelope(0);
             pitchEnvelope = new Envelope(0);
             waveEnvelope = new Envelope(0);
+
+            volumeEnvelope.isActive = true;
+            volumeEnvelope.values.Add(90);
+            volumeEnvelope.values.Add(84);
+            volumeEnvelope.values.Add(78);
+            volumeEnvelope.values.Add(60);
+            volumeEnvelope.releaseIndex = 4;
+            volumeEnvelope.values.Add(60);
+            volumeEnvelope.values.Add(12);
+            volumeEnvelope.values.Add(12);
+            volumeEnvelope.values.Add(12);
+            volumeEnvelope.values.Add(6);
+            volumeEnvelope.values.Add(6);
+            volumeEnvelope.values.Add(6);
+            volumeEnvelope.values.Add(0);
 
             sample = new Sample();
             //sample.resampleMode = Audio.ResamplingModes.Average;
@@ -63,41 +80,46 @@ namespace WaveTracker.Tracker
                 return false;
             if (sample.sampleDataLeft.Count != other.sample.sampleDataLeft.Count)
                 return false;
-            for (int i = 0; i < sample.sampleDataLeft.Count; i++)
-            {
-                if (sample.sampleDataLeft[i] != other.sample.sampleDataLeft[i])
-                    return false;
-                if (sample.sampleDataRight[i] != other.sample.sampleDataRight[i])
-                    return false;
-            }
             if (sample.sampleLoopType != other.sample.sampleLoopType)
                 return false;
             if (sample.sampleLoopIndex != other.sample.sampleLoopIndex)
                 return false;
+            if (sample.sampleBaseKey != other.sample.sampleBaseKey)
+                return false;
+            if (sample.sampleDetune != other.sample.sampleDetune)
+                return false;
             return true;
+        }
+
+        public void packunpack()
+        {
+            sample.CreateString();
+            Unpack(Pack() + sample.stringBuild.ToString());
         }
 
         public Macro Clone()
         {
+            Debug.WriteLine("cloned " + name);
             Macro m = new Macro(macroType);
-            sample.CreateString();
-            m.Unpack(Pack() + sample.stringBuild.ToString());
-            //m.name = name;
-            //m.volumeEnvelope = volumeEnvelope.Clone();
-            //m.pitchEnvelope = pitchEnvelope.Clone();
-            //m.waveEnvelope = waveEnvelope.Clone();
-            //m.sample.sampleDataLeft = new List<float>();
-            //m.sample.sampleDataRight = new List<float>();
-            //for (int i = 0; i < sample.sampleDataLeft.Count; i++)
-            //{
-            //    m.sample.sampleDataLeft.Add(sample.sampleDataLeft[i]);
-            //    m.sample.sampleDataRight.Add(sample.sampleDataRight[i]);
-            //}
-            //m.sample.sampleLoopType = sample.sampleLoopType;
-            //m.sample.sampleLoopIndex = sample.sampleLoopIndex;
-            //m.sample.sampleBaseKey = sample.sampleBaseKey;
-            //m.sample.sampleDetune = sample.sampleDetune;
-            //m.sample.CreateString();
+            //sample.CreateString();
+            //m.Unpack(Pack() + sample.stringBuild.ToString());
+            m.name = name;
+            m.volumeEnvelope = volumeEnvelope.Clone();
+            m.pitchEnvelope = pitchEnvelope.Clone();
+            m.waveEnvelope = waveEnvelope.Clone();
+            m.sample.sampleDataLeft.Clear();
+            m.sample.sampleDataRight.Clear();
+            for (int i = 0; i < sample.sampleDataLeft.Count; i++)
+            {
+                m.sample.sampleDataLeft.Add(sample.sampleDataLeft[i]);
+                m.sample.sampleDataRight.Add(sample.sampleDataRight[i]);
+            }
+            m.sample.sampleLoopType = sample.sampleLoopType;
+            m.sample.sampleLoopIndex = sample.sampleLoopIndex;
+            m.sample.sampleBaseKey = sample.sampleBaseKey;
+            m.sample.sampleDetune = sample.sampleDetune;
+            m.sample.CreateString();
+            Debug.WriteLine("equals" + m.IsEqualTo(this));
             return m;
         }
 
@@ -109,24 +131,22 @@ namespace WaveTracker.Tracker
         public string Pack()
         {
             string s = "";
-            s += name + "%";
-            s += (int)macroType + "%";
+            s += name + delimiter;
+            s += (int)macroType + "" + delimiter;
             s += volumeEnvelope.Pack();
             s += arpEnvelope.Pack();
             s += pitchEnvelope.Pack();
             s += waveEnvelope.Pack();
-
+            //Debug.WriteLine("packing " + s + sample.stringBuild.ToString());
             return s;
         }
 
         public void Unpack(string a)
         {
 
-            string[] elements = a.Split('%');
-            for (int i = 0; i < 10; i++)
-            {
-                System.Diagnostics.Debug.WriteLine(elements[i]);
-            }
+            string[] elements = a.Split(delimiter);
+            // System.Diagnostics.Debug.WriteLine("unpacking " + a);
+
             name = elements[0];
             macroType = (MacroType)int.Parse(elements[1]);
             volumeEnvelope.Unpack(elements[2]);
@@ -162,7 +182,7 @@ namespace WaveTracker.Tracker
             {
                 ret += i + "&";
             }
-            return ret + "%";
+            return ret + Macro.delimiter;
         }
 
         public void Unpack(string str)
@@ -311,11 +331,12 @@ namespace WaveTracker.Tracker
 
         public void CreateString()
         {
+
             stringBuild = new StringBuilder();
-            stringBuild.Append(sampleBaseKey + "%");
-            stringBuild.Append(sampleDetune + "%");
-            stringBuild.Append((int)sampleLoopType + "%");
-            stringBuild.Append(sampleLoopIndex + "%");
+            stringBuild.Append(sampleBaseKey + "" + Macro.delimiter);
+            stringBuild.Append(sampleDetune + "" + Macro.delimiter);
+            stringBuild.Append((int)sampleLoopType + "" + Macro.delimiter);
+            stringBuild.Append(sampleLoopIndex + "" + Macro.delimiter);
             for (int i = 0; i < sampleDataLeft.Count; ++i)
             {
                 ushort sampleL = (ushort)((this.sampleDataLeft[i] * 0.5f + 0.5f) * ushort.MaxValue / 4);
@@ -326,11 +347,13 @@ namespace WaveTracker.Tracker
                 //char d = (char)(sampleR % 256);
 
                 stringBuild.Append("" + a + c);
-                sampleDataLeft[i] = sampleL / ((float)ushort.MaxValue / 4) * 2 - 1;
-                sampleDataRight[i] = sampleR / ((float)ushort.MaxValue / 4) * 2 - 1;
+                //sampleDataLeft[i] = sampleL / ((float)ushort.MaxValue / 4) * 2 - 1;
+                //sampleDataRight[i] = sampleR / ((float)ushort.MaxValue / 4) * 2 - 1;
             }
-            stringBuild.Append("%");
+            stringBuild.Append(Macro.delimiter);
+            //System.Diagnostics.Debug.WriteLine(stringBuild.ToString());
         }
+
 
         public void DataFromString(string st)
         {
@@ -338,8 +361,8 @@ namespace WaveTracker.Tracker
             sampleDataRight.Clear();
             for (int i = 0; i < st.Length; i += 2)
             {
-                ushort sampleL = st[i];
-                ushort sampleR = st[i + 1];
+                int sampleL = st[i];
+                int sampleR = st[i + 1];
                 sampleDataLeft.Add(sampleL / ((float)ushort.MaxValue / 4) * 2 - 1);
                 sampleDataRight.Add(sampleR / ((float)ushort.MaxValue / 4) * 2 - 1);
             }

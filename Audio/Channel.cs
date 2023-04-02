@@ -174,12 +174,24 @@ namespace WaveTracker.Audio
 
         public void Release()
         {
-            volumeEnv.Release();
-            pitchEnv.Release();
-            arpEnv.Release();
-            waveEnv.Release();
-            _state = VoiceState.Release;
+            if (_state == VoiceState.On)
+            {
+                volumeEnv.Release();
+                pitchEnv.Release();
+                arpEnv.Release();
+                waveEnv.Release();
+                _state = VoiceState.Release;
+            }
         }
+
+        public void PreviewCut()
+        {
+            if (volumeEnv.toPlay.isActive && volumeEnv.toPlay.HasRelease)
+                Release();
+            else
+                Cut();
+        }
+
         public void Cut()
         {
             _state = VoiceState.Off;
