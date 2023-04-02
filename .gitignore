@@ -17,8 +17,10 @@ Content/
 /Content
 /Content/bin
 /obj/Debug
+/obj/Debug/net6.0-windows
 obj/
 obj/Debug/
+obj/Debug/net6.0-windows/
 Content/bin/
 /.vs
 
@@ -331,3 +333,5 @@ paket-files/
 # JetBrains Rider
 .idea/
 *.sln.iml
+.vs/WaveTracker/v17/.suo
+obj/Debug/net6.0-windows/WaveTracker.csproj.AssemblyReference.cache
