@@ -1,0 +1,6 @@
+﻿TODO:
+* Design instrument editor
+* Add instrument editor
+* add B00, C00, D00 commands
+* Add visualization mode
+* Add export to wav
