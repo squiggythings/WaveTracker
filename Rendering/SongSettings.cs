@@ -221,7 +221,7 @@ namespace WaveTracker.Rendering
                     i++;
 
                 }
-
+                i--;
                 DrawRect(1 + px + drawX, minValL + py + (height / 2), 1, maxValL - minValL + 1, Color.White);
                 drawX++;
             }
@@ -253,7 +253,7 @@ namespace WaveTracker.Rendering
                     i++;
 
                 }
-
+                i--;
 
                 DrawRect(1 + px + drawX, minVal + py + (height / 2), 1, maxVal - minVal + 1, Color.White);
                 drawX++;
@@ -279,7 +279,7 @@ namespace WaveTracker.Rendering
                     i++;
 
                 }
-
+                i--;
 
                 DrawRect(68 + px + drawX, minVal + py + 17, 1, maxVal - minVal + 1, Color.White);
                 drawX++;

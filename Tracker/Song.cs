@@ -20,6 +20,8 @@ namespace WaveTracker.Tracker
         public Wave[] waves;
         public int tickRate;
         public bool quantizeChannelAmplitude;
+        public int frameEdits;
+
 
         public Song()
         {
@@ -43,7 +45,8 @@ namespace WaveTracker.Tracker
             waves[3] = Wave.Pulse50;
             waves[4] = Wave.Pulse25;
             waves[5] = Wave.Pulse12pt5;
-            //waves[6] = new Wave("0VG04MVVVM40GV60IK402AIQUVUQIA204KI00VG04MVVVM40GV60IK402AIQUVUQIA204KI0", Audio.ResamplingModes.LinearInterpolation);
+            frameEdits = 0;
+            // waves[6] = new Wave("0VG04MVVVM40GV60IK402AIQUVUQIA204KI00VG04MVVVM40GV60IK402AIQUVUQIA204KI0", Audio.ResamplingModes.LinearInterpolation);
 
             //waves[7] = new Wave("0MMQQUUUUUUUUSSMMEE662200000000224488AACCEEGGGGIIIIIIIIIIGGGGEEE", Audio.ResamplingModes.LinearInterpolation);
             //waves[8].Randomize();
@@ -51,7 +54,17 @@ namespace WaveTracker.Tracker
             //waves[10].Randomize();
 
             instruments = new List<Macro>();
-            instruments.Add(new Macro(MacroType.Wave));
+            for (int i = 0; i < 16; ++i)
+            {
+                instruments.Add(new Macro(MacroType.Wave));
+                //Random r = new Random();
+                //string s = "";
+                //for(int j = 0; j < 10; j++)
+                //{
+                //    s += "abcdefghijklmnopqrstuvwxyz"[r.Next(26)];
+                //}
+                //instruments[i].name = s;
+            }
 
             tickRate = 60;
             quantizeChannelAmplitude = false;
@@ -76,12 +89,8 @@ namespace WaveTracker.Tracker
                 if (!waves[i].isEqualTo(other.waves[i]))
                     return false;
             }
-            for (int i = 0; i < frames.Count; i++)
-            {
-                if (!frames[i].IsEqualTo(other.frames[i]))
-                    return false;
-            }
-
+            if (frameEdits != other.frameEdits)
+                return false;
             if (other.instruments.Count != instruments.Count)
                 return false;
             for (int i = 0; i < instruments.Count; i++)
@@ -96,7 +105,7 @@ namespace WaveTracker.Tracker
         public Song Clone()
         {
             Song s = new Song();
-            s.frames = CloneSequence();
+            s.UnpackSequence(PackSequence());
             s.name = name;
             s.author = author;
             s.year = year;
@@ -115,25 +124,27 @@ namespace WaveTracker.Tracker
             {
                 s.instruments.Add(instruments[i].Clone());
             }
+            s.frameEdits = frameEdits;
             return s;
         }
 
-        public List<Frame> CloneSequence()
+        public List<string> PackSequence()
         {
-            List<Frame> ret = new List<Frame>();
+            List<string> ret = new List<string>();
             for (int i = 0; i < frames.Count; i++)
             {
-                ret.Add(frames[i].Clone());
+                ret.Add(frames[i].Pack());
             }
             return ret;
         }
 
-        public void LoadSequenceFrom(List<Frame> otherFrames)
+        public void UnpackSequence(List<string> otherFrames)
         {
             frames.Clear();
             for (int i = 0; i < otherFrames.Count; i++)
             {
-                frames.Add(otherFrames[i].Clone());
+                frames.Add(new Frame());
+                frames[i].Unpack(otherFrames[i]);
             }
         }
         public string GetTicksAsString()

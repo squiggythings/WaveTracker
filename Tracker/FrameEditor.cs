@@ -41,6 +41,7 @@ namespace WaveTracker
         public static int clipboardStartCol;
         public static List<FrameEditorState> history = new List<FrameEditorState>();
         public static int historyIndex = 0;
+        public static UI.ScrollbarHorizontal channelScrollbar;
 
         // preferences
 
@@ -85,7 +86,7 @@ namespace WaveTracker
                 return;
 
             if (history.Count == 0)
-                AddToHistory();
+                ClearHistory();
             lastCol = cursorColumn;
             lastRow = cursorRow;
             lastSelActive = selectionActive;
@@ -542,13 +543,22 @@ namespace WaveTracker
             #endregion
             if (channelScroll < 0)
                 channelScroll = 0;
-            if (channelScroll   > Song.CHANNEL_COUNT - 12)
+            if (channelScroll > Song.CHANNEL_COUNT - 12)
                 channelScroll = Song.CHANNEL_COUNT - 12;
+            channelScrollbar.scrollValue = cursorColumn * 1;
+            channelScrollbar.Update();
+            cursorColumn = channelScrollbar.scrollValue / 1;
+        }
+
+        public static void ClearHistory()
+        {
+            history.Clear();
+            history.Add(FrameEditorState.Current());
+            historyIndex = 0;
         }
 
         public static void AddToHistory()
         {
-            thisFrame.Pack();
             if (history.Count == 0)
             {
                 history.Add(FrameEditorState.Current());
@@ -562,13 +572,13 @@ namespace WaveTracker
                 history.RemoveAt(history.Count - 1);
             }
             history.Add(FrameEditorState.Current());
+            thisSong.frameEdits++;
             historyIndex++;
             if (history.Count > 64)
             {
                 history.RemoveAt(0);
                 historyIndex--;
             }
-
         }
         public static void Undo()
         {
@@ -577,6 +587,7 @@ namespace WaveTracker
             if (historyIndex < 0)
                 historyIndex = 0;
             history[historyIndex].Load();
+            thisSong.frameEdits--;
         }
         public static void Redo()
         {
@@ -586,6 +597,7 @@ namespace WaveTracker
             history[historyIndex].Load();
             //history[historyIndex].positionBefore.Load(true);
             history[historyIndex].positionAfter.Load(true);
+            thisSong.frameEdits++;
         }
 
         public static void Cut()
@@ -1018,6 +1030,10 @@ namespace WaveTracker
 
         static bool mouseInBounds(int mrow, int mcolumn)
         {
+            if (Input.MousePositionY > Game1.bottomOfScreen - 15)
+                return false;
+            if (channelScrollbar.barisPressed || channelScrollbar.barWasPressed > 0)
+                return false;
             return mcolumn >= 0 && (mrow - cursorRow + Rendering.FrameRenderer.numOfVisibleRows - Rendering.FrameRenderer.centerRow) > 0 && mcolumn < 96 && (mrow - cursorRow + Rendering.FrameRenderer.centerRow) < 55 && mrow >= 0 && mrow < 256;
         }
         public static int getStartPosOfRow(int row)

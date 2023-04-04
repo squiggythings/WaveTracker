@@ -31,7 +31,7 @@ namespace WaveTracker.UI
 
         public void Update()
         {
-            if (DoubleClicked && canEdit)
+            if (Clicked && canEdit)
             {
                 if (Input.dialogOpenCooldown == 0)
                 {

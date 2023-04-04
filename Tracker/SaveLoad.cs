@@ -36,6 +36,7 @@ namespace WaveTracker
         {
             //using (StreamWriter fileStream = new StreamWriter(path))
             //{
+            Game1.currentSong.frameEdits = 0;
             Stopwatch sw = Stopwatch.StartNew();
             savedSong = Game1.currentSong.Clone();
             StringBuilder str = new StringBuilder();
@@ -114,6 +115,9 @@ namespace WaveTracker
                 PromptUnsaved();
             }
             filePath = "";
+            FrameEditor.ClearHistory();
+            FrameEditor.Goto(0, 0);
+            FrameEditor.cursorColumn = 0;
             savedSong = new Song();
             Game1.currentSong = savedSong.Clone();
         }
@@ -142,7 +146,8 @@ namespace WaveTracker
                 if (SetFilePathThroughOpenDialog())
                     if (LoadFrom(filePath))
                     {
-
+                        FrameEditor.Goto(0, 0);
+                        FrameEditor.cursorColumn = 0;
                     }
                     else
                     {
@@ -150,8 +155,17 @@ namespace WaveTracker
                         filePath = currentPath;
 
                     }
+
             }
             savecooldown = 4;
+        }
+
+        public static void DoUnsavedCheck()
+        {
+            if (PromptUnsaved2() == DialogResult.Cancel)
+            {
+                return;
+            }
         }
 
         static bool LoadFrom(string path)
@@ -299,6 +313,20 @@ namespace WaveTracker
             {
                 Input.DialogStarted();
                 ret = MessageBox.Show("Save changes to " + fileName + "?", "WaveTracker", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1);
+            }
+            if (ret == DialogResult.Yes)
+            {
+                SaveFile();
+            }
+            return ret;
+        }
+        public static DialogResult PromptUnsaved2()
+        {
+            DialogResult ret = DialogResult.Cancel;
+            if (Input.dialogOpenCooldown == 0)
+            {
+                Input.DialogStarted();
+                ret = MessageBox.Show("Save changes to " + fileName + "?", "WaveTracker", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1);
             }
             if (ret == DialogResult.Yes)
             {

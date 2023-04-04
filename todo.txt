@@ -1,6 +1,34 @@
 ﻿TODO:
 * Add instrument editor
-* Add CTRL+SHIFT + Mouse scroll to scale volume values
+* Add CTRL+SHIFT + Mouse scroll or f1 f2 to scale volume values
 * add B00, C00, D00 commands
 * Add visualization mode
 * Add export to wav
+
+nice to haves
+* follow mode
+* function keys for octaves and playing
+* home and end
+* ctrl-D duplicate frame
+* tab and shift tab for moving between channels	
+* numpad / * for octaves
+* alt numpad 0-9 set step size
+* esc deselect
+* alt f9 mute channel
+* alt f10 solo channel
+* f12 kill sound
+* pg up pg down scroll pattern editor
+
+* normalize on wave editor
+
+
+
+
+sample functions:
+fade out
+fade in
+reverse
+downsample
+
+export sample
+

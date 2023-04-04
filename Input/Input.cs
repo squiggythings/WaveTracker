@@ -62,7 +62,7 @@ namespace WaveTracker
             {
                 dialogOpenCooldown--;
                 if (dialogOpenCooldown > 2)
-                return;
+                    return;
             }
             lastTimeSinceLastClick = timeSinceLastClick;
             lastTimeSinceLastClickUp = timeSinceLastClickUp;
@@ -80,7 +80,7 @@ namespace WaveTracker
 
             }
 
-            
+
             previousMouseState = currentMouseState;
             currentMouseState = Microsoft.Xna.Framework.Input.Mouse.GetState();
             timeSinceLastClick += gameTime.ElapsedGameTime.Milliseconds;
@@ -88,7 +88,7 @@ namespace WaveTracker
             timeSinceDoubleClick += gameTime.ElapsedGameTime.Milliseconds;
 
 
-            
+
             if (GetClickDown(KeyModifier._Any))
             {
                 doubleClick = false;
@@ -171,7 +171,7 @@ namespace WaveTracker
 
         public static bool GetSingleClickUp(KeyModifier modifier)
         {
-  
+
             if (modifierMatches(modifier))
                 return GetClickUp(modifier) && singleClick;
             else
@@ -206,11 +206,13 @@ namespace WaveTracker
         public static int MousePositionX { get { return (currentMouseState.X) / Game1.ScreenScale; } }
         public static int MousePositionY { get { return (currentMouseState.Y) / Game1.ScreenScale; } }
 
+        public static int MouseDeltaX { get { return (currentMouseState.X / Game1.ScreenScale) - (previousMouseState.X / Game1.ScreenScale); } }
 
+        public static int MouseDeltaY { get { return (currentMouseState.Y / Game1.ScreenScale) - (previousMouseState.Y / Game1.ScreenScale); } }
 
         public static int MouseScrollWheel(KeyModifier modifier)
         {
-            if (modifier == currentModifier)
+            if (modifierMatches(modifier))
             {
                 if (currentMouseState.ScrollWheelValue < previousMouseState.ScrollWheelValue) return -1;
                 if (currentMouseState.ScrollWheelValue > previousMouseState.ScrollWheelValue) return 1;

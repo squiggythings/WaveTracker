@@ -121,12 +121,12 @@ namespace WaveTracker.Audio
             }
             if (command == 10) // QXY
             {
-                bendSpeed = (parameter / 16) * 9 + 1;
+                bendSpeed = (parameter / 16) * 11 + 1;
                 targetBendAmt += parameter % 16;
             }
             if (command == 11) // RXY
             {
-                bendSpeed = (parameter / 16) * 9 + 1;
+                bendSpeed = (parameter / 16) * 11 + 1;
                 targetBendAmt -= parameter % 16;
             }
             if (command == 0) //0XY
@@ -157,17 +157,20 @@ namespace WaveTracker.Audio
 
         public void SetMacro(int id)
         {
-            Macro m = Game1.currentSong.instruments[id];
-            currentMacro = m;
-            volumeEnv.toPlay = m.volumeEnvelope;
-            arpEnv.toPlay = m.arpEnvelope;
-            pitchEnv.toPlay = m.pitchEnvelope;
-            waveEnv.toPlay = m.waveEnvelope;
-            if (macroID != id)
+            if (id < Game1.currentSong.instruments.Count)
             {
-                macroID = id;
-                if (m.macroType == MacroType.Sample)
-                    _time = 0;
+                Macro m = Game1.currentSong.instruments[id];
+                currentMacro = m;
+                volumeEnv.toPlay = m.volumeEnvelope;
+                arpEnv.toPlay = m.arpEnvelope;
+                pitchEnv.toPlay = m.pitchEnvelope;
+                waveEnv.toPlay = m.waveEnvelope;
+                if (macroID != id)
+                {
+                    macroID = id;
+                    if (m.macroType == MacroType.Sample)
+                        _time = 0;
+                }
             }
 
         }

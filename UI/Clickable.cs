@@ -79,7 +79,7 @@ namespace WaveTracker.UI
             return enabled && Input.GetDoubleClick(modifier) && globalPointIsInBounds(Input.lastClickLocation) && globalPointIsInBounds(Input.lastClickReleaseLocation);
         }
 
-        bool globalPointIsInBounds(Point p)
+        public bool globalPointIsInBounds(Point p)
         {
             return p.X >= this.globalX && p.Y >= this.globalY && p.X < this.globalX + this.width && p.Y < this.globalY + this.height;
         }

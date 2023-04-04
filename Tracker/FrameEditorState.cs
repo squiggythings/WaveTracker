@@ -9,7 +9,7 @@ namespace WaveTracker.Tracker
 {
     public struct FrameEditorState
     {
-        public List<Frame> sequence;
+        public List<string> sequence;
         public FrameEditorPosition positionBefore;
         public FrameEditorPosition positionAfter;
 
@@ -22,38 +22,27 @@ namespace WaveTracker.Tracker
             return ret;
         }
 
-        private List<Frame> CloneSequence()
+        private List<string> CloneSequence()
         {
-            List<Frame> ret = new List<Frame>();
+            List<string> ret = new List<string>();
             for (int i = 0; i < sequence.Count; i++)
             {
-                ret.Add(sequence[i].Clone());
+                ret.Add(sequence[i]);
             }
             return ret;
-        }
-
-        public bool IsSequenceCurrent()
-        {
-            if (sequence.Count != FrameEditor.thisSong.frames.Count)
-                return false;
-            for (int i = 0; i < sequence.Count; i++)
-            {
-                if (!sequence[i].Equals(FrameEditor.thisSong.frames[i]))
-                    return false;
-            }
-            return true;
         }
 
 
         public void Load()
         {
-            FrameEditor.thisSong.LoadSequenceFrom(sequence);
+            FrameEditor.thisSong.UnpackSequence(sequence);
+            FrameEditor.currentFrame = positionBefore.frame;
         }
 
         public static FrameEditorState Current()
         {
             FrameEditorState ret = new FrameEditorState();
-            ret.sequence = FrameEditor.thisSong.CloneSequence();
+            ret.sequence = FrameEditor.thisSong.PackSequence();
             ret.positionBefore = FrameEditorPosition.Previous();
             ret.positionAfter = FrameEditorPosition.Current();
 

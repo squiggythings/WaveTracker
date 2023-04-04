@@ -73,6 +73,8 @@ namespace WaveTracker
             channelManager = new Audio.ChannelManager(Tracker.Song.CHANNEL_COUNT, waveBank);
             frameRenderer.Initialize(channelManager);
             FrameEditor.UnmuteAllChannels();
+            FrameEditor.channelScrollbar = new UI.ScrollbarHorizontal(22, 323, 768, 7, null);
+            FrameEditor.channelScrollbar.SetSize(8 * 24 + 7, 8);
             editSettings = new Rendering.EditSettings();
             base.Initialize();
             //   control1 = new OuzoTracker.Forms.CreateInstrumentDialog();
@@ -100,6 +102,7 @@ namespace WaveTracker
             target = new RenderTarget2D(GraphicsDevice, ScreenWidth, 600);
             audioEngine = new Audio.AudioEngine();
             audioEngine.Initialize(channelManager);
+            SaveLoad.NewFile();
         }
 
         protected override void Update(GameTime gameTime)
@@ -107,6 +110,8 @@ namespace WaveTracker
             Window.Title = SaveLoad.fileName + (SaveLoad.isSaved ? "" : "*") + " - WaveTracker";
             ScreenScale = 2;
             bottomOfScreen = Window.ClientBounds.Height / 2;
+            FrameEditor.channelScrollbar.y = bottomOfScreen - 14;
+
             Tooltip.Update(gameTime);
             if (IsActive)
             {
@@ -193,6 +198,7 @@ namespace WaveTracker
             toolbar.Draw();
             waveBank.editor.Draw();
             Tooltip.Draw();
+            FrameEditor.channelScrollbar.Draw();
             //Rendering.Graphics.Write("FPS: " + 1 / gameTime.ElapsedGameTime.TotalSeconds, 2, 2, Color.Red);
             targetBatch.End();
 
@@ -210,8 +216,8 @@ namespace WaveTracker
 
         protected override void OnExiting(object sender, EventArgs args)
         {
-            // Do stuff here...
-
+            // Do stuff here
+            //SaveLoad.DoUnsavedCheck();
             base.OnExiting(sender, args);
         }
     }
