@@ -102,7 +102,7 @@ namespace WaveTracker
             #region selection with mouse
             if (Input.GetClickDown(KeyModifier._Any))
             {
-                if (mouseInBounds(mrow, mcolumn - channelScroll * 8))
+                if (Input.MousePositionY > 182 && Input.MousePositionX < 790)
                     selectionActive = false;
             }
             if (Input.GetDoubleClick(KeyModifier._Any))
@@ -156,7 +156,7 @@ namespace WaveTracker
             #endregion
 
             // moving cursor with scroll
-            if (!playback && Input.MousePositionY > 151 && Input.MousePositionX < 790)
+            if (!playback && Input.MousePositionY > 151 && Input.MousePositionX < 790 && Input.MousePositionY < Game1.bottomOfScreen - 15)
                 Move(0, Input.MouseScrollWheel(KeyModifier.None) * -4);
 
             #region moving cursor with arrows
@@ -180,21 +180,25 @@ namespace WaveTracker
             {
                 selectionActive = false;
                 Move(1, 0);
+                correctChanScroll();
             }
             if (Input.GetKeyRepeat(Keys.Left, KeyModifier.None))
             {
                 selectionActive = false;
                 Move(-1, 0);
+                correctChanScroll();
             }
             if (Input.GetKeyRepeat(Keys.Right, KeyModifier.Alt) || Input.MouseScrollWheel(KeyModifier.Alt) < 0)
             {
                 Move(8, 0);
                 selectionActive = false;
+                correctChanScroll();
             }
             if (Input.GetKeyRepeat(Keys.Left, KeyModifier.Alt) || Input.MouseScrollWheel(KeyModifier.Alt) > 0)
             {
                 Move(-8, 0);
                 selectionActive = false;
+                correctChanScroll();
             }
             #endregion
 
@@ -545,9 +549,13 @@ namespace WaveTracker
                 channelScroll = 0;
             if (channelScroll > Song.CHANNEL_COUNT - 12)
                 channelScroll = Song.CHANNEL_COUNT - 12;
-            channelScrollbar.scrollValue = cursorColumn * 1;
+            channelScrollbar.scrollValue = channelScroll;
             channelScrollbar.Update();
-            cursorColumn = channelScrollbar.scrollValue / 1;
+            //while (cursorColumn - channelScroll * 8 >= 96)
+            //    cursorColumn--;
+            //while (cursorColumn - channelScroll * 8 < 0)
+            //    cursorColumn++;
+            channelScroll = channelScrollbar.scrollValue;
         }
 
         public static void ClearHistory()
@@ -1163,6 +1171,8 @@ namespace WaveTracker
                 columnWithinChannel = 6;
             else
                 columnWithinChannel = 7;
+            if ((columnWithinChannel + channel * 8 + channelScroll * 8) > channelScroll * 8 + 95)
+                return channelScroll * 8 + 95;
             return columnWithinChannel + channel * 8 + channelScroll * 8;
         }
 
@@ -1177,6 +1187,10 @@ namespace WaveTracker
 
             cursorRow = (cursorRow + Game1.currentSong.rowsPerFrame) % Game1.currentSong.rowsPerFrame;
             cursorColumn = (cursorColumn + Song.CHANNEL_COUNT * 8) % (Song.CHANNEL_COUNT * 8);
+        }
+
+        static void correctChanScroll()
+        {
             while (cursorColumn - channelScroll * 8 >= 96)
                 channelScroll++;
             while (cursorColumn - channelScroll * 8 < 0)

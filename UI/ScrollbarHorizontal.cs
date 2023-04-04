@@ -80,8 +80,8 @@ namespace WaveTracker.UI
                 }
                 else
                 {
-
-                    scrollValue -= Input.MouseScrollWheel(KeyModifier._Any) * coarseStepAmount;
+                    if (IsHovered)
+                        scrollValue -= Input.MouseScrollWheel(KeyModifier._Any) * coarseStepAmount;
                 }
                 scrollValue = Math.Clamp(scrollValue, 0, totalSize - viewportSize);
                 bar.X = (int)Math.Round(barValFromVal() * (width - 2) + 1);

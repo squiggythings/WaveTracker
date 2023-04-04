@@ -74,7 +74,7 @@ namespace WaveTracker
             frameRenderer.Initialize(channelManager);
             FrameEditor.UnmuteAllChannels();
             FrameEditor.channelScrollbar = new UI.ScrollbarHorizontal(22, 323, 768, 7, null);
-            FrameEditor.channelScrollbar.SetSize(8 * 24 + 7, 8);
+            FrameEditor.channelScrollbar.SetSize(24, 12);
             editSettings = new Rendering.EditSettings();
             base.Initialize();
             //   control1 = new OuzoTracker.Forms.CreateInstrumentDialog();

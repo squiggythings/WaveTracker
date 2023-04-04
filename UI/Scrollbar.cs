@@ -74,7 +74,8 @@ namespace WaveTracker.UI
                 }
                 else
                 {
-                    scrollValue -= Input.MouseScrollWheel(KeyModifier._Any) * coarseStepAmount;
+                    if (IsHovered)
+                        scrollValue -= Input.MouseScrollWheel(KeyModifier._Any) * coarseStepAmount;
                 }
                 doUpdate();
             }
