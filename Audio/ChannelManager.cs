@@ -75,6 +75,22 @@ namespace WaveTracker.Audio
                 int delay = 0;
                 if (effect == 17)
                     delay = parameter + 1;
+                else if (effect == 20) // CXX
+                {
+                    Playback.StopNext();
+                }
+                else if (effect == 21) // BXX
+                {
+                    Playback.GotoNext(parameter % FrameEditor.thisSong.frames.Count, 0);
+                }
+                else if (effect == 22) // DXX
+                {
+                    Playback.GotoNext(Playback.playbackFrame + 1, parameter);
+                }
+                else if (effect == 15) // FXX
+                {
+                    Playback.ticksPerRowOverride = parameter;
+                }
                 else if (effect >= 0 && effect != 10 && effect != 11 && effect != 18)
                     channels[channelNum].QueueEvent(TickEventType.Effect, effect, parameter, delay);
                 if (volume >= 0)
@@ -108,6 +124,8 @@ namespace WaveTracker.Audio
                 int delay = 0;
                 if (effect >= 0)
                     channels[channelNum].QueueEvent(TickEventType.Effect, effect, parameter, delay);
+                if (effect == 15) // FXX
+                    Playback.ticksPerRowOverride = parameter;
                 if (volume >= 0)
                     channels[channelNum].QueueEvent(TickEventType.Volume, volume, 0, delay);
                 if (instrument >= 0)

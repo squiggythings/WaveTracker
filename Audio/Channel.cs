@@ -14,7 +14,6 @@ namespace WaveTracker.Audio
     {
         private ChannelManager _manager;
         int id;
-        int macroStep;
         Wave currentWave;
         public List<TickEvent> tickEvents;
         float totalAmplitude => tremoloMultiplier * channelVolume / 99f * volumeEnv.Evaluate() / 99f; // * currentMacro.GetState().volumeMultiplier;

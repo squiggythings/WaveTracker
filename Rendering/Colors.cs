@@ -18,6 +18,8 @@ namespace WaveTracker.Rendering
         public static readonly Color rowHighlightColor = new(33, 40, 64);
         public static readonly Color rowSubHighlightColor = new(26, 31, 54);
         public static readonly Color rowDefaultColor = new(20, 24, 46);
+        public static readonly Color rowPlaybackColor = new(42, 29, 81);
+        public static readonly Color rowPlaybackText = new(60, 37, 105);
         public static readonly Color currentRowEditColor = new(109, 29, 78);
         public static readonly Color currentRowEditEmptyText = new(162, 39, 107);
         public static readonly Color currentRowDefaultColor = new(27, 55, 130);

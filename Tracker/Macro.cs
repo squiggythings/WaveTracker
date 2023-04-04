@@ -350,7 +350,6 @@ namespace WaveTracker.Tracker
 
         public void TrimSilence()
         {
-            bool zero = true;
             for (int i = sampleDataLeft.Count - 1; i >= 0; --i)
             {
                 if (Math.Abs(sampleDataLeft[i]) > 0.001f || Math.Abs(sampleDataRight[i]) > 0.001f)

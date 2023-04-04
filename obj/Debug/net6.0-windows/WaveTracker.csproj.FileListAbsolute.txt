@@ -4,7 +4,6 @@ C:\Users\elias\source\repos\WaveTracker\bin\Debug\net6.0-windows\WaveTracker.exe
 C:\Users\elias\source\repos\WaveTracker\bin\Debug\net6.0-windows\WaveTracker.deps.json
 C:\Users\elias\source\repos\WaveTracker\bin\Debug\net6.0-windows\WaveTracker.runtimeconfig.json
 C:\Users\elias\source\repos\WaveTracker\bin\Debug\net6.0-windows\WaveTracker.dll
-C:\Users\elias\source\repos\WaveTracker\bin\Debug\net6.0-windows\ref\WaveTracker.dll
 C:\Users\elias\source\repos\WaveTracker\bin\Debug\net6.0-windows\WaveTracker.pdb
 C:\Users\elias\source\repos\WaveTracker\bin\Debug\net6.0-windows\Microsoft.CodeAnalysis.dll
 C:\Users\elias\source\repos\WaveTracker\bin\Debug\net6.0-windows\Microsoft.CodeAnalysis.CSharp.dll
@@ -53,3 +52,4 @@ C:\Users\elias\source\repos\WaveTracker\bin\Debug\net6.0-windows\NAudio.Midi.dll
 C:\Users\elias\source\repos\WaveTracker\bin\Debug\net6.0-windows\NAudio.Wasapi.dll
 C:\Users\elias\source\repos\WaveTracker\bin\Debug\net6.0-windows\NAudio.WinForms.dll
 C:\Users\elias\source\repos\WaveTracker\bin\Debug\net6.0-windows\NAudio.WinMM.dll
+C:\Users\elias\source\repos\WaveTracker\bin\Debug\net6.0-windows\ref\WaveTracker.dll

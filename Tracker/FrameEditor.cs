@@ -19,6 +19,7 @@ namespace WaveTracker
         public static int channelScroll;
         public static Song thisSong => Game1.currentSong;
         public static bool canEdit;
+        public static bool followMode;
         static bool playback;
         public static Frame thisFrame => thisSong.frames[currentFrame];
         public static short[] thisRow => thisFrame.pattern[currentRow];
@@ -158,7 +159,7 @@ namespace WaveTracker
             #endregion
 
             // moving cursor with scroll
-            if (!playback && Input.MousePositionY > 151 && Input.MousePositionX < 790 && Input.MousePositionY < Game1.bottomOfScreen - 15)
+            if (Input.MousePositionY > 151 && Input.MousePositionX < 790 && Input.MousePositionY < Game1.bottomOfScreen - 15)
                 Move(0, Input.MouseScrollWheel(KeyModifier.None) * -4);
 
             #region moving cursor with arrows
@@ -166,7 +167,6 @@ namespace WaveTracker
             {
                 selectionActive = false;
 
-                if (!playback)
                     Move(0, Preferences.ignoreStepWhenMoving ? 1 : step);
 
             }
@@ -174,7 +174,6 @@ namespace WaveTracker
             if (Input.GetKeyRepeat(Keys.Up, KeyModifier.None) || Input.GetKeyDown(Keys.Up, KeyModifier.Alt))
             {
                 selectionActive = false;
-                if (!playback)
                     Move(0, Preferences.ignoreStepWhenMoving ? -1 : -step);
             }
 
@@ -573,6 +572,14 @@ namespace WaveTracker
             if (Input.GetKeyRepeat(Keys.Y, KeyModifier.Ctrl))
                 Redo();
             #endregion
+            if (Playback.isPlaying)
+            {
+                if (followMode)
+                {
+                    cursorRow = Playback.playbackRow;
+                    currentFrame = Playback.playbackFrame;
+                }
+            }
             if (channelScroll < 0)
                 channelScroll = 0;
             if (channelScroll > Song.CHANNEL_COUNT - 12)

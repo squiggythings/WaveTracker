@@ -111,6 +111,10 @@ namespace WaveTracker.Rendering
                 rowTextColor = Colors.rowTextSubHighlighted;
                 rowColor = Colors.rowSubHighlightColor;
             }
+            if (Playback.isPlaying && Playback.playbackFrame == FrameEditor.currentFrame && Playback.playbackRow == rowNum)
+            {
+                rowColor = Colors.rowPlaybackColor;
+            }
             if (rowNum == cursorRow)
                 if (FrameEditor.canEdit)
                     rowColor = Colors.currentRowEditColor;

@@ -35,10 +35,8 @@ namespace WaveTracker.Rendering
         public SpriteButton frame_next;
 
         public SpriteButton preferences;
+        public Toggle followMode;
         public bool saveDialogOpen, loadDialogOpen;
-        bool willsave;
-        bool willload;
-        bool willsaveAs;
 
         public Toolbar(Texture2D sprite)
         {
@@ -102,6 +100,11 @@ namespace WaveTracker.Rendering
 
             preferences = new SpriteButton(px, 0, 15, 15, sprite, 14, this);
             preferences.SetTooltip("Preferences", "Open WaveTracker preferences");
+            px += 20;
+
+            followMode = new Toggle("Follow mode", px, 1, this);
+            followMode.SetTooltip("", "Toggle whether the cursor follows the playhead during playback");
+
         }
 
         public void Update()
@@ -112,7 +115,7 @@ namespace WaveTracker.Rendering
             edit_paste.enabled = FrameEditor.clipboard.Count > 0;
             edit_redo.enabled = FrameEditor.historyIndex < FrameEditor.history.Count - 1;
             edit_undo.enabled = FrameEditor.historyIndex > 0;
-            
+
 
 
             if (Input.GetKeyDown(Keys.S, KeyModifier.Ctrl))
@@ -129,7 +132,7 @@ namespace WaveTracker.Rendering
             if (file_saveAs.Clicked) { SaveLoad.SaveFileAs(); }
             if (file_export.Clicked) { }
 
-            
+
 
 
             if (edit_undo.Clicked) { FrameEditor.Undo(); }
@@ -149,11 +152,15 @@ namespace WaveTracker.Rendering
             if (frame_prev.Clicked) { FrameEditor.PreviousFrame(); }
 
             if (preferences.Clicked) { }
+
+            followMode.Value = FrameEditor.followMode;
+            followMode.Update();
+            FrameEditor.followMode = followMode.Value;
+
             if (SaveLoad.savecooldown > 0)
             {
                 SaveLoad.savecooldown--;
             }
-
         }
         public void Draw()
         {
@@ -180,6 +187,8 @@ namespace WaveTracker.Rendering
             frame_next.Draw();
 
             preferences.Draw();
+
+            followMode.Draw();
         }
     }
 }
