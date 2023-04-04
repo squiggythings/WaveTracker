@@ -38,11 +38,13 @@ namespace WaveTracker
         public static bool isDragging;
         public static bool instrumentMask;
         public static List<List<short>> clipboard = new List<List<short>>();
+        public static List<List<float>> scaleclipboard = new List<List<float>>();
+
         public static int clipboardStartCol;
         public static List<FrameEditorState> history = new List<FrameEditorState>();
         public static int historyIndex = 0;
         public static UI.ScrollbarHorizontal channelScrollbar;
-
+        static bool lastSelectionActive;
         // preferences
 
 
@@ -271,6 +273,18 @@ namespace WaveTracker
             #region create selection bounds
             // create bounds of selection
             CreateSelectionBounds();
+            if (selectionActive)
+            {
+                if (!lastSelectionActive)
+                    CopyToScaleClipboard();
+                lastSelectionActive = true;
+            }
+            else
+            {
+                if (lastSelectionActive)
+                    scaleclipboard.Clear();
+                lastSelectionActive = false;
+            }
             #endregion
 
             #region moving frames with ctrl-left and ctrl-right
@@ -436,6 +450,20 @@ namespace WaveTracker
                     }
                     AddToHistory();
                 }
+
+                // volume scale up 1
+                if (Input.MouseScrollWheel(KeyModifier.ShiftAlt) == 1 || Input.GetKeyRepeat(Keys.F2, KeyModifier.ShiftAlt))
+                {
+                    ScaleVolumes(1);
+                    AddToHistory();
+                }
+
+                // volume scale down 1
+                if (Input.MouseScrollWheel(KeyModifier.ShiftAlt) == -1 || Input.GetKeyRepeat(Keys.F1, KeyModifier.ShiftAlt))
+                {
+                    ScaleVolumes(-1);
+                    AddToHistory();
+                }
             }
             #endregion
 
@@ -551,10 +579,7 @@ namespace WaveTracker
                 channelScroll = Song.CHANNEL_COUNT - 12;
             channelScrollbar.scrollValue = channelScroll;
             channelScrollbar.Update();
-            //while (cursorColumn - channelScroll * 8 >= 96)
-            //    cursorColumn--;
-            //while (cursorColumn - channelScroll * 8 < 0)
-            //    cursorColumn++;
+
             channelScroll = channelScrollbar.scrollValue;
         }
 
@@ -647,6 +672,23 @@ namespace WaveTracker
                         cy++;
                     }
 
+                }
+            }
+        }
+
+        public static void CopyToScaleClipboard()
+        {
+            if (selectionActive)
+            {
+                scaleclipboard.Clear();
+
+                foreach (short[] row in thisFrame.pattern)
+                {
+                    scaleclipboard.Add(new List<float>());
+                    foreach (short val in row)
+                    {
+                        scaleclipboard[scaleclipboard.Count - 1].Add(val);
+                    }
                 }
             }
         }
@@ -810,10 +852,41 @@ namespace WaveTracker
                 for (int i = startRow; i <= endRow; i++)
                 {
                     float percentage = (i - startRow) / (float)(endRow - startRow);
-                    thisFrame.pattern[i][col] = (short)MathHelper.Lerp(startVal, endVal, percentage);
+                    thisFrame.pattern[i][col] = (short)Math.Round(MathHelper.Lerp(startVal, endVal, percentage));
                     if (col % 5 == 4)
                     {
                         thisFrame.pattern[i][col - 1] = thisFrame.pattern[startRow][col - 1];
+                    }
+                }
+            }
+        }
+
+        static void ScaleVolumes(int direction)
+        {
+            if (canEdit)
+            {
+                int cx = 0;
+                for (int x = selectionMin.X; x <= selectionMax.X; x++)
+                {
+                    if (x % 5 == 2)
+                    {
+                        float max = 0;
+                        for (int y = selectionMin.Y; y <= selectionMax.Y; y++)
+                        {
+                            if (scaleclipboard[y][x] > max)
+                                max = scaleclipboard[y][x];
+                        }
+                        float factor = (max + direction) / (float)max;
+                        for (int y = selectionMin.Y; y <= selectionMax.Y; y++)
+                        {
+                            if (thisFrame.pattern[y][x] >= 0)
+                            {
+                                scaleclipboard[y][x] *= factor;
+                                int val = (short)Math.Round(scaleclipboard[y][x]);
+                                thisFrame.pattern[y][x] = (short)Math.Clamp(val, 0, 99);
+                            }
+                        }
+                        cx++;
                     }
                 }
             }
@@ -1126,7 +1199,6 @@ namespace WaveTracker
             }
             return -1;
         }
-
         public static int fileColToCursorCol(int fileCol)
         {
             int chan = fileCol / 5;
