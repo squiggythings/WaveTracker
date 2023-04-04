@@ -19,7 +19,7 @@ namespace WaveTracker
         public static int channelScroll;
         public static Song thisSong => Game1.currentSong;
         public static bool canEdit;
-        public static bool followMode;
+        public static bool followMode = true;
         static bool playback;
         public static Frame thisFrame => thisSong.frames[currentFrame];
         public static short[] thisRow => thisFrame.pattern[currentRow];

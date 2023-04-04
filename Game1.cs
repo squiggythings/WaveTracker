@@ -196,10 +196,11 @@ namespace WaveTracker
             //Rendering.Graphics.DrawRect(Input.lastClickReleaseLocation.X, Input.lastClickReleaseLocation.Y, 1, 1, Color.DarkRed);
 
             toolbar.Draw();
-            waveBank.editor.Draw();
-            Tooltip.Draw();
             FrameEditor.channelScrollbar.Draw();
             Rendering.Graphics.DrawRect(0, FrameEditor.channelScrollbar.y, FrameEditor.channelScrollbar.x, FrameEditor.channelScrollbar.height, new Color(223, 224, 232));
+            waveBank.editor.Draw();
+            Tooltip.Draw();
+
             //Rendering.Graphics.Write("FPS: " + 1 / gameTime.ElapsedGameTime.TotalSeconds, 2, 2, Color.Red);
             targetBatch.End();
 

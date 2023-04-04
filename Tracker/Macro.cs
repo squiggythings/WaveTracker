@@ -93,7 +93,6 @@ namespace WaveTracker.Tracker
 
         public Macro Clone()
         {
-            Debug.WriteLine("cloned " + name);
             Macro m = new Macro(macroType);
             //sample.CreateString();
             //m.Unpack(Pack() + sample.stringBuild.ToString());
@@ -113,7 +112,6 @@ namespace WaveTracker.Tracker
             m.sample.sampleBaseKey = sample.sampleBaseKey;
             m.sample.sampleDetune = sample.sampleDetune;
             m.sample.CreateString();
-            Debug.WriteLine("equals" + m.IsEqualTo(this));
             return m;
         }
 
@@ -131,7 +129,6 @@ namespace WaveTracker.Tracker
             s += arpEnvelope.Pack();
             s += pitchEnvelope.Pack();
             s += waveEnvelope.Pack();
-            //Debug.WriteLine("packing " + s + sample.stringBuild.ToString());
             return s;
         }
 
@@ -139,7 +136,6 @@ namespace WaveTracker.Tracker
         {
 
             string[] elements = a.Split(delimiter);
-            // System.Diagnostics.Debug.WriteLine("unpacking " + a);
 
             name = elements[0];
             macroType = (MacroType)int.Parse(elements[1]);

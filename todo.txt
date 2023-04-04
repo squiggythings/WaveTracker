@@ -4,7 +4,6 @@
 * Add export to wav
 
 nice to haves
-* follow mode
 * function keys for octaves and playing
 * home and end
 * ctrl-D duplicate frame
@@ -16,8 +15,7 @@ nice to haves
 * alt f10 solo channel
 * f12 kill sound
 * pg up pg down scroll pattern editor
-
-* normalize on wave editor
+* normalize button on wave editor
 
 
 

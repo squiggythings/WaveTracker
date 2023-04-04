@@ -47,53 +47,56 @@ namespace WaveTracker.UI
 
         public void Update()
         {
-            if (viewportSize < totalSize)
+            if (!Input.internalDialogIsOpen || isPartOfInternalDialog)
             {
-                if (Input.GetClickDown(KeyModifier._Any))
+                if (viewportSize < totalSize)
                 {
-                    lastClickWasOnScrollbar = bar.Contains(lastClickPosition);
-                    if (MouseY >= bar.Y && MouseY <= bar.Y + bar.Height)
+                    if (Input.GetClickDown(KeyModifier._Any))
                     {
-                        if (lastClickWasOnScrollbar)
+                        lastClickWasOnScrollbar = bar.Contains(lastClickPosition);
+                        if (MouseY >= bar.Y && MouseY <= bar.Y + bar.Height)
                         {
-                            barClickOffset = bar.X - MouseX;
-                        }
-                        else
-                        {
-                            // step bar towards mouse
-                            if (MouseX > bar.X)
+                            if (lastClickWasOnScrollbar)
                             {
-                                scrollValue += coarseStepAmount;
+                                barClickOffset = bar.X - MouseX;
                             }
                             else
                             {
-                                scrollValue -= coarseStepAmount;
+                                // step bar towards mouse
+                                if (MouseX > bar.X)
+                                {
+                                    scrollValue += coarseStepAmount;
+                                }
+                                else
+                                {
+                                    scrollValue -= coarseStepAmount;
+                                }
                             }
                         }
                     }
+                    if (barisPressed)
+                    {
+                        bar.X = MouseX + barClickOffset;
+
+                        scrollValue = (int)Math.Round(barValFromPos() * (float)(totalSize - viewportSize));
+                    }
+                    else
+                    {
+                        if (IsHovered)
+                            scrollValue -= Input.MouseScrollWheel(KeyModifier._Any) * coarseStepAmount;
+                    }
+                    scrollValue = Math.Clamp(scrollValue, 0, totalSize - viewportSize);
+                    bar.X = (int)Math.Round(barValFromVal() * (width - 2) + 1);
                 }
                 if (barisPressed)
                 {
-                    bar.X = MouseX + barClickOffset;
-
-                    scrollValue = (int)Math.Round(barValFromPos() * (float)(totalSize - viewportSize));
+                    barWasPressed = 2;
                 }
                 else
                 {
-                    if (IsHovered)
-                        scrollValue -= Input.MouseScrollWheel(KeyModifier._Any) * coarseStepAmount;
+                    if (barWasPressed > 0)
+                        barWasPressed--;
                 }
-                scrollValue = Math.Clamp(scrollValue, 0, totalSize - viewportSize);
-                bar.X = (int)Math.Round(barValFromVal() * (width - 2) + 1);
-            }
-            if (barisPressed)
-            {
-                barWasPressed = 2;
-            }
-            else
-            {
-                if (barWasPressed > 0)
-                    barWasPressed--;
             }
         }
 
@@ -110,9 +113,9 @@ namespace WaveTracker.UI
 
                 DrawRect(0, bar.Y, width, bar.Height, background);
                 DrawRoundedRect(1, bar.Y + 1, width - 2, bar.Height - 2, barSpace);
-                if (barisPressed)
+                if (barisPressed && (!Input.internalDialogIsOpen || isPartOfInternalDialog))
                     DrawRoundedRect(bar.X, bar.Y + 1, bar.Width, bar.Height - 2, barPressed);
-                else if (barisHovered)
+                else if (barisHovered && (!Input.internalDialogIsOpen || isPartOfInternalDialog))
                     DrawRoundedRect(bar.X, bar.Y + 1, bar.Width, bar.Height - 2, barHover);
                 else
                     DrawRoundedRect(bar.X, bar.Y + 1, bar.Width, bar.Height - 2, barDefault);
