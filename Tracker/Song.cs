@@ -21,6 +21,7 @@ namespace WaveTracker.Tracker
         public int tickRate;
         public bool quantizeChannelAmplitude;
         public int frameEdits;
+        public int rowHighlight1 = 16, rowHighlight2 = 4;
 
 
         public Song()

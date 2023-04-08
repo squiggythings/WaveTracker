@@ -21,7 +21,7 @@ namespace WaveTracker.UI
         bool isPlaying;
         Textbox envText;
         Texture2D tex;
-        int arpRange = 50;
+        int arpRange = 120;
         int arpHeight = 6;
         NumberBox envLength;
         public int lastEnvType;
@@ -36,6 +36,7 @@ namespace WaveTracker.UI
             envText.maxLength = 256;
             scrollbar = new Scrollbar(44, 20, 489, 200, this);
             scrollbar.isPartOfInternalDialog = true;
+            scrollbar.coarseStepAmount = 2;
             envLength = new NumberBox("Length", -1, 223, 74, 38, this);
             envLength.isPartOfInternalDialog = true;
             envLength.bDown.isPartOfInternalDialog = true;

@@ -2,8 +2,7 @@
 * finish instrument editor
 	format sample editor tools
 * change saving to binary serialization
-* add support for mono samples
-	only import left channel, check if channeldata lengths differ, if so it must be mono
+
 * Add visualization mode
 	piano view
 	mini tracker view

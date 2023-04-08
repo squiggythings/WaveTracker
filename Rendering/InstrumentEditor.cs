@@ -334,8 +334,17 @@ namespace WaveTracker.Rendering
                     if (tabGroup.selected == 0)
                     {
                         sample_importSample.Draw();
-                        DrawWaveform(20, 46, instrument.sample.sampleDataLeft);
-                        DrawWaveform(20, 134, instrument.sample.sampleDataRight);
+                        if (instrument.sample.sampleDataRight.Count > 0)
+                        {
+                            DrawWaveform(20, 46, instrument.sample.sampleDataLeft);
+                            DrawWaveform(20, 134, instrument.sample.sampleDataRight);
+                        }
+                        else
+                        {
+                            DrawRect(20, 133, 528, 1, new Color(20, 24, 46));
+                            DrawRect(11, 46, 8, 175, Color.White);
+                            DrawWaveform(20, 46, instrument.sample.sampleDataLeft, 175);
+                        }
                         sample_loopPingpong.Draw();
                         sample_loopForward.Draw();
                         sample_loopOneshot.Draw();
@@ -361,10 +370,10 @@ namespace WaveTracker.Rendering
             }
         }
 
-        public void DrawWaveform(int x, int y, List<float> data)
+        public void DrawWaveform(int x, int y, List<float> data, int height = 87)
         {
             int boxLength = 528;
-            int boxHeight = 87;
+            int boxHeight = height;
             int samplesPerPixel = data.Count / boxLength;
             int startY = y + boxHeight / 2;
             int lastSampleNum;

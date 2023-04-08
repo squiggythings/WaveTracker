@@ -281,7 +281,7 @@ namespace WaveTracker.Audio
                 _state = VoiceState.On;
             }
 
-            
+
 
             _tickTime = 0;
             if (currentMacro.macroType == MacroType.Sample)
@@ -409,7 +409,7 @@ namespace WaveTracker.Audio
             arpCounter++;
             if (arpCounter > 2)
                 arpCounter = 0;
-            
+
 
             if (volumeEnv.toPlay.values.Count > 0 && volumeEnv.toPlay.isActive)
                 if (volumeEnv.envelopeEnded && volumeEnv.toPlay.values[volumeEnv.toPlay.values.Count - 1] == 0)
@@ -500,14 +500,19 @@ namespace WaveTracker.Audio
                     if (currentMacro != null)
                         if (currentMacro.macroType == MacroType.Wave)
                         {
-
-                            sampleR = sampleL = EvaluateWave((float)_time - stereoPhaseOffset);
+                            if (stereoPhaseOffset != 0)
+                            {
+                                sampleL = EvaluateWave((float)_time - stereoPhaseOffset);
+                                sampleR = EvaluateWave((float)_time + stereoPhaseOffset);
+                            }
+                            else
+                            {
+                                sampleR = sampleL = EvaluateWave((float)_time);
+                            }
                         }
                         else
                         {
-                            currentMacro.sample.SampleTick(_time, 0);
-                            sampleL = currentMacro.sample.SAMPLE_OUTPUT_L;
-                            sampleR = currentMacro.sample.SAMPLE_OUTPUT_R;
+                            currentMacro.sample.SampleTick(_time, 0, out sampleL, out sampleR);
                         }
 
 

@@ -306,21 +306,26 @@ namespace WaveTracker.Tracker
 
         public void Normalize()
         {
+
             float max = 0;
             foreach (float sample in sampleDataLeft)
             {
                 if (Math.Abs(sample) > max)
                     max = MathF.Abs(sample);
             }
-            foreach (float sample in sampleDataRight)
+            if (sampleDataRight.Count != 0)
             {
-                if (Math.Abs(sample) > max)
-                    max = MathF.Abs(sample);
+                foreach (float sample in sampleDataRight)
+                {
+                    if (Math.Abs(sample) > max)
+                        max = MathF.Abs(sample);
+                }
             }
             for (int i = 0; i < sampleDataLeft.Count; i++)
             {
                 sampleDataLeft[i] /= max;
-                sampleDataRight[i] /= max;
+                if (sampleDataRight.Count != 0)
+                    sampleDataRight[i] /= max;
             }
             CreateString();
         }
@@ -328,13 +333,14 @@ namespace WaveTracker.Tracker
         public void Reverse()
         {
             sampleDataLeft.Reverse();
-            sampleDataRight.Reverse();
+            if (sampleDataRight.Count != 0)
+                sampleDataRight.Reverse();
             CreateString();
         }
 
         public void CreateString()
         {
-
+            return;
             stringBuild = new StringBuilder();
             stringBuild.Append(sampleBaseKey + "" + Macro.delimiter);
             stringBuild.Append(sampleDetune + "" + Macro.delimiter);
@@ -359,15 +365,25 @@ namespace WaveTracker.Tracker
 
         public void TrimSilence()
         {
-            for (int i = sampleDataLeft.Count - 1; i >= 0; --i)
-            {
-                if (Math.Abs(sampleDataLeft[i]) > 0.001f || Math.Abs(sampleDataRight[i]) > 0.001f)
+            if (sampleDataRight.Count == 0)
+                for (int i = sampleDataLeft.Count - 1; i >= 0; --i)
                 {
-                    return;
+                    if (Math.Abs(sampleDataLeft[i]) > 0.001f)
+                    {
+                        return;
+                    }
+                    sampleDataLeft.RemoveAt(i);
                 }
-                sampleDataLeft.RemoveAt(i);
-                sampleDataRight.RemoveAt(i);
-            }
+            else
+                for (int i = sampleDataLeft.Count - 1; i >= 0; --i)
+                {
+                    if (Math.Abs(sampleDataLeft[i]) > 0.001f || Math.Abs(sampleDataRight[i]) > 0.001f)
+                    {
+                        return;
+                    }
+                    sampleDataLeft.RemoveAt(i);
+                    sampleDataRight.RemoveAt(i);
+                }
             CreateString();
         }
 
@@ -384,7 +400,7 @@ namespace WaveTracker.Tracker
             }
         }
 
-        public void SampleTick(decimal time, int stereoPhase)
+        public void SampleTick(decimal time, int stereoPhase, out float outputL, out float outputR)
         {
             decimal sampleIndex = (time * (decimal)(Audio.AudioEngine.sampleRate / Helpers.NoteToFrequency(sampleBaseKey - (sampleDetune / 100f))));
             int len = sampleDataLeft.Count - 1;
@@ -403,37 +419,47 @@ namespace WaveTracker.Tracker
             currentPlaybackPosition = (int)sampleIndex;
             if (resampleMode == Audio.ResamplingModes.NoInterpolation)
             {
-                SAMPLE_OUTPUT_L = getSample(0, (int)(sampleIndex));
-                SAMPLE_OUTPUT_R = getSample(1, (int)(sampleIndex));
+                outputL = getSample(0, (int)(sampleIndex));
+                outputR = getSample(1, (int)(sampleIndex));
             }
             else if (resampleMode == Audio.ResamplingModes.LinearInterpolation)
             {
                 int one = (int)sampleIndex;
                 int two = one + 1;
                 float by = (float)(sampleIndex % 1m);
-                SAMPLE_OUTPUT_L = MathHelper.Lerp(getSample(0, one), getSample(0, two), by);
-                SAMPLE_OUTPUT_R = MathHelper.Lerp(getSample(1, one), getSample(1, two), by);
+                outputL = MathHelper.Lerp(getSample(0, one), getSample(0, two), by);
+                outputR = MathHelper.Lerp(getSample(1, one), getSample(1, two), by);
             }
             else
             {
                 int one = (int)sampleIndex;
                 int two = one + 1;
                 float by = (float)(sampleIndex % 1m);
-                SAMPLE_OUTPUT_L = MathHelper.Lerp(getSample(0, one), getSample(0, two), by);
-                SAMPLE_OUTPUT_R = MathHelper.Lerp(getSample(1, one), getSample(1, two), by);
+                outputL = MathHelper.Lerp(getSample(0, one), getSample(0, two), by);
+                outputR = MathHelper.Lerp(getSample(1, one), getSample(1, two), by);
 
-                SAMPLE_OUTPUT_L += getSample(0, (int)(sampleIndex));
-                SAMPLE_OUTPUT_R += getSample(1, (int)(sampleIndex));
-                SAMPLE_OUTPUT_L /= 2;
-                SAMPLE_OUTPUT_R /= 2;
+                outputL += getSample(0, (int)(sampleIndex));
+                outputR += getSample(1, (int)(sampleIndex));
+                outputL /= 2;
+                outputR /= 2;
             }
+        }
+
+        public void MixToMono()
+        {
+            for (int i = 0; i < sampleDataLeft.Count; ++i)
+            {
+                sampleDataLeft[i] += sampleDataRight[i];
+                sampleDataLeft[i] /= 2f;
+            }
+            sampleDataRight.Clear();
         }
 
         float getSample(int chan, int index)
         {
             if (index >= sampleDataLeft.Count)
                 return 0;
-            if (chan == 0)
+            if (chan == 0 || sampleDataLeft.Count != sampleDataRight.Count)
                 return sampleDataLeft[index];
             else
                 return sampleDataRight[index];

@@ -306,8 +306,8 @@ namespace WaveTracker
                 AudioFileReader Nreader = new AudioFileReader(filepath);
                 ISampleProvider isp = Nreader.ToSampleProvider();
                 float[] buffer = new float[Nreader.Length / 2];
-                isp = isp.ToStereo();
                 isp.Read(buffer, 0, buffer.Length);
+                bool mono = isp.WaveFormat.Channels == 1;
                 bool zero = true;
                 for (int s = 0, v = 0; v < buffer.Length; s++)
                 {
@@ -326,6 +326,8 @@ namespace WaveTracker
                             zero = false;
                     }
                 }
+                if (mono)
+                    R.Clear();
                 return true;
             }
             catch
