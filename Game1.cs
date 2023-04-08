@@ -156,14 +156,14 @@ namespace WaveTracker
                 pianoInput = instrumentBank.editor.pianoInput();
             if (FrameEditor.currentColumn % 5 == 0 || Rendering.WaveEditor.enabled)
             {
-                if (pianoInput != -1 && lastPianoKey != pianoInput && !Tracker.Playback.isPlaying)
+                if (pianoInput != -1 && lastPianoKey != pianoInput)
                 {
                     previewChannel = FrameEditor.currentColumn / 5;
                     channelManager.channels[previewChannel].SetMacro(Rendering.InstrumentBank.CurrentInstrumentIndex);
                     channelManager.channels[previewChannel].TriggerNote(pianoInput);
                 }
             }
-            if (pianoInput == -1 && lastPianoKey != -1 && !Tracker.Playback.isPlaying)
+            if (pianoInput == -1 && lastPianoKey != -1)
             {
                 channelManager.channels[previewChannel].PreviewCut();
             }
