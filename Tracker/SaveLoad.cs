@@ -73,8 +73,8 @@ namespace WaveTracker
                 str.Append(frame.Pack() + delimiter);
             }
 
-            str.Append("" + FrameEditor.primaryHighlight + delimiter);
-            str.Append("" + FrameEditor.secondaryHighlight + delimiter);
+            str.Append("" + savedSong.rowHighlight1 + delimiter);
+            str.Append("" + savedSong.rowHighlight2 + delimiter);
             byte[] bytes = new byte[str.Length * 2];
 
             int i = 0;
@@ -226,8 +226,8 @@ namespace WaveTracker
                     savedSong.frames.Add(new Frame());
                     savedSong.frames[i].Unpack(ReadNextAsString(fs));
                 }
-                FrameEditor.primaryHighlight = ReadNextAsInt(fs);
-                FrameEditor.secondaryHighlight = ReadNextAsInt(fs);
+                savedSong.rowHighlight1 = ReadNextAsInt(fs);
+                savedSong.rowHighlight2 = ReadNextAsInt(fs);
                 Game1.currentSong = savedSong.Clone();
             }
             stopwatch.Stop();

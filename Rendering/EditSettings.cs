@@ -56,14 +56,14 @@ namespace WaveTracker.Rendering
                 step.Value = FrameEditor.step;
 
             if (highlightPrimary.ValueWasChanged)
-                FrameEditor.primaryHighlight = highlightPrimary.Value;
+                Game1.currentSong.rowHighlight1 = highlightPrimary.Value;
             else
-                highlightPrimary.Value = FrameEditor.primaryHighlight;
+                highlightPrimary.Value = Game1.currentSong.rowHighlight1;
 
             if (highlightSecondary.ValueWasChanged)
-                FrameEditor.secondaryHighlight = highlightSecondary.Value;
+                Game1.currentSong.rowHighlight2 = highlightSecondary.Value;
             else
-                highlightSecondary.Value = FrameEditor.secondaryHighlight;
+                highlightSecondary.Value = Game1.currentSong.rowHighlight2;
 
             instrumentMask.Update();
             FrameEditor.instrumentMask = instrumentMask.Value;

@@ -41,25 +41,22 @@ namespace WaveTracker.Tracker
             pitchEnvelope = new Envelope(0);
             waveEnvelope = new Envelope(0);
 
-            volumeEnvelope.isActive = true;
-            volumeEnvelope.values.Add(90);
-            volumeEnvelope.values.Add(84);
-            volumeEnvelope.values.Add(78);
-            volumeEnvelope.values.Add(60);
-            volumeEnvelope.releaseIndex = 4;
-            volumeEnvelope.values.Add(60);
-            volumeEnvelope.values.Add(12);
-            volumeEnvelope.values.Add(12);
-            volumeEnvelope.values.Add(12);
-            volumeEnvelope.values.Add(6);
-            volumeEnvelope.values.Add(6);
-            volumeEnvelope.values.Add(6);
-            volumeEnvelope.values.Add(0);
+            //volumeEnvelope.isActive = true;
+            //volumeEnvelope.values.Add(90);
+            //volumeEnvelope.values.Add(84);
+            //volumeEnvelope.values.Add(78);
+            //volumeEnvelope.values.Add(60);
+            //volumeEnvelope.releaseIndex = 4;
+            //volumeEnvelope.values.Add(60);
+            //volumeEnvelope.values.Add(12);
+            //volumeEnvelope.values.Add(12);
+            //volumeEnvelope.values.Add(12);
+            //volumeEnvelope.values.Add(6);
+            //volumeEnvelope.values.Add(6);
+            //volumeEnvelope.values.Add(6);
+            //volumeEnvelope.values.Add(0);
 
             sample = new Sample();
-            //sample.resampleMode = Audio.ResamplingModes.Average;
-
-
         }
 
         public bool IsEqualTo(Macro other)

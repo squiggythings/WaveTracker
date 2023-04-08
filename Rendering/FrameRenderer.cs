@@ -101,12 +101,12 @@ namespace WaveTracker.Rendering
             Color rowTextColor = Colors.rowText;
             Color rowColor = Colors.rowDefaultColor;
 
-            if (rowNum % FrameEditor.primaryHighlight == 0)
+            if (rowNum % Game1.currentSong.rowHighlight1 == 0)
             {
                 rowTextColor = Colors.rowTextHighlighted;
                 rowColor = Colors.rowHighlightColor;
             }
-            else if (rowNum % FrameEditor.secondaryHighlight == 0)
+            else if (rowNum % Game1.currentSong.rowHighlight2 == 0)
             {
                 rowTextColor = Colors.rowTextSubHighlighted;
                 rowColor = Colors.rowSubHighlightColor;
@@ -136,11 +136,11 @@ namespace WaveTracker.Rendering
             #region getRowColor
             Color rowTextColor = Colors.rowText;
 
-            if (rowNum % FrameEditor.primaryHighlight == 0)
+            if (rowNum % Game1.currentSong.rowHighlight1 == 0)
             {
                 rowTextColor = Colors.rowTextHighlighted;
             }
-            else if (rowNum % FrameEditor.secondaryHighlight == 0)
+            else if (rowNum % Game1.currentSong.rowHighlight2 == 0)
             {
                 rowTextColor = Colors.rowTextSubHighlighted;
             }

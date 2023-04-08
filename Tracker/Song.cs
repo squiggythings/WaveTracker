@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace WaveTracker.Tracker
 {
+    [Serializable]
     public class Song
     {
         public const int CHANNEL_COUNT = 16;

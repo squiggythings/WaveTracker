@@ -27,8 +27,6 @@ namespace WaveTracker
         public static int currentOctave = 3;
         public static int step = 1;
         public static int currentFrame;
-        public static int primaryHighlight = 16;
-        public static int secondaryHighlight = 4;
         public static bool[] channelToggles = new bool[Song.CHANNEL_COUNT];
         public static bool selectionActive;
         public static Point selectionStart, selectionEnd;
