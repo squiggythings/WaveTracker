@@ -51,5 +51,10 @@ namespace WaveTracker.Rendering
         {
             batch.Draw(sprite, new Rectangle(x, y, bounds.Width, bounds.Height), bounds, Color.White);
         }
+
+        public static void DrawSprite(Texture2D sprite, int x, int y, int width, int height, Rectangle bounds)
+        {
+            batch.Draw(sprite, new Rectangle(x, y, width, height), bounds, Color.White);
+        }
     }
 }

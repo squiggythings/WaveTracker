@@ -36,9 +36,11 @@ namespace WaveTracker
         Audio.AudioEngine audioEngine;
         Audio.ChannelManager channelManager;
         int lastPianoKey;
-        int previewChannel;
+        public static int previewChannel;
         public static Tracker.Song newSong;
         public static int pianoInput;
+        public static int mouseCursorArrow;
+
 
         public Game1(string[] args)
         {
@@ -74,7 +76,7 @@ namespace WaveTracker
             frameRenderer.Initialize(channelManager);
             FrameEditor.UnmuteAllChannels();
             FrameEditor.channelScrollbar = new UI.ScrollbarHorizontal(22, 323, 768, 7, null);
-            FrameEditor.channelScrollbar.SetSize(24, 12);
+            FrameEditor.channelScrollbar.SetSize(Tracker.Song.CHANNEL_COUNT, 12);
             editSettings = new Rendering.EditSettings();
             base.Initialize();
             //   control1 = new OuzoTracker.Forms.CreateInstrumentDialog();
@@ -93,6 +95,8 @@ namespace WaveTracker
             waveBank.editor = new Rendering.WaveEditor(Content.Load<Texture2D>("wave_window"));
 
             instrumentBank.Initialize(Content.Load<Texture2D>("toolbar"));
+            instrumentBank.editor = new Rendering.InstrumentEditor(Content.Load<Texture2D>("instrumentwindow"));
+
             songSettings.Initialize(Content.Load<Texture2D>("window_edit"));
             frameView.Initialize(Content.Load<Texture2D>("toolbar"), GraphicsDevice);
             pixel = new Texture2D(GraphicsDevice, 1, 1);
@@ -107,6 +111,23 @@ namespace WaveTracker
 
         protected override void Update(GameTime gameTime)
         {
+            if (Input.dialogOpenCooldown == 0)
+            {
+                int mouseX = Microsoft.Xna.Framework.Input.Mouse.GetState().X;
+                int mouseY = Microsoft.Xna.Framework.Input.Mouse.GetState().Y;
+                int width = Window.ClientBounds.Width - 2;
+                int height = Window.ClientBounds.Height - 2;
+                if (new Rectangle(1, 1, width, height).Contains(mouseX, mouseY))
+                    if (mouseCursorArrow == 0)
+                    {
+                        Mouse.SetCursor(MouseCursor.Arrow);
+                    }
+                    else
+                    {
+                        Mouse.SetCursor(MouseCursor.SizeNS);
+                        mouseCursorArrow--;
+                    }
+            }
             Window.Title = SaveLoad.fileName + (SaveLoad.isSaved ? "" : "*") + " - WaveTracker";
             ScreenScale = 2;
             bottomOfScreen = Window.ClientBounds.Height / 2;
@@ -127,8 +148,12 @@ namespace WaveTracker
 
             pianoInput = Helpers.GetPianoInput(FrameEditor.currentOctave);
             waveBank.editor.Update();
+            instrumentBank.editor.Update();
+
             if (waveBank.editor.pianoInput() > -1)
                 pianoInput = waveBank.editor.pianoInput();
+            if (instrumentBank.editor.pianoInput() > -1)
+                pianoInput = instrumentBank.editor.pianoInput();
             if (FrameEditor.currentColumn % 5 == 0 || Rendering.WaveEditor.enabled)
             {
                 if (pianoInput != -1 && lastPianoKey != pianoInput && !Tracker.Playback.isPlaying)
@@ -199,6 +224,7 @@ namespace WaveTracker
             FrameEditor.channelScrollbar.Draw();
             Rendering.Graphics.DrawRect(0, FrameEditor.channelScrollbar.y, FrameEditor.channelScrollbar.x, FrameEditor.channelScrollbar.height, new Color(223, 224, 232));
             waveBank.editor.Draw();
+            instrumentBank.editor.Draw();
             Tooltip.Draw();
 
             //Rendering.Graphics.Write("FPS: " + 1 / gameTime.ElapsedGameTime.TotalSeconds, 2, 2, Color.Red);

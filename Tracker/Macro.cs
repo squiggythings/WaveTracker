@@ -99,6 +99,7 @@ namespace WaveTracker.Tracker
             m.name = name;
             m.volumeEnvelope = volumeEnvelope.Clone();
             m.pitchEnvelope = pitchEnvelope.Clone();
+            m.arpEnvelope = arpEnvelope.Clone();
             m.waveEnvelope = waveEnvelope.Clone();
             m.sample.sampleDataLeft.Clear();
             m.sample.sampleDataRight.Clear();
@@ -238,14 +239,19 @@ namespace WaveTracker.Tracker
         public override string ToString()
         {
             string s = "";
-
-            for (int i = 0; i < values.Count; i++)
+            if (values.Count > 0)
             {
-                if (releaseIndex == i) s += "/ ";
-                if (loopIndex == i) s += "| ";
-                s += values[i] + " ";
+                for (int i = 0; i < values.Count - 1; i++)
+                {
+                    if (loopIndex == i) s += "| ";
+                    if (releaseIndex + 1 == i && releaseIndex >= 0) s += "/ ";
+                    s += values[i] + " ";
+                }
+                int j = values.Count - 1;
+                if (loopIndex == j) s += "| ";
+                if (releaseIndex + 1 == j && releaseIndex >= 0) s += "/ ";
+                s += values[j];
             }
-
             return s;
         }
 
@@ -253,15 +259,21 @@ namespace WaveTracker.Tracker
         {
             string[] parts = input.Split(' ');
             int i = 0;
+            releaseIndex = -1;
+            loopIndex = -1;
+            values.Clear();
             foreach (string part in parts)
             {
-                if (part == "/") { releaseIndex = i; --i; }
-                if (part == "|") { loopIndex = i; --i; }
-                int val;
-                int.TryParse(part, out val);
-                values[i] = val;
-                ++i;
+                if (part == "/")
+                    releaseIndex = --i;
+                if (part.Contains('|'))
+                    loopIndex = i--;
+                int val = 0;
+                if (int.TryParse(part, out val))
+                    values.Add(val);
+                i++;
             }
+            // Debug.WriteLine(i);
         }
     }
 
@@ -274,6 +286,7 @@ namespace WaveTracker.Tracker
         public int sampleLoopIndex;
         public int sampleDetune;
         public int sampleBaseKey;
+        public int currentPlaybackPosition;
         public StringBuilder stringBuild;
         public List<float> sampleDataLeft, sampleDataRight;
 
@@ -287,7 +300,7 @@ namespace WaveTracker.Tracker
             CreateString();
             sampleLoopType = SampleLoopType.OneShot;
             resampleMode = Audio.ResamplingModes.LinearInterpolation;
-            sampleBaseKey = 60;
+            sampleBaseKey = 48;
             sampleDetune = 0;
         }
 
@@ -373,7 +386,7 @@ namespace WaveTracker.Tracker
 
         public void SampleTick(decimal time, int stereoPhase)
         {
-            decimal sampleIndex = (time * (decimal)(Audio.AudioEngine.sampleRate / Helpers.NoteToFrequency(sampleBaseKey - 12 + (sampleDetune / 100f))));
+            decimal sampleIndex = (time * (decimal)(Audio.AudioEngine.sampleRate / Helpers.NoteToFrequency(sampleBaseKey - (sampleDetune / 100f))));
             int len = sampleDataLeft.Count - 1;
             if (sampleLoopType == SampleLoopType.OneShot)
             {
@@ -387,6 +400,7 @@ namespace WaveTracker.Tracker
             {
                 sampleIndex = sampleIndex % len;
             }
+            currentPlaybackPosition = (int)sampleIndex;
             if (resampleMode == Audio.ResamplingModes.NoInterpolation)
             {
                 SAMPLE_OUTPUT_L = getSample(0, (int)(sampleIndex));

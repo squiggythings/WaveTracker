@@ -3,49 +3,405 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Windows.Forms;
 using System.Threading;
 using WaveTracker.UI;
 using WaveTracker.Tracker;
 using WaveTracker.Audio;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
+using System.Diagnostics;
 
 
 namespace WaveTracker.Rendering
 {
-    public class InstrumentEditor : UI.Panel
+    public class InstrumentEditor : Element
     {
-        public static InstrumentEditor Instance { get; set; }
         public bool enabled;
         public Macro currentMacro;
+        int startcooldown;
+        int id;
+        public SpriteButton closeButton;
+        public Button sample_importSample, sample_normalize, sample_reverse;
+        public NumberBox sample_loopPoint;
+        public NumberBox sample_baseKey, sample_detune;
+        public Toggle sample_resampLinear, sample_resampNone, sample_resampMix, sample_loopOneshot, sample_loopForward, sample_loopPingpong;
+        public EnvelopeEditor envelopeEditor;
+        Macro instrument => Game1.currentSong.instruments[id];
+        TabGroup tabGroup;
+        public static Texture2D tex;
 
-
-
-        public InstrumentEditor()
+        public InstrumentEditor(Texture2D tex)
         {
-            Instance = this;
-        }
+            InstrumentEditor.tex = tex;
+            x = 193;
+            y = 100;
+            closeButton = new SpriteButton(558, 0, 10, 9, UI.NumberBox.buttons, 4, this);
+            closeButton.isPartOfInternalDialog = true;
 
-        public void Initialize()
-        {
+            closeButton.SetTooltip("Close", "Close instrument editor");
+            sample_importSample = new Button("Import Sample    ", 20, 224, this);
+            sample_importSample.SetTooltip("", "Import an audio file into the instrument");
+            sample_importSample.isPartOfInternalDialog = true;
+            envelopeEditor = new EnvelopeEditor(17, 37, tex, this);
+            #region sample editor buttons
+            sample_loopOneshot = new Toggle("One shot", 187, 224, this);
+            sample_loopOneshot.SetTooltip("", "Set the sample so that it plays only once, without looping");
+            sample_loopOneshot.isPartOfInternalDialog = true;
+
+            sample_loopForward = new Toggle("Forward", 233, 224, this);
+            sample_loopForward.SetTooltip("", "Set the sample so that it continuously loops forward");
+            sample_loopForward.isPartOfInternalDialog = true;
+
+            sample_loopPingpong = new Toggle("Ping-pong", 275, 224, this);
+            sample_loopPingpong.SetTooltip("", "Set the sample so that it loops continuously forward and backward");
+            sample_loopPingpong.isPartOfInternalDialog = true;
+
+            sample_resampNone = new Toggle("None", 222, 273, this);
+            sample_resampNone.SetTooltip("", "Set the resampling mode to no interpolation. Has a harsher, gritty sound.");
+            sample_resampNone.isPartOfInternalDialog = true;
+            sample_resampNone.width = 33;
+
+            sample_resampLinear = new Toggle("Linear", 256, 273, this);
+            sample_resampLinear.SetTooltip("", "Set the resampling mode to linear interpolation. Has a mellow, softer sound.");
+            sample_resampLinear.isPartOfInternalDialog = true;
+            sample_resampLinear.width = 33;
+
+            sample_resampMix = new Toggle("Mix", 290, 273, this);
+            sample_resampMix.SetTooltip("", "Set the resampling mode to an average between none and linear interpolation.");
+            sample_resampMix.isPartOfInternalDialog = true;
+            sample_resampMix.width = 33;
+
+            sample_normalize = new Button("Normalize", 337, 224, this);
+            sample_normalize.SetTooltip("", "Maximize the amplitude of the sample");
+            sample_normalize.isPartOfInternalDialog = true;
+
+            sample_reverse = new Button("Reverse", 337, 238, this);
+            sample_reverse.SetTooltip("", "Reverse the sample");
+            sample_reverse.isPartOfInternalDialog = true;
+
+            sample_baseKey = new NumberBox("Base Key", 20, 256, 100, 56, this);
+            sample_baseKey.isPartOfInternalDialog = true;
+            sample_baseKey.SetTooltip("", "The note where the sample is played at its original pitch");
+            sample_baseKey.SetValueLimits(0, 119);
+            sample_baseKey.bDown.isPartOfInternalDialog = true;
+            sample_baseKey.bUp.isPartOfInternalDialog = true;
+            sample_baseKey.displayMode = NumberBox.DisplayMode.Note;
+
+            sample_detune = new NumberBox("Fine tune", 20, 273, 100, 56, this);
+            sample_detune.isPartOfInternalDialog = true;
+            sample_detune.SetTooltip("", "The note where the sample is played at its original pitch");
+            sample_detune.SetValueLimits(-199, 199);
+            sample_detune.bDown.isPartOfInternalDialog = true;
+            sample_detune.bUp.isPartOfInternalDialog = true;
+            sample_detune.displayMode = NumberBox.DisplayMode.PlusMinus;
+
+
+            #endregion
+
 
         }
 
         public void Update()
         {
+            if (enabled)
+            {
+                if (startcooldown > 0)
+                {
+                    startcooldown--;
+                    ShowEnvelope(0);
+                    if (instrument.macroType == MacroType.Sample)
+                    {
+                        if (tabGroup.selected == 0)
+                        {
+                            sample_baseKey.Value = instrument.sample.sampleBaseKey;
+                            sample_detune.Value = instrument.sample.sampleDetune;
+                            sample_loopOneshot.Value = instrument.sample.sampleLoopType == SampleLoopType.OneShot;
+                            sample_loopForward.Value = instrument.sample.sampleLoopType == SampleLoopType.Forward;
+                            sample_loopPingpong.Value = instrument.sample.sampleLoopType == SampleLoopType.PingPong;
+                        }
+                    }
+                }
+                else
+                {
+                    if (closeButton.Clicked || Input.GetKeyDown(Microsoft.Xna.Framework.Input.Keys.Escape, KeyModifier.None))
+                    {
+                        Close();
+                    }
+                    if (instrument.macroType == MacroType.Sample)
+                    {
+                        if (tabGroup.selected == 0)
+                        {
+                            #region sample editor
+                            if (instrument.macroType == MacroType.Sample)
+                            {
+                                if (sample_importSample.Clicked)
+                                {
+                                    LoadSampleFromFile(instrument);
+                                }
 
+                                if (sample_normalize.Clicked)
+                                    instrument.sample.Normalize();
+
+                                if (sample_reverse.Clicked)
+                                    instrument.sample.Reverse();
+
+                                #region resampling modes
+                                sample_resampNone.Value = instrument.sample.resampleMode == Audio.ResamplingModes.NoInterpolation;
+                                sample_resampLinear.Value = instrument.sample.resampleMode == Audio.ResamplingModes.LinearInterpolation;
+                                sample_resampMix.Value = instrument.sample.resampleMode == Audio.ResamplingModes.Average;
+                                if (sample_resampNone.Clicked)
+                                    instrument.sample.resampleMode = Audio.ResamplingModes.NoInterpolation;
+                                if (sample_resampLinear.Clicked)
+                                    instrument.sample.resampleMode = Audio.ResamplingModes.LinearInterpolation;
+                                if (sample_resampMix.Clicked)
+                                    instrument.sample.resampleMode = Audio.ResamplingModes.Average;
+                                sample_resampNone.Value = instrument.sample.resampleMode == Audio.ResamplingModes.NoInterpolation;
+                                sample_resampLinear.Value = instrument.sample.resampleMode == Audio.ResamplingModes.LinearInterpolation;
+                                sample_resampMix.Value = instrument.sample.resampleMode == Audio.ResamplingModes.Average;
+                                #endregion
+
+                                #region loop modes
+                                sample_loopOneshot.Value = instrument.sample.sampleLoopType == SampleLoopType.OneShot;
+                                sample_loopForward.Value = instrument.sample.sampleLoopType == SampleLoopType.Forward;
+                                sample_loopPingpong.Value = instrument.sample.sampleLoopType == SampleLoopType.PingPong;
+                                if (sample_loopOneshot.Clicked)
+                                    instrument.sample.sampleLoopType = SampleLoopType.OneShot;
+                                if (sample_loopForward.Clicked)
+                                    instrument.sample.sampleLoopType = SampleLoopType.Forward;
+                                if (sample_loopPingpong.Clicked)
+                                    instrument.sample.sampleLoopType = SampleLoopType.PingPong;
+                                sample_loopOneshot.Value = instrument.sample.sampleLoopType == SampleLoopType.OneShot;
+                                sample_loopForward.Value = instrument.sample.sampleLoopType == SampleLoopType.Forward;
+                                sample_loopPingpong.Value = instrument.sample.sampleLoopType == SampleLoopType.PingPong;
+
+                                sample_baseKey.Value = instrument.sample.sampleBaseKey;
+                                sample_baseKey.Update();
+                                instrument.sample.sampleBaseKey = sample_baseKey.Value;
+                                sample_detune.Value = instrument.sample.sampleDetune;
+                                sample_detune.Update();
+                                instrument.sample.sampleDetune = sample_detune.Value;
+                                #endregion
+
+
+                            }
+                            #endregion
+                        }
+                        else
+                        {
+                            ShowEnvelope(tabGroup.selected - 1);
+                        }
+
+                    }
+                    else
+                    {
+                        ShowEnvelope(tabGroup.selected);
+                    }
+                    SetTabToggles();
+                    tabGroup.Update();
+                    ReadFromTabToggles();
+                }
+            }
         }
 
+        public void ShowEnvelope(int id)
+        {
+            if (id == 0)
+                envelopeEditor.EditEnvelope(instrument.volumeEnvelope, id, ChannelManager.instance.channels[Game1.previewChannel], ChannelManager.instance.channels[Game1.previewChannel].volumeEnv);
+            if (id == 1)
+                envelopeEditor.EditEnvelope(instrument.arpEnvelope, id, ChannelManager.instance.channels[Game1.previewChannel], ChannelManager.instance.channels[Game1.previewChannel].arpEnv);
+            if (id == 2)
+                envelopeEditor.EditEnvelope(instrument.pitchEnvelope, id, ChannelManager.instance.channels[Game1.previewChannel], ChannelManager.instance.channels[Game1.previewChannel].pitchEnv);
+            if (id == 3)
+                envelopeEditor.EditEnvelope(instrument.waveEnvelope, id, ChannelManager.instance.channels[Game1.previewChannel], ChannelManager.instance.channels[Game1.previewChannel].waveEnv);
+        }
+
+        public void EditMacro(Macro m, int num)
+        {
+            enabled = true;
+            Input.internalDialogIsOpen = true;
+            startcooldown = 4;
+            enabled = true;
+            id = num;
+            tabGroup = new TabGroup(8, 15, this);
+            if (m.macroType == MacroType.Wave)
+            {
+                tabGroup.AddTab("Volume", true);
+                tabGroup.AddTab("Arpeggio", true);
+                tabGroup.AddTab("Pitch", true);
+                tabGroup.AddTab("Wave", true);
+            }
+            if (m.macroType == MacroType.Sample)
+            {
+                tabGroup.AddTab("Sample", false);
+                tabGroup.AddTab("Volume", true);
+                tabGroup.AddTab("Arpeggio", true);
+                tabGroup.AddTab("Pitch", true);
+            }
+            SetTabToggles();
+        }
+
+        public void SetTabToggles()
+        {
+            if (instrument.macroType == MacroType.Wave)
+            {
+                tabGroup.tabs[0].toggle.Value = instrument.volumeEnvelope.isActive;
+                tabGroup.tabs[1].toggle.Value = instrument.arpEnvelope.isActive;
+                tabGroup.tabs[2].toggle.Value = instrument.pitchEnvelope.isActive;
+                tabGroup.tabs[3].toggle.Value = instrument.waveEnvelope.isActive;
+            }
+            if (instrument.macroType == MacroType.Sample)
+            {
+                tabGroup.tabs[1].toggle.Value = instrument.volumeEnvelope.isActive;
+                tabGroup.tabs[2].toggle.Value = instrument.arpEnvelope.isActive;
+                tabGroup.tabs[3].toggle.Value = instrument.pitchEnvelope.isActive;
+            }
+        }
+
+        public void ReadFromTabToggles()
+        {
+            if (instrument.macroType == MacroType.Wave)
+            {
+                instrument.volumeEnvelope.isActive = tabGroup.tabs[0].toggle.Value;
+                instrument.arpEnvelope.isActive = tabGroup.tabs[1].toggle.Value;
+                instrument.pitchEnvelope.isActive = tabGroup.tabs[2].toggle.Value;
+                instrument.waveEnvelope.isActive = tabGroup.tabs[3].toggle.Value;
+            }
+            if (instrument.macroType == MacroType.Sample)
+            {
+                instrument.volumeEnvelope.isActive = tabGroup.tabs[1].toggle.Value;
+                instrument.arpEnvelope.isActive = tabGroup.tabs[2].toggle.Value;
+                instrument.pitchEnvelope.isActive = tabGroup.tabs[3].toggle.Value;
+            }
+        }
+
+        public int pianoInput()
+        {
+            if (!enabled)
+                return -1;
+
+            if (LastClickPos.X < 44 || LastClickPos.X > 523 || LastClickPos.Y > 330 || LastClickPos.Y < 307)
+                return -1;
+            if (MouseX < 44 || MouseX > 523 || MouseY > 330 || MouseY < 307)
+                return -1;
+            if (!Input.GetClick(KeyModifier.None))
+                return -1;
+            else
+            {
+                return (MouseX - 44) / 4;
+            }
+        }
+
+        public void Close()
+        {
+            envelopeEditor.ResetScrollbar();
+            enabled = false;
+            Input.internalDialogIsOpen = false;
+        }
 
         public void Draw()
         {
-            DrawPanel();
+            if (enabled)
+            {
+                DrawRect(-x, -y, 960, 600, Helpers.Alpha(Color.Black, 60));
+                if (instrument.macroType == MacroType.Sample && tabGroup.selected == 0)
+                    DrawSprite(tex, 0, 0, new Rectangle(10, 0, 568, 340));
+                else
+                    DrawSprite(tex, 0, 0, new Rectangle(10, 341, 568, 340));
+                Write("Edit Instrument " + id.ToString("D2"), 4, 1, new Color(64, 72, 115));
+                closeButton.Draw();
+
+                tabGroup.Draw();
+                if (Helpers.isNoteBlackKey(sample_baseKey.Value))
+                    DrawSprite(tex, sample_baseKey.Value * 4 + 44, 307, new Rectangle(590, 0, 4, 24));
+                else
+                    DrawSprite(tex, sample_baseKey.Value * 4 + 44, 307, new Rectangle(586, 0, 4, 24));
+                if (Game1.pianoInput > -1)
+                {
+                    int note = Game1.pianoInput + ChannelManager.instance.channels[Game1.previewChannel].arpEnv.Evaluate();
+                    if (note >= 0 && note < 120)
+                    {
+                        if (Helpers.isNoteBlackKey(note))
+                            DrawSprite(tex, note * 4 + 44, 307, new Rectangle(582, 0, 4, 24));
+                        else
+                            DrawSprite(tex, note * 4 + 44, 307, new Rectangle(578, 0, 4, 24));
+                    }
+                }
+
+
+                if (instrument.macroType == MacroType.Sample)
+                {
+                    if (tabGroup.selected == 0)
+                    {
+                        sample_importSample.Draw();
+                        DrawWaveform(20, 46, instrument.sample.sampleDataLeft);
+                        DrawWaveform(20, 134, instrument.sample.sampleDataRight);
+                        sample_loopPingpong.Draw();
+                        sample_loopForward.Draw();
+                        sample_loopOneshot.Draw();
+
+                        sample_resampNone.Draw();
+                        sample_resampLinear.Draw();
+                        sample_resampMix.Draw();
+
+                        sample_normalize.Draw();
+                        sample_reverse.Draw();
+                        sample_detune.Draw();
+                        sample_baseKey.Draw();
+                    }
+                    else
+                    {
+                        envelopeEditor.Draw();
+                    }
+                }
+                else
+                {
+                    envelopeEditor.Draw();
+                }
+            }
         }
 
-
-        public void Open(Macro m)
+        public void DrawWaveform(int x, int y, List<float> data)
         {
-            currentMacro = m;
+            int boxLength = 528;
+            int boxHeight = 87;
+            int samplesPerPixel = data.Count / boxLength;
+            int startY = y + boxHeight / 2;
+            int lastSampleNum;
+            int sampleNum = 0;
+            if (data.Count > 0)
+            {
+                for (int i = 0; i < boxLength; i++)
+                {
+                    float percentage = (float)i / boxLength;
+                    lastSampleNum = sampleNum;
+                    sampleNum = (int)(percentage * data.Count - 1);
+                    sampleNum = Math.Clamp(sampleNum, 0, data.Count - 1);
+                    float min = 1;
+                    float max = -1;
+                    for (int j = lastSampleNum; j <= sampleNum; j++)
+                    {
+                        if (data[j] < min)
+                            min = data[j];
+                        if (data[j] > max)
+                            max = data[j];
+                    }
+                    min *= boxHeight / 2;
+                    max *= boxHeight / 2;
+                    if (instrument.sample.sampleLoopType != SampleLoopType.OneShot)
+                    {
+                        if (instrument.sample.sampleLoopIndex <= sampleNum && instrument.sample.sampleLoopIndex > lastSampleNum)
+                        {
+                            DrawRect(x + i, y, 1, boxHeight, Color.Yellow);
+                        }
+                    }
+                    if (i > 0)
+                        DrawRect(x + i - 1, startY - (int)(max), 1, (int)(max - min) + 1, Color.GreenYellow);
 
+                }
+                if (instrument.sample.currentPlaybackPosition < data.Count && Audio.ChannelManager.instance.channels[Game1.previewChannel].isPlaying)
+                    DrawRect(x + (int)((float)instrument.sample.currentPlaybackPosition / data.Count * boxLength), y, 1, boxHeight, Color.Aqua);
+            }
         }
 
         public static void LoadSampleFromFile(Macro macro)
@@ -65,13 +421,13 @@ namespace WaveTracker.Rendering
                      {
 
                          Input.DialogStarted();
-                         OpenFileDialog openFileDialog = new OpenFileDialog();
+                         System.Windows.Forms.OpenFileDialog openFileDialog = new System.Windows.Forms.OpenFileDialog();
                          openFileDialog.Filter = "Audio Files (*.wav, *.mp3, *.flac)|*.wav;*.mp3;*.flac";
                          openFileDialog.Multiselect = false;
                          openFileDialog.Title = "Import Sample...";
                          sampleDataLeft = new List<float>();
                          sampleDataRight = new List<float>();
-                         if (openFileDialog.ShowDialog() == DialogResult.OK)
+                         if (openFileDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
                          {
                              didReadWAV = true;
                              fileName = openFileDialog.SafeFileName;
@@ -87,10 +443,8 @@ namespace WaveTracker.Rendering
                     {
                         if (successfulReadWAV)
                         {
-
-                            macro.sample.Normalize();
                             macro.sample.TrimSilence();
-                            macro.name = "" + fileName;
+                            macro.sample.resampleMode = ResamplingModes.LinearInterpolation;
                         }
                         else
                         {

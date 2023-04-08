@@ -33,7 +33,7 @@ namespace WaveTracker.Rendering
             octave.SetValueLimits(0, 9);
             step.SetValueLimits(0, 256);
             highlightPrimary.SetValueLimits(1, 256);
-            highlightPrimary.SetValueLimits(1, 256);
+            highlightSecondary.SetValueLimits(1, 256);
 
             InitializePanel("Edit Settings", 312, 18, 194, 84);
 

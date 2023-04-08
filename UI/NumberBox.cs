@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Graphics;
 using System.Windows.Forms;
 
@@ -21,6 +22,9 @@ namespace WaveTracker.UI
         public static Texture2D buttons;
         int min = int.MinValue;
         int max = int.MaxValue;
+        int valueSaved;
+        public enum DisplayMode { Number, Note, PlusMinus }
+        public DisplayMode displayMode = DisplayMode.Number;
         public bool ValueWasChanged { get; private set; }
         int lastValue;
         int _value;
@@ -58,6 +62,19 @@ namespace WaveTracker.UI
             else
             {
                 dialogOpen = false;
+            }
+            if (LastClickPos.X >= 0 && LastClickPos.Y >= 0)
+            {
+                if (LastClickPos.X <= width - 10 && LastClickPos.Y <= height)
+                {
+                    if (Input.GetClickDown(KeyModifier.None))
+                        valueSaved = Value;
+                    if (Input.GetClick(KeyModifier.None))
+                    {
+                        Value = valueSaved - (MouseY - LastClickPos.Y) / 2;
+                        Game1.mouseCursorArrow = 2;
+                    }
+                }
             }
             bUp.enabled = Value < max;
             bDown.enabled = Value > min;
@@ -98,7 +115,12 @@ namespace WaveTracker.UI
             DrawRect(boxStart + 1, 1, bWidth - 2, height - 2, Color.White);
             DrawRect(boxStart + 1, 1, bWidth - 2, 1, new Color(193, 196, 213));
             DrawRect(width, 6, -10, 1, ButtonColors.Round.backgroundColor);
-            Write(Value + "", boxStart + 4, height / 2 - 3, text);
+            if (displayMode == DisplayMode.Number)
+                Write(Value + "", boxStart + 4, height / 2 - 3, text);
+            if (displayMode == DisplayMode.Note)
+                Write(Value + " (" + Helpers.GetNoteName(Value) + ")", boxStart + 4, height / 2 - 3, text);
+            if (displayMode == DisplayMode.PlusMinus)
+                Write((Value <= 0 ? Value : "+" + Value) + "", boxStart + 4, height / 2 - 3, text);
             bUp.Draw();
             bDown.Draw();
         }

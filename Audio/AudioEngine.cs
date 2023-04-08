@@ -13,7 +13,7 @@ namespace WaveTracker.Audio
     public class AudioEngine
     {
         public const ResamplingModes RESAMPLING_MODE = ResamplingModes.NoInterpolation;
-        public const int bufferLengthMilliseconds = 20;
+        public const int bufferLengthMilliseconds = 40;
         public const int sampleRate = 44100;
         public static AudioEngine instance;
         public static int tickSpeed
@@ -60,7 +60,7 @@ namespace WaveTracker.Audio
 
         public void Update(GameTime gameTime)
         {
-            while (_instance.PendingBufferCount < 3)
+            while (_instance.PendingBufferCount < 2)
                 SubmitBuffer();
         }
 

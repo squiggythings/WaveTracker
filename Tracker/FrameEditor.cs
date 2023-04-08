@@ -572,14 +572,7 @@ namespace WaveTracker
             if (Input.GetKeyRepeat(Keys.Y, KeyModifier.Ctrl))
                 Redo();
             #endregion
-            if (Playback.isPlaying)
-            {
-                if (followMode)
-                {
-                    cursorRow = Playback.playbackRow;
-                    currentFrame = Playback.playbackFrame;
-                }
-            }
+            
             if (channelScroll < 0)
                 channelScroll = 0;
             if (channelScroll > Song.CHANNEL_COUNT - 12)

@@ -8,7 +8,7 @@ namespace WaveTracker.Tracker
 {
     public class Song
     {
-        public const int CHANNEL_COUNT = 24;
+        public const int CHANNEL_COUNT = 16;
         public List<Frame> frames;
         public int rowsPerFrame;
         public int[] ticksPerRow;
@@ -54,17 +54,7 @@ namespace WaveTracker.Tracker
             //waves[10].Randomize();
 
             instruments = new List<Macro>();
-            for (int i = 0; i < 16; ++i)
-            {
-                instruments.Add(new Macro(MacroType.Wave));
-                //Random r = new Random();
-                //string s = "";
-                //for(int j = 0; j < 10; j++)
-                //{
-                //    s += "abcdefghijklmnopqrstuvwxyz"[r.Next(26)];
-                //}
-                //instruments[i].name = s;
-            }
+            instruments.Add(new Macro(MacroType.Wave));
 
             tickRate = 60;
             quantizeChannelAmplitude = false;

@@ -178,6 +178,14 @@ namespace WaveTracker.Tracker
                 if (playbackFrame >= Game1.currentSong.frames.Count)
                     playbackFrame = 0;
             }
+            if (Playback.isPlaying)
+            {
+                if (FrameEditor.followMode)
+                {
+                    FrameEditor.cursorRow = Playback.playbackRow;
+                    FrameEditor.currentFrame = Playback.playbackFrame;
+                }
+            }
         }
 
         public static void StopNext()

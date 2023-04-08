@@ -1,7 +1,16 @@
 ﻿TODO:
-* Add instrument editor
+* finish instrument editor
+	format sample editor tools
+* change saving to binary serialization
+* add support for mono samples
+	only import left channel, check if channeldata lengths differ, if so it must be mono
 * Add visualization mode
+	piano view
+	mini tracker view
+	oscilloscope view
+* Add preferences form
 * Add export to wav
+
 
 nice to haves
 * function keys for octaves and playing
@@ -15,7 +24,7 @@ nice to haves
 * alt f10 solo channel
 * f12 kill sound
 * pg up pg down scroll pattern editor
-* normalize button on wave editor
+* ctrl shift R randomize selection values +/- 1
 
 
 
@@ -25,6 +34,4 @@ fade out
 fade in
 reverse
 downsample
-
-export sample
-
+normalize

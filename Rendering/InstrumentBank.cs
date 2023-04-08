@@ -17,7 +17,8 @@ namespace WaveTracker.Rendering
     public class InstrumentBank : UI.Panel
     {
         private Forms.EnterText renameDialog;
-        bool dialogOpen, fileOpen;
+        public InstrumentEditor editor;
+        bool dialogOpen;
         public static Song song => Game1.currentSong;
         int lastIndex;
         int listLength = 32;
@@ -85,17 +86,7 @@ namespace WaveTracker.Rendering
                     }
                     if (Input.GetDoubleClick(KeyModifier.None))
                     {
-                        if (!fileOpen)
-                        {
-                            //InstrumentEditor.Instance.Open(GetCurrentInstrument);
-                            fileOpen = true;
-                            if (GetCurrentInstrument.macroType == MacroType.Sample) { }
-                            InstrumentEditor.LoadSampleFromFile(song.instruments[CurrentInstrumentIndex]);
-                        }
-                    }
-                    else
-                    {
-                        fileOpen = false;
+                        editor.EditMacro(GetCurrentInstrument, CurrentInstrumentIndex);
                     }
                 }
             }
@@ -154,6 +145,10 @@ namespace WaveTracker.Rendering
                 moveBounds();
             }
 
+            if (bEdit.Clicked)
+            {
+                editor.EditMacro(GetCurrentInstrument, CurrentInstrumentIndex);
+            }
 
             if (bRename.Clicked)
             {
@@ -170,23 +165,8 @@ namespace WaveTracker.Rendering
                 lastIndex = CurrentInstrumentIndex;
                 ChannelManager.instance.GetCurrentChannel().SetMacro(CurrentInstrumentIndex);
             }
-            if (Input.GetKeyDown(Microsoft.Xna.Framework.Input.Keys.OemComma, KeyModifier.Ctrl))
-            {
-                GetCurrentInstrument.sample.sampleBaseKey--;
-                GetCurrentInstrument.name = "base key " + GetCurrentInstrument.sample.sampleBaseKey;
-            }
-            if (Input.GetKeyDown(Microsoft.Xna.Framework.Input.Keys.OemPeriod, KeyModifier.Ctrl))
-            {
-                GetCurrentInstrument.sample.sampleBaseKey++;
-                GetCurrentInstrument.name = "base key " + GetCurrentInstrument.sample.sampleBaseKey;
-            }
-
-            if (Input.GetKeyDown(Microsoft.Xna.Framework.Input.Keys.L, KeyModifier.Ctrl))
-            {
-                GetCurrentInstrument.sample.sampleLoopType = SampleLoopType.Forward;
-                GetCurrentInstrument.name = "loop";
-            }
             scrollbar.doUpdate();
+            editor.Update();
         }
 
         public void Goto(int index)

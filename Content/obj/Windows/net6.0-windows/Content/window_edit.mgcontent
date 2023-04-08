@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PipelineBuildEvent xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
   <SourceFile>C:/Users/elias/source/repos/WaveTracker/Content/window_edit.png</SourceFile>
-  <SourceTime>2023-03-23T14:57:27.9313819-04:00</SourceTime>
+  <SourceTime>2023-04-07T10:38:54.9923147-04:00</SourceTime>
   <DestFile>C:/Users/elias/source/repos/WaveTracker/Content/bin/Windows/Content/window_edit.xnb</DestFile>
-  <DestTime>2023-03-23T16:15:20.1902685-04:00</DestTime>
+  <DestTime>2023-04-07T10:38:59.4925127-04:00</DestTime>
   <Importer>TextureImporter</Importer>
   <ImporterTime>2022-07-26T07:44:56-04:00</ImporterTime>
   <Processor>TextureProcessor</Processor>

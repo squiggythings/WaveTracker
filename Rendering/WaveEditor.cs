@@ -150,7 +150,7 @@ namespace WaveTracker.Rendering
         {
             if (!enabled)
                 return -1;
-            if (MouseX < 10 || MouseX > 489 || MouseY > 258 || MouseY < 235)
+            if (MouseX < 10 || MouseX > 488 || MouseY > 258 || MouseY < 235)
                 return -1;
             if (!Input.GetClick(KeyModifier.None))
                 return -1;
@@ -184,7 +184,7 @@ namespace WaveTracker.Rendering
                 }
                 else
                 {
-                    if (closeButton.Clicked)
+                    if (closeButton.Clicked || Input.GetKeyDown(Microsoft.Xna.Framework.Input.Keys.Escape, KeyModifier.None))
                     {
                         Close();
                     }

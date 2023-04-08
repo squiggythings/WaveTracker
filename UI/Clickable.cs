@@ -83,6 +83,5 @@ namespace WaveTracker.UI
         {
             return p.X >= this.globalX && p.Y >= this.globalY && p.X < this.globalX + this.width && p.Y < this.globalY + this.height;
         }
-
     }
 }

@@ -53,3 +53,4 @@ C:\Users\elias\source\repos\WaveTracker\bin\Debug\net6.0-windows\NAudio.Wasapi.d
 C:\Users\elias\source\repos\WaveTracker\bin\Debug\net6.0-windows\NAudio.WinForms.dll
 C:\Users\elias\source\repos\WaveTracker\bin\Debug\net6.0-windows\NAudio.WinMM.dll
 C:\Users\elias\source\repos\WaveTracker\bin\Debug\net6.0-windows\ref\WaveTracker.dll
+C:\Users\elias\source\repos\WaveTracker\bin\Debug\net6.0-windows\Content\instrumentwindow.xnb
