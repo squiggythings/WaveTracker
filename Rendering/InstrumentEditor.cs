@@ -96,6 +96,12 @@ namespace WaveTracker.Rendering
             sample_detune.bUp.isPartOfInternalDialog = true;
             sample_detune.displayMode = NumberBox.DisplayMode.PlusMinus;
 
+            sample_loopPoint = new NumberBox("Loop position", 183, 239, 140, 80, this);
+            sample_loopPoint.isPartOfInternalDialog = true;
+            sample_loopPoint.SetTooltip("", "Set the position in audio samples where the sound loops back to");
+            sample_loopPoint.bDown.isPartOfInternalDialog = true;
+            sample_loopPoint.bUp.isPartOfInternalDialog = true;
+
 
             #endregion
 
@@ -108,7 +114,8 @@ namespace WaveTracker.Rendering
             {
                 if (startcooldown > 0)
                 {
-                    SetTabToggles();
+
+                    //SetTabToggles();
                     startcooldown--;
                     if (instrument.macroType == MacroType.Sample)
                     {
@@ -120,6 +127,10 @@ namespace WaveTracker.Rendering
                             sample_loopForward.Value = instrument.sample.sampleLoopType == SampleLoopType.Forward;
                             sample_loopPingpong.Value = instrument.sample.sampleLoopType == SampleLoopType.PingPong;
                         }
+                    }
+                    else
+                    {
+                        envelopeEditor.SetEnvelope(instrument.volumeEnvelope, 0);
                     }
                 }
                 else
@@ -145,7 +156,13 @@ namespace WaveTracker.Rendering
 
                                 if (sample_reverse.Clicked)
                                     instrument.sample.Reverse();
-
+                                if (instrument.sample.sampleLoopType != SampleLoopType.OneShot)
+                                {
+                                    sample_loopPoint.SetValueLimits(0, instrument.sample.sampleDataLeft.Count < 1 ? 0 : instrument.sample.sampleDataLeft.Count - 2);
+                                    sample_loopPoint.Value = instrument.sample.sampleLoopIndex;
+                                    sample_loopPoint.Update();
+                                    instrument.sample.sampleLoopIndex = sample_loopPoint.Value;
+                                }
                                 #region resampling modes
                                 sample_resampNone.Value = instrument.sample.resampleMode == Audio.ResamplingModes.NoInterpolation;
                                 sample_resampLinear.Value = instrument.sample.resampleMode == Audio.ResamplingModes.LinearInterpolation;
@@ -197,23 +214,23 @@ namespace WaveTracker.Rendering
                     {
                         ShowEnvelope(tabGroup.selected);
                     }
-                    //SetTabToggles();
-                    tabGroup.Update();
-                    ReadFromTabToggles();
                 }
+                SetTabTogglesFromInstrument();
+                tabGroup.Update();
+                ReadFromTabTogglesIntoInstrument();
             }
         }
 
         public void ShowEnvelope(int id)
         {
             if (id == 0)
-                envelopeEditor.EditEnvelope(instrument.volumeEnvelope, id, ChannelManager.instance.channels[Game1.previewChannel], ChannelManager.instance.channels[Game1.previewChannel].volumeEnv);
+                envelopeEditor.EditEnvelope(instrument.volumeEnvelope, id, ChannelManager.instance.channels[Game1.previewChannel], ChannelManager.instance.channels[Game1.previewChannel].volumeEnv, startcooldown == 0);
             if (id == 1)
-                envelopeEditor.EditEnvelope(instrument.arpEnvelope, id, ChannelManager.instance.channels[Game1.previewChannel], ChannelManager.instance.channels[Game1.previewChannel].arpEnv);
+                envelopeEditor.EditEnvelope(instrument.arpEnvelope, id, ChannelManager.instance.channels[Game1.previewChannel], ChannelManager.instance.channels[Game1.previewChannel].arpEnv, startcooldown == 0);
             if (id == 2)
-                envelopeEditor.EditEnvelope(instrument.pitchEnvelope, id, ChannelManager.instance.channels[Game1.previewChannel], ChannelManager.instance.channels[Game1.previewChannel].pitchEnv);
+                envelopeEditor.EditEnvelope(instrument.pitchEnvelope, id, ChannelManager.instance.channels[Game1.previewChannel], ChannelManager.instance.channels[Game1.previewChannel].pitchEnv, startcooldown == 0);
             if (id == 3)
-                envelopeEditor.EditEnvelope(instrument.waveEnvelope, id, ChannelManager.instance.channels[Game1.previewChannel], ChannelManager.instance.channels[Game1.previewChannel].waveEnv);
+                envelopeEditor.EditEnvelope(instrument.waveEnvelope, id, ChannelManager.instance.channels[Game1.previewChannel], ChannelManager.instance.channels[Game1.previewChannel].waveEnv, startcooldown == 0);
         }
 
         public void EditMacro(Macro m, int num)
@@ -238,10 +255,11 @@ namespace WaveTracker.Rendering
                 tabGroup.AddTab("Arpeggio", true);
                 tabGroup.AddTab("Pitch", true);
             }
-            SetTabToggles();
+            ShowEnvelope(id);
+            SetTabTogglesFromInstrument();
         }
 
-        public void SetTabToggles()
+        public void SetTabTogglesFromInstrument()
         {
             if (instrument.macroType == MacroType.Wave)
             {
@@ -258,7 +276,7 @@ namespace WaveTracker.Rendering
             }
         }
 
-        public void ReadFromTabToggles()
+        public void ReadFromTabTogglesIntoInstrument()
         {
             if (instrument.macroType == MacroType.Wave)
             {
@@ -303,20 +321,29 @@ namespace WaveTracker.Rendering
         {
             if (enabled)
             {
+                // black box across screen behind window
                 DrawRect(-x, -y, 960, 600, Helpers.Alpha(Color.Black, 60));
+
+                // draw window
                 if (instrument.macroType == MacroType.Sample && tabGroup.selected == 0)
                     DrawSprite(tex, 0, 0, new Rectangle(10, 0, 568, 340));
                 else
                     DrawSprite(tex, 0, 0, new Rectangle(10, 341, 568, 340));
+
+
                 Write("Edit Instrument " + id.ToString("D2"), 4, 1, new Color(64, 72, 115));
+
                 closeButton.Draw();
 
                 tabGroup.Draw();
-                if (instrument.macroType == MacroType.Sample)
+
+                // draw sample base key
+                if (instrument.macroType == MacroType.Sample && tabGroup.selected == 0)
                     if (Helpers.isNoteBlackKey(sample_baseKey.Value))
                         DrawSprite(tex, sample_baseKey.Value * 4 + 44, 307, new Rectangle(590, 0, 4, 24));
                     else
                         DrawSprite(tex, sample_baseKey.Value * 4 + 44, 307, new Rectangle(586, 0, 4, 24));
+                // draw currently played key
                 if (Game1.pianoInput > -1)
                 {
                     int note = Game1.pianoInput + ChannelManager.instance.channels[Game1.previewChannel].arpEnv.Evaluate();
@@ -334,7 +361,15 @@ namespace WaveTracker.Rendering
                 {
                     if (tabGroup.selected == 0)
                     {
+                        // sample length information
+                        Write(instrument.sample.sampleDataLeft.Count + " samples", 20, 37, ButtonColors.Round.backgroundColor);
+                        WriteRightAlign((instrument.sample.sampleDataLeft.Count / (float)AudioEngine.sampleRate).ToString("F5") + " seconds", 547, 37, ButtonColors.Round.backgroundColor);
+
+                        // draw import button
                         sample_importSample.Draw();
+                        DrawSprite(tex, sample_importSample.x + 68, sample_importSample.y + (sample_importSample.IsPressed ? 2 : 2), new Rectangle(595, 0, 11, 9));
+
+                        // waveforms
                         if (instrument.sample.sampleDataRight.Count > 0)
                         {
                             DrawWaveform(20, 46, instrument.sample.sampleDataLeft);
@@ -349,6 +384,12 @@ namespace WaveTracker.Rendering
                         sample_loopPingpong.Draw();
                         sample_loopForward.Draw();
                         sample_loopOneshot.Draw();
+
+                        if (instrument.sample.sampleLoopType != SampleLoopType.OneShot)
+                        {
+                            sample_loopPoint.Value = instrument.sample.sampleLoopIndex;
+                            sample_loopPoint.Draw();
+                        }
 
                         sample_resampNone.Draw();
                         sample_resampLinear.Draw();
@@ -398,15 +439,15 @@ namespace WaveTracker.Rendering
                     }
                     min *= boxHeight / 2;
                     max *= boxHeight / 2;
+                    if (i > 0)
+                        DrawRect(x + i - 1, startY - (int)(max), 1, (int)(max - min) + 1, new Color(207, 117, 43));
                     if (instrument.sample.sampleLoopType != SampleLoopType.OneShot)
                     {
-                        if (instrument.sample.sampleLoopIndex <= sampleNum && instrument.sample.sampleLoopIndex > lastSampleNum)
+                        if (instrument.sample.sampleLoopIndex < sampleNum && instrument.sample.sampleLoopIndex >= lastSampleNum)
                         {
-                            DrawRect(x + i, y, 1, boxHeight, Color.Yellow);
+                            DrawRect(x + i - 1, y, 1, boxHeight, Color.Yellow);
                         }
                     }
-                    if (i > 0)
-                        DrawRect(x + i - 1, startY - (int)(max), 1, (int)(max - min) + 1, Color.GreenYellow);
 
                 }
                 if (instrument.sample.currentPlaybackPosition < data.Count && Audio.ChannelManager.instance.channels[Game1.previewChannel].isPlaying)

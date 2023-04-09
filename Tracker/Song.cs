@@ -58,7 +58,6 @@ namespace WaveTracker.Tracker
 
             instruments = new List<Macro>();
             instruments.Add(new Macro(MacroType.Wave));
-            instruments[0].volumeEnvelope.values.Add(1);
             tickRate = 60;
             quantizeChannelAmplitude = false;
         }

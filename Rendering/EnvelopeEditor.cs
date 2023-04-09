@@ -69,13 +69,13 @@ namespace WaveTracker.UI
             }
         }
 
-        public void Update()
+        public void Update(bool cooldownDone)
         {
             envLength.Value = envelope.values.Count;
             envLength.Update();
             if (envLength.ValueWasChanged)
             {
-                if (lastEnvType == envelopeType)
+                if (lastEnvType == envelopeType && cooldownDone)
                     envelope.isActive = true;
                 while (envLength.Value < envelope.values.Count)
                     envelope.values.RemoveAt(envelope.values.Count - 1);
@@ -95,7 +95,7 @@ namespace WaveTracker.UI
             envText.Update();
             if (envText.ValueWasChanged)
             {
-                if (lastEnvType == envelopeType)
+                if (lastEnvType == envelopeType && cooldownDone)
                     envelope.isActive = true;
                 envelope.loadFromString(envText.Text);
             }
@@ -175,12 +175,21 @@ namespace WaveTracker.UI
             return new Point(x, y);
         }
 
+        public void SetEnvelope(Envelope envelope, int envelopeType)
+        {
+            if (lastEnvType != this.envelopeType)
+                lastEnvType = this.envelopeType;
+            this.envelope = envelope;
+            this.envelopeType = envelopeType;
+        }
         public void Draw()
         {
-            scrollbar.Draw();
+
             bool hovering = false;
             if (envelope != null)
             {
+                if (envelopeType == 2)
+                    scrollbar.Draw();
                 if (envelope.values.Count > 0)
                 {
                     if (envelopeType == 0 || envelopeType == 3)
@@ -406,16 +415,13 @@ namespace WaveTracker.UI
             }
         }
 
-        public void EditEnvelope(Envelope envelope, int envelopeType, Channel previewChannel, EnvelopePlayer playback)
+        public void EditEnvelope(Envelope envelope, int envelopeType, Channel previewChannel, EnvelopePlayer playback, bool cooldownDone)
         {
-            if (lastEnvType != this.envelopeType)
-                lastEnvType = this.envelopeType;
-            this.envelope = envelope;
-            this.envelopeType = envelopeType;
+            SetEnvelope(envelope, envelopeType);
             playbackStep = playback.step;
             isPlaying = !playback.envelopeEnded;
             scrollbar.isPartOfInternalDialog = true;
-            Update();
+            Update(cooldownDone);
         }
     }
 }

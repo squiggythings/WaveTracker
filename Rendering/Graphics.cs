@@ -23,6 +23,11 @@ namespace WaveTracker.Rendering
             batch.DrawString(Game1.font, text, new Vector2((int)x, (int)y - 5), c);
         }
 
+        public static void WriteRightJustified(string text, int x, int y, Color c)
+        {
+            batch.DrawString(Game1.font, text, new Vector2((int)x - Helpers.getWidthOfText(text), (int)y - 5), c);
+        }
+
         public static void WriteMonospaced(string text, int x, int y, Color c, int width = 5)
         {
             foreach (char ch in text)

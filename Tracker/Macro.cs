@@ -284,7 +284,7 @@ namespace WaveTracker.Tracker
                 sampleDataRight.Reverse();
         }
 
-      
+
 
         public void TrimSilence()
         {
@@ -325,18 +325,18 @@ namespace WaveTracker.Tracker
         public void SampleTick(decimal time, int stereoPhase, out float outputL, out float outputR)
         {
             decimal sampleIndex = (time * (decimal)(Audio.AudioEngine.sampleRate / Helpers.NoteToFrequency(sampleBaseKey - (sampleDetune / 100f))));
-            int len = sampleDataLeft.Count - 1;
-            if (sampleLoopType == SampleLoopType.OneShot)
+            int len = sampleDataLeft.Count - 1 - (sampleIndex < sampleLoopIndex ? 0 : sampleLoopIndex);
+            if (sampleLoopType == SampleLoopType.OneShot || sampleIndex <= sampleLoopIndex)
             {
 
             }
             else if (sampleLoopType == SampleLoopType.PingPong && sampleDataLeft.Count > 2)
             {
-                sampleIndex = Math.Abs((sampleIndex + (len - 1) - 1) % ((len - 1) * 2) - len);
+                sampleIndex = Math.Abs((sampleIndex - sampleLoopIndex + (len - 1) - 1) % ((len - 1) * 2) - len) + sampleLoopIndex;
             }
             else
             {
-                sampleIndex = sampleIndex % len;
+                sampleIndex = (sampleIndex - sampleLoopIndex) % len + sampleLoopIndex;
             }
             currentPlaybackPosition = (int)sampleIndex;
             if (resampleMode == Audio.ResamplingModes.NoInterpolation)

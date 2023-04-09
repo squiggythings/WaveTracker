@@ -161,6 +161,7 @@ namespace WaveTracker
                     previewChannel = FrameEditor.currentColumn / 5;
                     channelManager.channels[previewChannel].SetMacro(Rendering.InstrumentBank.CurrentInstrumentIndex);
                     channelManager.channels[previewChannel].TriggerNote(pianoInput);
+                    Audio.AudioEngine.instance._tickCounter = 0;
                 }
             }
             if (pianoInput == -1 && lastPianoKey != -1)
