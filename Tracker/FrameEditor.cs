@@ -535,12 +535,34 @@ namespace WaveTracker
             {
                 if (Input.GetKeyDown(Keys.S, KeyModifier.Alt))
                 {
-                    for (int i = selectionMin.X; i < selectionMax.X; ++i)
+                    for (int i = selectionMin.X; i <= selectionMax.X; ++i)
                     {
-                        for (int j = selectionMin.Y; j < selectionMax.Y; ++j)
+                        for (int j = selectionMin.Y; j <= selectionMax.Y; ++j)
                         {
                             if (i % 5 == 1 && thisFrame.pattern[j][i] >= 0)
                                 thisFrame.pattern[j][i] = (short)Rendering.InstrumentBank.CurrentInstrumentIndex;
+                        }
+                    }
+                }
+            }
+            #endregion
+
+            #region alt+s instrument change 
+            if (canEdit && selectionActive)
+            {
+                float range = 0.5f;
+                Random r = new Random();
+                if (Input.GetKeyDown(Keys.R, KeyModifier.Alt))
+                {
+                    for (int i = selectionMin.X; i <= selectionMax.X; ++i)
+                    {
+                        for (int j = selectionMin.Y; j <= selectionMax.Y; ++j)
+                        {
+                            if (i % 5 == 2 && thisFrame.pattern[j][i] >= 0)
+                            {
+                                double val = thisFrame.pattern[j][i] * (1 + ((r.NextDouble() - 0.5f) * range));
+                                thisFrame.pattern[j][i] = (short)Math.Clamp(val, 0, 99);
+                            }
                         }
                     }
                 }

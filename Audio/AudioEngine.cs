@@ -119,9 +119,10 @@ namespace WaveTracker.Audio
             {
                 for (int c = 0; c < channelManager.channels.Count; ++c)
                 {
-                    float[] r = channelManager.channels[c].ProcessSingleSample();
-                    _workingBuffer[0, i] += r[0];
-                    _workingBuffer[1, i] += r[1];
+                    float l, r;
+                    channelManager.channels[c].ProcessSingleSample(out l, out r);
+                    _workingBuffer[0, i] += l;
+                    _workingBuffer[1, i] += r;
                 }
                 _tickCounter++;
                 if (_tickCounter >= samplesPerTick)

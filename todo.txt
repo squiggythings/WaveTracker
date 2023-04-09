@@ -22,7 +22,7 @@ nice to haves
 * alt f10 solo channel
 * f12 kill sound
 * pg up pg down scroll pattern editor
-* ctrl shift R randomize selection values +/- 1
+* alt R randomize selection values +/- 1
 
 
 

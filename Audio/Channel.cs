@@ -449,9 +449,9 @@ namespace WaveTracker.Audio
             }
         }
 
-        public float[] ProcessSingleSample()
+        public void ProcessSingleSample(out float left, out float right)
         {
-            float[] result = new float[2];
+            left = right = 0;
             float freqCut;
             if (_frequency > 6500)
             {
@@ -518,7 +518,6 @@ namespace WaveTracker.Audio
                     }
 
 
-                // Important: Use += instead of = !
                 _volumeSmooth += (totalAmplitude - _volumeSmooth) * 0.02f;
                 if (FrameEditor.channelToggles[id])
                 {
@@ -537,119 +536,10 @@ namespace WaveTracker.Audio
                         l = (float)(Math.Ceiling(l * quantamt)) / (float)quantamt;
                         r = (float)(Math.Ceiling(r * quantamt)) / (float)quantamt;
                     }
-                    result[0] = l * 0.21f;
-                    result[1] = r * 0.21f;
+                    left = l * 0.21f;
+                    right = r * 0.21f;
                 }
             }
-            return result;
-        }
-        public void Process(float[,] buffer)
-        {
-            int samplesPerBuffer = buffer.GetLength(1);
-            _sampleVolume = 0;
-            for (int i = 0; i < samplesPerBuffer; i++)
-            {
-                float freqCut;
-                if (_frequency > 6500)
-                {
-                    freqCut = 1 / (1 + (_frequency - 6500) / 1500);
-                }
-                else
-                {
-                    freqCut = 1;
-                }
-                if (_frequency > 30000)
-                {
-                    freqCut = 0;
-                    _frequency = 30000;
-                    _state = VoiceState.Off;
-                }
-                decimal delta = 1.0M / AudioEngine.sampleRate * (Decimal)_frequency;
-                if (_tickTime > AudioEngine.sampleRate / AudioEngine.tickSpeed)
-                {
-                    _tickTime -= AudioEngine.sampleRate / AudioEngine.tickSpeed;
-                    if (id == Song.CHANNEL_COUNT - 1)
-                    {
-                        Playback.Step();
-                    }
-                    if (FrameEditor.channelToggles[id])
-                        NextTick();
-                }
-                if (FrameEditor.channelToggles[id])
-                    ContinuousTick((float)(1.0M / AudioEngine.sampleRate * AudioEngine.tickSpeed / 60));
-                if (noteOn)
-                {
-
-                    if (_state == VoiceState.Off)
-                    {
-                        _fadeMultiplier /= 1.002f;
-                        if (_fadeMultiplier < 0.001f)
-                        {
-                            noteOn = false;
-                        }
-                    }
-                    else
-                    {
-                        _fadeMultiplier = 1;
-                        _time += delta;
-                    }
-
-
-                    float sampleL = 0;
-                    float sampleR = 0;
-                    if (currentMacro != null)
-                        if (currentMacro.macroType == MacroType.Wave)
-                        {
-                            if (stereoPhaseOffset != 0)
-                            {
-                                sampleL = EvaluateWave((float)_time - stereoPhaseOffset);
-                                sampleR = EvaluateWave((float)_time + stereoPhaseOffset);
-                            }
-                            else
-                            {
-                                sampleR = sampleL = EvaluateWave((float)_time);
-                            }
-                        }
-                        else
-                        {
-                            currentMacro.sample.SampleTick(_time, 0, out sampleL, out sampleR);
-                            if (Math.Abs(sampleL) > _sampleVolume)
-                            {
-                                _sampleVolume = Math.Abs(sampleL);
-                            }
-                            if (Math.Abs(sampleR) > _sampleVolume)
-                            {
-                                _sampleVolume = Math.Abs(sampleR);
-                            }
-                        }
-
-
-                    // Important: Use += instead of = !
-                    _volumeSmooth += (totalAmplitude - _volumeSmooth) * 0.02f;
-                    if (FrameEditor.channelToggles[id])
-                    {
-                        float f = (float)Math.Pow(_volumeSmooth, 1.25);
-                        float l = sampleL * f * _leftAmp * _fadeMultiplier * freqCut;
-                        float r = sampleR * f * _rightAmp * _fadeMultiplier * freqCut;
-
-                        if (AudioEngine.quantizeAmplitude)
-                        {
-                            if (_volumeSmooth < 0.005f)
-                            {
-                                l = 0;
-                                r = 0;
-                            }
-                            int quantamt = 100;
-                            l = (float)(Math.Ceiling(l * quantamt)) / (float)quantamt;
-                            r = (float)(Math.Ceiling(r * quantamt)) / (float)quantamt;
-                        }
-                        buffer[0, i] += l * 0.21f;
-                        buffer[1, i] += r * 0.21f;
-                    }
-                }
-                _tickTime++;
-            }
-
         }
 
     }
