@@ -547,7 +547,7 @@ namespace WaveTracker
             }
             #endregion
 
-            #region alt+s instrument change 
+            #region alt+r randomization
             if (canEdit && selectionActive)
             {
                 float range = 0.5f;
