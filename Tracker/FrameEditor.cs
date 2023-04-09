@@ -165,14 +165,14 @@ namespace WaveTracker
             {
                 selectionActive = false;
 
-                    Move(0, Preferences.ignoreStepWhenMoving ? 1 : step);
+                Move(0, Preferences.ignoreStepWhenMoving ? 1 : step);
 
             }
 
             if (Input.GetKeyRepeat(Keys.Up, KeyModifier.None) || Input.GetKeyDown(Keys.Up, KeyModifier.Alt))
             {
                 selectionActive = false;
-                    Move(0, Preferences.ignoreStepWhenMoving ? -1 : -step);
+                Move(0, Preferences.ignoreStepWhenMoving ? -1 : -step);
             }
 
             if (Input.GetKeyRepeat(Keys.Right, KeyModifier.None))
@@ -570,7 +570,7 @@ namespace WaveTracker
             if (Input.GetKeyRepeat(Keys.Y, KeyModifier.Ctrl))
                 Redo();
             #endregion
-            
+
             if (channelScroll < 0)
                 channelScroll = 0;
             if (channelScroll > Song.CHANNEL_COUNT - 12)
@@ -1107,6 +1107,71 @@ namespace WaveTracker
             return -1;
         }
 
+        public static void SwapInstrumentsInSong(int inst, int newInst)
+        {
+            foreach (Frame f in Game1.currentSong.frames)
+            {
+                for (int row = 0; row < f.pattern.Length; row++)
+                {
+                    for (int col = 0; col < f.pattern[row].Length; col++)
+                    {
+                        if (col % 5 == 1)
+                        {
+                            // swapping 00 with 01
+                            // all instruments that are 01 are set to 255
+                            // all instruments that are 00 are set to 01
+                            if (f.pattern[row][col] == newInst)
+                            {
+                                f.pattern[row][col] = 255;
+                            }
+                            if (f.pattern[row][col] == inst)
+                            {
+                                f.pattern[row][col] = (short)newInst;
+                            }
+                        }
+                    }
+                }
+                for (int row = 0; row < f.pattern.Length; row++)
+                {
+                    for (int col = 0; col < f.pattern[row].Length; col++)
+                    {
+                        if (col % 5 == 1)
+                        {
+                            // swapping 00 with 01
+                            // all instruments that are 255 are set to 00
+                            if (f.pattern[row][col] == 255)
+                            {
+                                f.pattern[row][col] = (short)inst;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        public static void DeletedInstrument(int index)
+        {
+            foreach (Frame f in Game1.currentSong.frames)
+            {
+                for (int row = 0; row < f.pattern.Length; row++)
+                {
+                    for (int col = 0; col < f.pattern[row].Length; col++)
+                    {
+                        if (col % 5 == 1)
+                        {
+                            if (f.pattern[row][col] > index)
+                            {
+                                f.pattern[row][col]--;
+                            }
+                            else if (f.pattern[row][col] == index)
+                            {
+                                f.pattern[row][col] = -1;
+                            }
+                        }
+                    }
+                }
+            }
+        }
         static bool mouseInBounds(int mrow, int mcolumn)
         {
             if (Input.MousePositionY > Game1.bottomOfScreen - 15)

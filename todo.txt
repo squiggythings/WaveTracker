@@ -1,7 +1,6 @@
 ﻿TODO:
 * finish instrument editor
 	format sample editor tools
-* change saving to binary serialization
 
 * Add visualization mode
 	piano view
@@ -34,3 +33,9 @@ fade in
 reverse
 downsample
 normalize
+
+
+visualization mode options
+
+Piano: Fade softer instruments
+Piano: Thin softer instruments

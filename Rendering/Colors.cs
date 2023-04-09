@@ -11,6 +11,7 @@ namespace WaveTracker.Rendering
         public static readonly Color rowTextSubHighlighted = new(187, 215, 254);
         public static readonly Color rowTextEmpty = new(134, 138, 219, 55);
         public static readonly Color instrumentColumnText = new(90, 234, 61);
+        public static readonly Color instrumentSampleColumnText = new(255, 153, 50);
         public static readonly Color volumeColumnText = new(80, 233, 230);
         public static readonly Color effectColumnText = new(255, 82, 119);
         public static readonly Color effectColumnParameterText = new(255, 208, 208);

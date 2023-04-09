@@ -290,6 +290,8 @@ namespace WaveTracker.Rendering
             {
                 if (value >= InstrumentBank.song.instruments.Count)
                     WriteMonospaced(value.ToString("D2"), x, y, Color.Red, 4);
+                else if (InstrumentBank.song.instruments[value].macroType == MacroType.Sample)
+                    WriteMonospaced(value.ToString("D2"), x, y, Colors.instrumentSampleColumnText, 4);
                 else
                     WriteMonospaced(value.ToString("D2"), x, y, Colors.instrumentColumnText, 4);
 

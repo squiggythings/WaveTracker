@@ -17,7 +17,7 @@ namespace WaveTracker.Rendering
 {
     public class InstrumentEditor : Element
     {
-        public bool enabled;
+        public static bool enabled;
         public Macro currentMacro;
         int startcooldown;
         int id;
@@ -108,8 +108,8 @@ namespace WaveTracker.Rendering
             {
                 if (startcooldown > 0)
                 {
+                    SetTabToggles();
                     startcooldown--;
-                    ShowEnvelope(0);
                     if (instrument.macroType == MacroType.Sample)
                     {
                         if (tabGroup.selected == 0)
@@ -197,7 +197,7 @@ namespace WaveTracker.Rendering
                     {
                         ShowEnvelope(tabGroup.selected);
                     }
-                    SetTabToggles();
+                    //SetTabToggles();
                     tabGroup.Update();
                     ReadFromTabToggles();
                 }
@@ -312,10 +312,11 @@ namespace WaveTracker.Rendering
                 closeButton.Draw();
 
                 tabGroup.Draw();
-                if (Helpers.isNoteBlackKey(sample_baseKey.Value))
-                    DrawSprite(tex, sample_baseKey.Value * 4 + 44, 307, new Rectangle(590, 0, 4, 24));
-                else
-                    DrawSprite(tex, sample_baseKey.Value * 4 + 44, 307, new Rectangle(586, 0, 4, 24));
+                if (instrument.macroType == MacroType.Sample)
+                    if (Helpers.isNoteBlackKey(sample_baseKey.Value))
+                        DrawSprite(tex, sample_baseKey.Value * 4 + 44, 307, new Rectangle(590, 0, 4, 24));
+                    else
+                        DrawSprite(tex, sample_baseKey.Value * 4 + 44, 307, new Rectangle(586, 0, 4, 24));
                 if (Game1.pianoInput > -1)
                 {
                     int note = Game1.pianoInput + ChannelManager.instance.channels[Game1.previewChannel].arpEnv.Evaluate();
@@ -450,9 +451,16 @@ namespace WaveTracker.Rendering
                     t.Join();
                     if (didReadWAV)
                     {
+                        macro.sample.sampleBaseKey = 48;
+                        macro.sample.sampleDetune = 0;
+                        macro.sample.sampleLoopIndex = 0;
+                        macro.sample.sampleLoopType = SampleLoopType.OneShot;
+                        macro.sample.resampleMode = ResamplingModes.LinearInterpolation;
                         if (successfulReadWAV)
                         {
                             macro.sample.TrimSilence();
+                            if (Preferences.automaticallyNormalizeSamples)
+                                macro.sample.Normalize();
                             macro.sample.resampleMode = ResamplingModes.LinearInterpolation;
                         }
                         else

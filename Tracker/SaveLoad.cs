@@ -13,17 +13,23 @@ using WaveTracker.Tracker;
 using System.Globalization;
 using System.Diagnostics;
 using System.Threading;
+using System.Runtime.Serialization.Formatters.Binary;
+using System.Xml.Serialization;
+using System.Runtime.Serialization;
+
 
 namespace WaveTracker
 {
     public static class SaveLoad
     {
         public static Song savedSong;
+        const string fileHeaderCheck = "WaveTrackerModule_v1.0";
+
 
         public static bool isSaved { get { if (Game1.currentSong.Equals(Game1.newSong)) return true; if (savedSong == null) return false; else return savedSong.Equals(Game1.currentSong); } }
         public static string filePath = "";
         static char delimiter = (char)(10);
-        const string fileHeaderCheck = "WaveTrackerModule_v1.0";
+
         public static bool isWorking;
         public static string fileName { get { if (filePath == "") return "Untitled.wtm"; return Path.GetFileName(filePath); } }
         public static int savecooldown = 0;
@@ -34,62 +40,31 @@ namespace WaveTracker
 
         static void SaveTo(string path)
         {
-            //using (StreamWriter fileStream = new StreamWriter(path))
-            //{
-            Game1.currentSong.frameEdits = 0;
             Stopwatch sw = Stopwatch.StartNew();
-            savedSong = Game1.currentSong.Clone();
-            StringBuilder str = new StringBuilder();
+            BinaryFormatter formatter = new BinaryFormatter();
+            //byte[] bytes;
+            //using (MemoryStream ms = new MemoryStream())
+            //{
+            //    Game1.currentSong.frameEdits = 0;
 
-            str.Append(fileHeaderCheck + delimiter);
-            str.Append(savedSong.name + delimiter);
-            str.Append(savedSong.author + delimiter);
-            str.Append(savedSong.year + delimiter);
-            str.Append(savedSong.comment + delimiter);
-            str.Append("" + savedSong.ticksPerRow.Length + delimiter);
-            foreach (int t in savedSong.ticksPerRow)
-            {
-                str.Append("" + t + delimiter);
-            }
-            str.Append("" + savedSong.rowsPerFrame + delimiter);
-            str.Append("" + savedSong.tickRate + delimiter);
-            str.Append("" + savedSong.quantizeChannelAmplitude + delimiter);
-
-            foreach (Wave wave in savedSong.waves)
-            {
-                str.Append(wave.Pack() + delimiter);
-            }
-
-            str.Append("" + savedSong.instruments.Count + delimiter);
-            foreach (Macro m in savedSong.instruments)
-            {
-                str.Append(m.Pack());
-                str.Append(m.sample.stringBuild.ToString() + delimiter);
-            }
-
-            str.Append("" + savedSong.frames.Count + delimiter);
-            foreach (Frame frame in savedSong.frames)
-            {
-                str.Append(frame.Pack() + delimiter);
-            }
-
-            str.Append("" + savedSong.rowHighlight1 + delimiter);
-            str.Append("" + savedSong.rowHighlight2 + delimiter);
-            byte[] bytes = new byte[str.Length * 2];
-
-            int i = 0;
-            foreach (char c in str.ToString())
-            {
-                bytes[i++] = (byte)(256 - BitConverter.GetBytes(c)[0]);
-                bytes[i++] = (byte)(256 - BitConverter.GetBytes(c)[1]);
-            }
-            File.WriteAllBytes(path, bytes);
-
-            // fileStream.Flush();
-            sw.Stop();
-            Debug.WriteLine("done " + sw.ElapsedMilliseconds);
+            //    savedSong = Game1.currentSong.Clone();
+            //    BinaryFormatter formatter = new BinaryFormatter();
+            //    //XmlSerializer formatter = new XmlSerializer(typeof(Song));
+            //    formatter.Serialize(ms, savedSong);
+            //    bytes = ms.ToArray();
             //}
-
+            //for (int i = 0; i < bytes.Length; ++i)
+            //{
+            //    bytes[i] = (byte)((bytes[i] + 50) % 256);
+            //}
+            using (FileStream fs = new FileStream(path, FileMode.Create))
+            {
+                savedSong = Game1.currentSong.Clone();
+                formatter.Serialize(fs, savedSong);
+            }
+            // File.WriteAllBytes(path, bytes);
+            sw.Stop();
+            Debug.WriteLine("saved in " + sw.ElapsedMilliseconds + " ms");
             return;
 
         }
@@ -170,109 +145,36 @@ namespace WaveTracker
 
         static bool LoadFrom(string path)
         {
-            Stopwatch stopwatch = new Stopwatch();
-            stopwatch.Start();
-            using (FileStream fs = File.OpenRead(path))
+            try
             {
-                if (ReadNextAsString(fs) != fileHeaderCheck)
+                Stopwatch stopwatch = new Stopwatch();
+                stopwatch.Start();
+
+                BinaryFormatter formatter = new BinaryFormatter();
+                //formatter.Binder = new SongSerializationBinder();
+                //byte[] bytes;
+                MemoryStream ms = new MemoryStream();
+                using (FileStream fs = new FileStream(path, FileMode.Open))
                 {
-                    stopwatch.Stop();
-                    //    Debug.WriteLine("file header match failed" + stopwatch.ElapsedMilliseconds);
-                    return false;
+                    //for (int i = 0; i < fs.Length; ++i)
+                    //{
+                    //    ms.WriteByte((byte)((fs.ReadByte() - 50 + 256) % 256));
+                    //}
+                    //ms.Position = 0;
+                    savedSong = (Song)formatter.Deserialize(fs);
                 }
-                savedSong = new Song();
-                //  Debug.WriteLine("name");
-                savedSong.name = ReadNextAsString(fs);
-                //  Debug.WriteLine("author");
-                savedSong.author = ReadNextAsString(fs);
-                //  Debug.WriteLine("year");
-                savedSong.year = ReadNextAsString(fs);
-                // Debug.WriteLine("comment");
-                savedSong.comment = ReadNextAsString(fs);
-                // Debug.WriteLine("ticks per row");
-                int count = ReadNextAsInt(fs);
-                savedSong.ticksPerRow = new int[count];
-                for (int i = 0; i < count; i++)
-                {
-                    savedSong.ticksPerRow[i] = ReadNextAsInt(fs);
-                }
-                //Debug.WriteLine("rows per frame");
-                savedSong.rowsPerFrame = ReadNextAsInt(fs);
-                //Debug.WriteLine("tick rate");
-                savedSong.tickRate = ReadNextAsInt(fs);
-                //Debug.WriteLine("quantize");
-                savedSong.quantizeChannelAmplitude = ReadNextAsBool(fs);
-                //Debug.WriteLine("waves");
-                for (int i = 0; i < 100; ++i)
-                {
-                    savedSong.waves[i].Unpack(ReadNextAsString(fs));
-                }
-                //Debug.WriteLine("instruments count");
-                count = ReadNextAsInt(fs);
-                //Debug.WriteLine("instruments");
-                savedSong.instruments.Clear();
-                for (int i = 0; i < count; i++)
-                {
-                    // Debug.WriteLine(" > instrument " + i);
-                    savedSong.instruments.Add(new Macro(MacroType.Wave));
-                    savedSong.instruments[i].Unpack(ReadNextAsString(fs));
-                }
-                //Debug.WriteLine("frames count");
-                count = ReadNextAsInt(fs);
-                //Debug.WriteLine("frames");
-                savedSong.frames.Clear();
-                for (int i = 0; i < count; i++)
-                {
-                    savedSong.frames.Add(new Frame());
-                    savedSong.frames[i].Unpack(ReadNextAsString(fs));
-                }
-                savedSong.rowHighlight1 = ReadNextAsInt(fs);
-                savedSong.rowHighlight2 = ReadNextAsInt(fs);
                 Game1.currentSong = savedSong.Clone();
+
+                stopwatch.Stop();
+                Debug.WriteLine("opened in " + stopwatch.ElapsedMilliseconds + " ms");
             }
-            stopwatch.Stop();
-            Debug.WriteLine("opened in " + stopwatch.ElapsedMilliseconds);
+            catch
+            {
+                Debug.WriteLine("failed to open");
+                return false;
+            }
             return true;
         }
-
-        static string ReadNextAsString(FileStream fs)
-        {
-            return next(fs);
-        }
-
-        static int ReadNextAsInt(FileStream fs)
-        {
-
-            return int.Parse(next(fs));
-        }
-
-        static float ReadNextAsFloat(FileStream fs)
-        {
-            return float.Parse(next(fs), CultureInfo.InvariantCulture.NumberFormat);
-        }
-
-        static bool ReadNextAsBool(FileStream fs)
-        {
-            return next(fs) == "1";
-        }
-
-        static string next(FileStream fs)
-        {
-            StringBuilder sb = new StringBuilder();
-            int readLen;
-            byte[] b = new byte[2];
-            while ((readLen = fs.Read(b, 0, 2)) > 0)
-            {
-                //Encrypt(b);
-                int c = (256 - b[1]) * 256;
-                c += (256 - b[0]);
-                if ((char)c == delimiter)
-                    break;
-                sb.Append((char)c);
-            }
-            return sb.ToString();
-        }
-
 
 
 
@@ -341,7 +243,7 @@ namespace WaveTracker
             {
                 Input.DialogStarted();
 
-                MessageBox.Show("Error loading " + fileName, "WaveTracker", MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1);
+                MessageBox.Show("Could not open " + fileName, "WaveTracker", MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1);
             }
         }
 
@@ -378,6 +280,38 @@ namespace WaveTracker
                 t.Join();
             }
             return didIt;
+        }
+    }
+
+
+
+    public class SongSerializationBinder : SerializationBinder
+    {
+        public override Type BindToType(string assemblyName, string typeName)
+        {
+            // One way to discover expected types is through testing deserialization
+            // of **valid** data and logging the types used.
+
+            ////Console.WriteLine($"BindToType('{assemblyName}', '{typeName}')");
+
+            if (typeName == "WaveTracker.Tracker.Song")
+            {
+                return typeof(Song);
+            }
+            if (typeName == "WaveTracker.Tracker.Frame")
+                return typeof(Frame);
+            if (typeName == "WaveTracker.Tracker.Wave")
+                return typeof(Wave);
+            if (typeName == "WaveTracker.Tracker.Macro")
+                return typeof(Macro);
+            if (typeName == "WaveTracker.Tracker.Envelope")
+                return typeof(Envelope);
+            if (typeName == "WaveTracker.Tracker.Sample")
+                return typeof(Sample);
+            else
+            {
+                throw new ArgumentException("Unexpected type " + typeName, nameof(typeName));
+            }
         }
     }
 }

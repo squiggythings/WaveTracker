@@ -11,12 +11,14 @@ using System.Diagnostics;
 
 namespace WaveTracker.Tracker
 {
+    [Serializable]
     public enum MacroType
     {
         Wave,
         Sample
     }
-    public class Macro
+    [Serializable]
+    public partial class Macro
     {
         public string name;
         public MacroType macroType;
@@ -27,6 +29,18 @@ namespace WaveTracker.Tracker
         public Sample sample;
         public const char delimiter = '%';
 
+        public Macro()
+        {
+            macroType = MacroType.Wave;
+            name = "New Instrument";
+            volumeEnvelope = new Envelope(99);
+            arpEnvelope = new Envelope(0);
+            pitchEnvelope = new Envelope(0);
+            waveEnvelope = new Envelope(0);
+
+
+            sample = new Sample();
+        }
         public Macro(MacroType type)
         {
             macroType = type;
@@ -109,7 +123,6 @@ namespace WaveTracker.Tracker
             m.sample.sampleLoopIndex = sample.sampleLoopIndex;
             m.sample.sampleBaseKey = sample.sampleBaseKey;
             m.sample.sampleDetune = sample.sampleDetune;
-            m.sample.CreateString();
             return m;
         }
 
@@ -117,74 +130,16 @@ namespace WaveTracker.Tracker
         {
             this.name = name;
         }
-
-        public string Pack()
-        {
-            string s = "";
-            s += name + delimiter;
-            s += (int)macroType + "" + delimiter;
-            s += volumeEnvelope.Pack();
-            s += arpEnvelope.Pack();
-            s += pitchEnvelope.Pack();
-            s += waveEnvelope.Pack();
-            return s;
-        }
-
-        public void Unpack(string a)
-        {
-
-            string[] elements = a.Split(delimiter);
-
-            name = elements[0];
-            macroType = (MacroType)int.Parse(elements[1]);
-            volumeEnvelope.Unpack(elements[2]);
-            arpEnvelope.Unpack(elements[3]);
-            pitchEnvelope.Unpack(elements[4]);
-            waveEnvelope.Unpack(elements[5]);
-            sample.sampleBaseKey = int.Parse(elements[6]);
-            sample.sampleDetune = int.Parse(elements[7]);
-            sample.sampleLoopType = (SampleLoopType)int.Parse(elements[8]);
-            sample.sampleLoopIndex = int.Parse(elements[9]);
-            sample.DataFromString(elements[10]);
-
-        }
     }
 
-
-    public class Envelope
+    [Serializable]
+    public partial class Envelope
     {
         public bool isActive = false;
         public int defaultValue;
         public List<int> values;
         public int releaseIndex = -1;
         public int loopIndex = -1;
-
-
-        public string Pack()
-        {
-            string ret = "";
-            ret += isActive ? "1&" : "0&";
-            ret += releaseIndex + "&";
-            ret += loopIndex + "&";
-            foreach (int i in values)
-            {
-                ret += i + "&";
-            }
-            return ret + Macro.delimiter;
-        }
-
-        public void Unpack(string str)
-        {
-            string[] items = str.Split('&');
-            isActive = items[0] == "1";
-            releaseIndex = int.Parse(items[1]);
-            loopIndex = int.Parse(items[2]);
-            values.Clear();
-            for (int i = 3; i < items.Length - 1; i++)
-            {
-                values.Add(int.Parse(items[i]));
-            }
-        }
 
         public Envelope Clone()
         {
@@ -201,6 +156,7 @@ namespace WaveTracker.Tracker
             return ret;
 
         }
+
         public Envelope(int defaultValue)
         {
             this.defaultValue = defaultValue;
@@ -270,21 +226,17 @@ namespace WaveTracker.Tracker
                     values.Add(val);
                 i++;
             }
-            // Debug.WriteLine(i);
         }
     }
-
-    public class Sample
+    [Serializable]
+    public partial class Sample
     {
-        public float SAMPLE_OUTPUT_L;
-        public float SAMPLE_OUTPUT_R;
         public Audio.ResamplingModes resampleMode;
         public SampleLoopType sampleLoopType;
         public int sampleLoopIndex;
         public int sampleDetune;
         public int sampleBaseKey;
         public int currentPlaybackPosition;
-        public StringBuilder stringBuild;
         public List<float> sampleDataLeft, sampleDataRight;
 
         public Sample()
@@ -294,7 +246,6 @@ namespace WaveTracker.Tracker
 
             sampleDataLeft = new List<float>();
             sampleDataRight = new List<float>();
-            CreateString();
             sampleLoopType = SampleLoopType.OneShot;
             resampleMode = Audio.ResamplingModes.LinearInterpolation;
             sampleBaseKey = 48;
@@ -324,7 +275,6 @@ namespace WaveTracker.Tracker
                 if (sampleDataRight.Count != 0)
                     sampleDataRight[i] /= max;
             }
-            CreateString();
         }
 
         public void Reverse()
@@ -332,33 +282,9 @@ namespace WaveTracker.Tracker
             sampleDataLeft.Reverse();
             if (sampleDataRight.Count != 0)
                 sampleDataRight.Reverse();
-            CreateString();
         }
 
-        public void CreateString()
-        {
-            return;
-            stringBuild = new StringBuilder();
-            stringBuild.Append(sampleBaseKey + "" + Macro.delimiter);
-            stringBuild.Append(sampleDetune + "" + Macro.delimiter);
-            stringBuild.Append((int)sampleLoopType + "" + Macro.delimiter);
-            stringBuild.Append(sampleLoopIndex + "" + Macro.delimiter);
-            for (int i = 0; i < sampleDataLeft.Count; ++i)
-            {
-                ushort sampleL = (ushort)((this.sampleDataLeft[i] * 0.5f + 0.5f) * ushort.MaxValue / 4);
-                ushort sampleR = (ushort)((this.sampleDataRight[i] * 0.5f + 0.5f) * ushort.MaxValue / 4);
-                char a = (char)(sampleL);
-                //char b = (char)(sampleL % 256);
-                char c = (char)(sampleR);
-                //char d = (char)(sampleR % 256);
-
-                stringBuild.Append("" + a + c);
-                //sampleDataLeft[i] = sampleL / ((float)ushort.MaxValue / 4) * 2 - 1;
-                //sampleDataRight[i] = sampleR / ((float)ushort.MaxValue / 4) * 2 - 1;
-            }
-            stringBuild.Append(Macro.delimiter);
-            //System.Diagnostics.Debug.WriteLine(stringBuild.ToString());
-        }
+      
 
         public void TrimSilence()
         {
@@ -381,7 +307,6 @@ namespace WaveTracker.Tracker
                     sampleDataLeft.RemoveAt(i);
                     sampleDataRight.RemoveAt(i);
                 }
-            CreateString();
         }
 
         public void DataFromString(string st)
@@ -440,6 +365,8 @@ namespace WaveTracker.Tracker
                 outputL /= 2;
                 outputR /= 2;
             }
+            outputL *= 1.25f;
+            outputR *= 1.25f;
         }
 
         public void MixToMono()

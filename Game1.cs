@@ -154,7 +154,7 @@ namespace WaveTracker
                 pianoInput = waveBank.editor.pianoInput();
             if (instrumentBank.editor.pianoInput() > -1)
                 pianoInput = instrumentBank.editor.pianoInput();
-            if (FrameEditor.currentColumn % 5 == 0 || Rendering.WaveEditor.enabled)
+            if (FrameEditor.currentColumn % 5 == 0 || Rendering.WaveEditor.enabled || Rendering.InstrumentEditor.enabled)
             {
                 if (pianoInput != -1 && lastPianoKey != pianoInput)
                 {

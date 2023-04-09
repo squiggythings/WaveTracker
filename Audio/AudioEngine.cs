@@ -15,7 +15,9 @@ namespace WaveTracker.Audio
         public const ResamplingModes RESAMPLING_MODE = ResamplingModes.NoInterpolation;
         public const int bufferLengthMilliseconds = 40;
         public const int sampleRate = 44100;
+        public static int samplesPerTick => (sampleRate / tickSpeed);
         public static AudioEngine instance;
+        public int _tickCounter;
         public static int tickSpeed
         {
             get
@@ -112,9 +114,25 @@ namespace WaveTracker.Audio
 
         private void FillWorkingBuffer()
         {
-            for (int i = channelManager.channels.Count - 1; i >= 0; --i)
+
+            for (int i = 0; i < _workingBuffer.GetLength(1); ++i)
             {
-                channelManager.channels[i].Process(_workingBuffer);
+                for (int c = 0; c < channelManager.channels.Count; ++c)
+                {
+                    float[] r = channelManager.channels[c].ProcessSingleSample();
+                    _workingBuffer[0, i] += r[0];
+                    _workingBuffer[1, i] += r[1];
+                }
+                _tickCounter++;
+                if (_tickCounter >= samplesPerTick)
+                {
+                    _tickCounter = 0;
+                    Tracker.Playback.Step();
+                    foreach (Channel c in channelManager.channels)
+                    {
+                        c.NextTick();
+                    }
+                }
             }
         }
         void ClearWorkingBuffer()

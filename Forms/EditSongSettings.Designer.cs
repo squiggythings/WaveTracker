@@ -270,6 +270,7 @@
             this.samplesLabel.TabIndex = 5;
             this.samplesLabel.Text = "(531 samples/tick)";
             this.samplesLabel.TextAlign = System.Drawing.ContentAlignment.TopRight;
+            this.samplesLabel.Click += new System.EventHandler(this.samplesLabel_Click);
             // 
             // Reset
             // 
@@ -295,7 +296,7 @@
             this.tickRate.BackColor = System.Drawing.Color.WhiteSmoke;
             this.tickRate.Location = new System.Drawing.Point(6, 34);
             this.tickRate.Maximum = 240;
-            this.tickRate.Minimum = 20;
+            this.tickRate.Minimum = 2;
             this.tickRate.Name = "tickRate";
             this.tickRate.Size = new System.Drawing.Size(367, 45);
             this.tickRate.TabIndex = 1;

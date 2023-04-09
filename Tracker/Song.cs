@@ -4,12 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+
 namespace WaveTracker.Tracker
 {
     [Serializable]
-    public class Song
+    public partial class Song
     {
-        public const int CHANNEL_COUNT = 16;
+        public const int CHANNEL_COUNT = 24;
         public List<Frame> frames;
         public int rowsPerFrame;
         public int[] ticksPerRow;
@@ -57,7 +58,7 @@ namespace WaveTracker.Tracker
 
             instruments = new List<Macro>();
             instruments.Add(new Macro(MacroType.Wave));
-
+            instruments[0].volumeEnvelope.values.Add(1);
             tickRate = 60;
             quantizeChannelAmplitude = false;
         }

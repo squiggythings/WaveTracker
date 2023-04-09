@@ -100,7 +100,7 @@ namespace WaveTracker.Tracker
             channelManager.Reset();
         }
 
-        public static void Step(bool b)
+        public static void Step()
         {
             Tick();
         }

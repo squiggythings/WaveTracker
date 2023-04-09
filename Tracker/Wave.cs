@@ -9,7 +9,8 @@ using WaveTracker.Audio;
 
 namespace WaveTracker.Tracker
 {
-    public class Wave
+    [Serializable]
+    public partial class Wave
     {
         public ResamplingModes resamplingMode;
         public byte[] samples = new byte[64];

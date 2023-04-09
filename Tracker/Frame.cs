@@ -4,16 +4,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Diagnostics;
-
 namespace WaveTracker.Tracker
 {
-    public class Frame
+    [Serializable]
+    public partial class Frame
     {
         public short[][] pattern;
-        public StringBuilder sb = new StringBuilder();
         public string Pack()
         {
-            sb = new StringBuilder();
+            StringBuilder sb = new StringBuilder();
             for (int x = 0; x < Song.CHANNEL_COUNT * 5; ++x)
             {
                 short value = pattern[0][x];
@@ -72,53 +71,6 @@ namespace WaveTracker.Tracker
                 }
             }
         }
-        public void CopyInto(Frame other)
-        {
-            int rownum = 0;
-            foreach (short[] row in this.pattern)
-            {
-                int i = 0;
-                foreach (short val in row)
-                {
-                    other.pattern[rownum][i] = val;
-                    i++;
-                }
-                rownum++;
-            }
-        }
-
-        public void LoadFrom(Frame fr)
-        {
-            int i = 0;
-            foreach (short[] row in fr.pattern)
-            {
-                int j = 0;
-                foreach (short val in row)
-                {
-                    this.pattern[i][j] = val;
-                    j++;
-                }
-                i++;
-            }
-        }
-
-        public bool IsEqualTo(Frame other)
-        {
-            int i = 0;
-            foreach (short[] row in pattern)
-            {
-                int j = 0;
-                foreach (short val in row)
-                {
-                    if (other.pattern[i][j] != val)
-                        return false;
-                    j++;
-                }
-                i++;
-            }
-            return true;
-        }
-
         public Frame Clone()
         {
             Frame ret = new Frame();

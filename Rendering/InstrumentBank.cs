@@ -121,6 +121,7 @@ namespace WaveTracker.Rendering
             }
             if (bRemove.Clicked)
             {
+                FrameEditor.DeletedInstrument(CurrentInstrumentIndex);
                 song.instruments.RemoveAt(CurrentInstrumentIndex);
                 if (CurrentInstrumentIndex >= song.instruments.Count)
                 {
@@ -134,12 +135,14 @@ namespace WaveTracker.Rendering
             }
             if (bMoveDown.Clicked)
             {
+                FrameEditor.SwapInstrumentsInSong(CurrentInstrumentIndex, CurrentInstrumentIndex + 1);
                 song.instruments.Reverse(CurrentInstrumentIndex, 2);
                 CurrentInstrumentIndex++;
                 moveBounds();
             }
             if (bMoveUp.Clicked)
             {
+                FrameEditor.SwapInstrumentsInSong(CurrentInstrumentIndex, CurrentInstrumentIndex - 1);
                 song.instruments.Reverse(CurrentInstrumentIndex - 1, 2);
                 CurrentInstrumentIndex--;
                 moveBounds();

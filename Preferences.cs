@@ -15,6 +15,8 @@ namespace WaveTracker
         public static bool ignoreStepWhenMoving = true;
         public static bool restoreChannelState = true;
         public static bool keyRepeat = true;
+        public static bool automaticallyNormalizeSamples = true;
+        //public static bool trimSamplesOnImport = true;
         public static int oscilloscopeMode = 1; // 1 - mono; 2 - stereo split; 3 - stereo overlap
 
 
