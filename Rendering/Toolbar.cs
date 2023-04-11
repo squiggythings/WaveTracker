@@ -36,6 +36,7 @@ namespace WaveTracker.Rendering
 
         public SpriteButton preferences;
         public Toggle followMode;
+        public Toggle visualizerMode;
         public bool saveDialogOpen, loadDialogOpen;
 
         public Toolbar(Texture2D sprite)
@@ -105,19 +106,23 @@ namespace WaveTracker.Rendering
             followMode = new Toggle("Follow mode", px, 1, this);
             followMode.SetTooltip("", "Toggle whether the cursor follows the playhead during playback");
 
+            visualizerMode = new Toggle("Visualizer", 0, 1, this);
+            visualizerMode.x = 955 - visualizerMode.width;
+            visualizerMode.SetTooltip("", "Toggle visualizer presentation mode");
         }
 
         public void Update()
         {
             file_export.enabled = false;
-            edit_copy.enabled = FrameEditor.selectionActive;
-            edit_cut.enabled = FrameEditor.selectionActive;
-            edit_paste.enabled = FrameEditor.clipboard.Count > 0;
-            edit_redo.enabled = FrameEditor.historyIndex < FrameEditor.history.Count - 1;
-            edit_undo.enabled = FrameEditor.historyIndex > 0;
+            playback_record.enabled = !Game1.VisualizerMode;
+            edit_copy.enabled = FrameEditor.selectionActive && !Game1.VisualizerMode;
+            edit_cut.enabled = FrameEditor.selectionActive && !Game1.VisualizerMode;
+            edit_paste.enabled = FrameEditor.clipboard.Count > 0 && !Game1.VisualizerMode;
+            edit_redo.enabled = FrameEditor.historyIndex < FrameEditor.history.Count - 1 && !Game1.VisualizerMode;
+            edit_undo.enabled = FrameEditor.historyIndex > 0 && !Game1.VisualizerMode;
 
 
-
+            
             if (Input.GetKeyDown(Keys.S, KeyModifier.Ctrl))
             {
                 SaveLoad.SaveFile();
@@ -154,7 +159,10 @@ namespace WaveTracker.Rendering
             if (preferences.Clicked) { }
 
             followMode.Value = FrameEditor.followMode;
+            visualizerMode.Value = Game1.VisualizerMode;
             followMode.Update();
+            visualizerMode.Update();
+            Game1.VisualizerMode = visualizerMode.Value;
             FrameEditor.followMode = followMode.Value;
 
             if (SaveLoad.savecooldown > 0)
@@ -189,6 +197,7 @@ namespace WaveTracker.Rendering
             preferences.Draw();
 
             followMode.Draw();
+            visualizerMode.Draw();
         }
     }
 }

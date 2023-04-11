@@ -14,10 +14,13 @@ namespace WaveTracker.Audio
     {
         private ChannelManager _manager;
         int id;
-        Wave currentWave;
+        public Wave currentWave;
+        public int waveIndex { get; private set; }
         public List<TickEvent> tickEvents;
-        float totalAmplitude => tremoloMultiplier * channelVolume / 99f * volumeEnv.Evaluate() / 99f; // * currentMacro.GetState().volumeMultiplier;
-        float totalPitch => channelNotePorta + bendOffset + vibratoOffset + pitchFallOffset + arpeggioOffset + detuneOffset + arpEnv.Evaluate();
+        float totalAmplitude => tremoloMultiplier * (channelVolume / 99f) * (volumeEnv.Evaluate() / 99f); // * currentMacro.GetState().volumeMultiplier;
+        float totalPitch => channelNotePorta + bendOffset + vibratoOffset + pitchFallOffset + arpeggioOffset + detuneOffset + arpEnvelopeResult;
+
+        int arpEnvelopeResult;
         /// <summary>
         /// value from 0.0-1.0, 0.5f is center
         /// </summary>
@@ -35,7 +38,7 @@ namespace WaveTracker.Audio
         double vibratoTime;
         float vibratoSpeed;
         float vibratoIntensity;
-        float tremoloMultiplier; // 7xx command
+        float tremoloMultiplier = 1f; // 7xx command
         float tremoloTime;
         float tremoloSpeed;
         float tremoloIntensity;
@@ -57,7 +60,8 @@ namespace WaveTracker.Audio
         public EnvelopePlayer arpEnv;
         public EnvelopePlayer pitchEnv;
         public EnvelopePlayer waveEnv;
-        float _sampleVolume;
+        public float _sampleVolume;
+        float lastPitch;
 
         private float _frequency;
         private decimal _time;
@@ -95,6 +99,8 @@ namespace WaveTracker.Audio
         {
             if (command == 4) // 4XY
             {
+                if (parameter == 0)
+                    vibratoTime = 0;
                 vibratoSpeed = (parameter + 1) / 16;
                 vibratoIntensity = parameter % 16;
             }
@@ -217,8 +223,8 @@ namespace WaveTracker.Audio
             pitchFallSpeed = 0;
             pitchFallOffset = 0;
             vibratoOffset = 0;
-            tremoloMultiplier = 1;
             _time = 0.0M;
+            arpEnvelopeResult = 0;
             arpCounter = 0;
             arpeggionote2 = 0;
             arpeggionote3 = 0;
@@ -227,11 +233,11 @@ namespace WaveTracker.Audio
             vibratoSpeed = 0;
             vibratoTime = 0;
             tremoloIntensity = 0;
-            tremoloMultiplier = 0;
+            tremoloMultiplier = 1f;
             tremoloSpeed = 0;
             tremoloTime = 0;
             stereoPhaseOffset = 0;
-            currentWave = _manager.waveBank.GetWave(0);
+            SetWave(0);
             lastNote = channelNote;
             channelNotePorta = channelNote;
             portaSpeed = 0;
@@ -245,7 +251,7 @@ namespace WaveTracker.Audio
 
         public void SetWave(int w)
         {
-
+            waveIndex = w;
             currentWave = _manager.waveBank.GetWave(w);
         }
 
@@ -313,9 +319,9 @@ namespace WaveTracker.Audio
             get
             {
                 if (currentMacro.macroType == MacroType.Wave)
-                    return totalAmplitude * (noteOn ? 1 : 0);
+                    return totalAmplitude * (_state == VoiceState.Off ? 0 : 1);
                 else
-                    return totalAmplitude * _sampleVolume / 1.25f;
+                    return totalAmplitude * (_sampleVolume / 1.5f + 0.01f) * (_state == VoiceState.Off ? 0 : 1);
             }
         }
 
@@ -336,13 +342,24 @@ namespace WaveTracker.Audio
 
         void ContinuousTick(float deltaTime)
         {
-            tremoloTime += deltaTime * tremoloSpeed * 6f;
-            tremoloMultiplier = 1f + (float)(Math.Sin(tremoloTime * 1) / 2 - 0.5f) * tremoloIntensity / 16f;
-
-            vibratoTime += deltaTime * vibratoSpeed * 3f;
-            vibratoOffset = (float)Math.Sin(vibratoTime * 2) * vibratoIntensity / 10f;
-
-            pitchFallOffset += pitchFallSpeed * deltaTime * 2;
+            if (tremoloIntensity > 0)
+            {
+                tremoloTime += deltaTime * tremoloSpeed * 6f;
+                tremoloMultiplier = 1f + (float)(Math.Sin(tremoloTime * 1) / 2 - 0.5f) * tremoloIntensity / 16f;
+            }
+            else
+            {
+                tremoloMultiplier = 1;
+            }
+            if (vibratoIntensity > 0)
+            {
+                vibratoTime += deltaTime * vibratoSpeed * 3f;
+                vibratoOffset = (float)Math.Sin(vibratoTime * 2) * vibratoIntensity / 10f;
+            }
+            else
+                vibratoOffset = 0;
+            if (pitchFallSpeed != 0)
+                pitchFallOffset += pitchFallSpeed * deltaTime * 2;
             if (portaTime < 2)
                 portaTime += deltaTime * (portaSpeed == 0 ? AudioEngine.sampleRate : portaSpeed);
 
@@ -371,14 +388,19 @@ namespace WaveTracker.Audio
                 if (bendOffset > targetBendAmt)
                     bendOffset = targetBendAmt;
             }
-            if (!pitchEnv.envelopeEnded)
+            if (pitchEnv.toPlay.isActive && !pitchEnv.envelopeEnded)
                 pitchFallOffset += pitchEnv.Evaluate() * deltaTime * 4;
-            _frequency = Helpers.NoteToFrequency(totalPitch);
+            if (lastPitch != totalPitch)
+            {
+                lastPitch = totalPitch;
+                _frequency = Helpers.NoteToFrequency(lastPitch);
+            }
 
         }
 
         public void NextTick()
         {
+
             tickNum++;
             if (currentMacro.macroType == MacroType.Wave)
             {
@@ -387,9 +409,14 @@ namespace WaveTracker.Audio
                         SetWave(waveEnv.Evaluate());
                 waveEnv.Step();
             }
-            volumeEnv.Step();
-            arpEnv.Step();
-            pitchEnv.Step();
+            if (volumeEnv.toPlay.isActive)
+                volumeEnv.Step();
+            if (arpEnv.toPlay.isActive)
+            {
+                arpEnv.Step();
+            }
+            if (pitchEnv.toPlay.isActive)
+                pitchEnv.Step();
             for (int i = 0; i < tickEvents.Count; i++)
             {
                 tickEvents[i].Update();
@@ -400,28 +427,39 @@ namespace WaveTracker.Audio
                     i--;
                 }
             }
-            switch (arpCounter)
+            if (arpeggionote2 == arpeggionote3 && arpeggionote2 == 0)
             {
-                case 0:
-                    arpeggioOffset = 0;
-                    break;
-                case 1:
-                    arpeggioOffset = arpeggionote2;
-                    break;
-                case 2:
-                    arpeggioOffset = arpeggionote3;
-                    break;
+                arpeggioOffset = 0;
             }
-
-            arpCounter++;
-            if (arpCounter > 2)
-                arpCounter = 0;
+            else
+            {
+                switch (arpCounter)
+                {
+                    case 0:
+                        arpeggioOffset = 0;
+                        break;
+                    case 1:
+                        arpeggioOffset = arpeggionote2;
+                        break;
+                    case 2:
+                        arpeggioOffset = arpeggionote3;
+                        break;
+                }
+                arpCounter++;
+                if (arpCounter > 2)
+                    arpCounter = 0;
+            }
 
 
             if (volumeEnv.toPlay.values.Count > 0 && volumeEnv.toPlay.isActive)
                 if (volumeEnv.envelopeEnded && volumeEnv.toPlay.values[volumeEnv.toPlay.values.Count - 1] == 0)
                     Cut();
-            _frequency = Helpers.NoteToFrequency(totalPitch);
+            if (arpEnv.toPlay.isActive)
+            {
+                arpEnvelopeResult = arpEnv.Evaluate();
+            }
+            else
+                arpEnvelopeResult = 0;
         }
 
         void DoEvent(TickEvent t)
@@ -452,76 +490,77 @@ namespace WaveTracker.Audio
         public void ProcessSingleSample(out float left, out float right)
         {
             left = right = 0;
-            float freqCut;
-            if (_frequency > 6500)
-            {
-                freqCut = 1 / (1 + (_frequency - 6500) / 1500);
-            }
-            else
-            {
-                freqCut = 1;
-            }
-            if (_frequency > 30000)
-            {
-                freqCut = 0;
-                _frequency = 30000;
-                _state = VoiceState.Off;
-            }
-            decimal delta = 1.0M / AudioEngine.sampleRate * (Decimal)_frequency;
-
             if (FrameEditor.channelToggles[id])
-                ContinuousTick((float)(1.0M / AudioEngine.sampleRate * AudioEngine.tickSpeed / 60));
-            if (noteOn)
             {
-
-                if (_state == VoiceState.Off)
+                float freqCut = 1;
+                //if (_frequency > 6500)
+                //{
+                //    freqCut = 1 / (1 + (_frequency - 6500) / 1500);
+                //}
+                //else
+                //{
+                //    freqCut = 1;
+                //}
+                if (_frequency > 30000)
                 {
-                    _fadeMultiplier /= 1.002f;
-                    if (_fadeMultiplier < 0.001f)
-                    {
-                        noteOn = false;
-                    }
+                    freqCut = 0;
+                    _frequency = 30000;
+                    _state = VoiceState.Off;
                 }
-                else
+                decimal delta = 1.0M / AudioEngine.sampleRate * (Decimal)_frequency;
+                ContinuousTick((float)(1.0M / AudioEngine.sampleRate * AudioEngine.tickSpeed / 60));
+                if (noteOn)
                 {
-                    _fadeMultiplier = 1;
-                    _time += delta;
-                }
 
-
-                float sampleL = 0;
-                float sampleR = 0;
-                if (currentMacro != null)
-                    if (currentMacro.macroType == MacroType.Wave)
+                    if (_state == VoiceState.Off)
                     {
-                        if (stereoPhaseOffset != 0)
+                        _fadeMultiplier /= 1.002f;
+                        if (_fadeMultiplier < 0.001f)
                         {
-                            sampleL = EvaluateWave((float)_time - stereoPhaseOffset);
-                            sampleR = EvaluateWave((float)_time + stereoPhaseOffset);
-                        }
-                        else
-                        {
-                            sampleR = sampleL = EvaluateWave((float)_time);
+                            noteOn = false;
                         }
                     }
                     else
                     {
-                        currentMacro.sample.SampleTick(_time, 0, out sampleL, out sampleR);
-                        if (Math.Abs(sampleL) > _sampleVolume)
-                        {
-                            _sampleVolume = Math.Abs(sampleL);
-                        }
-                        if (Math.Abs(sampleR) > _sampleVolume)
-                        {
-                            _sampleVolume = Math.Abs(sampleR);
-                        }
+                        _fadeMultiplier = 1;
+                        _time += delta;
                     }
 
 
-                _volumeSmooth += (totalAmplitude - _volumeSmooth) * 0.02f;
-                if (FrameEditor.channelToggles[id])
-                {
-                    float f = (float)Math.Pow(_volumeSmooth, 1.25);
+                    float sampleL = 0;
+                    float sampleR = 0;
+                    if (currentMacro != null)
+                    {
+                        if (currentMacro.macroType == MacroType.Wave)
+                        {
+                            if (stereoPhaseOffset != 0)
+                            {
+                                sampleL = EvaluateWave((float)_time - stereoPhaseOffset);
+                                sampleR = EvaluateWave((float)_time + stereoPhaseOffset);
+                            }
+                            else
+                            {
+                                sampleR = sampleL = EvaluateWave((float)_time);
+                            }
+                        }
+                        else
+                        {
+                            currentMacro.sample.SampleTick((float)_time, 0, out sampleL, out sampleR);
+                            if (Math.Abs(sampleL) > _sampleVolume)
+                            {
+                                _sampleVolume = Math.Abs(sampleL);
+                            }
+                            if (Math.Abs(sampleR) > _sampleVolume)
+                            {
+                                _sampleVolume = Math.Abs(sampleR);
+                            }
+                        }
+                    }
+
+                    _volumeSmooth += (totalAmplitude - _volumeSmooth) * 0.02f;
+
+                    // float f = (float)Math.Pow(_volumeSmooth, 1.25);
+                    float f = _volumeSmooth;
                     float l = sampleL * f * _leftAmp * _fadeMultiplier * freqCut;
                     float r = sampleR * f * _rightAmp * _fadeMultiplier * freqCut;
 
@@ -536,8 +575,8 @@ namespace WaveTracker.Audio
                         l = (float)(Math.Ceiling(l * quantamt)) / (float)quantamt;
                         r = (float)(Math.Ceiling(r * quantamt)) / (float)quantamt;
                     }
-                    left = l * 0.21f;
-                    right = r * 0.21f;
+                    left = l * 0.15f;
+                    right = r * 0.15f;
                 }
             }
         }

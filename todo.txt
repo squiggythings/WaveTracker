@@ -1,9 +1,8 @@
 ﻿TODO:
 * finish instrument editor
 	format sample editor tools
-
+* automatically resample imported samples
 * Add visualization mode
-	piano view
 	mini tracker view
 	oscilloscope view
 * Add preferences form
@@ -12,17 +11,17 @@
 
 nice to haves
 * function keys for octaves and playing
-* home and end
-* ctrl-D duplicate frame
-* tab and shift tab for moving between channels	
-* numpad / * for octaves
+* (DONE) home and end
+* (DONE) ctrl-D duplicate frame
+* (DONE) tab and shift tab for moving between channels	
+* (DONE) numpad / * for octaves 
 * alt numpad 0-9 set step size
-* esc deselect
+* (DONE) esc deselect
 * alt f9 mute channel
 * alt f10 solo channel
 * f12 kill sound
-* pg up pg down scroll pattern editor
-* alt R randomize selection values +/- 1
+* (DONE) pg up pg down scroll pattern editor
+* (DONE) alt R randomize selection values +/- 1
 
 
 
@@ -37,5 +36,10 @@ normalize
 
 visualization mode options
 
-Piano: Fade softer instruments
-Piano: Thin softer instruments
+Piano: Dont fade low volume notes
+Piano: Constant note width
+Piano: speed
+
+
+
+

@@ -95,9 +95,9 @@ namespace WaveTracker.Tracker
                 return false;
             if (sample.sampleLoopIndex != other.sample.sampleLoopIndex)
                 return false;
-            if (sample.sampleBaseKey != other.sample.sampleBaseKey)
+            if (sample.BaseKey != other.sample.BaseKey)
                 return false;
-            if (sample.sampleDetune != other.sample.sampleDetune)
+            if (sample.Detune != other.sample.Detune)
                 return false;
             return true;
         }
@@ -117,12 +117,15 @@ namespace WaveTracker.Tracker
             for (int i = 0; i < sample.sampleDataLeft.Count; i++)
             {
                 m.sample.sampleDataLeft.Add(sample.sampleDataLeft[i]);
-                m.sample.sampleDataRight.Add(sample.sampleDataRight[i]);
+                if (sample.sampleDataRight.Count != 0)
+                    m.sample.sampleDataRight.Add(sample.sampleDataRight[i]);
             }
+            m.sample.sampleDataAccessL = m.sample.sampleDataLeft.ToArray();
+            m.sample.sampleDataAccessR = m.sample.sampleDataRight.ToArray();
             m.sample.sampleLoopType = sample.sampleLoopType;
             m.sample.sampleLoopIndex = sample.sampleLoopIndex;
-            m.sample.sampleBaseKey = sample.sampleBaseKey;
-            m.sample.sampleDetune = sample.sampleDetune;
+            m.sample.SetBaseKey(sample.BaseKey);
+            m.sample.SetDetune(sample.Detune);
             return m;
         }
 
@@ -234,10 +237,12 @@ namespace WaveTracker.Tracker
         public Audio.ResamplingModes resampleMode;
         public SampleLoopType sampleLoopType;
         public int sampleLoopIndex;
-        public int sampleDetune;
-        public int sampleBaseKey;
+        public int Detune { get; private set; }
+        public int BaseKey { get; private set; }
         public int currentPlaybackPosition;
+        float _baseFrequency;
         public List<float> sampleDataLeft, sampleDataRight;
+        public float[] sampleDataAccessL, sampleDataAccessR;
 
         public Sample()
         {
@@ -246,11 +251,27 @@ namespace WaveTracker.Tracker
 
             sampleDataLeft = new List<float>();
             sampleDataRight = new List<float>();
+            sampleDataAccessL = sampleDataLeft.ToArray();
+            sampleDataAccessR = sampleDataRight.ToArray();
             sampleLoopType = SampleLoopType.OneShot;
             resampleMode = Audio.ResamplingModes.LinearInterpolation;
-            sampleBaseKey = 48;
-            sampleDetune = 0;
+            BaseKey = 48;
+            Detune = 0;
+            _baseFrequency = Helpers.NoteToFrequency(BaseKey - (Detune / 100f));
         }
+
+        public void SetDetune(int value)
+        {
+            Detune = value;
+            _baseFrequency = Helpers.NoteToFrequency(BaseKey - (Detune / 100f));
+        }
+
+        public void SetBaseKey(int value)
+        {
+            BaseKey = value;
+            _baseFrequency = Helpers.NoteToFrequency(BaseKey - (Detune / 100f));
+        }
+
 
         public void Normalize()
         {
@@ -275,6 +296,8 @@ namespace WaveTracker.Tracker
                 if (sampleDataRight.Count != 0)
                     sampleDataRight[i] /= max;
             }
+            sampleDataAccessL = sampleDataLeft.ToArray();
+            sampleDataAccessR = sampleDataRight.ToArray();
         }
 
         public void Reverse()
@@ -282,91 +305,116 @@ namespace WaveTracker.Tracker
             sampleDataLeft.Reverse();
             if (sampleDataRight.Count != 0)
                 sampleDataRight.Reverse();
+            sampleDataAccessL = sampleDataLeft.ToArray();
+            sampleDataAccessR = sampleDataRight.ToArray();
         }
 
 
 
         public void TrimSilence()
         {
-            if (sampleDataRight.Count == 0)
-                for (int i = sampleDataLeft.Count - 1; i >= 0; --i)
+            if (sampleDataLeft.Count > 1000)
+            {
+                if (sampleDataRight.Count == 0)
                 {
-                    if (Math.Abs(sampleDataLeft[i]) > 0.001f)
+                    for (int i = 0; i < sampleDataLeft.Count; ++i)
                     {
-                        return;
+                        if (Math.Abs(sampleDataLeft[i]) > 0.001f)
+                        {
+                            break;
+                        }
+                        sampleDataLeft.RemoveAt(i);
                     }
-                    sampleDataLeft.RemoveAt(i);
+                    for (int i = sampleDataLeft.Count - 1; i >= 0; --i)
+                    {
+                        if (Math.Abs(sampleDataLeft[i]) > 0.001f)
+                        {
+                            break;
+                        }
+                        sampleDataLeft.RemoveAt(i);
+                    }
                 }
-            else
-                for (int i = sampleDataLeft.Count - 1; i >= 0; --i)
+                else
                 {
-                    if (Math.Abs(sampleDataLeft[i]) > 0.001f || Math.Abs(sampleDataRight[i]) > 0.001f)
+                    for (int i = 0; i < sampleDataLeft.Count; ++i)
                     {
-                        return;
+                        if (Math.Abs(sampleDataLeft[i]) > 0.001f || Math.Abs(sampleDataRight[i]) > 0.001f)
+                        {
+                            break;
+                        }
+                        sampleDataLeft.RemoveAt(i);
+                        sampleDataRight.RemoveAt(i);
                     }
-                    sampleDataLeft.RemoveAt(i);
-                    sampleDataRight.RemoveAt(i);
+                    for (int i = sampleDataLeft.Count - 1; i >= 0; --i)
+                    {
+                        if (Math.Abs(sampleDataLeft[i]) > 0.001f || Math.Abs(sampleDataRight[i]) > 0.001f)
+                        {
+                            break;
+                        }
+                        sampleDataLeft.RemoveAt(i);
+                        sampleDataRight.RemoveAt(i);
+                    }
                 }
+            }
+            sampleDataAccessL = sampleDataLeft.ToArray();
+            sampleDataAccessR = sampleDataRight.ToArray();
         }
 
-        public void DataFromString(string st)
+        public void SampleTick(float time, int stereoPhase, out float outputL, out float outputR)
         {
-            sampleDataLeft.Clear();
-            sampleDataRight.Clear();
-            for (int i = 0; i < st.Length; i += 2)
+            float sampleIndex = 0;
+            float x = (time * (Audio.AudioEngine.sampleRate / _baseFrequency));
+            long l = sampleDataAccessL.Length;
+            long p = sampleLoopIndex;
+            if (sampleLoopType == SampleLoopType.OneShot || x <= l)
             {
-                int sampleL = st[i];
-                int sampleR = st[i + 1];
-                sampleDataLeft.Add(sampleL / ((float)ushort.MaxValue / 4) * 2 - 1);
-                sampleDataRight.Add(sampleR / ((float)ushort.MaxValue / 4) * 2 - 1);
+                sampleIndex = x;
             }
-        }
+            else if (sampleLoopType == SampleLoopType.PingPong)
+            {
+                long b = (long)((x - p) % ((l - p) * 2));
+                if (b < l - p)
+                {
+                    sampleIndex = b + p;
+                }
+                else if (b >= l - p)
+                {
+                    sampleIndex = l - (b + p - l);
+                }
+                //sampleIndex = Math.Abs((sampleIndex - sampleLoopIndex + (len - 1) - 1) % ((len - 1) * 2) - len) + sampleLoopIndex;
 
-        public void SampleTick(decimal time, int stereoPhase, out float outputL, out float outputR)
-        {
-            decimal sampleIndex = (time * (decimal)(Audio.AudioEngine.sampleRate / Helpers.NoteToFrequency(sampleBaseKey - (sampleDetune / 100f))));
-            int len = sampleDataLeft.Count - 1 - (sampleIndex < sampleLoopIndex ? 0 : sampleLoopIndex);
-            if (sampleLoopType == SampleLoopType.OneShot || sampleIndex <= sampleLoopIndex)
-            {
-
             }
-            else if (sampleLoopType == SampleLoopType.PingPong && sampleDataLeft.Count > 2)
+            else if (sampleLoopType == SampleLoopType.Forward)
             {
-                sampleIndex = Math.Abs((sampleIndex - sampleLoopIndex + (len - 1) - 1) % ((len - 1) * 2) - len) + sampleLoopIndex;
-            }
-            else
-            {
-                sampleIndex = (sampleIndex - sampleLoopIndex) % len + sampleLoopIndex;
+                sampleIndex = ((x - p) % (l - p)) + p;
             }
             currentPlaybackPosition = (int)sampleIndex;
             if (resampleMode == Audio.ResamplingModes.NoInterpolation)
             {
-                outputL = getSample(0, (int)(sampleIndex));
-                outputR = getSample(1, (int)(sampleIndex));
+                outputL = getSample(0, (int)(sampleIndex)) * 1.5f;
+                outputR = getSample(1, (int)(sampleIndex)) * 1.5f;
             }
             else if (resampleMode == Audio.ResamplingModes.LinearInterpolation)
             {
                 int one = (int)sampleIndex;
                 int two = one + 1;
-                float by = (float)(sampleIndex % 1m);
-                outputL = MathHelper.Lerp(getSample(0, one), getSample(0, two), by);
-                outputR = MathHelper.Lerp(getSample(1, one), getSample(1, two), by);
+                float by = (float)(sampleIndex % 1f);
+                outputL = MathHelper.Lerp(getSample(0, one), getSample(0, two), by) * 1.5f;
+                outputR = MathHelper.Lerp(getSample(1, one), getSample(1, two), by) * 1.5f;
             }
             else
             {
                 int one = (int)sampleIndex;
                 int two = one + 1;
-                float by = (float)(sampleIndex % 1m);
+                float by = (float)(sampleIndex % 1f);
                 outputL = MathHelper.Lerp(getSample(0, one), getSample(0, two), by);
                 outputR = MathHelper.Lerp(getSample(1, one), getSample(1, two), by);
 
                 outputL += getSample(0, (int)(sampleIndex));
                 outputR += getSample(1, (int)(sampleIndex));
-                outputL /= 2;
-                outputR /= 2;
+                outputL /= 1.33333333f;
+                outputR /= 1.33333333f;
             }
-            outputL *= 1.25f;
-            outputR *= 1.25f;
         }
 
         public void MixToMono()
@@ -377,16 +425,20 @@ namespace WaveTracker.Tracker
                 sampleDataLeft[i] /= 2f;
             }
             sampleDataRight.Clear();
+            sampleDataAccessL = sampleDataLeft.ToArray();
+            sampleDataAccessR = sampleDataRight.ToArray();
         }
 
         float getSample(int chan, int index)
         {
-            if (index >= sampleDataLeft.Count)
+            if (index >= sampleDataAccessL.Length)
                 return 0;
-            if (chan == 0 || sampleDataLeft.Count != sampleDataRight.Count)
-                return sampleDataLeft[index];
+            if (index >= sampleDataAccessL.Length)
+                index = sampleDataAccessL.Length - 1;
+            if (chan == 0 || sampleDataAccessL.Length != sampleDataAccessR.Length)
+                return sampleDataAccessL[index];
             else
-                return sampleDataRight[index];
+                return sampleDataAccessR[index];
         }
 
 

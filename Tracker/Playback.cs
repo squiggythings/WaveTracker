@@ -41,22 +41,23 @@ namespace WaveTracker.Tracker
                         Play();
                     }
             }
-
-            if (Input.GetKeyRepeat(Keys.Enter, KeyModifier.Ctrl))
+            if (!Game1.VisualizerMode)
             {
-                if (Input.dialogOpenCooldown == 0)
+                if (Input.GetKeyRepeat(Keys.Enter, KeyModifier.Ctrl))
                 {
-                    channelManager.PlayRow(FrameEditor.thisRow);
-                    FrameEditor.Move(0, 1);
+                    if (Input.dialogOpenCooldown == 0)
+                    {
+                        channelManager.PlayRow(FrameEditor.thisRow);
+                        FrameEditor.Move(0, 1);
+                    }
+                }
+                if (Input.GetKeyDown(Keys.Enter, KeyModifier.Alt))
+                {
+                    if (Input.dialogOpenCooldown == 0)
+                        if (!isPlaying)
+                            PlayFromCursor();
                 }
             }
-            if (Input.GetKeyDown(Keys.Enter, KeyModifier.Alt))
-            {
-                if (Input.dialogOpenCooldown == 0)
-                    if (!isPlaying)
-                        PlayFromCursor();
-            }
-
         }
 
         public static void Play()
@@ -65,6 +66,12 @@ namespace WaveTracker.Tracker
             channelManager.Reset();
             playbackFrame = FrameEditor.currentFrame;
             playbackRow = 0;
+            Rendering.Visualization.GetWaveColors();
+            if (FrameEditor.followMode)
+            {
+                FrameEditor.cursorRow = Playback.playbackRow;
+                FrameEditor.currentFrame = Playback.playbackFrame;
+            }
             Restore();
             channelManager.ResetTicks(0);
         }
@@ -76,6 +83,12 @@ namespace WaveTracker.Tracker
 
             playbackFrame = FrameEditor.currentFrame;
             playbackRow = FrameEditor.currentRow;
+            Rendering.Visualization.GetWaveColors();
+            if (FrameEditor.followMode)
+            {
+                FrameEditor.cursorRow = Playback.playbackRow;
+                FrameEditor.currentFrame = Playback.playbackFrame;
+            }
             Restore();
             channelManager.ResetTicks(0);
         }
@@ -85,7 +98,13 @@ namespace WaveTracker.Tracker
             isPlaying = true;
             channelManager.Reset();
             playbackFrame = 0;
+            Rendering.Visualization.GetWaveColors();
             playbackRow = 0;
+            if (FrameEditor.followMode)
+            {
+                FrameEditor.cursorRow = Playback.playbackRow;
+                FrameEditor.currentFrame = Playback.playbackFrame;
+            }
             Restore();
             channelManager.ResetTicks(0);
         }
@@ -115,6 +134,7 @@ namespace WaveTracker.Tracker
                     channelManager.ResetTicks(0);
                     lastIsPlaying = true;
                     PlayRow();
+
                     if (ticksPerRowOverride == -1)
                         ticksPerRow = FrameEditor.thisSong.ticksPerRow[playbackRow % FrameEditor.thisSong.ticksPerRow.Length];
                     else
@@ -165,7 +185,8 @@ namespace WaveTracker.Tracker
 
         static void PlayRow()
         {
-            channelManager.PlayRow(Game1.currentSong.frames[playbackFrame].pattern[playbackRow]);
+            if (playbackFrame < Game1.currentSong.frames.Count)
+                channelManager.PlayRow(Game1.currentSong.frames[playbackFrame].pattern[playbackRow]);
         }
 
         static void MoveNextRow()
@@ -188,6 +209,24 @@ namespace WaveTracker.Tracker
             }
         }
 
+        public static void NextFrame()
+        {
+            Debug.WriteLine("next");
+
+            playbackFrame++;
+            playbackFrame %= Game1.currentSong.frames.Count;
+            playbackRow = 0;
+            PlayRow();
+        }
+
+        public static void PreviousFrame()
+        {
+            playbackFrame--;
+            playbackFrame += Game1.currentSong.frames.Count;
+            playbackFrame %= Game1.currentSong.frames.Count;
+            playbackRow = 0;
+            PlayRow();
+        }
         public static void StopNext()
         {
             hasNext = true;

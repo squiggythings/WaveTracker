@@ -36,7 +36,8 @@ namespace WaveTracker.Rendering
                 return;
             }
 
-            currentAmp = (int)(channel.CurrentAmplitude * 50);
+            currentAmp = Math.Clamp((int)(channel.CurrentAmplitude * 50), 0, 50);
+
             if (currentAmp >= amplitude)
                 amplitude = currentAmp;
             else

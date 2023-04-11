@@ -40,8 +40,8 @@ namespace WaveTracker
         public static Tracker.Song newSong;
         public static int pianoInput;
         public static int mouseCursorArrow;
-
-
+        public static bool VisualizerMode;
+        public static Rendering.Visualization visualization;
         public Game1(string[] args)
         {
             graphics = new GraphicsDeviceManager(this);
@@ -78,6 +78,9 @@ namespace WaveTracker
             FrameEditor.channelScrollbar = new UI.ScrollbarHorizontal(22, 323, 768, 7, null);
             FrameEditor.channelScrollbar.SetSize(Tracker.Song.CHANNEL_COUNT, 12);
             editSettings = new Rendering.EditSettings();
+            visualization = new Rendering.Visualization();
+            this.IsFixedTimeStep = true;
+            this.TargetElapsedTime = TimeSpan.FromSeconds(1d / 60d);
             base.Initialize();
             //   control1 = new OuzoTracker.Forms.CreateInstrumentDialog();
             //control1.Show();
@@ -140,12 +143,15 @@ namespace WaveTracker
             }
             else
             {
+                Input.focusTimer = 5;
                 Input.dialogOpenCooldown = 3;
             }
-            if (!Input.internalDialogIsOpen)
-                waveBank.Update();
-            instrumentBank.Update();
-
+            if (!VisualizerMode)
+            {
+                if (!Input.internalDialogIsOpen)
+                    waveBank.Update();
+                instrumentBank.Update();
+            }
             pianoInput = Helpers.GetPianoInput(FrameEditor.currentOctave);
             waveBank.editor.Update();
             instrumentBank.editor.Update();
@@ -174,17 +180,21 @@ namespace WaveTracker
                     Audio.ChannelManager.instance.channels[previewChannel].SetWave(Rendering.WaveBank.currentWave);
             }
             Tracker.Playback.Update(gameTime);
-            songSettings.Update();
-            // TODO: Add your update 
-            frameView.Update();
-            FrameEditor.Update();
-            frameRenderer.Update(gameTime);
-            audioEngine.Update(gameTime);
-            editSettings.Update();
+
+            if (!VisualizerMode)
+            {
+                songSettings.Update();
+                frameView.Update();
+                frameRenderer.Update(gameTime);
+                FrameEditor.Update();
+                editSettings.Update();
+            }
             toolbar.Update();
+            audioEngine.Update();
+
             base.Update(gameTime);
             lastPianoKey = pianoInput;
-            GC.Collect();
+            //GC.Collect();
         }
 
         protected override void Draw(GameTime gameTime)
@@ -199,37 +209,58 @@ namespace WaveTracker
             //targetBatch.Draw(whiteRectangle, new Rectangle(x, y, 1, 1), new Color(36, 43, 66));
             Rendering.Graphics.batch = targetBatch;
 
-            // draw frame editor
-            frameRenderer.DrawFrame(currentSong.frames[FrameEditor.currentFrame], FrameEditor.cursorRow, FrameEditor.cursorColumn);
+            if (!VisualizerMode)
+            {
+                // draw frame editor
+                frameRenderer.DrawFrame(currentSong.frames[FrameEditor.currentFrame], FrameEditor.cursorRow, FrameEditor.cursorColumn);
 
-            // draw instrument bank
-            instrumentBank.Draw();
+                // draw instrument bank
+                instrumentBank.Draw();
 
-            // draw wave bank
-            waveBank.Draw();
+                // draw wave bank
+                waveBank.Draw();
 
-            // draw song settings
-            songSettings.Draw();
+                // draw song settings
+                songSettings.Draw();
 
-            // draw edit settings
-            editSettings.Draw();
+                // draw edit settings
+                editSettings.Draw();
 
-            // draw frame view
-            frameView.Draw();
+                // draw frame view
+                frameView.Draw();
 
-            // draw click position
-            //Rendering.Graphics.DrawRect(Input.lastClickLocation.X, Input.lastClickLocation.Y, 1, 1, Color.Red);
-            //Rendering.Graphics.DrawRect(Input.lastClickReleaseLocation.X, Input.lastClickReleaseLocation.Y, 1, 1, Color.DarkRed);
-
+                // draw click position
+                //Rendering.Graphics.DrawRect(Input.lastClickLocation.X, Input.lastClickLocation.Y, 1, 1, Color.Red);
+                //Rendering.Graphics.DrawRect(Input.lastClickReleaseLocation.X, Input.lastClickReleaseLocation.Y, 1, 1, Color.DarkRed);
+            }
+            else
+            {
+                visualization.Draw();
+            }
             toolbar.Draw();
-            FrameEditor.channelScrollbar.Draw();
-            Rendering.Graphics.DrawRect(0, FrameEditor.channelScrollbar.y, FrameEditor.channelScrollbar.x, FrameEditor.channelScrollbar.height, new Color(223, 224, 232));
-            waveBank.editor.Draw();
-            instrumentBank.editor.Draw();
+            if (!VisualizerMode)
+            {
+                FrameEditor.channelScrollbar.Draw();
+                Rendering.Graphics.DrawRect(0, FrameEditor.channelScrollbar.y, FrameEditor.channelScrollbar.x, FrameEditor.channelScrollbar.height, new Color(223, 224, 232));
+                waveBank.editor.Draw();
+                instrumentBank.editor.Draw();
+            }
             Tooltip.Draw();
+            int y = 0;
+            foreach (Microsoft.Xna.Framework.Input.Keys k in Enum.GetValues(typeof(Microsoft.Xna.Framework.Input.Keys)))
+            {
+                if (Microsoft.Xna.Framework.Input.Keyboard.GetState().IsKeyDown(k))
+                {
+                    Rendering.Graphics.Write(k.ToString(), 0, y, Color.Red);
+                    y += 10;
+                }
 
-            //Rendering.Graphics.Write("FPS: " + 1 / gameTime.ElapsedGameTime.TotalSeconds, 2, 2, Color.Red);
+            }
+
+            Rendering.Graphics.Write("FPS: " + 1 / gameTime.ElapsedGameTime.TotalSeconds, 2, 2, Color.Red);
             targetBatch.End();
+
+
 
             //set rendering back to the back buffer
             GraphicsDevice.SetRenderTarget(null);
@@ -238,6 +269,10 @@ namespace WaveTracker
             //targetBatch.Draw(pixel, new Rectangle(0, 0, 1920, scrOffsetY), Color.White);
             //targetBatch.Draw(pixel, new Rectangle(0, 1080 + scrOffsetY, 1920, 90), Color.White);
             targetBatch.Draw(target, new Rectangle(0, 0, ScreenWidth * ScreenScale, 1200), Color.White);
+            if (VisualizerMode)
+            {
+                visualization.DrawPiano(40, 100, targetBatch);
+            }
             targetBatch.End();
 
             base.Draw(gameTime);

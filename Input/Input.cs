@@ -40,7 +40,7 @@ namespace WaveTracker
         public static bool singleClick;
         public static bool doubleClick;
         public static bool internalDialogIsOpen;
-
+        public static int focusTimer;
         public static void Intialize()
         {
             keyTimePairs = new Dictionary<Keys, int>();
@@ -58,6 +58,10 @@ namespace WaveTracker
 
         public static void GetState(GameTime gameTime)
         {
+            if (focusTimer > 0)
+            {
+                focusTimer--;
+            }
             if (dialogOpenCooldown > 0)
             {
                 dialogOpenCooldown--;

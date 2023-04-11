@@ -7,17 +7,21 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Input;
+using System.Diagnostics;
+using System.Threading;
+
 
 namespace WaveTracker.Audio
 {
     public class AudioEngine
     {
         public const ResamplingModes RESAMPLING_MODE = ResamplingModes.NoInterpolation;
-        public const int bufferLengthMilliseconds = 40;
+        public const int bufferLengthMilliseconds = 17;
         public const int sampleRate = 44100;
         public static int samplesPerTick => (sampleRate / tickSpeed);
         public static AudioEngine instance;
         public int _tickCounter;
+
         public static int tickSpeed
         {
             get
@@ -51,19 +55,20 @@ namespace WaveTracker.Audio
         {
             instance = this;
             _instance = new DynamicSoundEffectInstance(sampleRate, AudioChannels.Stereo);
-            _workingBuffer = new float[2, SamplesPerBuffer];
-            const int bytesPerSample = 2;
-            _xnaBuffer = new byte[2 * SamplesPerBuffer * bytesPerSample];
+
             _instance.Play();
             channelManager = channelMan;
         }
 
         public int SamplesPerBuffer => (int)(bufferLengthMilliseconds / 1000f * sampleRate);
 
-        public void Update(GameTime gameTime)
+        public void Update()
         {
-            while (_instance.PendingBufferCount < 2)
+            Stopwatch sw = Stopwatch.StartNew();
+            while (_instance.PendingBufferCount < 4)
                 SubmitBuffer();
+            sw.Stop();
+            Debug.WriteLine(sw.ElapsedMilliseconds);
         }
 
         private static void ConvertBuffer(float[,] from, byte[] to)
@@ -105,16 +110,26 @@ namespace WaveTracker.Audio
 
         private void SubmitBuffer()
         {
-            //Tracker.Playback.BufferWasSubmitted(SamplesPerBuffer);
+            _workingBuffer = new float[2, SamplesPerBuffer];
+            const int bytesPerSample = 2;
+            _xnaBuffer = new byte[2 * SamplesPerBuffer * bytesPerSample];
             ClearWorkingBuffer(); // Fill buffer with zeros
             FillWorkingBuffer();
             ConvertBuffer(_workingBuffer, _xnaBuffer); // Same method used in part II
-            _instance.SubmitBuffer(_xnaBuffer);
+            try
+            {
+                _instance.SubmitBuffer(_xnaBuffer);
+            }
+            catch { }
         }
 
         private void FillWorkingBuffer()
         {
 
+            foreach (Channel c in channelManager.channels)
+            {
+                c._sampleVolume = 0;
+            }
             for (int i = 0; i < _workingBuffer.GetLength(1); ++i)
             {
                 for (int c = 0; c < channelManager.channels.Count; ++c)
@@ -129,11 +144,17 @@ namespace WaveTracker.Audio
                 {
                     _tickCounter = 0;
                     Tracker.Playback.Step();
+
                     foreach (Channel c in channelManager.channels)
                     {
                         c.NextTick();
                     }
                 }
+                if (Game1.VisualizerMode)
+                    if (_tickCounter % (samplesPerTick / Rendering.Visualization.PianoSpeed) == 0)
+                    {
+                        Game1.visualization.Update();
+                    }
             }
         }
         void ClearWorkingBuffer()

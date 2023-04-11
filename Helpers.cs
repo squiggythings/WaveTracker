@@ -146,9 +146,14 @@ namespace WaveTracker
         public static float NoteToFrequency(float noteNum)
         {
             return (float)Math.Pow(2, (noteNum - 57) / 12.0) * 440;
-
         }
 
+        public static double PowerA(double a, double b)
+        {
+            int tmp = (int)(BitConverter.DoubleToInt64Bits(a) >> 32);
+            int tmp2 = (int)(b * (tmp - 1072632447) + 1072632447);
+            return BitConverter.Int64BitsToDouble(((long)tmp2) << 32);
+        }
         public static Color Alpha(Color c, int a)
         {
             return new Color(c.R, c.G, c.B, a);
@@ -304,27 +309,26 @@ namespace WaveTracker
             try
             {
                 AudioFileReader Nreader = new AudioFileReader(filepath);
-                ISampleProvider isp = Nreader.ToSampleProvider();
-                float[] buffer = new float[Nreader.Length / 2];
+                ISampleProvider isp;
+                bool mono = Nreader.WaveFormat.Channels == 1;
+
+                var outFormat = new WaveFormat(44100, Nreader.WaveFormat.Channels);
+                IWaveProvider waveProvider = Nreader.ToWaveProvider();
+                using (var resampler = new MediaFoundationResampler(Nreader, outFormat))
+                {
+                    isp = resampler.ToSampleProvider();
+                }
+                long sampleLength = (long)(Nreader.Length * (44100.0 / Nreader.WaveFormat.SampleRate));
+                float[] buffer = new float[sampleLength / 4];
                 isp.Read(buffer, 0, buffer.Length);
-                bool mono = isp.WaveFormat.Channels == 1;
                 bool zero = true;
                 for (int s = 0, v = 0; v < buffer.Length; s++)
                 {
-                    if (s > 44100 * 60)
+                    if (s > 44100 * 120)
                         break;
-                    if (!zero)
-                    {
-                        L.Add(buffer[v++]);
+                    L.Add(buffer[v++]);
+                    if (!mono)
                         R.Add(buffer[v++]);
-                    }
-                    else
-                    {
-                        if (buffer[v++] != 0)
-                            zero = false;
-                        if (buffer[v++] != 0)
-                            zero = false;
-                    }
                 }
                 if (mono)
                     R.Clear();
@@ -369,6 +373,59 @@ namespace WaveTracker
             }
             return ret;
         }
-    }
 
+
+        public static Color HSLtoRGB(int h, float s, float l)
+        {
+            byte r = 0;
+            byte g = 0;
+            byte b = 0;
+
+            if (s == 0)
+            {
+                r = g = b = (byte)(l * 255);
+            }
+            else
+            {
+                float v1, v2;
+                float hue = (float)h / 360;
+
+                v2 = (l < 0.5) ? (l * (1 + s)) : ((l + s) - (l * s));
+                v1 = 2 * l - v2;
+
+                r = (byte)(255 * HueToRGB(v1, v2, hue + (1.0f / 3)));
+                g = (byte)(255 * HueToRGB(v1, v2, hue));
+                b = (byte)(255 * HueToRGB(v1, v2, hue - (1.0f / 3)));
+            }
+
+            return new Color(r, g, b);
+        }
+
+        private static float HueToRGB(float v1, float v2, float vH)
+        {
+            if (vH < 0)
+                vH += 1;
+
+            if (vH > 1)
+                vH -= 1;
+
+            if ((6 * vH) < 1)
+                return (v1 + (v2 - v1) * 6 * vH);
+
+            if ((2 * vH) < 1)
+                return v2;
+
+            if ((3 * vH) < 2)
+                return (v1 + (v2 - v1) * ((2.0f / 3) - vH) * 6);
+
+            return v1;
+        }
+    }
+    public static class ExtensionMethods
+    {
+        public static float Map(this float value, float fromSource, float toSource, float fromTarget, float toTarget)
+        {
+            return (value - fromSource) / (toSource - fromSource) * (toTarget - fromTarget) + fromTarget;
+        }
+    }
 }

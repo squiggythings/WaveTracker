@@ -67,30 +67,51 @@ namespace WaveTracker.Rendering
             bNewFrame.enabled = bDuplicateFrame.enabled = FrameEditor.thisSong.frames.Count < 100;
             bMoveRight.enabled = FrameEditor.currentFrame < FrameEditor.thisSong.frames.Count - 1;
             bMoveLeft.enabled = FrameEditor.currentFrame > 0;
-            if (bNewFrame.Clicked)
+            if (new Rectangle(80, 12, 397, 28).Contains(MouseX, MouseY))
             {
-                FrameEditor.thisSong.frames.Insert(++FrameEditor.currentFrame, new Frame());
+                if (Input.MouseScrollWheel(KeyModifier.None) > 0)
+                {
+                    if(Playback.isPlaying)
+                        Playback.NextFrame();
+                    else
+                        FrameEditor.NextFrame();
+                }
+                if(Input.MouseScrollWheel(KeyModifier.None) < 0)
+                {
+                    if (Playback.isPlaying)
+                        Playback.PreviousFrame();
+                    else
+                        FrameEditor.PreviousFrame();
+                }
             }
-            if (bDuplicateFrame.Clicked)
+            if (!Playback.isPlaying)
             {
-                FrameEditor.thisSong.frames.Insert(FrameEditor.currentFrame + 1, FrameEditor.thisFrame.Clone());
-                FrameEditor.currentFrame++;
-            }
-            if (bDeleteFrame.Clicked)
-            {
-                FrameEditor.thisSong.frames.RemoveAt(FrameEditor.currentFrame);
-                FrameEditor.currentFrame--;
-                if (FrameEditor.currentFrame < 0)
-                    FrameEditor.currentFrame = 0;
-            }
+                if (bNewFrame.Clicked)
+                {
+                    FrameEditor.thisSong.frames.Insert(++FrameEditor.currentFrame, new Frame());
+                }
+                if (bDuplicateFrame.Clicked || Input.GetKeyDown(Microsoft.Xna.Framework.Input.Keys.D, KeyModifier.Ctrl))
+                {
+                    FrameEditor.thisSong.frames.Insert(FrameEditor.currentFrame + 1, FrameEditor.thisFrame.Clone());
+                    FrameEditor.currentFrame++;
+                }
+                if (bDeleteFrame.Clicked)
+                {
+                    FrameEditor.thisSong.frames.RemoveAt(FrameEditor.currentFrame);
+                    FrameEditor.currentFrame--;
+                    if (FrameEditor.currentFrame < 0)
+                        FrameEditor.currentFrame = 0;
+                }
 
-            if (bMoveRight.Clicked)
-            {
-                FrameEditor.thisSong.frames.Reverse(FrameEditor.currentFrame++, 2);
-            }
-            if (bMoveLeft.Clicked)
-            {
-                FrameEditor.thisSong.frames.Reverse(--FrameEditor.currentFrame, 2);
+
+                if (bMoveRight.Clicked)
+                {
+                    FrameEditor.thisSong.frames.Reverse(FrameEditor.currentFrame++, 2);
+                }
+                if (bMoveLeft.Clicked)
+                {
+                    FrameEditor.thisSong.frames.Reverse(--FrameEditor.currentFrame, 2);
+                }
             }
         }
 

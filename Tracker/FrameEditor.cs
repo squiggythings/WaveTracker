@@ -44,6 +44,7 @@ namespace WaveTracker
         public static int historyIndex = 0;
         public static UI.ScrollbarHorizontal channelScrollbar;
         static bool lastSelectionActive;
+
         // preferences
 
 
@@ -73,9 +74,9 @@ namespace WaveTracker
         {
 
             #region octave change
-            if (Input.GetKeyRepeat(Keys.OemOpenBrackets, KeyModifier.None))
+            if (Input.GetKeyRepeat(Keys.OemOpenBrackets, KeyModifier.None) || Input.GetKeyRepeat(Keys.Divide, KeyModifier.None))
                 currentOctave--;
-            if (Input.GetKeyRepeat(Keys.OemCloseBrackets, KeyModifier.None))
+            if (Input.GetKeyRepeat(Keys.OemCloseBrackets, KeyModifier.None) || Input.GetKeyRepeat(Keys.Multiply, KeyModifier.None))
                 currentOctave++;
             if (currentOctave < 0)
                 currentOctave = 0;
@@ -100,66 +101,80 @@ namespace WaveTracker
 
             if (Input.GetKeyRepeat(Keys.Space, KeyModifier.None))
                 canEdit = !canEdit;
-            #region selection with mouse
-            if (Input.GetClickDown(KeyModifier._Any))
+            if (!Game1.VisualizerMode)
             {
-                if (Input.MousePositionY > 182 && Input.MousePositionX < 790)
-                    selectionActive = false;
-            }
-            if (Input.GetDoubleClick(KeyModifier._Any))
-            {
-                if (mouseInBounds(mrow, mcolumn - channelScroll * 8) && !selectionActive)
+                #region selection with mouse
+                if (Input.MousePositionX < 790)
                 {
-                    int chan = currentColumn / 5;
-                    selectionStart.X = chan * 5;
-                    selectionEnd.X = chan * 5 + 4;
-                    selectionStart.Y = 0;
-                    selectionEnd.Y = thisSong.rowsPerFrame - 1;
-                    selectionActive = true;
-                }
-            }
-            if (Input.GetClick(KeyModifier._Any))
-            {
-                if (mouseInBounds(mrow, mcolumn - channelScroll * 8) && Input.doubleClick == false)
-                {
-                    if (Vector2.Distance(Input.MousePos, Input.lastClickLocation.ToVector2()) > 7)
+                    if (Input.GetClickDown(KeyModifier._Any))
                     {
-                        if (!isDragging)
+                        if (Input.MousePositionY > 182 && Input.MousePositionX < 790)
+                            selectionActive = false;
+                    }
+                    if (Input.GetDoubleClick(KeyModifier._Any))
+                    {
+                        if (mouseInBounds(mrow, mcolumn - channelScroll * 8) && !selectionActive)
                         {
-                            selectionStart = new Point(cursorColToFileCol(mcolumn), mrow);
+                            int chan = currentColumn / 5;
+                            selectionStart.X = chan * 5;
+                            selectionEnd.X = chan * 5 + 4;
+                            selectionStart.Y = 0;
+                            selectionEnd.Y = thisSong.rowsPerFrame - 1;
                             selectionActive = true;
                         }
-                        isDragging = true;
-                        selectionEnd = new Point(cursorColToFileCol(getCursorColumnFromGlobalX(Input.MousePositionX)), getRowFromGlobalY(Input.MousePositionY));
                     }
-                    if (selectionActive) // scroll when dragging off bounds
+                    if (Input.GetClick(KeyModifier._Any))
                     {
-                        if (Input.MousePositionY > 184 + (Rendering.FrameRenderer.numOfVisibleRows - 1) * 7 && currentRow < Game1.currentSong.rowsPerFrame - 1)
-                            Move(0, 1);
-                        if (Input.MousePositionY < 190 && currentRow > 0)
-                            Move(0, -1);
+                        if (mouseInBounds(mrow, mcolumn - channelScroll * 8) && Input.doubleClick == false)
+                        {
+                            if (Vector2.Distance(Input.MousePos, Input.lastClickLocation.ToVector2()) > 7)
+                            {
+                                if (!isDragging)
+                                {
+                                    selectionStart = new Point(cursorColToFileCol(mcolumn), mrow);
+                                    selectionActive = true;
+                                }
+                                isDragging = true;
+                                selectionEnd = new Point(cursorColToFileCol(getCursorColumnFromGlobalX(Input.MousePositionX)), getRowFromGlobalY(Input.MousePositionY));
+                            }
+                            if (selectionActive) // scroll when dragging off bounds
+                            {
+                                if (Input.MousePositionY > 184 + (Rendering.FrameRenderer.numOfVisibleRows - 1) * 7 && currentRow < Game1.currentSong.rowsPerFrame - 1)
+                                    Move(0, 1);
+                                if (Input.MousePositionY < 190 && currentRow > 0)
+                                    Move(0, -1);
+                            }
+                        }
+
+                    }
+
+                    // click on a cell to move to it
+                    if (Input.GetSingleClickUp(KeyModifier._Any))
+                    {
+                        if (!isDragging && mouseInBounds(mrow, mcolumn - channelScroll * 8))
+                        {
+                            if (!playback)
+                                cursorRow = mrow;
+                            cursorColumn = mcolumn;
+                        }
+                        isDragging = false;
                     }
                 }
-
+                #endregion
             }
-
-            // click on a cell to move to it
-            if (Input.GetSingleClickUp(KeyModifier._Any))
-            {
-                if (!isDragging && mouseInBounds(mrow, mcolumn - channelScroll * 8))
-                {
-                    if (!playback)
-                        cursorRow = mrow;
-                    cursorColumn = mcolumn;
-                }
-                isDragging = false;
-            }
-            #endregion
-
             // moving cursor with scroll
             if (Input.MousePositionY > 151 && Input.MousePositionX < 790 && Input.MousePositionY < Game1.bottomOfScreen - 15)
-                Move(0, Input.MouseScrollWheel(KeyModifier.None) * -4);
-
+                Move(0, Input.MouseScrollWheel(KeyModifier.None) * -Preferences.pageJumpAmount);
+            if (Input.GetKeyRepeat(Keys.PageUp, KeyModifier.None))
+                Move(0, -Preferences.pageJumpAmount);
+            if (Input.GetKeyRepeat(Keys.PageDown, KeyModifier.None))
+                Move(0, Preferences.pageJumpAmount);
+            if (Input.GetKeyDown(Keys.Escape, KeyModifier.None))
+                selectionActive = false;
+            if (Input.GetKeyDown(Keys.Home, KeyModifier.None))
+                Goto(currentFrame, 0);
+            if (Input.GetKeyDown(Keys.End, KeyModifier.None))
+                Goto(currentFrame, thisSong.rowsPerFrame - 1);
             #region moving cursor with arrows
             if (Input.GetKeyRepeat(Keys.Down, KeyModifier.None) || Input.GetKeyDown(Keys.Down, KeyModifier.Alt))
             {
@@ -187,412 +202,423 @@ namespace WaveTracker
                 Move(-1, 0);
                 correctChanScroll();
             }
-            if (Input.GetKeyRepeat(Keys.Right, KeyModifier.Alt) || Input.MouseScrollWheel(KeyModifier.Alt) < 0)
+            if (Input.focusTimer == 0)
             {
-                Move(8, 0);
-                selectionActive = false;
-                correctChanScroll();
+                if (Input.GetKeyRepeat(Keys.Right, KeyModifier.Alt) || Input.MouseScrollWheel(KeyModifier.Alt) < 0 || Input.GetKeyRepeat(Keys.Tab, KeyModifier.None))
+                {
+                    if (Input.GetKeyRepeat(Keys.Tab, KeyModifier.None))
+                        cursorColumn = cursorColumn / 8 * 8;
+                    Move(8, 0);
+                    selectionActive = false;
+                    correctChanScroll();
+                }
+                if (Input.GetKeyRepeat(Keys.Left, KeyModifier.Alt) || Input.MouseScrollWheel(KeyModifier.Alt) > 0 || Input.GetKeyRepeat(Keys.Tab, KeyModifier.Shift))
+                {
+                    if (Input.GetKeyRepeat(Keys.Tab, KeyModifier.Shift))
+                        cursorColumn = cursorColumn / 8 * 8;
+                    Move(-8, 0);
+                    selectionActive = false;
+                    correctChanScroll();
+                }
             }
-            if (Input.GetKeyRepeat(Keys.Left, KeyModifier.Alt) || Input.MouseScrollWheel(KeyModifier.Alt) > 0)
-            {
-                Move(-8, 0);
-                selectionActive = false;
-                correctChanScroll();
-            }
+
+
             #endregion
 
-
-            #region selection with arrows
-            if (!playback && Input.GetKeyRepeat(Keys.Down, KeyModifier.Shift))
+            if (!Game1.VisualizerMode)
             {
-                if (!selectionActive)
+                #region selection with arrows
+                if (!playback && Input.GetKeyRepeat(Keys.Down, KeyModifier.Shift))
                 {
-                    selectionStart = new Point(currentColumn, currentRow);
-                    selectionActive = true;
+                    if (!selectionActive)
+                    {
+                        selectionStart = new Point(currentColumn, currentRow);
+                        selectionActive = true;
+                    }
+                    Move(0, Preferences.ignoreStepWhenMoving ? 1 : step);
+                    selectionEnd = new Point(currentColumn, currentRow);
                 }
-                Move(0, Preferences.ignoreStepWhenMoving ? 1 : step);
-                selectionEnd = new Point(currentColumn, currentRow);
-            }
 
-            if (!playback && Input.GetKeyRepeat(Keys.Up, KeyModifier.Shift))
-            {
-                if (!selectionActive)
+                if (!playback && Input.GetKeyRepeat(Keys.Up, KeyModifier.Shift))
                 {
-                    selectionStart = new Point(currentColumn, currentRow);
-                    selectionActive = true;
+                    if (!selectionActive)
+                    {
+                        selectionStart = new Point(currentColumn, currentRow);
+                        selectionActive = true;
+                    }
+                    Move(0, Preferences.ignoreStepWhenMoving ? -1 : -step);
+                    selectionEnd = new Point(currentColumn, currentRow);
                 }
-                Move(0, Preferences.ignoreStepWhenMoving ? -1 : -step);
-                selectionEnd = new Point(currentColumn, currentRow);
-            }
 
-            if (Input.GetKeyRepeat(Keys.Right, KeyModifier.Shift))
-            {
-                if (!selectionActive)
+                if (Input.GetKeyRepeat(Keys.Right, KeyModifier.Shift))
                 {
-                    selectionStart = new Point(currentColumn, currentRow);
-                    selectionActive = true;
+                    if (!selectionActive)
+                    {
+                        selectionStart = new Point(currentColumn, currentRow);
+                        selectionActive = true;
+                    }
+                    Move(1, 0);
+                    selectionEnd = new Point(currentColumn, currentRow);
                 }
-                Move(1, 0);
-                selectionEnd = new Point(currentColumn, currentRow);
-            }
-            if (Input.GetKeyRepeat(Keys.Left, KeyModifier.Shift))
-            {
-                if (!selectionActive)
+                if (Input.GetKeyRepeat(Keys.Left, KeyModifier.Shift))
                 {
-                    selectionStart = new Point(currentColumn, currentRow);
-                    selectionActive = true;
+                    if (!selectionActive)
+                    {
+                        selectionStart = new Point(currentColumn, currentRow);
+                        selectionActive = true;
+                    }
+                    Move(-1, 0);
+                    selectionEnd = new Point(currentColumn, currentRow);
                 }
-                Move(-1, 0);
-                selectionEnd = new Point(currentColumn, currentRow);
-            }
-            #endregion
+                #endregion
 
-            #region Ctrl-A selection
-            if (Input.GetKeyDown(Keys.A, KeyModifier.Ctrl))
-            {
-                if (selectionMax.X - selectionMin.X == 4 && selectionMin.Y == 0 && selectionMax.Y == thisSong.rowsPerFrame - 1)
+                #region Ctrl-A selection
+                if (Input.GetKeyDown(Keys.A, KeyModifier.Ctrl))
                 {
-                    selectionStart.X = 0;
-                    selectionEnd.X = Song.CHANNEL_COUNT * 5 - 1;
+                    if (selectionMax.X - selectionMin.X == 4 && selectionMin.Y == 0 && selectionMax.Y == thisSong.rowsPerFrame - 1)
+                    {
+                        selectionStart.X = 0;
+                        selectionEnd.X = Song.CHANNEL_COUNT * 5 - 1;
+                    }
+                    else
+                    {
+                        int chan = currentColumn / 5;
+                        selectionStart.X = chan * 5;
+                        selectionEnd.X = chan * 5 + 4;
+                        selectionStart.Y = 0;
+                        selectionEnd.Y = thisSong.rowsPerFrame - 1;
+                        selectionActive = true;
+                    }
+                }
+                #endregion
+
+                #region create selection bounds
+                // create bounds of selection
+                CreateSelectionBounds();
+                if (selectionActive)
+                {
+                    if (!lastSelectionActive)
+                        CopyToScaleClipboard();
+                    lastSelectionActive = true;
                 }
                 else
                 {
-                    int chan = currentColumn / 5;
-                    selectionStart.X = chan * 5;
-                    selectionEnd.X = chan * 5 + 4;
-                    selectionStart.Y = 0;
-                    selectionEnd.Y = thisSong.rowsPerFrame - 1;
-                    selectionActive = true;
+                    if (lastSelectionActive)
+                        scaleclipboard.Clear();
+                    lastSelectionActive = false;
                 }
+                #endregion
             }
-            #endregion
-
-            #region create selection bounds
-            // create bounds of selection
-            CreateSelectionBounds();
-            if (selectionActive)
-            {
-                if (!lastSelectionActive)
-                    CopyToScaleClipboard();
-                lastSelectionActive = true;
-            }
-            else
-            {
-                if (lastSelectionActive)
-                    scaleclipboard.Clear();
-                lastSelectionActive = false;
-            }
-            #endregion
-
             #region moving frames with ctrl-left and ctrl-right
             if (Input.GetKeyRepeat(Keys.Right, KeyModifier.Ctrl))
             {
                 selectionActive = false;
-                NextFrame();
                 if (playback)
-                {
-                    Goto(currentFrame, 0);
-                }
+                    Playback.NextFrame();
+                else
+                    NextFrame();
             }
 
 
             if (Input.GetKeyRepeat(Keys.Left, KeyModifier.Ctrl))
             {
                 selectionActive = false;
-                PreviousFrame();
                 if (playback)
-                {
-                    Goto(currentFrame, 0);
-                }
-            }
-            #endregion
-
-            #region cell input
-            {
-                int input;
-                switch (currentColumn % 5)
-                {
-                    case 0:
-                        input = getPianoInput();
-                        if (input != -1)
-                        {
-                            SetCellValue(Math.Clamp(input, -3, 119), cursorColumn, step);
-                            selectionActive = false;
-                            AddToHistory();
-                        }
-                        break;
-                    case 1:
-                    case 2:
-                        input = getDecimalInput();
-                        if (input != -1)
-                        {
-                            SetCellValue(input, cursorColumn, step);
-                            selectionActive = false;
-                            AddToHistory();
-                        }
-                        break;
-                    case 3:
-                        input = getEffectInput();
-                        if (input != -1)
-                        {
-                            SetCellValue(input, cursorColumn, step);
-                            selectionActive = false;
-                            AddToHistory();
-                        }
-                        break;
-                    case 4:
-                        if (Helpers.isEffectHexadecimal(thisRow[currentColumn - 1]))
-                            input = getHexInput();
-                        else
-                            input = getDecimalInput();
-                        if (input != -1)
-                        {
-                            SetCellValue(input, cursorColumn, step);
-                            selectionActive = false;
-                            AddToHistory();
-                        }
-                        break;
-                }
-            }
-            // deleting
-            if (Input.GetKeyRepeat(Keys.Delete, KeyModifier.None))
-            {
-                Cut();
-            }
-            #endregion
-
-            #region incrementing values and transposition
-            // shift up 1
-            if (canEdit)
-            {
-                if (Input.MouseScrollWheel(KeyModifier.Shift) == 1 || Input.GetKeyRepeat(Keys.F2, KeyModifier.Shift))
-                {
-                    for (int x = selectionMin.X; x <= selectionMax.X; x++)
-                    {
-                        for (int y = selectionMin.Y; y <= selectionMax.Y; y++)
-                        {
-                            if (x % 5 != 0)
-                                IncrementCell(y, x, 1);
-                        }
-                    }
-                    AddToHistory();
-                }
-                // shift down 1
-                if (Input.MouseScrollWheel(KeyModifier.Shift) == -1 || Input.GetKeyRepeat(Keys.F1, KeyModifier.Shift))
-                {
-                    for (int x = selectionMin.X; x <= selectionMax.X; x++)
-                    {
-                        for (int y = selectionMin.Y; y <= selectionMax.Y; y++)
-                        {
-                            if (x % 5 != 0)
-                                IncrementCell(y, x, -1);
-                        }
-                    }
-                    AddToHistory();
-                }
-
-
-                // note up 1
-                if (Input.MouseScrollWheel(KeyModifier.Ctrl) == 1 || Input.GetKeyRepeat(Keys.F2, KeyModifier.Ctrl))
-                {
-                    for (int x = selectionMin.X; x <= selectionMax.X; x++)
-                    {
-                        for (int y = selectionMin.Y; y <= selectionMax.Y; y++)
-                        {
-                            if (x % 5 == 0)
-                                IncrementCell(y, x, 1);
-                        }
-                    }
-                    AddToHistory();
-                }
-
-                // note down 1
-                if (Input.MouseScrollWheel(KeyModifier.Ctrl) == -1 || Input.GetKeyRepeat(Keys.F1, KeyModifier.Ctrl))
-                {
-                    for (int x = selectionMin.X; x <= selectionMax.X; x++)
-                    {
-                        for (int y = selectionMin.Y; y <= selectionMax.Y; y++)
-                        {
-                            if (x % 5 == 0)
-                                IncrementCell(y, x, -1);
-                        }
-                    }
-                    AddToHistory();
-                }
-
-                // note octave down
-                if (Input.GetKeyRepeat(Keys.F4, KeyModifier.Ctrl))
-                {
-                    for (int x = selectionMin.X; x <= selectionMax.X; x++)
-                    {
-                        for (int y = selectionMin.Y; y <= selectionMax.Y; y++)
-                        {
-                            if (x % 5 == 0)
-                                IncrementCell(y, x, 12);
-                        }
-                    }
-                    AddToHistory();
-                }
-
-                // note octave up
-                if (Input.GetKeyRepeat(Keys.F3, KeyModifier.Ctrl))
-                {
-                    for (int x = selectionMin.X; x <= selectionMax.X; x++)
-                    {
-                        for (int y = selectionMin.Y; y <= selectionMax.Y; y++)
-                        {
-                            if (x % 5 == 0)
-                                IncrementCell(y, x, -12);
-                        }
-                    }
-                    AddToHistory();
-                }
-
-                // volume scale up 1
-                if (Input.MouseScrollWheel(KeyModifier.ShiftAlt) == 1 || Input.GetKeyRepeat(Keys.F2, KeyModifier.ShiftAlt))
-                {
-                    ScaleVolumes(1);
-                    AddToHistory();
-                }
-
-                // volume scale down 1
-                if (Input.MouseScrollWheel(KeyModifier.ShiftAlt) == -1 || Input.GetKeyRepeat(Keys.F1, KeyModifier.ShiftAlt))
-                {
-                    ScaleVolumes(-1);
-                    AddToHistory();
-                }
-            }
-            #endregion
-
-            #region interpolation
-            if (Input.GetKey(Keys.G, KeyModifier.Ctrl) && canEdit)
-            {
-                if (selectionActive)
-                {
-                    Interpolate(selectionMin.Y, selectionMax.Y, selectionMin.X);
-                    AddToHistory();
-                }
-            }
-            #endregion
-
-            #region inserting and backspace
-            if (Input.GetKeyRepeat(Keys.Insert, KeyModifier.None) && canEdit)
-            {
-                if (selectionActive)
-                {
-                    for (int i = selectionMin.X; i <= selectionMax.X; i++)
-                    {
-                        InsertVal(selectionMin.Y, i, -1);
-                    }
-                }
+                    Playback.PreviousFrame();
                 else
+                    PreviousFrame();
+            }
+            #endregion
+            if (!Game1.VisualizerMode)
+            {
+                #region cell input
                 {
-                    for (int i = currentColumn / 5 * 5; i < currentColumn / 5 * 5 + 5; ++i)
+                    int input;
+                    switch (currentColumn % 5)
                     {
-                        InsertVal(currentRow, i, -1);
+                        case 0:
+                            input = getPianoInput();
+                            if (input != -1)
+                            {
+                                SetCellValue(Math.Clamp(input, -3, 119), cursorColumn, step);
+                                selectionActive = false;
+                                AddToHistory();
+                            }
+                            break;
+                        case 1:
+                        case 2:
+                            input = getDecimalInput();
+                            if (input != -1)
+                            {
+                                if (currentColumn % 5 == 1 && input < thisSong.instruments.Count)
+                                    Rendering.InstrumentBank.CurrentInstrumentIndex = input;
+                                SetCellValue(input, cursorColumn, step);
+                                selectionActive = false;
+                                AddToHistory();
+                            }
+                            break;
+                        case 3:
+                            input = getEffectInput();
+                            if (input != -1)
+                            {
+                                SetCellValue(input, cursorColumn, step);
+                                selectionActive = false;
+                                AddToHistory();
+                            }
+                            break;
+                        case 4:
+                            if (Helpers.isEffectHexadecimal(thisRow[currentColumn - 1]))
+                                input = getHexInput();
+                            else
+                                input = getDecimalInput();
+                            if (input != -1)
+                            {
+                                SetCellValue(input, cursorColumn, step);
+                                selectionActive = false;
+                                AddToHistory();
+                            }
+                            break;
                     }
                 }
-                AddToHistory();
-            }
-            if (Input.GetKeyRepeat(Keys.Back, KeyModifier.None) && currentRow > 0 && canEdit)
-            {
-                if (selectionActive)
+                // deleting
+                if (Input.GetKeyRepeat(Keys.Delete, KeyModifier.None))
                 {
-                    for (int j = selectionMax.Y; j >= selectionMin.Y; j--)
+                    Cut();
+                }
+                #endregion
+
+                #region incrementing values and transposition
+                // shift up 1
+                if (canEdit)
+                {
+                    if (Input.MouseScrollWheel(KeyModifier.Shift) == 1 || Input.GetKeyRepeat(Keys.F2, KeyModifier.Shift))
+                    {
+                        for (int x = selectionMin.X; x <= selectionMax.X; x++)
+                        {
+                            for (int y = selectionMin.Y; y <= selectionMax.Y; y++)
+                            {
+                                if (x % 5 != 0)
+                                    IncrementCell(y, x, 1);
+                            }
+                        }
+                        AddToHistory();
+                    }
+                    // shift down 1
+                    if (Input.MouseScrollWheel(KeyModifier.Shift) == -1 || Input.GetKeyRepeat(Keys.F1, KeyModifier.Shift))
+                    {
+                        for (int x = selectionMin.X; x <= selectionMax.X; x++)
+                        {
+                            for (int y = selectionMin.Y; y <= selectionMax.Y; y++)
+                            {
+                                if (x % 5 != 0)
+                                    IncrementCell(y, x, -1);
+                            }
+                        }
+                        AddToHistory();
+                    }
+
+
+                    // note up 1
+                    if (Input.MouseScrollWheel(KeyModifier.Ctrl) == 1 || Input.GetKeyRepeat(Keys.F2, KeyModifier.Ctrl))
+                    {
+                        for (int x = selectionMin.X; x <= selectionMax.X; x++)
+                        {
+                            for (int y = selectionMin.Y; y <= selectionMax.Y; y++)
+                            {
+                                if (x % 5 == 0)
+                                    IncrementCell(y, x, 1);
+                            }
+                        }
+                        AddToHistory();
+                    }
+
+                    // note down 1
+                    if (Input.MouseScrollWheel(KeyModifier.Ctrl) == -1 || Input.GetKeyRepeat(Keys.F1, KeyModifier.Ctrl))
+                    {
+                        for (int x = selectionMin.X; x <= selectionMax.X; x++)
+                        {
+                            for (int y = selectionMin.Y; y <= selectionMax.Y; y++)
+                            {
+                                if (x % 5 == 0)
+                                    IncrementCell(y, x, -1);
+                            }
+                        }
+                        AddToHistory();
+                    }
+
+                    // note octave down
+                    if (Input.GetKeyRepeat(Keys.F4, KeyModifier.Ctrl))
+                    {
+                        for (int x = selectionMin.X; x <= selectionMax.X; x++)
+                        {
+                            for (int y = selectionMin.Y; y <= selectionMax.Y; y++)
+                            {
+                                if (x % 5 == 0)
+                                    IncrementCell(y, x, 12);
+                            }
+                        }
+                        AddToHistory();
+                    }
+
+                    // note octave up
+                    if (Input.GetKeyRepeat(Keys.F3, KeyModifier.Ctrl))
+                    {
+                        for (int x = selectionMin.X; x <= selectionMax.X; x++)
+                        {
+                            for (int y = selectionMin.Y; y <= selectionMax.Y; y++)
+                            {
+                                if (x % 5 == 0)
+                                    IncrementCell(y, x, -12);
+                            }
+                        }
+                        AddToHistory();
+                    }
+
+                    // volume scale up 1
+                    if (Input.MouseScrollWheel(KeyModifier.ShiftAlt) == 1 || Input.GetKeyRepeat(Keys.F2, KeyModifier.ShiftAlt))
+                    {
+                        ScaleVolumes(1);
+                        AddToHistory();
+                    }
+
+                    // volume scale down 1
+                    if (Input.MouseScrollWheel(KeyModifier.ShiftAlt) == -1 || Input.GetKeyRepeat(Keys.F1, KeyModifier.ShiftAlt))
+                    {
+                        ScaleVolumes(-1);
+                        AddToHistory();
+                    }
+                }
+                #endregion
+
+                #region interpolation
+                if (Input.GetKey(Keys.G, KeyModifier.Ctrl) && canEdit)
+                {
+                    if (selectionActive)
+                    {
+                        Interpolate(selectionMin.Y, selectionMax.Y, selectionMin.X);
+                        AddToHistory();
+                    }
+                }
+                #endregion
+
+                #region inserting and backspace
+                if (Input.GetKeyRepeat(Keys.Insert, KeyModifier.None) && canEdit)
+                {
+                    if (selectionActive)
                     {
                         for (int i = selectionMin.X; i <= selectionMax.X; i++)
                         {
-                            Backspace(j, i);
+                            InsertVal(selectionMin.Y, i, -1);
                         }
                     }
-                    selectionActive = false;
-                }
-                else
-                {
-                    Move(0, -1);
-                    for (int i = currentColumn / 5 * 5; i < currentColumn / 5 * 5 + 5; ++i)
+                    else
                     {
-                        Backspace(currentRow, i);
+                        for (int i = currentColumn / 5 * 5; i < currentColumn / 5 * 5 + 5; ++i)
+                        {
+                            InsertVal(currentRow, i, -1);
+                        }
                     }
-                }
-                AddToHistory();
-            }
-            #endregion
-
-            #region reversing
-            if (Input.GetKeyRepeat(Keys.R, KeyModifier.Ctrl) && canEdit)
-            {
-                if (selectionActive)
-                {
-                    Reverse();
                     AddToHistory();
                 }
-            }
-            #endregion
-
-            #region alt+s instrument change 
-            if (canEdit && selectionActive)
-            {
-                if (Input.GetKeyDown(Keys.S, KeyModifier.Alt))
+                if (Input.GetKeyRepeat(Keys.Back, KeyModifier.None) && currentRow > 0 && canEdit)
                 {
-                    for (int i = selectionMin.X; i <= selectionMax.X; ++i)
+                    if (selectionActive)
                     {
-                        for (int j = selectionMin.Y; j <= selectionMax.Y; ++j)
+                        for (int j = selectionMax.Y; j >= selectionMin.Y; j--)
                         {
-                            if (i % 5 == 1 && thisFrame.pattern[j][i] >= 0)
-                                thisFrame.pattern[j][i] = (short)Rendering.InstrumentBank.CurrentInstrumentIndex;
+                            for (int i = selectionMin.X; i <= selectionMax.X; i++)
+                            {
+                                Backspace(j, i);
+                            }
+                        }
+                        selectionActive = false;
+                    }
+                    else
+                    {
+                        Move(0, -1);
+                        for (int i = currentColumn / 5 * 5; i < currentColumn / 5 * 5 + 5; ++i)
+                        {
+                            Backspace(currentRow, i);
                         }
                     }
+                    AddToHistory();
                 }
-            }
-            #endregion
+                #endregion
 
-            #region alt+r randomization
-            if (canEdit && selectionActive)
-            {
-                float range = 0.5f;
-                Random r = new Random();
-                if (Input.GetKeyDown(Keys.R, KeyModifier.Alt))
+                #region reversing
+                if (Input.GetKeyRepeat(Keys.R, KeyModifier.Ctrl) && canEdit)
                 {
-                    for (int i = selectionMin.X; i <= selectionMax.X; ++i)
+                    if (selectionActive)
                     {
-                        for (int j = selectionMin.Y; j <= selectionMax.Y; ++j)
+                        Reverse();
+                        AddToHistory();
+                    }
+                }
+                #endregion
+
+                #region alt+s instrument change 
+                if (canEdit && selectionActive)
+                {
+                    if (Input.GetKeyDown(Keys.S, KeyModifier.Alt))
+                    {
+                        for (int i = selectionMin.X; i <= selectionMax.X; ++i)
                         {
-                            if (i % 5 == 2 && thisFrame.pattern[j][i] >= 0)
+                            for (int j = selectionMin.Y; j <= selectionMax.Y; ++j)
                             {
-                                double val = thisFrame.pattern[j][i] * (1 + ((r.NextDouble() - 0.5f) * range));
-                                thisFrame.pattern[j][i] = (short)Math.Clamp(val, 0, 99);
+                                if (i % 5 == 1 && thisFrame.pattern[j][i] >= 0)
+                                    thisFrame.pattern[j][i] = (short)Rendering.InstrumentBank.CurrentInstrumentIndex;
                             }
                         }
                     }
                 }
+                #endregion
+
+                #region alt+r randomization
+                if (canEdit && selectionActive)
+                {
+                    float range = 0.5f;
+                    Random r = new Random();
+                    if (Input.GetKeyDown(Keys.R, KeyModifier.Alt))
+                    {
+                        for (int i = selectionMin.X; i <= selectionMax.X; ++i)
+                        {
+                            for (int j = selectionMin.Y; j <= selectionMax.Y; ++j)
+                            {
+                                if (i % 5 == 2 && thisFrame.pattern[j][i] >= 0)
+                                {
+                                    double val = thisFrame.pattern[j][i] * (1 + ((r.NextDouble() - 0.5f) * range));
+                                    thisFrame.pattern[j][i] = (short)Math.Clamp(val, 0, 99);
+                                }
+                            }
+                        }
+                    }
+                }
+                #endregion
+
+                #region clipboard
+
+                if (Input.GetKeyRepeat(Keys.C, KeyModifier.Ctrl))
+                {
+                    CopyToClipboard();
+                }
+                if (Input.GetKeyRepeat(Keys.V, KeyModifier.Ctrl))
+                {
+                    PasteFromClipboard();
+                }
+                if (Input.GetKeyRepeat(Keys.M, KeyModifier.Ctrl))
+                {
+                    PasteAndMix();
+                }
+
+                #endregion
+
+                #region undo/redo
+                if (Input.GetKeyRepeat(Keys.Z, KeyModifier.Ctrl))
+                    Undo();
+                if (Input.GetKeyRepeat(Keys.Y, KeyModifier.Ctrl))
+                    Redo();
+                #endregion
             }
-            #endregion
-
-            #region clipboard
-
-            if (Input.GetKeyRepeat(Keys.C, KeyModifier.Ctrl))
-            {
-                CopyToClipboard();
-            }
-            if (Input.GetKeyRepeat(Keys.V, KeyModifier.Ctrl))
-            {
-                PasteFromClipboard();
-            }
-            if (Input.GetKeyRepeat(Keys.M, KeyModifier.Ctrl))
-            {
-                PasteAndMix();
-            }
-
-            #endregion
-
-            #region undo/redo
-            if (Input.GetKeyRepeat(Keys.Z, KeyModifier.Ctrl))
-                Undo();
-            if (Input.GetKeyRepeat(Keys.Y, KeyModifier.Ctrl))
-                Redo();
-            #endregion
-
             if (channelScroll < 0)
                 channelScroll = 0;
             if (channelScroll > Song.CHANNEL_COUNT - 12)

@@ -29,12 +29,20 @@ namespace WaveTracker.UI
             {
                 if (Clicked && offset < 12)
                 {
-                    FrameEditor.thisSong.frames.Add(new Frame());
+                    if (!Playback.isPlaying)
+                        FrameEditor.thisSong.frames.Add(new Frame());
                 }
             }
             else if (Clicked && offset < 12 && offset > -12)
             {
-                FrameEditor.currentFrame += offset;
+                if (Playback.isPlaying)
+                {
+                    Playback.playbackFrame += offset;
+                    Playback.NextFrame();
+                    Playback.PreviousFrame();
+                }
+                else
+                    FrameEditor.currentFrame += offset;
             }
             enabled = FrameEditor.currentFrame + offset >= 0 && FrameEditor.currentFrame + offset <= FrameEditor.thisSong.frames.Count;
         }

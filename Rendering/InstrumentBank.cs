@@ -86,7 +86,9 @@ namespace WaveTracker.Rendering
                     }
                     if (Input.GetDoubleClick(KeyModifier.None))
                     {
-                        editor.EditMacro(GetCurrentInstrument, CurrentInstrumentIndex);
+                        int ix = (MouseY - 28) / 11 + scrollbar.scrollValue;
+                        if (ix < song.instruments.Count && ix >= 0)
+                            editor.EditMacro(GetCurrentInstrument, CurrentInstrumentIndex);
                     }
                 }
             }

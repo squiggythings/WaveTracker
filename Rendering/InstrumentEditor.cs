@@ -102,7 +102,6 @@ namespace WaveTracker.Rendering
             sample_loopPoint.bDown.isPartOfInternalDialog = true;
             sample_loopPoint.bUp.isPartOfInternalDialog = true;
 
-
             #endregion
 
 
@@ -121,8 +120,8 @@ namespace WaveTracker.Rendering
                     {
                         if (tabGroup.selected == 0)
                         {
-                            sample_baseKey.Value = instrument.sample.sampleBaseKey;
-                            sample_detune.Value = instrument.sample.sampleDetune;
+                            sample_baseKey.Value = instrument.sample.BaseKey;
+                            sample_detune.Value = instrument.sample.Detune;
                             sample_loopOneshot.Value = instrument.sample.sampleLoopType == SampleLoopType.OneShot;
                             sample_loopForward.Value = instrument.sample.sampleLoopType == SampleLoopType.Forward;
                             sample_loopPingpong.Value = instrument.sample.sampleLoopType == SampleLoopType.PingPong;
@@ -192,12 +191,12 @@ namespace WaveTracker.Rendering
                                 sample_loopForward.Value = instrument.sample.sampleLoopType == SampleLoopType.Forward;
                                 sample_loopPingpong.Value = instrument.sample.sampleLoopType == SampleLoopType.PingPong;
 
-                                sample_baseKey.Value = instrument.sample.sampleBaseKey;
+                                sample_baseKey.Value = instrument.sample.BaseKey;
                                 sample_baseKey.Update();
-                                instrument.sample.sampleBaseKey = sample_baseKey.Value;
-                                sample_detune.Value = instrument.sample.sampleDetune;
+                                instrument.sample.SetBaseKey(sample_baseKey.Value);
+                                sample_detune.Value = instrument.sample.Detune;
                                 sample_detune.Update();
-                                instrument.sample.sampleDetune = sample_detune.Value;
+                                instrument.sample.SetDetune(sample_detune.Value);
                                 #endregion
 
 
@@ -441,15 +440,10 @@ namespace WaveTracker.Rendering
                     max *= boxHeight / 2;
                     if (i > 0)
                         DrawRect(x + i - 1, startY - (int)(max), 1, (int)(max - min) + 1, new Color(207, 117, 43));
-                    if (instrument.sample.sampleLoopType != SampleLoopType.OneShot)
-                    {
-                        if (instrument.sample.sampleLoopIndex < sampleNum && instrument.sample.sampleLoopIndex >= lastSampleNum)
-                        {
-                            DrawRect(x + i - 1, y, 1, boxHeight, Color.Yellow);
-                        }
-                    }
 
                 }
+                if (instrument.sample.sampleLoopType != SampleLoopType.OneShot)
+                    DrawRect(x + (int)((float)instrument.sample.sampleLoopIndex / data.Count * boxLength), y, 1, boxHeight, Color.Yellow);
                 if (instrument.sample.currentPlaybackPosition < data.Count && Audio.ChannelManager.instance.channels[Game1.previewChannel].isPlaying)
                     DrawRect(x + (int)((float)instrument.sample.currentPlaybackPosition / data.Count * boxLength), y, 1, boxHeight, Color.Aqua);
             }
@@ -492,16 +486,18 @@ namespace WaveTracker.Rendering
                     t.Join();
                     if (didReadWAV)
                     {
-                        macro.sample.sampleBaseKey = 48;
-                        macro.sample.sampleDetune = 0;
+                        macro.sample.SetBaseKey(48);
+                        macro.sample.SetDetune(0);
                         macro.sample.sampleLoopIndex = 0;
-                        macro.sample.sampleLoopType = SampleLoopType.OneShot;
+                        macro.sample.sampleLoopType = macro.sample.sampleDataLeft.Count < 1000 ? SampleLoopType.Forward : SampleLoopType.OneShot;
                         macro.sample.resampleMode = ResamplingModes.LinearInterpolation;
                         if (successfulReadWAV)
                         {
-                            macro.sample.TrimSilence();
+                            if (Preferences.automaticallyTrimSamples)
+                                macro.sample.TrimSilence();
                             if (Preferences.automaticallyNormalizeSamples)
                                 macro.sample.Normalize();
+
                             macro.sample.resampleMode = ResamplingModes.LinearInterpolation;
                         }
                         else

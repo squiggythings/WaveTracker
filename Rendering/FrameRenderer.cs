@@ -162,7 +162,7 @@ namespace WaveTracker.Rendering
                 x += 13;
                 WriteEffect(rowContent[i + FrameEditor.channelScroll * 5 + 3], x, y, isCurrRow);
                 x += 5;
-                WriteEffectParameter(rowContent[i + FrameEditor.channelScroll * 5 + 4], x, y, isCurrRow, rowContent[i + 3]);
+                WriteEffectParameter(rowContent[i + FrameEditor.channelScroll * 5 + 4], x, y, isCurrRow, rowContent[i + FrameEditor.channelScroll * 5 + 3]);
                 x += 14;
             }
             if (isCurrRow && rowContent[FrameEditor.currentColumn] == -1)

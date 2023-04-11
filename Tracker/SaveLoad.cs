@@ -28,9 +28,7 @@ namespace WaveTracker
 
         public static bool isSaved { get { if (Game1.currentSong.Equals(Game1.newSong)) return true; if (savedSong == null) return false; else return savedSong.Equals(Game1.currentSong); } }
         public static string filePath = "";
-        static char delimiter = (char)(10);
 
-        public static bool isWorking;
         public static string fileName { get { if (filePath == "") return "Untitled.wtm"; return Path.GetFileName(filePath); } }
         public static int savecooldown = 0;
         public static bool thisSongExists()
@@ -42,27 +40,20 @@ namespace WaveTracker
         {
             Stopwatch sw = Stopwatch.StartNew();
             BinaryFormatter formatter = new BinaryFormatter();
-            //byte[] bytes;
-            //using (MemoryStream ms = new MemoryStream())
-            //{
-            //    Game1.currentSong.frameEdits = 0;
 
-            //    savedSong = Game1.currentSong.Clone();
-            //    BinaryFormatter formatter = new BinaryFormatter();
-            //    //XmlSerializer formatter = new XmlSerializer(typeof(Song));
-            //    formatter.Serialize(ms, savedSong);
-            //    bytes = ms.ToArray();
-            //}
-            //for (int i = 0; i < bytes.Length; ++i)
-            //{
-            //    bytes[i] = (byte)((bytes[i] + 50) % 256);
-            //}
-            using (FileStream fs = new FileStream(path, FileMode.Create))
+            try
             {
                 savedSong = Game1.currentSong.Clone();
+            }
+            catch
+            {
+                Debug.WriteLine("failed to save");
+                return;
+            }
+            using (FileStream fs = new FileStream(path, FileMode.Create))
+            {
                 formatter.Serialize(fs, savedSong);
             }
-            // File.WriteAllBytes(path, bytes);
             sw.Stop();
             Debug.WriteLine("saved in " + sw.ElapsedMilliseconds + " ms");
             return;
@@ -71,6 +62,8 @@ namespace WaveTracker
 
         public static void SaveFile()
         {
+            if (Input.internalDialogIsOpen)
+                return;
             if (savecooldown == 0)
                 if (!File.Exists(filePath))
                 {
@@ -85,6 +78,8 @@ namespace WaveTracker
 
         public static void NewFile()
         {
+            if (Input.internalDialogIsOpen)
+                return;
             if (!isSaved)
             {
                 PromptUnsaved();
@@ -99,6 +94,8 @@ namespace WaveTracker
 
         public static void SaveFileAs()
         {
+            if (Input.internalDialogIsOpen)
+                return;
             // set filepath to dialogresult
             if (SetFilePathThroughSaveAsDialog())
                 SaveTo(filePath);
@@ -106,6 +103,8 @@ namespace WaveTracker
 
         public static void OpenFile()
         {
+            if (Input.internalDialogIsOpen)
+                return;
             if (savecooldown == 0)
             {
                 // set filepath to dialog result
@@ -121,6 +120,8 @@ namespace WaveTracker
                 if (SetFilePathThroughOpenDialog())
                     if (LoadFrom(filePath))
                     {
+                        Rendering.Visualization.GetWaveColors();
+                        Audio.ChannelManager.instance.Reset();
                         FrameEditor.Goto(0, 0);
                         FrameEditor.cursorColumn = 0;
                     }
@@ -135,14 +136,6 @@ namespace WaveTracker
             savecooldown = 4;
         }
 
-        public static void DoUnsavedCheck()
-        {
-            if (PromptUnsaved2() == DialogResult.Cancel)
-            {
-                return;
-            }
-        }
-
         static bool LoadFrom(string path)
         {
             try
@@ -151,16 +144,10 @@ namespace WaveTracker
                 stopwatch.Start();
 
                 BinaryFormatter formatter = new BinaryFormatter();
-                //formatter.Binder = new SongSerializationBinder();
-                //byte[] bytes;
+                
                 MemoryStream ms = new MemoryStream();
                 using (FileStream fs = new FileStream(path, FileMode.Open))
                 {
-                    //for (int i = 0; i < fs.Length; ++i)
-                    //{
-                    //    ms.WriteByte((byte)((fs.ReadByte() - 50 + 256) % 256));
-                    //}
-                    //ms.Position = 0;
                     savedSong = (Song)formatter.Deserialize(fs);
                 }
                 Game1.currentSong = savedSong.Clone();
