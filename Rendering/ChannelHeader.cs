@@ -18,6 +18,7 @@ namespace WaveTracker.Rendering
         int amplitude;
         int currentAmp;
         Audio.Channel channel;
+        float sampVolume;
         public ChannelHeader(int id, Audio.Channel ch)
         {
             this.id = id;
@@ -35,7 +36,6 @@ namespace WaveTracker.Rendering
                 }
                 return;
             }
-
             currentAmp = Math.Clamp((int)(channel.CurrentAmplitude * 50), 0, 50);
 
             if (currentAmp >= amplitude)
@@ -74,6 +74,7 @@ namespace WaveTracker.Rendering
             {
                 FrameEditor.ToggleChannel(id);
             }
+            channel._sampleVolume = -1;
         }
 
         public void Draw()

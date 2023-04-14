@@ -77,7 +77,7 @@ namespace WaveTracker.Audio
             public override int Read(float[] buffer, int offset, int sampleCount)
             {
                 int sampleRate = WaveFormat.SampleRate;
-                float delta = 1f / (sampleRate * tickSpeed / 60);
+                float delta = (1f / sampleRate) * (tickSpeed / 60f);
 
                 for (int n = 0; n < sampleCount; n += 2)
                 {

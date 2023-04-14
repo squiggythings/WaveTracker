@@ -62,8 +62,6 @@ namespace WaveTracker
 
         public static void SaveFile()
         {
-            if (Input.internalDialogIsOpen)
-                return;
             if (savecooldown == 0)
                 if (!File.Exists(filePath))
                 {
@@ -84,6 +82,7 @@ namespace WaveTracker
             {
                 PromptUnsaved();
             }
+            Playback.Stop();
             filePath = "";
             FrameEditor.ClearHistory();
             FrameEditor.Goto(0, 0);
@@ -97,6 +96,7 @@ namespace WaveTracker
             if (Input.internalDialogIsOpen)
                 return;
             // set filepath to dialogresult
+            Playback.Stop();
             if (SetFilePathThroughSaveAsDialog())
                 SaveTo(filePath);
         }
@@ -105,6 +105,7 @@ namespace WaveTracker
         {
             if (Input.internalDialogIsOpen)
                 return;
+            Playback.Stop();
             if (savecooldown == 0)
             {
                 // set filepath to dialog result
@@ -151,7 +152,9 @@ namespace WaveTracker
                     savedSong = (Song)formatter.Deserialize(fs);
                 }
                 Game1.currentSong = savedSong.Clone();
-
+                Audio.ChannelManager.instance.Reset();
+                FrameEditor.Goto(0, 0);
+                FrameEditor.cursorColumn = 0;
                 stopwatch.Stop();
                 Debug.WriteLine("opened in " + stopwatch.ElapsedMilliseconds + " ms");
             }
