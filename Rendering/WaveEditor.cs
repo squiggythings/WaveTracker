@@ -26,7 +26,7 @@ namespace WaveTracker.Rendering
         public int id;
         int holdPosY, holdPosX;
         static string clipboardWave = "";
-        static Audio.ResamplingModes clipboardSampleMode = Audio.ResamplingModes.Average;
+        static Audio.ResamplingModes clipboardSampleMode = Audio.ResamplingModes.Mix;
         int phase;
         public WaveEditor(Texture2D tex)
         {
@@ -174,9 +174,9 @@ namespace WaveTracker.Rendering
             if (enabled)
             {
                 phase++;
-                filterNone.Value = Game1.currentSong.waves[WaveBank.currentWave].resamplingMode == Audio.ResamplingModes.NoInterpolation;
-                filterLinear.Value = Game1.currentSong.waves[WaveBank.currentWave].resamplingMode == Audio.ResamplingModes.LinearInterpolation;
-                filterMix.Value = Game1.currentSong.waves[WaveBank.currentWave].resamplingMode == Audio.ResamplingModes.Average;
+                filterNone.Value = Game1.currentSong.waves[WaveBank.currentWave].resamplingMode == Audio.ResamplingModes.None;
+                filterLinear.Value = Game1.currentSong.waves[WaveBank.currentWave].resamplingMode == Audio.ResamplingModes.Linear;
+                filterMix.Value = Game1.currentSong.waves[WaveBank.currentWave].resamplingMode == Audio.ResamplingModes.Mix;
                 if (startcooldown > 0)
                 {
                     waveText.Text = Game1.currentSong.waves[WaveBank.currentWave].ToNumberString();
@@ -198,11 +198,11 @@ namespace WaveTracker.Rendering
                         waveText.Text = Game1.currentSong.waves[WaveBank.currentWave].ToNumberString();
                     }
                     if (filterNone.Clicked)
-                        Game1.currentSong.waves[WaveBank.currentWave].resamplingMode = Audio.ResamplingModes.NoInterpolation;
+                        Game1.currentSong.waves[WaveBank.currentWave].resamplingMode = Audio.ResamplingModes.None;
                     if (filterLinear.Clicked)
-                        Game1.currentSong.waves[WaveBank.currentWave].resamplingMode = Audio.ResamplingModes.LinearInterpolation;
+                        Game1.currentSong.waves[WaveBank.currentWave].resamplingMode = Audio.ResamplingModes.Linear;
                     if (filterMix.Clicked)
-                        Game1.currentSong.waves[WaveBank.currentWave].resamplingMode = Audio.ResamplingModes.Average;
+                        Game1.currentSong.waves[WaveBank.currentWave].resamplingMode = Audio.ResamplingModes.Mix;
 
                     if (presetSine.Clicked)
                         Game1.currentSong.waves[WaveBank.currentWave].SetWaveformFromString("HJKMNOQRSTUUVVVVVVVUUTSRQONMKJHGECB9875432110000000112345789BCEF");

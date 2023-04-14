@@ -70,13 +70,19 @@ namespace WaveTracker.Rendering
             copyright.Draw();
             speed.Draw();
             rows.Draw();
-            if (Preferences.oscilloscopeMode == 1)
-                DrawMonoOscilloscope(166, 44, 135, 35, new Color(56, 64, 102));
-            if (Preferences.oscilloscopeMode == 2)
-                DrawStereoOscilloscope(166, 44, 135, 35, new Color(56, 64, 102));
-            if (Preferences.oscilloscopeMode == 3)
-                DrawOverlappedOscilloscope(166, 44, 135, 35, new Color(56, 64, 102));
-            DrawVolumeMeters(16, 70, 143, 4);
+            if (Audio.AudioEngine.currentBuffer != null)
+            {
+                if (Audio.AudioEngine.currentBuffer.Length > 0)
+                {
+                    if (Preferences.oscilloscopeMode == 1)
+                        DrawMonoOscilloscope(166, 44, 135, 35, new Color(56, 64, 102));
+                    if (Preferences.oscilloscopeMode == 2)
+                        DrawStereoOscilloscope(166, 44, 135, 35, new Color(56, 64, 102));
+                    if (Preferences.oscilloscopeMode == 3)
+                        DrawOverlappedOscilloscope(166, 44, 135, 35, new Color(56, 64, 102));
+                    DrawVolumeMeters(16, 70, 143, 4);
+                }
+            }
         }
 
         public void DrawVolumeMeters(int px, int py, int width, int height)
@@ -93,17 +99,17 @@ namespace WaveTracker.Rendering
             DrawRect(px - 5, py + height + 4, 1, 1, grey);
             #endregion
 
-            float[,] samples = Audio.AudioEngine.instance.currentBuffer;
+            float[,] samples = Audio.AudioEngine.currentBuffer;
             float avgL = 0;
             float avgR = 0;
 
-            for (int i = 0; i < Audio.AudioEngine.instance.SamplesPerBuffer; i++)
+            for (int i = 0; i < Audio.AudioEngine.SamplesPerBuffer; i++)
             {
                 avgL += Math.Abs(samples[0, i]) * 2;
                 avgR += Math.Abs(samples[1, i]) * 2;
             }
-            avgL /= Audio.AudioEngine.instance.SamplesPerBuffer;
-            avgR /= Audio.AudioEngine.instance.SamplesPerBuffer;
+            avgL /= Audio.AudioEngine.SamplesPerBuffer;
+            avgR /= Audio.AudioEngine.SamplesPerBuffer;
             RMScounter++;
             if (RMScounter >= linearRMS.GetLength(1))
                 RMScounter = 0;
@@ -148,10 +154,10 @@ namespace WaveTracker.Rendering
         public void DrawOverlappedOscilloscope(int px, int py, int width, int height, Color back)
         {
             DrawRect(px, py, width, height, back);
-            float[,] samples = Audio.AudioEngine.instance.currentBuffer;
+            float[,] samples = Audio.AudioEngine.currentBuffer;
             int i = 0;
             int drawX = 0;
-            int zoomX = Audio.AudioEngine.instance.SamplesPerBuffer / width;
+            int zoomX = Audio.AudioEngine.SamplesPerBuffer / width;
             while (drawX < width - 2)
             {
                 int[] ys = new int[zoomX];
@@ -198,10 +204,10 @@ namespace WaveTracker.Rendering
         public void DrawMonoOscilloscope(int px, int py, int width, int height, Color back)
         {
             DrawRect(px, py, width, height, back);
-            float[,] samples = Audio.AudioEngine.instance.currentBuffer;
+            float[,] samples = Audio.AudioEngine.currentBuffer;
             int i = 0;
             int drawX = 0;
-            int zoomX = Audio.AudioEngine.instance.SamplesPerBuffer / width;
+            int zoomX = Audio.AudioEngine.SamplesPerBuffer / width;
             while (drawX < width - 2)
             {
 
@@ -230,10 +236,10 @@ namespace WaveTracker.Rendering
         public void DrawStereoOscilloscope(int px, int py, int width, int height, Color back)
         {
             DrawRect(px, py, width, height, back);
-            float[,] samples = Audio.AudioEngine.instance.currentBuffer;
+            float[,] samples = Audio.AudioEngine.currentBuffer;
             int i = 0;
             int drawX = 0;
-            int zoomX = Audio.AudioEngine.instance.SamplesPerBuffer / width * 2;
+            int zoomX = Audio.AudioEngine.SamplesPerBuffer / width * 2;
             while (drawX < width / 2 - 1)
             {
                 int[] ys = new int[zoomX];

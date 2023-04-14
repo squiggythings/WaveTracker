@@ -90,9 +90,11 @@ namespace WaveTracker.Audio
             Reset();
         }
 
+        public float sampleTime => (float)_time;
+
         public void QueueEvent(TickEventType eventType, int val1, int val2, int delay)
         {
-            tickEvents.Add(new TickEvent(eventType, val1, val2, delay + 0));
+            tickEvents.Add(new TickEvent(eventType, val1, val2, delay));
         }
 
         public void EffectCommand(int command, int parameter)
@@ -111,7 +113,7 @@ namespace WaveTracker.Audio
             }
             if (command == 8) // 8XX
             {
-                _Pan(parameter / 100f);
+                Pan(parameter / 100f);
             }
             if (command == 1) // 1XX
             {
@@ -246,7 +248,7 @@ namespace WaveTracker.Audio
             bendSpeed = 0;
             targetBendAmt = 0;
             bendOffset = 0;
-            _Pan(0.5f);
+            Pan(0.5f);
         }
 
         public void SetWave(int w)
@@ -305,7 +307,7 @@ namespace WaveTracker.Audio
             }
 
         }
-        private void _Pan(float val)
+        private void Pan(float val)
         {
 
             if (val > 0.98f)
@@ -322,6 +324,14 @@ namespace WaveTracker.Audio
                     return totalAmplitude * (_state == VoiceState.Off ? 0 : 1);
                 else
                     return totalAmplitude * (_sampleVolume / 1.5f + 0.01f) * (_state == VoiceState.Off ? 0 : 1);
+            }
+        }
+
+        public float CurrentAmplitudeAsWave
+        {
+            get
+            {
+                return totalAmplitude * (_state == VoiceState.Off ? 0 : 1);
             }
         }
 
@@ -354,7 +364,7 @@ namespace WaveTracker.Audio
             if (vibratoIntensity > 0)
             {
                 vibratoTime += deltaTime * vibratoSpeed * 3f;
-                vibratoOffset = (float)Math.Sin(vibratoTime * 2) * vibratoIntensity / 10f;
+                vibratoOffset = (float)Math.Sin(vibratoTime * 2) * vibratoIntensity / 5f;
             }
             else
                 vibratoOffset = 0;
@@ -487,7 +497,7 @@ namespace WaveTracker.Audio
             }
         }
 
-        public void ProcessSingleSample(out float left, out float right)
+        public void ProcessSingleSample(out float left, out float right, bool continuousTick, float continuousDelta)
         {
             left = right = 0;
             if (FrameEditor.channelToggles[id])
@@ -508,7 +518,8 @@ namespace WaveTracker.Audio
                     _state = VoiceState.Off;
                 }
                 decimal delta = 1.0M / AudioEngine.sampleRate * (Decimal)_frequency;
-                ContinuousTick((float)(1.0M / AudioEngine.sampleRate * AudioEngine.tickSpeed / 60));
+                if (continuousTick)
+                    ContinuousTick(continuousDelta);
                 if (noteOn)
                 {
 
@@ -620,7 +631,7 @@ namespace WaveTracker.Audio
                 step = Math.Clamp(step, 0, toPlay.values.Count - 1);
             if (toPlay.values.Count == 0 || step < 0)
                 return toPlay.defaultValue;
-            return toPlay.values[step];
+            return toPlay.values[Math.Clamp(step, 0, toPlay.values.Count - 1)];
         }
 
         public void Step()

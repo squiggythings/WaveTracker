@@ -15,7 +15,6 @@ namespace WaveTracker.Rendering
 {
     public class Visualization : Element
     {
-        public static int PianoSpeed = 8;
         public List<List<ChannelState>> states;
         static Color[] waveColors;
 
@@ -99,7 +98,7 @@ namespace WaveTracker.Rendering
             for (int c = 0; c < ChannelManager.instance.channels.Count; c++)
             {
                 Channel chan = ChannelManager.instance.channels[c];
-                if ((chan.currentMacro.macroType == MacroType.Wave || Preferences.visualizerShowSamplesInPianoRoll) && chan.CurrentAmplitude > 0.01f && chan.CurrentPitch > 0 && chan.CurrentPitch < 120 && FrameEditor.channelToggles[c])
+                if ((chan.currentMacro.macroType == MacroType.Wave || Preferences.visualizerShowSamplesInPianoRoll) && chan.CurrentAmplitude > 0.01f && chan.CurrentPitch >= 0 && chan.CurrentPitch < 120 && FrameEditor.channelToggles[c])
                 {
                     ChannelState state = new ChannelState(chan.CurrentPitch, chan.CurrentAmplitude, chan.currentMacro.macroType == MacroType.Wave ? waveColors[chan.waveIndex] : Color.White);
                     rowOfStates.Add(state);
@@ -112,21 +111,87 @@ namespace WaveTracker.Rendering
                 states.Add(rowOfStates);
             while (states.Count > 380 * 2)
                 states.RemoveAt(380 * 2);
-
-
         }
 
 
         public void Draw()
         {
             //DrawPiano(20, 50);
+
+
         }
+
+        public void DrawOscilloscopes()
+        {
+            int oscsX = 645 * 2;
+            int oscsY = 26 * 2;
+            int oscsW = 99 * 2;
+            int oscsH = 49 * 2;
+            int numOscsX = 3, numOscsY = 8;
+            DrawRect(oscsX, oscsY, (oscsW + 2) * numOscsX + 2, (oscsH + 2) * numOscsY + 2, Color.White);
+            for (int y = 0; y < numOscsY; ++y)
+            {
+                for (int x = 0; x < numOscsX; ++x)
+                {
+                    DrawOscilloscope(x + y * numOscsX + 1, oscsX + x * (oscsW + 2) + 2, oscsY + y * (oscsH + 2) + 2, oscsW, oscsH);
+                }
+            }
+        }
+
+        public void DrawOscilloscope(int channelNum, int px, int py, int w, int h)
+        {
+
+            Color crossColor = new Color(44, 53, 77);
+            DrawRect(px, py, w, h, new Color(20, 24, 46));
+            DrawRect(px, py + h / 2, w, 1, crossColor);
+            DrawRect(px + w / 2, py, 1, h, crossColor);
+            Write("Channel " + channelNum, px + 1, py + 1, crossColor);
+
+            Channel ch = ChannelManager.instance.channels[channelNum - 1];
+            float samp1 = 0;
+            float lastSamp = 0;
+            if (FrameEditor.channelToggles[channelNum - 1])
+            {
+                if (ch.currentMacro.macroType == MacroType.Wave)
+                {
+                    Wave wv = ch.currentWave;
+                    for (int i = -w / 2; i < w / 2 - 1; ++i)
+                    {
+                        lastSamp = samp1;
+                        samp1 = -wv.getSampleAtPosition(i / (float)w * ch.CurrentFrequency / Preferences.visualizerScopeZoom) * (h / 2f) * ch.CurrentAmplitude + (h / 2f);
+                        if (i > -w / 2)
+                            DrawCol(px + i + w / 2, py - 2, samp1, lastSamp, waveColors[ch.waveIndex], 2);
+                    }
+                }
+                else
+                {
+                    Sample samp = ch.currentMacro.sample;
+                    for (int i = -w / 2; i < w / 2 - 1; ++i)
+                    {
+                        lastSamp = samp1;
+                        samp1 = -samp.getMonoSample((i / (float)w * ch.CurrentFrequency / Preferences.visualizerScopeZoom) + ch.sampleTime) * (h / 2f) * ch.CurrentAmplitudeAsWave + (h / 2f);
+                        if (i > -w / 2)
+                            DrawCol(px + i + w / 2, py - 2, samp1, lastSamp, Color.White, 2);
+                    }
+                }
+            }
+
+        }
+
+        void DrawCol(int x, int y, float min, float max, Color c, int size)
+        {
+            if (min < max)
+                DrawRect(x, y + (int)min, size, (int)(max - min) + size, c);
+            else
+                DrawRect(x, y + (int)max, size, (int)(min - max) + size, c);
+        }
+
         public void DrawPiano(int px, int py, SpriteBatch batch)
         {
             DrawSprite(InstrumentEditor.tex, px, py - 24 * 2, 1200, 48, new Rectangle(16, 688, 600, 24));
-            foreach (List<ChannelState> row in states)
+            for (int i = 0; i < states.Count; i++)
             {
-                foreach (ChannelState state in row)
+                foreach (ChannelState state in states[i])
                 {
                     int width = (int)state.volume.Map(0, 1, 1, 15);
                     DrawRect((int)(px + state.pitch * 10 + 4) - width / 2 + 1, y + py, width, 1, Helpers.Alpha(state.color, (int)state.volume.Map(0, 1, 10, 255)));

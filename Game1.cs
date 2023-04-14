@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Threading;
+using System.Diagnostics;
 
 
 namespace WaveTracker
@@ -79,8 +80,8 @@ namespace WaveTracker
             FrameEditor.channelScrollbar.SetSize(Tracker.Song.CHANNEL_COUNT, 12);
             editSettings = new Rendering.EditSettings();
             visualization = new Rendering.Visualization();
-            this.IsFixedTimeStep = true;
-            this.TargetElapsedTime = TimeSpan.FromSeconds(1d / 60d);
+            this.IsFixedTimeStep = false;
+            //this.TargetElapsedTime = TimeSpan.FromSeconds(1d / 60d);
             base.Initialize();
             //   control1 = new OuzoTracker.Forms.CreateInstrumentDialog();
             //control1.Show();
@@ -114,6 +115,7 @@ namespace WaveTracker
 
         protected override void Update(GameTime gameTime)
         {
+          //  Stopwatch sw = Stopwatch.StartNew();
             if (Input.dialogOpenCooldown == 0)
             {
                 int mouseX = Microsoft.Xna.Framework.Input.Mouse.GetState().X;
@@ -167,7 +169,7 @@ namespace WaveTracker
                     previewChannel = FrameEditor.currentColumn / 5;
                     channelManager.channels[previewChannel].SetMacro(Rendering.InstrumentBank.CurrentInstrumentIndex);
                     channelManager.channels[previewChannel].TriggerNote(pianoInput);
-                    Audio.AudioEngine.instance._tickCounter = 0;
+                    Audio.AudioEngine._tickCounter = 0;
                 }
             }
             if (pianoInput == -1 && lastPianoKey != -1)
@@ -190,11 +192,13 @@ namespace WaveTracker
                 editSettings.Update();
             }
             toolbar.Update();
-            audioEngine.Update();
 
             base.Update(gameTime);
             lastPianoKey = pianoInput;
             //GC.Collect();
+
+           // Debug.WriteLine(sw.ElapsedMilliseconds);
+
         }
 
         protected override void Draw(GameTime gameTime)
@@ -246,18 +250,18 @@ namespace WaveTracker
                 instrumentBank.editor.Draw();
             }
             Tooltip.Draw();
-            int y = 0;
-            foreach (Microsoft.Xna.Framework.Input.Keys k in Enum.GetValues(typeof(Microsoft.Xna.Framework.Input.Keys)))
-            {
-                if (Microsoft.Xna.Framework.Input.Keyboard.GetState().IsKeyDown(k))
-                {
-                    Rendering.Graphics.Write(k.ToString(), 0, y, Color.Red);
-                    y += 10;
-                }
+            //int y = 0;
+            //foreach (Microsoft.Xna.Framework.Input.Keys k in Enum.GetValues(typeof(Microsoft.Xna.Framework.Input.Keys)))
+            //{
+            //    if (Microsoft.Xna.Framework.Input.Keyboard.GetState().IsKeyDown(k))
+            //    {
+            //        Rendering.Graphics.Write(k.ToString(), 0, y, Color.Red);
+            //        y += 10;
+            //    }
 
-            }
+            //}
 
-            Rendering.Graphics.Write("FPS: " + 1 / gameTime.ElapsedGameTime.TotalSeconds, 2, 2, Color.Red);
+            //Rendering.Graphics.Write("FPS: " + 1 / gameTime.ElapsedGameTime.TotalSeconds, 2, 2, Color.Red);
             targetBatch.End();
 
 
@@ -272,6 +276,7 @@ namespace WaveTracker
             if (VisualizerMode)
             {
                 visualization.DrawPiano(40, 100, targetBatch);
+                visualization.DrawOscilloscopes();
             }
             targetBatch.End();
 
@@ -282,6 +287,7 @@ namespace WaveTracker
         {
             // Do stuff here
             //SaveLoad.DoUnsavedCheck();
+            Audio.AudioEngine.instance.Stop();
             base.OnExiting(sender, args);
         }
     }

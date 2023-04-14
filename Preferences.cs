@@ -20,6 +20,8 @@ namespace WaveTracker
         public static int oscilloscopeMode = 2; // 1 - mono; 2 - stereo split; 3 - stereo overlap
         public static int pageJumpAmount = 4;
         public static bool visualizerShowSamplesInPianoRoll = false;
+        public static int visualizerPianoSpeed = 10;
+        public static int visualizerScopeZoom = 40;
 
 
     }

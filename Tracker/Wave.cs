@@ -21,7 +21,7 @@ namespace WaveTracker.Tracker
             {
                 samples[i] = 16;
             }
-            this.resamplingMode = ResamplingModes.Average;
+            this.resamplingMode = ResamplingModes.Mix;
         }
 
 
@@ -34,7 +34,7 @@ namespace WaveTracker.Tracker
 
         public Wave(string initialWaveString)
         {
-            this.resamplingMode = ResamplingModes.Average;
+            this.resamplingMode = ResamplingModes.Mix;
             SetWaveformFromString(initialWaveString);
         }
         public Wave(string initialWaveString, ResamplingModes resampling)
@@ -227,10 +227,12 @@ namespace WaveTracker.Tracker
         {
             if (index < 0)
             {
-                index += int.MinValue;
+                return samples[(int)Helpers.Mod(index, 64)];
             }
+
             return samples[index % 64];
         }
+
 
         /// <summary>
         /// Gets sample at the position from 0.0-1.0
@@ -243,11 +245,13 @@ namespace WaveTracker.Tracker
         /// <returns></returns>
         public float getSampleAtPosition(float t)
         {
-            if (resamplingMode == ResamplingModes.NoInterpolation)
+            while (t < 0)
+                t += 1;
+            if (resamplingMode == ResamplingModes.None)
             {
                 return getSample((int)(t * samples.Length)) / 16f - 1f;
             }
-            else if (resamplingMode == ResamplingModes.LinearInterpolation)
+            else if (resamplingMode == ResamplingModes.Linear)
             {
                 int index1 = (int)(t * samples.Length);
                 int index2 = index1 + 1;

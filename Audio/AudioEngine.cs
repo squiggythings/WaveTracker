@@ -9,18 +9,25 @@ using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Input;
 using System.Diagnostics;
 using System.Threading;
+using NAudio.Wave;
+using NAudio.Dsp;
+using NAudio.Wasapi;
+using NAudio.Wave.SampleProviders;
+
 
 
 namespace WaveTracker.Audio
 {
     public class AudioEngine
     {
-        public const ResamplingModes RESAMPLING_MODE = ResamplingModes.NoInterpolation;
-        public const int bufferLengthMilliseconds = 17;
+        public const ResamplingModes RESAMPLING_MODE = ResamplingModes.None;
         public const int sampleRate = 44100;
         public static int samplesPerTick => (sampleRate / tickSpeed);
+        public static int SamplesPerBuffer => 1200;
+        static int currBufferPosition;
         public static AudioEngine instance;
-        public int _tickCounter;
+        public static int _tickCounter;
+        WasapiOut wasapiOut;
 
         public static int tickSpeed
         {
@@ -42,137 +49,82 @@ namespace WaveTracker.Audio
             }
         }
 
-        private float[,] _workingBuffer;
-        private byte[] _xnaBuffer;
+        public static float[,] currentBuffer;
 
-        public float[,] currentBuffer => _workingBuffer;
-
-        public DynamicSoundEffectInstance _instance;
-
-        public ChannelManager channelManager;
+        public static ChannelManager channelManager;
 
         public void Initialize(ChannelManager channelMan)
         {
-            instance = this;
-            _instance = new DynamicSoundEffectInstance(sampleRate, AudioChannels.Stereo);
-
-            _instance.Play();
+            currentBuffer = new float[2, SamplesPerBuffer];
             channelManager = channelMan;
+            var sineWaveProvider = new Provider();
+            sineWaveProvider.SetWaveFormat(AudioEngine.sampleRate, 2); // 16kHz mono
+            wasapiOut = new WasapiOut();
+            wasapiOut.Init(sineWaveProvider);
+            wasapiOut.Play();
+            instance = this;
+
         }
 
-        public int SamplesPerBuffer => (int)(bufferLengthMilliseconds / 1000f * sampleRate);
-
-        public void Update()
+        public void Stop()
         {
-            Stopwatch sw = Stopwatch.StartNew();
-            while (_instance.PendingBufferCount < 4)
-                SubmitBuffer();
-            sw.Stop();
-            Debug.WriteLine(sw.ElapsedMilliseconds);
+            wasapiOut.Stop();
         }
 
-        private static void ConvertBuffer(float[,] from, byte[] to)
+
+        public class Provider : WaveProvider32
         {
-            const int bytesPerSample = 2;
-            int channels = from.GetLength(0);
-            int samplesPerBuffer = from.GetLength(1);
-
-            // Make sure the buffer sizes are correct
-            System.Diagnostics.Debug.Assert(to.Length == samplesPerBuffer * channels * bytesPerSample, "Buffer sizes are mismatched.");
-
-            for (int i = 0; i < samplesPerBuffer; i++)
+            public override int Read(float[] buffer, int offset, int sampleCount)
             {
-                for (int c = 0; c < channels; c++)
+                int sampleRate = WaveFormat.SampleRate;
+                float delta = 1f / (sampleRate * tickSpeed / 60);
+
+                for (int n = 0; n < sampleCount; n += 2)
                 {
-                    // First clamp the value to the [-1.0..1.0] range
-                    float floatSample = MathHelper.Clamp(from[c, i], -1.0f, 1.0f);
+                    buffer[n + offset] = buffer[n + offset + 1] = 0;
 
-                    // Convert it to the 16 bit [short.MinValue..short.MaxValue] range
-                    short shortSample = (short)(floatSample >= 0.0f ? floatSample * short.MaxValue : floatSample * short.MinValue * -1);
-
-                    // Calculate the right index based on the PCM format of interleaved samples per channel [L-R-L-R]
-                    int index = i * channels * bytesPerSample + c * bytesPerSample;
-
-                    // Store the 16 bit sample as two consecutive 8 bit values in the buffer with regard to endian-ness
-                    if (!BitConverter.IsLittleEndian)
+                    for (int c = 0; c < channelManager.channels.Count; ++c)
                     {
-                        to[index] = (byte)(shortSample >> 8);
-                        to[index + 1] = (byte)shortSample;
+                        float l, r;
+
+                        channelManager.channels[c].ProcessSingleSample(out l, out r, true, delta);
+                        buffer[n + offset] += l;
+                        buffer[n + offset + 1] += r;
                     }
-                    else
+
+                    currentBuffer[0, currBufferPosition] = buffer[n + offset];
+                    currentBuffer[1, currBufferPosition] = buffer[n + offset + 1];
+                    currBufferPosition++;
+                    if (currBufferPosition >= currentBuffer.Length / 2)
+                        currBufferPosition = 0;
+
+                    if (Game1.VisualizerMode)
+                        if (_tickCounter % (samplesPerTick / Preferences.visualizerPianoSpeed) == 0)
+                        {
+                            Game1.visualization.Update();
+                        }
+
+                    _tickCounter++;
+                    if (_tickCounter >= samplesPerTick)
                     {
-                        to[index] = (byte)shortSample;
-                        to[index + 1] = (byte)(shortSample >> 8);
-                    }
-                }
-            }
-        }
+                        _tickCounter = 0;
+                        Tracker.Playback.Step();
 
-        private void SubmitBuffer()
-        {
-            _workingBuffer = new float[2, SamplesPerBuffer];
-            const int bytesPerSample = 2;
-            _xnaBuffer = new byte[2 * SamplesPerBuffer * bytesPerSample];
-            ClearWorkingBuffer(); // Fill buffer with zeros
-            FillWorkingBuffer();
-            ConvertBuffer(_workingBuffer, _xnaBuffer); // Same method used in part II
-            try
-            {
-                _instance.SubmitBuffer(_xnaBuffer);
-            }
-            catch { }
-        }
-
-        private void FillWorkingBuffer()
-        {
-
-            foreach (Channel c in channelManager.channels)
-            {
-                c._sampleVolume = 0;
-            }
-            for (int i = 0; i < _workingBuffer.GetLength(1); ++i)
-            {
-                for (int c = 0; c < channelManager.channels.Count; ++c)
-                {
-                    float l, r;
-                    channelManager.channels[c].ProcessSingleSample(out l, out r);
-                    _workingBuffer[0, i] += l;
-                    _workingBuffer[1, i] += r;
-                }
-                _tickCounter++;
-                if (_tickCounter >= samplesPerTick)
-                {
-                    _tickCounter = 0;
-                    Tracker.Playback.Step();
-
-                    foreach (Channel c in channelManager.channels)
-                    {
-                        c.NextTick();
+                        foreach (Channel c in channelManager.channels)
+                        {
+                            c.NextTick();
+                        }
                     }
                 }
-                if (Game1.VisualizerMode)
-                    if (_tickCounter % (samplesPerTick / Rendering.Visualization.PianoSpeed) == 0)
-                    {
-                        Game1.visualization.Update();
-                    }
-            }
-        }
-        void ClearWorkingBuffer()
-        {
-            for (int c = 0; c < _workingBuffer.GetLength(0); ++c)
-            {
-                for (int i = 0; i < _workingBuffer.GetLength(1); ++i)
-                {
-                    _workingBuffer[c, i] = 0;
-                }
+                return sampleCount;
             }
         }
     }
     public enum ResamplingModes
     {
-        NoInterpolation,
-        LinearInterpolation,
-        Average,
+        None,
+        Linear,
+        Mix,
     }
 }
 

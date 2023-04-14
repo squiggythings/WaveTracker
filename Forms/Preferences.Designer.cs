@@ -32,6 +32,8 @@
             this.buttonOK = new System.Windows.Forms.Button();
             this.General = new System.Windows.Forms.TabPage();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
+            this.label2 = new System.Windows.Forms.Label();
+            this.trackBar2 = new System.Windows.Forms.TrackBar();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.oscilloscopeDropdown = new System.Windows.Forms.ComboBox();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
@@ -39,14 +41,12 @@
             this.GeneralSettings = new System.Windows.Forms.CheckedListBox();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.VisualizationMode = new System.Windows.Forms.TabPage();
-            this.trackBar2 = new System.Windows.Forms.TrackBar();
-            this.label2 = new System.Windows.Forms.Label();
             this.General.SuspendLayout();
             this.groupBox3.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.trackBar2)).BeginInit();
             this.groupBox2.SuspendLayout();
             this.groupBox1.SuspendLayout();
             this.tabControl1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.trackBar2)).BeginInit();
             this.SuspendLayout();
             // 
             // buttonCancel
@@ -88,10 +88,33 @@
             this.groupBox3.Controls.Add(this.trackBar2);
             this.groupBox3.Location = new System.Drawing.Point(269, 70);
             this.groupBox3.Name = "groupBox3";
-            this.groupBox3.Size = new System.Drawing.Size(177, 86);
+            this.groupBox3.Size = new System.Drawing.Size(177, 206);
             this.groupBox3.TabIndex = 4;
             this.groupBox3.TabStop = false;
-            this.groupBox3.Text = "Buffer Length";
+            this.groupBox3.Text = "Volume";
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(65, 61);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(38, 15);
+            this.label2.TabIndex = 8;
+            this.label2.Text = "40 ms";
+            this.label2.TextAlign = System.Drawing.ContentAlignment.TopCenter;
+            // 
+            // trackBar2
+            // 
+            this.trackBar2.BackColor = System.Drawing.Color.WhiteSmoke;
+            this.trackBar2.Location = new System.Drawing.Point(6, 31);
+            this.trackBar2.Maximum = 500;
+            this.trackBar2.Minimum = 1;
+            this.trackBar2.Name = "trackBar2";
+            this.trackBar2.Size = new System.Drawing.Size(165, 45);
+            this.trackBar2.TabIndex = 7;
+            this.trackBar2.TickFrequency = 0;
+            this.trackBar2.TickStyle = System.Windows.Forms.TickStyle.None;
+            this.trackBar2.Value = 1;
             // 
             // groupBox2
             // 
@@ -182,29 +205,6 @@
             this.VisualizationMode.Text = "Visualization Mode";
             this.VisualizationMode.UseVisualStyleBackColor = true;
             // 
-            // trackBar2
-            // 
-            this.trackBar2.BackColor = System.Drawing.Color.WhiteSmoke;
-            this.trackBar2.Location = new System.Drawing.Point(6, 31);
-            this.trackBar2.Maximum = 500;
-            this.trackBar2.Minimum = 1;
-            this.trackBar2.Name = "trackBar2";
-            this.trackBar2.Size = new System.Drawing.Size(165, 45);
-            this.trackBar2.TabIndex = 7;
-            this.trackBar2.TickFrequency = 0;
-            this.trackBar2.TickStyle = System.Windows.Forms.TickStyle.None;
-            this.trackBar2.Value = 1;
-            // 
-            // label2
-            // 
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(65, 61);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(38, 15);
-            this.label2.TabIndex = 8;
-            this.label2.Text = "40 ms";
-            this.label2.TextAlign = System.Drawing.ContentAlignment.TopCenter;
-            // 
             // Preferences
             // 
             this.AcceptButton = this.buttonOK;
@@ -225,10 +225,10 @@
             this.General.ResumeLayout(false);
             this.groupBox3.ResumeLayout(false);
             this.groupBox3.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.trackBar2)).EndInit();
             this.groupBox2.ResumeLayout(false);
             this.groupBox1.ResumeLayout(false);
             this.tabControl1.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.trackBar2)).EndInit();
             this.ResumeLayout(false);
 
         }

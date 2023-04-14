@@ -163,18 +163,18 @@ namespace WaveTracker.Rendering
                                     instrument.sample.sampleLoopIndex = sample_loopPoint.Value;
                                 }
                                 #region resampling modes
-                                sample_resampNone.Value = instrument.sample.resampleMode == Audio.ResamplingModes.NoInterpolation;
-                                sample_resampLinear.Value = instrument.sample.resampleMode == Audio.ResamplingModes.LinearInterpolation;
-                                sample_resampMix.Value = instrument.sample.resampleMode == Audio.ResamplingModes.Average;
+                                sample_resampNone.Value = instrument.sample.resampleMode == Audio.ResamplingModes.None;
+                                sample_resampLinear.Value = instrument.sample.resampleMode == Audio.ResamplingModes.Linear;
+                                sample_resampMix.Value = instrument.sample.resampleMode == Audio.ResamplingModes.Mix;
                                 if (sample_resampNone.Clicked)
-                                    instrument.sample.resampleMode = Audio.ResamplingModes.NoInterpolation;
+                                    instrument.sample.resampleMode = Audio.ResamplingModes.None;
                                 if (sample_resampLinear.Clicked)
-                                    instrument.sample.resampleMode = Audio.ResamplingModes.LinearInterpolation;
+                                    instrument.sample.resampleMode = Audio.ResamplingModes.Linear;
                                 if (sample_resampMix.Clicked)
-                                    instrument.sample.resampleMode = Audio.ResamplingModes.Average;
-                                sample_resampNone.Value = instrument.sample.resampleMode == Audio.ResamplingModes.NoInterpolation;
-                                sample_resampLinear.Value = instrument.sample.resampleMode == Audio.ResamplingModes.LinearInterpolation;
-                                sample_resampMix.Value = instrument.sample.resampleMode == Audio.ResamplingModes.Average;
+                                    instrument.sample.resampleMode = Audio.ResamplingModes.Mix;
+                                sample_resampNone.Value = instrument.sample.resampleMode == Audio.ResamplingModes.None;
+                                sample_resampLinear.Value = instrument.sample.resampleMode == Audio.ResamplingModes.Linear;
+                                sample_resampMix.Value = instrument.sample.resampleMode == Audio.ResamplingModes.Mix;
                                 #endregion
 
                                 #region loop modes
@@ -490,7 +490,7 @@ namespace WaveTracker.Rendering
                         macro.sample.SetDetune(0);
                         macro.sample.sampleLoopIndex = 0;
                         macro.sample.sampleLoopType = macro.sample.sampleDataLeft.Count < 1000 ? SampleLoopType.Forward : SampleLoopType.OneShot;
-                        macro.sample.resampleMode = ResamplingModes.LinearInterpolation;
+                        macro.sample.resampleMode = ResamplingModes.Linear;
                         if (successfulReadWAV)
                         {
                             if (Preferences.automaticallyTrimSamples)
@@ -498,7 +498,7 @@ namespace WaveTracker.Rendering
                             if (Preferences.automaticallyNormalizeSamples)
                                 macro.sample.Normalize();
 
-                            macro.sample.resampleMode = ResamplingModes.LinearInterpolation;
+                            macro.sample.resampleMode = ResamplingModes.Linear;
                         }
                         else
                         {

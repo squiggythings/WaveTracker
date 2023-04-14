@@ -69,14 +69,14 @@ namespace WaveTracker.Rendering
             bMoveLeft.enabled = FrameEditor.currentFrame > 0;
             if (new Rectangle(80, 12, 397, 28).Contains(MouseX, MouseY))
             {
-                if (Input.MouseScrollWheel(KeyModifier.None) > 0)
+                if (Input.MouseScrollWheel(KeyModifier.None) < 0)
                 {
-                    if(Playback.isPlaying)
+                    if (Playback.isPlaying)
                         Playback.NextFrame();
                     else
                         FrameEditor.NextFrame();
                 }
-                if(Input.MouseScrollWheel(KeyModifier.None) < 0)
+                if (Input.MouseScrollWheel(KeyModifier.None) > 0)
                 {
                     if (Playback.isPlaying)
                         Playback.PreviousFrame();

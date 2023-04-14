@@ -148,6 +148,15 @@ namespace WaveTracker
             return (float)Math.Pow(2, (noteNum - 57) / 12.0) * 440;
         }
 
+        public static float Mod(float a, float b)
+        {
+            while (a <= 0)
+            {
+                a += b;
+            }
+            return (a + b) % b;
+        }
+
         public static double PowerA(double a, double b)
         {
             int tmp = (int)(BitConverter.DoubleToInt64Bits(a) >> 32);
