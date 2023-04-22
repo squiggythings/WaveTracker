@@ -173,6 +173,26 @@ namespace WaveTracker.Rendering
         {
             if (enabled)
             {
+                if (Input.GetKeyRepeat(Microsoft.Xna.Framework.Input.Keys.Left, KeyModifier.None))
+                {
+                    WaveBank.currentWave--;
+                    if (WaveBank.currentWave < 0)
+                    {
+                        WaveBank.currentWave += 100;
+                    }
+                    id = WaveBank.currentWave;
+                }
+                if (Input.GetKeyRepeat(Microsoft.Xna.Framework.Input.Keys.Right, KeyModifier.None))
+                {
+                    WaveBank.currentWave++;
+                    if (WaveBank.currentWave >= 100)
+                    {
+                        WaveBank.currentWave -= 100;
+                    }
+                    id = WaveBank.currentWave;
+
+                }
+
                 phase++;
                 filterNone.Value = Game1.currentSong.waves[WaveBank.currentWave].resamplingMode == Audio.ResamplingModes.None;
                 filterLinear.Value = Game1.currentSong.waves[WaveBank.currentWave].resamplingMode == Audio.ResamplingModes.Linear;

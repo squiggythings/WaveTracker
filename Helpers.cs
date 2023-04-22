@@ -101,6 +101,11 @@ namespace WaveTracker
             };
         }
 
+        public static bool isEffectFrameTerminator(int num)
+        {
+            return num >= 20 && num <= 22;
+        }
+
         public static int getWidthOfText(string text)
         {
             int ret = 0;
@@ -330,7 +335,6 @@ namespace WaveTracker
                 long sampleLength = (long)(Nreader.Length * (44100.0 / Nreader.WaveFormat.SampleRate));
                 float[] buffer = new float[sampleLength / 4];
                 isp.Read(buffer, 0, buffer.Length);
-                bool zero = true;
                 for (int s = 0, v = 0; v < buffer.Length; s++)
                 {
                     if (s > 44100 * 120)

@@ -1,7 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using System.Windows.Forms;
+//using System.Windows.Forms;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Threading;
 using System.Diagnostics;
-
+using NAudio.CoreAudioApi;
 
 namespace WaveTracker
 {
@@ -43,8 +43,11 @@ namespace WaveTracker
         public static int mouseCursorArrow;
         public static bool VisualizerMode;
         public static Rendering.Visualization visualization;
+        string filename;
         public Game1(string[] args)
         {
+            if (args.Length > 0)
+                filename = args[0];
             graphics = new GraphicsDeviceManager(this);
             graphics.PreferredBackBufferWidth = ScreenWidth * ScreenScale;  // set this value to the desired width of your window
             graphics.PreferredBackBufferHeight = ScreenHeight * ScreenScale;   // set this value to the desired height of your window
@@ -79,7 +82,7 @@ namespace WaveTracker
             FrameEditor.channelScrollbar = new UI.ScrollbarHorizontal(22, 323, 768, 7, null);
             FrameEditor.channelScrollbar.SetSize(Tracker.Song.CHANNEL_COUNT, 12);
             editSettings = new Rendering.EditSettings();
-            visualization = new Rendering.Visualization();
+            visualization = new Rendering.Visualization(frameRenderer);
             this.IsFixedTimeStep = false;
             //this.TargetElapsedTime = TimeSpan.FromSeconds(1d / 60d);
             base.Initialize();
@@ -111,15 +114,16 @@ namespace WaveTracker
             audioEngine = new Audio.AudioEngine();
             audioEngine.Initialize(channelManager);
             SaveLoad.NewFile();
+            SaveLoad.LoadFrom(filename);
         }
 
         protected override void Update(GameTime gameTime)
         {
-          //  Stopwatch sw = Stopwatch.StartNew();
+            //  Stopwatch sw = Stopwatch.StartNew();
             if (Input.dialogOpenCooldown == 0)
             {
-                int mouseX = Microsoft.Xna.Framework.Input.Mouse.GetState().X;
-                int mouseY = Microsoft.Xna.Framework.Input.Mouse.GetState().Y;
+                int mouseX = Mouse.GetState().X;
+                int mouseY = Mouse.GetState().Y;
                 int width = Window.ClientBounds.Width - 2;
                 int height = Window.ClientBounds.Height - 2;
                 if (new Rectangle(1, 1, width, height).Contains(mouseX, mouseY))
@@ -137,6 +141,12 @@ namespace WaveTracker
             ScreenScale = 2;
             bottomOfScreen = Window.ClientBounds.Height / 2;
             FrameEditor.channelScrollbar.y = bottomOfScreen - 14;
+            if (Input.GetKeyDown(Keys.F12, KeyModifier.None))
+            {
+                channelManager.Reset();
+                channelManager.ResetTicks(0);
+                audioEngine.Reset();
+            }
 
             Tooltip.Update(gameTime);
             if (IsActive)
@@ -183,6 +193,19 @@ namespace WaveTracker
             }
             Tracker.Playback.Update(gameTime);
 
+            #region octave change
+            if (Input.GetKeyRepeat(Keys.OemOpenBrackets, KeyModifier.None) || Input.GetKeyRepeat(Keys.Divide, KeyModifier.None))
+                FrameEditor.currentOctave--;
+            if (Input.GetKeyRepeat(Keys.OemCloseBrackets, KeyModifier.None) || Input.GetKeyRepeat(Keys.Multiply, KeyModifier.None))
+                FrameEditor.currentOctave++;
+
+            if (FrameEditor.currentOctave < 0)
+                FrameEditor.currentOctave = 0;
+            if (FrameEditor.currentOctave > 9)
+                FrameEditor.currentOctave = 9;
+
+            #endregion
+
             if (!VisualizerMode)
             {
                 songSettings.Update();
@@ -191,13 +214,17 @@ namespace WaveTracker
                 FrameEditor.Update();
                 editSettings.Update();
             }
+            else
+            {
+                frameRenderer.UpdateChannelHeaders();
+            }
             toolbar.Update();
 
             base.Update(gameTime);
             lastPianoKey = pianoInput;
             //GC.Collect();
 
-           // Debug.WriteLine(sw.ElapsedMilliseconds);
+            // Debug.WriteLine(sw.ElapsedMilliseconds);
 
         }
 
@@ -250,17 +277,15 @@ namespace WaveTracker
                 instrumentBank.editor.Draw();
             }
             Tooltip.Draw();
-            //int y = 0;
-            //foreach (Microsoft.Xna.Framework.Input.Keys k in Enum.GetValues(typeof(Microsoft.Xna.Framework.Input.Keys)))
+            //int y = 10;
+            //foreach (MMDevice k in audioEngine.devices)
             //{
-            //    if (Microsoft.Xna.Framework.Input.Keyboard.GetState().IsKeyDown(k))
-            //    {
-            //        Rendering.Graphics.Write(k.ToString(), 0, y, Color.Red);
-            //        y += 10;
-            //    }
+            //    Rendering.Graphics.Write(k.DeviceFriendlyName, 2, y, Color.Red);
+            //    y += 10;
 
             //}
-
+            Rendering.Graphics.Write("AudioStatus: " + audioEngine.wasapiOut.PlaybackState.ToString(), 2, 2, Color.Red);
+            //Rendering.Graphics.Write("filename: " + filename, 2, 12, Color.Red);
             //Rendering.Graphics.Write("FPS: " + 1 / gameTime.ElapsedGameTime.TotalSeconds, 2, 2, Color.Red);
             targetBatch.End();
 
@@ -275,7 +300,7 @@ namespace WaveTracker
             targetBatch.Draw(target, new Rectangle(0, 0, ScreenWidth * ScreenScale, 1200), Color.White);
             if (VisualizerMode)
             {
-                visualization.DrawPiano(40, 100, targetBatch);
+                visualization.DrawPiano();
                 visualization.DrawOscilloscopes();
             }
             targetBatch.End();

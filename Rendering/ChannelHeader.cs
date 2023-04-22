@@ -15,10 +15,10 @@ namespace WaveTracker.Rendering
         public int id;
         public const int MeterDecayRate = 4;
         float timeSinceSinceSoloed;
-        int amplitude;
+        public int amplitude;
         int currentAmp;
         Audio.Channel channel;
-        float sampVolume;
+        public float sampVolume;
         public ChannelHeader(int id, Audio.Channel ch)
         {
             this.id = id;
@@ -74,6 +74,27 @@ namespace WaveTracker.Rendering
             {
                 FrameEditor.ToggleChannel(id);
             }
+            channel._sampleVolume = -1;
+        }
+
+        public void UpdateAmplitude()
+        {
+            if (id < 0)
+            {
+                return;
+            }
+            currentAmp = Math.Clamp((int)(channel.CurrentAmplitude * 50), 0, 50);
+
+            if (currentAmp >= amplitude)
+                amplitude = currentAmp;
+            else
+            {
+                amplitude -= MeterDecayRate;
+                if (currentAmp >= amplitude)
+                    amplitude = currentAmp;
+            }
+            if (amplitude < 0)
+                amplitude = 0;
             channel._sampleVolume = -1;
         }
 

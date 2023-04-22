@@ -13,7 +13,7 @@ using NAudio.Wave;
 using NAudio.Dsp;
 using NAudio.Wasapi;
 using NAudio.Wave.SampleProviders;
-
+using NAudio.CoreAudioApi;
 
 
 namespace WaveTracker.Audio
@@ -23,11 +23,13 @@ namespace WaveTracker.Audio
         public const ResamplingModes RESAMPLING_MODE = ResamplingModes.None;
         public const int sampleRate = 44100;
         public static int samplesPerTick => (sampleRate / tickSpeed);
-        public static int SamplesPerBuffer => 1200;
+        public static int SamplesPerBuffer => 1000;
         static int currBufferPosition;
         public static AudioEngine instance;
         public static int _tickCounter;
-        WasapiOut wasapiOut;
+        public WasapiOut wasapiOut;
+        public List<MMDevice> devices;
+        Provider audioProvider;
 
         public static int tickSpeed
         {
@@ -57,10 +59,10 @@ namespace WaveTracker.Audio
         {
             currentBuffer = new float[2, SamplesPerBuffer];
             channelManager = channelMan;
-            var sineWaveProvider = new Provider();
-            sineWaveProvider.SetWaveFormat(AudioEngine.sampleRate, 2); // 16kHz mono
+            audioProvider = new Provider();
+            audioProvider.SetWaveFormat(AudioEngine.sampleRate, 2); // 16kHz mono
             wasapiOut = new WasapiOut();
-            wasapiOut.Init(sineWaveProvider);
+            wasapiOut.Init(audioProvider);
             wasapiOut.Play();
             instance = this;
 
@@ -69,6 +71,15 @@ namespace WaveTracker.Audio
         public void Stop()
         {
             wasapiOut.Stop();
+        }
+
+        public void Reset()
+        {
+            wasapiOut.Stop();
+            Thread.Sleep(10);
+            wasapiOut = new WasapiOut();
+            wasapiOut.Init(audioProvider);
+            wasapiOut.Play();
         }
 
 

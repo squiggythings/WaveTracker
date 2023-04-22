@@ -71,6 +71,22 @@ namespace WaveTracker.Tracker
                 }
             }
         }
+
+        public int GetLastRow()
+        {
+            for (int y = 0; y < pattern.Length; y++)
+            {
+                if (y == Game1.currentSong.rowsPerFrame)
+                    return y - 1;
+                for (int x = 3; x < pattern[y].Length; x += 5)
+                {
+                    if (pattern[y][x] == 22 || pattern[y][x] == 21 || pattern[y][x] == 20)
+                        return y;
+                }
+            }
+            return 255;
+        }
+
         public Frame Clone()
         {
             Frame ret = new Frame();

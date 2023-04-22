@@ -86,6 +86,7 @@ namespace WaveTracker
             filePath = "";
             FrameEditor.ClearHistory();
             FrameEditor.Goto(0, 0);
+            Playback.Goto(0, 0);
             FrameEditor.cursorColumn = 0;
             savedSong = new Song();
             Game1.currentSong = savedSong.Clone();
@@ -124,7 +125,9 @@ namespace WaveTracker
                         Rendering.Visualization.GetWaveColors();
                         Audio.ChannelManager.instance.Reset();
                         FrameEditor.Goto(0, 0);
+                        Playback.Goto(0, 0);
                         FrameEditor.cursorColumn = 0;
+                        FrameEditor.ClearHistory();
                     }
                     else
                     {
@@ -137,15 +140,17 @@ namespace WaveTracker
             savecooldown = 4;
         }
 
-        static bool LoadFrom(string path)
+        public static bool LoadFrom(string path)
         {
+            if (!File.Exists(path))
+                return false;
             try
             {
                 Stopwatch stopwatch = new Stopwatch();
                 stopwatch.Start();
 
                 BinaryFormatter formatter = new BinaryFormatter();
-                
+
                 MemoryStream ms = new MemoryStream();
                 using (FileStream fs = new FileStream(path, FileMode.Open))
                 {

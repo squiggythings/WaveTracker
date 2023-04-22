@@ -26,9 +26,22 @@ namespace WaveTracker.Tracker
         public static ChannelManager channelManager;
         public static int ticksPerRowOverride;
         public static int ticksPerRow;
+        public static Frame frame => Game1.currentSong.frames[playbackFrame];
 
         public static void Update(GameTime gameTime)
         {
+            if (Input.GetKeyDown(Keys.F5, KeyModifier.None))
+            {
+                PlayFromBeginning();
+            }
+            if (Input.GetKeyDown(Keys.F7, KeyModifier.None))
+            {
+                PlayFromCursor();
+            }
+            if (Input.GetKeyDown(Keys.F8, KeyModifier.None))
+            {
+                Stop();
+            }
             if (Input.GetKeyDown(Keys.Enter, KeyModifier.None))
             {
                 if (Input.dialogOpenCooldown == 0)
@@ -54,8 +67,7 @@ namespace WaveTracker.Tracker
                 if (Input.GetKeyDown(Keys.Enter, KeyModifier.Alt))
                 {
                     if (Input.dialogOpenCooldown == 0)
-                        if (!isPlaying)
-                            PlayFromCursor();
+                        PlayFromCursor();
                 }
             }
         }
@@ -156,6 +168,11 @@ namespace WaveTracker.Tracker
                         {
                             playbackFrame = nextPlaybackFrame;
                             playbackRow = nextPlaybackRow;
+                            if (FrameEditor.followMode)
+                            {
+                                FrameEditor.cursorRow = Playback.playbackRow;
+                                FrameEditor.currentFrame = Playback.playbackFrame;
+                            }
                         }
                     }
                     else
@@ -238,6 +255,12 @@ namespace WaveTracker.Tracker
             hasNext = true;
             nextPlaybackFrame = fr % FrameEditor.thisSong.frames.Count;
             nextPlaybackRow = row % FrameEditor.thisSong.rowsPerFrame;
+        }
+
+        public static void Goto(int fr, int row)
+        {
+            playbackFrame = fr;
+            playbackRow = row;
         }
 
         static void Restore()

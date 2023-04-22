@@ -23,7 +23,7 @@ namespace WaveTracker.Tracker
         public int tickRate;
         public bool quantizeChannelAmplitude;
         public int frameEdits;
-        public int rowHighlight1 = 16, rowHighlight2 = 4;
+        public int rowHighlight1, rowHighlight2;
 
 
         public Song()
@@ -59,6 +59,8 @@ namespace WaveTracker.Tracker
             instruments = new List<Macro>();
             instruments.Add(new Macro(MacroType.Wave));
             tickRate = 60;
+            rowHighlight1 = 16;
+            rowHighlight2 = 4;
             quantizeChannelAmplitude = false;
         }
 
@@ -117,6 +119,8 @@ namespace WaveTracker.Tracker
                 s.instruments.Add(instruments[i].Clone());
             }
             s.frameEdits = frameEdits;
+            s.rowHighlight1 = rowHighlight1;
+            s.rowHighlight2 = rowHighlight2;
             return s;
         }
 

@@ -70,6 +70,7 @@ namespace WaveTracker.Audio
         float _fadeMultiplier = 1;
         float _volumeSmooth;
         public int _tickTime;
+        public float coarseSampleVolume;
         public int tickNum;
         int macroID;
         private enum VoiceState { On, Off, Release }
@@ -429,12 +430,16 @@ namespace WaveTracker.Audio
                 pitchEnv.Step();
             for (int i = 0; i < tickEvents.Count; i++)
             {
-                tickEvents[i].Update();
-                if (tickEvents[i].countdown <= 0)
+                TickEvent t = tickEvents[i];
+                if (t != null)
                 {
-                    DoEvent(tickEvents[i]);
-                    tickEvents.RemoveAt(i);
-                    i--;
+                    t.Update();
+                    if (t.countdown <= 0)
+                    {
+                        DoEvent(t);
+                        tickEvents.Remove(t);
+                        i--;
+                    }
                 }
             }
             if (arpeggionote2 == arpeggionote3 && arpeggionote2 == 0)

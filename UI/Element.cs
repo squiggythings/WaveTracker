@@ -32,6 +32,10 @@ namespace WaveTracker.UI
         {
             Graphics.Write(text, this.x + x + offX, this.y + y + offY, color);
         }
+        protected void WriteTwiceAsBig(string text, int x, int y, Color c)
+        {
+            Graphics.WriteTwiceAsBig(text, this.x + x + offX, this.y + y + offY, c);
+        }
 
         protected void WriteRightAlign(string text, int x, int y, Color color)
         {

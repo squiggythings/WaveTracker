@@ -73,17 +73,6 @@ namespace WaveTracker
         public static void Update()
         {
 
-            #region octave change
-            if (Input.GetKeyRepeat(Keys.OemOpenBrackets, KeyModifier.None) || Input.GetKeyRepeat(Keys.Divide, KeyModifier.None))
-                currentOctave--;
-            if (Input.GetKeyRepeat(Keys.OemCloseBrackets, KeyModifier.None) || Input.GetKeyRepeat(Keys.Multiply, KeyModifier.None))
-                currentOctave++;
-            if (currentOctave < 0)
-                currentOctave = 0;
-            if (currentOctave > 9)
-                currentOctave = 9;
-            #endregion
-
             if (Input.internalDialogIsOpen)
                 return;
 
@@ -106,6 +95,10 @@ namespace WaveTracker
                 #region selection with mouse
                 if (Input.MousePositionX < 790)
                 {
+                    if (Input.MousePositionY > 182 && Input.MouseScrollWheel(KeyModifier.Alt) != 0)
+                    {
+                        channelScroll -= Input.MouseScrollWheel(KeyModifier.Alt);
+                    }
                     if (Input.GetClickDown(KeyModifier._Any))
                     {
                         if (Input.MousePositionY > 182 && Input.MousePositionX < 790)
@@ -119,7 +112,7 @@ namespace WaveTracker
                             selectionStart.X = chan * 5;
                             selectionEnd.X = chan * 5 + 4;
                             selectionStart.Y = 0;
-                            selectionEnd.Y = thisSong.rowsPerFrame - 1;
+                            selectionEnd.Y = thisFrame.GetLastRow();
                             selectionActive = true;
                         }
                     }
@@ -139,7 +132,7 @@ namespace WaveTracker
                             }
                             if (selectionActive) // scroll when dragging off bounds
                             {
-                                if (Input.MousePositionY > 184 + (Rendering.FrameRenderer.numOfVisibleRows - 1) * 7 && currentRow < Game1.currentSong.rowsPerFrame - 1)
+                                if (Input.MousePositionY > 180 + (Rendering.FrameRenderer.numOfVisibleRows - 1) * 7 && currentRow < thisFrame.GetLastRow())
                                     Move(0, 1);
                                 if (Input.MousePositionY < 190 && currentRow > 0)
                                     Move(0, -1);
@@ -163,18 +156,21 @@ namespace WaveTracker
                 #endregion
             }
             // moving cursor with scroll
-            if (Input.MousePositionY > 151 && Input.MousePositionX < 790 && Input.MousePositionY < Game1.bottomOfScreen - 15)
-                Move(0, Input.MouseScrollWheel(KeyModifier.None) * -Preferences.pageJumpAmount);
-            if (Input.GetKeyRepeat(Keys.PageUp, KeyModifier.None))
-                Move(0, -Preferences.pageJumpAmount);
-            if (Input.GetKeyRepeat(Keys.PageDown, KeyModifier.None))
-                Move(0, Preferences.pageJumpAmount);
-            if (Input.GetKeyDown(Keys.Escape, KeyModifier.None))
-                selectionActive = false;
-            if (Input.GetKeyDown(Keys.Home, KeyModifier.None))
-                Goto(currentFrame, 0);
-            if (Input.GetKeyDown(Keys.End, KeyModifier.None))
-                Goto(currentFrame, thisSong.rowsPerFrame - 1);
+            if (!playback || !followMode)
+            {
+                if (Input.MousePositionY > 151 && Input.MousePositionX < 790 && Input.MousePositionY < Game1.bottomOfScreen - 15)
+                    Move(0, Input.MouseScrollWheel(KeyModifier.None) * -Preferences.pageJumpAmount);
+                if (Input.GetKeyRepeat(Keys.PageUp, KeyModifier.None))
+                    Move(0, -Preferences.pageJumpAmount);
+                if (Input.GetKeyRepeat(Keys.PageDown, KeyModifier.None))
+                    Move(0, Preferences.pageJumpAmount);
+                if (Input.GetKeyDown(Keys.Escape, KeyModifier.None))
+                    selectionActive = false;
+                if (Input.GetKeyDown(Keys.Home, KeyModifier.None))
+                    Goto(currentFrame, 0);
+                if (Input.GetKeyDown(Keys.End, KeyModifier.None))
+                    Goto(currentFrame, thisFrame.GetLastRow());
+            }
             #region moving cursor with arrows
             if (Input.GetKeyRepeat(Keys.Down, KeyModifier.None) || Input.GetKeyDown(Keys.Down, KeyModifier.Alt))
             {
@@ -204,7 +200,7 @@ namespace WaveTracker
             }
             if (Input.focusTimer == 0)
             {
-                if (Input.GetKeyRepeat(Keys.Right, KeyModifier.Alt) || Input.MouseScrollWheel(KeyModifier.Alt) < 0 || Input.GetKeyRepeat(Keys.Tab, KeyModifier.None))
+                if (Input.GetKeyRepeat(Keys.Right, KeyModifier.Alt) || Input.GetKeyRepeat(Keys.Tab, KeyModifier.None))
                 {
                     if (Input.GetKeyRepeat(Keys.Tab, KeyModifier.None))
                         cursorColumn = cursorColumn / 8 * 8;
@@ -212,7 +208,7 @@ namespace WaveTracker
                     selectionActive = false;
                     correctChanScroll();
                 }
-                if (Input.GetKeyRepeat(Keys.Left, KeyModifier.Alt) || Input.MouseScrollWheel(KeyModifier.Alt) > 0 || Input.GetKeyRepeat(Keys.Tab, KeyModifier.Shift))
+                if (Input.GetKeyRepeat(Keys.Left, KeyModifier.Alt) || Input.GetKeyRepeat(Keys.Tab, KeyModifier.Shift))
                 {
                     if (Input.GetKeyRepeat(Keys.Tab, KeyModifier.Shift))
                         cursorColumn = cursorColumn / 8 * 8;
@@ -224,7 +220,16 @@ namespace WaveTracker
 
 
             #endregion
-
+            #region muting and unmuting channels with function keys
+            if (Input.GetKeyDown(Keys.F10, KeyModifier.Alt))
+            {
+                SoloChannel(currentColumn / 5);
+            }
+            if (Input.GetKeyDown(Keys.F9, KeyModifier.Alt))
+            {
+                ToggleChannel(currentColumn / 5);
+            }
+            #endregion
             if (!Game1.VisualizerMode)
             {
                 #region selection with arrows
@@ -275,7 +280,7 @@ namespace WaveTracker
                 #region Ctrl-A selection
                 if (Input.GetKeyDown(Keys.A, KeyModifier.Ctrl))
                 {
-                    if (selectionMax.X - selectionMin.X == 4 && selectionMin.Y == 0 && selectionMax.Y == thisSong.rowsPerFrame - 1)
+                    if (selectionMax.X - selectionMin.X == 4 && selectionMin.Y == 0 && selectionMax.Y == thisFrame.GetLastRow())
                     {
                         selectionStart.X = 0;
                         selectionEnd.X = Song.CHANNEL_COUNT * 5 - 1;
@@ -286,7 +291,7 @@ namespace WaveTracker
                         selectionStart.X = chan * 5;
                         selectionEnd.X = chan * 5 + 4;
                         selectionStart.Y = 0;
-                        selectionEnd.Y = thisSong.rowsPerFrame - 1;
+                        selectionEnd.Y = thisFrame.GetLastRow();
                         selectionActive = true;
                     }
                 }
@@ -350,9 +355,9 @@ namespace WaveTracker
                             input = getDecimalInput();
                             if (input != -1)
                             {
-                                if (currentColumn % 5 == 1 && input < thisSong.instruments.Count)
-                                    Rendering.InstrumentBank.CurrentInstrumentIndex = input;
                                 SetCellValue(input, cursorColumn, step);
+                                if (currentColumn % 5 == 1 && input < thisSong.instruments.Count)
+                                    Rendering.InstrumentBank.CurrentInstrumentIndex = thisFrame.pattern[currentRow][currentColumn];
                                 selectionActive = false;
                                 AddToHistory();
                             }
@@ -361,7 +366,7 @@ namespace WaveTracker
                             input = getEffectInput();
                             if (input != -1)
                             {
-                                SetCellValue(input, cursorColumn, step);
+                                SetCellValue(input, cursorColumn, Helpers.isEffectFrameTerminator(input) ? 0 : step);
                                 selectionActive = false;
                                 AddToHistory();
                             }
@@ -381,7 +386,7 @@ namespace WaveTracker
                     }
                 }
                 // deleting
-                if (Input.GetKeyRepeat(Keys.Delete, KeyModifier.None))
+                if (Input.GetKeyRepeat(Keys.Delete, KeyModifier.None) || Input.GetKeyDown(Keys.X, KeyModifier.Ctrl))
                 {
                     Cut();
                 }
@@ -619,6 +624,7 @@ namespace WaveTracker
                     Redo();
                 #endregion
             }
+
             if (channelScroll < 0)
                 channelScroll = 0;
             if (channelScroll > Song.CHANNEL_COUNT - 12)
@@ -811,9 +817,9 @@ namespace WaveTracker
             {
 
                 selectionStart.X = Math.Clamp(selectionStart.X, 0, Song.CHANNEL_COUNT * 5 - 1);
-                selectionStart.Y = Math.Clamp(selectionStart.Y, 0, Game1.currentSong.rowsPerFrame - 1);
+                selectionStart.Y = Math.Clamp(selectionStart.Y, 0, thisFrame.GetLastRow());
                 selectionEnd.X = Math.Clamp(selectionEnd.X, 0, Song.CHANNEL_COUNT * 5 - 1);
-                selectionEnd.Y = Math.Clamp(selectionEnd.Y, 0, Game1.currentSong.rowsPerFrame - 1);
+                selectionEnd.Y = Math.Clamp(selectionEnd.Y, 0, thisFrame.GetLastRow());
                 selectionMin.X = Math.Min(selectionStart.X, selectionEnd.X);
                 selectionMin.Y = Math.Min(selectionStart.Y, selectionEnd.Y);
                 selectionMax.X = Math.Max(selectionStart.X, selectionEnd.X);
@@ -1361,14 +1367,23 @@ namespace WaveTracker
 
         public static void Move(int x, int y)
         {
+            int frameLength = thisFrame.GetLastRow() + 1;
             cursorColumn += x;
             cursorRow += y;
-            if (cursorRow < 0)
+            while (cursorRow < 0)
+            {
+                int overflow = 0 - cursorRow;
                 PreviousFrame();
-            if (cursorRow >= Game1.currentSong.rowsPerFrame)
+                cursorRow = thisFrame.GetLastRow() + overflow - 1;
+            }
+            while (cursorRow >= frameLength)
+            {
+                int overflow = cursorRow - frameLength;
                 NextFrame();
-
-            cursorRow = (cursorRow + Game1.currentSong.rowsPerFrame) % Game1.currentSong.rowsPerFrame;
+                cursorRow = overflow;
+                frameLength = thisFrame.GetLastRow() + 1;
+            }
+           
             cursorColumn = (cursorColumn + Song.CHANNEL_COUNT * 8) % (Song.CHANNEL_COUNT * 8);
         }
 
@@ -1389,6 +1404,8 @@ namespace WaveTracker
         {
             currentFrame++;
             currentFrame %= Game1.currentSong.frames.Count;
+            if (cursorRow > thisFrame.GetLastRow())
+                cursorRow = thisFrame.GetLastRow();
         }
 
         public static void PreviousFrame()
@@ -1396,6 +1413,8 @@ namespace WaveTracker
             currentFrame--;
             currentFrame += Game1.currentSong.frames.Count;
             currentFrame %= Game1.currentSong.frames.Count;
+            if (cursorRow > thisFrame.GetLastRow())
+                cursorRow = thisFrame.GetLastRow();
         }
 
         public static void ToggleChannel(int num)

@@ -23,6 +23,12 @@ namespace WaveTracker.Rendering
             batch.DrawString(Game1.font, text, new Vector2((int)x, (int)y - 5), c);
         }
 
+        public static void WriteTwiceAsBig(string text, int x, int y, Color c)
+        {
+            batch.DrawString(Game1.font, text, new Vector2((int)x, (int)y - 5), c, 0, Vector2.Zero, 2, SpriteEffects.None, 0);
+        }
+
+
         public static void WriteRightJustified(string text, int x, int y, Color c)
         {
             batch.DrawString(Game1.font, text, new Vector2((int)x - Helpers.getWidthOfText(text), (int)y - 5), c);

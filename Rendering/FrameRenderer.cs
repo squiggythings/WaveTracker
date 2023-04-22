@@ -41,7 +41,7 @@ namespace WaveTracker.Rendering
         }
         public void Update(GameTime gameTime)
         {
-            numOfVisibleRows = (Game1.bottomOfScreen - 184) / 7;
+            numOfVisibleRows = (Game1.bottomOfScreen - 184) / 7 - 1;
             if (numOfVisibleRows < 5) numOfVisibleRows = 5;
             foreach (ChannelHeader header in headers)
             {
@@ -54,14 +54,29 @@ namespace WaveTracker.Rendering
             }
         }
 
+        public void UpdateChannelHeaders()
+        {
+            foreach (ChannelHeader header in headers)
+            {
+                header.UpdateAmplitude();
+            }
+        }
+
+        public float GetChannelHeaderAmp(int id)
+        {
+            return headers[id + 1].amplitude / 50f;
+        }
+
         public void DrawFrame(Tracker.Frame frame, int cursorRow, int cursorColumn)
         {
+            int rowsNUM = frame.GetLastRow() + 1;
+
             this.cursorRow = cursorRow;
             this.cursorColumn = cursorColumn;
             for (int i = 0; i < numOfVisibleRows; i++)
             {
                 int rowNum = i - centerRow + cursorRow;
-                if (rowNum >= 0 && rowNum < Game1.currentSong.rowsPerFrame)
+                if (rowNum >= 0 && rowNum < rowsNUM)
                     DrawRow(rowNum, frame.pattern[rowNum], i * 7 + 33);
             }
 
@@ -71,13 +86,12 @@ namespace WaveTracker.Rendering
             for (int i = 0; i < numOfVisibleRows; i++)
             {
                 int rowNum = i - centerRow + cursorRow;
-                if (rowNum >= 0 && rowNum < Game1.currentSong.rowsPerFrame && rowNum != cursorRow)
+                if (rowNum >= 0 && rowNum < rowsNUM && rowNum != cursorRow)
                     DrawRowText(rowNum, frame.pattern[rowNum], i * 7 + 33);
             }
             DrawRowText(cursorRow, frame.pattern[cursorRow], centerRow * 7 + 33);
 
-            // draw channel dividers
-
+            // draw channel dividers and headers
             foreach (ChannelHeader header in headers)
             {
                 if (header.id != -1)
@@ -218,7 +232,12 @@ namespace WaveTracker.Rendering
             int height = endY - startY;
 
             if (startX < 0)
+            {
+                width += startX;
+                if (width < 0)
+                    width = 0;
                 startX = 0;
+            }
 
             if (startY < y + 33)
             {
