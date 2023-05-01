@@ -240,7 +240,7 @@ namespace WaveTracker.Tracker
         public int Detune { get; private set; }
         public int BaseKey { get; private set; }
         public int currentPlaybackPosition;
-        float _baseFrequency;
+        public float _baseFrequency { get; private set; }
         public List<float> sampleDataLeft, sampleDataRight;
         public float[] sampleDataAccessL, sampleDataAccessR;
 

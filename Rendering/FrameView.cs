@@ -82,6 +82,7 @@ namespace WaveTracker.Rendering
                         Playback.PreviousFrame();
                     else
                         FrameEditor.PreviousFrame();
+
                 }
             }
             if (!Playback.isPlaying)
@@ -89,11 +90,13 @@ namespace WaveTracker.Rendering
                 if (bNewFrame.Clicked)
                 {
                     FrameEditor.thisSong.frames.Insert(++FrameEditor.currentFrame, new Frame());
+                    FrameEditor.Goto(FrameEditor.currentFrame, FrameEditor.currentRow);
                 }
                 if (bDuplicateFrame.Clicked || Input.GetKeyDown(Microsoft.Xna.Framework.Input.Keys.D, KeyModifier.Ctrl))
                 {
                     FrameEditor.thisSong.frames.Insert(FrameEditor.currentFrame + 1, FrameEditor.thisFrame.Clone());
-                    FrameEditor.currentFrame++;
+                    FrameEditor.Goto(FrameEditor.currentFrame, FrameEditor.currentRow);
+
                 }
                 if (bDeleteFrame.Clicked)
                 {
@@ -101,16 +104,19 @@ namespace WaveTracker.Rendering
                     FrameEditor.currentFrame--;
                     if (FrameEditor.currentFrame < 0)
                         FrameEditor.currentFrame = 0;
+                    FrameEditor.Goto(FrameEditor.currentFrame, FrameEditor.currentRow);
                 }
 
 
                 if (bMoveRight.Clicked)
                 {
                     FrameEditor.thisSong.frames.Reverse(FrameEditor.currentFrame++, 2);
+                    FrameEditor.Goto(FrameEditor.currentFrame, FrameEditor.currentRow);
                 }
                 if (bMoveLeft.Clicked)
                 {
                     FrameEditor.thisSong.frames.Reverse(--FrameEditor.currentFrame, 2);
+                    FrameEditor.Goto(FrameEditor.currentFrame, FrameEditor.currentRow);
                 }
             }
         }

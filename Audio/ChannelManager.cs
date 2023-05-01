@@ -121,15 +121,15 @@ namespace WaveTracker.Audio
                 int effect = row[i + 3];
                 int parameter = row[i + 4];
 
-                int delay = 0;
-                if (effect >= 0)
-                    channels[channelNum].QueueEvent(TickEventType.Effect, effect, parameter, delay);
+                string effectChar = Helpers.GetEffectCharacter(effect);
+                if (effect >= 0 && "12347890PAV".Contains(effectChar))
+                    channels[channelNum].EffectCommand(effect, parameter);
                 if (effect == 15) // FXX
                     Playback.ticksPerRowOverride = parameter;
                 if (volume >= 0)
-                    channels[channelNum].QueueEvent(TickEventType.Volume, volume, 0, delay);
+                    channels[channelNum].SetVolume(volume);
                 if (instrument >= 0)
-                    channels[channelNum].QueueEvent(TickEventType.Instrument, instrument, 0, delay);
+                    channels[channelNum].SetMacro(instrument);
                 channelNum++;
             }
         }

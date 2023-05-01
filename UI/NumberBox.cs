@@ -51,55 +51,57 @@ namespace WaveTracker.UI
 
         public void Update()
         {
-            if (DoubleClicked && MouseX < width - 10)
+            if (enabled)
             {
-                if (!dialogOpen)
+                if (DoubleClicked && MouseX < width - 10)
                 {
-                    dialogOpen = true;
-                    StartDialog();
-                }
-            }
-            else
-            {
-                dialogOpen = false;
-            }
-            if (LastClickPos.X >= 0 && LastClickPos.Y >= 0)
-            {
-                if (LastClickPos.X <= width - 10 && LastClickPos.Y <= height)
-                {
-                    if (Input.GetClickDown(KeyModifier.None))
-                        valueSaved = Value;
-                    if (Input.GetClick(KeyModifier.None))
+                    if (!dialogOpen)
                     {
-                        Value = valueSaved - (MouseY - LastClickPos.Y) / 2;
-                        Game1.mouseCursorArrow = 2;
+                        dialogOpen = true;
+                        StartDialog();
                     }
                 }
-            }
-            bUp.enabled = Value < max;
-            bDown.enabled = Value > min;
-            if (IsHovered)
-                Value += Input.MouseScrollWheel(KeyModifier.None);
+                else
+                {
+                    dialogOpen = false;
+                }
+                if (LastClickPos.X >= 0 && LastClickPos.Y >= 0)
+                {
+                    if (LastClickPos.X <= width - 10 && LastClickPos.Y <= height)
+                    {
+                        if (Input.GetClickDown(KeyModifier.None))
+                            valueSaved = Value;
+                        if (Input.GetClick(KeyModifier.None))
+                        {
+                            Value = valueSaved - (MouseY - LastClickPos.Y) / 2;
+                            Game1.mouseCursorArrow = 2;
+                        }
+                    }
+                }
+                bUp.enabled = Value < max;
+                bDown.enabled = Value > min;
+                if (IsHovered)
+                    Value += Input.MouseScrollWheel(KeyModifier.None);
 
-            if (bUp.Clicked)
-                Value++;
-            if (bDown.Clicked)
-                Value--;
+                if (bUp.Clicked)
+                    Value++;
+                if (bDown.Clicked)
+                    Value--;
 
-            if (Value != lastValue)
-            {
-                ValueWasChanged = true;
-                lastValue = Value;
-            }
-            else
-            {
-                ValueWasChanged = false;
+                if (Value != lastValue)
+                {
+                    ValueWasChanged = true;
+                    lastValue = Value;
+                }
+                else
+                {
+                    ValueWasChanged = false;
+                }
             }
         }
 
         public void Draw()
         {
-
             Color dark = new Color(104, 111, 153);
             Color text = new Color(20, 24, 46);
             Color labelCol = new Color(64, 73, 115);

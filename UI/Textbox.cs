@@ -31,22 +31,25 @@ namespace WaveTracker.UI
 
         public void Update()
         {
-            if (Clicked && canEdit)
+            if (enabled)
             {
-                if (Input.dialogOpenCooldown == 0)
+                if (Clicked && canEdit)
                 {
-                    StartDialog();
+                    if (Input.dialogOpenCooldown == 0)
+                    {
+                        StartDialog();
+                    }
                 }
-            }
-            
-            if (Text != lastText)
-            {
-                ValueWasChanged = true;
-                lastText = Text;
-            }
-            else
-            {
-                ValueWasChanged = false;
+
+                if (Text != lastText)
+                {
+                    ValueWasChanged = true;
+                    lastText = Text;
+                }
+                else
+                {
+                    ValueWasChanged = false;
+                }
             }
         }
 

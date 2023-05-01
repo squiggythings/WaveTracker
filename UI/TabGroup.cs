@@ -124,7 +124,7 @@ namespace WaveTracker.UI
                 {
                     toggle.DrawTabToggle();
                 }
-                Write(label, 14, y, Helpers.Alpha(new Color(20, 24, 46), toggle.Value ? 255 : 50));
+                Write(label, 14, y, Helpers.Alpha(new Color(20, 24, 46), toggle.Value ? 255 : 80));
             }
             else
             {

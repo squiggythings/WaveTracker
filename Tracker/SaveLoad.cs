@@ -168,6 +168,7 @@ namespace WaveTracker
                 Debug.WriteLine("failed to open");
                 return false;
             }
+            filePath = path;
             return true;
         }
 

@@ -73,10 +73,10 @@ namespace WaveTracker.UI
         {
             envLength.Value = envelope.values.Count;
             envLength.Update();
+            envLength.enabled = envelope.isActive;
+            envText.enabled = envelope.isActive;
             if (envLength.ValueWasChanged)
             {
-                if (lastEnvType == envelopeType && cooldownDone)
-                    envelope.isActive = true;
                 while (envLength.Value < envelope.values.Count)
                     envelope.values.RemoveAt(envelope.values.Count - 1);
                 while (envLength.Value > envelope.values.Count)
@@ -95,8 +95,6 @@ namespace WaveTracker.UI
             envText.Update();
             if (envText.ValueWasChanged)
             {
-                if (lastEnvType == envelopeType && cooldownDone)
-                    envelope.isActive = true;
                 envelope.loadFromString(envText.Text);
             }
             envText.Text = envelope.ToString();
@@ -108,7 +106,6 @@ namespace WaveTracker.UI
                     int x = CanvasMouseBlockClamped().X;
 
                     envelope.values[Math.Clamp(x, 0, envelope.values.Count - 1)] = CanvasMouseBlockClamped().Y;
-                    envelope.isActive = true;
                 }
             }
             if (Input.GetClickDown(KeyModifier.None))
@@ -152,7 +149,7 @@ namespace WaveTracker.UI
         public Point CanvasMouseBlockClamped()
         {
 
-            int mX = Math.Clamp(MouseX, 45, envelope.values.Count * columnWidth + 41);
+            int mX = Math.Clamp(MouseX, 46, envelope.values.Count * columnWidth + 41);
             int mY = Math.Clamp(MouseY, 20, 219);
 
             int x = (int)Math.Floor((mX - 46) / (float)columnWidth);
@@ -292,9 +289,9 @@ namespace WaveTracker.UI
                         }
                     }
                     string s = (int)(envelope.values.Count * (1000f / Game1.currentSong.tickRate)) + " ms ";
-                    if (hovering)
+                    if (true)
                     {
-                        s += "(" + CanvasMouseBlock().X + ", " + CanvasMouseBlock().Y + ")";
+                        s += "(" + CanvasMouseBlockClamped().X + ", " + CanvasMouseBlockClamped().Y + ")";
 
                     }
                     Write(s, 90, 226, ButtonColors.Round.backgroundColor);
@@ -348,6 +345,13 @@ namespace WaveTracker.UI
                 }
                 envText.Draw();
                 envLength.Draw();
+                if (!envelope.isActive)
+                {
+                    //DrawSprite(tex, -1, -1, 535, 222, new Rectangle(584, 355, 1, 1));
+                    //Graphics.batch.End();
+                    //Graphics.batch.Begin();
+                    DrawRect(-1, -1, 535, 253, new Color(255, 255, 255, 100));
+                }
             }
         }
         void DrawMouseBlock(Color c)
@@ -376,9 +380,10 @@ namespace WaveTracker.UI
 
         bool PointIsInCanvas(Point p)
         {
-            if (p.Y > 20 && p.Y < 219)
-                if (p.X > 40 && p.X < envelope.values.Count * columnWidth + 44)
-                    return true;
+            if (envelope.isActive)
+                if (p.Y > 20 && p.Y < 219)
+                    if (p.X > 40 && p.X < envelope.values.Count * columnWidth + 44)
+                        return true;
             return false;
         }
         void DrawBlock(int i, int val, Color c, bool shadow)

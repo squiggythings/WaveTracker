@@ -114,7 +114,7 @@ namespace WaveTracker.Rendering
                 states.Insert(0, rowOfStates);
             else
                 states.Add(rowOfStates);
-            int lastIndex = oscilloscopeHeight * 8 * 2 - 20;
+            int lastIndex = Game1.bottomOfScreen * 2 - 340;
             while (states.Count > lastIndex && lastIndex > 0)
                 states.RemoveAt(lastIndex);
         }
@@ -190,11 +190,7 @@ namespace WaveTracker.Rendering
                         {
                             WriteVolume(Playback.frame.pattern[thisRow][channel + 2], rowX + 22, rowY, thisRow == Playback.playbackRow);
                         }
-
-
                     }
-
-
             }
         }
 
@@ -215,7 +211,8 @@ namespace WaveTracker.Rendering
 
         void WriteNote(int value, int x, int y, bool currRow)
         {
-            Color c = currRow ? Colors.rowText : Colors.cursorColor;
+            int alpha = currRow ? 255 : 120;
+            Color c = Helpers.Alpha(Colors.rowText, alpha);
             if (value == -2) // off
             {
                 if (!Preferences.showNoteCutAndReleaseAsSymbols)
@@ -374,6 +371,7 @@ namespace WaveTracker.Rendering
             {
                 if (ch.currentMacro.macroType == MacroType.Wave)
                 {
+                    // WAVE
                     Wave wv = ch.currentWave;
                     for (int i = -w / 2; i < w / 2 - 1; ++i)
                     {
@@ -383,13 +381,19 @@ namespace WaveTracker.Rendering
                             DrawOscCol(px + i + w / 2, py - 2, samp1, lastSamp, waveColors[ch.waveIndex], 2);
                     }
                 }
-                else
+                else // SAMPLE
                 {
                     Sample samp = ch.currentMacro.sample;
+
                     for (int i = -w / 2; i < w / 2 - 1; ++i)
                     {
                         lastSamp = samp1;
-                        samp1 = -samp.getMonoSample((i / (float)w * ch.CurrentFrequency / Preferences.visualizerScopeZoom) + ch.sampleTime) * (h / 2f) * ch.CurrentAmplitudeAsWave + (h / 2f);
+
+                        // time per base note cycle
+                        // quantized 
+
+
+                        samp1 = -samp.getMonoSample((i / (float)w * ch.CurrentFrequency / Preferences.visualizerScopeZoom) + (int)ch.sampleTime) * (h / 2f) * ch.CurrentAmplitudeAsWave + (h / 2f);
                         if (i > -w / 2)
                             DrawOscCol(px + i + w / 2, py - 2, samp1, lastSamp, Color.White, 2);
                     }

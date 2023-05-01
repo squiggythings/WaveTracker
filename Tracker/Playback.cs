@@ -278,7 +278,11 @@ namespace WaveTracker.Tracker
                 for (int r = 0; r < FrameEditor.thisSong.rowsPerFrame; r++)
                 {
                     if (f == frame && r == row)
+                    {
+                        //channelManager.PlayRow(FrameEditor.thisSong.frames[frame].pattern[row]);
+                        channelManager.RestoreRow(FrameEditor.thisSong.frames[f].pattern[r]);
                         return;
+                    }
                     channelManager.RestoreRow(FrameEditor.thisSong.frames[f].pattern[r]);
                 }
             }

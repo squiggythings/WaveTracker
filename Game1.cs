@@ -68,6 +68,8 @@ namespace WaveTracker
         protected override void Initialize()
         {
             // TODO: Add your initialization logic here
+            //System.Windows.Forms.Form form1 = new System.Windows.Forms.Form();
+            //form1.Show();
             Input.Intialize();
             frameRenderer.x = 0;
             frameRenderer.y = 151;
@@ -75,7 +77,10 @@ namespace WaveTracker
             newSong = currentSong.Clone();
             waveBank = new Rendering.WaveBank();
             instrumentBank = new Rendering.InstrumentBank();
+            //System.Windows.Forms.MenuStrip menuStrip = new System.Windows.Forms.MenuStrip();
 
+            //menuStrip.Items.Add("File");
+            //menuStrip.Show();
             channelManager = new Audio.ChannelManager(Tracker.Song.CHANNEL_COUNT, waveBank);
             frameRenderer.Initialize(channelManager);
             FrameEditor.UnmuteAllChannels();
@@ -234,8 +239,15 @@ namespace WaveTracker
 
 
             GraphicsDevice.Clear(new Color(20, 24, 46));
+
             // TODO: Add your drawing code here
-            targetBatch.Begin(SpriteSortMode.Deferred, BlendState.NonPremultiplied, SamplerState.PointClamp, DepthStencilState.Default, RasterizerState.CullNone);
+            targetBatch.Begin(SpriteSortMode.Deferred, new BlendState
+            {
+                ColorSourceBlend = Blend.SourceAlpha,
+                ColorDestinationBlend = Blend.InverseSourceAlpha,
+                AlphaSourceBlend = Blend.One,
+                AlphaDestinationBlend = Blend.InverseSourceAlpha,
+            }, SamplerState.PointClamp, DepthStencilState.Default, RasterizerState.CullNone);
 
             //targetBatch.Draw(whiteRectangle, new Rectangle(x, y, 1, 1), new Color(36, 43, 66));
             Rendering.Graphics.batch = targetBatch;
@@ -284,7 +296,7 @@ namespace WaveTracker
             //    y += 10;
 
             //}
-            Rendering.Graphics.Write("AudioStatus: " + audioEngine.wasapiOut.PlaybackState.ToString(), 2, 2, Color.Red);
+            //Rendering.Graphics.Write("AudioStatus: " + audioEngine.wasapiOut.PlaybackState.ToString(), 2, 2, Color.Red);
             //Rendering.Graphics.Write("filename: " + filename, 2, 12, Color.Red);
             //Rendering.Graphics.Write("FPS: " + 1 / gameTime.ElapsedGameTime.TotalSeconds, 2, 2, Color.Red);
             targetBatch.End();

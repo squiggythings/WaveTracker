@@ -9,7 +9,7 @@ namespace WaveTracker.Rendering
         public static readonly Color rowText = Color.White;
         public static readonly Color rowTextHighlighted = new(202, 245, 254);
         public static readonly Color rowTextSubHighlighted = new(187, 215, 254);
-        public static readonly Color rowTextEmpty = new(134, 138, 219, 55);
+        public static readonly Color rowTextEmpty = new(134, 138, 219, 35);
         public static readonly Color instrumentColumnText = new(90, 234, 61);
         public static readonly Color instrumentSampleColumnText = new(255, 153, 50);
         public static readonly Color volumeColumnText = new(80, 233, 230);
@@ -27,7 +27,7 @@ namespace WaveTracker.Rendering
         public static readonly Color currentRowDefaultEmptyText = new(42, 83, 156);
         public static readonly Color cursorColor = new(126, 133, 168);
         public static readonly Color rowSeparatorColor = new(49, 56, 89);
-        public static readonly Color selection = new(128, 128, 255, 200);
+        public static readonly Color selection = new(128, 128, 255, 150);
 
     }
 }

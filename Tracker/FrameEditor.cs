@@ -356,8 +356,9 @@ namespace WaveTracker
                             if (input != -1)
                             {
                                 SetCellValue(input, cursorColumn, step);
-                                if (currentColumn % 5 == 1 && input < thisSong.instruments.Count)
-                                    Rendering.InstrumentBank.CurrentInstrumentIndex = thisFrame.pattern[currentRow][currentColumn];
+
+                                if (currentColumn % 5 == 1 && thisFrame.pattern[currentRow - step][currentColumn] < thisSong.instruments.Count)
+                                    Rendering.InstrumentBank.CurrentInstrumentIndex = thisFrame.pattern[currentRow - step][currentColumn];
                                 selectionActive = false;
                                 AddToHistory();
                             }
@@ -1232,7 +1233,7 @@ namespace WaveTracker
                 return false;
             if (channelScrollbar.barisPressed || channelScrollbar.barWasPressed > 0)
                 return false;
-            return mcolumn >= 0 && (mrow - cursorRow + Rendering.FrameRenderer.numOfVisibleRows - Rendering.FrameRenderer.centerRow) > 0 && mcolumn < 96 && (mrow - cursorRow + Rendering.FrameRenderer.centerRow) < 55 && mrow >= 0 && mrow < 256;
+            return mcolumn >= 0 && (mrow - cursorRow + Rendering.FrameRenderer.numOfVisibleRows - Rendering.FrameRenderer.centerRow) > 0 && mcolumn < 96 && (mrow - cursorRow + Rendering.FrameRenderer.centerRow) < 55 && mrow >= 0 && mrow <= thisFrame.GetLastRow();
         }
         public static int getStartPosOfRow(int row)
         {
@@ -1369,22 +1370,33 @@ namespace WaveTracker
         {
             int frameLength = thisFrame.GetLastRow() + 1;
             cursorColumn += x;
-            cursorRow += y;
-            while (cursorRow < 0)
+            while (y < 0)
             {
-                int overflow = 0 - cursorRow;
-                PreviousFrame();
-                cursorRow = thisFrame.GetLastRow() + overflow - 1;
+                MoveOneRow(-1);
+                y++;
             }
-            while (cursorRow >= frameLength)
+            while (y > 0)
             {
-                int overflow = cursorRow - frameLength;
-                NextFrame();
-                cursorRow = overflow;
-                frameLength = thisFrame.GetLastRow() + 1;
+                MoveOneRow(1);
+                y--;
             }
-           
+
             cursorColumn = (cursorColumn + Song.CHANNEL_COUNT * 8) % (Song.CHANNEL_COUNT * 8);
+        }
+
+        static void MoveOneRow(int dir)
+        {
+            cursorRow += dir;
+            if (cursorRow < 0)
+            {
+                PreviousFrame();
+                cursorRow = thisFrame.GetLastRow();
+            }
+            if (cursorRow > thisFrame.GetLastRow())
+            {
+                NextFrame();
+                cursorRow = 0;
+            }
         }
 
         static void correctChanScroll()
@@ -1398,7 +1410,8 @@ namespace WaveTracker
         public static void Goto(int frame, int row)
         {
             currentFrame = frame;
-            cursorRow = row;
+            cursorRow = Math.Clamp(row, 0, thisFrame.GetLastRow());
+
         }
         public static void NextFrame()
         {

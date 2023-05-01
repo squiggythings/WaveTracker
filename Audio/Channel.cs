@@ -92,10 +92,18 @@ namespace WaveTracker.Audio
         }
 
         public float sampleTime => (float)_time;
+        public int samplePlaybackPosition { get; private set; }
 
         public void QueueEvent(TickEventType eventType, int val1, int val2, int delay)
         {
-            tickEvents.Add(new TickEvent(eventType, val1, val2, delay));
+            if (delay < 0)
+            {
+                DoEvent(new TickEvent(eventType, val1, val2, delay));
+            }
+            else
+            {
+                tickEvents.Add(new TickEvent(eventType, val1, val2, delay));
+            }
         }
 
         public void EffectCommand(int command, int parameter)
@@ -179,6 +187,16 @@ namespace WaveTracker.Audio
                     macroID = id;
                     if (m.macroType == MacroType.Sample)
                         _time = 0;
+                }
+                volumeEnv.Start();
+                pitchEnv.Start();
+                arpEnv.Start();
+                waveEnv.Start();
+                if (currentMacro.macroType == MacroType.Wave)
+                {
+                    if (waveEnv.toPlay.isActive)
+                        if (!waveEnv.envelopeEnded)
+                            SetWave(waveEnv.Evaluate());
                 }
             }
 
@@ -296,16 +314,7 @@ namespace WaveTracker.Audio
             if (currentMacro.macroType == MacroType.Sample)
                 _time = 0;
             _frequency = Helpers.NoteToFrequency(num);
-            volumeEnv.Start();
-            pitchEnv.Start();
-            arpEnv.Start();
-            waveEnv.Start();
-            if (currentMacro.macroType == MacroType.Wave)
-            {
-                if (waveEnv.toPlay.isActive)
-                    if (!waveEnv.envelopeEnded)
-                        SetWave(waveEnv.Evaluate());
-            }
+
 
         }
         private void Pan(float val)
@@ -416,7 +425,7 @@ namespace WaveTracker.Audio
             if (currentMacro.macroType == MacroType.Wave)
             {
                 if (waveEnv.toPlay.isActive)
-                    if (!waveEnv.envelopeEnded)
+                    if (!waveEnv.envelopeEnded && _state != VoiceState.Off)
                         SetWave(waveEnv.Evaluate());
                 waveEnv.Step();
             }
@@ -465,10 +474,17 @@ namespace WaveTracker.Audio
                     arpCounter = 0;
             }
 
-
+            
             if (volumeEnv.toPlay.values.Count > 0 && volumeEnv.toPlay.isActive)
-                if (volumeEnv.envelopeEnded && volumeEnv.toPlay.values[volumeEnv.toPlay.values.Count - 1] == 0)
-                    Cut();
+                try
+                {
+                    if (volumeEnv.envelopeEnded && volumeEnv.toPlay.values[volumeEnv.toPlay.values.Count - 1] == 0)
+                        Cut();
+                }
+                catch
+                {
+                   // Cut();
+                }
             if (arpEnv.toPlay.isActive)
             {
                 arpEnvelopeResult = arpEnv.Evaluate();
@@ -562,6 +578,7 @@ namespace WaveTracker.Audio
                         else
                         {
                             currentMacro.sample.SampleTick((float)_time, 0, out sampleL, out sampleR);
+                            samplePlaybackPosition = currentMacro.sample.currentPlaybackPosition;
                             if (Math.Abs(sampleL) > _sampleVolume)
                             {
                                 _sampleVolume = Math.Abs(sampleL);
@@ -634,9 +651,16 @@ namespace WaveTracker.Audio
                 return toPlay.defaultValue;
             if (toPlay.values.Count > 0)
                 step = Math.Clamp(step, 0, toPlay.values.Count - 1);
-            if (toPlay.values.Count == 0 || step < 0)
+            if (toPlay.values.Count <= 0 || step < 0)
                 return toPlay.defaultValue;
-            return toPlay.values[Math.Clamp(step, 0, toPlay.values.Count - 1)];
+            try
+            {
+                return toPlay.values[Math.Clamp(step, 0, toPlay.values.Count - 1)];
+            }
+            catch
+            {
+                return toPlay.defaultValue;
+            }
         }
 
         public void Step()

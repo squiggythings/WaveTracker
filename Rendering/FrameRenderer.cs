@@ -328,7 +328,7 @@ namespace WaveTracker.Rendering
                 if (currRow && currColumn || !Preferences.fadeVolumeColumn)
                     WriteMonospaced(value.ToString("D2"), x, y, Colors.volumeColumnText, 4);
                 else
-                    WriteMonospaced(value.ToString("D2"), x, y, Helpers.Alpha(Colors.volumeColumnText, value + 156), 4);
+                    WriteMonospaced(value.ToString("D2"), x, y, Helpers.Alpha(Colors.volumeColumnText, (int)(value / 100f * 180 + (255 - 180))), 4);
             }
         }
 
