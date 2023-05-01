@@ -193,9 +193,6 @@ namespace WaveTracker.Rendering
                     float dist = Math.Clamp((distMin + distMax) / 2f, 0, 1);
                     DrawRect(1 + px + drawX, minValL + py + (height / 2), 1, maxValL - minValL + 1, Helpers.LerpColor(Color.Gray, Color.White, 1 - dist));
                     DrawRect(1 + px + drawX, minValR + py + (height / 2), 1, maxValR - minValR + 1, Helpers.LerpColor(Color.Gray, Color.White, 1 - dist));
-                    if (drawX == 0)
-                        Write(distMin + " " + distMax + " " + dist, 200, 480, Color.Red);
-
                 }
                 drawX++;
             }
