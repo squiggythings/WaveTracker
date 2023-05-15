@@ -4,16 +4,12 @@
   <Platform>Windows</Platform>
   <Config />
   <SourceFiles>
-    <File>C:/Users/elias/source/repos/WaveTracker/Content/../../../../Pictures/aseprite/trackerchannelheader.png</File>
-    <File>C:/Users/elias/source/repos/WaveTracker/Content/custom_font.spritefont</File>
-    <File>C:/Users/elias/source/repos/WaveTracker/Content/instrumentwindow.png</File>
-    <File>C:/Users/elias/source/repos/WaveTracker/Content/toolbar.png</File>
-    <File>C:/Users/elias/source/repos/WaveTracker/Content/wave_window.png</File>
-    <File>C:/Users/elias/source/repos/WaveTracker/Content/window_edit.png</File>
+    <File>C:/Users/Elias/source/repos/WaveTracker/Content/custom_font.spritefont</File>
+    <File>C:/Users/Elias/source/repos/WaveTracker/Content/toolbar.png</File>
+    <File>C:/Users/Elias/source/repos/WaveTracker/Content/wave_window.png</File>
+    <File>C:/Users/Elias/source/repos/WaveTracker/Content/window_edit.png</File>
   </SourceFiles>
   <DestFiles>
-    <File>trackerchannelheader.png</File>
-    <File xsi:nil="true" />
     <File xsi:nil="true" />
     <File xsi:nil="true" />
     <File xsi:nil="true" />

@@ -1,6 +1,6 @@
 Source File,Dest File,Processor Type,Content Type,Source File Size,Dest File Size,Build Seconds
-"C:/Users/elias/source/repos/WaveTracker/Content/../../../../Pictures/aseprite/trackerchannelheader.png","C:/Users/elias/source/repos/WaveTracker/Content/bin/DesktopGL/trackerchannelheader.xnb","TextureProcessor","Texture2DContent",467,31333,0.0884151
-"C:/Users/elias/source/repos/WaveTracker/Content/custom_font.spritefont","C:/Users/elias/source/repos/WaveTracker/Content/bin/DesktopGL/custom_font.xnb","FontDescriptionProcessor","SpriteFontContent",2074,19276,0.0755448
-"C:/Users/elias/source/repos/WaveTracker/Content/toolbar.png","C:/Users/elias/source/repos/WaveTracker/Content/bin/DesktopGL/toolbar.xnb","TextureProcessor","Texture2DContent",5823,130585,0.0031454
-"C:/Users/elias/source/repos/WaveTracker/Content/wave_window.png","C:/Users/elias/source/repos/WaveTracker/Content/bin/DesktopGL/wave_window.xnb","TextureProcessor","Texture2DContent",5876,748981,0.0153858
-"C:/Users/elias/source/repos/WaveTracker/Content/window_edit.png","C:/Users/elias/source/repos/WaveTracker/Content/bin/DesktopGL/window_edit.xnb","TextureProcessor","Texture2DContent",1150,9085,0.0014021
+"C:/Users/Elias/source/repos/WaveTracker/Content/custom_font.spritefont","C:/Users/Elias/source/repos/WaveTracker/Content/bin/DesktopGL/custom_font.xnb","FontDescriptionProcessor","SpriteFontContent",2074,19276,0.2682425
+"C:/Users/Elias/source/repos/WaveTracker/Content/toolbar.png","C:/Users/Elias/source/repos/WaveTracker/Content/bin/DesktopGL/toolbar.xnb","TextureProcessor","Texture2DContent",5823,130585,0.0408538
+"C:/Users/Elias/source/repos/WaveTracker/Content/trackerchannelheader.png","C:/Users/Elias/source/repos/WaveTracker/Content/bin/DesktopGL/trackerchannelheader.xnb","TextureProcessor","Texture2DContent",523,23521,0.1325219
+"C:/Users/Elias/source/repos/WaveTracker/Content/wave_window.png","C:/Users/Elias/source/repos/WaveTracker/Content/bin/DesktopGL/wave_window.xnb","TextureProcessor","Texture2DContent",4831,748981,0.0365754
+"C:/Users/Elias/source/repos/WaveTracker/Content/window_edit.png","C:/Users/Elias/source/repos/WaveTracker/Content/bin/DesktopGL/window_edit.xnb","TextureProcessor","Texture2DContent",1138,9085,0.0018904

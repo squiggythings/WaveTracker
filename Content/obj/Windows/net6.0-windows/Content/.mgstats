@@ -1,7 +1,5 @@
 Source File,Dest File,Processor Type,Content Type,Source File Size,Dest File Size,Build Seconds
-"C:/Users/elias/source/repos/WaveTracker/Content/../../../../Pictures/aseprite/trackerchannelheader.png","C:/Users/elias/source/repos/WaveTracker/Content/bin/Windows/Content/trackerchannelheader.xnb","TextureProcessor","Texture2DContent",467,31333,0.1252878
-"C:/Users/elias/source/repos/WaveTracker/Content/custom_font.spritefont","C:/Users/elias/source/repos/WaveTracker/Content/bin/Windows/Content/custom_font.xnb","FontDescriptionProcessor","SpriteFontContent",2074,19276,0.1569747
-"C:/Users/elias/source/repos/WaveTracker/Content/instrumentwindow.png","C:/Users/elias/source/repos/WaveTracker/Content/bin/Windows/Content/instrumentwindow.xnb","TextureProcessor","Texture2DContent",8897,1944085,0.1798981
-"C:/Users/elias/source/repos/WaveTracker/Content/toolbar.png","C:/Users/elias/source/repos/WaveTracker/Content/bin/Windows/Content/toolbar.xnb","TextureProcessor","Texture2DContent",5823,130585,0.1398159
-"C:/Users/elias/source/repos/WaveTracker/Content/wave_window.png","C:/Users/elias/source/repos/WaveTracker/Content/bin/Windows/Content/wave_window.xnb","TextureProcessor","Texture2DContent",4831,748981,0.1061258
-"C:/Users/elias/source/repos/WaveTracker/Content/window_edit.png","C:/Users/elias/source/repos/WaveTracker/Content/bin/Windows/Content/window_edit.xnb","TextureProcessor","Texture2DContent",1138,9085,0.133389
+"C:/Users/Elias/source/repos/WaveTracker/Content/custom_font.spritefont","C:/Users/Elias/source/repos/WaveTracker/Content/bin/Windows/Content/custom_font.xnb","FontDescriptionProcessor","SpriteFontContent",2074,19276,1.8493937
+"C:/Users/Elias/source/repos/WaveTracker/Content/toolbar.png","C:/Users/Elias/source/repos/WaveTracker/Content/bin/Windows/Content/toolbar.xnb","TextureProcessor","Texture2DContent",5823,130585,0.0410342
+"C:/Users/Elias/source/repos/WaveTracker/Content/wave_window.png","C:/Users/Elias/source/repos/WaveTracker/Content/bin/Windows/Content/wave_window.xnb","TextureProcessor","Texture2DContent",4831,748981,0.026411
+"C:/Users/Elias/source/repos/WaveTracker/Content/window_edit.png","C:/Users/Elias/source/repos/WaveTracker/Content/bin/Windows/Content/window_edit.xnb","TextureProcessor","Texture2DContent",1138,9085,0.002605

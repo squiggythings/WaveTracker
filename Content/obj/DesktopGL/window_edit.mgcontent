@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PipelineBuildEvent xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-  <SourceFile>C:/Users/elias/source/repos/WaveTracker/Content/window_edit.png</SourceFile>
-  <SourceTime>2023-03-23T14:57:27.9313819-04:00</SourceTime>
-  <DestFile>C:/Users/elias/source/repos/WaveTracker/Content/bin/DesktopGL/window_edit.xnb</DestFile>
-  <DestTime>2023-03-26T16:52:02.4016451-04:00</DestTime>
+  <SourceFile>C:/Users/Elias/source/repos/WaveTracker/Content/window_edit.png</SourceFile>
+  <SourceTime>2023-05-15T15:12:49.2867192-04:00</SourceTime>
+  <DestFile>C:/Users/Elias/source/repos/WaveTracker/Content/bin/DesktopGL/window_edit.xnb</DestFile>
+  <DestTime>2023-05-15T15:15:24.0643499-04:00</DestTime>
   <Importer>TextureImporter</Importer>
   <ImporterTime>2022-07-26T07:44:56-04:00</ImporterTime>
   <Processor>TextureProcessor</Processor>
