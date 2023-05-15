@@ -624,8 +624,8 @@ namespace WaveTracker.Audio
                         l = (float)(Math.Ceiling(l * quantamt)) / (float)quantamt;
                         r = (float)(Math.Ceiling(r * quantamt)) / (float)quantamt;
                     }
-                    left = l * 0.15f;
-                    right = r * 0.15f;
+                    left = l * 0.225f;
+                    right = r * 0.225f;
                 }
             }
         }

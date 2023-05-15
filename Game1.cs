@@ -10,6 +10,8 @@ using System.Threading.Tasks;
 using System.Threading;
 using System.Diagnostics;
 using NAudio.CoreAudioApi;
+using System.Runtime.InteropServices;
+using System.Security.Principal;
 
 namespace WaveTracker
 {
@@ -21,7 +23,7 @@ namespace WaveTracker
         public static Texture2D channelHeaderSprite;
 
         public int ScreenWidth = 960;
-        public int ScreenHeight = 540 - 16;
+        public int ScreenHeight = 540 - 24;
         public static int ScreenScale = 2;
         public static SpriteFont font;
         RenderTarget2D target;
@@ -44,6 +46,9 @@ namespace WaveTracker
         public static bool VisualizerMode;
         public static Rendering.Visualization visualization;
         string filename;
+
+
+
         public Game1(string[] args)
         {
             if (args.Length > 0)
@@ -51,7 +56,7 @@ namespace WaveTracker
             graphics = new GraphicsDeviceManager(this);
             graphics.PreferredBackBufferWidth = ScreenWidth * ScreenScale;  // set this value to the desired width of your window
             graphics.PreferredBackBufferHeight = ScreenHeight * ScreenScale;   // set this value to the desired height of your window
-
+            
             graphics.ApplyChanges();
             Window.Position = new Point(-8, 0);
             Window.AllowUserResizing = true;

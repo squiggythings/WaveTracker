@@ -9,7 +9,6 @@ C:\Users\elias\source\repos\WaveTracker\bin\Debug\net6.0-windows\WaveTracker.exe
 C:\Users\elias\source\repos\WaveTracker\bin\Debug\net6.0-windows\WaveTracker.deps.json
 C:\Users\elias\source\repos\WaveTracker\bin\Debug\net6.0-windows\WaveTracker.runtimeconfig.json
 C:\Users\elias\source\repos\WaveTracker\bin\Debug\net6.0-windows\WaveTracker.dll
-C:\Users\elias\source\repos\WaveTracker\bin\Debug\net6.0-windows\ref\WaveTracker.dll
 C:\Users\elias\source\repos\WaveTracker\bin\Debug\net6.0-windows\WaveTracker.pdb
 C:\Users\elias\source\repos\WaveTracker\bin\Debug\net6.0-windows\Microsoft.CodeAnalysis.dll
 C:\Users\elias\source\repos\WaveTracker\bin\Debug\net6.0-windows\Microsoft.CodeAnalysis.CSharp.dll
@@ -54,3 +53,4 @@ C:\Users\elias\source\repos\WaveTracker\obj\Debug\net6.0-windows\ref\WaveTracker
 C:\Users\elias\source\repos\WaveTracker\obj\Debug\net6.0-windows\WaveTracker.pdb
 C:\Users\elias\source\repos\WaveTracker\obj\Debug\net6.0-windows\WaveTracker.genruntimeconfig.cache
 C:\Users\elias\source\repos\WaveTracker\obj\Debug\net6.0-windows\WaveTracker.csproj.AssemblyReference.cache
+C:\Users\Elias\source\repos\WaveTracker\obj\Debug\net6.0-windows\refint\WaveTracker.dll
