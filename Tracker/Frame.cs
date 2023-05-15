@@ -87,6 +87,7 @@ namespace WaveTracker.Tracker
             return 255;
         }
 
+
         public Frame Clone()
         {
             Frame ret = new Frame();

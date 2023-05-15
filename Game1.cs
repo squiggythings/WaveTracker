@@ -78,7 +78,6 @@ namespace WaveTracker
             waveBank = new Rendering.WaveBank();
             instrumentBank = new Rendering.InstrumentBank();
             //System.Windows.Forms.MenuStrip menuStrip = new System.Windows.Forms.MenuStrip();
-
             //menuStrip.Items.Add("File");
             //menuStrip.Show();
             channelManager = new Audio.ChannelManager(Tracker.Song.CHANNEL_COUNT, waveBank);

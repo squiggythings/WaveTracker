@@ -1114,7 +1114,8 @@ namespace WaveTracker
             if (Input.GetKeyRepeat(Keys.D, KeyModifier.None)) return 22;
             if (Input.GetKeyRepeat(Keys.G, KeyModifier.None)) return 17;
             if (Input.GetKeyRepeat(Keys.S, KeyModifier.None)) return 18;
-
+            if (Input.GetKeyRepeat(Keys.A, KeyModifier.None)) return 12;
+            if (Input.GetKeyRepeat(Keys.W, KeyModifier.None)) return 13;
 
 
             return -1;

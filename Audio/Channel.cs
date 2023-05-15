@@ -36,6 +36,7 @@ namespace WaveTracker.Audio
 
         float vibratoOffset; // 4xx command
         double vibratoTime;
+        int volumeSlideSpeed;
         float vibratoSpeed;
         float vibratoIntensity;
         float tremoloMultiplier = 1f; // 7xx command
@@ -164,6 +165,14 @@ namespace WaveTracker.Audio
             {
                 SetWave(parameter);
             }
+            if (command == 12)
+            {
+                volumeSlideSpeed = -parameter;
+            }
+            if (command == 13)
+            {
+                volumeSlideSpeed = parameter;
+            }
 
         }
 
@@ -244,6 +253,7 @@ namespace WaveTracker.Audio
             pitchFallSpeed = 0;
             pitchFallOffset = 0;
             vibratoOffset = 0;
+            volumeSlideSpeed = 0;
             _time = 0.0M;
             arpEnvelopeResult = 0;
             arpCounter = 0;
@@ -313,7 +323,7 @@ namespace WaveTracker.Audio
             _tickTime = 0;
             if (currentMacro.macroType == MacroType.Sample)
                 _time = 0;
-            _frequency = Helpers.NoteToFrequency(num);
+            _frequency = Helpers.NoteToFrequency(totalPitch);
 
 
         }
@@ -437,6 +447,11 @@ namespace WaveTracker.Audio
             }
             if (pitchEnv.toPlay.isActive)
                 pitchEnv.Step();
+            channelVolume += volumeSlideSpeed;
+            if (channelVolume > 99)
+                channelVolume = 99;
+            if (channelVolume < 0)
+                channelVolume = 0;
             for (int i = 0; i < tickEvents.Count; i++)
             {
                 TickEvent t = tickEvents[i];
@@ -491,6 +506,7 @@ namespace WaveTracker.Audio
             }
             else
                 arpEnvelopeResult = 0;
+            
         }
 
         void DoEvent(TickEvent t)

@@ -3,10 +3,6 @@
 	format sample editor tools
 * Add preferences form
 * Add export to wav
-* Fix weirdness with piano roll visualizer
-* Fix weirdness with restoring channel states on play
-* Fix automatically setting wave even after an instrument is finished playing
-* Only trigger a new instrument when the green number is there
 
 
 
@@ -14,7 +10,6 @@ sample functions:
 fade out
 fade in
 reverse
-downsample
 normalize
 
 

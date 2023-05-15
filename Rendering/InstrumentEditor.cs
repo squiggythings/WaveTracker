@@ -22,7 +22,7 @@ namespace WaveTracker.Rendering
         int startcooldown;
         int id;
         public SpriteButton closeButton;
-        public Button sample_importSample, sample_normalize, sample_reverse;
+        public Button sample_importSample, sample_normalize, sample_reverse, sample_fadeIn, sample_fadeOut, sample_amplifyUp, sample_amplifyDown, sample_invert;
         public NumberBox sample_loopPoint;
         public NumberBox sample_baseKey, sample_detune;
         public Toggle sample_resampLinear, sample_resampNone, sample_resampMix, sample_loopOneshot, sample_loopForward, sample_loopPingpong;
@@ -73,12 +73,39 @@ namespace WaveTracker.Rendering
             sample_resampMix.width = 33;
 
             sample_normalize = new Button("Normalize", 337, 224, this);
+            sample_normalize.width = 50;
             sample_normalize.SetTooltip("", "Maximize the amplitude of the sample");
             sample_normalize.isPartOfInternalDialog = true;
 
+            sample_amplifyUp = new Button("Amplify+", 439, 224, this);
+            sample_amplifyUp.width = 50;
+            sample_amplifyUp.SetTooltip("", "Increase the volume of the sample");
+            sample_amplifyUp.isPartOfInternalDialog = true;
+
+            sample_amplifyDown = new Button("Amplify-", 439, 238, this);
+            sample_amplifyDown.width = 50;
+            sample_amplifyDown.SetTooltip("", "Decrease the volume of the sample");
+            sample_amplifyDown.isPartOfInternalDialog = true;
+
+            sample_fadeIn = new Button("Fade In", 388, 224, this);
+            sample_fadeIn.width = 50;
+            sample_fadeIn.SetTooltip("", "Fade the sample from silence to full volume");
+            sample_fadeIn.isPartOfInternalDialog = true;
+
+            sample_fadeOut = new Button("Fade Out", 388, 238, this);
+            sample_fadeOut.width = 50;
+            sample_fadeOut.SetTooltip("", "Fade the sample from full volume to silence");
+            sample_fadeOut.isPartOfInternalDialog = true;
+
             sample_reverse = new Button("Reverse", 337, 238, this);
+            sample_reverse.width = 50;
             sample_reverse.SetTooltip("", "Reverse the sample");
             sample_reverse.isPartOfInternalDialog = true;
+
+            sample_invert = new Button("Invert", 490, 224, this);
+            sample_invert.width = 50;
+            sample_invert.SetTooltip("", "Reverse the polarity of the sample");
+            sample_invert.isPartOfInternalDialog = true;
 
             sample_baseKey = new NumberBox("Base Key", 20, 256, 100, 56, this);
             sample_baseKey.isPartOfInternalDialog = true;
@@ -155,9 +182,19 @@ namespace WaveTracker.Rendering
 
                                 if (sample_reverse.Clicked)
                                     instrument.sample.Reverse();
+                                if (sample_invert.Clicked)
+                                    instrument.sample.Invert();
+                                if (sample_fadeIn.Clicked)
+                                    instrument.sample.FadeIn();
+                                if (sample_fadeOut.Clicked)
+                                    instrument.sample.FadeOut();
+                                if (sample_amplifyUp.Clicked)
+                                    instrument.sample.Amplify(1.1f);
+                                if (sample_amplifyDown.Clicked)
+                                    instrument.sample.Amplify(0.9f);
                                 if (instrument.sample.sampleLoopType != SampleLoopType.OneShot)
                                 {
-                                    sample_loopPoint.SetValueLimits(0, instrument.sample.sampleDataLeft.Count < 1 ? 0 : instrument.sample.sampleDataLeft.Count - 2);
+                                    sample_loopPoint.SetValueLimits(0, instrument.sample.sampleDataAccessL.Length < 1 ? 0 : instrument.sample.sampleDataAccessL.Length - 2);
                                     sample_loopPoint.Value = instrument.sample.sampleLoopIndex;
                                     sample_loopPoint.Update();
                                     instrument.sample.sampleLoopIndex = sample_loopPoint.Value;
@@ -361,24 +398,24 @@ namespace WaveTracker.Rendering
                     if (tabGroup.selected == 0)
                     {
                         // sample length information
-                        Write(instrument.sample.sampleDataLeft.Count + " samples", 20, 37, ButtonColors.Round.backgroundColor);
-                        WriteRightAlign((instrument.sample.sampleDataLeft.Count / (float)AudioEngine.sampleRate).ToString("F5") + " seconds", 547, 37, ButtonColors.Round.backgroundColor);
+                        Write(instrument.sample.sampleDataAccessL.Length + " samples", 20, 37, ButtonColors.Round.backgroundColor);
+                        WriteRightAlign((instrument.sample.sampleDataAccessL.Length / (float)AudioEngine.sampleRate).ToString("F5") + " seconds", 547, 37, ButtonColors.Round.backgroundColor);
 
                         // draw import button
                         sample_importSample.Draw();
                         DrawSprite(tex, sample_importSample.x + 68, sample_importSample.y + (sample_importSample.IsPressed ? 2 : 2), new Rectangle(595, 0, 11, 9));
 
                         // waveforms
-                        if (instrument.sample.sampleDataRight.Count > 0)
+                        if (instrument.sample.sampleDataAccessR.Length > 0)
                         {
-                            DrawWaveform(20, 46, instrument.sample.sampleDataLeft);
-                            DrawWaveform(20, 134, instrument.sample.sampleDataRight);
+                            DrawWaveform(20, 46, instrument.sample.sampleDataAccessL);
+                            DrawWaveform(20, 134, instrument.sample.sampleDataAccessR);
                         }
                         else
                         {
                             DrawRect(20, 133, 528, 1, new Color(20, 24, 46));
                             DrawRect(11, 46, 8, 175, Color.White);
-                            DrawWaveform(20, 46, instrument.sample.sampleDataLeft, 175);
+                            DrawWaveform(20, 46, instrument.sample.sampleDataAccessL, 175);
                         }
                         sample_loopPingpong.Draw();
                         sample_loopForward.Draw();
@@ -396,6 +433,11 @@ namespace WaveTracker.Rendering
 
                         sample_normalize.Draw();
                         sample_reverse.Draw();
+                        sample_fadeIn.Draw();
+                        sample_fadeOut.Draw();
+                        sample_invert.Draw();
+                        sample_amplifyUp.Draw();
+                        sample_amplifyDown.Draw();
                         sample_detune.Draw();
                         sample_baseKey.Draw();
                     }
@@ -411,22 +453,22 @@ namespace WaveTracker.Rendering
             }
         }
 
-        public void DrawWaveform(int x, int y, List<float> data, int height = 87)
+        public void DrawWaveform(int x, int y, float[] data, int height = 87)
         {
             int boxLength = 528;
             int boxHeight = height;
-            int samplesPerPixel = data.Count / boxLength;
+            int samplesPerPixel = data.Length / boxLength;
             int startY = y + boxHeight / 2;
             int lastSampleNum;
             int sampleNum = 0;
-            if (data.Count > 0)
+            if (data.Length > 0)
             {
                 for (int i = 0; i < boxLength; i++)
                 {
                     float percentage = (float)i / boxLength;
                     lastSampleNum = sampleNum;
-                    sampleNum = (int)(percentage * data.Count - 1);
-                    sampleNum = Math.Clamp(sampleNum, 0, data.Count - 1);
+                    sampleNum = (int)(percentage * data.Length - 1);
+                    sampleNum = Math.Clamp(sampleNum, 0, data.Length - 1);
                     float min = 1;
                     float max = -1;
                     for (int j = lastSampleNum; j <= sampleNum; j++)
@@ -443,9 +485,9 @@ namespace WaveTracker.Rendering
 
                 }
                 if (instrument.sample.sampleLoopType != SampleLoopType.OneShot)
-                    DrawRect(x + (int)((float)instrument.sample.sampleLoopIndex / data.Count * boxLength), y, 1, boxHeight, Color.Yellow);
-                if (instrument.sample.currentPlaybackPosition < data.Count && Audio.ChannelManager.instance.channels[Game1.previewChannel].isPlaying)
-                    DrawRect(x + (int)((float)instrument.sample.currentPlaybackPosition / data.Count * boxLength), y, 1, boxHeight, Color.Aqua);
+                    DrawRect(x + (int)((float)instrument.sample.sampleLoopIndex / data.Length * boxLength), y, 1, boxHeight, Color.Yellow);
+                if (instrument.sample.currentPlaybackPosition < data.Length && Audio.ChannelManager.instance.channels[Game1.previewChannel].isPlaying)
+                    DrawRect(x + (int)((float)instrument.sample.currentPlaybackPosition / data.Length * boxLength), y, 1, boxHeight, Color.Aqua);
             }
         }
 
@@ -459,8 +501,8 @@ namespace WaveTracker.Rendering
                     bool didReadWAV;
                     string fileName = "";
                     didReadWAV = false;
-                    List<float> sampleDataLeft, sampleDataRight;
-                    sampleDataLeft = new List<float>();
+                    List<float> sampleDataAccessL, sampleDataRight;
+                    sampleDataAccessL = new List<float>();
                     sampleDataRight = new List<float>();
                     Thread t = new Thread((ThreadStart)(() =>
                      {
@@ -470,13 +512,13 @@ namespace WaveTracker.Rendering
                          openFileDialog.Filter = "Audio Files (*.wav, *.mp3, *.flac)|*.wav;*.mp3;*.flac";
                          openFileDialog.Multiselect = false;
                          openFileDialog.Title = "Import Sample...";
-                         sampleDataLeft = new List<float>();
+                         sampleDataAccessL = new List<float>();
                          sampleDataRight = new List<float>();
                          if (openFileDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
                          {
                              didReadWAV = true;
                              fileName = openFileDialog.SafeFileName;
-                             successfulReadWAV = (Helpers.readWav(openFileDialog.FileName, out macro.sample.sampleDataLeft, out macro.sample.sampleDataRight));
+                             successfulReadWAV = (Helpers.readWav(openFileDialog.FileName, out macro.sample.sampleDataAccessL, out macro.sample.sampleDataAccessR));
                          }
 
                      }));
@@ -489,7 +531,7 @@ namespace WaveTracker.Rendering
                         macro.sample.SetBaseKey(48);
                         macro.sample.SetDetune(0);
                         macro.sample.sampleLoopIndex = 0;
-                        macro.sample.sampleLoopType = macro.sample.sampleDataLeft.Count < 1000 ? SampleLoopType.Forward : SampleLoopType.OneShot;
+                        macro.sample.sampleLoopType = macro.sample.sampleDataAccessL.Length < 1000 ? SampleLoopType.Forward : SampleLoopType.OneShot;
                         macro.sample.resampleMode = ResamplingModes.Linear;
                         if (successfulReadWAV)
                         {
@@ -502,8 +544,8 @@ namespace WaveTracker.Rendering
                         }
                         else
                         {
-                            macro.sample.sampleDataLeft = new List<float>();
-                            macro.sample.sampleDataRight = new List<float>();
+                            macro.sample.sampleDataAccessL = new float[0];
+                            macro.sample.sampleDataAccessR = new float[0];
                         }
                     }
                 }

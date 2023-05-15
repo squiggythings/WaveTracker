@@ -89,6 +89,8 @@ namespace WaveTracker
                 9 => "9",
                 10 => "Q",
                 11 => "R",
+                12 => "A",
+                13 => "W",
                 20 => "C",
                 21 => "B",
                 22 => "D",
@@ -316,10 +318,10 @@ namespace WaveTracker
             return true;
         }
 
-        public static bool readWav(string filepath, out List<float> L, out List<float> R)
+        public static bool readWav(string filepath, out float[] L, out float[] R)
         {
-            L = new List<float>();
-            R = new List<float>();
+            List<float> LChannel = new List<float>();
+            List<float> RChannel = new List<float>();
             try
             {
                 AudioFileReader Nreader = new AudioFileReader(filepath);
@@ -339,18 +341,22 @@ namespace WaveTracker
                 {
                     if (s > 44100 * 120)
                         break;
-                    L.Add(buffer[v++]);
+                    LChannel.Add(buffer[v++]);
                     if (!mono)
-                        R.Add(buffer[v++]);
+                        RChannel.Add(buffer[v++]);
                 }
                 if (mono)
-                    R.Clear();
+                    RChannel.Clear();
+                L = LChannel.ToArray();
+                R = RChannel.ToArray();
                 return true;
             }
             catch
             {
-                L.Add(0f);
-                R.Add(0f);
+                LChannel.Add(0f);
+                RChannel.Add(0f);
+                L = LChannel.ToArray();
+                R = RChannel.ToArray();
                 return false;
             }
         }

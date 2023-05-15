@@ -31,14 +31,6 @@ namespace WaveTracker.Audio
             instance = this;
         }
 
-        public void Tick(float deltaTime)
-        {
-            int i = 0;
-            foreach (Channel channel in channels)
-            {
-                ++i;
-            }
-        }
 
         public void Reset()
         {

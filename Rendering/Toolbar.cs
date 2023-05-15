@@ -113,7 +113,7 @@ namespace WaveTracker.Rendering
 
         public void Update()
         {
-            file_export.enabled = false;
+            file_export.enabled = true;
             playback_record.enabled = !Game1.VisualizerMode;
             edit_copy.enabled = FrameEditor.selectionActive && !Game1.VisualizerMode;
             edit_cut.enabled = FrameEditor.selectionActive && !Game1.VisualizerMode;
@@ -135,7 +135,7 @@ namespace WaveTracker.Rendering
             if (file_open.Clicked) { SaveLoad.OpenFile(); }
             if (file_save.Clicked) { SaveLoad.SaveFile(); }
             if (file_saveAs.Clicked) { SaveLoad.SaveFileAs(); }
-            if (file_export.Clicked) { }
+            if (file_export.Clicked) { Audio.AudioEngine.instance.RenderTo("", 3, false); }
 
 
 
