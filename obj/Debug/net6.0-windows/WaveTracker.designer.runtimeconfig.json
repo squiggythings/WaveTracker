@@ -12,8 +12,8 @@
       }
     ],
     "additionalProbingPaths": [
-      "C:\\Users\\elias\\.dotnet\\store\\|arch|\\|tfm|",
-      "C:\\Users\\elias\\.nuget\\packages"
+      "C:\\Users\\Elias\\.dotnet\\store\\|arch|\\|tfm|",
+      "C:\\Users\\Elias\\.nuget\\packages"
     ],
     "configProperties": {
       "System.Runtime.TieredCompilation": false,

@@ -88,7 +88,7 @@
             this.groupBox3.Controls.Add(this.trackBar2);
             this.groupBox3.Location = new System.Drawing.Point(269, 70);
             this.groupBox3.Name = "groupBox3";
-            this.groupBox3.Size = new System.Drawing.Size(177, 206);
+            this.groupBox3.Size = new System.Drawing.Size(177, 83);
             this.groupBox3.TabIndex = 4;
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "Volume";
@@ -105,16 +105,16 @@
             // 
             // trackBar2
             // 
-            this.trackBar2.BackColor = System.Drawing.Color.WhiteSmoke;
-            this.trackBar2.Location = new System.Drawing.Point(6, 31);
-            this.trackBar2.Maximum = 500;
-            this.trackBar2.Minimum = 1;
+            this.trackBar2.BackColor = System.Drawing.Color.White;
+            this.trackBar2.Location = new System.Drawing.Point(6, 22);
+            this.trackBar2.Maximum = 100;
             this.trackBar2.Name = "trackBar2";
             this.trackBar2.Size = new System.Drawing.Size(165, 45);
             this.trackBar2.TabIndex = 7;
-            this.trackBar2.TickFrequency = 0;
-            this.trackBar2.TickStyle = System.Windows.Forms.TickStyle.None;
+            this.trackBar2.TickFrequency = 10;
+            this.trackBar2.TickStyle = System.Windows.Forms.TickStyle.Both;
             this.trackBar2.Value = 1;
+            this.trackBar2.Scroll += new System.EventHandler(this.trackBar2_Scroll);
             // 
             // groupBox2
             // 

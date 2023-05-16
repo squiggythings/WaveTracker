@@ -61,5 +61,10 @@ namespace WaveTracker.Forms
         {
 
         }
+
+        private void trackBar2_Scroll(object sender, EventArgs e)
+        {
+
+        }
     }
 }
