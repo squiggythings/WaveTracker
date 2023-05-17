@@ -27,6 +27,7 @@ namespace WaveTracker.Rendering
         public NumberBox sample_baseKey, sample_detune;
         public Toggle sample_resampLinear, sample_resampNone, sample_resampMix, sample_loopOneshot, sample_loopForward, sample_loopPingpong;
         public EnvelopeEditor envelopeEditor;
+        public SpriteToggle visualize_toggle;
         Macro instrument => Game1.currentSong.instruments[id];
         TabGroup tabGroup;
         public static Texture2D tex;
@@ -119,16 +120,15 @@ namespace WaveTracker.Rendering
             sample_detune.isPartOfInternalDialog = true;
             sample_detune.SetTooltip("", "The note where the sample is played at its original pitch");
             sample_detune.SetValueLimits(-199, 199);
-            sample_detune.bDown.isPartOfInternalDialog = true;
-            sample_detune.bUp.isPartOfInternalDialog = true;
             sample_detune.displayMode = NumberBox.DisplayMode.PlusMinus;
 
             sample_loopPoint = new NumberBox("Loop position", 183, 239, 140, 80, this);
             sample_loopPoint.isPartOfInternalDialog = true;
             sample_loopPoint.SetTooltip("", "Set the position in audio samples where the sound loops back to");
-            sample_loopPoint.bDown.isPartOfInternalDialog = true;
-            sample_loopPoint.bUp.isPartOfInternalDialog = true;
 
+
+            visualize_toggle = new SpriteToggle(547, 286, 9, 9, InstrumentEditor.tex, 0, this);
+            visualize_toggle.SetTooltip("", "Make the sample visible in visualizer mode. It is a good idea to turn this off for samples such as drums and percussion");
             #endregion
 
 
@@ -152,6 +152,7 @@ namespace WaveTracker.Rendering
                             sample_loopOneshot.Value = instrument.sample.sampleLoopType == SampleLoopType.OneShot;
                             sample_loopForward.Value = instrument.sample.sampleLoopType == SampleLoopType.Forward;
                             sample_loopPingpong.Value = instrument.sample.sampleLoopType == SampleLoopType.PingPong;
+                            visualize_toggle.Value = instrument.sample.useInVisualization;
                         }
                     }
                     else
@@ -236,6 +237,10 @@ namespace WaveTracker.Rendering
                                 instrument.sample.SetDetune(sample_detune.Value);
                                 #endregion
 
+                                visualize_toggle.Value = instrument.sample.useInVisualization;
+                                visualize_toggle.Update();
+                                instrument.sample.useInVisualization = visualize_toggle.Value;
+
 
                             }
                             #endregion
@@ -271,29 +276,31 @@ namespace WaveTracker.Rendering
 
         public void EditMacro(Macro m, int num)
         {
-            enabled = true;
-            Input.focus = this;
-            //Input.internalDialogIsOpen = true;
-            startcooldown = 4;
-            enabled = true;
-            id = num;
-            tabGroup = new TabGroup(8, 15, this);
-            if (m.macroType == MacroType.Wave)
+            if (Input.focus == null)
             {
-                tabGroup.AddTab("Volume", true);
-                tabGroup.AddTab("Arpeggio", true);
-                tabGroup.AddTab("Pitch", true);
-                tabGroup.AddTab("Wave", true);
+                Input.focus = this;
+                //Input.internalDialogIsOpen = true;
+                startcooldown = 4;
+                enabled = true;
+                id = num;
+                tabGroup = new TabGroup(8, 15, this);
+                if (m.macroType == MacroType.Wave)
+                {
+                    tabGroup.AddTab("Volume", true);
+                    tabGroup.AddTab("Arpeggio", true);
+                    tabGroup.AddTab("Pitch", true);
+                    tabGroup.AddTab("Wave", true);
+                }
+                if (m.macroType == MacroType.Sample)
+                {
+                    tabGroup.AddTab("Sample", false);
+                    tabGroup.AddTab("Volume", true);
+                    tabGroup.AddTab("Arpeggio", true);
+                    tabGroup.AddTab("Pitch", true);
+                }
+                ShowEnvelope(id);
+                SetTabTogglesFromInstrument();
             }
-            if (m.macroType == MacroType.Sample)
-            {
-                tabGroup.AddTab("Sample", false);
-                tabGroup.AddTab("Volume", true);
-                tabGroup.AddTab("Arpeggio", true);
-                tabGroup.AddTab("Pitch", true);
-            }
-            ShowEnvelope(id);
-            SetTabTogglesFromInstrument();
         }
 
         public void SetTabTogglesFromInstrument()
@@ -442,6 +449,7 @@ namespace WaveTracker.Rendering
                         sample_amplifyDown.Draw();
                         sample_detune.Draw();
                         sample_baseKey.Draw();
+                        visualize_toggle.Draw();
                     }
                     else
                     {

@@ -103,7 +103,7 @@ namespace WaveTracker.Rendering
             {
                 Channel chan = ChannelManager.instance.channels[c];
 
-                if ((chan.currentMacro.macroType == MacroType.Wave || Preferences.visualizerShowSamplesInPianoRoll) && chan.CurrentAmplitude > 0.01f && chan.CurrentPitch >= 0 && chan.CurrentPitch < 120 && FrameEditor.channelToggles[c])
+                if ((chan.currentMacro.macroType == MacroType.Wave || chan.currentMacro.sample.useInVisualization) && chan.CurrentAmplitude > 0.01f && chan.CurrentPitch >= 0 && chan.CurrentPitch < 120 && FrameEditor.channelToggles[c])
                 {
                     ChannelState state = new ChannelState(chan.CurrentPitch, chan.CurrentAmplitude, chan.currentMacro.macroType == MacroType.Wave ? waveColors[chan.waveIndex] : Color.White);
                     rowOfStates.Add(state);

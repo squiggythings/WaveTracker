@@ -8,6 +8,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using WaveTracker.UI;
 using WaveTracker.Tracker;
+using System.Diagnostics;
 
 namespace WaveTracker.UI
 {
@@ -79,8 +80,6 @@ namespace WaveTracker.UI
             this.y = y;
             this.hasToggle = hasToggle;
             toggle = new SpriteToggle(2, 2, 9, 9, Rendering.InstrumentEditor.tex, 0, this);
-            toggle.isPartOfInternalDialog = true;
-            isPartOfInternalDialog = true;
             this.label = label;
             SetParent(parent);
         }

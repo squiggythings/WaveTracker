@@ -175,7 +175,6 @@ namespace WaveTracker
             }
             pianoInput = Helpers.GetPianoInput(FrameEditor.currentOctave);
             waveBank.editor.Update();
-            instrumentBank.editor.Update();
 
             if (waveBank.editor.pianoInput() > -1)
                 pianoInput = waveBank.editor.pianoInput();

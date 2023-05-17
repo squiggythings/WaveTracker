@@ -239,6 +239,8 @@ namespace WaveTracker.Tracker
         public int Detune { get; private set; }
         public int BaseKey { get; private set; }
         public int currentPlaybackPosition;
+        public bool useInVisualization;
+
         public float _baseFrequency { get; private set; }
         public float[] sampleDataAccessL, sampleDataAccessR;
 
@@ -551,9 +553,13 @@ namespace WaveTracker.Tracker
 
         float getSample(int chan, int index)
         {
+            if (sampleDataAccessL.Length == 0)
+            {
+                return 0;
+            }
             if (index < 0)
                 return 0;
-            if (index < sampleDataAccessL.Length)
+            if (index >= sampleDataAccessL.Length)
                 return 0;
             if (index >= sampleDataAccessL.Length)
                 index = sampleDataAccessL.Length - 1;
