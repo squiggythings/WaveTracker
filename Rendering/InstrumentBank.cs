@@ -223,6 +223,7 @@ namespace WaveTracker.Rendering
             }
         }
 
+
         public void Draw()
         {
             DrawPanel();

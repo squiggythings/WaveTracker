@@ -551,7 +551,9 @@ namespace WaveTracker.Tracker
 
         float getSample(int chan, int index)
         {
-            if (index >= sampleDataAccessL.Length)
+            if (index < 0)
+                return 0;
+            if (index < sampleDataAccessL.Length)
                 return 0;
             if (index >= sampleDataAccessL.Length)
                 index = sampleDataAccessL.Length - 1;

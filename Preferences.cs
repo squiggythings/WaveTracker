@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Serialization;
 
 namespace WaveTracker
 {
+    [Serializable]
     public static class Preferences
     {
 
@@ -22,7 +24,7 @@ namespace WaveTracker
         public static bool visualizerShowSamplesInPianoRoll = false;
         public static int visualizerPianoSpeed = 10;//10;
         public static int visualizerScopeZoom = 40;
-
+        public static string lastBrowseDirectory = @"%USERPROFILE%";
 
     }
 }

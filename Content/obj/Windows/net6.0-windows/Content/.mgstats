@@ -4,4 +4,4 @@ Source File,Dest File,Processor Type,Content Type,Source File Size,Dest File Siz
 "C:/Users/Elias/source/repos/WaveTracker/Content/toolbar.png","C:/Users/Elias/source/repos/WaveTracker/Content/bin/Windows/Content/toolbar.xnb","TextureProcessor","Texture2DContent",5823,130585,0.0410342
 "C:/Users/Elias/source/repos/WaveTracker/Content/trackerchannelheader.png","C:/Users/Elias/source/repos/WaveTracker/Content/bin/Windows/Content/trackerchannelheader.xnb","TextureProcessor","Texture2DContent",523,23521,0.0028177
 "C:/Users/Elias/source/repos/WaveTracker/Content/wave_window.png","C:/Users/Elias/source/repos/WaveTracker/Content/bin/Windows/Content/wave_window.xnb","TextureProcessor","Texture2DContent",4831,748981,0.026411
-"C:/Users/Elias/source/repos/WaveTracker/Content/window_edit.png","C:/Users/Elias/source/repos/WaveTracker/Content/bin/Windows/Content/window_edit.xnb","TextureProcessor","Texture2DContent",1138,9085,0.002605
+"C:/Users/Elias/source/repos/WaveTracker/Content/window_edit.png","C:/Users/Elias/source/repos/WaveTracker/Content/bin/Windows/Content/window_edit.xnb","TextureProcessor","Texture2DContent",1264,9085,0.2134272

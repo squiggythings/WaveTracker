@@ -29,7 +29,7 @@ namespace WaveTracker.UI
         {
             get
             {
-                if (Input.internalDialogIsOpen && !isPartOfInternalDialog)
+                if (!inFocus)
                     return false;
                 bool h = MouseX < width && MouseY < height && MouseX >= 0 && MouseY >= 0;
                 if (h)
@@ -59,14 +59,14 @@ namespace WaveTracker.UI
 
         public bool ClickedM(KeyModifier modifier)
         {
-            if (Input.internalDialogIsOpen && !isPartOfInternalDialog)
+            if (!inFocus)
                 return false;
             return enabled && Input.GetClickUp(modifier) && globalPointIsInBounds(Input.lastClickLocation) && globalPointIsInBounds(Input.lastClickReleaseLocation);
         }
 
         public bool SingleClickedM(KeyModifier modifier)
         {
-            if (Input.internalDialogIsOpen && !isPartOfInternalDialog)
+            if (!inFocus)
                 return false;
             return enabled && Input.GetSingleClickUp(modifier) && globalPointIsInBounds(Input.lastClickLocation) && globalPointIsInBounds(Input.lastClickReleaseLocation);
         }
@@ -74,7 +74,7 @@ namespace WaveTracker.UI
 
         public bool DoubleClickedM(KeyModifier modifier)
         {
-            if (Input.internalDialogIsOpen && !isPartOfInternalDialog)
+            if (!inFocus)
                 return false;
             return enabled && Input.GetDoubleClick(modifier) && globalPointIsInBounds(Input.lastClickLocation) && globalPointIsInBounds(Input.lastClickReleaseLocation);
         }

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-
+using WaveTracker.UI;
 
 namespace WaveTracker
 {
@@ -40,6 +40,7 @@ namespace WaveTracker
         public static bool singleClick;
         public static bool doubleClick;
         public static bool internalDialogIsOpen;
+        public static Element focus = null;
         public static int focusTimer;
         public static void Intialize()
         {

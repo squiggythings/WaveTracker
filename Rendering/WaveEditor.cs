@@ -134,16 +134,18 @@ namespace WaveTracker.Rendering
         }
         public void EditWave(Wave wave, int num)
         {
-            Input.internalDialogIsOpen = true;
+            //Input.internalDialogIsOpen = true;
             startcooldown = 10;
             id = num;
             enabled = true;
+            Input.focus = this;
         }
 
         public void Close()
         {
             enabled = false;
-            Input.internalDialogIsOpen = false;
+            //Input.internalDialogIsOpen = false;
+            Input.focus = null;
         }
 
         public int pianoInput()
@@ -173,6 +175,8 @@ namespace WaveTracker.Rendering
         {
             if (enabled)
             {
+                if (WaveBank.currentWave < 0) return;
+                if (WaveBank.currentWave > 99) return;
                 if (Input.GetKeyRepeat(Microsoft.Xna.Framework.Input.Keys.Left, KeyModifier.None))
                 {
                     WaveBank.currentWave--;

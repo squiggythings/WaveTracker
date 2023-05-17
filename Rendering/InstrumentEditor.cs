@@ -272,7 +272,8 @@ namespace WaveTracker.Rendering
         public void EditMacro(Macro m, int num)
         {
             enabled = true;
-            Input.internalDialogIsOpen = true;
+            Input.focus = this;
+            //Input.internalDialogIsOpen = true;
             startcooldown = 4;
             enabled = true;
             id = num;
@@ -351,6 +352,7 @@ namespace WaveTracker.Rendering
             envelopeEditor.ResetScrollbar();
             enabled = false;
             Input.internalDialogIsOpen = false;
+            Input.focus = null;
         }
 
         public void Draw()

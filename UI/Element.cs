@@ -24,6 +24,18 @@ namespace WaveTracker.UI
         protected int globalX { get { return x + offX; } }
         protected int globalY { get { return y + offY; } }
 
+        public bool inFocus
+        {
+            get
+            {
+                if (Input.focus == null) return true;
+                if (parent == null) return Input.focus == this;
+                if (parent.inFocus)
+                    return true;
+                return Input.focus == this;
+            }
+        }
+
         public void SetParent(Element parent)
         {
             this.parent = parent;

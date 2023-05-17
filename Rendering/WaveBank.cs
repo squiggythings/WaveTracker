@@ -46,7 +46,7 @@ namespace WaveTracker.Rendering
         public void Update()
         {
             int i = 0;
-            if (!Input.internalDialogIsOpen)
+            if (Input.focus == null)
                 currentWave = -1;
             foreach (WaveBankElement e in waveBankElements)
             {

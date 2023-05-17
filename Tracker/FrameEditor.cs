@@ -73,7 +73,7 @@ namespace WaveTracker
         public static void Update()
         {
 
-            if (Input.internalDialogIsOpen)
+            if (Input.focus != null)
                 return;
 
             if (history.Count == 0)
