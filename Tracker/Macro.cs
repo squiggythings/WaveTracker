@@ -425,59 +425,9 @@ namespace WaveTracker.Tracker
 
         public float getMonoSample(float time)
         {
-            float sampleIndex = 0;
-            float x = (time * (Audio.AudioEngine.sampleRate / _baseFrequency));
-            long l = sampleDataAccessL.Length;
-            long p = sampleLoopIndex;
-            if (sampleLoopType == SampleLoopType.OneShot || x <= l)
-            {
-                sampleIndex = x;
-            }
-            else if (sampleLoopType == SampleLoopType.PingPong)
-            {
-                long b = (long)((x - p) % ((l - p) * 2));
-                if (b < l - p)
-                {
-                    sampleIndex = b + p;
-                }
-                else if (b >= l - p)
-                {
-                    sampleIndex = l - (b + p - l);
-                }
-            }
-            else if (sampleLoopType == SampleLoopType.Forward)
-            {
-                sampleIndex = ((x - p) % (l - p)) + p;
-            }
-            if (sampleIndex < 0)
-                return 0;
-            currentPlaybackPosition = (int)sampleIndex;
-            if (resampleMode == Audio.ResamplingModes.None)
-            {
-                return (getSample(0, (int)(sampleIndex)) + getSample(1, (int)(sampleIndex))) * 0.5f;
-            }
-            else if (resampleMode == Audio.ResamplingModes.Linear)
-            {
-                int one = (int)sampleIndex;
-                int two = one + 1;
-                float by = (float)(sampleIndex % 1f);
-                return (MathHelper.Lerp(getSample(0, one), getSample(0, two), by) + MathHelper.Lerp(getSample(1, one), getSample(1, two), by)) * 0.5f;
-            }
-            else
-            {
-                int one = (int)sampleIndex;
-                int two = one + 1;
-                float by = (float)(sampleIndex % 1f);
-                float outputL, outputR = 0;
-                outputL = MathHelper.Lerp(getSample(0, one), getSample(0, two), by);
-                outputR = MathHelper.Lerp(getSample(1, one), getSample(1, two), by);
-
-                outputL += getSample(0, (int)(sampleIndex));
-                outputR += getSample(1, (int)(sampleIndex));
-                outputL /= 2;
-                outputR /= 2;
-                return (outputL + outputR) / 2;
-            }
+            float l, r;
+            SampleTick(time, 0, out l, out r);
+            return (l + r) / 2f;
         }
 
         public void SampleTick(float time, int stereoPhase, out float outputL, out float outputR)
@@ -492,7 +442,7 @@ namespace WaveTracker.Tracker
             }
             else if (sampleLoopType == SampleLoopType.PingPong)
             {
-                long b = (long)((x - p) % ((l - p) * 2));
+                float b = ((x - p) % ((l - p) * 2));
                 if (b < l - p)
                 {
                     sampleIndex = b + p;
