@@ -19,7 +19,7 @@ namespace WaveTracker.Rendering
     {
         public static bool enabled;
         public Macro currentMacro;
-        int startcooldown;
+        public int startcooldown;
         int id;
         public SpriteButton closeButton;
         public Button sample_importSample, sample_normalize, sample_reverse, sample_fadeIn, sample_fadeOut, sample_amplifyUp, sample_amplifyDown, sample_invert;
@@ -378,7 +378,7 @@ namespace WaveTracker.Rendering
                     DrawSprite(tex, 0, 0, new Rectangle(10, 341, 568, 340));
 
 
-                Write("Edit Instrument " + id.ToString("D2"), 4, 1, new Color(64, 72, 115));
+                Write("Edit Instrument " + id.ToString("D2"), 4, 1, UIColors.panelTitle);
 
                 closeButton.Draw();
 
@@ -409,8 +409,8 @@ namespace WaveTracker.Rendering
                     if (tabGroup.selected == 0)
                     {
                         // sample length information
-                        Write(instrument.sample.sampleDataAccessL.Length + " samples", 20, 37, ButtonColors.Round.backgroundColor);
-                        WriteRightAlign((instrument.sample.sampleDataAccessL.Length / (float)AudioEngine.sampleRate).ToString("F5") + " seconds", 547, 37, ButtonColors.Round.backgroundColor);
+                        Write(instrument.sample.sampleDataAccessL.Length + " samples", 20, 37, UIColors.label);
+                        WriteRightAlign((instrument.sample.sampleDataAccessL.Length / (float)AudioEngine.sampleRate).ToString("F5") + " seconds", 547, 37, UIColors.label);
 
                         // draw import button
                         sample_importSample.Draw();
@@ -424,7 +424,7 @@ namespace WaveTracker.Rendering
                         }
                         else
                         {
-                            DrawRect(20, 133, 528, 1, new Color(20, 24, 46));
+                            DrawRect(20, 133, 528, 1, UIColors.black);
                             DrawRect(11, 46, 8, 175, Color.White);
                             DrawWaveform(20, 46, instrument.sample.sampleDataAccessL, 175);
                         }

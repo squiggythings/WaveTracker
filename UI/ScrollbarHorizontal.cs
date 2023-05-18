@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using WaveTracker.Rendering;
 
 namespace WaveTracker.UI
 {
@@ -104,11 +105,12 @@ namespace WaveTracker.UI
         {
             if (viewportSize < totalSize)
             {
-                Color background = new Color(223, 224, 232);
-                Color barSpace = new Color(163, 167, 194);
+
+                Color background = UIColors.panel;
+                Color barSpace = UIColors.labelLight;
                 Color barDefault = ButtonColors.Round.backgroundColor;
-                Color barHover = new Color(64, 73, 115);
-                Color barPressed = new Color(20, 24, 46);
+                Color barHover = UIColors.labelDark;
+                Color barPressed = UIColors.black;
                 //DrawRect(0, 0, width, height, new Color(255, 0, 0, 40));
 
                 DrawRect(0, bar.Y, width, bar.Height, background);

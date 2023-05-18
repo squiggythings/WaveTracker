@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using WaveTracker.Rendering;
 
 namespace WaveTracker.UI
 {
@@ -14,9 +15,6 @@ namespace WaveTracker.UI
         public string label;
         public int width;
         public int height;
-        Color bgColor = new Color(222, 223, 231);
-        Color frameColor = new Color(255, 255, 255);
-        Color labelColor = new Color(64, 72, 115);
 
         public bool isInFocus { get { return MouseX < width && MouseY < height && MouseX >= 0 && MouseY >= 0; } }
 
@@ -30,10 +28,10 @@ namespace WaveTracker.UI
         }
         public void DrawPanel()
         {
-            DrawRoundedRect(0, 0, width, height, bgColor);
-            DrawRect(1, 0, width - 2, 1, frameColor);
-            DrawRect(0, 1, width, 8, frameColor);
-            Write(label, 4, 1, labelColor);
+            DrawRoundedRect(0, 0, width, height, UIColors.panel);
+            DrawRect(1, 0, width - 2, 1, Color.White);
+            DrawRect(0, 1, width, 8, Color.White);
+            Write(label, 4, 1, UIColors.panelTitle);
         }
     }
 }

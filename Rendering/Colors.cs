@@ -30,4 +30,36 @@ namespace WaveTracker.Rendering
         public static readonly Color selection = new(128, 128, 255, 150);
 
     }
+
+    public class UIColors
+    {
+        /// <summary>
+        /// (20, 24, 46)
+        /// </summary>
+        public static readonly Color black = new(20, 24, 46);
+        /// <summary>
+        /// (222, 223, 231)
+        /// </summary>
+        public static readonly Color panel = new(222, 223, 231);
+        /// <summary>
+        /// (43, 49, 81)
+        /// </summary>
+        public static readonly Color panelTitle = new(43, 49, 81);
+        /// <summary>
+        /// (64, 73, 115)
+        /// </summary>
+        public static readonly Color labelDark = new(64, 73, 115);
+        /// <summary>
+        /// (104, 111, 153)
+        /// </summary>
+        public static readonly Color label = new(104, 111, 153);
+        /// <summary>
+        /// (163, 167, 194)
+        /// </summary>
+        public static readonly Color labelLight = new(163, 167, 194);
+        /// <summary>
+        /// (8, 124, 232)
+        /// </summary>
+        public static readonly Color selection = new(8, 124, 232);
+    }
 }

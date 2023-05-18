@@ -7,6 +7,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Graphics;
 using System.Windows.Forms;
+using WaveTracker.Rendering;
 
 namespace WaveTracker.UI
 {
@@ -102,13 +103,13 @@ namespace WaveTracker.UI
 
         public void Draw()
         {
-            Color dark = new Color(104, 111, 153);
-            Color text = new Color(20, 24, 46);
-            Color labelCol = new Color(64, 73, 115);
+            Color dark = UIColors.label;
+            Color text = UIColors.black;
+            Color labelCol = UIColors.labelDark;
             if (IsHovered)
             {
                 labelCol = Color.Black;
-                dark = new Color(64, 73, 115);
+                dark = UIColors.label;
             }
             int bWidth = boxWidth - 10;
             int boxStart = width - boxWidth;

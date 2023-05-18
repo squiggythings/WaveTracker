@@ -198,7 +198,7 @@ namespace WaveTracker.Rendering
         {
             Color odd = new Color(43, 49, 81);
             Color even = new Color(59, 68, 107);
-            Color selected = new Color(8, 121, 232);
+            Color selected = UIColors.selection;
             int y = 0;
             for (int i = scrollbar.scrollValue; i < listLength + scrollbar.scrollValue; i++)
             {

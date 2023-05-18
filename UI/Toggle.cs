@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
-
+using WaveTracker.Rendering;
 
 namespace WaveTracker.UI
 {
@@ -54,7 +54,7 @@ namespace WaveTracker.UI
             else
             {
                 if (IsPressed)
-                    return colors.backgroundColorPressed;
+                    return colors.backgroundColor;
                 if (IsHovered)
                     return colors.backgroundColorHover;
             }

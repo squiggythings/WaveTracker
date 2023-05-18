@@ -289,7 +289,7 @@ namespace WaveTracker.UI
                         s += "(" + CanvasMouseBlockClamped().X + ", " + CanvasMouseBlockClamped().Y + ")";
 
                     }
-                    Write(s, 90, 226, ButtonColors.Round.backgroundColor);
+                    Write(s, 90, 226, UIColors.label);
                     #region draw loop/release
                     if (MouseEnvelopeY == 1 && MouseEnvelopeX >= 1 && MouseEnvelopeX < envelope.values.Count)
                     {
