@@ -64,18 +64,7 @@ namespace WaveTracker.Tracker
             quantizeChannelAmplitude = false;
         }
 
-        public int GetNumberOfRows()
-        {
-            int loops = 0;
-            for(int f = 0; f < frames.Count; f++)
-            {
-                for(int r = 0; r <= frames[f].GetLastRow(); r++)
-                {
-                    // (frames[f].pattern[r])
-                }
-            }
-            return 0;
-        }
+
         public bool Equals(Song other)
         {
             if (other.name != name)

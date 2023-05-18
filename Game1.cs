@@ -56,7 +56,7 @@ namespace WaveTracker
             graphics = new GraphicsDeviceManager(this);
             graphics.PreferredBackBufferWidth = ScreenWidth * ScreenScale;  // set this value to the desired width of your window
             graphics.PreferredBackBufferHeight = ScreenHeight * ScreenScale;   // set this value to the desired height of your window
-            
+
             graphics.ApplyChanges();
             Window.Position = new Point(-8, 0);
             Window.AllowUserResizing = true;
@@ -112,7 +112,7 @@ namespace WaveTracker
 
             instrumentBank.Initialize(Content.Load<Texture2D>("toolbar"));
             instrumentBank.editor = new Rendering.InstrumentEditor(Content.Load<Texture2D>("instrumentwindow"));
-
+            instrumentBank.editor.browser = new Rendering.SampleBrowser(Content.Load<Texture2D>("window_edit"));
             songSettings.Initialize(Content.Load<Texture2D>("window_edit"));
             frameView.Initialize(Content.Load<Texture2D>("toolbar"), GraphicsDevice);
             pixel = new Texture2D(GraphicsDevice, 1, 1);
@@ -227,7 +227,6 @@ namespace WaveTracker
                 frameRenderer.UpdateChannelHeaders();
             }
             toolbar.Update();
-
             base.Update(gameTime);
             lastPianoKey = pianoInput;
             //GC.Collect();
@@ -315,7 +314,14 @@ namespace WaveTracker
             targetBatch.Draw(target, new Rectangle(0, 0, ScreenWidth * ScreenScale, 1200), Color.White);
             if (VisualizerMode)
             {
-                visualization.DrawPiano();
+                try
+                {
+                    visualization.DrawPiano(visualization.states);
+                }
+                catch
+                {
+                    visualization.DrawPiano(visualization.statesPrev);
+                }
                 visualization.DrawOscilloscopes();
             }
             targetBatch.End();

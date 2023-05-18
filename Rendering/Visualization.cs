@@ -16,6 +16,7 @@ namespace WaveTracker.Rendering
     public class Visualization : Element
     {
         public List<List<ChannelState>> states;
+        public List<List<ChannelState>> statesPrev;
         static Color[] waveColors;
         FrameRenderer frameRenderer;
         Color currRowEmptyText = new Color(20, 24, 46);
@@ -89,6 +90,8 @@ namespace WaveTracker.Rendering
             x = 0; y = 0;
             states = new List<List<ChannelState>>();
             states.Add(new List<ChannelState> { new ChannelState(0, 0, Color.Red) });
+            statesPrev = new List<List<ChannelState>>();
+            statesPrev.Add(new List<ChannelState> { new ChannelState(0, 0, Color.Red) });
             waveColors = new Color[100];
             for (int i = 0; i < 100; ++i)
             {
@@ -97,6 +100,11 @@ namespace WaveTracker.Rendering
         }
 
         public void Update()
+        {
+            fillstates(states);
+        }
+
+        public void fillstates(List<List<ChannelState>> states)
         {
             List<ChannelState> rowOfStates = new List<ChannelState>();
             for (int c = 0; c < ChannelManager.instance.channels.Count; c++)
@@ -122,6 +130,8 @@ namespace WaveTracker.Rendering
 
         public void Draw()
         {
+            fillstates(statesPrev);
+
             DrawSprite(InstrumentEditor.tex, 20, 20, 600, 24, new Rectangle(16, 688, 600, 24));
             oscilloscopeHeight = 5;
             int py = oscilloscopeHeight * 8 + 40;
@@ -410,7 +420,7 @@ namespace WaveTracker.Rendering
                 DrawRect(x, y + (int)max, size, (int)(min - max) + size, c);
         }
 
-        public void DrawPiano()
+        public void DrawPiano(List<List<ChannelState>> states)
         {
             int px = 40;
             int py = 20 * 2;

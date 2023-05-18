@@ -44,7 +44,7 @@ namespace WaveTracker.Rendering
             {
                 if (WaveEditor.enabled)
                 {
-                    phase += 2;
+                    phase -= 2;
                 }
                 DrawRoundedRect(0, 0, 22, 22, new Color(104, 111, 153));
             }

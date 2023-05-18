@@ -133,7 +133,23 @@ namespace WaveTracker
             return ret - 1;
         }
 
+        public static string TrimTextToWidth(int width, string t)
+        {
 
+            if (getWidthOfText(t) > width - 6)
+            {
+                while (getWidthOfText(t + "...") > width - 6)
+                {
+                    t = t.Remove(t.Length - 1, 1);
+                    if (t[t.Length - 1] == ' ')
+                    {
+                        t = t.Remove(t.Length - 1, 1);
+                    }
+                }
+                t += "...";
+            }
+            return t;
+        }
         public static string FlushString(string original)
         {
             string alphabet = " 0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz!@#$%^&*()_+-={}[]\\|'\":;?/>.<,~`©àèìòùÀÈÌÒÙáéíóúýÁÉÍÓÚÝâêîôûÂÊÎÔÛãñõÃÑÕäëïöüÿÄËÏÖÜŸæçÇ";

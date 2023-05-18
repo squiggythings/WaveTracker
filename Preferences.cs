@@ -19,12 +19,11 @@ namespace WaveTracker
         public static bool keyRepeat = true;
         public static bool automaticallyNormalizeSamples = true;
         public static bool automaticallyTrimSamples = true;
-        public static int oscilloscopeMode = 3; // 1 - mono; 2 - stereo split; 3 - stereo overlap
+        public static int oscilloscopeMode = 2; // 1 - mono; 2 - stereo split; 3 - stereo overlap
         public static int pageJumpAmount = 4;
-        public static bool visualizerShowSamplesInPianoRoll = false;
-        public static int visualizerPianoSpeed = 10;//10;
-        public static int visualizerScopeZoom = 40;
-        public static string lastBrowseDirectory = @"%USERPROFILE%";
+        public static int visualizerPianoSpeed = 8; // 10 default
+        public static int visualizerScopeZoom = 40; // 40 default
+        public static string lastBrowseDirectory = @"C:/Users/Elias/Desktop/stuff that takes up space/pxtone/my_material";
 
     }
 }

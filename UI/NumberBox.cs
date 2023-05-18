@@ -51,7 +51,7 @@ namespace WaveTracker.UI
 
         public void Update()
         {
-            if (enabled)
+            if (enabled && inFocus)
             {
                 if (DoubleClicked && MouseX < width - 10)
                 {

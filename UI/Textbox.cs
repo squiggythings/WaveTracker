@@ -67,19 +67,8 @@ namespace WaveTracker.UI
             if (canEdit)
                 DrawRect(width - textboxWidth + 1, 1, textboxWidth - 2, 1, new Color(193, 196, 213));
             string t = Text + "";
-            if (Helpers.getWidthOfText(t) > textboxWidth - 6)
-            {
-                while (Helpers.getWidthOfText(t + "...") > textboxWidth - 6)
-                {
-                    t = t.Remove(t.Length - 1, 1);
-                    if (t[t.Length - 1] == ' ')
-                    {
-                        t = t.Remove(t.Length - 1, 1);
-                    }
-                }
-                t += "...";
-            }
-            Write(t, width - textboxWidth + 4, height / 2 - 3, text);
+            
+            Write(Helpers.TrimTextToWidth(textboxWidth, t), width - textboxWidth + 4, height / 2 - 3, text);
 
         }
 

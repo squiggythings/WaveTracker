@@ -25,19 +25,19 @@ namespace WaveTracker.UI
         int arpHeight = 6;
         NumberBox envLength;
         public int lastEnvType;
-        int columnWidth => (envelope.values.Count == 0 ? 0 : Math.Clamp(445 / envelope.values.Count, 1, 48));
+        int ColumnWidth => (envelope.values.Count == 0 ? 0 : Math.Clamp(445 / envelope.values.Count, 1, 48));
         public EnvelopeEditor(int x, int y, Texture2D tex, Element parent)
         {
             this.tex = tex;
             this.x = x;
             this.y = y;
-            envText = new Textbox("", -1, 239, 535, 535, this);
+            envText = new ("", -1, 239, 535, 535, this);
             envText.isPartOfInternalDialog = true;
             envText.maxLength = 256;
-            scrollbar = new Scrollbar(44, 20, 489, 200, this);
+            scrollbar = new (44, 20, 489, 200, this);
             scrollbar.isPartOfInternalDialog = true;
             scrollbar.coarseStepAmount = 2;
-            envLength = new NumberBox("Length", -1, 223, 74, 38, this);
+            envLength = new ("Length", -1, 223, 74, 38, this);
             envLength.isPartOfInternalDialog = true;
             envLength.bDown.isPartOfInternalDialog = true;
             envLength.bUp.isPartOfInternalDialog = true;
@@ -52,7 +52,7 @@ namespace WaveTracker.UI
             scrollbar.scrollValue = arpRange - 16;
         }
 
-        int xPositionOfColumn(int index) { return 46 + index * columnWidth; }
+        int xPositionOfColumn(int index) { return 46 + index * ColumnWidth; }
         int yPositionOfValue(int value)
         {
             if (envelopeType == 0 || envelopeType == 3)
@@ -129,8 +129,8 @@ namespace WaveTracker.UI
 
         public Point CanvasMouseBlock()
         {
-            int x = (int)Math.Floor((MouseX - 46) / (float)columnWidth);
-            int y = 0;
+            int x = (int)Math.Floor((MouseX - 46) / (float)ColumnWidth);
+            int y;
             if (envelopeType == 0 || envelopeType == 3) // vol / wave
             {
                 y = 99 - (MouseY - 21) / 2;
@@ -149,10 +149,10 @@ namespace WaveTracker.UI
         public Point CanvasMouseBlockClamped()
         {
 
-            int mX = Math.Clamp(MouseX, 46, envelope.values.Count * columnWidth + 41);
+            int mX = Math.Clamp(MouseX, 46, envelope.values.Count * ColumnWidth + 41);
             int mY = Math.Clamp(MouseY, 20, 219);
 
-            int x = (int)Math.Floor((mX - 46) / (float)columnWidth);
+            int x = (int)Math.Floor((mX - 46) / (float)ColumnWidth);
             int y = 0;
 
             if (envelopeType == 0 || envelopeType == 3)
@@ -182,7 +182,6 @@ namespace WaveTracker.UI
         public void Draw()
         {
 
-            bool hovering = false;
             if (envelope != null)
             {
                 if (envelopeType == 2)
@@ -194,9 +193,9 @@ namespace WaveTracker.UI
                         for (int i = 0; i < envelope.values.Count; ++i)
                         {
                             if (i % 2 == 0)
-                                DrawSprite(tex, xPositionOfColumn(i), 21, columnWidth, 199, new Rectangle(623, 0, 1, 199));
+                                DrawSprite(tex, xPositionOfColumn(i), 21, ColumnWidth, 199, new Rectangle(623, 0, 1, 199));
                             else
-                                DrawSprite(tex, xPositionOfColumn(i), 21, columnWidth, 199, new Rectangle(624, 0, 1, 199));
+                                DrawSprite(tex, xPositionOfColumn(i), 21, ColumnWidth, 199, new Rectangle(624, 0, 1, 199));
 
                             if (CanvasMouseBlock().X == i && CanvasMouseBlock().Y > envelope.values[i] && PointIsInCanvas(new Point(MouseX, MouseY)))
                                 DrawMouseBlock(new Color(64, 73, 115));
@@ -204,7 +203,6 @@ namespace WaveTracker.UI
 
                             if (CanvasMouseBlock().X == i && CanvasMouseBlock().Y <= envelope.values[i] && PointIsInCanvas(new Point(MouseX, MouseY)))
                             {
-                                hovering = true;
                                 DrawBlock(i, envelope.values[i], new Color(193, 222, 235), true);
                             }
                             else if (playbackStep == i && isPlaying)
@@ -223,7 +221,7 @@ namespace WaveTracker.UI
                         {
                             if (i % 2 == 0)
                             {
-                                DrawSprite(tex, xPositionOfColumn(i), 21, columnWidth, 199, new Rectangle(625, 0, 1, 199));
+                                DrawSprite(tex, xPositionOfColumn(i), 21, ColumnWidth, 199, new Rectangle(625, 0, 1, 199));
                                 for (int j = arpRange; j > -arpRange; j--)
                                 {
                                     if (j % 12 == 0)
@@ -232,7 +230,7 @@ namespace WaveTracker.UI
                             }
                             else
                             {
-                                DrawSprite(tex, xPositionOfColumn(i), 21, columnWidth, 199, new Rectangle(626, 0, 1, 199));
+                                DrawSprite(tex, xPositionOfColumn(i), 21, ColumnWidth, 199, new Rectangle(626, 0, 1, 199));
                                 for (int j = arpRange; j > -arpRange; j--)
                                 {
                                     if (j % 12 == 0)
@@ -244,7 +242,6 @@ namespace WaveTracker.UI
 
                             if (CanvasMouseBlock().X == i && CanvasMouseBlock().Y == envelope.values[i])
                             {
-                                hovering = true;
                                 DrawBlock(i, envelope.values[i], new Color(193, 222, 235), true);
                             }
                             else if (playbackStep == i && isPlaying)
@@ -259,11 +256,11 @@ namespace WaveTracker.UI
                         {
                             if (i % 2 == 0)
                             {
-                                DrawSprite(tex, xPositionOfColumn(i), 20, columnWidth, 199, new Rectangle(627, 0, 1, 199));
+                                DrawSprite(tex, xPositionOfColumn(i), 20, ColumnWidth, 199, new Rectangle(627, 0, 1, 199));
 
                             }
                             else
-                                DrawSprite(tex, xPositionOfColumn(i), 20, columnWidth, 199, new Rectangle(628, 0, 1, 199));
+                                DrawSprite(tex, xPositionOfColumn(i), 20, ColumnWidth, 199, new Rectangle(628, 0, 1, 199));
 
                             Point mouse = CanvasMouseBlock();
                             if (mouse.X == i && PointIsInCanvas(new Point(MouseX, MouseY)))
@@ -273,12 +270,10 @@ namespace WaveTracker.UI
 
                             if (envelope.values[i] >= 0 && CanvasMouseBlock().X == i && CanvasMouseBlock().Y <= envelope.values[i] && PointIsInCanvas(new Point(MouseX, MouseY)) && CanvasMouseBlock().Y >= 0)
                             {
-                                hovering = true;
                                 DrawBlock(i, envelope.values[i], new Color(193, 222, 235), true);
                             }
                             else if (envelope.values[i] < 0 && CanvasMouseBlock().X == i && CanvasMouseBlock().Y > envelope.values[i] && PointIsInCanvas(new Point(MouseX, MouseY)) && CanvasMouseBlock().Y <= 0)
                             {
-                                hovering = true;
                                 DrawBlock(i, envelope.values[i], new Color(193, 222, 235), true);
                             }
                             else if (playbackStep == i && isPlaying)
@@ -362,7 +357,7 @@ namespace WaveTracker.UI
         public int MouseEnvelopeX
         {
 
-            get { return (int)Math.Floor((MouseX - 46) / (float)columnWidth); }
+            get { return (int)Math.Floor((MouseX - 46) / (float)ColumnWidth); }
         }
         public int MouseEnvelopeY
         {
@@ -382,7 +377,7 @@ namespace WaveTracker.UI
         {
             if (envelope.isActive)
                 if (p.Y > 20 && p.Y < 219)
-                    if (p.X > 40 && p.X < envelope.values.Count * columnWidth + 44)
+                    if (p.X > 40 && p.X < envelope.values.Count * ColumnWidth + 44)
                         return true;
             return false;
         }
@@ -390,17 +385,17 @@ namespace WaveTracker.UI
         {
             if (envelopeType == 0 || envelopeType == 3)
             {
-                DrawRect(xPositionOfColumn(i), yPositionOfValue(val), columnWidth, val * 2 + 1, c);
+                DrawRect(xPositionOfColumn(i), yPositionOfValue(val), ColumnWidth, val * 2 + 1, c);
                 if (shadow)
-                    DrawRect(xPositionOfColumn(i) + columnWidth - 1, yPositionOfValue(val), 1, val * 2 + 1, Color.LightGray);
+                    DrawRect(xPositionOfColumn(i) + ColumnWidth - 1, yPositionOfValue(val), 1, val * 2 + 1, Color.LightGray);
             }
             if (envelopeType == 1)
             {
                 if (yPositionOfValue(val) > 20 && yPositionOfValue(val) < 219)
                 {
-                    DrawRect(xPositionOfColumn(i), yPositionOfValue(val), columnWidth, arpHeight, c);
+                    DrawRect(xPositionOfColumn(i), yPositionOfValue(val), ColumnWidth, arpHeight, c);
                     if (shadow)
-                        DrawRect(xPositionOfColumn(i) + columnWidth - 1, yPositionOfValue(val), 1, arpHeight, Color.LightGray);
+                        DrawRect(xPositionOfColumn(i) + ColumnWidth - 1, yPositionOfValue(val), 1, arpHeight, Color.LightGray);
                 }
             }
             if (envelopeType == 2) // pitch
@@ -414,13 +409,13 @@ namespace WaveTracker.UI
                     y++;
                     height--;
                 }
-                DrawRect(xPositionOfColumn(i), yPositionOfValue(val) + y, columnWidth, height, c);
+                DrawRect(xPositionOfColumn(i), yPositionOfValue(val) + y, ColumnWidth, height, c);
                 if (shadow)
-                    DrawRect(xPositionOfColumn(i) + columnWidth - 1, yPositionOfValue(val) + y, 1, height, Color.LightGray);
+                    DrawRect(xPositionOfColumn(i) + ColumnWidth - 1, yPositionOfValue(val) + y, 1, height, Color.LightGray);
             }
         }
 
-        public void EditEnvelope(Envelope envelope, int envelopeType, Channel previewChannel, EnvelopePlayer playback, bool cooldownDone)
+        public void EditEnvelope(Envelope envelope, int envelopeType, EnvelopePlayer playback, bool cooldownDone)
         {
             SetEnvelope(envelope, envelopeType);
             playbackStep = playback.step;

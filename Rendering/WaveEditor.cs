@@ -326,7 +326,7 @@ namespace WaveTracker.Rendering
         {
             if (enabled)
             {
-                DrawRect(-x, -y, 960, 600, Helpers.Alpha(Color.Black, 60));
+                DrawRect(-x, -y, 960, 600, Helpers.Alpha(Color.Black, 90));
                 DrawSprite(tex, 0, 0, new Rectangle(0, 60, 500, 270));
                 Write("Edit Wave " + id.ToString("D2"), 4, 1, new Color(64, 72, 115));
                 closeButton.Draw();
@@ -395,10 +395,14 @@ namespace WaveTracker.Rendering
 
                 if (Game1.pianoInput > -1)
                 {
-                    if (Helpers.isNoteBlackKey(Game1.pianoInput))
-                        DrawSprite(tex, Game1.pianoInput * 4 + 10, 235, new Rectangle(504, 61, 4, 24));
-                    else
-                        DrawSprite(tex, Game1.pianoInput * 4 + 10, 235, new Rectangle(500, 61, 4, 24));
+                    int note = Game1.pianoInput;
+                    if (note >= 0 && note < 120)
+                    {
+                        if (Helpers.isNoteBlackKey(Game1.pianoInput))
+                            DrawSprite(tex, Game1.pianoInput * 4 + 10, 235, new Rectangle(504, 61, 4, 24));
+                        else
+                            DrawSprite(tex, Game1.pianoInput * 4 + 10, 235, new Rectangle(500, 61, 4, 24));
+                    }
                 }
             }
         }

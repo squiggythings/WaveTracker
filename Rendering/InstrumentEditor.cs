@@ -28,6 +28,7 @@ namespace WaveTracker.Rendering
         public Toggle sample_resampLinear, sample_resampNone, sample_resampMix, sample_loopOneshot, sample_loopForward, sample_loopPingpong;
         public EnvelopeEditor envelopeEditor;
         public SpriteToggle visualize_toggle;
+        public SampleBrowser browser;
         Macro instrument => Game1.currentSong.instruments[id];
         TabGroup tabGroup;
         public static Texture2D tex;
@@ -175,7 +176,7 @@ namespace WaveTracker.Rendering
                             {
                                 if (sample_importSample.Clicked)
                                 {
-                                    LoadSampleFromFile(instrument);
+                                    browser.Open(this);
                                 }
 
                                 if (sample_normalize.Clicked)
@@ -259,19 +260,20 @@ namespace WaveTracker.Rendering
                 SetTabTogglesFromInstrument();
                 tabGroup.Update();
                 ReadFromTabTogglesIntoInstrument();
+                browser.Update();
             }
         }
 
         public void ShowEnvelope(int id)
         {
             if (id == 0)
-                envelopeEditor.EditEnvelope(instrument.volumeEnvelope, id, ChannelManager.instance.channels[Game1.previewChannel], ChannelManager.instance.channels[Game1.previewChannel].volumeEnv, startcooldown == 0);
+                envelopeEditor.EditEnvelope(instrument.volumeEnvelope, id, ChannelManager.instance.channels[Game1.previewChannel].volumeEnv, startcooldown == 0);
             if (id == 1)
-                envelopeEditor.EditEnvelope(instrument.arpEnvelope, id, ChannelManager.instance.channels[Game1.previewChannel], ChannelManager.instance.channels[Game1.previewChannel].arpEnv, startcooldown == 0);
+                envelopeEditor.EditEnvelope(instrument.arpEnvelope, id, ChannelManager.instance.channels[Game1.previewChannel].arpEnv, startcooldown == 0);
             if (id == 2)
-                envelopeEditor.EditEnvelope(instrument.pitchEnvelope, id, ChannelManager.instance.channels[Game1.previewChannel], ChannelManager.instance.channels[Game1.previewChannel].pitchEnv, startcooldown == 0);
+                envelopeEditor.EditEnvelope(instrument.pitchEnvelope, id, ChannelManager.instance.channels[Game1.previewChannel].pitchEnv, startcooldown == 0);
             if (id == 3)
-                envelopeEditor.EditEnvelope(instrument.waveEnvelope, id, ChannelManager.instance.channels[Game1.previewChannel], ChannelManager.instance.channels[Game1.previewChannel].waveEnv, startcooldown == 0);
+                envelopeEditor.EditEnvelope(instrument.waveEnvelope, id, ChannelManager.instance.channels[Game1.previewChannel].waveEnv, startcooldown == 0);
         }
 
         public void EditMacro(Macro m, int num)
@@ -339,7 +341,7 @@ namespace WaveTracker.Rendering
 
         public int pianoInput()
         {
-            if (!enabled)
+            if (!enabled || !inFocus)
                 return -1;
 
             if (LastClickPos.X < 44 || LastClickPos.X > 523 || LastClickPos.Y > 330 || LastClickPos.Y < 307)
@@ -367,7 +369,7 @@ namespace WaveTracker.Rendering
             if (enabled)
             {
                 // black box across screen behind window
-                DrawRect(-x, -y, 960, 600, Helpers.Alpha(Color.Black, 60));
+                DrawRect(-x, -y, 960, 600, Helpers.Alpha(Color.Black, 90));
 
                 // draw window
                 if (instrument.macroType == MacroType.Sample && tabGroup.selected == 0)
@@ -460,6 +462,7 @@ namespace WaveTracker.Rendering
                 {
                     envelopeEditor.Draw();
                 }
+                browser.Draw();
             }
         }
 
@@ -467,7 +470,6 @@ namespace WaveTracker.Rendering
         {
             int boxLength = 528;
             int boxHeight = height;
-            int samplesPerPixel = data.Length / boxLength;
             int startY = y + boxHeight / 2;
             int lastSampleNum;
             int sampleNum = 0;
@@ -501,64 +503,28 @@ namespace WaveTracker.Rendering
             }
         }
 
-        public static void LoadSampleFromFile(Macro macro)
+        public void LoadSampleFromFile(string path)
         {
-            if (Input.dialogOpenCooldown == 0)
+            Macro macro = instrument;
+            bool successfulReadWAV = (Helpers.readWav(path, out macro.sample.sampleDataAccessL, out macro.sample.sampleDataAccessR));
+            macro.sample.SetBaseKey(48);
+            macro.sample.SetDetune(0);
+            macro.sample.sampleLoopIndex = 0;
+            macro.sample.sampleLoopType = macro.sample.sampleDataAccessL.Length < 1000 ? SampleLoopType.Forward : SampleLoopType.OneShot;
+            macro.sample.resampleMode = ResamplingModes.Linear;
+            if (successfulReadWAV)
             {
-                if (macro.macroType == MacroType.Sample)
-                {
-                    bool successfulReadWAV = false;
-                    bool didReadWAV;
-                    string fileName = "";
-                    didReadWAV = false;
-                    List<float> sampleDataAccessL, sampleDataRight;
-                    sampleDataAccessL = new List<float>();
-                    sampleDataRight = new List<float>();
-                    Thread t = new Thread((ThreadStart)(() =>
-                     {
+                if (Preferences.automaticallyTrimSamples)
+                    macro.sample.TrimSilence();
+                if (Preferences.automaticallyNormalizeSamples)
+                    macro.sample.Normalize();
 
-                         Input.DialogStarted();
-                         System.Windows.Forms.OpenFileDialog openFileDialog = new System.Windows.Forms.OpenFileDialog();
-                         openFileDialog.Filter = "Audio Files (*.wav, *.mp3, *.flac)|*.wav;*.mp3;*.flac";
-                         openFileDialog.Multiselect = false;
-                         openFileDialog.Title = "Import Sample...";
-                         sampleDataAccessL = new List<float>();
-                         sampleDataRight = new List<float>();
-                         if (openFileDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
-                         {
-                             didReadWAV = true;
-                             fileName = openFileDialog.SafeFileName;
-                             successfulReadWAV = (Helpers.readWav(openFileDialog.FileName, out macro.sample.sampleDataAccessL, out macro.sample.sampleDataAccessR));
-                         }
-
-                     }));
-
-                    t.SetApartmentState(ApartmentState.STA);
-                    t.Start();
-                    t.Join();
-                    if (didReadWAV)
-                    {
-                        macro.sample.SetBaseKey(48);
-                        macro.sample.SetDetune(0);
-                        macro.sample.sampleLoopIndex = 0;
-                        macro.sample.sampleLoopType = macro.sample.sampleDataAccessL.Length < 1000 ? SampleLoopType.Forward : SampleLoopType.OneShot;
-                        macro.sample.resampleMode = ResamplingModes.Linear;
-                        if (successfulReadWAV)
-                        {
-                            if (Preferences.automaticallyTrimSamples)
-                                macro.sample.TrimSilence();
-                            if (Preferences.automaticallyNormalizeSamples)
-                                macro.sample.Normalize();
-
-                            macro.sample.resampleMode = ResamplingModes.Linear;
-                        }
-                        else
-                        {
-                            macro.sample.sampleDataAccessL = new float[0];
-                            macro.sample.sampleDataAccessR = new float[0];
-                        }
-                    }
-                }
+                macro.sample.resampleMode = ResamplingModes.Linear;
+            }
+            else
+            {
+                macro.sample.sampleDataAccessL = Array.Empty<float>();
+                macro.sample.sampleDataAccessR = Array.Empty<float>();
             }
         }
     }
