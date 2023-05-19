@@ -403,7 +403,7 @@ namespace WaveTracker.Rendering
                         // quantized 
 
 
-                        samp1 = -samp.getMonoSample((i / (float)w * ch.CurrentFrequency / Preferences.visualizerScopeZoom) + (int)ch.sampleTime) * (h / 2f) * ch.CurrentAmplitudeAsWave + (h / 2f);
+                        samp1 = -samp.getMonoSample((i / (float)w * ch.CurrentFrequency / Preferences.visualizerScopeZoom) + (int)ch.sampleTime) * (h / 2f) * ch.CurrentAmplitudeAsWave / 1.5f + (h / 2f);
                         if (i > -w / 2)
                             DrawOscCol(px + i + w / 2, py - 2, samp1, lastSamp, Color.White, 2);
                     }

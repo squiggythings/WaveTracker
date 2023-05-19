@@ -25,10 +25,11 @@ namespace WaveTracker.Rendering
         public Button sample_importSample, sample_normalize, sample_reverse, sample_fadeIn, sample_fadeOut, sample_amplifyUp, sample_amplifyDown, sample_invert;
         public NumberBox sample_loopPoint;
         public NumberBox sample_baseKey, sample_detune;
-        public Toggle sample_resampLinear, sample_resampNone, sample_resampMix, sample_loopOneshot, sample_loopForward, sample_loopPingpong;
+        public Toggle sample_loopOneshot, sample_loopForward, sample_loopPingpong;
         public EnvelopeEditor envelopeEditor;
         public SpriteToggle visualize_toggle;
         public SampleBrowser browser;
+        public Dropdown sample_resampleDropdown;
         Macro instrument => Game1.currentSong.instruments[id];
         TabGroup tabGroup;
         public static Texture2D tex;
@@ -59,20 +60,8 @@ namespace WaveTracker.Rendering
             sample_loopPingpong.SetTooltip("", "Set the sample so that it loops continuously forward and backward");
             sample_loopPingpong.isPartOfInternalDialog = true;
 
-            sample_resampNone = new Toggle("None", 222, 273, this);
-            sample_resampNone.SetTooltip("", "Set the resampling mode to no interpolation. Has a harsher, gritty sound.");
-            sample_resampNone.isPartOfInternalDialog = true;
-            sample_resampNone.width = 33;
-
-            sample_resampLinear = new Toggle("Linear", 256, 273, this);
-            sample_resampLinear.SetTooltip("", "Set the resampling mode to linear interpolation. Has a mellow, softer sound.");
-            sample_resampLinear.isPartOfInternalDialog = true;
-            sample_resampLinear.width = 33;
-
-            sample_resampMix = new Toggle("Mix", 290, 273, this);
-            sample_resampMix.SetTooltip("", "Set the resampling mode to an average between none and linear interpolation.");
-            sample_resampMix.isPartOfInternalDialog = true;
-            sample_resampMix.width = 33;
+            sample_resampleDropdown = new Dropdown(224, 273, this);
+            sample_resampleDropdown.SetMenuItems(new string[] { "Harsh (None)", "Smooth (Linear)", "Mix (None + Linear)" });
 
             sample_normalize = new Button("Normalize", 337, 224, this);
             sample_normalize.width = 50;
@@ -148,6 +137,7 @@ namespace WaveTracker.Rendering
                     {
                         if (tabGroup.selected == 0)
                         {
+                            sample_resampleDropdown.Value = (int)instrument.sample.resampleMode;
                             sample_baseKey.Value = instrument.sample.BaseKey;
                             sample_detune.Value = instrument.sample.Detune;
                             sample_loopOneshot.Value = instrument.sample.sampleLoopType == SampleLoopType.OneShot;
@@ -202,18 +192,9 @@ namespace WaveTracker.Rendering
                                     instrument.sample.sampleLoopIndex = sample_loopPoint.Value;
                                 }
                                 #region resampling modes
-                                sample_resampNone.Value = instrument.sample.resampleMode == Audio.ResamplingModes.None;
-                                sample_resampLinear.Value = instrument.sample.resampleMode == Audio.ResamplingModes.Linear;
-                                sample_resampMix.Value = instrument.sample.resampleMode == Audio.ResamplingModes.Mix;
-                                if (sample_resampNone.Clicked)
-                                    instrument.sample.resampleMode = Audio.ResamplingModes.None;
-                                if (sample_resampLinear.Clicked)
-                                    instrument.sample.resampleMode = Audio.ResamplingModes.Linear;
-                                if (sample_resampMix.Clicked)
-                                    instrument.sample.resampleMode = Audio.ResamplingModes.Mix;
-                                sample_resampNone.Value = instrument.sample.resampleMode == Audio.ResamplingModes.None;
-                                sample_resampLinear.Value = instrument.sample.resampleMode == Audio.ResamplingModes.Linear;
-                                sample_resampMix.Value = instrument.sample.resampleMode == Audio.ResamplingModes.Mix;
+                                sample_resampleDropdown.Value = (int)instrument.sample.resampleMode;
+                                sample_resampleDropdown.Update();
+                                instrument.sample.resampleMode = (Audio.ResamplingModes)sample_resampleDropdown.Value;
                                 #endregion
 
                                 #region loop modes
@@ -438,9 +419,7 @@ namespace WaveTracker.Rendering
                             sample_loopPoint.Draw();
                         }
 
-                        sample_resampNone.Draw();
-                        sample_resampLinear.Draw();
-                        sample_resampMix.Draw();
+                        sample_resampleDropdown.Draw();
 
                         sample_normalize.Draw();
                         sample_reverse.Draw();

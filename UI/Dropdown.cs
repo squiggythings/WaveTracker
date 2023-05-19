@@ -102,7 +102,7 @@ namespace WaveTracker.UI
         {
             if (IsPressed)
                 return ButtonColors.Round.backgroundColorPressed;
-            if (IsHovered)
+            if (IsHovered || showMenu)
                 return ButtonColors.Round.backgroundColorHover;
             return ButtonColors.Round.backgroundColor;
         }
@@ -127,11 +127,6 @@ namespace WaveTracker.UI
             }
         }
 
-        Rectangle getMenuBounds()
-        {
-            return new Rectangle(0, 15, width, 11 * options.Length + 2);
-        }
-
         public void DrawMenu()
         {
             DrawRect(0, 13, width, 11 * options.Length + 2, UIColors.labelDark);
@@ -140,13 +135,13 @@ namespace WaveTracker.UI
                 int y = i * 11 + 14;
                 if (i == hoveredValue)
                 {
-                    DrawRect(1, y, width - 2, 11, UIColors.selection);
-                    Write(options[i], 4, y + 1, Color.White);
+                    DrawRect(1, y, width - 2, 11, Helpers.LerpColor(UIColors.selection, Color.White, 0.7f));
+                    Write(options[i], 4, y + 2, UIColors.black);
                 }
                 else
                 {
                     DrawRect(1, y, width - 2, 11, Color.White);
-                    Write(options[i], 4, y + 1, UIColors.labelDark);
+                    Write(options[i], 4, y + 2, UIColors.labelDark);
                 }
             }
         }

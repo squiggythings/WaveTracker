@@ -23,7 +23,7 @@ namespace WaveTracker.Rendering
         public SpriteButton closeButton;
         public UI.Button bCopy, bPaste, bPhaseL, bPhaseR, bMoveUp, bMoveDown, bInvert, bMutate, bSmooth;
         public UI.Textbox waveText;
-        public Dropdown dropdowntest;
+        public Dropdown ResampleDropdown;
         public int id;
         int holdPosY, holdPosX;
         static string clipboardWave = "";
@@ -113,28 +113,13 @@ namespace WaveTracker.Rendering
             closeButton.isPartOfInternalDialog = true;
             closeButton.SetTooltip("Close", "Close wave editor");
 
-            filterNone = new Toggle("None", 382, 215, this);
-            filterNone.SetTooltip("", "Set the resampling mode to no interpolation. Has a harsher, gritty sound.");
-            filterNone.isPartOfInternalDialog = true;
-            filterNone.width = 33;
-
-            filterLinear = new Toggle("Linear", 416, 215, this);
-            filterLinear.SetTooltip("", "Set the resampling mode to linear interpolation. Has a mellow, softer sound.");
-            filterLinear.isPartOfInternalDialog = true;
-            filterLinear.width = 33;
-
-            filterMix = new Toggle("Mix", 450, 215, this);
-            filterMix.SetTooltip("", "Set the resampling mode to an average between none and linear interpolation.");
-            filterMix.isPartOfInternalDialog = true;
-            filterMix.width = 33;
-
             waveText = new UI.Textbox("", 17, 188, 384, 384, this);
             waveText.isPartOfInternalDialog = true;
             waveText.canEdit = true;
             waveText.maxLength = 192;
 
-            dropdowntest = new Dropdown(215, 211, this);
-            dropdowntest.SetMenuItems(new string[] { "Harsh (None)", "Smooth (Linear)", "Mix (None + Smooth)" });
+            ResampleDropdown = new Dropdown(385, 215, this);
+            ResampleDropdown.SetMenuItems(new string[] { "Harsh (None)", "Smooth (Linear)", "Mix (None + Linear)" });
         }
         public void EditWave(Wave wave, int num)
         {
@@ -203,9 +188,8 @@ namespace WaveTracker.Rendering
 
 
                 phase++;
-                filterNone.Value = Game1.currentSong.waves[WaveBank.currentWave].resamplingMode == Audio.ResamplingModes.None;
-                filterLinear.Value = Game1.currentSong.waves[WaveBank.currentWave].resamplingMode == Audio.ResamplingModes.Linear;
-                filterMix.Value = Game1.currentSong.waves[WaveBank.currentWave].resamplingMode == Audio.ResamplingModes.Mix;
+
+                ResampleDropdown.Value = (int)Game1.currentSong.waves[WaveBank.currentWave].resamplingMode;
                 if (startcooldown > 0)
                 {
                     waveText.Text = Game1.currentSong.waves[WaveBank.currentWave].ToNumberString();
@@ -213,7 +197,7 @@ namespace WaveTracker.Rendering
                 }
                 else
                 {
-                    dropdowntest.Update();
+
                     if (closeButton.Clicked || Input.GetKeyDown(Microsoft.Xna.Framework.Input.Keys.Escape, KeyModifier.None))
                     {
                         Close();
@@ -227,12 +211,15 @@ namespace WaveTracker.Rendering
                     {
                         waveText.Text = Game1.currentSong.waves[WaveBank.currentWave].ToNumberString();
                     }
-                    if (filterNone.Clicked)
-                        Game1.currentSong.waves[WaveBank.currentWave].resamplingMode = Audio.ResamplingModes.None;
-                    if (filterLinear.Clicked)
-                        Game1.currentSong.waves[WaveBank.currentWave].resamplingMode = Audio.ResamplingModes.Linear;
-                    if (filterMix.Clicked)
-                        Game1.currentSong.waves[WaveBank.currentWave].resamplingMode = Audio.ResamplingModes.Mix;
+
+                    ResampleDropdown.Update();
+                    Game1.currentSong.waves[WaveBank.currentWave].resamplingMode = (Audio.ResamplingModes)ResampleDropdown.Value;
+                    //if (filterNone.Clicked)
+                    //    Game1.currentSong.waves[WaveBank.currentWave].resamplingMode = Audio.ResamplingModes.None;
+                    //if (filterLinear.Clicked)
+                    //    Game1.currentSong.waves[WaveBank.currentWave].resamplingMode = Audio.ResamplingModes.Linear;
+                    //if (filterMix.Clicked)
+                    //    Game1.currentSong.waves[WaveBank.currentWave].resamplingMode = Audio.ResamplingModes.Mix;
 
                     if (presetSine.Clicked)
                         Game1.currentSong.waves[WaveBank.currentWave].SetWaveformFromString("HJKMNOQRSTUUVVVVVVVUUTSRQONMKJHGECB9875432110000000112345789BCEF");
@@ -344,9 +331,9 @@ namespace WaveTracker.Rendering
                 presetRect12.Draw();
                 presetClear.Draw();
                 presetRand.Draw();
-                filterNone.Draw();
-                filterLinear.Draw();
-                filterMix.Draw();
+                //filterNone.Draw();
+                //filterLinear.Draw();
+                //filterMix.Draw();
                 waveText.Draw();
 
                 bCopy.Draw();
@@ -358,7 +345,7 @@ namespace WaveTracker.Rendering
                 bInvert.Draw();
                 bSmooth.Draw();
                 bMutate.Draw();
-                dropdowntest.Draw();
+                ResampleDropdown.Draw();
                 Color waveColor = new Color(200, 212, 93);
                 Color waveBG = new Color(59, 125, 79, 150);
                 for (int i = 0; i < 64; ++i)
