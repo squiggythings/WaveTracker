@@ -23,6 +23,7 @@ namespace WaveTracker.Rendering
         public SpriteButton closeButton;
         public UI.Button bCopy, bPaste, bPhaseL, bPhaseR, bMoveUp, bMoveDown, bInvert, bMutate, bSmooth;
         public UI.Textbox waveText;
+        public Dropdown dropdowntest;
         public int id;
         int holdPosY, holdPosX;
         static string clipboardWave = "";
@@ -131,6 +132,9 @@ namespace WaveTracker.Rendering
             waveText.isPartOfInternalDialog = true;
             waveText.canEdit = true;
             waveText.maxLength = 192;
+
+            dropdowntest = new Dropdown(215, 211, this);
+            dropdowntest.SetMenuItems(new string[] { "Harsh (None)", "Smooth (Linear)", "Mix (None + Smooth)" });
         }
         public void EditWave(Wave wave, int num)
         {
@@ -150,7 +154,7 @@ namespace WaveTracker.Rendering
 
         public int pianoInput()
         {
-            if (!enabled)
+            if (!enabled || !inFocus)
                 return -1;
             if (MouseX < 10 || MouseX > 488 || MouseY > 258 || MouseY < 235)
                 return -1;
@@ -164,7 +168,7 @@ namespace WaveTracker.Rendering
 
         bool mouseInBounds()
         {
-            return canvasMouseX > 0 && canvasMouseY > 0 && canvasMouseX < 384 && canvasMouseY < 160;
+            return inFocus && canvasMouseX > 0 && canvasMouseY > 0 && canvasMouseX < 384 && canvasMouseY < 160;
         }
         int canvasMouseX => MouseX - 17;
         int canvasMouseY => MouseY - 23;
@@ -197,6 +201,7 @@ namespace WaveTracker.Rendering
 
                 }
 
+
                 phase++;
                 filterNone.Value = Game1.currentSong.waves[WaveBank.currentWave].resamplingMode == Audio.ResamplingModes.None;
                 filterLinear.Value = Game1.currentSong.waves[WaveBank.currentWave].resamplingMode == Audio.ResamplingModes.Linear;
@@ -208,6 +213,7 @@ namespace WaveTracker.Rendering
                 }
                 else
                 {
+                    dropdowntest.Update();
                     if (closeButton.Clicked || Input.GetKeyDown(Microsoft.Xna.Framework.Input.Keys.Escape, KeyModifier.None))
                     {
                         Close();
@@ -352,7 +358,7 @@ namespace WaveTracker.Rendering
                 bInvert.Draw();
                 bSmooth.Draw();
                 bMutate.Draw();
-
+                dropdowntest.Draw();
                 Color waveColor = new Color(200, 212, 93);
                 Color waveBG = new Color(59, 125, 79, 150);
                 for (int i = 0; i < 64; ++i)
@@ -365,7 +371,7 @@ namespace WaveTracker.Rendering
                     DrawRect(419 + i, 183, 1, 16 - samp2, new Color(190, 192, 211));
                     DrawRect(419 + i, 199 - samp2, 1, 1, new Color(118, 124, 163));
                 }
-                if (mouseInBounds())
+                if (mouseInBounds() && inFocus)
                 {
                     DrawRect(17 + (canvasMouseX / 6 * 6), 183 - ((31 - canvasMouseY / 5) * 5), 6, -5, Helpers.Alpha(Color.White, 80));
                     if (Input.GetClick(KeyModifier.Shift))

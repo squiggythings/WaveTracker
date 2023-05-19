@@ -25,5 +25,11 @@ namespace WaveTracker
         public static int visualizerScopeZoom = 40; // 40 default
         public static string lastBrowseDirectory = @"C:/Users/Elias/Desktop/stuff that takes up space/pxtone/my_material";
 
+
+        /*
+         *  categories
+         *      general
+         *      visualizer
+         */
     }
 }

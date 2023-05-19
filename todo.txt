@@ -5,14 +5,6 @@
 * Add export to wav
 
 
-
-sample functions:
-fade out
-fade in
-reverse
-normalize
-
-
 visualization mode options
 
 Piano: Dont fade low volume notes

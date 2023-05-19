@@ -68,8 +68,6 @@ namespace WaveTracker
             songSettings = new Rendering.SongSettings();
         }
 
-
-
         protected override void Initialize()
         {
             // TODO: Add your initialization logic here
@@ -333,6 +331,7 @@ namespace WaveTracker
         {
             // Do stuff here
             //SaveLoad.DoUnsavedCheck();
+            Debug.WriteLine("Closing WaveTracker...");
             Audio.AudioEngine.instance.Stop();
             base.OnExiting(sender, args);
         }
