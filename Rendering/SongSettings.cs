@@ -63,13 +63,13 @@ namespace WaveTracker.Rendering
             switch (Preferences.profile.meterDecaySpeed)
             {
                 case 0:
-                    decay = 1;
+                    decay = 0.5f;
                     break;
                 case 1:
-                    decay = 3;
+                    decay = 1.25f;
                     break;
                 case 2:
-                    decay = 9;
+                    decay = 5;
                     break;
             }
             ampLeft *= 1 - decay / 10f;
@@ -131,13 +131,33 @@ namespace WaveTracker.Rendering
             Color shadow = new Color(126, 133, 168);
             Color bar = new Color(0, 219, 39);
 
+            // draw volume bar frames
             DrawRect(px, py, width, height, grey);
             DrawRect(px, py, width, 1, shadow);
-            DrawRect(px, py + 1, ampL, height - 1, ampLeft >= 1 ? Color.Red : bar);
-
             DrawRect(px, py + height + 1, width, height, grey);
             DrawRect(px, py + height + 1, width, 1, shadow);
-            DrawRect(px, py + height + 2, ampR, height - 1, ampRight >= 1 ? Color.Red : bar);
+
+            // draw volume bars
+            if (Preferences.profile.meterColorMode == 0) // flat
+            {
+                Color barCol = ampLeft >= 1 && Preferences.profile.meterFlashWhenClipping ? Color.Red : bar;
+                DrawRect(px, py + 1, ampL, height - 1, barCol);
+                barCol = ampRight >= 1 && Preferences.profile.meterFlashWhenClipping ? Color.Red : bar;
+                DrawRect(px, py + height + 2, ampR, height - 1, barCol);
+            }
+            else // gradient
+            {
+                for (int x = 0; x < ampL; x++)
+                {
+                    Color barCol = ampLeft >= 1 && Preferences.profile.meterFlashWhenClipping ? Color.Red : Helpers.HSLtoRGB((int)Helpers.MapClamped(x, width * 0.6667f, width, 130, 10), 1, 0.42f);
+                    DrawRect(px + x, py + 1, 1, height - 1, barCol);
+                }
+                for (int x = 0; x < ampR; x++)
+                {
+                    Color barCol = ampRight >= 1 && Preferences.profile.meterFlashWhenClipping ? Color.Red : Helpers.HSLtoRGB((int)Helpers.MapClamped(x, width * 0.6667f, width, 130, 10), 1, 0.42f);
+                    DrawRect(px + x, py + height + 2, 1, height - 1, barCol);
+                }
+            }
 
             // draw channel squares
             for (int i = 0; i < Tracker.Song.CHANNEL_COUNT; i++)

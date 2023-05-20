@@ -253,8 +253,8 @@ namespace WaveTracker.Tracker
             sampleDataAccessL = new float[0];
             sampleDataAccessR = new float[0];
             sampleLoopType = SampleLoopType.OneShot;
-            resampleMode = Audio.ResamplingModes.Linear;
-            BaseKey = 48;
+            resampleMode = (Audio.ResamplingModes)Preferences.profile.defaultResampleSample;
+            BaseKey = Preferences.profile.defaultBaseKey;
             Detune = 0;
             _baseFrequency = Helpers.NoteToFrequency(BaseKey - (Detune / 100f));
         }

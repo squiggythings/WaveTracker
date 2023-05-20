@@ -208,7 +208,10 @@ namespace WaveTracker
         }
         public static float MapClamped(float s, float a1, float a2, float b1, float b2)
         {
-            return Math.Clamp(b1 + (s - a1) * (b2 - b1) / (a2 - a1), b1, b2);
+            if (b1 > b2)
+                return Math.Clamp(b1 + (s - a1) * (b2 - b1) / (a2 - a1), b2, b1);
+            else
+                return Math.Clamp(b1 + (s - a1) * (b2 - b1) / (a2 - a1), b1, b2);
         }
 
         public static int GetPianoInput(int currentOctave)
@@ -357,10 +360,13 @@ namespace WaveTracker
 
                 var outFormat = new WaveFormat(44100, Nreader.WaveFormat.Channels);
                 IWaveProvider waveProvider = Nreader.ToWaveProvider();
-                using (var resampler = new MediaFoundationResampler(Nreader, outFormat))
-                {
-                    isp = resampler.ToSampleProvider();
-                }
+                if (Preferences.profile.automaticallyResampleSamples)
+                    using (var resampler = new MediaFoundationResampler(Nreader, outFormat))
+                    {
+                        isp = resampler.ToSampleProvider();
+                    }
+                else
+                    isp = Nreader.ToSampleProvider();
                 long sampleLength = (long)(Nreader.Length * (44100.0 / Nreader.WaveFormat.SampleRate));
                 float[] buffer = new float[sampleLength / 4];
                 isp.Read(buffer, 0, buffer.Length);

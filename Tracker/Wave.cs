@@ -21,7 +21,7 @@ namespace WaveTracker.Tracker
             {
                 samples[i] = 16;
             }
-            this.resamplingMode = ResamplingModes.Mix;
+            this.resamplingMode = (ResamplingModes)Preferences.profile.defaultResampleWave;
         }
 
 

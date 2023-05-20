@@ -1,17 +1,5 @@
 ﻿TODO:
-* finish instrument editor
-	format sample editor tools
-* Add preferences form
 * Add export to wav
-
-
-visualization mode options
-
-Piano: Dont fade low volume notes
-Piano: Constant note width
-Piano: speed
-Oscilloscope: zoom
-Oscilloscope: use wave colors
 
 
 

@@ -486,7 +486,7 @@ namespace WaveTracker.Rendering
         {
             Macro macro = instrument;
             bool successfulReadWAV = (Helpers.readWav(path, out macro.sample.sampleDataAccessL, out macro.sample.sampleDataAccessR));
-            macro.sample.SetBaseKey(48);
+            macro.sample.SetBaseKey(Preferences.profile.defaultBaseKey);
             macro.sample.SetDetune(0);
             macro.sample.sampleLoopIndex = 0;
             macro.sample.sampleLoopType = macro.sample.sampleDataAccessL.Length < 1000 ? SampleLoopType.Forward : SampleLoopType.OneShot;

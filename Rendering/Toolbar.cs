@@ -113,7 +113,7 @@ namespace WaveTracker.Rendering
 
         public void Update()
         {
-            file_export.enabled = true;
+            file_export.enabled = false;
             playback_record.enabled = !Game1.VisualizerMode;
             edit_copy.enabled = FrameEditor.selectionActive && !Game1.VisualizerMode;
             edit_cut.enabled = FrameEditor.selectionActive && !Game1.VisualizerMode;

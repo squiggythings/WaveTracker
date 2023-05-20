@@ -389,7 +389,7 @@ namespace WaveTracker.Rendering
                         lastSamp = samp1;
                         samp1 = -wv.getSampleAtPosition(i / (float)w * ch.CurrentFrequency / scopezoom) * (h / 2f) * ch.CurrentAmplitude + (h / 2f);
                         if (i > -w / 2)
-                            DrawOscCol(px + i + w / 2, py - 2, samp1, lastSamp, waveColors[ch.waveIndex], Preferences.profile.visualizerScopeThickness + 1);
+                            DrawOscCol(px + i + w / 2, py - 2, samp1, lastSamp, Preferences.profile.visualizerScopeColors ? waveColors[ch.waveIndex] : Color.White, Preferences.profile.visualizerScopeThickness + 1);
                     }
                 }
                 else // SAMPLE
