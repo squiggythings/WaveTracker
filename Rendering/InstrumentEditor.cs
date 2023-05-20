@@ -493,9 +493,9 @@ namespace WaveTracker.Rendering
             macro.sample.resampleMode = ResamplingModes.Linear;
             if (successfulReadWAV)
             {
-                if (Preferences.automaticallyTrimSamples)
+                if (Preferences.profile.automaticallyTrimSamples)
                     macro.sample.TrimSilence();
-                if (Preferences.automaticallyNormalizeSamples)
+                if (Preferences.profile.automaticallyNormalizeSamples)
                     macro.sample.Normalize();
 
                 macro.sample.resampleMode = ResamplingModes.Linear;

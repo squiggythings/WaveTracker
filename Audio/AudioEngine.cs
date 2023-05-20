@@ -212,15 +212,18 @@ namespace WaveTracker.Audio
                         buffer[n + offset] += l;
                         buffer[n + offset + 1] += r;
                     }
-
+                    buffer[n + offset] = Math.Clamp(buffer[n + offset], -1, 1);
+                    buffer[n + offset + 1] = Math.Clamp(buffer[n + offset + 1], -1, 1);
                     currentBuffer[0, currBufferPosition] = buffer[n + offset];
                     currentBuffer[1, currBufferPosition] = buffer[n + offset + 1];
+                    buffer[n + offset] *= Preferences.profile.master_volume;
+                    buffer[n + offset + 1] *= Preferences.profile.master_volume;
                     currBufferPosition++;
                     if (currBufferPosition >= currentBuffer.Length / 2)
                         currBufferPosition = 0;
 
                     if (Game1.VisualizerMode)
-                        if (_tickCounter % (samplesPerTick / Preferences.visualizerPianoSpeed) == 0)
+                        if (_tickCounter % (samplesPerTick / Preferences.profile.visualizerPianoSpeed) == 0)
                         {
                             Game1.visualization.Update();
                         }

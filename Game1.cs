@@ -12,6 +12,7 @@ using System.Diagnostics;
 using NAudio.CoreAudioApi;
 using System.Runtime.InteropServices;
 using System.Security.Principal;
+using WaveTracker.UI;
 
 namespace WaveTracker
 {
@@ -63,9 +64,12 @@ namespace WaveTracker
             Window.AllowAltF4 = true;
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
+            Preferences.profile = PreferenceProfile.defaultProfile;
+            Preferences.ReadFromFile();
             frameRenderer = new Rendering.FrameRenderer();
             frameView = new Rendering.FrameView();
             songSettings = new Rendering.SongSettings();
+
         }
 
         protected override void Initialize()
@@ -101,7 +105,9 @@ namespace WaveTracker
 
         protected override void LoadContent()
         {
+            Checkbox.textureSheet = Content.Load<Texture2D>("instrumentwindow");
             UI.NumberBox.buttons = Content.Load<Texture2D>("window_edit");
+            Preferences.dialog = new Rendering.PreferencesDialog();
             editSettings.Initialize();
             font = Content.Load<SpriteFont>("custom_font");
             channelHeaderSprite = Content.Load<Texture2D>("trackerchannelheader");
@@ -171,7 +177,12 @@ namespace WaveTracker
                     waveBank.Update();
                 instrumentBank.Update();
             }
-            pianoInput = Helpers.GetPianoInput(FrameEditor.currentOctave);
+            if (Input.focus == null || Input.focus == waveBank.editor || Input.focus == instrumentBank.editor)
+                pianoInput = Helpers.GetPianoInput(FrameEditor.currentOctave);
+            else
+            {
+                pianoInput = -1;
+            }
             waveBank.editor.Update();
 
             if (waveBank.editor.pianoInput() > -1)
@@ -214,7 +225,7 @@ namespace WaveTracker
 
             if (!VisualizerMode)
             {
-                songSettings.Update();
+                songSettings.Update((float)gameTime.ElapsedGameTime.TotalSeconds);
                 frameView.Update();
                 frameRenderer.Update(gameTime);
                 FrameEditor.Update();
@@ -224,6 +235,7 @@ namespace WaveTracker
             {
                 frameRenderer.UpdateChannelHeaders();
             }
+            Preferences.dialog.Update();
             toolbar.Update();
             base.Update(gameTime);
             lastPianoKey = pianoInput;
@@ -281,6 +293,7 @@ namespace WaveTracker
                 visualization.Draw();
             }
             toolbar.Draw();
+            Preferences.dialog.Draw();
             if (!VisualizerMode)
             {
                 FrameEditor.channelScrollbar.Draw();
@@ -310,7 +323,7 @@ namespace WaveTracker
             //targetBatch.Draw(pixel, new Rectangle(0, 0, 1920, scrOffsetY), Color.White);
             //targetBatch.Draw(pixel, new Rectangle(0, 1080 + scrOffsetY, 1920, 90), Color.White);
             targetBatch.Draw(target, new Rectangle(0, 0, ScreenWidth * ScreenScale, 1200), Color.White);
-            if (VisualizerMode)
+            if (VisualizerMode && Input.focus == null)
             {
                 try
                 {

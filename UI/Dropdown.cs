@@ -17,6 +17,7 @@ namespace WaveTracker.UI
         public int Value { get; set; }
         int hoveredValue;
         string[] options;
+        int cooldown;
 
         public Dropdown(int x, int y, Element parent)
         {
@@ -44,6 +45,8 @@ namespace WaveTracker.UI
 
         public void Update()
         {
+            if (!inFocus)
+                cooldown = 2;
             if (IsHovered && Input.MouseScrollWheel(KeyModifier.None) != 0)
             {
                 Value -= Input.MouseScrollWheel(KeyModifier.None);
@@ -65,6 +68,7 @@ namespace WaveTracker.UI
                             {
                                 Value = i;
                                 CloseMenu();
+                                Input.CancelClick();
                                 return;
                             }
                         }
@@ -77,10 +81,12 @@ namespace WaveTracker.UI
             }
             else
             {
-                if (Clicked)
+                if (Clicked && cooldown <= 0)
                 {
                     OpenMenu();
                 }
+                if (cooldown > 0)
+                    cooldown--;
             }
         }
 

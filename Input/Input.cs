@@ -35,6 +35,7 @@ namespace WaveTracker
 
         public static Point lastClickLocation;
         public static Point lastClickReleaseLocation;
+        static bool cancelClick;
 
         static KeyModifier currentModifier;
         public static bool singleClick;
@@ -59,6 +60,7 @@ namespace WaveTracker
 
         public static void GetState(GameTime gameTime)
         {
+            cancelClick = false;
             if (focusTimer > 0)
             {
                 focusTimer--;
@@ -121,6 +123,10 @@ namespace WaveTracker
 
         public static Vector2 MousePos { get { return new Vector2(MousePositionX, MousePositionY); } }
 
+        public static void CancelClick()
+        {
+            cancelClick = true;
+        }
         public static bool GetKey(Keys key, KeyModifier modifier)
         {
             if (modifierMatches(modifier))
@@ -168,7 +174,7 @@ namespace WaveTracker
         public static bool GetClickUp(KeyModifier modifier)
         {
 
-            if (modifierMatches(modifier))
+            if (modifierMatches(modifier) && !cancelClick)
                 return currentMouseState.LeftButton == ButtonState.Released && previousMouseState.LeftButton == ButtonState.Pressed;
             else
                 return false;
@@ -177,7 +183,7 @@ namespace WaveTracker
         public static bool GetSingleClickUp(KeyModifier modifier)
         {
 
-            if (modifierMatches(modifier))
+            if (modifierMatches(modifier) && !cancelClick)
                 return GetClickUp(modifier) && singleClick;
             else
                 return false;
@@ -185,7 +191,7 @@ namespace WaveTracker
         public static bool GetClickDown(KeyModifier modifier)
         {
 
-            if (modifierMatches(modifier))
+            if (modifierMatches(modifier) && !cancelClick)
                 return currentMouseState.LeftButton == ButtonState.Pressed && previousMouseState.LeftButton == ButtonState.Released;
             else
                 return false;
@@ -193,7 +199,7 @@ namespace WaveTracker
         public static bool GetClick(KeyModifier modifier)
         {
 
-            if (modifierMatches(modifier))
+            if (modifierMatches(modifier) && !cancelClick)
                 return currentMouseState.LeftButton == ButtonState.Pressed;
             else
                 return false;

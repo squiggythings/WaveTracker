@@ -18,7 +18,7 @@ namespace WaveTracker.UI
 
         public void InitializeDialogCentered(string name, int w, int h)
         {
-            InitializePanel(name, (960 - w) / 2, (1000 - h) / 2, w, h);
+            InitializePanel(name, (960 - w) / 2, (500 - h) / 2, w, h);
         }
 
         protected SpriteButton newCloseButton()
@@ -30,7 +30,7 @@ namespace WaveTracker.UI
         {
             bottomButtons++;
 
-            Button ret = new Button(name, width - 514 * bottomButtons, height - 16, parent);
+            Button ret = new Button(name, width - 54 * bottomButtons, height - 16, parent);
             ret.width = 51;
             return ret;
         }

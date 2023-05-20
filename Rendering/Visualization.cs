@@ -225,7 +225,7 @@ namespace WaveTracker.Rendering
             Color c = Helpers.Alpha(Colors.rowText, alpha);
             if (value == -2) // off
             {
-                if (!Preferences.showNoteCutAndReleaseAsSymbols)
+                if (Preferences.profile.showNoteCutAndReleaseAsText)
                     Write("OFF", x, y, c);
                 else
                 {
@@ -234,7 +234,7 @@ namespace WaveTracker.Rendering
             }
             else if (value == -3) // release 
             {
-                if (!Preferences.showNoteCutAndReleaseAsSymbols)
+                if (Preferences.profile.showNoteCutAndReleaseAsText)
                     Write("REL", x, y, c);
                 else
                 {
@@ -377,6 +377,7 @@ namespace WaveTracker.Rendering
             Channel ch = ChannelManager.instance.channels[channelNum - 1];
             float samp1 = 0;
             float lastSamp = 0;
+            float scopezoom = 40f / (Preferences.profile.visualizerScopeZoom / 100f);
             if (FrameEditor.channelToggles[channelNum - 1])
             {
                 if (ch.currentMacro.macroType == MacroType.Wave)
@@ -386,9 +387,9 @@ namespace WaveTracker.Rendering
                     for (int i = -w / 2; i < w / 2 - 1; ++i)
                     {
                         lastSamp = samp1;
-                        samp1 = -wv.getSampleAtPosition(i / (float)w * ch.CurrentFrequency / Preferences.visualizerScopeZoom) * (h / 2f) * ch.CurrentAmplitude + (h / 2f);
+                        samp1 = -wv.getSampleAtPosition(i / (float)w * ch.CurrentFrequency / scopezoom) * (h / 2f) * ch.CurrentAmplitude + (h / 2f);
                         if (i > -w / 2)
-                            DrawOscCol(px + i + w / 2, py - 2, samp1, lastSamp, waveColors[ch.waveIndex], 2);
+                            DrawOscCol(px + i + w / 2, py - 2, samp1, lastSamp, waveColors[ch.waveIndex], Preferences.profile.visualizerScopeThickness + 1);
                     }
                 }
                 else // SAMPLE
@@ -403,9 +404,9 @@ namespace WaveTracker.Rendering
                         // quantized 
 
 
-                        samp1 = -samp.getMonoSample((i / (float)w * ch.CurrentFrequency / Preferences.visualizerScopeZoom) + (int)ch.sampleTime) * (h / 2f) * ch.CurrentAmplitudeAsWave / 1.5f + (h / 2f);
+                        samp1 = -samp.getMonoSample((i / (float)w * ch.CurrentFrequency / scopezoom) + (int)ch.sampleTime) * (h / 2f) * ch.CurrentAmplitudeAsWave / 1.5f + (h / 2f);
                         if (i > -w / 2)
-                            DrawOscCol(px + i + w / 2, py - 2, samp1, lastSamp, Color.White, 2);
+                            DrawOscCol(px + i + w / 2, py - 2, samp1, lastSamp, Color.White, Preferences.profile.visualizerScopeThickness + 1);
                     }
                 }
             }
@@ -429,7 +430,12 @@ namespace WaveTracker.Rendering
                 foreach (ChannelState state in states[i])
                 {
                     int width = (int)state.volume.Map(0, 1, 1, 15);
-                    DrawRect((int)(px + state.pitch * 10 + 4) - width / 2 + 1, y + py + 24 * 2, width, 1, Helpers.Alpha(state.color, (int)state.volume.Map(0, 1, 10, 255)));
+                    if (!Preferences.profile.visualizerPianoChangeWidth)
+                        width = 10;
+                    int alpha = (int)state.volume.Map(0, 1, 10, 255);
+                    if (!Preferences.profile.visualizerPianoFade)
+                        alpha = 255;
+                    DrawRect((int)(px + state.pitch * 10 + 4) - width / 2 + 1, y + py + 24 * 2, width, 1, Helpers.Alpha(state.color, alpha));
                 }
                 py++;
             }

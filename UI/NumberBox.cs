@@ -113,11 +113,13 @@ namespace WaveTracker.UI
             }
             int bWidth = boxWidth - 10;
             int boxStart = width - boxWidth;
+            int boxHeight = 13;
+            int boxStartY = (height - boxHeight) / 2;
             Write(label + "", 0, height / 2 - 3, labelCol);
-            DrawRect(boxStart, 0, bWidth, height, dark);
-            DrawRect(boxStart + 1, 1, bWidth - 2, height - 2, Color.White);
-            DrawRect(boxStart + 1, 1, bWidth - 2, 1, new Color(193, 196, 213));
-            DrawRect(width, 6, -10, 1, ButtonColors.Round.backgroundColor);
+            DrawRect(boxStart, boxStartY, bWidth, boxHeight, dark);
+            DrawRect(boxStart + 1, boxStartY + 1, bWidth - 2, boxHeight - 2, Color.White);
+            DrawRect(boxStart + 1, boxStartY + 1, bWidth - 2, 1, new Color(193, 196, 213));
+            DrawRect(width, boxStartY + 6, -10, 1, ButtonColors.Round.backgroundColor);
             if (displayMode == DisplayMode.Number)
                 Write(Value + "", boxStart + 4, height / 2 - 3, text);
             if (displayMode == DisplayMode.Note)

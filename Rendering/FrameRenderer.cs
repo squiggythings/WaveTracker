@@ -136,7 +136,7 @@ namespace WaveTracker.Rendering
                     rowColor = Colors.currentRowDefaultColor;
             #endregion
 
-            if (Preferences.showRowNumbersInHex)
+            if (Preferences.profile.showRowNumbersInHex)
                 WriteMonospaced(rowNum.ToString("X2"), 6, y, rowTextColor, 4);
             else
                 WriteMonospaced(rowNum.ToString("D3"), 4, y, rowTextColor, 4);
@@ -256,7 +256,7 @@ namespace WaveTracker.Rendering
 
             if (value == -2) // off
             {
-                if (!Preferences.showNoteCutAndReleaseAsSymbols)
+                if (Preferences.profile.showNoteCutAndReleaseAsText)
                     Write("OFF", x, y, c);
                 else
                 {
@@ -265,7 +265,7 @@ namespace WaveTracker.Rendering
             }
             else if (value == -3) // release 
             {
-                if (!Preferences.showNoteCutAndReleaseAsSymbols)
+                if (Preferences.profile.showNoteCutAndReleaseAsText)
                     Write("REL", x, y, c);
                 else
                 {
@@ -325,7 +325,7 @@ namespace WaveTracker.Rendering
             }
             else
             {
-                if (currRow && currColumn || !Preferences.fadeVolumeColumn)
+                if (currRow && currColumn || !Preferences.profile.fadeVolumeColumn)
                     WriteMonospaced(value.ToString("D2"), x, y, Colors.volumeColumnText, 4);
                 else
                     WriteMonospaced(value.ToString("D2"), x, y, Helpers.Alpha(Colors.volumeColumnText, (int)(value / 100f * 180 + (255 - 180))), 4);

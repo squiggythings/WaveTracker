@@ -159,11 +159,11 @@ namespace WaveTracker
             if (!playback || !followMode)
             {
                 if (Input.MousePositionY > 151 && Input.MousePositionX < 790 && Input.MousePositionY < Game1.bottomOfScreen - 15)
-                    Move(0, Input.MouseScrollWheel(KeyModifier.None) * -Preferences.pageJumpAmount);
+                    Move(0, Input.MouseScrollWheel(KeyModifier.None) * -Preferences.profile.pageJumpAmount);
                 if (Input.GetKeyRepeat(Keys.PageUp, KeyModifier.None))
-                    Move(0, -Preferences.pageJumpAmount);
+                    Move(0, -Preferences.profile.pageJumpAmount);
                 if (Input.GetKeyRepeat(Keys.PageDown, KeyModifier.None))
-                    Move(0, Preferences.pageJumpAmount);
+                    Move(0, Preferences.profile.pageJumpAmount);
                 if (Input.GetKeyDown(Keys.Escape, KeyModifier.None))
                     selectionActive = false;
                 if (Input.GetKeyDown(Keys.Home, KeyModifier.None))
@@ -176,14 +176,14 @@ namespace WaveTracker
             {
                 selectionActive = false;
 
-                Move(0, Preferences.ignoreStepWhenMoving ? 1 : step);
+                Move(0, Preferences.profile.ignoreStepWhenMoving ? 1 : step);
 
             }
 
             if (Input.GetKeyRepeat(Keys.Up, KeyModifier.None) || Input.GetKeyDown(Keys.Up, KeyModifier.Alt))
             {
                 selectionActive = false;
-                Move(0, Preferences.ignoreStepWhenMoving ? -1 : -step);
+                Move(0, Preferences.profile.ignoreStepWhenMoving ? -1 : -step);
             }
 
             if (Input.GetKeyRepeat(Keys.Right, KeyModifier.None))
@@ -240,7 +240,7 @@ namespace WaveTracker
                         selectionStart = new Point(currentColumn, currentRow);
                         selectionActive = true;
                     }
-                    Move(0, Preferences.ignoreStepWhenMoving ? 1 : step);
+                    Move(0, Preferences.profile.ignoreStepWhenMoving ? 1 : step);
                     selectionEnd = new Point(currentColumn, currentRow);
                 }
 
@@ -251,7 +251,7 @@ namespace WaveTracker
                         selectionStart = new Point(currentColumn, currentRow);
                         selectionActive = true;
                     }
-                    Move(0, Preferences.ignoreStepWhenMoving ? -1 : -step);
+                    Move(0, Preferences.profile.ignoreStepWhenMoving ? -1 : -step);
                     selectionEnd = new Point(currentColumn, currentRow);
                 }
 
@@ -1034,132 +1034,243 @@ namespace WaveTracker
 
         static int getHexInput()
         {
-            if (Input.GetKeyRepeat(Keys.D0, KeyModifier.None))
-                return 0;
-            if (Input.GetKeyRepeat(Keys.D1, KeyModifier.None))
-                return 1;
-            if (Input.GetKeyRepeat(Keys.D2, KeyModifier.None))
-                return 2;
-            if (Input.GetKeyRepeat(Keys.D3, KeyModifier.None))
-                return 3;
-            if (Input.GetKeyRepeat(Keys.D4, KeyModifier.None))
-                return 4;
-            if (Input.GetKeyRepeat(Keys.D5, KeyModifier.None))
-                return 5;
-            if (Input.GetKeyRepeat(Keys.D6, KeyModifier.None))
-                return 6;
-            if (Input.GetKeyRepeat(Keys.D7, KeyModifier.None))
-                return 7;
-            if (Input.GetKeyRepeat(Keys.D8, KeyModifier.None))
-                return 8;
-            if (Input.GetKeyRepeat(Keys.D9, KeyModifier.None))
-                return 9;
-            if (Input.GetKeyRepeat(Keys.A, KeyModifier.None))
-                return 10;
-            if (Input.GetKeyRepeat(Keys.B, KeyModifier.None))
-                return 11;
-            if (Input.GetKeyRepeat(Keys.C, KeyModifier.None))
-                return 12;
-            if (Input.GetKeyRepeat(Keys.D, KeyModifier.None))
-                return 13;
-            if (Input.GetKeyRepeat(Keys.E, KeyModifier.None))
-                return 14;
-            if (Input.GetKeyRepeat(Keys.F, KeyModifier.None))
-                return 15;
-
+            if (Preferences.profile.keyRepeat)
+            {
+                if (Input.GetKeyRepeat(Keys.D0, KeyModifier.None))
+                    return 0;
+                if (Input.GetKeyRepeat(Keys.D1, KeyModifier.None))
+                    return 1;
+                if (Input.GetKeyRepeat(Keys.D2, KeyModifier.None))
+                    return 2;
+                if (Input.GetKeyRepeat(Keys.D3, KeyModifier.None))
+                    return 3;
+                if (Input.GetKeyRepeat(Keys.D4, KeyModifier.None))
+                    return 4;
+                if (Input.GetKeyRepeat(Keys.D5, KeyModifier.None))
+                    return 5;
+                if (Input.GetKeyRepeat(Keys.D6, KeyModifier.None))
+                    return 6;
+                if (Input.GetKeyRepeat(Keys.D7, KeyModifier.None))
+                    return 7;
+                if (Input.GetKeyRepeat(Keys.D8, KeyModifier.None))
+                    return 8;
+                if (Input.GetKeyRepeat(Keys.D9, KeyModifier.None))
+                    return 9;
+                if (Input.GetKeyRepeat(Keys.A, KeyModifier.None))
+                    return 10;
+                if (Input.GetKeyRepeat(Keys.B, KeyModifier.None))
+                    return 11;
+                if (Input.GetKeyRepeat(Keys.C, KeyModifier.None))
+                    return 12;
+                if (Input.GetKeyRepeat(Keys.D, KeyModifier.None))
+                    return 13;
+                if (Input.GetKeyRepeat(Keys.E, KeyModifier.None))
+                    return 14;
+                if (Input.GetKeyRepeat(Keys.F, KeyModifier.None))
+                    return 15;
+            }
+            else
+            {
+                if (Input.GetKeyDown(Keys.D0, KeyModifier.None))
+                    return 0;
+                if (Input.GetKeyDown(Keys.D1, KeyModifier.None))
+                    return 1;
+                if (Input.GetKeyDown(Keys.D2, KeyModifier.None))
+                    return 2;
+                if (Input.GetKeyDown(Keys.D3, KeyModifier.None))
+                    return 3;
+                if (Input.GetKeyDown(Keys.D4, KeyModifier.None))
+                    return 4;
+                if (Input.GetKeyDown(Keys.D5, KeyModifier.None))
+                    return 5;
+                if (Input.GetKeyDown(Keys.D6, KeyModifier.None))
+                    return 6;
+                if (Input.GetKeyDown(Keys.D7, KeyModifier.None))
+                    return 7;
+                if (Input.GetKeyDown(Keys.D8, KeyModifier.None))
+                    return 8;
+                if (Input.GetKeyDown(Keys.D9, KeyModifier.None))
+                    return 9;
+                if (Input.GetKeyDown(Keys.A, KeyModifier.None))
+                    return 10;
+                if (Input.GetKeyDown(Keys.B, KeyModifier.None))
+                    return 11;
+                if (Input.GetKeyDown(Keys.C, KeyModifier.None))
+                    return 12;
+                if (Input.GetKeyDown(Keys.D, KeyModifier.None))
+                    return 13;
+                if (Input.GetKeyDown(Keys.E, KeyModifier.None))
+                    return 14;
+                if (Input.GetKeyDown(Keys.F, KeyModifier.None))
+                    return 15;
+            }
             return -1;
         }
         static int getDecimalInput()
         {
-            if (Input.GetKeyRepeat(Keys.D0, KeyModifier.None))
-                return 0;
-            if (Input.GetKeyRepeat(Keys.D1, KeyModifier.None))
-                return 1;
-            if (Input.GetKeyRepeat(Keys.D2, KeyModifier.None))
-                return 2;
-            if (Input.GetKeyRepeat(Keys.D3, KeyModifier.None))
-                return 3;
-            if (Input.GetKeyRepeat(Keys.D4, KeyModifier.None))
-                return 4;
-            if (Input.GetKeyRepeat(Keys.D5, KeyModifier.None))
-                return 5;
-            if (Input.GetKeyRepeat(Keys.D6, KeyModifier.None))
-                return 6;
-            if (Input.GetKeyRepeat(Keys.D7, KeyModifier.None))
-                return 7;
-            if (Input.GetKeyRepeat(Keys.D8, KeyModifier.None))
-                return 8;
-            if (Input.GetKeyRepeat(Keys.D9, KeyModifier.None))
-                return 9;
+            if (Preferences.profile.keyRepeat)
+            {
+                if (Input.GetKeyRepeat(Keys.D0, KeyModifier.None)) return 0;
+                if (Input.GetKeyRepeat(Keys.D1, KeyModifier.None)) return 1;
+                if (Input.GetKeyRepeat(Keys.D2, KeyModifier.None)) return 2;
+                if (Input.GetKeyRepeat(Keys.D3, KeyModifier.None)) return 3;
+                if (Input.GetKeyRepeat(Keys.D4, KeyModifier.None)) return 4;
+                if (Input.GetKeyRepeat(Keys.D5, KeyModifier.None)) return 5;
+                if (Input.GetKeyRepeat(Keys.D6, KeyModifier.None)) return 6;
+                if (Input.GetKeyRepeat(Keys.D7, KeyModifier.None)) return 7;
+                if (Input.GetKeyRepeat(Keys.D8, KeyModifier.None)) return 8;
+                if (Input.GetKeyRepeat(Keys.D9, KeyModifier.None)) return 9;
+            }
+            else
+            {
+                if (Input.GetKeyDown(Keys.D0, KeyModifier.None)) return 0;
+                if (Input.GetKeyDown(Keys.D1, KeyModifier.None)) return 1;
+                if (Input.GetKeyDown(Keys.D2, KeyModifier.None)) return 2;
+                if (Input.GetKeyDown(Keys.D3, KeyModifier.None)) return 3;
+                if (Input.GetKeyDown(Keys.D4, KeyModifier.None)) return 4;
+                if (Input.GetKeyDown(Keys.D5, KeyModifier.None)) return 5;
+                if (Input.GetKeyDown(Keys.D6, KeyModifier.None)) return 6;
+                if (Input.GetKeyDown(Keys.D7, KeyModifier.None)) return 7;
+                if (Input.GetKeyDown(Keys.D8, KeyModifier.None)) return 8;
+                if (Input.GetKeyDown(Keys.D9, KeyModifier.None)) return 9;
+            }
             return -1;
         }
 
         static int getEffectInput()
         {
-            if (Input.GetKeyRepeat(Keys.D0, KeyModifier.None)) return 0;
-            if (Input.GetKeyRepeat(Keys.D1, KeyModifier.None)) return 1;
-            if (Input.GetKeyRepeat(Keys.D2, KeyModifier.None)) return 2;
-            if (Input.GetKeyRepeat(Keys.D3, KeyModifier.None)) return 3;
-            if (Input.GetKeyRepeat(Keys.D4, KeyModifier.None)) return 4;
-            if (Input.GetKeyRepeat(Keys.D7, KeyModifier.None)) return 7;
-            if (Input.GetKeyRepeat(Keys.D8, KeyModifier.None)) return 8;
-            if (Input.GetKeyRepeat(Keys.D9, KeyModifier.None)) return 9;
-            if (Input.GetKeyRepeat(Keys.Q, KeyModifier.None)) return 10;
-            if (Input.GetKeyRepeat(Keys.R, KeyModifier.None)) return 11;
-            if (Input.GetKeyRepeat(Keys.P, KeyModifier.None)) return 14;
-            if (Input.GetKeyRepeat(Keys.F, KeyModifier.None)) return 15;
-            if (Input.GetKeyRepeat(Keys.V, KeyModifier.None)) return 16;
-            if (Input.GetKeyRepeat(Keys.C, KeyModifier.None)) return 20;
-            if (Input.GetKeyRepeat(Keys.B, KeyModifier.None)) return 21;
-            if (Input.GetKeyRepeat(Keys.D, KeyModifier.None)) return 22;
-            if (Input.GetKeyRepeat(Keys.G, KeyModifier.None)) return 17;
-            if (Input.GetKeyRepeat(Keys.S, KeyModifier.None)) return 18;
-            if (Input.GetKeyRepeat(Keys.A, KeyModifier.None)) return 12;
-            if (Input.GetKeyRepeat(Keys.W, KeyModifier.None)) return 13;
-
+            if (Preferences.profile.keyRepeat)
+            {
+                if (Input.GetKeyRepeat(Keys.D0, KeyModifier.None)) return 0;
+                if (Input.GetKeyRepeat(Keys.D1, KeyModifier.None)) return 1;
+                if (Input.GetKeyRepeat(Keys.D2, KeyModifier.None)) return 2;
+                if (Input.GetKeyRepeat(Keys.D3, KeyModifier.None)) return 3;
+                if (Input.GetKeyRepeat(Keys.D4, KeyModifier.None)) return 4;
+                if (Input.GetKeyRepeat(Keys.D7, KeyModifier.None)) return 7;
+                if (Input.GetKeyRepeat(Keys.D8, KeyModifier.None)) return 8;
+                if (Input.GetKeyRepeat(Keys.D9, KeyModifier.None)) return 9;
+                if (Input.GetKeyRepeat(Keys.Q, KeyModifier.None)) return 10;
+                if (Input.GetKeyRepeat(Keys.R, KeyModifier.None)) return 11;
+                if (Input.GetKeyRepeat(Keys.P, KeyModifier.None)) return 14;
+                if (Input.GetKeyRepeat(Keys.F, KeyModifier.None)) return 15;
+                if (Input.GetKeyRepeat(Keys.V, KeyModifier.None)) return 16;
+                if (Input.GetKeyRepeat(Keys.C, KeyModifier.None)) return 20;
+                if (Input.GetKeyRepeat(Keys.B, KeyModifier.None)) return 21;
+                if (Input.GetKeyRepeat(Keys.D, KeyModifier.None)) return 22;
+                if (Input.GetKeyRepeat(Keys.G, KeyModifier.None)) return 17;
+                if (Input.GetKeyRepeat(Keys.S, KeyModifier.None)) return 18;
+                if (Input.GetKeyRepeat(Keys.A, KeyModifier.None)) return 12;
+                if (Input.GetKeyRepeat(Keys.W, KeyModifier.None)) return 13;
+            }
+            else
+            {
+                if (Input.GetKeyDown(Keys.D0, KeyModifier.None)) return 0;
+                if (Input.GetKeyDown(Keys.D1, KeyModifier.None)) return 1;
+                if (Input.GetKeyDown(Keys.D2, KeyModifier.None)) return 2;
+                if (Input.GetKeyDown(Keys.D3, KeyModifier.None)) return 3;
+                if (Input.GetKeyDown(Keys.D4, KeyModifier.None)) return 4;
+                if (Input.GetKeyDown(Keys.D7, KeyModifier.None)) return 7;
+                if (Input.GetKeyDown(Keys.D8, KeyModifier.None)) return 8;
+                if (Input.GetKeyDown(Keys.D9, KeyModifier.None)) return 9;
+                if (Input.GetKeyDown(Keys.Q, KeyModifier.None)) return 10;
+                if (Input.GetKeyDown(Keys.R, KeyModifier.None)) return 11;
+                if (Input.GetKeyDown(Keys.P, KeyModifier.None)) return 14;
+                if (Input.GetKeyDown(Keys.F, KeyModifier.None)) return 15;
+                if (Input.GetKeyDown(Keys.V, KeyModifier.None)) return 16;
+                if (Input.GetKeyDown(Keys.C, KeyModifier.None)) return 20;
+                if (Input.GetKeyDown(Keys.B, KeyModifier.None)) return 21;
+                if (Input.GetKeyDown(Keys.D, KeyModifier.None)) return 22;
+                if (Input.GetKeyDown(Keys.G, KeyModifier.None)) return 17;
+                if (Input.GetKeyDown(Keys.S, KeyModifier.None)) return 18;
+                if (Input.GetKeyDown(Keys.A, KeyModifier.None)) return 12;
+                if (Input.GetKeyDown(Keys.W, KeyModifier.None)) return 13;
+            }
 
             return -1;
         }
 
         static int getPianoInput()
         {
-            if (Input.GetKeyRepeat(Keys.OemPlus, KeyModifier.None)) return -3;
-            if (Input.GetKeyRepeat(Keys.D1, KeyModifier.None)) return -2;
+            if (Preferences.profile.keyRepeat)
+            {
+                if (Input.GetKeyRepeat(Keys.OemPlus, KeyModifier.None)) return -3;
+                if (Input.GetKeyRepeat(Keys.D1, KeyModifier.None)) return -2;
 
-            if (Input.GetKeyRepeat(Keys.Z, KeyModifier.None)) return currentOctave * 12 + 0;
-            if (Input.GetKeyRepeat(Keys.S, KeyModifier.None)) return currentOctave * 12 + 1;
-            if (Input.GetKeyRepeat(Keys.X, KeyModifier.None)) return currentOctave * 12 + 2;
-            if (Input.GetKeyRepeat(Keys.D, KeyModifier.None)) return currentOctave * 12 + 3;
-            if (Input.GetKeyRepeat(Keys.C, KeyModifier.None)) return currentOctave * 12 + 4;
-            if (Input.GetKeyRepeat(Keys.V, KeyModifier.None)) return currentOctave * 12 + 5;
-            if (Input.GetKeyRepeat(Keys.G, KeyModifier.None)) return currentOctave * 12 + 6;
-            if (Input.GetKeyRepeat(Keys.B, KeyModifier.None)) return currentOctave * 12 + 7;
-            if (Input.GetKeyRepeat(Keys.H, KeyModifier.None)) return currentOctave * 12 + 8;
-            if (Input.GetKeyRepeat(Keys.N, KeyModifier.None)) return currentOctave * 12 + 9;
-            if (Input.GetKeyRepeat(Keys.J, KeyModifier.None)) return currentOctave * 12 + 10;
-            if (Input.GetKeyRepeat(Keys.M, KeyModifier.None)) return currentOctave * 12 + 11;
-            if (Input.GetKeyRepeat(Keys.OemComma, KeyModifier.None)) return currentOctave * 12 + 12;
-            if (Input.GetKeyRepeat(Keys.L, KeyModifier.None)) return currentOctave * 12 + 13;
-            if (Input.GetKeyRepeat(Keys.OemPeriod, KeyModifier.None)) return currentOctave * 12 + 14;
-            if (Input.GetKeyRepeat(Keys.OemSemicolon, KeyModifier.None)) return currentOctave * 12 + 15;
-            if (Input.GetKeyRepeat(Keys.OemQuestion, KeyModifier.None)) return currentOctave * 12 + 16;
-            if (Input.GetKeyRepeat(Keys.Q, KeyModifier.None)) return currentOctave * 12 + 12;
-            if (Input.GetKeyRepeat(Keys.D2, KeyModifier.None)) return currentOctave * 12 + 13;
-            if (Input.GetKeyRepeat(Keys.W, KeyModifier.None)) return currentOctave * 12 + 14;
-            if (Input.GetKeyRepeat(Keys.D3, KeyModifier.None)) return currentOctave * 12 + 15;
-            if (Input.GetKeyRepeat(Keys.E, KeyModifier.None)) return currentOctave * 12 + 16;
-            if (Input.GetKeyRepeat(Keys.R, KeyModifier.None)) return currentOctave * 12 + 17;
-            if (Input.GetKeyRepeat(Keys.D5, KeyModifier.None)) return currentOctave * 12 + 18;
-            if (Input.GetKeyRepeat(Keys.T, KeyModifier.None)) return currentOctave * 12 + 19;
-            if (Input.GetKeyRepeat(Keys.D6, KeyModifier.None)) return currentOctave * 12 + 20;
-            if (Input.GetKeyRepeat(Keys.Y, KeyModifier.None)) return currentOctave * 12 + 21;
-            if (Input.GetKeyRepeat(Keys.D7, KeyModifier.None)) return currentOctave * 12 + 22;
-            if (Input.GetKeyRepeat(Keys.U, KeyModifier.None)) return currentOctave * 12 + 23;
-            if (Input.GetKeyRepeat(Keys.I, KeyModifier.None)) return currentOctave * 12 + 24;
-            if (Input.GetKeyRepeat(Keys.D9, KeyModifier.None)) return currentOctave * 12 + 25;
-            if (Input.GetKeyRepeat(Keys.O, KeyModifier.None)) return currentOctave * 12 + 26;
-            if (Input.GetKeyRepeat(Keys.D0, KeyModifier.None)) return currentOctave * 12 + 27;
-            if (Input.GetKeyRepeat(Keys.P, KeyModifier.None)) return currentOctave * 12 + 28;
+                if (Input.GetKeyRepeat(Keys.Z, KeyModifier.None)) return currentOctave * 12 + 0;
+                if (Input.GetKeyRepeat(Keys.S, KeyModifier.None)) return currentOctave * 12 + 1;
+                if (Input.GetKeyRepeat(Keys.X, KeyModifier.None)) return currentOctave * 12 + 2;
+                if (Input.GetKeyRepeat(Keys.D, KeyModifier.None)) return currentOctave * 12 + 3;
+                if (Input.GetKeyRepeat(Keys.C, KeyModifier.None)) return currentOctave * 12 + 4;
+                if (Input.GetKeyRepeat(Keys.V, KeyModifier.None)) return currentOctave * 12 + 5;
+                if (Input.GetKeyRepeat(Keys.G, KeyModifier.None)) return currentOctave * 12 + 6;
+                if (Input.GetKeyRepeat(Keys.B, KeyModifier.None)) return currentOctave * 12 + 7;
+                if (Input.GetKeyRepeat(Keys.H, KeyModifier.None)) return currentOctave * 12 + 8;
+                if (Input.GetKeyRepeat(Keys.N, KeyModifier.None)) return currentOctave * 12 + 9;
+                if (Input.GetKeyRepeat(Keys.J, KeyModifier.None)) return currentOctave * 12 + 10;
+                if (Input.GetKeyRepeat(Keys.M, KeyModifier.None)) return currentOctave * 12 + 11;
+                if (Input.GetKeyRepeat(Keys.OemComma, KeyModifier.None)) return currentOctave * 12 + 12;
+                if (Input.GetKeyRepeat(Keys.L, KeyModifier.None)) return currentOctave * 12 + 13;
+                if (Input.GetKeyRepeat(Keys.OemPeriod, KeyModifier.None)) return currentOctave * 12 + 14;
+                if (Input.GetKeyRepeat(Keys.OemSemicolon, KeyModifier.None)) return currentOctave * 12 + 15;
+                if (Input.GetKeyRepeat(Keys.OemQuestion, KeyModifier.None)) return currentOctave * 12 + 16;
+                if (Input.GetKeyRepeat(Keys.Q, KeyModifier.None)) return currentOctave * 12 + 12;
+                if (Input.GetKeyRepeat(Keys.D2, KeyModifier.None)) return currentOctave * 12 + 13;
+                if (Input.GetKeyRepeat(Keys.W, KeyModifier.None)) return currentOctave * 12 + 14;
+                if (Input.GetKeyRepeat(Keys.D3, KeyModifier.None)) return currentOctave * 12 + 15;
+                if (Input.GetKeyRepeat(Keys.E, KeyModifier.None)) return currentOctave * 12 + 16;
+                if (Input.GetKeyRepeat(Keys.R, KeyModifier.None)) return currentOctave * 12 + 17;
+                if (Input.GetKeyRepeat(Keys.D5, KeyModifier.None)) return currentOctave * 12 + 18;
+                if (Input.GetKeyRepeat(Keys.T, KeyModifier.None)) return currentOctave * 12 + 19;
+                if (Input.GetKeyRepeat(Keys.D6, KeyModifier.None)) return currentOctave * 12 + 20;
+                if (Input.GetKeyRepeat(Keys.Y, KeyModifier.None)) return currentOctave * 12 + 21;
+                if (Input.GetKeyRepeat(Keys.D7, KeyModifier.None)) return currentOctave * 12 + 22;
+                if (Input.GetKeyRepeat(Keys.U, KeyModifier.None)) return currentOctave * 12 + 23;
+                if (Input.GetKeyRepeat(Keys.I, KeyModifier.None)) return currentOctave * 12 + 24;
+                if (Input.GetKeyRepeat(Keys.D9, KeyModifier.None)) return currentOctave * 12 + 25;
+                if (Input.GetKeyRepeat(Keys.O, KeyModifier.None)) return currentOctave * 12 + 26;
+                if (Input.GetKeyRepeat(Keys.D0, KeyModifier.None)) return currentOctave * 12 + 27;
+                if (Input.GetKeyRepeat(Keys.P, KeyModifier.None)) return currentOctave * 12 + 28;
+            }
+            else
+            {
+                if (Input.GetKeyDown(Keys.OemPlus, KeyModifier.None)) return -3;
+                if (Input.GetKeyDown(Keys.D1, KeyModifier.None)) return -2;
+
+                if (Input.GetKeyDown(Keys.Z, KeyModifier.None)) return currentOctave * 12 + 0;
+                if (Input.GetKeyDown(Keys.S, KeyModifier.None)) return currentOctave * 12 + 1;
+                if (Input.GetKeyDown(Keys.X, KeyModifier.None)) return currentOctave * 12 + 2;
+                if (Input.GetKeyDown(Keys.D, KeyModifier.None)) return currentOctave * 12 + 3;
+                if (Input.GetKeyDown(Keys.C, KeyModifier.None)) return currentOctave * 12 + 4;
+                if (Input.GetKeyDown(Keys.V, KeyModifier.None)) return currentOctave * 12 + 5;
+                if (Input.GetKeyDown(Keys.G, KeyModifier.None)) return currentOctave * 12 + 6;
+                if (Input.GetKeyDown(Keys.B, KeyModifier.None)) return currentOctave * 12 + 7;
+                if (Input.GetKeyDown(Keys.H, KeyModifier.None)) return currentOctave * 12 + 8;
+                if (Input.GetKeyDown(Keys.N, KeyModifier.None)) return currentOctave * 12 + 9;
+                if (Input.GetKeyDown(Keys.J, KeyModifier.None)) return currentOctave * 12 + 10;
+                if (Input.GetKeyDown(Keys.M, KeyModifier.None)) return currentOctave * 12 + 11;
+                if (Input.GetKeyDown(Keys.OemComma, KeyModifier.None)) return currentOctave * 12 + 12;
+                if (Input.GetKeyDown(Keys.L, KeyModifier.None)) return currentOctave * 12 + 13;
+                if (Input.GetKeyDown(Keys.OemPeriod, KeyModifier.None)) return currentOctave * 12 + 14;
+                if (Input.GetKeyDown(Keys.OemSemicolon, KeyModifier.None)) return currentOctave * 12 + 15;
+                if (Input.GetKeyDown(Keys.OemQuestion, KeyModifier.None)) return currentOctave * 12 + 16;
+                if (Input.GetKeyDown(Keys.Q, KeyModifier.None)) return currentOctave * 12 + 12;
+                if (Input.GetKeyDown(Keys.D2, KeyModifier.None)) return currentOctave * 12 + 13;
+                if (Input.GetKeyDown(Keys.W, KeyModifier.None)) return currentOctave * 12 + 14;
+                if (Input.GetKeyDown(Keys.D3, KeyModifier.None)) return currentOctave * 12 + 15;
+                if (Input.GetKeyDown(Keys.E, KeyModifier.None)) return currentOctave * 12 + 16;
+                if (Input.GetKeyDown(Keys.R, KeyModifier.None)) return currentOctave * 12 + 17;
+                if (Input.GetKeyDown(Keys.D5, KeyModifier.None)) return currentOctave * 12 + 18;
+                if (Input.GetKeyDown(Keys.T, KeyModifier.None)) return currentOctave * 12 + 19;
+                if (Input.GetKeyDown(Keys.D6, KeyModifier.None)) return currentOctave * 12 + 20;
+                if (Input.GetKeyDown(Keys.Y, KeyModifier.None)) return currentOctave * 12 + 21;
+                if (Input.GetKeyDown(Keys.D7, KeyModifier.None)) return currentOctave * 12 + 22;
+                if (Input.GetKeyDown(Keys.U, KeyModifier.None)) return currentOctave * 12 + 23;
+                if (Input.GetKeyDown(Keys.I, KeyModifier.None)) return currentOctave * 12 + 24;
+                if (Input.GetKeyDown(Keys.D9, KeyModifier.None)) return currentOctave * 12 + 25;
+                if (Input.GetKeyDown(Keys.O, KeyModifier.None)) return currentOctave * 12 + 26;
+                if (Input.GetKeyDown(Keys.D0, KeyModifier.None)) return currentOctave * 12 + 27;
+                if (Input.GetKeyDown(Keys.P, KeyModifier.None)) return currentOctave * 12 + 28;
+            }
             return -1;
         }
 

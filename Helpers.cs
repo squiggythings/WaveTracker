@@ -111,6 +111,7 @@ namespace WaveTracker
         public static int getWidthOfText(string text)
         {
             int ret = 0;
+            string alphabet = " 0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz!@#$%^&*()_+-={}[]\\|'\":;?/>.<,~`©àèìòùÀÈÌÒÙáéíóúýÁÉÍÓÚÝâêîôûÂÊÎÔÛãñõÃÑÕäëïöüÿÄËÏÖÜŸæçÇ";
             string chars5 = "WX&%#@~YM«»mw";
             string chars3 = "kI 1-crtT<>{}+\"^\\/?=";
             string chars2 = "(),[]*j";
@@ -118,17 +119,19 @@ namespace WaveTracker
 
             foreach (char c in text)
             {
-
-                if (chars5.Contains(c))
-                    ret += 6;
-                else if (chars3.Contains(c))
-                    ret += 4;
-                else if (chars2.Contains(c))
-                    ret += 3;
-                else if (chars1.Contains(c))
-                    ret += 2;
+                if (alphabet.Contains(c))
+                    if (chars5.Contains(c))
+                        ret += 6;
+                    else if (chars3.Contains(c))
+                        ret += 4;
+                    else if (chars2.Contains(c))
+                        ret += 3;
+                    else if (chars1.Contains(c))
+                        ret += 2;
+                    else
+                        ret += 5;
                 else
-                    ret += 5;
+                    ret += 0;
             }
             return ret - 1;
         }
@@ -198,6 +201,14 @@ namespace WaveTracker
             c.G = (byte)(a.G + (b.G - a.G) * amt);
             c.B = (byte)(a.B + (b.B - a.B) * amt);
             return c;
+        }
+        public static float Map(float value, float from1, float to1, float from2, float to2)
+        {
+            return (value - from1) / (to1 - from1) * (to2 - from2) + from2;
+        }
+        public static float MapClamped(float s, float a1, float a2, float b1, float b2)
+        {
+            return Math.Clamp(b1 + (s - a1) * (b2 - b1) / (a2 - a1), b1, b2);
         }
 
         public static int GetPianoInput(int currentOctave)

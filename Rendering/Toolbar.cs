@@ -156,7 +156,7 @@ namespace WaveTracker.Rendering
             if (frame_next.Clicked) { FrameEditor.NextFrame(); }
             if (frame_prev.Clicked) { FrameEditor.PreviousFrame(); }
 
-            if (preferences.Clicked) { }
+            if (preferences.Clicked) { Preferences.dialog.Open(); }
 
             followMode.Value = FrameEditor.followMode;
             visualizerMode.Value = Game1.VisualizerMode;

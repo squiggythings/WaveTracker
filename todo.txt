@@ -12,8 +12,6 @@ Piano: Constant note width
 Piano: speed
 Oscilloscope: zoom
 Oscilloscope: use wave colors
-Oscilloscope: show samples in piano roll
-
 
 
 

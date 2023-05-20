@@ -19,13 +19,14 @@ namespace WaveTracker.Rendering
     {
         public bool enabled;
         public Texture2D icons;
-        int selectedFileIndex;
+        int selectedFileIndex = -1;
         public string selectedFilePath;
         public Toggle sortName, sortType;
         public SpriteButton backButton;
         public Scrollbar scrollbar;
         public Button ok, cancel;
         string currentPath = @"C:\USERS\Elias\Desktop\stuff that takes up space\pxtone\my_material";
+        string lastPath;
         int listLength = 24;
         public string[] entriesInDirectory;
         InstrumentEditor launched;
@@ -44,17 +45,17 @@ namespace WaveTracker.Rendering
             backButton = new SpriteButton(2, 11, 15, 15, Toolbar.sprite, 20, this);
             scrollbar = new Scrollbar(2, 29, width - 111, listLength * 11, this);
             scrollbar.coarseStepAmount = 3;
-            ok = new Button("OK", width - 105, height - 16, this);
+            ok = new Button("OK", width - 108, height - 16, this);
             ok.width = 51;
-            cancel = new Button("Cancel", width - 53, height - 16, this);
+            cancel = new Button("Cancel", width - 54, height - 16, this);
             cancel.width = 51;
             sortName = new Toggle("Name", width - 65, 30, this);
             sortType = new Toggle("Type", width - 36, 30, this);
             entriesInDirectory = new string[0];
             previewOut = new WaveOutEvent();
-            if (Directory.Exists(Preferences.lastBrowseDirectory))
+            if (Directory.Exists(Preferences.profile.lastBrowseDirectory))
             {
-                currentPath = Preferences.lastBrowseDirectory;
+                currentPath = Preferences.profile.lastBrowseDirectory;
             }
             else
             {
@@ -69,9 +70,15 @@ namespace WaveTracker.Rendering
                 sortName.Value = sortMethod == SortingMethod.ByName;
                 sortType.Value = sortMethod == SortingMethod.ByType;
                 if (sortName.Clicked)
+                {
                     sortMethod = SortingMethod.ByName;
+                    GetFileEntries(true);
+                }
                 if (sortType.Clicked)
+                {
                     sortMethod = SortingMethod.ByType;
+                    GetFileEntries(true);
+                }
                 sortName.Value = sortMethod == SortingMethod.ByName;
                 sortType.Value = sortMethod == SortingMethod.ByType;
 
@@ -98,7 +105,7 @@ namespace WaveTracker.Rendering
                     Close();
                     return;
                 }
-                GetFileEntries();
+                GetFileEntries(false);
 
                 int y = 29;
                 bool newFile = false;
@@ -127,7 +134,7 @@ namespace WaveTracker.Rendering
                                     currentPath = entriesInDirectory[i];
                                     selectedFileIndex = -1;
                                     scrollbar.scrollValue = 0;
-                                    GetFileEntries();
+                                    GetFileEntries(false);
                                     break;
                                 }
                                 else
@@ -198,57 +205,62 @@ namespace WaveTracker.Rendering
                 {
                     previewOut.Init(reader);
                 }
-                previewOut.Play();
+                if (Preferences.profile.previewSamples)
+                    previewOut.Play();
             }
         }
 
-        void GetFileEntries()
+        void GetFileEntries(bool overrideOptimization)
         {
-            // the topmost in the tree, choosing a drive
-            List<string> entries = new List<string>();
-            if (currentPath == "")
+            if (currentPath != lastPath || overrideOptimization)
             {
+                // the topmost in the tree, choosing a drive
+                lastPath = currentPath;
+                List<string> entries = new List<string>();
+                if (currentPath == "")
+                {
 
-                DriveInfo[] allDrives = DriveInfo.GetDrives();
-                foreach (DriveInfo drive in allDrives)
-                {
-                    entries.Add(drive.RootDirectory.FullName);
-                }
-                entriesInDirectory = entries.ToArray();
-                return;
-            }
-
-            // a drive is already chosen, use the regular Directory system
-            entries = Directory.GetFileSystemEntries(currentPath, "*", SearchOption.TopDirectoryOnly).ToList();
-            for (int i = entries.Count - 1; i >= 0; i--)
-            {
-                if ((File.GetAttributes(entries[i]) & FileAttributes.Hidden) == FileAttributes.Hidden)
-                {
-                    entries.RemoveAt(i);
-                    continue;
-                }
-                if (Directory.Exists(entries[i]))
-                {
-                    continue;
-                }
-                else
-                {
-                    if (File.Exists(entries[i]))
+                    DriveInfo[] allDrives = DriveInfo.GetDrives();
+                    foreach (DriveInfo drive in allDrives)
                     {
-                        string ext = Path.GetExtension(entries[i]);
-                        if (ext == ".wav" || ext == ".mp3" || ext == ".flac" || ext == ".aiff")
-                        {
-                            continue;
-                        }
+                        entries.Add(drive.RootDirectory.FullName);
                     }
-                    entries.RemoveAt(i);
+                    entriesInDirectory = entries.ToArray();
+                    return;
                 }
+
+                // a drive is already chosen, use the regular Directory system
+                entries = Directory.GetFileSystemEntries(currentPath, "*", SearchOption.TopDirectoryOnly).ToList();
+                for (int i = entries.Count - 1; i >= 0; i--)
+                {
+                    if ((File.GetAttributes(entries[i]) & FileAttributes.Hidden) == FileAttributes.Hidden)
+                    {
+                        entries.RemoveAt(i);
+                        continue;
+                    }
+                    if (Directory.Exists(entries[i]))
+                    {
+                        continue;
+                    }
+                    else
+                    {
+                        if (File.Exists(entries[i]))
+                        {
+                            string ext = Path.GetExtension(entries[i]);
+                            if (ext == ".wav" || ext == ".mp3" || ext == ".flac" || ext == ".aiff")
+                            {
+                                continue;
+                            }
+                        }
+                        entries.RemoveAt(i);
+                    }
+                }
+                if (sortName.Value)
+                    entries.Sort();
+                if (sortType.Value)
+                    entries.Sort((a, b) => sortByType(a, b));
+                entriesInDirectory = entries.ToArray();
             }
-            if (sortName.Value)
-                entries.Sort();
-            if (sortType.Value)
-                entries.Sort((a, b) => sortByType(a, b));
-            entriesInDirectory = entries.ToArray();
         }
 
 
@@ -268,6 +280,7 @@ namespace WaveTracker.Rendering
         {
             previewOut.Stop();
             launched = launch;
+            selectedFileIndex = -1;
             scrollbar.scrollValue = 0;
             enabled = true;
             Input.focus = this;
@@ -280,6 +293,8 @@ namespace WaveTracker.Rendering
             if (File.Exists(selectedFilePath))
                 launched.LoadSampleFromFile(selectedFilePath);
             launched.startcooldown = 14;
+            Preferences.profile.lastBrowseDirectory = currentPath;
+            Preferences.SaveToFile();
             previewOut.Stop();
         }
 

@@ -349,7 +349,7 @@ namespace WaveTracker.Tracker
 
         static void Restore()
         {
-            if (Preferences.restoreChannelState)
+            if (Preferences.profile.restoreChannelState)
             {
                 RestoreUntil(playbackFrame, playbackRow);
             }

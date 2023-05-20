@@ -8,7 +8,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using WaveTracker.UI;
 using System.Windows.Forms;
-
+using Microsoft.Xna.Framework.Audio;
 
 namespace WaveTracker.Rendering
 {
@@ -18,8 +18,7 @@ namespace WaveTracker.Rendering
         bool dialogOpen;
         Textbox title, author, copyright, speed, rows;
         SpriteButton editButton;
-        float[,] linearRMS = new float[2, 10];
-        int RMScounter;
+        float ampLeft, ampRight;
         int ampL, ampR;
         public void Initialize(Texture2D editButtonsource)
         {
@@ -40,7 +39,7 @@ namespace WaveTracker.Rendering
             InitializePanel("Song", 2, 18, 306, 84);
         }
 
-        public void Update()
+        public void Update(float deltaTime)
         {
 
             title.Text = Game1.currentSong.name;
@@ -60,6 +59,21 @@ namespace WaveTracker.Rendering
             {
                 dialogOpen = false;
             }
+            float decay = 5;
+            switch (Preferences.profile.meterDecaySpeed)
+            {
+                case 0:
+                    decay = 1;
+                    break;
+                case 1:
+                    decay = 3;
+                    break;
+                case 2:
+                    decay = 9;
+                    break;
+            }
+            ampLeft *= 1 - decay / 10f;
+            ampRight *= 1 - decay / 10f;
         }
         public void Draw()
         {
@@ -74,16 +88,17 @@ namespace WaveTracker.Rendering
             {
                 if (Audio.AudioEngine.currentBuffer.Length > 0)
                 {
-                    if (Preferences.oscilloscopeMode == 1)
+                    if (Preferences.profile.oscilloscopeMode == 0)
                         DrawMonoOscilloscope(166, 44, 135, 35, new Color(56, 64, 102));
-                    if (Preferences.oscilloscopeMode == 2)
+                    if (Preferences.profile.oscilloscopeMode == 1)
                         DrawStereoOscilloscope(166, 44, 135, 35, new Color(56, 64, 102));
-                    if (Preferences.oscilloscopeMode == 3)
+                    if (Preferences.profile.oscilloscopeMode == 2)
                         DrawOverlappedOscilloscope(166, 44, 135, 35, new Color(56, 64, 102));
                     DrawVolumeMeters(16, 70, 143, 4);
                 }
             }
         }
+
 
         public void DrawVolumeMeters(int px, int py, int width, int height)
         {
@@ -99,52 +114,32 @@ namespace WaveTracker.Rendering
             DrawRect(px - 5, py + height + 4, 1, 1, grey);
             #endregion
 
-            float[,] samples = Audio.AudioEngine.currentBuffer;
-            float avgL = 0;
-            float avgR = 0;
-
-            for (int i = 0; i < Audio.AudioEngine.SamplesPerBuffer; i++)
+            for (int i = 0; i < Audio.AudioEngine.currentBuffer.GetLength(1); i++)
             {
-                avgL += Math.Abs(samples[0, i]) * 2;
-                avgR += Math.Abs(samples[1, i]) * 2;
+                float l = Math.Abs(Audio.AudioEngine.currentBuffer[0, i]);
+                float r = Math.Abs(Audio.AudioEngine.currentBuffer[0, i]);
+                if (l > ampLeft)
+                    ampLeft = l;
+                if (r > ampRight)
+                    ampRight = r;
             }
-            avgL /= Audio.AudioEngine.SamplesPerBuffer;
-            avgR /= Audio.AudioEngine.SamplesPerBuffer;
-            RMScounter++;
-            if (RMScounter >= linearRMS.GetLength(1))
-                RMScounter = 0;
-            linearRMS[0, RMScounter] = avgL;
-            linearRMS[1, RMScounter] = avgR;
-            avgL = 0;
-            avgR = 0;
-            for (int i = 0; i < linearRMS.GetLength(1); i++)
-            {
-                avgL += linearRMS[0, i];
-                avgR += linearRMS[1, i];
-            }
-
-            avgL /= linearRMS.GetLength(1);
-            avgR /= linearRMS.GetLength(1);
-            float linearRMSL = (float)Math.Sqrt(avgL);
-            float linearRMSR = (float)Math.Sqrt(avgR);
-
-            int ampLeft = (int)(Math.Clamp(linearRMSL, 0, 1) * width);
-            int ampRight = (int)(Math.Clamp(linearRMSR, 0, 1) * width);
-            ampL = ampLeft;
-            ampR = ampRight;
-
+            double dbL = 20 * Math.Log10(ampLeft);
+            double dbR = 20 * Math.Log10(ampRight);
+            ampL = (int)Helpers.MapClamped((float)dbL, -60, 0, 0, width);
+            ampR = (int)Helpers.MapClamped((float)dbR, -60, 0, 0, width);
 
             Color shadow = new Color(126, 133, 168);
             Color bar = new Color(0, 219, 39);
 
             DrawRect(px, py, width, height, grey);
             DrawRect(px, py, width, 1, shadow);
-            DrawRect(px, py + 1, ampL, height - 1, linearRMSL > 1 ? Color.Red : bar);
+            DrawRect(px, py + 1, ampL, height - 1, ampLeft >= 1 ? Color.Red : bar);
 
             DrawRect(px, py + height + 1, width, height, grey);
             DrawRect(px, py + height + 1, width, 1, shadow);
-            DrawRect(px, py + height + 2, ampR, height - 1, linearRMSR > 1 ? Color.Red : bar);
+            DrawRect(px, py + height + 2, ampR, height - 1, ampRight >= 1 ? Color.Red : bar);
 
+            // draw channel squares
             for (int i = 0; i < Tracker.Song.CHANNEL_COUNT; i++)
             {
                 DrawRect(px + i * 6, py - 9, 5, 5, Helpers.LerpColor(grey, bar, Math.Clamp(Audio.ChannelManager.instance.channels[i].CurrentAmplitude, 0, 1)));

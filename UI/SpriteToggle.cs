@@ -83,22 +83,5 @@ namespace WaveTracker.UI
             }
 
         }
-
-        public void DrawTabToggle()
-        {
-            if (source == null) return;
-
-            if (enabled)
-            {
-                if (Value)
-                {
-                    DrawSprite(source, 0, 0, GetBounds(3));
-                }
-                else
-                {
-                    DrawSprite(source, 0, 0, GetBounds(4));
-                }
-            }
-        }
     }
 }

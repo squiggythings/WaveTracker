@@ -44,6 +44,32 @@ namespace WaveTracker.UI
         {
             Graphics.Write(text, this.x + x + offX, this.y + y + offY, color);
         }
+
+        protected void WriteMultiline(string text, int x, int y, int width, Color color)
+        {
+            string str = "";
+            string[] words = text.Split(' ');
+            int w = 0;
+            foreach (string word in words)
+            {
+                w += Helpers.getWidthOfText(word + " ");
+                if (w > width)
+                {
+                    str += "\n" + word + " ";
+                    w = Helpers.getWidthOfText(word + " ");
+                }
+                else
+                {
+                    str += word + " ";
+                }
+            }
+            string[] lines = str.Split('\n');
+            foreach (string line in lines)
+            {
+                Write(line, x, y, color);
+                y += 10;
+            }
+        }
         protected void WriteTwiceAsBig(string text, int x, int y, Color c)
         {
             Graphics.WriteTwiceAsBig(text, this.x + x + offX, this.y + y + offY, c);

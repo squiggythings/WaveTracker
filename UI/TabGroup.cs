@@ -70,7 +70,7 @@ namespace WaveTracker.UI
     {
         public bool hasToggle;
         public string label;
-        public SpriteToggle toggle;
+        public Checkbox toggle;
 
         public Tab(string label, int x, int y, bool hasToggle, Element parent)
         {
@@ -79,7 +79,7 @@ namespace WaveTracker.UI
             this.x = x;
             this.y = y;
             this.hasToggle = hasToggle;
-            toggle = new SpriteToggle(2, 2, 9, 9, Rendering.InstrumentEditor.tex, 0, this);
+            toggle = new Checkbox(2, 0, this);
             this.label = label;
             SetParent(parent);
         }
@@ -121,7 +121,7 @@ namespace WaveTracker.UI
                 }
                 else
                 {
-                    toggle.DrawTabToggle();
+                    toggle.DrawAsTabToggle();
                 }
                 Write(label, 14, y, Helpers.Alpha(new Color(20, 24, 46), toggle.Value ? 255 : 80));
             }
