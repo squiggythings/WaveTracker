@@ -490,7 +490,7 @@ namespace WaveTracker.Rendering
             macro.sample.SetDetune(0);
             macro.sample.sampleLoopIndex = 0;
             macro.sample.sampleLoopType = macro.sample.sampleDataAccessL.Length < 1000 ? SampleLoopType.Forward : SampleLoopType.OneShot;
-            macro.sample.resampleMode = ResamplingModes.Linear;
+            macro.sample.resampleMode = (Audio.ResamplingModes)Preferences.profile.defaultResampleSample;
             if (successfulReadWAV)
             {
                 if (Preferences.profile.automaticallyTrimSamples)
@@ -498,7 +498,7 @@ namespace WaveTracker.Rendering
                 if (Preferences.profile.automaticallyNormalizeSamples)
                     macro.sample.Normalize();
 
-                macro.sample.resampleMode = ResamplingModes.Linear;
+                macro.sample.resampleMode = (Audio.ResamplingModes)Preferences.profile.defaultResampleSample;
             }
             else
             {

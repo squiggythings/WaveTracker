@@ -331,7 +331,7 @@ namespace WaveTracker
                 }
                 catch
                 {
-                    visualization.DrawPiano(visualization.statesPrev);
+                    //visualization.DrawPiano(visualization.statesPrev);
                 }
                 visualization.DrawOscilloscopes();
             }

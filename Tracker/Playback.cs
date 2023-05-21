@@ -10,6 +10,7 @@ using WaveTracker.UI;
 using WaveTracker.Tracker;
 using WaveTracker.Audio;
 using System.Diagnostics;
+using System.Threading;
 
 namespace WaveTracker.Tracker
 {
@@ -76,7 +77,9 @@ namespace WaveTracker.Tracker
 
         public static void Play()
         {
+            Stop();
             isPlaying = true;
+            tickCounter = 0;
             channelManager.Reset();
             playbackFrame = FrameEditor.currentFrame;
             playbackRow = 0;
@@ -88,13 +91,15 @@ namespace WaveTracker.Tracker
             }
             Restore();
             channelManager.ResetTicks(0);
+            PlayRow();
         }
 
         public static void PlayFromCursor()
         {
+            Stop();
             isPlaying = true;
             channelManager.Reset();
-
+            tickCounter = 0;
             playbackFrame = FrameEditor.currentFrame;
             playbackRow = FrameEditor.currentRow;
             Rendering.Visualization.GetWaveColors();
@@ -105,6 +110,7 @@ namespace WaveTracker.Tracker
             }
             Restore();
             channelManager.ResetTicks(0);
+            PlayRow();
         }
 
         public static void ResetPlayhead()
@@ -114,6 +120,8 @@ namespace WaveTracker.Tracker
 
         public static void PlayFromBeginning()
         {
+            Stop();
+            tickCounter = 0;
             isPlaying = true;
             channelManager.Reset();
             playbackFrame = 0;
@@ -126,6 +134,7 @@ namespace WaveTracker.Tracker
             }
             Restore();
             channelManager.ResetTicks(0);
+            PlayRow();
         }
 
         public static void Stop()

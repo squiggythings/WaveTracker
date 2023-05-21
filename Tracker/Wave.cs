@@ -34,7 +34,7 @@ namespace WaveTracker.Tracker
 
         public Wave(string initialWaveString)
         {
-            this.resamplingMode = ResamplingModes.Mix;
+            this.resamplingMode = (ResamplingModes)Preferences.profile.defaultResampleWave;
             SetWaveformFromString(initialWaveString);
         }
         public Wave(string initialWaveString, ResamplingModes resampling)

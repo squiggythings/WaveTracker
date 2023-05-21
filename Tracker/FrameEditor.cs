@@ -146,7 +146,7 @@ namespace WaveTracker
                     {
                         if (!isDragging && mouseInBounds(mrow, mcolumn - channelScroll * 8))
                         {
-                            if (!playback)
+                            if (!playback || !followMode)
                                 cursorRow = mrow;
                             cursorColumn = mcolumn;
                         }
@@ -386,10 +386,14 @@ namespace WaveTracker
                             break;
                     }
                 }
-                // deleting
-                if (Input.GetKeyRepeat(Keys.Delete, KeyModifier.None) || Input.GetKeyDown(Keys.X, KeyModifier.Ctrl))
+                // cut/deleting
+                if (Input.GetKeyDown(Keys.X, KeyModifier.Ctrl))
                 {
                     Cut();
+                }
+                if (Input.GetKeyRepeat(Keys.Delete, KeyModifier.None))
+                {
+                    Delete();
                 }
                 #endregion
 
@@ -685,8 +689,7 @@ namespace WaveTracker
             history[historyIndex].positionAfter.Load(true);
             thisSong.frameEdits++;
         }
-
-        public static void Cut()
+        public static void Delete()
         {
             if (canEdit)
             {
@@ -704,6 +707,14 @@ namespace WaveTracker
                     }
                 }
                 AddToHistory();
+            }
+        }
+        public static void Cut()
+        {
+            if (selectionActive)
+            {
+                CopyToClipboard();
+                Delete();
             }
         }
         public static void CopyToClipboard()

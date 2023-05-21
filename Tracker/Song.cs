@@ -174,7 +174,7 @@ namespace WaveTracker.Tracker
 
         }
 
-        public bool checkTickString(string st)
+        bool checkTickString(string st)
         {
             foreach (char c in st)
             {
