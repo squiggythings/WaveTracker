@@ -176,11 +176,11 @@ namespace WaveTracker
 
         public static float Mod(float a, float b)
         {
-            while (a <= 0)
-            {
-                a += b;
-            }
-            return (a + b) % b;
+            return (a - b * MathF.Floor(a / b));
+        }
+        public static double Mod(double a, double b)
+        {
+            return (a - b * Math.Floor(a / b));
         }
 
         public static double PowerA(double a, double b)

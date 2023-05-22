@@ -1,5 +1,6 @@
 ﻿TODO:
 * Add export to wav
+* Custom song settings dialog
 
 
 

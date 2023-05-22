@@ -254,7 +254,7 @@ namespace WaveTracker.Tracker
                         {
                             if (nextPlaybackFrame <= playbackFrame)
                             {
-                                loops++;
+                                //loops++;
                             }
                             playbackFrame = nextPlaybackFrame;
                             playbackRow = nextPlaybackRow;

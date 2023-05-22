@@ -666,12 +666,16 @@ namespace WaveTracker.Audio
             if (!toPlay.isActive)
                 return toPlay.defaultValue;
             if (toPlay.values.Count > 0)
-                step = Math.Clamp(step, 0, toPlay.values.Count - 1);
+            {
+                if (step > toPlay.values.Count) step = toPlay.values.Count - 1;
+                if (step < 0)
+                    step = 0;
+            }
             if (toPlay.values.Count <= 0 || step < 0)
                 return toPlay.defaultValue;
             try
             {
-                return toPlay.values[Math.Clamp(step, 0, toPlay.values.Count - 1)];
+                return toPlay.values[step];
             }
             catch
             {

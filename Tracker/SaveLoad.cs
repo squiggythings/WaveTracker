@@ -30,6 +30,7 @@ namespace WaveTracker
         public static string filePath = "";
 
         public static string fileName { get { if (filePath == "") return "Untitled.wtm"; return Path.GetFileName(filePath); } }
+        public static string fileNameWithoutExtension { get { if (filePath == "") return "Untitled"; return Path.GetFileNameWithoutExtension(filePath); } }
         public static int savecooldown = 0;
         public static bool thisSongExists()
         {
@@ -78,9 +79,10 @@ namespace WaveTracker
         {
             if (Input.internalDialogIsOpen)
                 return;
+            
             if (!isSaved)
             {
-                PromptUnsaved();
+                if (PromptUnsaved() == DialogResult.Cancel) return;
             }
             Playback.Stop();
             filePath = "";
@@ -98,7 +100,7 @@ namespace WaveTracker
                 return;
             // set filepath to dialogresult
             Playback.Stop();
-            if (SetFilePathThroughSaveAsDialog())
+            if (SetFilePathThroughSaveAsDialog(out filePath))
                 SaveTo(filePath);
         }
 
@@ -243,8 +245,9 @@ namespace WaveTracker
             }
         }
 
-        public static bool SetFilePathThroughSaveAsDialog()
+        public static bool SetFilePathThroughSaveAsDialog(out string filepath)
         {
+            string ret = "";
             bool didIt = false;
             if (Input.dialogOpenCooldown == 0)
             {
@@ -265,7 +268,7 @@ namespace WaveTracker
 
                     if (saveFileDialog.ShowDialog() == DialogResult.OK)
                     {
-                        filePath = saveFileDialog.FileName;
+                        ret = saveFileDialog.FileName;
                         didIt = true;
                     }
 
@@ -275,6 +278,43 @@ namespace WaveTracker
                 t.Start();
                 t.Join();
             }
+            filepath = ret;
+            return didIt;
+        }
+
+        public static bool ChooseExportPath(out string filepath)
+        {
+            string ret = "";
+            bool didIt = false;
+            if (Input.dialogOpenCooldown == 0)
+            {
+                Thread t = new Thread((ThreadStart)(() =>
+                {
+
+                    Input.DialogStarted();
+                    SaveFileDialog saveFileDialog = new SaveFileDialog();
+                    saveFileDialog.DefaultExt = "wav";
+                    saveFileDialog.OverwritePrompt = true;
+                    saveFileDialog.FileName = fileNameWithoutExtension;
+                    saveFileDialog.Title = "Export .wav";
+                    saveFileDialog.AddExtension = true;
+                    saveFileDialog.CheckPathExists = true;
+                    saveFileDialog.ValidateNames = true;
+
+
+                    if (saveFileDialog.ShowDialog() == DialogResult.OK)
+                    {
+                        ret = saveFileDialog.FileName;
+                        didIt = true;
+                    }
+
+                }));
+
+                t.SetApartmentState(ApartmentState.STA);
+                t.Start();
+                t.Join();
+            }
+            filepath = ret;
             return didIt;
         }
     }

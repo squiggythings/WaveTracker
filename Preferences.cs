@@ -118,7 +118,7 @@ volume              25%
         [XmlElement(ElementName = "oscMode")]
         public int oscilloscopeMode = 1; // 0 - mono; 1 - stereo split; 2 - stereo overlap
         [XmlElement(ElementName = "meterDecay")]
-        public int meterDecaySpeed = 0; // 0 - slow, 1 - medium, 2 - fast
+        public int meterDecaySpeed = 1; // 0 - slow, 1 - medium, 2 - fast
         [XmlElement(ElementName = "meterFlat")]
         public int meterColorMode = 1;
         [XmlElement(ElementName = "meterFlash")]

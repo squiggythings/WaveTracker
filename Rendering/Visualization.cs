@@ -387,7 +387,9 @@ namespace WaveTracker.Rendering
                     for (int i = -w / 2; i < w / 2 - 1; ++i)
                     {
                         lastSamp = samp1;
-                        samp1 = -wv.getSampleAtPosition(i / (float)w * ch.CurrentFrequency / scopezoom) * (h / 2f) * ch.CurrentAmplitude + (h / 2f);
+                        float index = (i / (float)w * ch.CurrentFrequency / scopezoom);
+                        
+                        samp1 = -wv.getSampleAtPosition(index) * (h / 2f) * ch.CurrentAmplitude + (h / 2f);
                         if (i > -w / 2)
                             DrawOscCol(px + i + w / 2, py - 2, samp1, lastSamp, Preferences.profile.visualizerScopeColors ? waveColors[ch.waveIndex] : Color.White, Preferences.profile.visualizerScopeThickness + 1);
                     }
