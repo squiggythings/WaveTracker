@@ -152,23 +152,33 @@ namespace WaveTracker.Rendering
             // draw channelheaders
             int id = 0;
             int tx = px + 22;
-            DrawRect(tx - 1, py, 1, numVisibleRows * 7 + 22, Colors.rowSeparatorColor);
+
+
+            // draw background
+            DrawRect(tx - 1, py, 841, numVisibleRows * 7 + 22, Colors.theme.background);
+
+            // draw first row separator
+            DrawRect(tx - 1, py, 1, numVisibleRows * 7 + 22, Colors.theme.rowSeparator);
             foreach (Channel ch in ChannelManager.instance.channels)
             {
                 DrawBubbleRect(tx, py, 34, 18, Color.White);
 
                 string str = "Ch " + (id + 1).ToString("D2");
-                Write(str, tx + 16 - Helpers.getWidthOfText(str) / 2, py + 3, Colors.rowSeparatorColor);
-                DrawRect(tx + 2, py + 12, 30, 3, new Color(223, 224, 232));
+                Write(str, tx + 16 - Helpers.getWidthOfText(str) / 2, py + 3, UIColors.label);
+                DrawRect(tx + 2, py + 12, 30, 3, UIColors.panel);
+
+                // draw volume amp
                 int amp = (int)Math.Round(frameRenderer.GetChannelHeaderAmp(id) * 15);
                 DrawRect(tx + 17 - amp, py + 12, amp * 2, 3, new Color(63, 215, 52));
-                // ch._sampleVolume = -1;
 
                 id++;
                 tx += 35;
-                DrawRect(tx - 1, py, 1, numVisibleRows * 7 + 22, Colors.rowSeparatorColor);
-            }
 
+                // draw row separator
+                DrawRect(tx - 1, py, 1, numVisibleRows * 7 + 22, Colors.theme.rowSeparator);
+            }
+            DrawBubbleRect(tx, py, 150, 18, Color.White);
+            //DrawRect(tx + 2, py + 12, 80, 3, UIColors.panel);
             px += 22;
             py += 18;
             for (int i = 0; i < numVisibleRows; ++i)
@@ -176,7 +186,7 @@ namespace WaveTracker.Rendering
                 int rowY = py + i * 7;
                 int thisRow = Playback.playbackRow + i - numVisibleRows / 2;
                 if (thisRow == Playback.playbackRow)
-                    DrawRect(px, rowY, 35 * Song.CHANNEL_COUNT, 7, new Color(70, 80, 125));
+                    DrawRect(px, rowY, 35 * Song.CHANNEL_COUNT, 7, Colors.theme.cursor);
 
                 if (thisRow >= 0 && thisRow <= Playback.frame.GetLastRow())
                     for (int channel = 0; channel < Song.CHANNEL_COUNT * 5; channel += 5)
@@ -222,7 +232,7 @@ namespace WaveTracker.Rendering
         void WriteNote(int value, int x, int y, bool currRow)
         {
             int alpha = currRow ? 255 : 120;
-            Color c = Helpers.Alpha(Colors.rowText, alpha);
+            Color c = Helpers.Alpha(Colors.theme.patternText, alpha);
             if (value == -2) // off
             {
                 if (Preferences.profile.showNoteCutAndReleaseAsText)
@@ -244,7 +254,7 @@ namespace WaveTracker.Rendering
             }
             else if (value < 0) // empty
             {
-                WriteMonospaced("···", x + 1, y, currRow ? currRowEmptyText : Colors.rowTextEmpty, 4);
+                WriteMonospaced("···", x + 1, y, currRow ? currRowEmptyText : Helpers.Alpha(Colors.theme.patternText, Colors.theme.patternEmptyTextAlpha), 4);
             }
             else
             {
@@ -267,16 +277,16 @@ namespace WaveTracker.Rendering
             int alpha = currRow ? 255 : 120;
             if (value < 0)
             {
-                WriteMonospaced("··", x + 1, y, currRow ? currRowEmptyText : Colors.rowTextEmpty, 4);
+                WriteMonospaced("··", x + 1, y, currRow ? currRowEmptyText : Helpers.Alpha(Colors.theme.patternText, Colors.theme.patternEmptyTextAlpha), 4);
             }
             else
             {
                 if (value >= InstrumentBank.song.instruments.Count)
                     WriteMonospaced(value.ToString("D2"), x, y, Helpers.Alpha(Color.Red, alpha), 4);
                 else if (InstrumentBank.song.instruments[value].macroType == MacroType.Sample)
-                    WriteMonospaced(value.ToString("D2"), x, y, Helpers.Alpha(Colors.instrumentSampleColumnText, alpha), 4);
+                    WriteMonospaced(value.ToString("D2"), x, y, Helpers.Alpha(Colors.theme.instrumentColumnSample, alpha), 4);
                 else
-                    WriteMonospaced(value.ToString("D2"), x, y, Helpers.Alpha(Colors.instrumentColumnText, alpha), 4);
+                    WriteMonospaced(value.ToString("D2"), x, y, Helpers.Alpha(Colors.theme.instrumentColumnWave, alpha), 4);
 
             }
         }
@@ -285,13 +295,13 @@ namespace WaveTracker.Rendering
         {
             if (value < 0)
             {
-                WriteMonospaced("··", x + 1, y, currRow ? currRowEmptyText : Colors.rowTextEmpty, 4);
+                WriteMonospaced("··", x + 1, y, currRow ? currRowEmptyText : Helpers.Alpha(Colors.theme.patternText, Colors.theme.patternEmptyTextAlpha), 4);
             }
             else
             {
                 int alpha = currRow ? 255 : 100;
 
-                WriteMonospaced(value.ToString("D2"), x, y, Helpers.Alpha(Colors.volumeColumnText, alpha), 4);
+                WriteMonospaced(value.ToString("D2"), x, y, Helpers.Alpha(Colors.theme.volumeColumn, alpha), 4);
             }
         }
 
@@ -301,23 +311,23 @@ namespace WaveTracker.Rendering
 
             if (value < 0)
             {
-                Write("·", x + 1, y, currRow ? currRowEmptyText : Colors.rowTextEmpty);
+                Write("·", x + 1, y, currRow ? currRowEmptyText : Helpers.Alpha(Colors.theme.patternText, Colors.theme.patternEmptyTextAlpha));
             }
             else
             {
-                Write(Helpers.GetEffectCharacter(value), x, y, Helpers.Alpha(Colors.effectColumnText, alpha));
+                Write(Helpers.GetEffectCharacter(value), x, y, Helpers.Alpha(Colors.theme.effectColumn, alpha));
             }
 
             if (param < 0)
             {
-                WriteMonospaced("··", x + 1 + 5, y, currRow ? currRowEmptyText : Colors.rowTextEmpty, 4);
+                WriteMonospaced("··", x + 1 + 5, y, currRow ? currRowEmptyText : Helpers.Alpha(Colors.theme.patternText, Colors.theme.patternEmptyTextAlpha), 4);
             }
             else
             {
                 if (Helpers.isEffectHexadecimal(value))
-                    WriteMonospaced(param.ToString("X2"), x + 5, y, Helpers.Alpha(Colors.effectColumnParameterText, alpha), 4);
+                    WriteMonospaced(param.ToString("X2"), x + 5, y, Helpers.Alpha(Colors.theme.effectColumnParameter, alpha), 4);
                 else
-                    WriteMonospaced(param.ToString("D2"), x + 5, y, Helpers.Alpha(Colors.effectColumnParameterText, alpha), 4);
+                    WriteMonospaced(param.ToString("D2"), x + 5, y, Helpers.Alpha(Colors.theme.effectColumnParameter, alpha), 4);
             }
         }
 
@@ -372,7 +382,7 @@ namespace WaveTracker.Rendering
             DrawRect(px, py, w, h, new Color(20, 24, 46));
             DrawRect(px, py + h / 2, w, 1, crossColor);
             DrawRect(px + w / 2, py, 1, h, crossColor);
-            WriteTwiceAsBig("" + channelNum, px + 2, py - 4, Colors.cursorColor);
+            WriteTwiceAsBig("" + channelNum, px + 2, py - 4, Colors.theme.cursor);
 
             Channel ch = ChannelManager.instance.channels[channelNum - 1];
             float samp1 = 0;
@@ -388,7 +398,7 @@ namespace WaveTracker.Rendering
                     {
                         lastSamp = samp1;
                         float index = (i / (float)w * ch.CurrentFrequency / scopezoom);
-                        
+
                         samp1 = -wv.getSampleAtPosition(index) * (h / 2f) * ch.CurrentAmplitude + (h / 2f);
                         if (i > -w / 2)
                             DrawOscCol(px + i + w / 2, py - 2, samp1, lastSamp, Preferences.profile.visualizerScopeColors ? waveColors[ch.waveIndex] : Color.White, Preferences.profile.visualizerScopeThickness + 1);

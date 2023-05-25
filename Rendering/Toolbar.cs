@@ -113,16 +113,16 @@ namespace WaveTracker.Rendering
 
         public void Update()
         {
-            file_export.enabled = true;
+            file_export.enabled = !Game1.VisualizerMode;
             playback_record.enabled = !Game1.VisualizerMode;
             edit_copy.enabled = FrameEditor.selectionActive && !Game1.VisualizerMode;
             edit_cut.enabled = FrameEditor.selectionActive && !Game1.VisualizerMode;
             edit_paste.enabled = FrameEditor.clipboard.Count > 0 && !Game1.VisualizerMode;
             edit_redo.enabled = FrameEditor.historyIndex < FrameEditor.history.Count - 1 && !Game1.VisualizerMode;
             edit_undo.enabled = FrameEditor.historyIndex > 0 && !Game1.VisualizerMode;
+            frame_next.enabled = !Game1.VisualizerMode;
+            frame_prev.enabled = !Game1.VisualizerMode;
 
-
-            
             if (Input.GetKeyDown(Keys.S, KeyModifier.Ctrl))
             {
                 SaveLoad.SaveFile();
@@ -135,7 +135,11 @@ namespace WaveTracker.Rendering
             if (file_open.Clicked) { SaveLoad.OpenFile(); }
             if (file_save.Clicked) { SaveLoad.SaveFile(); }
             if (file_saveAs.Clicked) { SaveLoad.SaveFileAs(); }
-            if (file_export.Clicked) { Audio.AudioEngine.instance.RenderTo("", 3, false); }
+            if (file_export.Clicked)
+            {
+                Input.CancelClick();
+                Audio.AudioEngine.instance.RenderTo("", 3, false);
+            }
 
 
 

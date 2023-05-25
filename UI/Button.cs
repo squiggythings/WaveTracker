@@ -13,7 +13,7 @@ namespace WaveTracker.UI
         string label;
         public bool centerLabel = true;
         ButtonColors colors;
-        readonly int labelWidth;
+        int labelWidth;
         ButtonType type;
 
         public Button(string label, int x, int y, Element parent)
@@ -32,6 +32,11 @@ namespace WaveTracker.UI
             SetParent(parent);
         }
 
+        public void SetLabel(string label)
+        {
+            this.label = label;
+            labelWidth = Helpers.getWidthOfText(label);
+        }
         Color getBackgroundColor()
         {
             if (IsPressed)

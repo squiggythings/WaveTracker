@@ -13,6 +13,7 @@ using NAudio.CoreAudioApi;
 using System.Runtime.InteropServices;
 using System.Security.Principal;
 using WaveTracker.UI;
+using WaveTracker.Rendering;
 
 namespace WaveTracker
 {
@@ -54,10 +55,10 @@ namespace WaveTracker
         {
             if (args.Length > 0)
                 filename = args[0];
+            DisplayMode displayMode = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode;
             graphics = new GraphicsDeviceManager(this);
-            graphics.PreferredBackBufferWidth = ScreenWidth * ScreenScale;  // set this value to the desired width of your window
-            graphics.PreferredBackBufferHeight = ScreenHeight * ScreenScale;   // set this value to the desired height of your window
-
+            graphics.PreferredBackBufferWidth = 1920;  // set this value to the desired width of your window
+            graphics.PreferredBackBufferHeight = 1080 - 72;   // set this value to the desired height of your window
             graphics.ApplyChanges();
             Window.Position = new Point(-8, 0);
             Window.AllowUserResizing = true;
@@ -69,6 +70,8 @@ namespace WaveTracker
             frameRenderer = new Rendering.FrameRenderer();
             frameView = new Rendering.FrameView();
             songSettings = new Rendering.SongSettings();
+            var form = (System.Windows.Forms.Form)System.Windows.Forms.Form.FromHandle(Window.Handle);
+            form.WindowState = System.Windows.Forms.FormWindowState.Maximized;
 
         }
 
@@ -173,8 +176,7 @@ namespace WaveTracker
             }
             if (!VisualizerMode)
             {
-                if (!Input.internalDialogIsOpen)
-                    waveBank.Update();
+                waveBank.Update();
                 instrumentBank.Update();
             }
             if (Input.focus == null || Input.focus == waveBank.editor || Input.focus == instrumentBank.editor)
@@ -235,6 +237,7 @@ namespace WaveTracker
             {
                 frameRenderer.UpdateChannelHeaders();
             }
+            audioEngine.exportingDialog.Update();
             Preferences.dialog.Update();
             toolbar.Update();
             base.Update(gameTime);
@@ -250,7 +253,7 @@ namespace WaveTracker
             GraphicsDevice.SetRenderTarget(target);
 
 
-            GraphicsDevice.Clear(new Color(20, 24, 46));
+            GraphicsDevice.Clear(UIColors.black);
 
             // TODO: Add your drawing code here
             targetBatch.Begin(SpriteSortMode.Deferred, new BlendState
@@ -300,6 +303,8 @@ namespace WaveTracker
                 Rendering.Graphics.DrawRect(0, FrameEditor.channelScrollbar.y, FrameEditor.channelScrollbar.x, FrameEditor.channelScrollbar.height, new Color(223, 224, 232));
                 waveBank.editor.Draw();
                 instrumentBank.editor.Draw();
+                audioEngine.exportingDialog.Draw();
+
             }
             Tooltip.Draw();
             //int y = 10;

@@ -136,8 +136,8 @@ namespace WaveTracker.UI
 
 
 
-        bool barisHovered => bar.Contains(MouseX, MouseY);
-        public bool barisPressed => Input.GetClick(KeyModifier._Any) && lastClickWasOnScrollbar;
+        bool barisHovered => inFocus && bar.Contains(MouseX, MouseY);
+        public bool barisPressed => inFocus && Input.GetClick(KeyModifier._Any) && lastClickWasOnScrollbar;
 
         Point lastClickPosition
         {

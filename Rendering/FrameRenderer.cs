@@ -67,8 +67,9 @@ namespace WaveTracker.Rendering
             return headers[id + 1].amplitude / 50f;
         }
 
-        public void DrawFrame(Tracker.Frame frame, int cursorRow, int cursorColumn)
+        public void DrawFrame(Frame frame, int cursorRow, int cursorColumn)
         {
+            DrawRect(0, 0, 790, 500, Colors.theme.background);
             int rowsNUM = frame.GetLastRow() + 1;
 
             this.cursorRow = cursorRow;
@@ -100,40 +101,42 @@ namespace WaveTracker.Rendering
                 }
             }
 
+            DrawRect(0, 0, 790, 5, Colors.theme.rowSeparator);
             for (int i = 0; i < 12; ++i)
             {
-                DrawRect(i * 64 + 21, 0, 1, 389 + 90, Colors.rowSeparatorColor);
+                DrawRect(i * 64 + 21, 0, 1, 389 + 90, Colors.theme.rowSeparator);
 
                 headers[i + FrameEditor.channelScroll + 1].Draw();
             }
+            DrawRect(0, 32, 790, 1, Colors.theme.rowSeparator);
             headers[0].Draw();
         }
 
         void DrawRow(int rowNum, short[] rowContent, int y)
         {
             #region getRowColor
-            Color rowTextColor = Colors.rowText;
-            Color rowColor = Colors.rowDefaultColor;
+            Color rowTextColor = Colors.theme.patternText;
+            Color rowColor = Colors.theme.background;
 
             if (rowNum % Game1.currentSong.rowHighlight1 == 0)
             {
-                rowTextColor = Colors.rowTextHighlighted;
-                rowColor = Colors.rowHighlightColor;
+                rowTextColor = Colors.theme.patternTextHighlighted;
+                rowColor = Colors.theme.backgroundHighlighted;
             }
             else if (rowNum % Game1.currentSong.rowHighlight2 == 0)
             {
-                rowTextColor = Colors.rowTextSubHighlighted;
-                rowColor = Colors.rowSubHighlightColor;
+                rowTextColor = Colors.theme.patternTextSubHighlight;
+                rowColor = Colors.theme.backgroundSubHighlight;
             }
             if (Playback.isPlaying && Playback.playbackFrame == FrameEditor.currentFrame && Playback.playbackRow == rowNum)
             {
-                rowColor = Colors.rowPlaybackColor;
+                rowColor = Colors.theme.rowPlaybackColor;
             }
             if (rowNum == cursorRow)
                 if (FrameEditor.canEdit)
-                    rowColor = Colors.currentRowEditColor;
+                    rowColor = Colors.theme.rowEditColor;
                 else
-                    rowColor = Colors.currentRowDefaultColor;
+                    rowColor = Colors.theme.rowCurrentColor;
             #endregion
 
             if (Preferences.profile.showRowNumbersInHex)
@@ -148,15 +151,15 @@ namespace WaveTracker.Rendering
         void DrawRowText(int rowNum, short[] rowContent, int y)
         {
             #region getRowColor
-            Color rowTextColor = Colors.rowText;
+            Color rowTextColor = Colors.theme.patternText;
 
             if (rowNum % Game1.currentSong.rowHighlight1 == 0)
             {
-                rowTextColor = Colors.rowTextHighlighted;
+                rowTextColor = Colors.theme.patternTextHighlighted;
             }
             else if (rowNum % Game1.currentSong.rowHighlight2 == 0)
             {
-                rowTextColor = Colors.rowTextSubHighlighted;
+                rowTextColor = Colors.theme.patternTextSubHighlight;
             }
 
             #endregion
@@ -170,13 +173,13 @@ namespace WaveTracker.Rendering
             {
                 WriteNote(rowContent[i + FrameEditor.channelScroll * 5], x, y, rowTextColor, isCurrRow);
                 x += 19;
-                WriteInstrument(rowContent[i + FrameEditor.channelScroll * 5 + 1], x, y, isCurrRow);
+                WriteInstrument(rowContent[i + FrameEditor.channelScroll * 5 + 1], x, y, isCurrRow, rowTextColor);
                 x += 13;
-                WriteVolume(rowContent[i + FrameEditor.channelScroll * 5 + 2], x, y, isCurrRow, FrameEditor.currentColumn == i + FrameEditor.channelScroll * 5 + 2);
+                WriteVolume(rowContent[i + FrameEditor.channelScroll * 5 + 2], x, y, isCurrRow, FrameEditor.currentColumn == i + FrameEditor.channelScroll * 5 + 2, rowTextColor);
                 x += 13;
-                WriteEffect(rowContent[i + FrameEditor.channelScroll * 5 + 3], x, y, isCurrRow);
+                WriteEffect(rowContent[i + FrameEditor.channelScroll * 5 + 3], x, y, isCurrRow, rowTextColor);
                 x += 5;
-                WriteEffectParameter(rowContent[i + FrameEditor.channelScroll * 5 + 4], x, y, isCurrRow, rowContent[i + FrameEditor.channelScroll * 5 + 3]);
+                WriteEffectParameter(rowContent[i + FrameEditor.channelScroll * 5 + 4], x, y, isCurrRow, rowContent[i + FrameEditor.channelScroll * 5 + 3], rowTextColor);
                 x += 14;
             }
             if (isCurrRow && rowContent[FrameEditor.currentColumn] == -1)
@@ -209,8 +212,8 @@ namespace WaveTracker.Rendering
                 px += 5;
             if (rowSegment > 6)
                 px += 5;
-            DrawRect(px, py, width - 2, 7, Colors.cursorColor);
-            //DrawRoundedRect(px - 1, py - 1, width, 9, Colors.cursorColor);
+            DrawRect(px, py, width - 2, 7, Colors.theme.cursor);
+            //DrawRoundedRect(px - 1, py - 1, width, 9, Colors.theme.cursorColor);
         }
 
         void DrawSelection()
@@ -247,116 +250,116 @@ namespace WaveTracker.Rendering
             if (height < 0)
                 height = 0;
 
-            DrawRect(startX + 22, startY - y, width, height, Colors.selection);
+            DrawRect(startX + 22, startY - y, width, height, Colors.theme.selection);
 
         }
 
-        void WriteNote(int value, int x, int y, Color c, bool currRow)
+        void WriteNote(int value, int x, int y, Color rowText, bool currRow)
         {
 
             if (value == -2) // off
             {
                 if (Preferences.profile.showNoteCutAndReleaseAsText)
-                    Write("OFF", x, y, c);
+                    Write("OFF", x, y, rowText);
                 else
                 {
-                    DrawRect(x + 1, y + 2, 13, 2, c);
+                    DrawRect(x + 1, y + 2, 13, 2, rowText);
                 }
             }
             else if (value == -3) // release 
             {
                 if (Preferences.profile.showNoteCutAndReleaseAsText)
-                    Write("REL", x, y, c);
+                    Write("REL", x, y, rowText);
                 else
                 {
-                    DrawRect(x + 1, y + 2, 13, 1, c);
-                    DrawRect(x + 1, y + 4, 13, 1, c);
+                    DrawRect(x + 1, y + 2, 13, 1, rowText);
+                    DrawRect(x + 1, y + 4, 13, 1, rowText);
                 }
             }
             else if (value < 0) // empty
             {
                 if (FrameEditor.canEdit)
-                    WriteMonospaced("···", x + 1, y, currRow ? Colors.currentRowEditEmptyText : Colors.rowTextEmpty, 4);
+                    WriteMonospaced("···", x + 1, y, currRow ? Colors.theme.rowEditText : Helpers.Alpha(rowText, Colors.theme.patternEmptyTextAlpha), 4);
                 else
-                    WriteMonospaced("···", x + 1, y, currRow ? Colors.currentRowDefaultEmptyText : Colors.rowTextEmpty, 4);
+                    WriteMonospaced("···", x + 1, y, currRow ? Colors.theme.rowCurrentText : Helpers.Alpha(rowText, Colors.theme.patternEmptyTextAlpha), 4);
             }
             else
             {
                 string val = Helpers.GetNoteName(value);
                 if (val.Contains('#'))
                 {
-                    Write(val, x, y, c);
+                    Write(val, x, y, rowText);
                 }
                 else
                 {
-                    WriteMonospaced(val[0] + "-", x, y, c, 5);
-                    Write(val[2] + "", x + 11, y, c);
+                    WriteMonospaced(val[0] + "-", x, y, rowText, 5);
+                    Write(val[2] + "", x + 11, y, rowText);
                 }
 
             }
         }
 
-        void WriteInstrument(int value, int x, int y, bool currRow)
+        void WriteInstrument(int value, int x, int y, bool currRow, Color rowText)
         {
             if (value < 0)
             {
                 if (FrameEditor.canEdit)
-                    WriteMonospaced("··", x + 1, y, currRow ? Colors.currentRowEditEmptyText : Colors.rowTextEmpty, 4);
+                    WriteMonospaced("··", x + 1, y, currRow ? Colors.theme.rowEditText : Helpers.Alpha(rowText, Colors.theme.patternEmptyTextAlpha), 4);
                 else
-                    WriteMonospaced("··", x + 1, y, currRow ? Colors.currentRowDefaultEmptyText : Colors.rowTextEmpty, 4);
+                    WriteMonospaced("··", x + 1, y, currRow ? Colors.theme.rowCurrentText : Helpers.Alpha(rowText, Colors.theme.patternEmptyTextAlpha), 4);
             }
             else
             {
                 if (value >= InstrumentBank.song.instruments.Count)
                     WriteMonospaced(value.ToString("D2"), x, y, Color.Red, 4);
                 else if (InstrumentBank.song.instruments[value].macroType == MacroType.Sample)
-                    WriteMonospaced(value.ToString("D2"), x, y, Colors.instrumentSampleColumnText, 4);
+                    WriteMonospaced(value.ToString("D2"), x, y, Colors.theme.instrumentColumnSample, 4);
                 else
-                    WriteMonospaced(value.ToString("D2"), x, y, Colors.instrumentColumnText, 4);
+                    WriteMonospaced(value.ToString("D2"), x, y, Colors.theme.instrumentColumnWave, 4);
 
             }
         }
 
-        void WriteVolume(int value, int x, int y, bool currRow, bool currColumn)
+        void WriteVolume(int value, int x, int y, bool currRow, bool currColumn, Color rowText)
         {
             if (value < 0)
             {
-                WriteMonospaced("··", x + 1, y, currRow ? (FrameEditor.canEdit ? Colors.currentRowEditEmptyText : Colors.currentRowDefaultEmptyText) : Colors.rowTextEmpty, 4);
+                WriteMonospaced("··", x + 1, y, currRow ? (FrameEditor.canEdit ? Colors.theme.rowEditText : Colors.theme.rowCurrentText) : Helpers.Alpha(rowText, Colors.theme.patternEmptyTextAlpha), 4);
             }
             else
             {
                 if (currRow && currColumn || !Preferences.profile.fadeVolumeColumn)
-                    WriteMonospaced(value.ToString("D2"), x, y, Colors.volumeColumnText, 4);
+                    WriteMonospaced(value.ToString("D2"), x, y, Colors.theme.volumeColumn, 4);
                 else
-                    WriteMonospaced(value.ToString("D2"), x, y, Helpers.Alpha(Colors.volumeColumnText, (int)(value / 100f * 180 + (255 - 180))), 4);
+                    WriteMonospaced(value.ToString("D2"), x, y, Helpers.Alpha(Colors.theme.volumeColumn, (int)(value / 100f * 180 + (255 - 180))), 4);
             }
         }
 
-        void WriteEffect(int value, int x, int y, bool currRow)
+        void WriteEffect(int value, int x, int y, bool currRow, Color rowText)
         {
             if (value < 0)
             {
-                Write("·", x + 1, y, currRow ? (FrameEditor.canEdit ? Colors.currentRowEditEmptyText : Colors.currentRowDefaultEmptyText) : Colors.rowTextEmpty);
+                Write("·", x + 1, y, currRow ? (FrameEditor.canEdit ? Colors.theme.rowEditText : Colors.theme.rowCurrentText) : Helpers.Alpha(rowText, Colors.theme.patternEmptyTextAlpha));
             }
             else
             {
-                Write(Helpers.GetEffectCharacter(value), x, y, Colors.effectColumnText);
+                Write(Helpers.GetEffectCharacter(value), x, y, Colors.theme.effectColumn);
             }
         }
 
-        void WriteEffectParameter(int value, int x, int y, bool currRow, int effectNum)
+        void WriteEffectParameter(int value, int x, int y, bool currRow, int effectNum, Color rowText)
         {
 
             if (value < 0)
             {
-                WriteMonospaced("··", x + 1, y, currRow ? (FrameEditor.canEdit ? Colors.currentRowEditEmptyText : Colors.currentRowDefaultEmptyText) : Colors.rowTextEmpty, 4);
+                WriteMonospaced("··", x + 1, y, currRow ? (FrameEditor.canEdit ? Colors.theme.rowEditText : Colors.theme.rowCurrentText) : Helpers.Alpha(rowText, Colors.theme.patternEmptyTextAlpha), 4);
             }
             else
             {
                 if (Helpers.isEffectHexadecimal(effectNum))
-                    WriteMonospaced(value.ToString("X2"), x, y, Colors.effectColumnParameterText, 4);
+                    WriteMonospaced(value.ToString("X2"), x, y, Colors.theme.effectColumnParameter, 4);
                 else
-                    WriteMonospaced(value.ToString("D2"), x, y, Colors.effectColumnParameterText, 4);
+                    WriteMonospaced(value.ToString("D2"), x, y, Colors.theme.effectColumnParameter, 4);
             }
         }
     }

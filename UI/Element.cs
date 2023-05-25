@@ -79,6 +79,12 @@ namespace WaveTracker.UI
         {
             Graphics.WriteRightJustified(text, this.x + x + offX, this.y + y + offY, color);
         }
+
+        protected void WriteCenter(string text, int x, int y, Color color)
+        {
+            Write(text, x - Helpers.getWidthOfText(text) / 2, y, color);
+        }
+
         protected void WriteMonospaced(string text, int x, int y, Color color, int width)
         {
             Graphics.WriteMonospaced(text, this.x + x + offX, this.y + y + offY, color, width);

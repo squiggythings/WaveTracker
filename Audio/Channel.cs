@@ -540,14 +540,7 @@ namespace WaveTracker.Audio
             if (FrameEditor.channelToggles[id])
             {
                 float freqCut = 1;
-                //if (_frequency > 6500)
-                //{
-                //    freqCut = 1 / (1 + (_frequency - 6500) / 1500);
-                //}
-                //else
-                //{
-                //    freqCut = 1;
-                //}
+
                 if (_frequency > 30000)
                 {
                     freqCut = 0;
@@ -559,7 +552,6 @@ namespace WaveTracker.Audio
                     ContinuousTick(continuousDelta);
                 if (noteOn)
                 {
-
                     if (_state == VoiceState.Off)
                     {
                         _fadeMultiplier /= 1.002f;
@@ -620,7 +612,7 @@ namespace WaveTracker.Audio
                             l = 0;
                             r = 0;
                         }
-                        int quantamt = 100;
+                        int quantamt = 16;
                         l = (float)(Math.Ceiling(l * quantamt)) / (float)quantamt;
                         r = (float)(Math.Ceiling(r * quantamt)) / (float)quantamt;
                     }

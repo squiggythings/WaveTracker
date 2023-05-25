@@ -67,6 +67,9 @@ namespace WaveTracker.Rendering
 
         public void Update()
         {
+            editor.Update();
+            if (Input.focus != null)
+                return;
             scrollbar.Update();
             listLength = (Game1.bottomOfScreen - 180 - 10) / 11;
             if (listLength <= 0)
@@ -171,7 +174,6 @@ namespace WaveTracker.Rendering
                 ChannelManager.instance.GetCurrentChannel().SetMacro(CurrentInstrumentIndex);
             }
             scrollbar.doUpdate();
-            editor.Update();
         }
 
         public void Goto(int index)

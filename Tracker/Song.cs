@@ -174,6 +174,117 @@ namespace WaveTracker.Tracker
 
         }
 
+        public int GetNumberOfRows(int loops)
+        {
+            int frame = 0;
+            int row = 0;
+            int rows = 0;
+            while (loops > 0)
+            {
+                while (row <= frames[frame].GetLastRow())
+                {
+                    rows++;
+                    row++;
+                }
+                int[] nextPos = GetNextPositionOfFrame(frame);
+                if (nextPos[0] <= frame)
+                {
+                    loops--;
+                }
+                frame = nextPos[0];
+                row = nextPos[1];
+                if (frame < 0)
+                {
+                    break;
+                }
+                if (frame >= frames.Count)
+                {
+                    frame = 0;
+                    row = 0;
+                    loops--;
+                }
+            }
+            return rows;
+        }
+
+        public int[] GetNumberOfRows()
+        {
+            int frame = 0;
+            int row = 0;
+            int loopStartRow;
+            int loopStartFrame;
+            int rowsUntilLoopPoint = 0;
+
+            while (true)
+            {
+                while (row <= frames[frame].GetLastRow())
+                {
+                    rowsUntilLoopPoint++;
+                    row++;
+                }
+                int[] nextPos = GetNextPositionOfFrame(frame);
+                if (nextPos[0] <= frame)
+                {
+                    loopStartFrame = nextPos[0];
+                    loopStartRow = nextPos[1];
+                    break;
+                }
+                frame = nextPos[0];
+                row = nextPos[1];
+                if (frame >= frames.Count) // song has no manual loop points
+                {
+                    return new int[] { 0, rowsUntilLoopPoint };
+                }
+            }
+            if (loopStartFrame < 0) // the song is halted with CXX
+            {
+                return new int[] { rowsUntilLoopPoint, 0 };
+            }
+            int rowsUntilLoopStart = 0;
+            row = 0;
+            frame = 0;
+            while (true)
+            {
+                while (row <= frames[frame].GetLastRow())
+                {
+                    rowsUntilLoopStart++;
+                    row++;
+                }
+                int[] nextPos = GetNextPositionOfFrame(frame);
+                frame = nextPos[0];
+                row = nextPos[1];
+                if (frame == loopStartFrame && row == loopStartRow)
+                {
+                    break;
+                }
+            }
+            return new int[] { rowsUntilLoopStart, rowsUntilLoopPoint };
+        }
+
+        int[] GetNextPositionOfFrame(int frameIndex)
+        {
+            Frame frame = frames[frameIndex];
+            short[] row = frame.pattern[frame.GetLastRow()];
+            for (int i = 3; i < CHANNEL_COUNT * 5; i += 5)
+            {
+                int effect = row[i];
+                int parameter = row[i + 1];
+                if (effect == 20) // CXX
+                {
+                    return new int[] { -1, -1 };
+                }
+                else if (effect == 21) // BXX
+                {
+                    return new int[] { parameter % frames.Count, 0 };
+                }
+                else if (effect == 22) // DXX
+                {
+                    return new int[] { frameIndex + 1, parameter };
+                }
+            }
+            return new int[] { frameIndex + 1, 0 };
+        }
+
         bool checkTickString(string st)
         {
             foreach (char c in st)

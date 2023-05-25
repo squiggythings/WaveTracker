@@ -36,18 +36,7 @@ namespace WaveTracker.Rendering
                 }
                 return;
             }
-            currentAmp = Math.Clamp((int)(channel.CurrentAmplitude * 50), 0, 50);
-
-            if (currentAmp >= amplitude)
-                amplitude = currentAmp;
-            else
-            {
-                amplitude -= MeterDecayRate;
-                if (currentAmp >= amplitude)
-                    amplitude = currentAmp;
-            }
-            if (amplitude < 0)
-                amplitude = 0;
+            UpdateAmplitude();
 
 
             if (FrameEditor.isChannelSoloed(id)) timeSinceSinceSoloed = 0;
@@ -83,8 +72,8 @@ namespace WaveTracker.Rendering
             {
                 return;
             }
-            currentAmp = Math.Clamp((int)(channel.CurrentAmplitude * 50), 0, 50);
 
+            currentAmp = Math.Clamp((int)(channel.CurrentAmplitude * 50), 0, 50);
             if (currentAmp >= amplitude)
                 amplitude = currentAmp;
             else
@@ -95,7 +84,7 @@ namespace WaveTracker.Rendering
             }
             if (amplitude < 0)
                 amplitude = 0;
-            channel._sampleVolume = -1;
+            channel._sampleVolume *= 0.6f;
         }
 
         public void Draw()
@@ -113,18 +102,17 @@ namespace WaveTracker.Rendering
                     DrawSprite(Game1.channelHeaderSprite, 0, 0, new Rectangle(0, 0, 63, 31));
                 Write("Channel " + (id + 1), 6, 10, new Color(104, 111, 153));
 
-                DrawRect(6, 25, amplitude == 0 ? 0 : amplitude + 1, 3, new Color(0, 219, 39));
-                DrawRect(21 + (int)(channel.CurrentPan * 19), 22, 3, 2, Color.White);
+                if (!Audio.AudioEngine.rendering)
+                {
+                    DrawRect(6, 25, amplitude == 0 ? 0 : amplitude + 1, 3, new Color(0, 219, 39));
+                    DrawRect(21 + (int)(channel.CurrentPan * 19), 22, 3, 2, Color.White);
+                }
             }
             else
             {
                 DrawSprite(Game1.channelHeaderSprite, 0, 0, new Rectangle(63, 0, 63, 31));
                 Write("Channel " + (id + 1), 6, 11, new Color(230, 69, 57));
             }
-            //Write("volume " + channel.volumeEnv.GetState(), 0, 30, Color.Red);
-            //Write("arp " + channel.arpEnv.GetState(), 0, 40, Color.Red);
-            //Write("pitch " + channel.pitchEnv.GetState(), 0, 50, Color.Red);
-            //Write("wave " + channel.waveEnv.GetState(), 0, 60, Color.Red);
         }
     }
 }

@@ -26,6 +26,15 @@ namespace WaveTracker.UI
             this.x = x;
             this.y = y;
         }
+
+        public void InitializePanelCentered(string name, int w, int h)
+        {
+            label = name;
+            width = w;
+            height = h;
+            this.x = (960 - w) / 2;
+            this.y = (500 - h) / 2;
+        }
         public void DrawPanel()
         {
             DrawRoundedRect(0, 0, width, height, UIColors.panel);
