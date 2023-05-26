@@ -275,6 +275,7 @@ namespace WaveTracker
                 // draw frame view
                 frameView.Draw();
 
+                FrameEditor.channelScrollbar.Draw();
                 // draw click position
                 //Rendering.Graphics.DrawRect(Input.lastClickLocation.X, Input.lastClickLocation.Y, 1, 1, Color.Red);
                 //Rendering.Graphics.DrawRect(Input.lastClickReleaseLocation.X, Input.lastClickReleaseLocation.Y, 1, 1, Color.DarkRed);
@@ -287,13 +288,13 @@ namespace WaveTracker
             Preferences.dialog.Draw();
             if (!VisualizerMode)
             {
-                FrameEditor.channelScrollbar.Draw();
                 Rendering.Graphics.DrawRect(0, FrameEditor.channelScrollbar.y, FrameEditor.channelScrollbar.x, FrameEditor.channelScrollbar.height, new Color(223, 224, 232));
                 waveBank.editor.Draw();
                 instrumentBank.editor.Draw();
                 audioEngine.exportingDialog.Draw();
 
             }
+            toolbar.exportDialog.Draw();
             Tooltip.Draw();
             //int y = 10;
             //foreach (MMDevice k in audioEngine.devices)

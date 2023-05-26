@@ -38,6 +38,7 @@ namespace WaveTracker.Rendering
         public Toggle followMode;
         public Toggle visualizerMode;
         public bool saveDialogOpen, loadDialogOpen;
+        public ExportDialog exportDialog;
 
         public Toolbar(Texture2D sprite)
         {
@@ -109,6 +110,7 @@ namespace WaveTracker.Rendering
             visualizerMode = new Toggle("Visualizer", 0, 1, this);
             visualizerMode.x = 955 - visualizerMode.width;
             visualizerMode.SetTooltip("", "Toggle visualizer presentation mode");
+            exportDialog = new ExportDialog();
         }
 
         public void Update()
@@ -138,7 +140,7 @@ namespace WaveTracker.Rendering
             if (file_export.Clicked)
             {
                 Input.CancelClick();
-                Audio.AudioEngine.instance.RenderTo("", 3, false);
+                exportDialog.Open();
             }
 
 
@@ -168,7 +170,7 @@ namespace WaveTracker.Rendering
             visualizerMode.Update();
             Game1.VisualizerMode = visualizerMode.Value;
             FrameEditor.followMode = followMode.Value;
-
+            exportDialog.Update();
             if (SaveLoad.savecooldown > 0)
             {
                 SaveLoad.savecooldown--;
@@ -202,6 +204,7 @@ namespace WaveTracker.Rendering
 
             followMode.Draw();
             visualizerMode.Draw();
+            //exportDialog.Draw();
         }
     }
 }
