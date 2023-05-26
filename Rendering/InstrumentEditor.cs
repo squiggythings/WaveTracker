@@ -364,7 +364,7 @@ namespace WaveTracker.Rendering
                 closeButton.Draw();
 
                 tabGroup.Draw();
-
+                DrawRect(9, 28, 200, 1, Color.White);
                 // draw sample base key
                 if (instrument.macroType == MacroType.Sample && tabGroup.selected == 0)
                     if (Helpers.isNoteBlackKey(sample_baseKey.Value))

@@ -19,12 +19,6 @@ namespace WaveTracker.Rendering
         public static int centerRow => numOfVisibleRows / 2;
         public static int numOfVisibleRows = 24;
 
-
-        public void LoadContent()
-        {
-
-        }
-
         public void Initialize(Audio.ChannelManager man)
         {
             headers = new ChannelHeader[Song.CHANNEL_COUNT + 1];
@@ -128,7 +122,7 @@ namespace WaveTracker.Rendering
                 rowTextColor = Colors.theme.patternTextSubHighlight;
                 rowColor = Colors.theme.backgroundSubHighlight;
             }
-            if (Playback.isPlaying && Playback.playbackFrame == FrameEditor.currentFrame && Playback.playbackRow == rowNum)
+            if (Playback.isPlaying && Playback.playbackFrame == FrameEditor.currentFrame && Playback.playbackRow == rowNum && !Audio.AudioEngine.rendering)
             {
                 rowColor = Colors.theme.rowPlaybackColor;
             }

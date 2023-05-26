@@ -57,8 +57,8 @@ namespace WaveTracker
                 filename = args[0];
             DisplayMode displayMode = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode;
             graphics = new GraphicsDeviceManager(this);
-            graphics.PreferredBackBufferWidth = 1920;  // set this value to the desired width of your window
-            graphics.PreferredBackBufferHeight = 1080 - 72;   // set this value to the desired height of your window
+            //graphics.PreferredBackBufferWidth = 1920;  // set this value to the desired width of your window
+            //graphics.PreferredBackBufferHeight = 1080 - 72;   // set this value to the desired height of your window
             graphics.ApplyChanges();
             Window.Position = new Point(-8, 0);
             Window.AllowUserResizing = true;
@@ -77,9 +77,7 @@ namespace WaveTracker
 
         protected override void Initialize()
         {
-            // TODO: Add your initialization logic here
-            //System.Windows.Forms.Form form1 = new System.Windows.Forms.Form();
-            //form1.Show();
+
             Input.Intialize();
             frameRenderer.x = 0;
             frameRenderer.y = 151;
@@ -87,9 +85,7 @@ namespace WaveTracker
             newSong = currentSong.Clone();
             waveBank = new Rendering.WaveBank();
             instrumentBank = new Rendering.InstrumentBank();
-            //System.Windows.Forms.MenuStrip menuStrip = new System.Windows.Forms.MenuStrip();
-            //menuStrip.Items.Add("File");
-            //menuStrip.Show();
+
             channelManager = new Audio.ChannelManager(Tracker.Song.CHANNEL_COUNT, waveBank);
             frameRenderer.Initialize(channelManager);
             FrameEditor.UnmuteAllChannels();
@@ -98,10 +94,8 @@ namespace WaveTracker
             editSettings = new Rendering.EditSettings();
             visualization = new Rendering.Visualization(frameRenderer);
             this.IsFixedTimeStep = false;
-            //this.TargetElapsedTime = TimeSpan.FromSeconds(1d / 60d);
             base.Initialize();
-            //   control1 = new OuzoTracker.Forms.CreateInstrumentDialog();
-            //control1.Show();
+
         }
 
         public static int bottomOfScreen;
@@ -135,7 +129,6 @@ namespace WaveTracker
 
         protected override void Update(GameTime gameTime)
         {
-            //  Stopwatch sw = Stopwatch.StartNew();
             if (Input.dialogOpenCooldown == 0)
             {
                 int mouseX = Mouse.GetState().X;
@@ -242,10 +235,6 @@ namespace WaveTracker
             toolbar.Update();
             base.Update(gameTime);
             lastPianoKey = pianoInput;
-            //GC.Collect();
-
-            // Debug.WriteLine(sw.ElapsedMilliseconds);
-
         }
 
         protected override void Draw(GameTime gameTime)
@@ -264,7 +253,6 @@ namespace WaveTracker
                 AlphaDestinationBlend = Blend.InverseSourceAlpha,
             }, SamplerState.PointClamp, DepthStencilState.Default, RasterizerState.CullNone);
 
-            //targetBatch.Draw(whiteRectangle, new Rectangle(x, y, 1, 1), new Color(36, 43, 66));
             Rendering.Graphics.batch = targetBatch;
 
             if (!VisualizerMode)

@@ -110,7 +110,7 @@ namespace WaveTracker.UI
                     bgCol = new Color(176, 180, 202);
                 }
             }
-            DrawRect(0, 1, width, height - 1, bgCol);
+            DrawRect(0, 1, width, height, bgCol);
             DrawRect(1, 0, width - 2, height, bgCol);
             int y = selected ? 3 : 4;
             if (hasToggle)

@@ -67,7 +67,7 @@ namespace WaveTracker.Rendering
             bNewFrame.enabled = bDuplicateFrame.enabled = FrameEditor.thisSong.frames.Count < 100;
             bMoveRight.enabled = FrameEditor.currentFrame < FrameEditor.thisSong.frames.Count - 1;
             bMoveLeft.enabled = FrameEditor.currentFrame > 0;
-            if (new Rectangle(80, 12, 397, 28).Contains(MouseX, MouseY))
+            if (new Rectangle(80, 12, 397, 28).Contains(MouseX, MouseY) && Input.focus == null)
             {
                 if (Input.MouseScrollWheel(KeyModifier.None) < 0)
                 {
