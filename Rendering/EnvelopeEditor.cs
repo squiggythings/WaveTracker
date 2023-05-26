@@ -25,19 +25,20 @@ namespace WaveTracker.UI
         int arpHeight = 6;
         NumberBox envLength;
         public int lastEnvType;
+        int holdPosX, holdPosY;
         int ColumnWidth => (envelope.values.Count == 0 ? 0 : Math.Clamp(445 / envelope.values.Count, 1, 48));
         public EnvelopeEditor(int x, int y, Texture2D tex, Element parent)
         {
             this.tex = tex;
             this.x = x;
             this.y = y;
-            envText = new ("", -1, 239, 535, 535, this);
+            envText = new("", -1, 239, 535, 535, this);
             envText.isPartOfInternalDialog = true;
             envText.maxLength = 256;
-            scrollbar = new (44, 20, 489, 200, this);
+            scrollbar = new(44, 20, 489, 200, this);
             scrollbar.isPartOfInternalDialog = true;
             scrollbar.coarseStepAmount = 2;
-            envLength = new ("Length", -1, 223, 74, 38, this);
+            envLength = new("Length", -1, 223, 74, 38, this);
             envLength.isPartOfInternalDialog = true;
             envLength.bDown.isPartOfInternalDialog = true;
             envLength.bUp.isPartOfInternalDialog = true;
@@ -90,7 +91,7 @@ namespace WaveTracker.UI
             if (envelopeType == 2)
                 scrollbar.SetSize(1, 2);
             if (envelopeType == 3)
-                scrollbar.SetSize(1, 2);
+                scrollbar.SetSize(99, 200 / arpHeight);
             envText.Text = envelope.ToString();
             envText.Update();
             if (envText.ValueWasChanged)
@@ -98,16 +99,51 @@ namespace WaveTracker.UI
                 envelope.loadFromString(envText.Text);
             }
             envText.Text = envelope.ToString();
-
+            int canvasPosX = CanvasMouseBlockClamped().X;
+            int canvasPosY = CanvasMouseBlockClamped().Y;
             if (PointIsInCanvas(LastClickPos))
             {
+
+                if (Input.GetClickDown(KeyModifier._Any))
+                {
+                    holdPosX = CanvasMouseBlockClamped().X;
+                    holdPosY = CanvasMouseBlockClamped().Y;
+                }
                 if (Input.GetClick(KeyModifier.None))
                 {
-                    int x = CanvasMouseBlockClamped().X;
-
-                    envelope.values[Math.Clamp(x, 0, envelope.values.Count - 1)] = CanvasMouseBlockClamped().Y;
+                    envelope.values[Math.Clamp(canvasPosX, 0, envelope.values.Count - 1)] = canvasPosY;
                 }
+
+                if (Input.GetClickUp(KeyModifier.Shift))
+                {
+                    int diff = Math.Abs(holdPosX - canvasPosX);
+                    if (diff > 0)
+                    {
+                        if (holdPosX < canvasPosX)
+                        {
+                            for (int i = holdPosX; i <= canvasPosX; ++i)
+                            {
+                                envelope.values[i] = (int)Math.Round(Lerp(holdPosY, canvasPosY, (float)(i - holdPosX) / diff));
+                            }
+                        }
+                        else
+                        {
+                            for (int i = canvasPosX; i <= holdPosX; ++i)
+                            {
+                                envelope.values[i] = (int)Math.Round(Lerp(canvasPosY, holdPosY, (float)(i - canvasPosX) / diff));
+                            }
+                        }
+                    }
+                    else
+                    {
+                        envelope.values[Math.Clamp(canvasPosX, 0, envelope.values.Count - 1)] = (int)canvasPosY;
+                    }
+                }
+
             }
+
+            // input loop/release
+            #region loop/release
             if (Input.GetClickDown(KeyModifier.None))
             {
                 if (MouseEnvelopeY == 1 && MouseEnvelopeX >= 1 && MouseEnvelopeX < envelope.values.Count)
@@ -125,6 +161,12 @@ namespace WaveTracker.UI
                         envelope.loopIndex = -1;
                 }
             }
+            #endregion
+        }
+
+        float Lerp(float firstFloat, float secondFloat, float by)
+        {
+            return firstFloat * (1 - by) + secondFloat * by;
         }
 
         public Point CanvasMouseBlock()
@@ -148,8 +190,7 @@ namespace WaveTracker.UI
 
         public Point CanvasMouseBlockClamped()
         {
-
-            int mX = Math.Clamp(MouseX, 46, envelope.values.Count * ColumnWidth + 41);
+            int mX = Math.Clamp(MouseX, 46, envelope.values.Count * ColumnWidth + 46);
             int mY = Math.Clamp(MouseY, 20, 219);
 
             int x = (int)Math.Floor((mX - 46) / (float)ColumnWidth);
@@ -169,7 +210,10 @@ namespace WaveTracker.UI
             {
                 y = 98 - (mY - 21);
             }
-            return new Point(x, y);
+            if (envelope.values.Count - 1 > 0)
+                return new Point(Math.Clamp(CanvasMouseBlock().X, 0, envelope.values.Count - 1), y);
+            return new Point(0, y);
+            //return new Point(x, y);
         }
 
         public void SetEnvelope(Envelope envelope, int envelopeType)
@@ -283,6 +327,7 @@ namespace WaveTracker.UI
 
                         }
                     }
+                    DrawShiftLine();
                     string s = (int)(envelope.values.Count * (1000f / Game1.currentSong.tickRate)) + " ms ";
                     if (true)
                     {
@@ -354,6 +399,38 @@ namespace WaveTracker.UI
             DrawBlock(CanvasMouseBlockClamped().X, CanvasMouseBlockClamped().Y, c, false);
         }
 
+        void DrawShiftLine()
+        {
+            if (PointIsInCanvas(LastClickPos) && Input.GetClick(KeyModifier.Shift))
+            {
+                if (Input.GetClick(KeyModifier.Shift))
+                {
+                    int canvasPosX = CanvasMouseBlockClamped().X;
+                    int canvasPosY = CanvasMouseBlockClamped().Y;
+                    int diff = Math.Abs(holdPosX - canvasPosX);
+                    if (diff > 0)
+                    {
+                        if (holdPosX < canvasPosX)
+                        {
+                            for (int i = holdPosX; i <= canvasPosX; ++i)
+                            {
+                                int y = (int)Math.Round(Lerp(holdPosY, canvasPosY, (float)(i - holdPosX) / diff));
+                                DrawBlock(i, y, new Color(100, 90, 135, 90), false);
+                            }
+                        }
+                        else
+                        {
+                            for (int i = canvasPosX; i <= holdPosX; ++i)
+                            {
+                                int y = (int)Math.Round(Lerp(canvasPosY, holdPosY, (float)(i - canvasPosX) / diff));
+                                DrawBlock(i, y, new Color(100, 90, 135, 90), false);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
         public int MouseEnvelopeX
         {
 
@@ -377,7 +454,7 @@ namespace WaveTracker.UI
         {
             if (envelope.isActive)
                 if (p.Y > 20 && p.Y < 219)
-                    if (p.X > 40 && p.X < envelope.values.Count * ColumnWidth + 44)
+                    if (p.X > 40 && p.X < envelope.values.Count * ColumnWidth + 46)
                         return true;
             return false;
         }
