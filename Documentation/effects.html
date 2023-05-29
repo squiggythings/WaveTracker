@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+    <html lang="en">
+        <head>
+            <title>Effects - WaveTracker</title>
+            <link rel="stylesheet" type="text/css" href="./style.css" />
+            <link rel="shortcut icon" type="image/png" href="./Icon.ico" />
+            <meta name="viewport" content="width=device-width, initial-scale=0.65" />
+        </head>
+
+        <body>
+            
+            <h1 class="topic">Effects</h1>
+            <hr />
+
+            <p>Effects are the fourth column of each channel, used to modify notes currently played.</p>
+            <p>
+                Each effect is followed by a parameter from 00-99, which controls the intensity of the effect.<br />Some
+                effects have 2 parameters, displayed as (xy), these are instead in hexadecimal from 00-FF to offer
+                greater range.
+            </p>
+            <p>Below is a list of all the effects in WaveTracker</p>
+            <br />
+            <div class="effectPanel">
+                <table border="1" cellpadding="3px" class="panel">
+                    <tr valign="top">
+                        <th style="width: 280px">Effect</th>
+                        <th>Description</th>
+                    </tr>
+                    <tr>
+                        <td>
+                            <span class="fx">0</span><span class="fxp">xy</span> - Arpeggio<br />
+                            <span class="parameterHint">(first note, second note)</span>
+                        </td>
+                        <td>
+                            Cycles through notes in a chord every tick, with base + <span class="fxp">x</span> and base
+                            + <span class="fxp">y</span> semitones. Use <span class="fx">0</span
+                            ><span class="fxp">00</span> to disable.<br />For example: <span class="fx">0</span
+                            ><span class="fxp">47</span> defines a major chord<br />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <span class="fx">1</span><span class="fxp">xx</span> - Note rise<br />
+                            <span class="parameterHint">(speed)</span>
+                        </td>
+                        <td>
+                            Continuously increase the pitch at speed <span class="fxp">xx</span>. Use
+                            <span class="fx">1</span><span class="fxp">00</span> to disable<br />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <span class="fx">2</span><span class="fxp">xx</span> - Note fall<br />
+                            <span class="parameterHint">(speed)</span>
+                        </td>
+                        <td>
+                            Continuously decrease the pitch at speed <span class="fxp">xx</span>. Use
+                            <span class="fx">2</span><span class="fxp">00</span> to disable<br />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <span class="fx">3</span><span class="fxp">xx</span> - Portamento/Glide<br />
+                            <span class="parameterHint">(speed)</span>
+                        </td>
+                        <td>
+                            Automatically glide between notes at speed <span class="fxp">xx</span>. Use
+                            <span class="fx">3</span><span class="fxp">00</span> to disable<br />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <span class="fx">4</span><span class="fxp">xy</span> - Vibrato<br />
+                            <span class="parameterHint">(speed, depth)</span>
+                        </td>
+                        <td>
+                            Modulates pitch with speed <span class="fxp">x</span> and depth <span class="fxp">y</span>.
+                            Use <span class="fx">4</span><span class="fxp">00</span> to disable<br />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <span class="fx">7</span><span class="fxp">xy</span> - Tremolo<br />
+                            <span class="parameterHint">(speed, depth)</span>
+                        </td>
+                        <td>
+                            Modulates volume with speed <span class="fxp">x</span> and depth <span class="fxp">y</span>.
+                            Use <span class="fx">7</span><span class="fxp">00</span> to disable<br />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <span class="fx">8</span><span class="fxp">xx</span> - Pan<br />
+                            <span class="parameterHint">(position)</span>
+                        </td>
+                        <td>
+                            Sets the stereo panning of the channel with position <span class="fxp">xx</span>.
+                            <br /><span class="fxp">00</span> is 100% left <br /><span class="fxp">50</span> is
+                            center<br />
+                            <span class="fxp">99</span> is 100% right
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <span class="fx">9</span><span class="fxp">xx</span> - Stereo split<br />
+                            <span class="parameterHint">(phase)</span>
+                        </td>
+                        <td>
+                            Artificially widens the channel in the stereo field by offsetting the phase of one side
+                            <span class="fxp">xx</span> percent. Use <span class="fx">9</span
+                            ><span class="fxp">00</span> to disable.<br />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <span class="fx">A</span><span class="fxp">xx</span> - Volume fade down<br />
+                            <span class="parameterHint">(speed)</span>
+                        </td>
+                        <td>
+                            Continuously decreases the channel volume by <span class="fxp">xx</span> steps every tick.<br />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <span class="fx">W</span><span class="fxp">xx</span> - Volume fade up<br />
+                            <span class="parameterHint">(speed)</span>
+                        </td>
+                        <td>
+                            Continuously increases the channel volume by <span class="fxp">xx</span> steps every tick.
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <span class="fx">B</span><span class="fxp">xx</span> - Jump to frame<br />
+                            <span class="parameterHint">(frame #)</span>
+                        </td>
+                        <td>Jumps the playhead to frame <span class="fxp">xx</span>. Used to create song loops.</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <span class="fx">C</span><span class="fxp">xx</span>
+                            - Stop
+                        </td>
+                        <td>Stops the song. (<span class="fxp">xx</span> has no effect)</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <span class="fx">D</span><span class="fxp">xx</span> - Skip<br />
+                            <span class="parameterHint">(row #)</span>
+                        </td>
+                        <td>Skips to the next frame at row <span class="fxp">xx</span>.</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <span class="fx">F</span><span class="fxp">xx</span> - Tempo change<br />
+                            <span class="parameterHint">(ticks/frame)</span>
+                        </td>
+                        <td>Overrides the initial song speed with <span class="fxp">xx</span> ticks per frame.</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <span class="fx">G</span><span class="fxp">xx</span> - Delay<br />
+                            <span class="parameterHint">(ticks)</span>
+                        </td>
+                        <td>Delays the channel's row by <span class="fxp">xx</span> ticks.</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <span class="fx">P</span><span class="fxp">xx</span> - Fine pitch<br />
+                            <span class="parameterHint">(offset)</span>
+                        </td>
+                        <td>
+                            Detunes the current channel. Default is <span class="fx">P</span
+                            ><span class="fxp">50</span>.
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <span class="fx">Q</span><span class="fxp">xy</span> - Note bend up<br />
+                            <span class="parameterHint">(speed, semitones)</span>
+                        </td>
+                        <td>
+                            Bends the current note up by <span class="fxp">y</span> semitones at speed
+                            <span class="fxp">x</span>.
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <span class="fx">R</span><span class="fxp">xy</span> - Note bend down<br />
+                            <span class="parameterHint">(speed, semitones)</span>
+                        </td>
+                        <td>
+                            Bends the current note down by <span class="fxp">y</span> semitones at speed
+                            <span class="fxp">x</span>.
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <span class="fx">S</span><span class="fxp">xx</span> - Delayed cut<br />
+                            <span class="parameterHint">(ticks)</span>
+                        </td>
+                        <td>Cuts the note after <span class="fxp">xx</span> ticks have passed.</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <span class="fx">V</span><span class="fxp">xx</span> - Set wave <br /><span
+                                class="parameterHint"
+                                >(wave #)</span
+                            >
+                        </td>
+                        <td>Sets the channel's timbre to wave <span class="fxp">xx</span> in the wave bank.</td>
+                    </tr>
+                </table>
+            </div>
+
+            <hr />
+            <footer>
+                Go to <a href="shortcuts.html">keyboard shortcuts</a> &middot; <a href="main_index.html">main index</a>
+            </footer>
+        </body>
+    </html>
+</html>

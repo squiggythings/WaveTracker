@@ -1,8 +1,7 @@
 ﻿TODO:
-* Add export to wav
 * Custom song settings dialog
 * fix Ctrl-piano blip
-* make export another thread
+
 
 
 

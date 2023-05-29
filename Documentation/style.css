@@ -1,0 +1,158 @@
+:root {
+	--background: #ffffff;
+	--panelheader: #ffffff;
+	--panel: #dddff3;
+	--textLight: #c2c6db;
+	--tableBorder: #cfd0da;
+	--effect: #ff5277;
+	--effectParam: #ffd0d0;
+	--listOdd: #2b3151;
+	--listEven: #202541;
+	--link: #087ce8;
+	--button: #686f99;
+	--sidebarWidth: 300px;
+}
+
+body {
+	background: var(--background);
+	color: #353f5f;
+	font: 16px/135% "Roboto", sans-serif;
+	font-style: normal;
+	font-weight: normal;
+	width: 100%;
+	margin: 0;
+	/*max-width: 960px;*/
+	/* padding: 50px; */
+	/* margin: auto; */
+
+	line-height: 1.25em;
+	display: inline-block;
+
+	/* color: var(--panelheader); */
+}
+
+::selection {
+	background: #a6c6e4; /* WebKit/Blink Browsers */
+	/* color: white; */
+}
+::-moz-selection {
+	background: #a6c6e4; /* Gecko Browsers */
+	/* color: white; */
+}
+
+aside {
+	height: 100%; /* Full-height: remove this if you want "auto" height */
+	width: var(--sidebarWidth); /* Set the width of the sidebar */
+	position: fixed; /* Fixed Sidebar (stay in place on scroll) */
+	z-index: 1; /* Stay on top */
+	top: 0; /* Stay at the top */
+	left: 0;
+	background-color: #14182e;
+	overflow-x: hidden; /* Disable horizontal scroll */
+	padding-top: 10px;
+}
+article {
+	/* Same as the width of the sidebar */
+	/* padding: 20px 0px 20px 50px; */
+	padding-top: 20px;
+	margin-left: var(--sidebarWidth);
+	padding-left: 50px;
+	padding-right: 80px;
+	width: calc(100% - var(--sidebarWidth) - 50px - 80px);
+	/* max-width: 100%; */
+	/* margin-right: 20px; */
+}
+
+img {
+	size: 100;
+	filter: drop-shadow(0 0 5px #14182e7a);
+	margin: 0 0 15px 0;
+}
+
+ul {
+	line-height: 1.5em;
+}
+h1 {
+	font-size: 2.75em;
+	color: var(--button);
+	margin: 0px;
+	padding-top: 20px;
+	padding-bottom: 10px;
+}
+h2 {
+	font-size: 1.5em;
+}
+ul.sideNav {
+	list-style-type: none;
+	padding-left: 0px;
+}
+ul.sideNav h2 {
+	color: #ffffff;
+	font-size: 1.1em;
+	margin-bottom: 2px;
+}
+ul.sideNav li {
+	width: calc(100%);
+	padding: 2px 20px;
+}
+ul.sideNav a {
+	color: #b0bdc9;
+	text-decoration: none;
+}
+ul.sideNav a li:hover {
+	background-color: #363e6d;
+	color: white;
+	font-size: 1em;
+}
+
+h4 {
+	font-size: 1.2em;
+	margin: 0px;
+	padding-top: 20px;
+	padding-bottom: 10px;
+}
+p {
+	/* color: var(--textLight); */
+	font-size: 1em;
+	margin: 0 0 15px 0;
+}
+hr {
+	border-top: 1px solid;
+	color: var(--button);
+}
+
+table {
+	width: 100%;
+	border: 1px solid;
+	border-color: var(--tableBorder);
+	border-collapse: collapse;
+}
+tr {
+	border: 1px solid;
+	border-color: var(--tableBorder);
+}
+
+td {
+	border-width: 1px;
+	border-style: solid;
+	padding: 4px;
+	padding-left: 8px;
+}
+
+th {
+	text-align: left;
+	padding-left: 7px;
+	background: var(--tableBorder);
+}
+
+.fx {
+	font-weight: bold;
+	color: var(--effect);
+}
+.fxp {
+	font-weight: bold;
+	color: var(--effectParam);
+}
+a {
+	color: var(--link);
+}
