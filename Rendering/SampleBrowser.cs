@@ -196,7 +196,7 @@ namespace WaveTracker.Rendering
             {
                 //Thread.Sleep(1);
                 reader = new AudioFileReader(entriesInDirectory[selectedFileIndex]);
-                if ((reader.TotalTime.TotalSeconds * reader.WaveFormat.SampleRate) / reader.WaveFormat.Channels < 1000)
+                if ((reader.TotalTime.TotalSeconds * reader.WaveFormat.SampleRate) / reader.WaveFormat.Channels <= 400)
                 {
                     LoopStream loop = new LoopStream(reader);
                     previewOut.Init(loop);

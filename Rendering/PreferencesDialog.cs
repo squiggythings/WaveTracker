@@ -70,7 +70,7 @@ namespace WaveTracker.Rendering
             pageSample.getLastOption.description = "If a sample is not 44.1 kHz, resample it to preserve its pitch.";
             pageSample.AddCheckbox("Preview samples in browser");
             pageSample.getLastOption.description = "Plays audio files upon clicking on them in the sample browser.";
-            pageSample.AddCheckbox("Include samples in visualizer");
+            pageSample.AddCheckbox("Include samples in visualizer by default");
             pageSample.getLastOption.description = "Defaults to include any newly imported sample in the visualizer";
             pageSample.AddNumberBox("Default base key:", 0, 119);
             pageSample.getLastOption.description = "The base key value of any new sample";
@@ -86,17 +86,17 @@ namespace WaveTracker.Rendering
             pageVisualizer.AddNumberBox("Note speed:", 1, 20);
             pageVisualizer.getLastOption.description = "How fast notes scroll by in the piano roll, lower values are slower.";
             pageVisualizer.AddCheckbox("Change note width by volume");
-            pageVisualizer.getLastOption.description = "Makes notes get thinner as they get softer";
+            pageVisualizer.getLastOption.description = "If this is enabled, notes get thinner as they get softer";
             pageVisualizer.AddCheckbox("Change note opacity by volume");
-            pageVisualizer.getLastOption.description = "Makes notes fade out as they get softer";
+            pageVisualizer.getLastOption.description = "If this is enabled, notes fade out as they get softer";
             pageVisualizer.AddBreak();
             pageVisualizer.AddLabel("Visualizer: Oscilloscopes");
             pageVisualizer.AddNumberBox("Wave zoom:", 50, 200);
-            pageVisualizer.getLastOption.description = "How far zoomed in the waves in the oscilloscope are.";
+            pageVisualizer.getLastOption.description = "Determines how far zoomed in the waves in the oscilloscope are.";
             pageVisualizer.AddCheckbox("Colorful waves");
-            pageVisualizer.getLastOption.description = "If this is set, each oscilloscope window will use the same color as their notes in the piano roll";
+            pageVisualizer.getLastOption.description = "If this is enabled, each oscilloscope window will use the same color as their notes in the piano roll";
             pageVisualizer.AddDropdown("Wave thickness", new string[] { "Thin", "Medium", "Thick" });
-            pageVisualizer.getLastOption.description = "The thickness at which the waves are drawn in the oscilloscope";
+            pageVisualizer.getLastOption.description = "Determines the thickness at which the waves are drawn in the oscilloscope";
 
 
         }

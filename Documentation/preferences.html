@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+	<html lang="en">
+		<head>
+			<title>Shortcuts - WaveTracker</title>
+			<link rel="stylesheet" type="text/css" href="./style.css" />
+			<link rel="shortcut icon" type="image/png" href="./Icon.ico" />
+			<meta name="viewport" content="width=device-width, initial-scale=0.65" />
+		</head>
+
+		<body>
+			<aside>
+				<ul class="sideNav">
+					<li><h2>General</h2></li>
+					<a href="#"><li>Overview</li></a>
+					<li><h2>Interface</h2></li>
+					<a href="#"><li>Toolbar</li></a>
+					<a href="#"><li>Song Panel</li></a>
+					<a href="#"><li>Edit Settings</li></a>
+					<a href="#"><li>Frames Panel</li></a>
+					<a href="#"><li>Wave Bank</li></a>
+					<a href="#"><li>Instrument Bank</li></a>
+					<a href="#"><li>Pattern Editor</li></a>
+					<a href="#"><li>Preferences</li></a>
+					<a href="#"><li>Visualizer Mode</li></a>
+					<li><h2>Reference</h2></li>
+					<a href="#"><li>Keyboard Shortcuts</li></a>
+					<a href="#"><li>Effect List</li></a>
+				</ul>
+			</aside>
+			<article>
+				<h1 class="topic">Preferences</h1>
+				<hr />
+				<br />
+				<p class="text">The preferences dialog can be accessed through the toolbar. It has settings that control the application behavior.</p>
+				<h2>General</h2>
+				<table border="1" cellpadding="3px" class="panel">
+					<tr valign="top">
+						<th style="width: 230px">Setting</th>
+						<th>Description</th>
+					</tr>
+					<tr>
+						<td style="font-weight: bold; border-right: 0px">Frame Editor</td>
+					</tr>
+					<tr>
+						<td style="padding-left: 20px">Show row numbers in hex</td>
+						<td>Display row numbers in hexadecimal instead of decimal</td>
+					</tr>
+					<tr>
+						<td style="padding-left: 20px">Show note off and release as text</td>
+						<td>Display note off and release events as OFF and REL</td>
+					</tr>
+					<tr>
+						<td style="padding-left: 20px">Fade volume column</td>
+						<td>Fade items in the volumn column according to their value. Lower volumes will appear more faded out.</td>
+					</tr>
+					<tr>
+						<td style="padding-left: 20px">Ignore step when moving</td>
+						<td>Ignores the step value in edit settings when moving the cursor, will only use it when inputting notes.</td>
+					</tr>
+					<tr>
+						<td style="padding-left: 20px">Key repeat</td>
+						<td>Enables key repetition when inputting notes and values</td>
+					</tr>
+					<tr>
+						<td style="padding-left: 20px">Restore channel state on playback</td>
+						<td>If this is enabled, the application will reconstruct the state of each channel from previous frames upon playing.</td>
+					</tr>
+					<tr>
+						<td style="padding-left: 20px">Page jump amount</td>
+						<td>The number of rows to jump when moving the cursor with the scroll wheel or PgUp/PgDown</td>
+					</tr>
+					<tr>
+						<td style="font-weight: bold; border-right: 0px">Metering</td>
+					</tr>
+					<tr>
+						<td style="padding-left: 20px">Oscilloscope mode</td>
+						<td>
+							Determines the look of the oscilloscope in the song panel. <br />Mono: Displays a single oscilloscope<br />Stereo-split: Displays
+							two oscilloscopes for the left and right channels respectively <br />Stereo-overlap: Displays a single oscilloscope with the left
+							and right channels overlapped on each other, highlighting the difference between them
+						</td>
+					</tr>
+					<tr>
+						<td style="padding-left: 20px">Meter decay rate</td>
+						<td>
+							Determines how responsive the volume meters in the song panel are. Fast is bouncier but not very consistent; slow is more consistent
+							but less responsive.
+						</td>
+					</tr>
+					<tr>
+						<td style="padding-left: 20px">Meter color mode</td>
+						<td>
+							Determines the look of the volume meters in the song panel. Flat is one shade of green; gradient gradually turns toward red the
+							louder the signal is.
+						</td>
+					</tr>
+					<tr>
+						<td style="padding-left: 20px">Flash meter red when clipping</td>
+						<td>If this option is enabled, the volume meters will turn red whenever the signal is above 0db.</td>
+					</tr>
+				</table>
+				<br />
+				<h2>Samples/Waves</h2>
+				<table border="1" cellpadding="3px" class="panel">
+					<tr valign="top">
+						<th style="width: 230px">Setting</th>
+						<th>Description</th>
+					</tr>
+					<tr>
+						<td style="font-weight: bold; border-right: 0px">Sample settings</td>
+					</tr>
+					<tr>
+						<td style="padding-left: 20px">Normalize samples on import</td>
+						<td>Automatically set a sample's volume to be as loud as possible when importing</td>
+					</tr>
+					<tr>
+						<td style="padding-left: 20px">Trim sample silence on import</td>
+						<td>Automatically trim any silence before and after a sample when importing</td>
+					</tr>
+					<tr>
+						<td style="padding-left: 20px">Resample to 44.1 kHz on import</td>
+						<td>If a sample is not 44.1 kHz, resample it to preserve its pitch</td>
+					</tr>
+					<tr>
+						<td style="padding-left: 20px">Preview samples in browser</td>
+						<td>Plays audio files upon clicking on them in the sample browser</td>
+					</tr>
+					<tr>
+						<td style="padding-left: 20px">Include samples in visualizer by default</td>
+						<td>If this is enabled, samples will be included in the piano roll visualizer by default</td>
+					</tr>
+					<tr>
+						<td style="padding-left: 20px">Default base key</td>
+						<td>The base MIDI note value of any new sample. 48 (C-4) is the default</td>
+					</tr>
+					<tr>
+						<td style="font-weight: bold; border-right: 0px">Resampling</td>
+					</tr>
+					<tr>
+						<td style="padding-left: 20px">Default wave resample mode</td>
+						<td>Determines the default resampling algorithm that waves in new songs will have</td>
+					</tr>
+					<tr>
+						<td style="padding-left: 20px">Default sample resample mode</td>
+						<td>Determines the default resampling algorithm that new samples will have when imported</td>
+					</tr>
+				</table>
+				<br />
+				<h2>Visualizer</h2>
+				<table border="1" cellpadding="3px" class="panel">
+					<tr valign="top">
+						<th style="width: 230px">Setting</th>
+						<th>Description</th>
+					</tr>
+					<tr>
+						<td style="font-weight: bold; border-right: 0px">Visualizer: Piano</td>
+					</tr>
+					<tr>
+						<td style="padding-left: 20px">Note speed</td>
+						<td>Determines how fast notes scroll by in the piano roll. Lower values are slower</td>
+					</tr>
+					<tr>
+						<td style="padding-left: 20px">Change note width by volume</td>
+						<td>If this is enabled, notes get thinner as they get softer</td>
+					</tr>
+					<tr>
+						<td style="padding-left: 20px">Change note opacity by volume</td>
+						<td>If this is enabled, notes fade out as they get softer</td>
+					</tr>
+					<tr>
+						<td style="font-weight: bold; border-right: 0px">Visualizer: Oscilloscopes</td>
+					</tr>
+					<tr>
+						<td style="padding-left: 20px">Wave zoom</td>
+						<td>Determines how far zoomed in the waves in the oscilloscope are</td>
+					</tr>
+					<tr>
+						<td style="padding-left: 20px">Colorful waves</td>
+						<td>If this is enabled, each oscilloscope window will use the same color as their notes in the piano roll; Otherwise, they are white.</td>
+					</tr>
+					<tr>
+						<td style="padding-left: 20px">Wave thickness</td>
+						<td>Determines the thickness at which the waves are drawn in the oscilloscope</td>
+					</tr>
+				</table>
+				<br />
+
+				<footer>
+					<hr />
+					WaveTracker is Copyright © 2023 Elias Ananiadis &middot; <a href="https://eliasananiadis.com">Personal site</a>
+				</footer>
+			</article>
+		</body>
+	</html>
+</html>

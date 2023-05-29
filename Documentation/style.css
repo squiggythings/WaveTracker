@@ -25,20 +25,12 @@ body {
 	/* padding: 50px; */
 	/* margin: auto; */
 
-	line-height: 1.25em;
+	line-height: 1.35em;
 	display: inline-block;
 
 	/* color: var(--panelheader); */
 }
 
-::selection {
-	background: #a6c6e4; /* WebKit/Blink Browsers */
-	/* color: white; */
-}
-::-moz-selection {
-	background: #a6c6e4; /* Gecko Browsers */
-	/* color: white; */
-}
 
 aside {
 	height: 100%; /* Full-height: remove this if you want "auto" height */
@@ -99,10 +91,17 @@ ul.sideNav a {
 	color: #b0bdc9;
 	text-decoration: none;
 }
+
 ul.sideNav a li:hover {
 	background-color: #363e6d;
 	color: white;
 	font-size: 1em;
+}
+ul.sideNav a.selected li {
+	color: #1f2235;
+	background-color: var(--tableBorder);
+	text-decoration: none;
+	font-weight: bold;
 }
 
 h4 {
@@ -147,12 +146,23 @@ th {
 
 .fx {
 	font-weight: bold;
-	color: var(--effect);
 }
-.fxp {
-	font-weight: bold;
-	color: var(--effectParam);
+
+.parameterHint {
+	font-style: italic;
 }
-a {
+
+article a {
 	color: var(--link);
+}
+
+footer {
+	font-size: 0.75em;
+	font-style: italic;
+	margin-top: 30px;
+	margin-bottom: 10px;
+	color: #626570;
+}
+footer a {
+	color: #626570;
 }
