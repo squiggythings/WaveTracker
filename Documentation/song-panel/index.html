@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+	<html lang="en">
+		<head>
+			<title>Song Panel - WaveTracker</title>
+			<link rel="stylesheet" type="text/css" href="/style.css" />
+			<link rel="shortcut icon" type="image/png" href="/Icon.ico" />
+			<meta name="viewport" content="width=device-width, initial-scale=0.65" />
+		</head>
+		<body>
+			<aside>
+				<ul class="sideNav">
+					<li><h2>General</h2></li>
+					<a href="/overview/"><li>Overview</li></a>
+					<li><h2>Interface</h2></li>
+					<a href="/toolbar/"><li>Toolbar</li></a>
+					<a class="selected" href="/song-panel/"><li>Song Panel</li></a>
+					<a href="/edit-settings/"><li>Edit Settings</li></a>
+					<a href="/frames-panel/"><li>Frames Panel</li></a>
+					<a href="/wave-bank/"><li>Wave Bank</li></a>
+					<a href="/instrument-bank/"><li>Instrument Bank</li></a>
+					<a href="/frame-editor/"><li>Frame Editor</li></a>
+					<a href="/preferences/"><li>Preferences</li></a>
+					<a href="/visualizer-mode/"><li>Visualizer Mode</li></a>
+					<li><h2>Reference</h2></li>
+					<a href="/keyboard-shortcuts/"><li>Keyboard Shortcuts</li></a>
+					<a href="/effect-list/"><li>Effect List</li></a>
+				</ul>
+			</aside>
+			<article>
+				<h1 class="topic">Song Panel</h1>
+				<hr />
+				<br />
+				<p>
+					The song panel is located in the top right of the main screen. Clicking the pencil icon in the top right corner allows you to edit the
+					contents.
+				</p>
+				<img src="song_panel.png" title="The edit settings panel" alt="The edit settings panel" />
+				<p>This panel contains information about the current file -- the song's title, author, and copyright.</p>
+				<p>On the right of the panel are two number boxes for the speed and frame length.</p>
+				<ul>
+					<li>
+						<span style="font-weight: bold">Speed (ticks/row)</span>
+						<p>Determines how many "ticks" each row will last. The default length for a tick is 1/60th of a second.</p>
+						<p>
+							You can enter multiple numbers separated by spaces to create a "groove." Writing "4 2" means that the first row will be 4 ticks
+							long, then the second row will be 2 ticks, the third 4, the fourth 2 and so on.
+						</p>
+						<p>This is one way to create different timing structures, like swing rhythms or odd tempos.</p>
+					</li>
+					<li>
+						<span style="font-weight: bold">Frame Length</span>
+						<p>The number of rows in a frame. The default is 64, but this can go up to 256.</p>
+						<p>Note: the BXX, CXX, or DXX effects will cut the frame short if they are on a row prior to the end of the frame.</p>
+					</li>
+				</ul>
+				<p>
+					Below the song title, author and copyright are a set of 24 squares, these will light up green when each channel plays. Below this are volume
+					meters for the overall stereo output. In the bottom right corner is an oscilloscope, which shows what the sound output of the program looks
+					like.
+				</p>
+				<p>The volume meters and oscilloscope have a few different modes that can be changed in <a href="/preferences/">preferences.</a></p>
+				<br />
+				<footer>
+					<hr />
+					WaveTracker is Copyright © 2023 Elias Ananiadis &middot; <a href="https://eliasananiadis.com">Personal site</a>
+				</footer>
+			</article>
+		</body>
+	</html>
+</html>

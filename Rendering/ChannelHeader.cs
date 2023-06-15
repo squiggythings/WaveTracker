@@ -41,17 +41,6 @@ namespace WaveTracker.Rendering
 
             if (FrameEditor.isChannelSoloed(id)) timeSinceSinceSoloed = 0;
             else timeSinceSinceSoloed += gameTime.ElapsedGameTime.Milliseconds;
-            if (DoubleClickedM(KeyModifier.None))
-            {
-                if (timeSinceSinceSoloed <= Input.DOUBLE_CLICK_TIME)
-                    FrameEditor.UnmuteAllChannels();
-                else
-                    FrameEditor.SoloChannel(id);
-            }
-            if (DoubleClickedM(KeyModifier.Ctrl))
-            {
-                FrameEditor.UnmuteAllChannels();
-            }
             if (SingleClickedM(KeyModifier.Ctrl))
             {
                 if (timeSinceSinceSoloed <= Input.DOUBLE_CLICK_TIME)
@@ -62,6 +51,19 @@ namespace WaveTracker.Rendering
             if (SingleClickedM(KeyModifier.None))
             {
                 FrameEditor.ToggleChannel(id);
+            }
+            if (DoubleClickedM(KeyModifier.None))
+            {
+                Input.CancelClick();
+                if (timeSinceSinceSoloed <= Input.DOUBLE_CLICK_TIME)
+                    FrameEditor.UnmuteAllChannels();
+                else
+                    FrameEditor.SoloChannel(id);
+            }
+            if (DoubleClickedM(KeyModifier.Ctrl))
+            {
+                Input.CancelClick();
+                FrameEditor.UnmuteAllChannels();
             }
             channel._sampleVolume = -1;
         }

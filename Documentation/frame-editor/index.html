@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+	<html lang="en">
+		<head>
+			<title>Frame Editor - WaveTracker</title>
+			<link rel="stylesheet" type="text/css" href="/style.css" />
+			<link rel="shortcut icon" type="image/png" href="/Icon.ico" />
+			<meta name="viewport" content="width=device-width, initial-scale=0.65" />
+		</head>
+		<body>
+			<aside>
+				<ul class="sideNav">
+					<li><h2>General</h2></li>
+					<a href="/overview/"><li>Overview</li></a>
+					<li><h2>Interface</h2></li>
+					<a href="/toolbar/"><li>Toolbar</li></a>
+					<a href="/song-panel/"><li>Song Panel</li></a>
+					<a href="/edit-settings/"><li>Edit Settings</li></a>
+					<a href="/frames-panel/"><li>Frames Panel</li></a>
+					<a href="/wave-bank/"><li>Wave Bank</li></a>
+					<a href="/instrument-bank/"><li>Instrument Bank</li></a>
+					<a class="selected" href="/frame-editor/"><li>Frame Editor</li></a>
+					<a href="/preferences/"><li>Preferences</li></a>
+					<a href="/visualizer-mode/"><li>Visualizer Mode</li></a>
+					<li><h2>Reference</h2></li>
+					<a href="/keyboard-shortcuts/"><li>Keyboard Shortcuts</li></a>
+					<a href="/effect-list/"><li>Effect List</li></a>
+				</ul>
+			</aside>
+			<article>
+				<h1 class="topic">Frame Editor</h1>
+				<hr />
+				<br />
+				<p>The frame editor will likely be where you'll spend most of the time in WaveTracker. It is where you can create patterns for each channel.</p>
+				<img src="frame_editor.png" title="The frame editor, showing channels 1 through 12" alt="The frame editor, showing channels 1 through 12" />
+				<p>
+					The frame editor consists of all 24 channels in a song. Only 12 are visible at one time. Using ALT+Scroll or the scrollbar at the bottom
+					will bring the other channels into view.
+				</p>
+				<p>Each channel has the following layout:</p>
+				<img
+					src="frame_editor_columns.png"
+					title="A closer look at what the columns mean in each channel."
+					alt="A zoom in showing 4 labelled columns for one channel. The first column is for the note/octave, the second is to set the instrument, the third is for volume, the fourth is for effects" />
+
+				<p>
+					Each channel has 4 columns that can hold instructions for it. The application must be in record mode (The cursor row must be red instead of
+					blue. Pressing space toggles this) in order to input information in these fields.
+				</p>
+				<ul>
+					<li>
+						<span style="font-weight: bold">Note Column</span>
+						<br />Displays notes with their octave (ex: F#4), note-cuts (---), or note-releases (===).
+					</li>
+					<ul>
+						<li>Note-cuts immediately end the note with an abrupt stop, the volume will jump to 0.</li>
+						<li>
+							Note-releases will trigger the release sequences of the instrument, if it has any. This can be used to make softer sounding releases
+							that aren't so abrupt.
+						</li>
+					</ul>
+					<p>Notes are input using a piano-qwerty keyboard layout, illustrated below.</p>
+					
+					<br />
+					<li>
+						<span style="font-weight: bold">Instrument Column</span>
+						<br />Sets and triggers instruments from the <a href="/instrument-bank/">instrument bank</a> for the channel to use.
+					</li>
+					<ul>
+						<li>
+							There are two types of instruments in WaveTracker, "Wave" instruments will appear as green, "Sample" instruments will be orange.
+						</li>
+					</ul>
+					<br />
+					<li><span style="font-weight: bold">Volume Column</span> <br />Sets the channel volume as a percentage from 00-99.</li>
+					<br />
+					<li>
+						<span style="font-weight: bold">Effects Column</span>
+						<br />Sets channel effects. The format is Yxx, where Y is the effect type and xx is the parameter. Note that effects will stay on until
+						you turn them off, to avoid cluttering up the column.
+						<br />
+						See <a href="/effect-list/">the full list of effects</a> for more information.
+					</li>
+				</ul>
+
+				<p>Pressing insert or delete will insert or delete rows, respectively. Pressing backspace will remove the previous row.</p>
+				<p>
+					Channels can be muted or unmuted by clicking their headers. Double clicking a channel will solo it, and clicking on the leftmost part of the
+					header will unmute all channels.
+				</p>
+				<p>The cursor can be moved by either clicking a new location, or using the arrow keys.</p>
+				<p>Selections can be done by either clicking or dragging, or holding shift and moving the cursor.</p>
+				<p>See <a href="/keyboard-shortcuts/">keyboard shortcuts</a> for additional keyboard commands.</p>
+				<footer>
+					<hr />
+					WaveTracker is Copyright © 2023 Elias Ananiadis &middot; <a href="https://eliasananiadis.com">Personal site</a>
+				</footer>
+			</article>
+		</body>
+	</html>
+</html>

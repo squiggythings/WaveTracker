@@ -3,28 +3,28 @@
 	<html lang="en">
 		<head>
 			<title>Wave Bank - WaveTracker</title>
-			<link rel="stylesheet" type="text/css" href="./style.css" />
-			<link rel="shortcut icon" type="image/png" href="./Icon.ico" />
+			<link rel="stylesheet" type="text/css" href="/style.css" />
+			<link rel="shortcut icon" type="image/png" href="/Icon.ico" />
 			<meta name="viewport" content="width=device-width, initial-scale=0.65" />
 		</head>
 		<body>
 			<aside>
 				<ul class="sideNav">
 					<li><h2>General</h2></li>
-					<a href="#"><li>Overview</li></a>
+					<a href="/overview/"><li>Overview</li></a>
 					<li><h2>Interface</h2></li>
-					<a href="#"><li>Toolbar</li></a>
-					<a href="#"><li>Song Panel</li></a>
-					<a href="#"><li>Edit Settings</li></a>
-					<a href="#"><li>Frames Panel</li></a>
-					<a href="#"><li>Wave Bank</li></a>
-					<a href="#"><li>Instrument Bank</li></a>
-					<a href="#"><li>Pattern Editor</li></a>
-					<a href="#"><li>Preferences</li></a>
-					<a href="#"><li>Visualizer Mode</li></a>
+					<a href="/toolbar/"><li>Toolbar</li></a>
+					<a href="/song-panel/"><li>Song Panel</li></a>
+					<a href="/edit-settings/"><li>Edit Settings</li></a>
+					<a href="/frames-panel/"><li>Frames Panel</li></a>
+					<a class="selected" href="/wave-bank/"><li>Wave Bank</li></a>
+					<a href="/instrument-bank/"><li>Instrument Bank</li></a>
+					<a href="/frame-editor/"><li>Frame Editor</li></a>
+					<a href="/preferences/"><li>Preferences</li></a>
+					<a href="/visualizer-mode/"><li>Visualizer Mode</li></a>
 					<li><h2>Reference</h2></li>
-					<a href="#"><li>Keyboard Shortcuts</li></a>
-					<a href="#"><li>Effect List</li></a>
+					<a href="/keyboard-shortcuts/"><li>Keyboard Shortcuts</li></a>
+					<a href="/effect-list/"><li>Effect List</li></a>
 				</ul>
 			</aside>
 			<article>
@@ -55,7 +55,7 @@
 				<h4>Presets</h4>
 				<p>
 					There are 8 different presets to choose from. Sine, Triangle, Sawtooth, 50% pulse, 25% pulse, 12.5% pulse, Randomized, and Clear (Resets the
-					wave to be blank)
+					wave to be blank). Clicking any one of these will overwrite what was in the wave canvas with the preset.
 				</p>
 				<h4>Tools</h4>
 				<p>
@@ -69,39 +69,45 @@
 					</tr>
 					<tr>
 						<td>Copy</td>
-						<td>Copies this wave to an internal clipboard</td>
+						<td>Copies this wave to an internal clipboard.</td>
 					</tr>
 					<tr>
 						<td>Paste</td>
-						<td>Pastes the wave copied to the internal clipboard</td>
+						<td>Pastes the wave copied to the internal clipboard.</td>
 					</tr>
 					<tr>
 						<td>Phase ></td>
-						<td>Moves all points in the wave one space to the right, eventually looping back around</td>
+						<td>Moves all points in the wave one space to the right, eventually looping back around.</td>
 					</tr>
 					<tr>
 						<td>Phase &lt;</td>
-						<td>Moves all points in the wave one space to the left, eventually looping back around</td>
+						<td>Moves all points in the wave one space to the left, eventually looping back around.</td>
 					</tr>
 					<tr>
 						<td>Shift up</td>
-						<td>Moves all points in the wave one space up, stopping at the top</td>
+						<td>Moves all points in the wave one space up, stopping at the top.</td>
 					</tr>
 					<tr>
 						<td>Shift down</td>
-						<td>Moves all points in the wave one space down, stopping at the bottom</td>
+						<td>Moves all points in the wave one space down, stopping at the bottom.</td>
 					</tr>
 					<tr>
 						<td>Invert</td>
-						<td>Flips the polarity of the wave, high amplitudes become low amplitudes and vice versa</td>
+						<td>Flips the polarity of the wave. High amplitudes become low amplitudes and vice versa.</td>
 					</tr>
 					<tr>
 						<td>Smooth</td>
-						<td>Attempts to round out any sharp corners in the wave. This will make the sound darker and less bright</td>
+						<td>
+							Attempts to round out any sharp corners in the wave. This will make the sound darker and less bright. Clicking repeatedly will
+							further smooth the wave.
+						</td>
 					</tr>
 					<tr>
 						<td>Mutate</td>
-						<td>Adds slight randomization to the wave, making it sound brighter and altering the timbre</td>
+						<td>
+							Adds slight randomization to the wave, making it sound brighter and altering the timbre. Clicking repeatedly will further mutate the
+							wave.
+						</td>
 					</tr>
 				</table>
 				<br />
@@ -126,11 +132,12 @@
 					<tr>
 						<td>Mix</td>
 						<td>
-							An average between the harsh and smooth modes. Provides a compromise that has a little bit smoother sound but not quite as dulling
-							at low frequencies. This is the default option for any new waves, unless otherwise changed in preferences.
+							An average between the harsh and smooth modes. Provides a compromise that has a little bit smoother sound but not quite as dull at
+							low frequencies. This is the default option for any new waves, unless otherwise changed in preferences.
 						</td>
 					</tr>
 				</table>
+				<br />
 				<footer>
 					<hr />
 					WaveTracker is Copyright © 2023 Elias Ananiadis &middot; <a href="https://eliasananiadis.com">Personal site</a>
