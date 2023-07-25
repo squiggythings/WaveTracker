@@ -151,7 +151,7 @@ namespace WaveTracker.Rendering
             int currRow = numVisibleRows / 2;
             // draw channelheaders
             int id = 0;
-            int tx = px + 22;
+            int tx = px + 58;
 
 
             // draw background
@@ -159,7 +159,7 @@ namespace WaveTracker.Rendering
 
             // draw first row separator
             DrawRect(tx - 1, py, 1, numVisibleRows * 7 + 22, Colors.theme.rowSeparator);
-            DrawBubbleRect(tx - 30, py, 30, 18, Color.White);
+            DrawBubbleRect(tx - 81, py, 80, 18, Color.White);
             foreach (Channel ch in ChannelManager.instance.channels)
             {
                 DrawBubbleRect(tx, py, 34, 18, Color.White);
@@ -180,7 +180,7 @@ namespace WaveTracker.Rendering
             }
             DrawBubbleRect(tx, py, 150, 18, Color.White);
             //DrawRect(tx + 2, py + 12, 80, 3, UIColors.panel);
-            px += 22;
+            px += 58;
             py += 18;
             for (int i = 0; i < numVisibleRows; ++i)
             {
