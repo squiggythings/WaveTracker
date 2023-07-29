@@ -20,7 +20,7 @@
   <resamp_wav>2</resamp_wav>
   <resamp_smp>1</resamp_smp>
   <visPianSpeed>8</visPianSpeed>
-  <visPianFade>false</visPianFade>
+  <visPianFade>true</visPianFade>
   <visPianWidth>true</visPianWidth>
   <visScopeZoom>100</visScopeZoom>
   <visScopeColors>true</visScopeColors>
