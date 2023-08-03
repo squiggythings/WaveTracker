@@ -89,6 +89,8 @@ namespace WaveTracker.Rendering
             pageVisualizer.getLastOption.description = "If this is enabled, notes get thinner as they get softer";
             pageVisualizer.AddCheckbox("Change note opacity by volume");
             pageVisualizer.getLastOption.description = "If this is enabled, notes fade out as they get softer";
+            pageVisualizer.AddCheckbox("Highlight Pressed Keys");
+            pageVisualizer.getLastOption.description = "If this is enabled, currently playing notes will be highlighted on the keyboard itself.";
             pageVisualizer.AddBreak();
             pageVisualizer.AddLabel("Visualizer: Oscilloscopes");
             pageVisualizer.AddNumberBox("Wave zoom:", 50, 200);
@@ -127,9 +129,10 @@ namespace WaveTracker.Rendering
             pageVisualizer.GetOption(1).SetValue(Preferences.profile.visualizerPianoSpeed);
             pageVisualizer.GetOption(2).SetValue(Preferences.profile.visualizerPianoChangeWidth);
             pageVisualizer.GetOption(3).SetValue(Preferences.profile.visualizerPianoFade);
-            pageVisualizer.GetOption(6).SetValue(Preferences.profile.visualizerScopeZoom);
-            pageVisualizer.GetOption(7).SetValue(Preferences.profile.visualizerScopeColors);
-            pageVisualizer.GetOption(8).SetValue(Preferences.profile.visualizerScopeThickness);
+            pageVisualizer.GetOption(4).SetValue(Preferences.profile.visualizerHighlightKeys);
+            pageVisualizer.GetOption(7).SetValue(Preferences.profile.visualizerScopeZoom);
+            pageVisualizer.GetOption(8).SetValue(Preferences.profile.visualizerScopeColors);
+            pageVisualizer.GetOption(9).SetValue(Preferences.profile.visualizerScopeThickness);
 
             base.Open();
         }
@@ -227,9 +230,10 @@ namespace WaveTracker.Rendering
             Preferences.profile.visualizerPianoSpeed = pageVisualizer.GetOption(1).GetValueInt();
             Preferences.profile.visualizerPianoChangeWidth = pageVisualizer.GetOption(2).GetValueBool();
             Preferences.profile.visualizerPianoFade = pageVisualizer.GetOption(3).GetValueBool();
-            Preferences.profile.visualizerScopeZoom = pageVisualizer.GetOption(6).GetValueInt();
-            Preferences.profile.visualizerScopeColors = pageVisualizer.GetOption(7).GetValueBool();
-            Preferences.profile.visualizerScopeThickness = pageVisualizer.GetOption(8).GetValueInt();
+            Preferences.profile.visualizerHighlightKeys = pageVisualizer.GetOption(4).GetValueBool();
+            Preferences.profile.visualizerScopeZoom = pageVisualizer.GetOption(7).GetValueInt();
+            Preferences.profile.visualizerScopeColors = pageVisualizer.GetOption(8).GetValueBool();
+            Preferences.profile.visualizerScopeThickness = pageVisualizer.GetOption(9).GetValueInt();
             Preferences.SaveToFile();
         }
     }

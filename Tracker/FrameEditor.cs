@@ -32,6 +32,7 @@ namespace WaveTracker
         public static Point selectionStart, selectionEnd;
         public static Point selectionMin, selectionMax;
         public static Point lastSelMin, lastSelMax;
+        public static int selectionFrame;
         public static bool lastSelActive;
         public static int lastRow, lastCol, lastFrame;
         public static bool isDragging;
@@ -113,6 +114,7 @@ namespace WaveTracker
                             selectionEnd.X = chan * 5 + 4;
                             selectionStart.Y = 0;
                             selectionEnd.Y = thisFrame.GetLastRow();
+                            selectionFrame = currentFrame;
                             selectionActive = true;
                         }
                     }
@@ -125,6 +127,7 @@ namespace WaveTracker
                                 if (!isDragging)
                                 {
                                     selectionStart = new Point(cursorColToFileCol(mcolumn), mrow);
+
                                     selectionActive = true;
                                 }
                                 isDragging = true;
@@ -217,7 +220,10 @@ namespace WaveTracker
                     correctChanScroll();
                 }
             }
-
+            if (selectionActive && currentFrame != selectionFrame)
+            {
+                selectionActive = false;
+            }
 
             #endregion
             #region muting and unmuting channels with function keys
@@ -238,6 +244,7 @@ namespace WaveTracker
                     if (!selectionActive)
                     {
                         selectionStart = new Point(currentColumn, currentRow);
+                        selectionFrame = currentFrame;
                         selectionActive = true;
                     }
                     Move(0, Preferences.profile.ignoreStepWhenMoving ? 1 : step);
@@ -249,6 +256,7 @@ namespace WaveTracker
                     if (!selectionActive)
                     {
                         selectionStart = new Point(currentColumn, currentRow);
+                        selectionFrame = currentFrame;
                         selectionActive = true;
                     }
                     Move(0, Preferences.profile.ignoreStepWhenMoving ? -1 : -step);
@@ -260,6 +268,7 @@ namespace WaveTracker
                     if (!selectionActive)
                     {
                         selectionStart = new Point(currentColumn, currentRow);
+                        selectionFrame = currentFrame;
                         selectionActive = true;
                     }
                     Move(1, 0);
@@ -270,6 +279,7 @@ namespace WaveTracker
                     if (!selectionActive)
                     {
                         selectionStart = new Point(currentColumn, currentRow);
+                        selectionFrame = currentFrame;
                         selectionActive = true;
                     }
                     Move(-1, 0);
@@ -292,6 +302,7 @@ namespace WaveTracker
                         selectionEnd.X = chan * 5 + 4;
                         selectionStart.Y = 0;
                         selectionEnd.Y = thisFrame.GetLastRow();
+                        selectionFrame = currentFrame;
                         selectionActive = true;
                     }
                 }
@@ -782,6 +793,7 @@ namespace WaveTracker
                 selectionEnd = new Point(startRow + clipboard.Count - 1, startCol + clipboard[0].Count - 1);
                 selectionMin = new Point(startRow, startCol);
                 selectionMax = new Point(startRow + clipboard.Count - 1, startCol + clipboard[0].Count - 1);
+                selectionFrame = currentFrame;
                 selectionActive = true;
                 CreateSelectionBounds();
                 AddToHistory();

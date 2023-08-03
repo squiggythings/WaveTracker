@@ -149,6 +149,8 @@ volume              25%
         public bool visualizerPianoFade = true;
         [XmlElement(ElementName = "visPianWidth")]
         public bool visualizerPianoChangeWidth = true;
+        [XmlElement(ElementName = "visHighlightKeys")]
+        public bool visualizerHighlightKeys;
         [XmlElement(ElementName = "visScopeZoom")]
         public int visualizerScopeZoom = 100;
         [XmlElement(ElementName = "visScopeColors")]

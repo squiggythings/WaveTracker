@@ -489,7 +489,7 @@ namespace WaveTracker.Audio
                     arpCounter = 0;
             }
 
-            
+
             if (volumeEnv.toPlay.values.Count > 0 && volumeEnv.toPlay.isActive)
                 try
                 {
@@ -498,7 +498,7 @@ namespace WaveTracker.Audio
                 }
                 catch
                 {
-                   // Cut();
+                    // Cut();
                 }
             if (arpEnv.toPlay.isActive)
             {
@@ -506,7 +506,7 @@ namespace WaveTracker.Audio
             }
             else
                 arpEnvelopeResult = 0;
-            
+
         }
 
         void DoEvent(TickEvent t)
@@ -537,91 +537,95 @@ namespace WaveTracker.Audio
         public void ProcessSingleSample(out float left, out float right, bool continuousTick, float continuousDelta)
         {
             left = right = 0;
-            if (FrameEditor.channelToggles[id])
-            {
-                float freqCut = 1;
 
-                if (_frequency > 30000)
+            float freqCut = 1;
+
+            if (_frequency > 30000)
+            {
+                freqCut = 0;
+                _frequency = 30000;
+                _state = VoiceState.Off;
+            }
+            decimal delta = 1.0M / AudioEngine.sampleRate * (Decimal)_frequency;
+            if (continuousTick)
+                ContinuousTick(continuousDelta);
+            if (noteOn)
+            {
+                if (_state == VoiceState.Off)
                 {
-                    freqCut = 0;
-                    _frequency = 30000;
-                    _state = VoiceState.Off;
-                }
-                decimal delta = 1.0M / AudioEngine.sampleRate * (Decimal)_frequency;
-                if (continuousTick)
-                    ContinuousTick(continuousDelta);
-                if (noteOn)
-                {
-                    if (_state == VoiceState.Off)
+                    _fadeMultiplier /= 1.002f;
+                    if (_fadeMultiplier < 0.001f)
                     {
-                        _fadeMultiplier /= 1.002f;
-                        if (_fadeMultiplier < 0.001f)
+                        noteOn = false;
+                    }
+                }
+                else
+                {
+                    _fadeMultiplier = 1;
+                    _time += delta;
+                }
+
+
+                float sampleL = 0;
+                float sampleR = 0;
+                if (currentMacro != null)
+                {
+                    if (currentMacro.macroType == MacroType.Wave)
+                    {
+                        if (stereoPhaseOffset != 0)
                         {
-                            noteOn = false;
+                            sampleL = EvaluateWave((float)_time - stereoPhaseOffset);
+                            sampleR = EvaluateWave((float)_time + stereoPhaseOffset);
+                        }
+                        else
+                        {
+                            sampleR = sampleL = EvaluateWave((float)_time);
                         }
                     }
                     else
                     {
-                        _fadeMultiplier = 1;
-                        _time += delta;
-                    }
-
-
-                    float sampleL = 0;
-                    float sampleR = 0;
-                    if (currentMacro != null)
-                    {
-                        if (currentMacro.macroType == MacroType.Wave)
+                        currentMacro.sample.SampleTick((float)_time, 0, out sampleL, out sampleR);
+                        samplePlaybackPosition = currentMacro.sample.currentPlaybackPosition;
+                        if (Math.Abs(sampleL) > _sampleVolume)
                         {
-                            if (stereoPhaseOffset != 0)
-                            {
-                                sampleL = EvaluateWave((float)_time - stereoPhaseOffset);
-                                sampleR = EvaluateWave((float)_time + stereoPhaseOffset);
-                            }
-                            else
-                            {
-                                sampleR = sampleL = EvaluateWave((float)_time);
-                            }
+                            _sampleVolume = Math.Abs(sampleL);
                         }
-                        else
+                        if (Math.Abs(sampleR) > _sampleVolume)
                         {
-                            currentMacro.sample.SampleTick((float)_time, 0, out sampleL, out sampleR);
-                            samplePlaybackPosition = currentMacro.sample.currentPlaybackPosition;
-                            if (Math.Abs(sampleL) > _sampleVolume)
-                            {
-                                _sampleVolume = Math.Abs(sampleL);
-                            }
-                            if (Math.Abs(sampleR) > _sampleVolume)
-                            {
-                                _sampleVolume = Math.Abs(sampleR);
-                            }
+                            _sampleVolume = Math.Abs(sampleR);
                         }
                     }
-
-                    _volumeSmooth += (totalAmplitude - _volumeSmooth) * 0.02f;
-
-                    // float f = (float)Math.Pow(_volumeSmooth, 1.25);
-                    float f = _volumeSmooth;
-                    float l = sampleL * f * _leftAmp * _fadeMultiplier * freqCut;
-                    float r = sampleR * f * _rightAmp * _fadeMultiplier * freqCut;
-
-                    if (AudioEngine.quantizeAmplitude)
-                    {
-                        if (_volumeSmooth < 0.005f)
-                        {
-                            l = 0;
-                            r = 0;
-                        }
-                        int quantamt = 16;
-                        l = (float)(Math.Ceiling(l * quantamt)) / (float)quantamt;
-                        r = (float)(Math.Ceiling(r * quantamt)) / (float)quantamt;
-                    }
-                    left = l * 0.225f;
-                    right = r * 0.225f;
                 }
-            }
-        }
 
+                _volumeSmooth += (totalAmplitude - _volumeSmooth) * 0.02f;
+
+                // float f = (float)Math.Pow(_volumeSmooth, 1.25);
+                float f = _volumeSmooth;
+                float l = sampleL * f * _leftAmp * _fadeMultiplier * freqCut;
+                float r = sampleR * f * _rightAmp * _fadeMultiplier * freqCut;
+
+                if (AudioEngine.quantizeAmplitude)
+                {
+                    if (_volumeSmooth < 0.005f)
+                    {
+                        l = 0;
+                        r = 0;
+                    }
+                    int quantamt = 16;
+                    l = (float)(Math.Ceiling(l * quantamt)) / (float)quantamt;
+                    r = (float)(Math.Ceiling(r * quantamt)) / (float)quantamt;
+                }
+                left = l * 0.225f;
+                right = r * 0.225f;
+                if (!FrameEditor.channelToggles[id])
+                {
+                    left = 0;
+                    right = 0;
+                }
+
+            }
+
+        }
     }
 
     public class EnvelopePlayer
