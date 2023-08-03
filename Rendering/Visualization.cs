@@ -89,9 +89,9 @@ namespace WaveTracker.Rendering
             frameRenderer = fr;
             x = 0; y = 0;
             states = new List<List<ChannelState>>();
-            states.Add(new List<ChannelState> { new ChannelState(0, 0, Color.Red) });
+            states.Add(new List<ChannelState> { new ChannelState(0, 0, Color.Red, false) });
             statesPrev = new List<List<ChannelState>>();
-            statesPrev.Add(new List<ChannelState> { new ChannelState(0, 0, Color.Red) });
+            statesPrev.Add(new List<ChannelState> { new ChannelState(0, 0, Color.Red, false) });
             waveColors = new Color[100];
             for (int i = 0; i < 100; ++i)
             {
@@ -113,7 +113,7 @@ namespace WaveTracker.Rendering
 
                 if ((chan.currentMacro.macroType == MacroType.Wave || chan.currentMacro.sample.useInVisualization) && chan.CurrentAmplitude > 0.01f && chan.CurrentPitch >= 0 && chan.CurrentPitch < 120 && FrameEditor.channelToggles[c])
                 {
-                    ChannelState state = new ChannelState(chan.CurrentPitch, chan.CurrentAmplitude, chan.currentMacro.macroType == MacroType.Wave ? waveColors[chan.waveIndex] : Color.White);
+                    ChannelState state = new ChannelState(chan.CurrentPitch, chan.CurrentAmplitude, chan.currentMacro.macroType == MacroType.Wave ? waveColors[chan.waveIndex] : Color.White, chan.isPlaying);
                     rowOfStates.Add(state);
                 }
             }
@@ -131,8 +131,10 @@ namespace WaveTracker.Rendering
         public void Draw()
         {
             fillstates(statesPrev);
-
-            DrawSprite(InstrumentEditor.tex, 20, 20, 600, 24, new Rectangle(16, 688, 600, 24));
+            if (Preferences.profile.visualizerHighlightKeys)
+                DrawSprite(InstrumentEditor.tex, 20, 20, 600, 24, new Rectangle(16, 688, 600, 24), new Color(128, 128, 128, 128));
+            else
+                DrawSprite(InstrumentEditor.tex, 20, 20, 600, 24, new Rectangle(16, 688, 600, 24));
             oscilloscopeHeight = 5;
             int py = oscilloscopeHeight * 8 + 40;
             int dist = Game1.bottomOfScreen - py - 18 - 15;
@@ -438,6 +440,31 @@ namespace WaveTracker.Rendering
         {
             int px = 40;
             int py = 20 * 2;
+
+            if (Preferences.profile.visualizerHighlightKeys && states.Count > 0)
+            {
+                for (int i = states[0].Count - 1; i >= 0; i--)
+                {
+                    if (states[0][i].isPlaying)
+                    {
+                        int psy = y + py;
+                        int pitch = (int)(states[0][i].pitch + 0.5f);
+                        int psheight = 31;
+                        int pswidth = 8;
+                        int wo = 1;
+                        int alpha = (int)states[0][i].volume.Map(0, 1, 60, 255);
+                        if (!Preferences.profile.visualizerPianoFade)
+                            alpha = 255;
+                        if (!Helpers.isNoteBlackKey(pitch))
+                        {
+                            wo = 1;
+                            psheight += 14;
+                            pswidth = 8;
+                        }
+                        DrawRect((px + pitch * 10 + wo), psy, pswidth, psheight, Helpers.Alpha(states[0][i].color, alpha));
+                    }
+                }
+            }
             for (int i = 0; i < states.Count; i++)
             {
                 foreach (ChannelState state in states[i])
@@ -459,11 +486,13 @@ namespace WaveTracker.Rendering
             public float pitch { get; private set; }
             public float volume { get; private set; }
             public Color color { get; private set; }
-            public ChannelState(float p, float v, Color c)
+            public bool isPlaying { get; private set; }
+            public ChannelState(float p, float v, Color c, bool ip)
             {
                 pitch = p;
                 volume = v;
                 color = c;
+                isPlaying = ip;
             }
 
             public override string ToString()

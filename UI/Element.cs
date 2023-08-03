@@ -113,6 +113,10 @@ namespace WaveTracker.UI
         {
             Graphics.DrawSprite(sprite, this.x + x + offX, this.y + y + offY, width, height, spriteBounds);
         }
+        protected void DrawSprite(Texture2D sprite, int x, int y, int width, int height, Rectangle spriteBounds, Color col)
+        {
+            Graphics.DrawSprite(sprite, this.x + x + offX, this.y + y + offY, width, height, spriteBounds, col);
+        }
 
         public Point globalPointToLocalPoint(Point p)
         {
