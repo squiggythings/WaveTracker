@@ -189,7 +189,10 @@ namespace WaveTracker.Rendering
                 int rowY = py + i * 7;
                 int thisRow = Playback.playbackRow + i - numVisibleRows / 2;
                 if (thisRow == Playback.playbackRow)
-                    DrawRect(px, rowY, 35 * Song.CHANNEL_COUNT, 7, Colors.theme.cursor);
+                {
+                    DrawRect(px, rowY, 35 * Song.CHANNEL_COUNT, 7, Colors.theme.rowSeparator);
+                    DrawRect(px, rowY, 35 * Song.CHANNEL_COUNT, 7, Helpers.Alpha(Colors.theme.cursor, 90));
+                }
 
                 if (thisRow >= 0 && thisRow <= Playback.frame.GetLastRow())
                     for (int channel = 0; channel < Song.CHANNEL_COUNT * 5; channel += 5)
