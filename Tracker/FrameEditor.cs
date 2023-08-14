@@ -127,7 +127,7 @@ namespace WaveTracker
                                 if (!isDragging)
                                 {
                                     selectionStart = new Point(cursorColToFileCol(mcolumn), mrow);
-
+                                    selectionFrame = currentFrame;
                                     selectionActive = true;
                                 }
                                 isDragging = true;
