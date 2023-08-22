@@ -99,6 +99,8 @@ namespace WaveTracker.Tracker
                 return false;
             if (sample.Detune != other.sample.Detune)
                 return false;
+            if (sample.useInVisualization != other.sample.useInVisualization)
+                return false;
             return true;
         }
 
@@ -125,6 +127,7 @@ namespace WaveTracker.Tracker
             m.sample.sampleLoopIndex = sample.sampleLoopIndex;
             m.sample.SetBaseKey(sample.BaseKey);
             m.sample.SetDetune(sample.Detune);
+            m.sample.useInVisualization = sample.useInVisualization;
             return m;
         }
 
@@ -249,7 +252,7 @@ namespace WaveTracker.Tracker
 
             sampleLoopIndex = 0;
 
-
+            useInVisualization = false;
             sampleDataAccessL = new float[0];
             sampleDataAccessR = new float[0];
             sampleLoopType = SampleLoopType.OneShot;

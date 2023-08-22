@@ -189,9 +189,10 @@ namespace WaveTracker
                 if (pianoInput != -1 && lastPianoKey != pianoInput)
                 {
                     previewChannel = FrameEditor.currentColumn / 5;
+                    Audio.AudioEngine._tickCounter = 0;
                     channelManager.channels[previewChannel].SetMacro(Rendering.InstrumentBank.CurrentInstrumentIndex);
                     channelManager.channels[previewChannel].TriggerNote(pianoInput);
-                    Audio.AudioEngine._tickCounter = 0;
+                    //channelManager.channels[previewChannel].arpEnv.Start();
                 }
             }
             if (pianoInput == -1 && lastPianoKey != -1)

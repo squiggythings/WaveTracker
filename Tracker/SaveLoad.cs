@@ -23,7 +23,6 @@ namespace WaveTracker
     public static class SaveLoad
     {
         public static Song savedSong;
-        const string fileHeaderCheck = "WaveTrackerModule_v1.0";
 
 
         public static bool isSaved { get { if (Game1.currentSong.Equals(Game1.newSong)) return true; if (savedSong == null) return false; else return savedSong.Equals(Game1.currentSong); } }
@@ -297,6 +296,7 @@ namespace WaveTracker
                     saveFileDialog.OverwritePrompt = true;
                     saveFileDialog.FileName = fileNameWithoutExtension;
                     saveFileDialog.Title = "Export .wav";
+                    saveFileDialog.Filter = "Waveform Audio File Format (*.wav)|*.wav|All files (*.*)|*.*";
                     saveFileDialog.AddExtension = true;
                     saveFileDialog.CheckPathExists = true;
                     saveFileDialog.ValidateNames = true;

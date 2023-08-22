@@ -268,7 +268,7 @@ namespace WaveTracker.Tracker
                 float sample1 = getSample(index1) / 16f - 1f;
                 float sample2 = getSample(index2) / 16f - 1f;
                 float lerp = MathHelper.Lerp(sample1, sample2, (float)Helpers.Mod(t, 0.015625) * 64);
-                float reg = getSample((int)(t * samples.Length)) / 16f - 1f;
+                float reg = getSample((int)(t * samples.Length + 0.5f)) / 16f - 1f;
                 return (lerp + reg) * 0.5f;
             }
         }

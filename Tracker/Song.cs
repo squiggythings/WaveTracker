@@ -64,7 +64,6 @@ namespace WaveTracker.Tracker
             quantizeChannelAmplitude = false;
         }
 
-
         public bool Equals(Song other)
         {
             if (other.name != name)

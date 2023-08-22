@@ -171,7 +171,7 @@ namespace WaveTracker.Rendering
             if (lastIndex != CurrentInstrumentIndex)
             {
                 lastIndex = CurrentInstrumentIndex;
-                ChannelManager.instance.GetCurrentChannel().SetMacro(CurrentInstrumentIndex);
+                //ChannelManager.instance.GetCurrentChannel().SetMacro(CurrentInstrumentIndex);
             }
             scrollbar.doUpdate();
         }

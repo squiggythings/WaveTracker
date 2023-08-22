@@ -222,8 +222,6 @@ namespace WaveTracker.Rendering
                                 visualize_toggle.Value = instrument.sample.useInVisualization;
                                 visualize_toggle.Update();
                                 instrument.sample.useInVisualization = visualize_toggle.Value;
-
-
                             }
                             #endregion
                         }

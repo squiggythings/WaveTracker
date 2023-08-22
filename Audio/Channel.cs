@@ -83,12 +83,6 @@ namespace WaveTracker.Audio
             this.id = id;
             tickEvents = new List<TickEvent>();
             _manager = manager;
-            currentMacro = new Macro(MacroType.Wave);
-            macroID = 0;
-            volumeEnv = new EnvelopePlayer();
-            arpEnv = new EnvelopePlayer();
-            pitchEnv = new EnvelopePlayer();
-            waveEnv = new EnvelopePlayer();
             Reset();
         }
 
@@ -245,6 +239,12 @@ namespace WaveTracker.Audio
 
         public void Reset()
         {
+            currentMacro = new Macro(MacroType.Wave);
+            macroID = 0;
+            volumeEnv = new EnvelopePlayer();
+            arpEnv = new EnvelopePlayer();
+            pitchEnv = new EnvelopePlayer();
+            waveEnv = new EnvelopePlayer();
             tickEvents.Clear();
             noteOn = false;
             _state = VoiceState.Off;
@@ -317,9 +317,8 @@ namespace WaveTracker.Audio
                 noteOn = true;
                 _state = VoiceState.On;
             }
-
-
-
+            arpEnv.Start();
+            arpEnvelopeResult = arpEnv.Evaluate();
             _tickTime = 0;
             if (currentMacro.macroType == MacroType.Sample)
                 _time = 0;
@@ -434,10 +433,11 @@ namespace WaveTracker.Audio
             tickNum++;
             if (currentMacro.macroType == MacroType.Wave)
             {
+                waveEnv.Step();
                 if (waveEnv.toPlay.isActive)
                     if (!waveEnv.envelopeEnded && _state != VoiceState.Off)
                         SetWave(waveEnv.Evaluate());
-                waveEnv.Step();
+                
             }
             if (volumeEnv.toPlay.isActive)
                 volumeEnv.Step();
@@ -505,7 +505,7 @@ namespace WaveTracker.Audio
                 arpEnvelopeResult = arpEnv.Evaluate();
             }
             else
-                arpEnvelopeResult = 0;
+                arpEnvelopeResult = arpEnv.Evaluate();
 
         }
 
