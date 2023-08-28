@@ -81,8 +81,8 @@ namespace WaveTracker.Tracker
             ret.selectionMin = FrameEditor.lastSelMin;
             ret.selectionMax = FrameEditor.lastSelMax;
             ret.selectionActive = FrameEditor.lastSelActive;
-            ret.col = FrameEditor.lastCol;
-            ret.row = FrameEditor.lastRow;
+            ret.col = FrameEditor.lastCursorCol;
+            ret.row = FrameEditor.lastCursorRow;
             ret.frame = FrameEditor.lastFrame;
             return ret;
         }

@@ -126,7 +126,7 @@ namespace WaveTracker.Rendering
             }
             if (bRemove.Clicked)
             {
-                FrameEditor.DeletedInstrument(CurrentInstrumentIndex);
+                FrameEditor.AdjustForDeletedInstrument(CurrentInstrumentIndex);
                 song.instruments.RemoveAt(CurrentInstrumentIndex);
                 if (CurrentInstrumentIndex >= song.instruments.Count)
                 {
