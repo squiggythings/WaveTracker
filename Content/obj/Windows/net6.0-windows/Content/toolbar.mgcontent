@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PipelineBuildEvent xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-  <SourceFile>C:/Users/elias/source/repos/WaveTracker/Content/toolbar.png</SourceFile>
-  <SourceTime>2023-03-21T21:05:12.6285572-04:00</SourceTime>
-  <DestFile>C:/Users/elias/source/repos/WaveTracker/Content/bin/Windows/Content/toolbar.xnb</DestFile>
-  <DestTime>2023-07-29T11:37:10.3008607-04:00</DestTime>
+  <SourceFile>C:/Users/Elias/source/repos/WaveTracker/Content/toolbar.png</SourceFile>
+  <SourceTime>2023-05-15T15:12:49.2847497-04:00</SourceTime>
+  <DestFile>C:/Users/Elias/source/repos/WaveTracker/Content/bin/Windows/Content/toolbar.xnb</DestFile>
+  <DestTime>2023-09-07T16:34:59.56663-04:00</DestTime>
   <Importer>TextureImporter</Importer>
   <ImporterTime>2022-07-26T07:44:56-04:00</ImporterTime>
   <Processor>TextureProcessor</Processor>

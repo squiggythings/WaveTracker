@@ -53,4 +53,4 @@ C:\Users\Elias\source\repos\WaveTracker\obj\Debug\net6.0-windows\WaveTracker.dll
 C:\Users\Elias\source\repos\WaveTracker\obj\Debug\net6.0-windows\WaveTracker.pdb
 C:\Users\Elias\source\repos\WaveTracker\obj\Debug\net6.0-windows\WaveTracker.genruntimeconfig.cache
 C:\Users\Elias\source\repos\WaveTracker\obj\Debug\net6.0-windows\ref\WaveTracker.dll
-C:\Users\elias\source\repos\WaveTracker\bin\Debug\net6.0-windows\ref\WaveTracker.dll
+C:\Users\Elias\source\repos\WaveTracker\obj\Debug\net6.0-windows\refint\WaveTracker.dll

@@ -117,7 +117,7 @@ namespace WaveTracker.Rendering
             for (int i = 0; i < Audio.AudioEngine.currentBuffer.GetLength(1); i++)
             {
                 float l = Math.Abs(Audio.AudioEngine.currentBuffer[0, i]);
-                float r = Math.Abs(Audio.AudioEngine.currentBuffer[0, i]);
+                float r = Math.Abs(Audio.AudioEngine.currentBuffer[1, i]);
                 if (l > ampLeft)
                     ampLeft = l;
                 if (r > ampRight)
