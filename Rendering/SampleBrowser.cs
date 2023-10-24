@@ -25,7 +25,7 @@ namespace WaveTracker.Rendering
         public SpriteButton backButton;
         public Scrollbar scrollbar;
         public Button ok, cancel;
-        string currentPath = @"C:\USERS\Elias\Desktop\stuff that takes up space\pxtone\my_material";
+        string currentPath = @"C:\";
         string lastPath;
         int listLength = 24;
         public string[] entriesInDirectory;
@@ -73,11 +73,17 @@ namespace WaveTracker.Rendering
                 {
                     sortMethod = SortingMethod.ByName;
                     GetFileEntries(true);
+                    selectedFileIndex = -1;
+                    scrollbar.scrollValue = 0;
+                    previewOut.Stop();
                 }
                 if (sortType.Clicked)
                 {
                     sortMethod = SortingMethod.ByType;
                     GetFileEntries(true);
+                    selectedFileIndex = -1;
+                    scrollbar.scrollValue = 0;
+                    previewOut.Stop();
                 }
                 sortName.Value = sortMethod == SortingMethod.ByName;
                 sortType.Value = sortMethod == SortingMethod.ByType;
@@ -255,9 +261,9 @@ namespace WaveTracker.Rendering
                         entries.RemoveAt(i);
                     }
                 }
-                if (sortName.Value)
+                if (sortMethod == SortingMethod.ByName)
                     entries.Sort();
-                if (sortType.Value)
+                if (sortMethod == SortingMethod.ByType)
                     entries.Sort((a, b) => sortByType(a, b));
                 entriesInDirectory = entries.ToArray();
             }

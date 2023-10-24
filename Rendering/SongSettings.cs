@@ -99,7 +99,7 @@ namespace WaveTracker.Rendering
             }
         }
 
-
+  
         public void DrawVolumeMeters(int px, int py, int width, int height)
         {
             Color grey = new Color(163, 167, 194);
