@@ -8,6 +8,7 @@ using System.Threading;
 using Microsoft.Xna.Framework;
 using System.IO;
 using System.Diagnostics;
+using ProtoBuf;
 
 namespace WaveTracker.Tracker
 {
@@ -18,14 +19,22 @@ namespace WaveTracker.Tracker
         Sample
     }
     [Serializable]
-    public partial class Macro
+    [ProtoContract]
+    public class Macro
     {
+        [ProtoMember(17)]
         public string name;
+        [ProtoMember(18)]
         public MacroType macroType;
+        [ProtoMember(19)]
         public Envelope volumeEnvelope;
+        [ProtoMember(20)]
         public Envelope arpEnvelope;
+        [ProtoMember(21)]
         public Envelope pitchEnvelope;
+        [ProtoMember(22)]
         public Envelope waveEnvelope;
+        [ProtoMember(23)]
         public Sample sample;
         public const char delimiter = '%';
 
@@ -138,19 +147,29 @@ namespace WaveTracker.Tracker
     }
 
     [Serializable]
-    public partial class Envelope
+    [ProtoContract(SkipConstructor = false)]
+    public class Envelope
     {
+        [ProtoMember(1)]
         public bool isActive = false;
+        [ProtoMember(2)]
         public int defaultValue;
-        public List<int> values;
-        public int releaseIndex = -1;
-        public int loopIndex = -1;
+        [ProtoMember(3)]
+        public List<short> values;
+        public int releaseIndex;
+        public int loopIndex;
+        [ProtoMember(4)]
+        byte relIndexSerialized;
+        [ProtoMember(5)]
+        byte loopIndexSerialized;
+
+        public const int emptyEnvValue = -1;
 
         public Envelope Clone()
         {
             Envelope ret = new Envelope(defaultValue);
             ret.isActive = isActive;
-            ret.values = new List<int>();
+            ret.values = new List<short>();
             for (int i = 0; i < values.Count; i++)
             {
                 ret.values.Add(values[i]);
@@ -162,13 +181,24 @@ namespace WaveTracker.Tracker
 
         }
 
+        public void PrepareForSerialization()
+        {
+            relIndexSerialized = (byte)(releaseIndex + 5);
+            loopIndexSerialized = (byte)(loopIndex + 5);
+        }
+        public void PrepareFromDeserialization()
+        {
+            releaseIndex = relIndexSerialized - 5;
+            loopIndex = loopIndexSerialized - 5;
+        }
+
         public Envelope(int defaultValue)
         {
             this.defaultValue = defaultValue;
             isActive = false;
-            values = new List<int>();
-            releaseIndex = -1;
-            loopIndex = -1;
+            values = new List<short>();
+            releaseIndex = emptyEnvValue;
+            loopIndex = emptyEnvValue;
         }
         public bool IsEqualTo(Envelope other)
         {
@@ -191,8 +221,8 @@ namespace WaveTracker.Tracker
             return true;
         }
 
-        public bool HasRelease { get { return releaseIndex >= 0; } }
-        public bool HasLoop { get { return loopIndex >= 0; } }
+        public bool HasRelease { get { return releaseIndex != emptyEnvValue; } }
+        public bool HasLoop { get { return loopIndex != emptyEnvValue; } }
 
         public override string ToString()
         {
@@ -226,30 +256,41 @@ namespace WaveTracker.Tracker
                     releaseIndex = --i;
                 if (part.Contains('|'))
                     loopIndex = i--;
-                int val = 0;
-                if (int.TryParse(part, out val))
+                short val = 0;
+                if (short.TryParse(part, out val))
                     values.Add(val);
                 i++;
             }
         }
     }
     [Serializable]
-    public partial class Sample
+    [ProtoContract(SkipConstructor = false)]
+    public class Sample
     {
+        [ProtoMember(1)]
         public Audio.ResamplingModes resampleMode;
+        [ProtoMember(2)]
         public SampleLoopType sampleLoopType;
+        [ProtoMember(3)]
         public int sampleLoopIndex;
+        [ProtoMember(4)]
         public int Detune { get; private set; }
+        [ProtoMember(5)]
         public int BaseKey { get; private set; }
+        [ProtoMember(6)]
         public int currentPlaybackPosition;
+        [ProtoMember(7)]
         public bool useInVisualization;
 
+        [ProtoMember(8)]
         public float _baseFrequency { get; private set; }
-        public float[] sampleDataAccessL, sampleDataAccessR;
+        [ProtoMember(9)]
+        public float[] sampleDataAccessL = new float[0];
+        [ProtoMember(10)]
+        public float[] sampleDataAccessR = new float[0];
 
         public Sample()
         {
-
             sampleLoopIndex = 0;
 
             useInVisualization = false;
@@ -428,8 +469,7 @@ namespace WaveTracker.Tracker
 
         public float getMonoSample(float time)
         {
-            float l, r;
-            SampleTick(time, 0, out l, out r);
+            SampleTick(time, 0, out float l, out float r);
             return (l + r) / 2f;
         }
 

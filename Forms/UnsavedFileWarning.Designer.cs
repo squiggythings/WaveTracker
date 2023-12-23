@@ -1,6 +1,6 @@
 ﻿namespace WaveTracker.Forms
 {
-    partial class UnsavedFileWarning
+     partial class UnsavedFileWarning
     {
         /// <summary>
         /// Required designer variable.

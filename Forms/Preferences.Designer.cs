@@ -1,6 +1,6 @@
 ﻿namespace WaveTracker.Forms
 {
-    partial class Preferences
+     partial class Preferences
     {
         /// <summary>
         /// Required designer variable.

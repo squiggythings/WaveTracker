@@ -14,6 +14,7 @@ using System.Runtime.InteropServices;
 using System.Security.Principal;
 using WaveTracker.UI;
 using WaveTracker.Rendering;
+using WaveTracker.Tracker;
 
 namespace WaveTracker
 {
@@ -25,7 +26,7 @@ namespace WaveTracker
         public static Texture2D channelHeaderSprite;
 
         public int ScreenWidth = 960;
-        public int ScreenHeight = 540 - 24;
+        public int ScreenHeight = 600;
         public static int ScreenScale = 2;
         public static SpriteFont font;
         RenderTarget2D target;
@@ -120,7 +121,7 @@ namespace WaveTracker
             pixel.SetData(new[] { Color.White });
             // TODO: use this.Content to load your game content here
             targetBatch = new SpriteBatch(GraphicsDevice);
-            target = new RenderTarget2D(GraphicsDevice, ScreenWidth, 600);
+            target = new RenderTarget2D(GraphicsDevice, ScreenWidth, ScreenHeight);
             audioEngine = new Audio.AudioEngine();
             audioEngine.Initialize(channelManager);
             SaveLoad.NewFile();
@@ -147,8 +148,7 @@ namespace WaveTracker
                     }
             }
             Window.Title = SaveLoad.fileName + (SaveLoad.isSaved ? "" : "*") + " - WaveTracker";
-            ScreenScale = 2;
-            bottomOfScreen = Window.ClientBounds.Height / 2;
+            bottomOfScreen = Window.ClientBounds.Height / ScreenScale;
             FrameEditor.channelScrollbar.y = bottomOfScreen - 14;
             if (Input.GetKeyDown(Keys.F12, KeyModifier.None))
             {
@@ -189,10 +189,10 @@ namespace WaveTracker
                 if (pianoInput != -1 && lastPianoKey != pianoInput)
                 {
                     previewChannel = FrameEditor.currentColumn / 5;
-                    Audio.AudioEngine._tickCounter = 0;
+                    if (!Playback.isPlaying)
+                        Audio.AudioEngine._tickCounter = 0;
                     channelManager.channels[previewChannel].SetMacro(Rendering.InstrumentBank.CurrentInstrumentIndex);
                     channelManager.channels[previewChannel].TriggerNote(pianoInput);
-                    //channelManager.channels[previewChannel].arpEnv.Start();
                 }
             }
             if (pianoInput == -1 && lastPianoKey != -1)
@@ -319,7 +319,7 @@ namespace WaveTracker
             targetBatch.Begin(SpriteSortMode.Deferred, BlendState.NonPremultiplied, SamplerState.PointWrap, DepthStencilState.Default, RasterizerState.CullNone);
             //targetBatch.Draw(pixel, new Rectangle(0, 0, 1920, scrOffsetY), Color.White);
             //targetBatch.Draw(pixel, new Rectangle(0, 1080 + scrOffsetY, 1920, 90), Color.White);
-            targetBatch.Draw(target, new Rectangle(0, 0, ScreenWidth * ScreenScale, 1200), Color.White);
+            targetBatch.Draw(target, new Rectangle(0, 0, ScreenWidth * ScreenScale, ScreenHeight * ScreenScale), Color.White);
             if (VisualizerMode && Input.focus == null)
             {
                 try

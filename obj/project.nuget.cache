@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "sM4a7LP3joH/YTwlqihtk85LouYwDQF8NFBkewVqgPCNxmUgQOoOiM5iPZL74kdooMvfRIC/hh5+l9O2id1pdA==",
+  "dgSpecHash": "6T6ib8l82v3fDewZ9rV4QgTh9j2HFBOVSYJdQPOI+K3aTJkxLcTcHE426KeiFOpwL6Hwu4NIx2JFcF9J188aew==",
   "success": true,
   "projectFilePath": "C:\\Users\\Elias\\source\\repos\\WaveTracker\\WaveTracker.csproj",
   "expectedPackageFiles": [
@@ -32,6 +32,8 @@
     "C:\\Users\\Elias\\.nuget\\packages\\naudio.winforms\\2.1.0\\naudio.winforms.2.1.0.nupkg.sha512",
     "C:\\Users\\Elias\\.nuget\\packages\\naudio.winmm\\2.1.0\\naudio.winmm.2.1.0.nupkg.sha512",
     "C:\\Users\\Elias\\.nuget\\packages\\netstandard.library\\1.6.0\\netstandard.library.1.6.0.nupkg.sha512",
+    "C:\\Users\\Elias\\.nuget\\packages\\protobuf-net\\3.2.26\\protobuf-net.3.2.26.nupkg.sha512",
+    "C:\\Users\\Elias\\.nuget\\packages\\protobuf-net.core\\3.2.26\\protobuf-net.core.3.2.26.nupkg.sha512",
     "C:\\Users\\Elias\\.nuget\\packages\\runtime.native.system\\4.0.0\\runtime.native.system.4.0.0.nupkg.sha512",
     "C:\\Users\\Elias\\.nuget\\packages\\runtime.native.system.io.compression\\4.1.0\\runtime.native.system.io.compression.4.1.0.nupkg.sha512",
     "C:\\Users\\Elias\\.nuget\\packages\\runtime.native.system.net.http\\4.0.1\\runtime.native.system.net.http.4.0.1.nupkg.sha512",
@@ -50,7 +52,7 @@
     "C:\\Users\\Elias\\.nuget\\packages\\system.buffers\\4.0.0\\system.buffers.4.0.0.nupkg.sha512",
     "C:\\Users\\Elias\\.nuget\\packages\\system.collections\\4.0.11\\system.collections.4.0.11.nupkg.sha512",
     "C:\\Users\\Elias\\.nuget\\packages\\system.collections.concurrent\\4.0.12\\system.collections.concurrent.4.0.12.nupkg.sha512",
-    "C:\\Users\\Elias\\.nuget\\packages\\system.collections.immutable\\1.2.0\\system.collections.immutable.1.2.0.nupkg.sha512",
+    "C:\\Users\\Elias\\.nuget\\packages\\system.collections.immutable\\7.0.0\\system.collections.immutable.7.0.0.nupkg.sha512",
     "C:\\Users\\Elias\\.nuget\\packages\\system.componentmodel\\4.0.1\\system.componentmodel.4.0.1.nupkg.sha512",
     "C:\\Users\\Elias\\.nuget\\packages\\system.componentmodel.annotations\\4.1.0\\system.componentmodel.annotations.4.1.0.nupkg.sha512",
     "C:\\Users\\Elias\\.nuget\\packages\\system.console\\4.0.0\\system.console.4.0.0.nupkg.sha512",
@@ -98,6 +100,7 @@
     "C:\\Users\\Elias\\.nuget\\packages\\system.resources.reader\\4.0.0\\system.resources.reader.4.0.0.nupkg.sha512",
     "C:\\Users\\Elias\\.nuget\\packages\\system.resources.resourcemanager\\4.0.1\\system.resources.resourcemanager.4.0.1.nupkg.sha512",
     "C:\\Users\\Elias\\.nuget\\packages\\system.runtime\\4.1.0\\system.runtime.4.1.0.nupkg.sha512",
+    "C:\\Users\\Elias\\.nuget\\packages\\system.runtime.compilerservices.unsafe\\6.0.0\\system.runtime.compilerservices.unsafe.6.0.0.nupkg.sha512",
     "C:\\Users\\Elias\\.nuget\\packages\\system.runtime.extensions\\4.1.0\\system.runtime.extensions.4.1.0.nupkg.sha512",
     "C:\\Users\\Elias\\.nuget\\packages\\system.runtime.handles\\4.0.1\\system.runtime.handles.4.0.1.nupkg.sha512",
     "C:\\Users\\Elias\\.nuget\\packages\\system.runtime.interopservices\\4.1.0\\system.runtime.interopservices.4.1.0.nupkg.sha512",

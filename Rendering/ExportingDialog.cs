@@ -17,7 +17,6 @@ namespace WaveTracker.Rendering
         public string Path { get; set; }
         public int TotalRows { get; set; }
         public int ProcessedRows { get; set; }
-        bool isFinished;
 
         public Button Cancel;
         public ExportingDialog()

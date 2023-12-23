@@ -123,7 +123,7 @@ namespace WaveTracker.UI
                 }
                 if (Input.GetClick(KeyModifier.None))
                 {
-                    envelope.values[Math.Clamp(canvasPosX, 0, envelope.values.Count - 1)] = canvasPosY;
+                    envelope.values[Math.Clamp(canvasPosX, 0, envelope.values.Count - 1)] = (short)canvasPosY;
                 }
 
                 if (Input.GetClickUp(KeyModifier.Shift))
@@ -135,20 +135,20 @@ namespace WaveTracker.UI
                         {
                             for (int i = holdPosX; i <= canvasPosX; ++i)
                             {
-                                envelope.values[i] = (int)Math.Round(Lerp(holdPosY, canvasPosY, (float)(i - holdPosX) / diff));
+                                envelope.values[i] = (short)Math.Round(Lerp(holdPosY, canvasPosY, (float)(i - holdPosX) / diff));
                             }
                         }
                         else
                         {
                             for (int i = canvasPosX; i <= holdPosX; ++i)
                             {
-                                envelope.values[i] = (int)Math.Round(Lerp(canvasPosY, holdPosY, (float)(i - canvasPosX) / diff));
+                                envelope.values[i] = (short)Math.Round(Lerp(canvasPosY, holdPosY, (float)(i - canvasPosX) / diff));
                             }
                         }
                     }
                     else
                     {
-                        envelope.values[Math.Clamp(canvasPosX, 0, envelope.values.Count - 1)] = (int)canvasPosY;
+                        envelope.values[Math.Clamp(canvasPosX, 0, envelope.values.Count - 1)] = (short)canvasPosY;
                     }
                 }
 
@@ -163,14 +163,14 @@ namespace WaveTracker.UI
                     if (envelope.releaseIndex != MouseEnvelopeX - 1)
                         envelope.releaseIndex = MouseEnvelopeX - 1;
                     else
-                        envelope.releaseIndex = -1;
+                        envelope.releaseIndex = Envelope.emptyEnvValue;
                 }
                 if (MouseEnvelopeY == 0 && MouseEnvelopeX >= 0 && MouseEnvelopeX < envelope.values.Count)
                 {
                     if (envelope.loopIndex != MouseEnvelopeX)
                         envelope.loopIndex = MouseEnvelopeX;
                     else
-                        envelope.loopIndex = -1;
+                        envelope.loopIndex = Envelope.emptyEnvValue;
                 }
             }
             #endregion

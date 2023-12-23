@@ -22,9 +22,10 @@
   <visPianSpeed>8</visPianSpeed>
   <visPianFade>true</visPianFade>
   <visPianWidth>true</visPianWidth>
+  <visHighlightKeys>true</visHighlightKeys>
   <visScopeZoom>100</visScopeZoom>
   <visScopeColors>true</visScopeColors>
   <visScopeThickness>1</visScopeThickness>
   <masVol>1</masVol>
-  <smpDir />
+  <smpDir>D:\Samples\Drum\00-01 Kicks Bass Drums</smpDir>
 </PreferenceProfile>

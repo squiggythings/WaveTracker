@@ -6,13 +6,17 @@ using System.Threading.Tasks;
 using WaveTracker.Rendering;
 using Microsoft.Xna.Framework;
 using WaveTracker.Audio;
+using ProtoBuf;
 
 namespace WaveTracker.Tracker
 {
+    [ProtoContract(SkipConstructor = true)]
     [Serializable]
-    public partial class Wave
+    public class Wave
     {
+        [ProtoMember(31)]
         public ResamplingModes resamplingMode;
+        [ProtoMember(32)]
         public byte[] samples = new byte[64];
 
         public Wave()
@@ -27,9 +31,13 @@ namespace WaveTracker.Tracker
 
         public Wave Clone()
         {
-            Wave wave = new Wave();
-            wave.Unpack(Pack());
-            return wave;
+            Wave clonedWave = new Wave();
+            clonedWave.resamplingMode = resamplingMode;
+            for (int i = 0; i < samples.Length; ++i)
+            {
+                clonedWave.samples[i] = samples[i];
+            }
+            return clonedWave;
         }
 
         public Wave(string initialWaveString)
@@ -243,7 +251,7 @@ namespace WaveTracker.Tracker
         /// </summary>
         /// <param name="t"></param>
         /// <returns></returns>
-        public float getSampleAtPosition(float t)
+        public float GetSampleAtPosition(float t)
         {
             while (t < 0)
                 t += 1;
@@ -261,15 +269,37 @@ namespace WaveTracker.Tracker
             }
             else
             {
-
-
+                float lerpt = (float)(Helpers.Mod(t, 0.015625)) * 64;
                 int index1 = (int)(t * samples.Length);
                 int index2 = index1 + 1;
                 float sample1 = getSample(index1) / 16f - 1f;
                 float sample2 = getSample(index2) / 16f - 1f;
-                float lerp = MathHelper.Lerp(sample1, sample2, (float)Helpers.Mod(t, 0.015625) * 64);
-                float reg = getSample((int)(t * samples.Length + 0.5f)) / 16f - 1f;
-                return (lerp + reg) * 0.5f;
+
+                // int index1 = (int)(t * samples.Length);
+                // int index2 = index1 + 1;
+                // float sample1 = getSample(index1) / 16f - 1f;
+                // float sample2 = getSample(index2) / 16f - 1f;
+                // float lerp = MathHelper.Lerp(sample1, sample2, (float)Helpers.Mod(t, 0.015625) * 64);
+                // float reg = getSample((int)(t * samples.Length + 0.5f)) / 16f - 1f;
+                // return (lerp + reg) * 0.5f;
+                if (lerpt < 0.5f)
+                {
+                    if (sample1 < sample2)
+                        return sample1 + 0.0625f * lerpt;
+                    else if (sample1 > sample2)
+                        return sample1 - 0.0625f * lerpt;
+                    else
+                        return sample1;
+                }
+                else
+                {
+                    if (sample1 < sample2)
+                        return sample2 - 0.0625f * (1 - lerpt);
+                    else if (sample1 > sample2)
+                        return sample2 + 0.0625f * (1 - lerpt);
+                    else
+                        return sample2;
+                }
             }
         }
 

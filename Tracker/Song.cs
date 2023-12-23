@@ -3,27 +3,45 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Text.Json;
+using ProtoBuf;
 
 
 namespace WaveTracker.Tracker
 {
     [Serializable]
-    public partial class Song
+    [ProtoContract(SkipConstructor = true)]
+    public class Song
     {
         public const int CHANNEL_COUNT = 24;
-        public List<Frame> frames;
+        [ProtoMember(1)]
+        public List<Frame> frames = new List<Frame>();
+        [ProtoMember(2)]
         public int rowsPerFrame;
+        [ProtoMember(3)]
         public int[] ticksPerRow;
+        [ProtoMember(4)]
         public string name;
+        [ProtoMember(5)]
         public string author;
+        [ProtoMember(6)]
         public string year;
+        [ProtoMember(7)]
         public string comment;
+        [ProtoMember(8)]
         public List<Macro> instruments;
-        public Wave[] waves;
+        [ProtoMember(9)]
+        public Wave[] waves = new Wave[100];
+        [ProtoMember(10)]
         public int tickRate;
+        [ProtoMember(11)]
         public bool quantizeChannelAmplitude;
+        [ProtoMember(12)]
         public int frameEdits;
-        public int rowHighlight1, rowHighlight2;
+        [ProtoMember(13)]
+        public int rowHighlight1;
+        [ProtoMember(14)]
+        public int rowHighlight2;
 
 
         public Song()
@@ -94,6 +112,36 @@ namespace WaveTracker.Tracker
             }
 
             return true;
+        }
+
+        public void InitializeForSerialization()
+        {
+            foreach(Frame f in frames)
+            {
+                f.SetRows();
+            }
+            foreach(Macro m in instruments)
+            {
+                m.volumeEnvelope.PrepareForSerialization();
+                m.arpEnvelope.PrepareForSerialization();
+                m.pitchEnvelope.PrepareForSerialization();
+                m.waveEnvelope.PrepareForSerialization();
+            }
+        }
+
+        public void Deserialize()
+        {
+            foreach (Frame f in frames)
+            {
+                f.ReadRows();
+            }
+            foreach (Macro m in instruments)
+            {
+                m.volumeEnvelope.PrepareFromDeserialization();
+                m.arpEnvelope.PrepareFromDeserialization();
+                m.pitchEnvelope.PrepareFromDeserialization();
+                m.waveEnvelope.PrepareFromDeserialization();
+            }
         }
 
         public Song Clone()
@@ -294,4 +342,6 @@ namespace WaveTracker.Tracker
             return true;
         }
     }
+
+   
 }

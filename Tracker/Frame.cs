@@ -5,13 +5,65 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Diagnostics;
 using Microsoft.Xna.Framework.Graphics;
-
+using ProtoBuf;
 namespace WaveTracker.Tracker
 {
     [Serializable]
-    public partial class Frame
+    [ProtoContract(SkipConstructor = true)]
+    public class Frame
     {
+        [ProtoMember(15)]
+        public Row[] rows;
         public short[][] pattern;
+
+        public void SetRows()
+        {
+            for (int i = 0; i < 256; i++)
+            {
+                for (int j = 0; j < rows[i].values.Length; j++)
+                {
+                    if (j % 5 == 0) // note
+                        rows[i].values[j] = (byte)(pattern[i][j] + 4);
+                    if (j % 5 == 1) // instrument
+                        rows[i].values[j] = (byte)(pattern[i][j] + 4);
+                    if (j % 5 == 2) // volume
+                        rows[i].values[j] = (byte)(pattern[i][j] + 4);
+                    if (j % 5 == 3) // effect
+                        rows[i].values[j] = (byte)(pattern[i][j] + 4);
+                    if (j % 5 == 4) // effect parameter
+                        rows[i].values[j] = (byte)(pattern[i][j] + 0);
+                }
+            }
+        }
+
+        public void ReadRows()
+        {
+            pattern = new short[256][];
+            for (int i = 0; i < 256; i++)
+            {
+                pattern[i] = new short[Song.CHANNEL_COUNT * 5];
+                for (int j = 0; j < pattern[i].Length; j++)
+                {
+                    if (j % 5 == 0) // note
+                        pattern[i][j] = (short)(rows[i].values[j] - 4);
+                    if (j % 5 == 1) // instrument
+                        pattern[i][j] = (short)(rows[i].values[j] - 4);
+                    if (j % 5 == 2) // volume
+                        pattern[i][j] = (short)(rows[i].values[j] - 4);
+                    if (j % 5 == 3) // effect
+                        pattern[i][j] = (short)(rows[i].values[j] - 4);
+                    if (j % 5 == 4)
+                    {  // effect parameter
+                        pattern[i][j] = (short)(rows[i].values[j] - 0);
+                        if (pattern[i][j - 1] == -1)
+                        {
+                            pattern[i][j] = -1;
+                        }
+                    }
+                }
+            }
+        }
+
         public string Pack()
         {
             StringBuilder sb = new StringBuilder();
@@ -63,13 +115,15 @@ namespace WaveTracker.Tracker
         public Frame()
         {
             pattern = new short[256][];
+            rows = new Row[256];
             for (int i = 0; i < 256; i++)
             {
                 pattern[i] = new short[Song.CHANNEL_COUNT * 5];
+                rows[i] = new Row();
+                rows[i].values = new byte[Song.CHANNEL_COUNT * 5];
                 for (int j = 0; j < pattern[i].Length; j++)
                 {
                     pattern[i][j] = -1;
-
                 }
             }
         }
@@ -106,5 +160,13 @@ namespace WaveTracker.Tracker
             }
             return ret;
         }
+    }
+
+    [Serializable]
+    [ProtoContract(SkipConstructor = true)]
+    public class Row
+    {
+        [ProtoMember(16)]
+        public byte[] values = new byte[Song.CHANNEL_COUNT * 5];
     }
 }

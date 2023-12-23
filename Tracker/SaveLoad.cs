@@ -16,12 +16,15 @@ using System.Threading;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Xml.Serialization;
 using System.Runtime.Serialization;
-
+using ProtoBuf;
+using WaveTracker.Audio;
 
 namespace WaveTracker
 {
     public static class SaveLoad
     {
+        public const bool USE_PROTO_BUF = true;
+
         public static Song savedSong;
 
 
@@ -31,13 +34,11 @@ namespace WaveTracker
         public static string fileName { get { if (filePath == "") return "Untitled.wtm"; return Path.GetFileName(filePath); } }
         public static string fileNameWithoutExtension { get { if (filePath == "") return "Untitled"; return Path.GetFileNameWithoutExtension(filePath); } }
         public static int savecooldown = 0;
-        public static bool thisSongExists()
-        {
-            return File.Exists(filePath);
-        }
+
 
         static void SaveTo(string path)
         {
+            Debug.WriteLine("Saving to: " + path);
             Stopwatch sw = Stopwatch.StartNew();
             BinaryFormatter formatter = new BinaryFormatter();
 
@@ -50,10 +51,19 @@ namespace WaveTracker
                 Debug.WriteLine("failed to save");
                 return;
             }
+
+            savedSong.InitializeForSerialization();
+            path = Path.ChangeExtension(path, ".wtm");
+
             using (FileStream fs = new FileStream(path, FileMode.Create))
             {
-                formatter.Serialize(fs, savedSong);
+                Serializer.Serialize(fs, savedSong);
             }
+            //using (FileStream fs = new FileStream(path, FileMode.Create))
+            //{
+            //    formatter.Serialize(fs, savedSong);
+            //}
+
             sw.Stop();
             Debug.WriteLine("saved in " + sw.ElapsedMilliseconds + " ms");
             return;
@@ -78,7 +88,7 @@ namespace WaveTracker
         {
             if (Input.internalDialogIsOpen)
                 return;
-            
+
             if (!isSaved)
             {
                 if (PromptUnsaved() == DialogResult.Cancel) return;
@@ -89,6 +99,7 @@ namespace WaveTracker
             FrameEditor.Goto(0, 0);
             Playback.Goto(0, 0);
             FrameEditor.cursorColumn = 0;
+            FrameEditor.UnmuteAllChannels();
             savedSong = new Song();
             Game1.currentSong = savedSong.Clone();
         }
@@ -97,10 +108,14 @@ namespace WaveTracker
         {
             if (Input.internalDialogIsOpen)
                 return;
-            // set filepath to dialogresult
             Playback.Stop();
+            // set filepath to dialogresult
             if (SetFilePathThroughSaveAsDialog(out filePath))
+            {
+                Debug.WriteLine("Saving as: " + filePath);
                 SaveTo(filePath);
+                Debug.WriteLine("Saved as: " + filePath);
+            }
         }
 
         public static void OpenFile()
@@ -128,6 +143,7 @@ namespace WaveTracker
                         FrameEditor.Goto(0, 0);
                         Playback.Goto(0, 0);
                         FrameEditor.cursorColumn = 0;
+                        FrameEditor.UnmuteAllChannels();
                         FrameEditor.ClearHistory();
                     }
                     else
@@ -153,10 +169,24 @@ namespace WaveTracker
                 BinaryFormatter formatter = new BinaryFormatter();
 
                 MemoryStream ms = new MemoryStream();
-                using (FileStream fs = new FileStream(path, FileMode.Open))
+                savedSong = new Song();
+                if (Path.GetExtension(path) == ".bin")
                 {
-                    savedSong = (Song)formatter.Deserialize(fs);
+                    using (FileStream fs = new FileStream(path, FileMode.Open))
+                    {
+                        savedSong = (Song)formatter.Deserialize(fs);
+                    }
                 }
+                else
+                {
+                    using (FileStream fs = new FileStream(path, FileMode.Open))
+                    {
+                        fs.Position = 0;
+                        savedSong = Serializer.Deserialize<Song>(fs);
+                    }
+                    savedSong.Deserialize();
+                }
+
                 Game1.currentSong = savedSong.Clone();
                 Audio.ChannelManager.instance.Reset();
                 FrameEditor.Goto(0, 0);
@@ -185,7 +215,7 @@ namespace WaveTracker
 
                     Input.DialogStarted();
                     OpenFileDialog openFileDialog = new OpenFileDialog();
-                    openFileDialog.Filter = "WaveTracker modules (*wtm)|*.wtm";
+                    openFileDialog.Filter = "WaveTracker modules (*wtm)|*.wtm; *.bin";
                     openFileDialog.Multiselect = false;
                     openFileDialog.Title = "Open";
                     openFileDialog.ValidateNames = true;
@@ -316,38 +346,6 @@ namespace WaveTracker
             }
             filepath = ret;
             return didIt;
-        }
-    }
-
-
-
-    public class SongSerializationBinder : SerializationBinder
-    {
-        public override Type BindToType(string assemblyName, string typeName)
-        {
-            // One way to discover expected types is through testing deserialization
-            // of **valid** data and logging the types used.
-
-            ////Console.WriteLine($"BindToType('{assemblyName}', '{typeName}')");
-
-            if (typeName == "WaveTracker.Tracker.Song")
-            {
-                return typeof(Song);
-            }
-            if (typeName == "WaveTracker.Tracker.Frame")
-                return typeof(Frame);
-            if (typeName == "WaveTracker.Tracker.Wave")
-                return typeof(Wave);
-            if (typeName == "WaveTracker.Tracker.Macro")
-                return typeof(Macro);
-            if (typeName == "WaveTracker.Tracker.Envelope")
-                return typeof(Envelope);
-            if (typeName == "WaveTracker.Tracker.Sample")
-                return typeof(Sample);
-            else
-            {
-                throw new ArgumentException("Unexpected type " + typeName, nameof(typeName));
-            }
         }
     }
 }

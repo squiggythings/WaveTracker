@@ -364,7 +364,7 @@ namespace WaveTracker.Audio
 
         float EvaluateWave(float time)
         {
-            return currentWave.getSampleAtPosition(time);
+            return currentWave.GetSampleAtPosition(time);
         }
 
 
@@ -437,7 +437,7 @@ namespace WaveTracker.Audio
                 if (waveEnv.toPlay.isActive)
                     if (!waveEnv.envelopeEnded && _state != VoiceState.Off)
                         SetWave(waveEnv.Evaluate());
-                
+
             }
             if (volumeEnv.toPlay.isActive)
                 volumeEnv.Step();
@@ -536,6 +536,7 @@ namespace WaveTracker.Audio
 
         public void ProcessSingleSample(out float left, out float right, bool continuousTick, float continuousDelta)
         {
+            int oversample = 2;
             left = right = 0;
 
             float freqCut = 1;
@@ -546,57 +547,70 @@ namespace WaveTracker.Audio
                 _frequency = 30000;
                 _state = VoiceState.Off;
             }
-            decimal delta = 1.0M / AudioEngine.sampleRate * (Decimal)_frequency;
+            decimal delta = 1.0M / (oversample * AudioEngine.sampleRate) * (Decimal)_frequency;
             if (continuousTick)
                 ContinuousTick(continuousDelta);
             if (noteOn)
             {
-                if (_state == VoiceState.Off)
-                {
-                    _fadeMultiplier /= 1.002f;
-                    if (_fadeMultiplier < 0.001f)
-                    {
-                        noteOn = false;
-                    }
-                }
-                else
-                {
-                    _fadeMultiplier = 1;
-                    _time += delta;
-                }
 
 
+
+                float sampleSumL = 0;
+                float sampleSumR = 0;
                 float sampleL = 0;
                 float sampleR = 0;
-                if (currentMacro != null)
+                for (int i = 0; i < oversample; ++i)
                 {
-                    if (currentMacro.macroType == MacroType.Wave)
+                    if (_state == VoiceState.Off)
                     {
-                        if (stereoPhaseOffset != 0)
+                        _fadeMultiplier /= 1.002f;
+                        if (_fadeMultiplier < 0.001f)
                         {
-                            sampleL = EvaluateWave((float)_time - stereoPhaseOffset);
-                            sampleR = EvaluateWave((float)_time + stereoPhaseOffset);
-                        }
-                        else
-                        {
-                            sampleR = sampleL = EvaluateWave((float)_time);
+                            noteOn = false;
                         }
                     }
                     else
                     {
-                        currentMacro.sample.SampleTick((float)_time, 0, out sampleL, out sampleR);
-                        samplePlaybackPosition = currentMacro.sample.currentPlaybackPosition;
-                        if (Math.Abs(sampleL) > _sampleVolume)
+                        _fadeMultiplier = 1;
+                        _time += delta;
+                    }
+                    sampleL = 0;
+                    sampleR = 0;
+                    if (currentMacro != null)
+                    {
+                        if (currentMacro.macroType == MacroType.Wave)
                         {
-                            _sampleVolume = Math.Abs(sampleL);
+                            if (stereoPhaseOffset != 0)
+                            {
+                                sampleL = EvaluateWave((float)_time - stereoPhaseOffset);
+                                sampleR = EvaluateWave((float)_time + stereoPhaseOffset);
+                            }
+                            else
+                            {
+                                sampleR = sampleL = EvaluateWave((float)_time);
+                            }
                         }
-                        if (Math.Abs(sampleR) > _sampleVolume)
+                        else
                         {
-                            _sampleVolume = Math.Abs(sampleR);
+                            currentMacro.sample.SampleTick((float)_time, 0, out sampleL, out sampleR);
+                            sampleL *= 1.25f;
+                            sampleR *= 1.25f;
+                            samplePlaybackPosition = currentMacro.sample.currentPlaybackPosition;
+                            if (Math.Abs(sampleL) > _sampleVolume)
+                            {
+                                _sampleVolume = Math.Abs(sampleL);
+                            }
+                            if (Math.Abs(sampleR) > _sampleVolume)
+                            {
+                                _sampleVolume = Math.Abs(sampleR);
+                            }
                         }
                     }
+                    sampleSumL += sampleL;
+                    sampleSumR += sampleR;
                 }
-
+                sampleL = sampleSumL / oversample;
+                sampleR = sampleSumR / oversample;
                 _volumeSmooth += (totalAmplitude - _volumeSmooth) * 0.02f;
 
                 // float f = (float)Math.Pow(_volumeSmooth, 1.25);
@@ -615,8 +629,8 @@ namespace WaveTracker.Audio
                     l = (float)(Math.Ceiling(l * quantamt)) / (float)quantamt;
                     r = (float)(Math.Ceiling(r * quantamt)) / (float)quantamt;
                 }
-                left = l * 0.225f;
-                right = r * 0.225f;
+                left = l * 0.2f;
+                right = r * 0.2f;
                 if (!FrameEditor.channelToggles[id])
                 {
                     left = 0;
