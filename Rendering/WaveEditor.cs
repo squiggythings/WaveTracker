@@ -21,7 +21,7 @@ namespace WaveTracker.Rendering
         public Toggle filterNone, filterLinear, filterMix;
         public int startcooldown;
         public SpriteButton closeButton;
-        public UI.Button bCopy, bPaste, bPhaseL, bPhaseR, bMoveUp, bMoveDown, bInvert, bMutate, bSmooth;
+        public UI.Button bCopy, bPaste, bPhaseL, bPhaseR, bMoveUp, bMoveDown, bInvert, bMutate, bSmooth, bNormalize;
         public UI.Textbox waveText;
         public Dropdown ResampleDropdown;
         public int id;
@@ -35,50 +35,63 @@ namespace WaveTracker.Rendering
             x = 220;
             y = 130;
 
-            bCopy = new UI.Button("Copy", 424, 23, this);
-            bCopy.width = 54;
+            int buttonY = 23;
+            int buttonX = 420;
+            int buttonWidth = 64;
+
+
+            bCopy = new UI.Button("Copy", buttonX, buttonY, this);
+            bCopy.width = buttonWidth / 2 - 1;
             bCopy.isPartOfInternalDialog = true;
             bCopy.SetTooltip("", "Copy wave settings");
-
-            bPaste = new UI.Button("Paste", 424, 37, this);
-            bPaste.width = 54;
+            buttonY += 0;
+            bPaste = new UI.Button("Paste", buttonX + 32, buttonY, this);
+            bPaste.width = buttonWidth / 2 - 1;
             bPaste.isPartOfInternalDialog = true;
             bPaste.SetTooltip("", "Paste wave settings");
+            buttonY += 14;
 
-            bPhaseR = new UI.Button("Phase »", 424, 57, this);
-            bPhaseR.width = 54;
+            bPhaseR = new UI.Button("Phase »", buttonX, buttonY, this);
+            bPhaseR.width = buttonWidth;
             bPhaseR.isPartOfInternalDialog = true;
             bPhaseR.SetTooltip("", "Shift phase once to the right");
-
-            bPhaseL = new UI.Button("Phase «", 424, 71, this);
-            bPhaseL.width = 54;
+            buttonY += 14;
+            bPhaseL = new UI.Button("Phase «", buttonX, buttonY, this);
+            bPhaseL.width = buttonWidth;
             bPhaseL.isPartOfInternalDialog = true;
             bPhaseL.SetTooltip("", "Shift phase once to the left");
-
-            bMoveUp = new UI.Button("Shift Up", 424, 85, this);
-            bMoveUp.width = 54;
+            buttonY += 14;
+            bMoveUp = new UI.Button("Shift Up", buttonX, buttonY, this);
+            bMoveUp.width = buttonWidth;
             bMoveUp.isPartOfInternalDialog = true;
             bMoveUp.SetTooltip("", "Raise the wave 1 step up");
-
-            bMoveDown = new UI.Button("Shift Down", 424, 99, this);
-            bMoveDown.width = 54;
+            buttonY += 14;
+            bMoveDown = new UI.Button("Shift Down", buttonX, buttonY, this);
+            bMoveDown.width = buttonWidth;
             bMoveDown.isPartOfInternalDialog = true;
             bMoveDown.SetTooltip("", "Lower the wave 1 step down");
+            buttonY += 14;
 
-            bInvert = new UI.Button("Invert", 424, 119, this);
-            bInvert.width = 54;
+            bInvert = new UI.Button("Invert", buttonX, buttonY, this);
+            bInvert.width = buttonWidth;
             bInvert.isPartOfInternalDialog = true;
             bInvert.SetTooltip("", "Invert the wave vertically");
-
-            bSmooth = new UI.Button("Smooth", 424, 133, this);
-            bSmooth.width = 54;
+            buttonY += 14;
+            bSmooth = new UI.Button("Smooth", buttonX, buttonY, this);
+            bSmooth.width = buttonWidth;
             bSmooth.isPartOfInternalDialog = true;
             bSmooth.SetTooltip("", "Smooth out rough corners in the wave");
-
-            bMutate = new UI.Button("Mutate", 424, 147, this);
-            bMutate.width = 54;
+            buttonY += 14;
+            bMutate = new UI.Button("Mutate", buttonX, buttonY, this);
+            bMutate.width = buttonWidth;
             bMutate.isPartOfInternalDialog = true;
             bMutate.SetTooltip("", "Slightly randomize the wave");
+            buttonY += 14;
+            bNormalize = new UI.Button("Normalize", buttonX, buttonY, this);
+            bNormalize.width = buttonWidth;
+            bNormalize.isPartOfInternalDialog = true;
+            bNormalize.SetTooltip("", "Make the wave maximum amplitude");
+
 
             presetSine = new SpriteButton(17, 215, 18, 12, tex, 0, this);
             presetSine.isPartOfInternalDialog = true;
@@ -268,6 +281,8 @@ namespace WaveTracker.Rendering
                         Game1.currentSong.waves[WaveBank.currentWave].Smooth(2);
                     if (bMutate.Clicked)
                         Game1.currentSong.waves[WaveBank.currentWave].Mutate();
+                    if (bNormalize.Clicked)
+                        Game1.currentSong.waves[WaveBank.currentWave].Normalize();
 
                     if (mouseInBounds())
                     {
@@ -345,6 +360,7 @@ namespace WaveTracker.Rendering
                 bInvert.Draw();
                 bSmooth.Draw();
                 bMutate.Draw();
+                bNormalize.Draw();
                 ResampleDropdown.Draw();
                 Color waveColor = new Color(200, 212, 93);
                 Color waveBG = new Color(59, 125, 79, 150);

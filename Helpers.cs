@@ -206,13 +206,20 @@ namespace WaveTracker
         {
             return (value - from1) / (to1 - from1) * (to2 - from2) + from2;
         }
-        public static float MapClamped(float s, float a1, float a2, float b1, float b2)
+        public static float MapClamped(float value, float from1, float to1, float from2, float to2)
         {
-            if (b1 > b2)
-                return Math.Clamp(b1 + (s - a1) * (b2 - b1) / (a2 - a1), b2, b1);
+            if (from2 < to2)
+                return Math.Clamp((value - from1) / (to1 - from1) * (to2 - from2) + from2, from2, to2);
             else
-                return Math.Clamp(b1 + (s - a1) * (b2 - b1) / (a2 - a1), b1, b2);
+                return Math.Clamp((value - from1) / (to1 - from1) * (to2 - from2) + from2, to2, from2);
         }
+        //public static float MapClamped(float s, float a1, float a2, float b1, float b2)
+        //{
+        //    if (b1 > b2)
+        //        return Math.Clamp(b1 + (s - a1) * (b2 - b1) / (a2 - a1), b2, b1);
+        //    else
+        //        return Math.Clamp(b1 + (s - a1) * (b2 - b1) / (a2 - a1), b1, b2);
+        //}
 
         public static int GetPianoInput(int currentOctave)
         {

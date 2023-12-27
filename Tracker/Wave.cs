@@ -132,6 +132,25 @@ namespace WaveTracker.Tracker
             }
         }
 
+        public void Normalize()
+        {
+            float max = 0;
+            float min = 31;
+            foreach (byte sample in samples)
+            {
+                if (sample > max)
+                    max = sample;
+
+                if (sample < min)
+                    min = sample;
+            }
+
+            for (int i = 0; i < 64; ++i)
+            {
+                samples[i] = (byte)Helpers.MapClamped(samples[i], min, max, 0, 31);
+            }
+        }
+
         public void Randomize()
         {
             Random r = new Random();
@@ -151,7 +170,7 @@ namespace WaveTracker.Tracker
 
         public void SetWaveformFromNumber(string s)
         {
-            string[] nums = s.Split(',');
+            string[] nums = s.Split(' ');
             byte num;
             for (int i = 0; i < nums.Length && i < 64; i++)
             {
@@ -225,7 +244,7 @@ namespace WaveTracker.Tracker
             string s = "";
             for (int i = 0; i < samples.Length - 1; i++)
             {
-                s += samples[i] + ",";
+                s += samples[i] + " ";
             }
             s += samples[samples.Length - 1];
             return s;
@@ -259,48 +278,49 @@ namespace WaveTracker.Tracker
             {
                 return getSample((int)(t * samples.Length)) / 16f - 1f;
             }
-            else if (resamplingMode == ResamplingModes.Linear)
+            int index1 = (int)(t * samples.Length);
+            int index2 = index1 + 1;
+            float sample1 = getSample(index1) / 16f - 1f;
+            float sample2 = getSample(index2) / 16f - 1f;
+            float lerpt = (float)(Helpers.Mod(t, 0.015625)) * 64;
+            if (resamplingMode == ResamplingModes.Linear)
             {
-                int index1 = (int)(t * samples.Length);
-                int index2 = index1 + 1;
-                float sample1 = getSample(index1) / 16f - 1f;
-                float sample2 = getSample(index2) / 16f - 1f;
-                return MathHelper.Lerp(sample1, sample2, (float)(Helpers.Mod(t, 0.015625)) * 64);
+                return MathHelper.Lerp(sample1, sample2, lerpt);
+            }
+
+
+            float nearestSample = lerpt > 0.5f ? sample2 : sample1;
+            float lerpedSample = MathHelper.Lerp(sample1, sample2, lerpt);
+            float sampDifference = MathF.Abs(getSample(index1) - getSample(index2));
+            //System.Diagnostics.Debug.WriteLine(sampDifference);
+            return MathHelper.Lerp(lerpedSample, nearestSample, sampDifference / 31f);
+
+            // int index1 = (int)(t * samples.Length);
+            // int index2 = index1 + 1;
+            // float sample1 = getSample(index1) / 16f - 1f;
+            // float sample2 = getSample(index2) / 16f - 1f;
+            // float lerp = MathHelper.Lerp(sample1, sample2, (float)Helpers.Mod(t, 0.015625) * 64);
+            // float reg = getSample((int)(t * samples.Length + 0.5f)) / 16f - 1f;
+            // return (lerp + reg) * 0.5f;
+            if (lerpt < 0.5f)
+            {
+                if (sample1 < sample2)
+                    return sample1 + 0.0625f * lerpt;
+                else if (sample1 > sample2)
+                    return sample1 - 0.0625f * lerpt;
+                else
+                    return sample1;
             }
             else
             {
-                float lerpt = (float)(Helpers.Mod(t, 0.015625)) * 64;
-                int index1 = (int)(t * samples.Length);
-                int index2 = index1 + 1;
-                float sample1 = getSample(index1) / 16f - 1f;
-                float sample2 = getSample(index2) / 16f - 1f;
-
-                // int index1 = (int)(t * samples.Length);
-                // int index2 = index1 + 1;
-                // float sample1 = getSample(index1) / 16f - 1f;
-                // float sample2 = getSample(index2) / 16f - 1f;
-                // float lerp = MathHelper.Lerp(sample1, sample2, (float)Helpers.Mod(t, 0.015625) * 64);
-                // float reg = getSample((int)(t * samples.Length + 0.5f)) / 16f - 1f;
-                // return (lerp + reg) * 0.5f;
-                if (lerpt < 0.5f)
-                {
-                    if (sample1 < sample2)
-                        return sample1 + 0.0625f * lerpt;
-                    else if (sample1 > sample2)
-                        return sample1 - 0.0625f * lerpt;
-                    else
-                        return sample1;
-                }
+                if (sample1 < sample2)
+                    return sample2 - 0.0625f * (1 - lerpt);
+                else if (sample1 > sample2)
+                    return sample2 + 0.0625f * (1 - lerpt);
                 else
-                {
-                    if (sample1 < sample2)
-                        return sample2 - 0.0625f * (1 - lerpt);
-                    else if (sample1 > sample2)
-                        return sample2 + 0.0625f * (1 - lerpt);
-                    else
-                        return sample2;
-                }
+                    return sample2;
             }
+
         }
 
 
