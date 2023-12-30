@@ -7,6 +7,7 @@ using WaveTracker.UI;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using System.Diagnostics;
 
 namespace WaveTracker.Rendering
 {
@@ -173,8 +174,10 @@ namespace WaveTracker.Rendering
             exportDialog.Update();
             if (SaveLoad.savecooldown > 0)
             {
+                
                 SaveLoad.savecooldown--;
             }
+            Debug.WriteLine("path name: " + SaveLoad.filePath);
         }
         public void Draw()
         {

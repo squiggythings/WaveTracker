@@ -1,24 +1,24 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\elias\\source\\repos\\WaveTracker\\WaveTracker.csproj": {}
+    "C:\\Users\\Elias\\source\\repos\\WaveTracker\\WaveTracker.csproj": {}
   },
   "projects": {
-    "C:\\Users\\elias\\source\\repos\\WaveTracker\\WaveTracker.csproj": {
+    "C:\\Users\\Elias\\source\\repos\\WaveTracker\\WaveTracker.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\elias\\source\\repos\\WaveTracker\\WaveTracker.csproj",
+        "projectUniqueName": "C:\\Users\\Elias\\source\\repos\\WaveTracker\\WaveTracker.csproj",
         "projectName": "WaveTracker",
-        "projectPath": "C:\\Users\\elias\\source\\repos\\WaveTracker\\WaveTracker.csproj",
-        "packagesPath": "C:\\Users\\elias\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\elias\\source\\repos\\WaveTracker\\obj\\",
+        "projectPath": "C:\\Users\\Elias\\source\\repos\\WaveTracker\\WaveTracker.csproj",
+        "packagesPath": "C:\\Users\\Elias\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\Elias\\source\\repos\\WaveTracker\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\elias\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\Elias\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
-          "net6.0-windows7.0"
+          "net6.0-windows"
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
@@ -76,7 +76,7 @@
               "privateAssets": "none"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\6.0.406\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.101\\RuntimeIdentifierGraph.json"
         }
       }
     }

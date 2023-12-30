@@ -208,14 +208,14 @@ namespace WaveTracker
             if (Input.GetKeyRepeat(Keys.Down, KeyModifier.None) || Input.GetKeyDown(Keys.Down, KeyModifier.Alt))
             {
                 selectionActive = false;
-                if (!Playback.isPlaying)
+                if (!playback || !followMode)
                     Move(0, Preferences.profile.ignoreStepWhenMoving ? 1 : step);
             }
 
             if (Input.GetKeyRepeat(Keys.Up, KeyModifier.None) || Input.GetKeyDown(Keys.Up, KeyModifier.Alt))
             {
                 selectionActive = false;
-                if (!Playback.isPlaying)
+                if (!playback || !followMode)
                     Move(0, Preferences.profile.ignoreStepWhenMoving ? -1 : -step);
             }
 
@@ -359,7 +359,7 @@ namespace WaveTracker
             if (Input.GetKeyRepeat(Keys.Right, KeyModifier.Ctrl))
             {
                 selectionActive = false;
-                if (playback)
+                if (playback && followMode)
                     Playback.NextFrame();
                 else
                     NextFrame();
@@ -369,7 +369,7 @@ namespace WaveTracker
             if (Input.GetKeyRepeat(Keys.Left, KeyModifier.Ctrl))
             {
                 selectionActive = false;
-                if (playback)
+                if (playback && followMode)
                     Playback.PreviousFrame();
                 else
                     PreviousFrame();

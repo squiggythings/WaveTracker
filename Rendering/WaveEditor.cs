@@ -49,7 +49,7 @@ namespace WaveTracker.Rendering
             bPaste.width = buttonWidth / 2 - 1;
             bPaste.isPartOfInternalDialog = true;
             bPaste.SetTooltip("", "Paste wave settings");
-            buttonY += 14;
+            buttonY += 18;
 
             bPhaseR = new UI.Button("Phase »", buttonX, buttonY, this);
             bPhaseR.width = buttonWidth;
@@ -70,7 +70,7 @@ namespace WaveTracker.Rendering
             bMoveDown.width = buttonWidth;
             bMoveDown.isPartOfInternalDialog = true;
             bMoveDown.SetTooltip("", "Lower the wave 1 step down");
-            buttonY += 14;
+            buttonY += 18;
 
             bInvert = new UI.Button("Invert", buttonX, buttonY, this);
             bInvert.width = buttonWidth;
@@ -160,7 +160,7 @@ namespace WaveTracker.Rendering
                 return -1;
             else
             {
-                return (MouseX - 9) / 4;
+                return (MouseX - 10) / 4;
             }
         }
 

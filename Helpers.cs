@@ -486,5 +486,10 @@ namespace WaveTracker
         {
             return (value - fromSource) / (toSource - fromSource) * (toTarget - fromTarget) + fromTarget;
         }
+
+        public static Color AddTo(this Color value, Color other)
+        {
+            return new Color(value.R +other.R, value.G + other.G, value.B + other.B, value.A + other.A);
+        }
     }
 }

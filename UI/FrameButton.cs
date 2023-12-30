@@ -35,7 +35,7 @@ namespace WaveTracker.UI
             }
             else if (Clicked && offset < 12 && offset > -12)
             {
-                if (Playback.isPlaying)
+                if (Playback.isPlaying && FrameEditor.followMode)
                 {
                     Playback.playbackFrame += offset;
                     Playback.NextFrame();
@@ -63,6 +63,8 @@ namespace WaveTracker.UI
             {
                 if (offset == 0)
                     DrawRoundedRect(0, 0, width, height, new Color(8, 124, 232));
+                else if (!FrameEditor.followMode && Playback.playbackFrame - FrameEditor.currentFrame == offset)
+                    DrawRoundedRect(0, 0, width, height, Colors.theme.rowPlaybackColor.AddTo(new Color(40, 20, 40)));
                 else if (IsPressed && offset > -12 && offset < 12)
                     DrawRoundedRect(0, 0, width, height, new Color(89, 96, 138));
                 else
@@ -70,7 +72,8 @@ namespace WaveTracker.UI
                 string label = (FrameEditor.currentFrame + offset).ToString("D2");
                 Write(label, (width - Helpers.getWidthOfText(label)) / 2, (height + 1) / 2 - 4, getTextColor());
             }
-            if (FrameEditor.currentFrame + offset == FrameEditor.thisSong.frames.Count && FrameEditor.thisSong.frames.Count < 100 && offset < 12)
+
+            else if (FrameEditor.currentFrame + offset == FrameEditor.thisSong.frames.Count && FrameEditor.thisSong.frames.Count < 100 && offset < 12)
             {
                 Color stroke;
                 if (IsPressed)

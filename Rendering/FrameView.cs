@@ -71,14 +71,14 @@ namespace WaveTracker.Rendering
             {
                 if (Input.MouseScrollWheel(KeyModifier.None) < 0)
                 {
-                    if (Playback.isPlaying)
+                    if (Playback.isPlaying && FrameEditor.followMode)
                         Playback.NextFrame();
                     else
                         FrameEditor.NextFrame();
                 }
                 if (Input.MouseScrollWheel(KeyModifier.None) > 0)
                 {
-                    if (Playback.isPlaying)
+                    if (Playback.isPlaying && FrameEditor.followMode)
                         Playback.PreviousFrame();
                     else
                         FrameEditor.PreviousFrame();

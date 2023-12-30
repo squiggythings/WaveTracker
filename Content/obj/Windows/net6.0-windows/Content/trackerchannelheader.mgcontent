@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PipelineBuildEvent xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-  <SourceFile>C:/Users/elias/source/repos/WaveTracker/Content/trackerchannelheader.png</SourceFile>
-  <SourceTime>2023-06-21T19:03:56.1840824-04:00</SourceTime>
-  <DestFile>C:/Users/elias/source/repos/WaveTracker/Content/bin/Windows/Content/trackerchannelheader.xnb</DestFile>
-  <DestTime>2023-12-26T15:24:52.2822321-05:00</DestTime>
+  <SourceFile>C:/Users/Elias/source/repos/WaveTracker/Content/trackerchannelheader.png</SourceFile>
+  <SourceTime>2023-05-25T02:56:50.9294481-04:00</SourceTime>
+  <DestFile>C:/Users/Elias/source/repos/WaveTracker/Content/bin/Windows/Content/trackerchannelheader.xnb</DestFile>
+  <DestTime>2023-12-27T14:40:59.0683472-05:00</DestTime>
   <Importer>TextureImporter</Importer>
   <ImporterTime>2022-07-26T07:44:56-04:00</ImporterTime>
   <Processor>TextureProcessor</Processor>

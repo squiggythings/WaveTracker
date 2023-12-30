@@ -148,6 +148,7 @@ namespace WaveTracker
                     }
             }
             Window.Title = SaveLoad.fileName + (SaveLoad.isSaved ? "" : "*") + " - WaveTracker";
+            //Debug.WriteLine("path is: " + SaveLoad.filePath);
             bottomOfScreen = Window.ClientBounds.Height / ScreenScale;
             FrameEditor.channelScrollbar.y = bottomOfScreen - 14;
             if (Input.GetKeyDown(Keys.F12, KeyModifier.None))

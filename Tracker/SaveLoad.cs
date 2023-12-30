@@ -40,7 +40,7 @@ namespace WaveTracker
         {
             Debug.WriteLine("Saving to: " + path);
             Stopwatch sw = Stopwatch.StartNew();
-            BinaryFormatter formatter = new BinaryFormatter();
+            //BinaryFormatter formatter = new BinaryFormatter();
 
             try
             {
@@ -53,8 +53,7 @@ namespace WaveTracker
             }
 
             savedSong.InitializeForSerialization();
-            path = Path.ChangeExtension(path, ".wtm");
-
+            //path = Path.ChangeExtension(path, ".wtm");
             using (FileStream fs = new FileStream(path, FileMode.Create))
             {
                 Serializer.Serialize(fs, savedSong);
@@ -63,7 +62,6 @@ namespace WaveTracker
             //{
             //    formatter.Serialize(fs, savedSong);
             //}
-
             sw.Stop();
             Debug.WriteLine("saved in " + sw.ElapsedMilliseconds + " ms");
             return;
@@ -82,6 +80,7 @@ namespace WaveTracker
                     SaveTo(filePath);
                 }
             savecooldown = 4;
+            
         }
 
         public static void NewFile()
@@ -116,6 +115,7 @@ namespace WaveTracker
                 SaveTo(filePath);
                 Debug.WriteLine("Saved as: " + filePath);
             }
+            
         }
 
         public static void OpenFile()
@@ -166,26 +166,18 @@ namespace WaveTracker
                 Stopwatch stopwatch = new Stopwatch();
                 stopwatch.Start();
 
-                BinaryFormatter formatter = new BinaryFormatter();
+                //BinaryFormatter formatter = new BinaryFormatter();
 
                 MemoryStream ms = new MemoryStream();
                 savedSong = new Song();
-                if (Path.GetExtension(path) == ".bin")
+
+                using (FileStream fs = new FileStream(path, FileMode.Open))
                 {
-                    using (FileStream fs = new FileStream(path, FileMode.Open))
-                    {
-                        savedSong = (Song)formatter.Deserialize(fs);
-                    }
+                    fs.Position = 0;
+                    savedSong = Serializer.Deserialize<Song>(fs);
                 }
-                else
-                {
-                    using (FileStream fs = new FileStream(path, FileMode.Open))
-                    {
-                        fs.Position = 0;
-                        savedSong = Serializer.Deserialize<Song>(fs);
-                    }
-                    savedSong.Deserialize();
-                }
+                savedSong.Deserialize();
+
 
                 Game1.currentSong = savedSong.Clone();
                 Audio.ChannelManager.instance.Reset();
@@ -200,6 +192,7 @@ namespace WaveTracker
                 return false;
             }
             filePath = path;
+
             return true;
         }
 
@@ -215,13 +208,14 @@ namespace WaveTracker
 
                     Input.DialogStarted();
                     OpenFileDialog openFileDialog = new OpenFileDialog();
-                    openFileDialog.Filter = "WaveTracker modules (*wtm)|*.wtm; *.bin";
+                    openFileDialog.Filter = "WaveTracker modules (*wtm)|*.wtm";
                     openFileDialog.Multiselect = false;
                     openFileDialog.Title = "Open";
                     openFileDialog.ValidateNames = true;
                     if (openFileDialog.ShowDialog() == DialogResult.OK)
                     {
                         filePath = openFileDialog.FileName;
+
                         didIt = true;
                     }
 
@@ -278,8 +272,10 @@ namespace WaveTracker
         {
             string ret = "";
             bool didIt = false;
+            filepath = filePath;
             if (Input.dialogOpenCooldown == 0)
             {
+                Input.DialogStarted();
                 Thread t = new Thread((ThreadStart)(() =>
                 {
 
@@ -306,8 +302,8 @@ namespace WaveTracker
                 t.SetApartmentState(ApartmentState.STA);
                 t.Start();
                 t.Join();
+                filepath = ret;
             }
-            filepath = ret;
             return didIt;
         }
 

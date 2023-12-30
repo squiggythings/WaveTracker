@@ -470,6 +470,8 @@ namespace WaveTracker.Rendering
             }
             for (int i = 0; i < states.Count; i++)
             {
+                if (states.Count <= i)
+                    return;
                 foreach (ChannelState state in states[i])
                 {
                     int width = (int)state.volume.Map(0, 1, 1, 15);
