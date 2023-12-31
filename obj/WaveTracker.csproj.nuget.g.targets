@@ -1,7 +1,0 @@
-﻿<?xml version="1.0" encoding="utf-8" standalone="no"?>
-<Project ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <ImportGroup Condition=" '$(ExcludeRestorePackageImports)' != 'true' ">
-    <Import Project="$(NuGetPackageRoot)monogame.framework.windowsdx\3.8.1.303\build\MonoGame.Framework.WindowsDX.targets" Condition="Exists('$(NuGetPackageRoot)monogame.framework.windowsdx\3.8.1.303\build\MonoGame.Framework.WindowsDX.targets')" />
-    <Import Project="$(NuGetPackageRoot)monogame.content.builder.task\3.8.1.303\build\MonoGame.Content.Builder.Task.targets" Condition="Exists('$(NuGetPackageRoot)monogame.content.builder.task\3.8.1.303\build\MonoGame.Content.Builder.Task.targets')" />
-  </ImportGroup>
-</Project>
