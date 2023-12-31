@@ -221,7 +221,6 @@ DocProject/Help/html
 # Click-Once directory
 publish/
 
-bin/
 
 # Publish Web Output
 *.[Pp]ublish.xml
@@ -339,9 +338,5 @@ paket-files/
 .vs/WaveTracker/v17/.suo
 obj/Debug/net6.0-windows/WaveTracker.csproj.AssemblyReference.cache
 .vs/WaveTracker/v17/.suo
+
 bin/
-bin/Debug/net6.0-windows/WaveTracker.dll
-bin/Debug/net6.0-windows/WaveTracker.pdb
-obj/Debug/net6.0-windows/WaveTracker.csproj.FileListAbsolute.txt
-obj/Debug/net6.0-windows/WaveTracker.dll
-obj/Debug/net6.0-windows/WaveTracker.pdb
