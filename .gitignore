@@ -336,7 +336,5 @@ paket-files/
 .idea/
 *.sln.iml
 .vs/WaveTracker/v17/.suo
-obj/Debug/net6.0-windows/WaveTracker.csproj.AssemblyReference.cache
-.vs/WaveTracker/v17/.suo
 
 bin/
