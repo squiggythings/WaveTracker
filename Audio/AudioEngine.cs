@@ -148,7 +148,7 @@ namespace WaveTracker.Audio
             {
                 if (rendering)
                 {
-                    if (processedRows > totalRows || cancelRender)
+                    if (processedRows >= totalRows || cancelRender)
                     {
                         Tracker.Playback.Stop();
                         rendering = false;
@@ -201,7 +201,7 @@ namespace WaveTracker.Audio
                     }
                     if (rendering)
                     {
-                        if (processedRows > totalRows || cancelRender)
+                        if (processedRows >= totalRows || cancelRender)
                         {
                             return n;
                         }

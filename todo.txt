@@ -1,6 +1,5 @@
 ﻿TODO:
 * Custom song settings dialog
-* fix Ctrl-piano blip
 
 
 

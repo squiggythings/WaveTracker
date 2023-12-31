@@ -177,7 +177,6 @@ namespace WaveTracker.Rendering
                 
                 SaveLoad.savecooldown--;
             }
-            Debug.WriteLine("path name: " + SaveLoad.filePath);
         }
         public void Draw()
         {

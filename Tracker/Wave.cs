@@ -292,35 +292,8 @@ namespace WaveTracker.Tracker
             float nearestSample = lerpt > 0.5f ? sample2 : sample1;
             float lerpedSample = MathHelper.Lerp(sample1, sample2, lerpt);
             float sampDifference = MathF.Abs(getSample(index1) - getSample(index2));
-            //System.Diagnostics.Debug.WriteLine(sampDifference);
+            
             return MathHelper.Lerp(lerpedSample, nearestSample, sampDifference / 31f);
-
-            // int index1 = (int)(t * samples.Length);
-            // int index2 = index1 + 1;
-            // float sample1 = getSample(index1) / 16f - 1f;
-            // float sample2 = getSample(index2) / 16f - 1f;
-            // float lerp = MathHelper.Lerp(sample1, sample2, (float)Helpers.Mod(t, 0.015625) * 64);
-            // float reg = getSample((int)(t * samples.Length + 0.5f)) / 16f - 1f;
-            // return (lerp + reg) * 0.5f;
-            if (lerpt < 0.5f)
-            {
-                if (sample1 < sample2)
-                    return sample1 + 0.0625f * lerpt;
-                else if (sample1 > sample2)
-                    return sample1 - 0.0625f * lerpt;
-                else
-                    return sample1;
-            }
-            else
-            {
-                if (sample1 < sample2)
-                    return sample2 - 0.0625f * (1 - lerpt);
-                else if (sample1 > sample2)
-                    return sample2 + 0.0625f * (1 - lerpt);
-                else
-                    return sample2;
-            }
-
         }
 
 
