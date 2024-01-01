@@ -192,18 +192,18 @@ namespace WaveTracker
                     previewChannel = FrameEditor.currentColumn / 5;
                     if (!Playback.isPlaying)
                         Audio.AudioEngine._tickCounter = 0;
-                    ChannelManager.channels[previewChannel].SetMacro(Rendering.InstrumentBank.CurrentInstrumentIndex);
-                    ChannelManager.channels[previewChannel].TriggerNote(pianoInput);
+                    ChannelManager.previewChannel.SetMacro(Rendering.InstrumentBank.CurrentInstrumentIndex);
+                    ChannelManager.previewChannel.TriggerNote(pianoInput);
                 }
             }
             if (pianoInput == -1 && lastPianoKey != -1)
             {
-                ChannelManager.channels[previewChannel].PreviewCut();
+                ChannelManager.previewChannel.PreviewCut();
             }
             if (Rendering.WaveEditor.enabled)
             {
-                if (!Audio.ChannelManager.channels[previewChannel].waveEnv.toPlay.isActive)
-                    Audio.ChannelManager.channels[previewChannel].SetWave(Rendering.WaveBank.currentWave);
+                if (!Audio.ChannelManager.previewChannel.waveEnv.toPlay.isActive)
+                    Audio.ChannelManager.previewChannel.SetWave(Rendering.WaveBank.currentWave);
             }
             Tracker.Playback.Update(gameTime);
 

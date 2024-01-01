@@ -159,14 +159,19 @@ namespace WaveTracker.Audio
                 for (int n = 0; n < sampleCount; n += 2)
                 {
                     buffer[n + offset] = buffer[n + offset + 1] = 0;
-
+                    float l = 0, r = 0;
                     for (int c = 0; c < ChannelManager.channels.Count; ++c)
                     {
-                        float l = 0, r = 0;
+                        l = r = 0;
                         ChannelManager.channels[c].ProcessSingleSample(out l, out r, true, delta);
                         buffer[n + offset] += l;
                         buffer[n + offset + 1] += r;
                     }
+                    
+                    l = r = 0;
+                    ChannelManager.previewChannel.ProcessSingleSample(out l, out r, true, delta);
+                    buffer[n + offset] += l;
+                    buffer[n + offset + 1] += r;
 
                     if (!rendering)
                     {
@@ -196,6 +201,7 @@ namespace WaveTracker.Audio
                         {
                             c.NextTick();
                         }
+                        ChannelManager.previewChannel.NextTick();
                     }
                     if (rendering)
                     {

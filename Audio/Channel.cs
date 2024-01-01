@@ -646,7 +646,7 @@ namespace WaveTracker.Audio
                 }
                 left = l * 0.2f * bassBoost;
                 right = r * 0.2f * bassBoost;
-                if (!FrameEditor.channelToggles[id])
+                if (id >= 0 && !FrameEditor.channelToggles[id])
                 {
                     left = 0;
                     right = 0;

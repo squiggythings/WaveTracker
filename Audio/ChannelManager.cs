@@ -21,7 +21,7 @@ namespace WaveTracker.Audio
         public static void Initialize(int numChannels, Rendering.WaveBank waveBank)
         {
             ChannelManager.waveBank = waveBank;
-
+            previewChannel = new Channel(-1);
             channels = new List<Channel>();
             for (int i = 0; i < numChannels; i++)
             {

@@ -7,6 +7,8 @@ using WaveTracker.UI;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using WaveTracker.Audio;
+using WaveTracker.Tracker;
 
 namespace WaveTracker.Rendering
 {
@@ -18,6 +20,14 @@ namespace WaveTracker.Rendering
         public int amplitude;
         int currentAmp;
         Audio.Channel channel;
+        Audio.Channel channelToDisplay
+        {
+            get
+            {
+                if (FrameEditor.currentColumn / 5 == id && !channel.isPlaying) return ChannelManager.previewChannel;
+                return channel;
+            }
+        }
         public float sampVolume;
         public ChannelHeader(int id, Audio.Channel ch)
         {
@@ -65,7 +75,7 @@ namespace WaveTracker.Rendering
                 Input.CancelClick();
                 FrameEditor.UnmuteAllChannels();
             }
-            channel._sampleVolume = -1;
+            channelToDisplay._sampleVolume = -1;
         }
 
         public void UpdateAmplitude()
@@ -75,7 +85,7 @@ namespace WaveTracker.Rendering
                 return;
             }
 
-            currentAmp = Math.Clamp((int)(channel.CurrentAmplitude * 50), 0, 50);
+            currentAmp = Math.Clamp((int)(channelToDisplay.CurrentAmplitude * 50), 0, 50);
             if (currentAmp >= amplitude)
                 amplitude = currentAmp;
             else
@@ -86,7 +96,7 @@ namespace WaveTracker.Rendering
             }
             if (amplitude < 0)
                 amplitude = 0;
-            channel._sampleVolume *= 0.6f;
+            channelToDisplay._sampleVolume *= 0.6f;
         }
 
         public void Draw()
@@ -103,17 +113,16 @@ namespace WaveTracker.Rendering
                 else
                     DrawSprite(Game1.channelHeaderSprite, 0, 0, new Rectangle(0, 0, 63, 31));
                 Write("Channel " + (id + 1), 6, 10, new Color(104, 111, 153));
-
-                if (!Audio.AudioEngine.rendering)
-                {
-                    DrawRect(6, 25, amplitude == 0 ? 0 : amplitude + 1, 3, new Color(0, 219, 39));
-                    DrawRect(21 + (int)(channel.CurrentPan * 19), 22, 3, 2, Color.White);
-                }
             }
             else
             {
                 DrawSprite(Game1.channelHeaderSprite, 0, 0, new Rectangle(63, 0, 63, 31));
                 Write("Channel " + (id + 1), 6, 11, new Color(230, 69, 57));
+            }
+            if (!Audio.AudioEngine.rendering)
+            {
+                DrawRect(6, 25, amplitude == 0 ? 0 : amplitude + 1, 3, new Color(0, 219, 39));
+                DrawRect(21 + (int)(channelToDisplay.CurrentPan * 19), 22, 3, 2, Color.White);
             }
         }
     }

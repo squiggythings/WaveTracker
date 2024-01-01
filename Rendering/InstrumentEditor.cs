@@ -246,13 +246,13 @@ namespace WaveTracker.Rendering
         public void ShowEnvelope(int id)
         {
             if (id == 0)
-                envelopeEditor.EditEnvelope(instrument.volumeEnvelope, id, ChannelManager.channels[Game1.previewChannel].volumeEnv, startcooldown == 0);
+                envelopeEditor.EditEnvelope(instrument.volumeEnvelope, id, ChannelManager.previewChannel.volumeEnv, startcooldown == 0);
             if (id == 1)
-                envelopeEditor.EditEnvelope(instrument.arpEnvelope, id, ChannelManager.channels[Game1.previewChannel].arpEnv, startcooldown == 0);
+                envelopeEditor.EditEnvelope(instrument.arpEnvelope, id, ChannelManager.previewChannel.arpEnv, startcooldown == 0);
             if (id == 2)
-                envelopeEditor.EditEnvelope(instrument.pitchEnvelope, id, ChannelManager.channels[Game1.previewChannel].pitchEnv, startcooldown == 0);
+                envelopeEditor.EditEnvelope(instrument.pitchEnvelope, id, ChannelManager.previewChannel.pitchEnv, startcooldown == 0);
             if (id == 3)
-                envelopeEditor.EditEnvelope(instrument.waveEnvelope, id, ChannelManager.channels[Game1.previewChannel].waveEnv, startcooldown == 0);
+                envelopeEditor.EditEnvelope(instrument.waveEnvelope, id, ChannelManager.previewChannel.waveEnv, startcooldown == 0);
         }
 
         public void EditMacro(Macro m, int num)
@@ -372,7 +372,7 @@ namespace WaveTracker.Rendering
                 // draw currently played key
                 if (Game1.pianoInput > -1)
                 {
-                    int note = Game1.pianoInput + ChannelManager.channels[Game1.previewChannel].arpEnv.Evaluate();
+                    int note = Game1.pianoInput + ChannelManager.previewChannel.arpEnv.Evaluate();
                     if (note >= 0 && note < 120)
                     {
                         if (Helpers.isNoteBlackKey(note))
@@ -475,7 +475,7 @@ namespace WaveTracker.Rendering
                 }
                 if (instrument.sample.sampleLoopType != SampleLoopType.OneShot)
                     DrawRect(x + (int)((float)instrument.sample.sampleLoopIndex / data.Length * boxLength), y, 1, boxHeight, Color.Yellow);
-                if (instrument.sample.currentPlaybackPosition < data.Length && Audio.ChannelManager.channels[Game1.previewChannel].isPlaying)
+                if (instrument.sample.currentPlaybackPosition < data.Length && Audio.ChannelManager.previewChannel.isPlaying)
                     DrawRect(x + (int)((float)instrument.sample.currentPlaybackPosition / data.Length * boxLength), y, 1, boxHeight, Color.Aqua);
             }
         }

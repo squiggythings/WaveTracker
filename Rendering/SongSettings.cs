@@ -99,11 +99,11 @@ namespace WaveTracker.Rendering
             }
         }
 
-  
+
         public void DrawVolumeMeters(int px, int py, int width, int height)
         {
             Color grey = new Color(163, 167, 194);
-            #region drawletters
+            #region draw letters
             DrawRect(px - 7, py, 1, 4, grey);
             DrawRect(px - 6, py + 3, 2, 1, grey);
 
@@ -247,6 +247,7 @@ namespace WaveTracker.Rendering
 
         public void DrawStereoOscilloscope(int px, int py, int width, int height, Color back)
         {
+            Random rand = new Random();
             DrawRect(px, py, width, height, back);
             float[,] samples = Audio.AudioEngine.currentBuffer;
             int i = 0;
@@ -261,8 +262,8 @@ namespace WaveTracker.Rendering
                 {
                     if (i >= samples.GetLength(1))
                         break;
-                    int sampleL = (int)Math.Round(Math.Clamp((-samples[1, i] * 20), height / -2, height / 2));
                     int sampleR = (int)Math.Round(Math.Clamp((-samples[0, i] * 20), height / -2, height / 2));
+                    
                     int sample = sampleR;
                     if (sample < minVal)
                         minVal = sample;
@@ -288,7 +289,7 @@ namespace WaveTracker.Rendering
                     if (i >= samples.GetLength(1))
                         break;
                     int sampleL = (int)Math.Round(Math.Clamp((-samples[1, i] * 20), height / -2, height / 2));
-                    int sampleR = (int)Math.Round(Math.Clamp((-samples[0, i] * 20), height / -2, height / 2));
+                    
                     int sample = sampleL;
                     if (sample < minVal)
                         minVal = sample;

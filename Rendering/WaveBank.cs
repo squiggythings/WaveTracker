@@ -55,8 +55,8 @@ namespace WaveTracker.Rendering
                 {
                     currentWave = i;
                     editor.EditWave(song.waves[i], i);
-                    if (!Audio.ChannelManager.channels[FrameEditor.currentColumn / 5].waveEnv.toPlay.isActive)
-                        Audio.ChannelManager.channels[FrameEditor.currentColumn / 5].SetWave(i);
+                    if (!Audio.ChannelManager.previewChannel.waveEnv.toPlay.isActive)
+                        Audio.ChannelManager.previewChannel.SetWave(i);
                 }
 
                 ++i;
