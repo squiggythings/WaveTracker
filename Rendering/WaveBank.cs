@@ -17,10 +17,12 @@ namespace WaveTracker.Rendering
         public Song song => Game1.currentSong;
         public WaveEditor editor;
         public static int currentWave;
+        public static int lastSelectedWave;
         public WaveBank()
         {
             waveBankElements = new WaveBankElement[100];
             InitializePanel("Wave Bank", 510, 18, 448, 130);
+            lastSelectedWave = 0;
             int index = 0;
             for (int y = 0; y < 5; y++)
             {
@@ -54,6 +56,7 @@ namespace WaveTracker.Rendering
                 if (e.Clicked)
                 {
                     currentWave = i;
+                    lastSelectedWave = i;
                     editor.EditWave(song.waves[i], i);
                     if (!Audio.ChannelManager.previewChannel.waveEnv.toPlay.isActive)
                         Audio.ChannelManager.previewChannel.SetWave(i);

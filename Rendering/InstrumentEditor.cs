@@ -30,6 +30,7 @@ namespace WaveTracker.Rendering
         public SpriteToggle visualize_toggle;
         public SampleBrowser browser;
         public Dropdown sample_resampleDropdown;
+        public Dropdown wave_modTypeDropdown;
         Macro instrument => Game1.currentSong.instruments[id];
         TabGroup tabGroup;
         public static Texture2D tex;
@@ -46,6 +47,13 @@ namespace WaveTracker.Rendering
             sample_importSample = new Button("Import Sample    ", 20, 224, this);
             sample_importSample.SetTooltip("", "Import an audio file into the instrument");
             sample_importSample.isPartOfInternalDialog = true;
+
+            wave_modTypeDropdown = new Dropdown(478, 260, this);
+            wave_modTypeDropdown.SetMenuItems(new string[] { "Wave Blend", "Wave Stretch", "FM" });
+            wave_modTypeDropdown.Value = 0;
+            wave_modTypeDropdown.SetTooltip("", "Wave Blend: crossfade the current wave with the next one in the bank - Wave stretch: bends the wave shape - FM: modulate the frequency of this wave by the next one in the bank");
+            wave_modTypeDropdown.isPartOfInternalDialog = true;
+
             envelopeEditor = new EnvelopeEditor(17, 37, tex, this);
             #region sample editor buttons
             sample_loopOneshot = new Toggle("One shot", 187, 224, this);
@@ -148,6 +156,7 @@ namespace WaveTracker.Rendering
                     }
                     else
                     {
+                        wave_modTypeDropdown.Value = instrument.waveModType;
                         envelopeEditor.SetEnvelope(instrument.volumeEnvelope, 0);
                     }
                 }
@@ -233,6 +242,21 @@ namespace WaveTracker.Rendering
                     }
                     else
                     {
+                        if (tabGroup.selected == 4 && tabGroup.tabs[4].toggle.Value)
+                        {
+                            wave_modTypeDropdown.enabled = true;
+                            wave_modTypeDropdown.Value = instrument.waveModType;
+                            wave_modTypeDropdown.Update();
+                            if (wave_modTypeDropdown.Value != instrument.waveModType)
+                            {
+                                ChannelManager.previewChannel.ResetModulations();
+                            }
+                            instrument.waveModType = wave_modTypeDropdown.Value;
+                        }
+                        else
+                        {
+                            wave_modTypeDropdown.enabled = false;
+                        }
                         ShowEnvelope(tabGroup.selected);
                     }
                 }
@@ -253,6 +277,8 @@ namespace WaveTracker.Rendering
                 envelopeEditor.EditEnvelope(instrument.pitchEnvelope, id, ChannelManager.previewChannel.pitchEnv, startcooldown == 0);
             if (id == 3)
                 envelopeEditor.EditEnvelope(instrument.waveEnvelope, id, ChannelManager.previewChannel.waveEnv, startcooldown == 0);
+            if (id == 4)
+                envelopeEditor.EditEnvelope(instrument.waveModEnvelope, id, ChannelManager.previewChannel.waveModEnv, startcooldown == 0);
         }
 
         public void EditMacro(Macro m, int num)
@@ -271,6 +297,7 @@ namespace WaveTracker.Rendering
                     tabGroup.AddTab("Arpeggio", true);
                     tabGroup.AddTab("Pitch", true);
                     tabGroup.AddTab("Wave", true);
+                    tabGroup.AddTab("Wave Mod", true);
                 }
                 if (m.macroType == MacroType.Sample)
                 {
@@ -292,6 +319,7 @@ namespace WaveTracker.Rendering
                 tabGroup.tabs[1].toggle.Value = instrument.arpEnvelope.isActive;
                 tabGroup.tabs[2].toggle.Value = instrument.pitchEnvelope.isActive;
                 tabGroup.tabs[3].toggle.Value = instrument.waveEnvelope.isActive;
+                tabGroup.tabs[4].toggle.Value = instrument.waveModEnvelope.isActive;
             }
             if (instrument.macroType == MacroType.Sample)
             {
@@ -309,6 +337,7 @@ namespace WaveTracker.Rendering
                 instrument.arpEnvelope.isActive = tabGroup.tabs[1].toggle.Value;
                 instrument.pitchEnvelope.isActive = tabGroup.tabs[2].toggle.Value;
                 instrument.waveEnvelope.isActive = tabGroup.tabs[3].toggle.Value;
+                instrument.waveModEnvelope.isActive = tabGroup.tabs[4].toggle.Value;
             }
             if (instrument.macroType == MacroType.Sample)
             {
@@ -362,7 +391,7 @@ namespace WaveTracker.Rendering
                 closeButton.Draw();
 
                 tabGroup.Draw();
-                DrawRect(9, 28, 200, 1, Color.White);
+                DrawRect(9, 28, 280, 1, Color.White);
                 // draw sample base key
                 if (instrument.macroType == MacroType.Sample && tabGroup.selected == 0)
                     if (Helpers.isNoteBlackKey(sample_baseKey.Value))
@@ -438,6 +467,15 @@ namespace WaveTracker.Rendering
                 else
                 {
                     envelopeEditor.Draw();
+                    if (tabGroup.selected == 4)
+                    {
+                        WriteRightAlign("Mode", wave_modTypeDropdown.x - 4, wave_modTypeDropdown.y + 3, UIColors.label);
+                        wave_modTypeDropdown.Draw();
+                    }
+                }
+                if (!tabGroup.GetSelectedTab.toggle.Value && tabGroup.GetSelectedTab.hasToggle)
+                {
+                    DrawRect(16, 36, 535, 253, new Color(255, 255, 255, 100));
                 }
                 browser.Draw();
             }

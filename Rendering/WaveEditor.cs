@@ -198,6 +198,7 @@ namespace WaveTracker.Rendering
                     id = WaveBank.currentWave;
 
                 }
+                WaveBank.lastSelectedWave = id;
 
 
                 phase++;

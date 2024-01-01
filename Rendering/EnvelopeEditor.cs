@@ -45,6 +45,7 @@ namespace WaveTracker.UI
             envLength.bDown.isPartOfInternalDialog = true;
             envLength.bUp.isPartOfInternalDialog = true;
             envLength.SetValueLimits(0, 220);
+            
             SetParent(parent);
             ResetScrollbar();
 
@@ -59,7 +60,7 @@ namespace WaveTracker.UI
         int xPositionOfColumn(int index) { return 46 + index * ColumnWidth; }
         int yPositionOfValue(int value)
         {
-            if (envelopeType == 0)
+            if (envelopeType == 0 || envelopeType == 4) // vol + wave mod
             {
                 return 21 + (99 - value) * 2;
             }
@@ -79,6 +80,8 @@ namespace WaveTracker.UI
 
         public void Update(bool cooldownDone)
         {
+
+
             envLength.Value = envelope.values.Count;
             envLength.Update();
             envLength.enabled = envelope.isActive;
@@ -185,7 +188,7 @@ namespace WaveTracker.UI
         {
             int x = (int)Math.Floor((MouseX - 46) / (float)ColumnWidth);
             int y;
-            if (envelopeType == 0) // vol 
+            if (envelopeType == 0 || envelopeType == 4) // vol + wave mod
             {
                 y = 99 - (MouseY - 21) / 2;
             }
@@ -212,7 +215,7 @@ namespace WaveTracker.UI
             int x = (int)Math.Floor((mX - 46) / (float)ColumnWidth);
             int y = 0;
 
-            if (envelopeType == 0) // vol
+            if (envelopeType == 0 || envelopeType == 4) // vol + wave mod
             {
                 y = 99 - (mY - 21) / 2;
             }
@@ -255,7 +258,7 @@ namespace WaveTracker.UI
             {
                 if (envelope.values.Count > 0)
                 {
-                    if (envelopeType == 0)
+                    if (envelopeType == 0 || envelopeType == 4) // volume + wave mod
                     {
                         for (int i = 0; i < envelope.values.Count; ++i)
                         {
@@ -385,6 +388,7 @@ namespace WaveTracker.UI
 
                         }
                     }
+
                     DrawShiftLine();
                     string s = (int)(envelope.values.Count * (1000f / Game1.currentSong.tickRate)) + " ms ";
                     if (true)
@@ -421,6 +425,7 @@ namespace WaveTracker.UI
                     switch (envelopeType)
                     {
                         case 0:
+                        case 4:
                             Write(" 99", 29, 20, Color.White);
                             Write(" 00", 29, 213, Color.White);
                             break;
@@ -456,9 +461,6 @@ namespace WaveTracker.UI
                     scrollbar.Draw();
                 if (!envelope.isActive)
                 {
-                    //DrawSprite(tex, -1, -1, 535, 222, new Rectangle(584, 355, 1, 1));
-                    //Graphics.batch.End();
-                    //Graphics.batch.Begin();
                     DrawRect(-1, -1, 535, 253, new Color(255, 255, 255, 100));
                 }
             }
@@ -529,13 +531,14 @@ namespace WaveTracker.UI
         }
         void DrawBlock(int i, int val, Color c, bool shadow)
         {
-            if (envelopeType == 0)
+            if (envelopeType == 0 || envelopeType == 4) // volume + wave mod
             {
                 DrawRect(xPositionOfColumn(i), yPositionOfValue(val), ColumnWidth, val * 2 + 1, c);
                 if (shadow)
                     DrawRect(xPositionOfColumn(i) + ColumnWidth - 1, yPositionOfValue(val), 1, val * 2 + 1, Color.LightGray);
             }
-            if (envelopeType == 1) // arp
+           
+            if (envelopeType == 1 || envelopeType == 3) // arp + wave select
             {
                 if (yPositionOfValue(val) > 20 && yPositionOfValue(val) < 219)
                 {
@@ -544,15 +547,7 @@ namespace WaveTracker.UI
                         DrawRect(xPositionOfColumn(i) + ColumnWidth - 1, yPositionOfValue(val), 1, arpHeight, Color.LightGray);
                 }
             }
-            if (envelopeType == 3) // arp
-            {
-                if (yPositionOfValue(val) > 20 && yPositionOfValue(val) < 219)
-                {
-                    DrawRect(xPositionOfColumn(i), yPositionOfValue(val), ColumnWidth, waveHeight, c);
-                    if (shadow)
-                        DrawRect(xPositionOfColumn(i) + ColumnWidth - 1, yPositionOfValue(val), 1, waveHeight, Color.LightGray);
-                }
-            }
+
             if (envelopeType == 2) // pitch
             {
                 int height = val;

@@ -200,11 +200,10 @@ namespace WaveTracker
             {
                 ChannelManager.previewChannel.PreviewCut();
             }
-            if (Rendering.WaveEditor.enabled)
-            {
-                if (!Audio.ChannelManager.previewChannel.waveEnv.toPlay.isActive)
-                    Audio.ChannelManager.previewChannel.SetWave(Rendering.WaveBank.currentWave);
-            }
+            
+            if (!ChannelManager.previewChannel.waveEnv.toPlay.isActive)
+                ChannelManager.previewChannel.SetWave(WaveBank.lastSelectedWave);
+            
             Tracker.Playback.Update(gameTime);
 
             #region octave change

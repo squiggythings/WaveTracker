@@ -34,6 +34,11 @@ namespace WaveTracker.Tracker
         public Envelope pitchEnvelope;
         [ProtoMember(22)]
         public Envelope waveEnvelope;
+        [ProtoMember(24)]
+        public Envelope waveModEnvelope;
+        [ProtoMember(25)]
+        public int waveModType;
+
         [ProtoMember(23)]
         public Sample sample;
         public const char delimiter = '%';
@@ -46,7 +51,8 @@ namespace WaveTracker.Tracker
             arpEnvelope = new Envelope(0);
             pitchEnvelope = new Envelope(0);
             waveEnvelope = new Envelope(0);
-
+            waveModEnvelope = new Envelope(0);
+            waveModType = 0;
 
             sample = new Sample();
         }
@@ -63,7 +69,8 @@ namespace WaveTracker.Tracker
             arpEnvelope = new Envelope(0);
             pitchEnvelope = new Envelope(0);
             waveEnvelope = new Envelope(0);
-
+            waveModEnvelope = new Envelope(0);
+            waveModType = 0;
             //volumeEnvelope.isActive = true;
             //volumeEnvelope.values.Add(90);
             //volumeEnvelope.values.Add(84);
@@ -123,6 +130,8 @@ namespace WaveTracker.Tracker
             m.pitchEnvelope = pitchEnvelope.Clone();
             m.arpEnvelope = arpEnvelope.Clone();
             m.waveEnvelope = waveEnvelope.Clone();
+            m.waveModEnvelope= waveModEnvelope.Clone();
+            m.waveModType = waveModType;
             m.sample.sampleDataAccessL = new float[sample.sampleDataAccessL.Length];
             m.sample.sampleDataAccessR = new float[sample.sampleDataAccessR.Length];
             for (int i = 0; i < sample.sampleDataAccessL.Length; i++)

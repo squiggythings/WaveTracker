@@ -78,6 +78,7 @@ namespace WaveTracker.Tracker
             isPlaying = true;
             tickCounter = 0;
             ChannelManager.Reset();
+            ChannelManager.previewChannel.Reset();
             playbackFrame = FrameEditor.currentFrame;
             playbackRow = 0;
             Rendering.Visualization.GetWaveColors();

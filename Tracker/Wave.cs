@@ -7,7 +7,6 @@ using WaveTracker.Rendering;
 using Microsoft.Xna.Framework;
 using WaveTracker.Audio;
 using ProtoBuf;
-using System.Security.Cryptography.X509Certificates;
 
 namespace WaveTracker.Tracker
 {
@@ -261,8 +260,23 @@ namespace WaveTracker.Tracker
             return samples[index % 64];
         }
 
-        public float GetSampleMorphed(float t, Wave other, float interpolationAmt)
+        public float GetSampleMorphed(float t, Wave other, float interpolationAmt, float bendAmt)
         {
+            while (t < 0)
+                t += 1;
+            t = Helpers.Mod(t, 1f);
+            if (bendAmt > 0)
+            {
+                bendAmt++;
+                if (t < 0.5f)
+                {
+                    t = MathF.Pow(2 * t, MathF.Sqrt(bendAmt)) / 2f;
+                }
+                else
+                {
+                    t = MathF.Pow(2 - 2 * t, MathF.Sqrt(bendAmt)) / -2f + 1;
+                }
+            }
             return MathHelper.Lerp(GetSampleAtPosition(t), other.GetSampleAtPosition(t), interpolationAmt);
         }
 

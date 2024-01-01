@@ -24,6 +24,8 @@ namespace WaveTracker.UI
             SetParent(parent);
         }
 
+        public Tab GetSelectedTab => tabs[selected];
+
         public void ClearTabs()
         {
             tabs.Clear();

@@ -35,11 +35,16 @@ namespace WaveTracker.Rendering
             {
                 phase = 1;
             }
+            
         }
 
 
         public void Draw()
         {
+            if (WaveBank.lastSelectedWave == id)
+            {
+                DrawRoundedRect(0, 0, 22, 22, new Color(68, 75, 120));
+            }
             if (IsHovered || (WaveEditor.enabled && WaveBank.currentWave == id))
             {
                 if (WaveEditor.enabled)
