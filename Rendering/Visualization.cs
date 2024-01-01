@@ -41,6 +41,12 @@ namespace WaveTracker.Rendering
                 ++i;
             }
         }
+
+        static Color GetColorOfWaveFromTable(int index, float morph)
+        {
+            return waveColors[index].Lerp(waveColors[(index + 1) % 100], morph);
+        }
+
         static Color ColorFromWave(Wave w)
         {
             double dcOffset = 0;
@@ -113,7 +119,7 @@ namespace WaveTracker.Rendering
 
                 if ((chan.currentMacro.macroType == MacroType.Wave || chan.currentMacro.sample.useInVisualization) && chan.CurrentAmplitude > 0.01f && chan.CurrentPitch >= 0 && chan.CurrentPitch < 120 && FrameEditor.channelToggles[c])
                 {
-                    ChannelState state = new ChannelState(chan.CurrentPitch, chan.CurrentAmplitude, chan.currentMacro.macroType == MacroType.Wave ? waveColors[chan.waveIndex] : Color.White, chan.isPlaying);
+                    ChannelState state = new ChannelState(chan.CurrentPitch, chan.CurrentAmplitude, chan.currentMacro.macroType == MacroType.Wave ? GetColorOfWaveFromTable(chan.waveIndex, chan.waveMorphPosition) : Color.White, chan.isPlaying);
                     rowOfStates.Add(state);
                 }
             }
@@ -403,11 +409,11 @@ namespace WaveTracker.Rendering
                     for (int i = -w / 2; i < w / 2 - 1; ++i)
                     {
                         lastSamp = samp1;
-                        float index = (i / (float)w * ch.CurrentFrequency / scopezoom);
+                        float position = (i / (float)w * ch.CurrentFrequency / scopezoom);
 
-                        samp1 = -wv.GetSampleAtPosition(index) * (h / 2f) * ch.CurrentAmplitude + (h / 2f);
+                        samp1 = -ch.EvaluateWave(position) * (h / 2f) * ch.CurrentAmplitude + (h / 2f);
                         if (i > -w / 2)
-                            DrawOscCol(px + i + w / 2, py - 2, samp1, lastSamp, Preferences.profile.visualizerScopeColors ? waveColors[ch.waveIndex] : Color.White, Preferences.profile.visualizerScopeThickness + 1);
+                            DrawOscCol(px + i + w / 2, py - 2, samp1, lastSamp, Preferences.profile.visualizerScopeColors ? GetColorOfWaveFromTable(ch.waveIndex, ch.waveMorphPosition) : Color.White, Preferences.profile.visualizerScopeThickness + 1);
                     }
                 }
                 else // SAMPLE

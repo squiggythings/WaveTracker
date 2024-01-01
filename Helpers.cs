@@ -99,6 +99,7 @@ namespace WaveTracker
                 16 => "V",
                 17 => "G",
                 18 => "S",
+                19 => "M",
                 _ => "-",
             };
         }
@@ -489,7 +490,16 @@ namespace WaveTracker
 
         public static Color AddTo(this Color value, Color other)
         {
-            return new Color(value.R +other.R, value.G + other.G, value.B + other.B, value.A + other.A);
+            return new Color(value.R + other.R, value.G + other.G, value.B + other.B, value.A + other.A);
+        }
+
+        public static Color Lerp(this Color col, Color other, float t)
+        {
+            byte r = (byte)MathHelper.Lerp(col.R,other.R,t);
+            byte g = (byte)MathHelper.Lerp(col.G, other.G, t);
+            byte b = (byte)MathHelper.Lerp(col.B, other.B, t);
+            byte a = (byte)MathHelper.Lerp(col.A, other.A, t);
+            return new Color(r,g,b,a);
         }
     }
 }

@@ -7,6 +7,7 @@ using WaveTracker.Rendering;
 using Microsoft.Xna.Framework;
 using WaveTracker.Audio;
 using ProtoBuf;
+using System.Security.Cryptography.X509Certificates;
 
 namespace WaveTracker.Tracker
 {
@@ -258,6 +259,11 @@ namespace WaveTracker.Tracker
             }
 
             return samples[index % 64];
+        }
+
+        public float GetSampleMorphed(float t, Wave other, float interpolationAmt)
+        {
+            return MathHelper.Lerp(GetSampleAtPosition(t), other.GetSampleAtPosition(t), interpolationAmt);
         }
 
 

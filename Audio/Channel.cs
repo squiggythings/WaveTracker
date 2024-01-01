@@ -20,6 +20,9 @@ namespace WaveTracker.Audio
         float totalAmplitude => tremoloMultiplier * (channelVolume / 99f) * (volumeEnv.Evaluate() / 99f); // * currentMacro.GetState().volumeMultiplier;
         float totalPitch => channelNotePorta + bendOffset + vibratoOffset + pitchFallOffset + arpeggioOffset + detuneOffset + arpEnvelopeResult;
 
+        public float waveMorphPosition => waveMorphAmt / 99f;
+
+
         int arpEnvelopeResult;
         /// <summary>
         /// value from 0.0-1.0, 0.5f is center
@@ -52,6 +55,8 @@ namespace WaveTracker.Audio
         int targetBendAmt;
         float channelNotePorta;
         float detuneOffset; // Pxx command
+        int waveMorphAmt; // Mxx command
+
 
         int channelVolume; // volume column
         int channelNote; // notes column
@@ -159,13 +164,17 @@ namespace WaveTracker.Audio
             {
                 SetWave(parameter);
             }
-            if (command == 12)
+            if (command == 12) // AXX
             {
                 volumeSlideSpeed = -parameter;
             }
-            if (command == 13)
+            if (command == 13) // WXX
             {
                 volumeSlideSpeed = parameter;
+            }
+            if (command == 19) // MXX
+            {
+                waveMorphAmt = parameter;
             }
 
         }
@@ -268,6 +277,7 @@ namespace WaveTracker.Audio
             tremoloSpeed = 0;
             tremoloTime = 0;
             stereoPhaseOffset = 0;
+            waveMorphAmt = 0;
             SetWave(0);
             lastNote = channelNote;
             channelNotePorta = channelNote;
@@ -362,9 +372,9 @@ namespace WaveTracker.Audio
         public float CurrentFrequency
         { get { return _frequency; } }
 
-        float EvaluateWave(float time)
+        public float EvaluateWave(float time)
         {
-            return currentWave.GetSampleAtPosition(time);
+            return currentWave.GetSampleMorphed(time, Game1.currentSong.waves[(waveIndex + 1) % 100], waveMorphAmt / 99f);
         }
 
 
