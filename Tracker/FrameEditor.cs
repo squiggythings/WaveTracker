@@ -1697,6 +1697,8 @@ namespace WaveTracker
         {
             currentFrame = frame;
             cursorRow = Math.Clamp(row, 0, thisFrame.GetLastRow());
+            if (cursorRow > thisFrame.GetLastRow())
+                cursorRow = thisFrame.GetLastRow();
 
         }
         public static void NextFrame()

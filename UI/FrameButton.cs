@@ -42,7 +42,9 @@ namespace WaveTracker.UI
                     Playback.PreviousFrame();
                 }
                 else
-                    FrameEditor.currentFrame += offset;
+                {
+                    FrameEditor.Goto(FrameEditor.currentFrame + offset, FrameEditor.currentRow);
+                }
             }
             enabled = FrameEditor.currentFrame + offset >= 0 && FrameEditor.currentFrame + offset <= FrameEditor.thisSong.frames.Count;
         }

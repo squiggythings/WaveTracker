@@ -559,6 +559,7 @@ namespace WaveTracker.Audio
                 float sampleSumR = 0;
                 float sampleL = 0;
                 float sampleR = 0;
+                float bassBoost = 1;
                 for (int i = 0; i < oversample; ++i)
                 {
                     if (_state == VoiceState.Off)
@@ -580,6 +581,7 @@ namespace WaveTracker.Audio
                     {
                         if (currentMacro.macroType == MacroType.Wave)
                         {
+                            bassBoost = 0.6f * (float)Math.Pow(1.025, -totalPitch) + 0.975f;
                             if (stereoPhaseOffset != 0)
                             {
                                 sampleL = EvaluateWave((float)_time - stereoPhaseOffset);
@@ -617,7 +619,6 @@ namespace WaveTracker.Audio
                 float f = _volumeSmooth;
                 float l = sampleL * f * _leftAmp * _fadeMultiplier * freqCut;
                 float r = sampleR * f * _rightAmp * _fadeMultiplier * freqCut;
-
                 if (AudioEngine.quantizeAmplitude)
                 {
                     if (_volumeSmooth < 0.005f)
@@ -629,8 +630,8 @@ namespace WaveTracker.Audio
                     l = (float)(Math.Ceiling(l * quantamt)) / (float)quantamt;
                     r = (float)(Math.Ceiling(r * quantamt)) / (float)quantamt;
                 }
-                left = l * 0.2f;
-                right = r * 0.2f;
+                left = l * 0.2f * bassBoost;
+                right = r * 0.2f * bassBoost;
                 if (!FrameEditor.channelToggles[id])
                 {
                     left = 0;
