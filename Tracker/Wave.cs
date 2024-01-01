@@ -298,7 +298,7 @@ namespace WaveTracker.Tracker
             float nearestSample = lerpt > 0.5f ? sample2 : sample1;
             float lerpedSample = MathHelper.Lerp(sample1, sample2, lerpt);
             float sampDifference = MathF.Abs(getSample(index1) - getSample(index2));
-            
+
             return MathHelper.Lerp(lerpedSample, nearestSample, sampDifference / 31f);
         }
 

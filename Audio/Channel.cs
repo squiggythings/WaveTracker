@@ -55,8 +55,9 @@ namespace WaveTracker.Audio
         int targetBendAmt;
         float channelNotePorta;
         float detuneOffset; // Pxx command
-        int waveMorphAmt; // Mxx command
-
+        int waveMorphAmt; // Ixx command
+        float fmAmt; // Mxx command
+        float syncTime;
 
         int channelVolume; // volume column
         int channelNote; // notes column
@@ -172,9 +173,13 @@ namespace WaveTracker.Audio
             {
                 volumeSlideSpeed = parameter;
             }
-            if (command == 19) // MXX
+            if (command == 19) // IXX
             {
                 waveMorphAmt = parameter;
+            }
+            if (command == 23) // MXX
+            {
+                fmAmt = parameter / 15f;
             }
 
         }
@@ -278,6 +283,7 @@ namespace WaveTracker.Audio
             tremoloTime = 0;
             stereoPhaseOffset = 0;
             waveMorphAmt = 0;
+            fmAmt = 0;
             SetWave(0);
             lastNote = channelNote;
             channelNotePorta = channelNote;
@@ -374,7 +380,7 @@ namespace WaveTracker.Audio
 
         public float EvaluateWave(float time)
         {
-            return currentWave.GetSampleMorphed(time, Game1.currentSong.waves[(waveIndex + 1) % 100], waveMorphAmt / 99f);
+            return currentWave.GetSampleMorphed(time + Game1.currentSong.waves[waveIndex + 1].GetSampleAtPosition((float)time) * fmAmt, Game1.currentSong.waves[(waveIndex + 1) % 100], waveMorphAmt / 99f);
         }
 
 
@@ -584,6 +590,7 @@ namespace WaveTracker.Audio
                     {
                         _fadeMultiplier = 1;
                         _time += delta;
+
                     }
                     sampleL = 0;
                     sampleR = 0;

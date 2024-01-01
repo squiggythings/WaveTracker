@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PipelineBuildEvent xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
   <SourceFile>C:/Users/Elias/source/repos/WaveTracker/Content/custom_font.spritefont</SourceFile>
-  <SourceTime>2023-12-31T22:00:36.958743-05:00</SourceTime>
+  <SourceTime>2023-12-31T22:01:28.3604454-05:00</SourceTime>
   <DestFile>C:/Users/Elias/source/repos/WaveTracker/Content/bin/Windows/Content/custom_font.xnb</DestFile>
-  <DestTime>2023-12-31T22:00:42.4047166-05:00</DestTime>
+  <DestTime>2023-12-31T22:18:38.138436-05:00</DestTime>
   <Importer>FontDescriptionImporter</Importer>
   <ImporterTime>2022-07-26T07:44:56-04:00</ImporterTime>
   <Processor>FontDescriptionProcessor</Processor>
