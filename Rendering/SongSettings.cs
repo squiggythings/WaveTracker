@@ -162,7 +162,7 @@ namespace WaveTracker.Rendering
             // draw channel squares
             for (int i = 0; i < Tracker.Song.CHANNEL_COUNT; i++)
             {
-                DrawRect(px + i * 6, py - 9, 5, 5, Helpers.LerpColor(grey, bar, Math.Clamp(Audio.ChannelManager.instance.channels[i].CurrentAmplitude, 0, 1)));
+                DrawRect(px + i * 6, py - 9, 5, 5, Helpers.LerpColor(grey, bar, Math.Clamp(Audio.ChannelManager.channels[i].CurrentAmplitude, 0, 1)));
             }
         }
 

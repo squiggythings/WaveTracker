@@ -139,7 +139,7 @@ namespace WaveTracker
                     if (LoadFrom(filePath))
                     {
                         Rendering.Visualization.GetWaveColors();
-                        Audio.ChannelManager.instance.Reset();
+                        ChannelManager.Reset();
                         FrameEditor.Goto(0, 0);
                         Playback.Goto(0, 0);
                         FrameEditor.cursorColumn = 0;
@@ -180,7 +180,7 @@ namespace WaveTracker
 
 
                 Game1.currentSong = savedSong.Clone();
-                Audio.ChannelManager.instance.Reset();
+                ChannelManager.Reset();
                 FrameEditor.Goto(0, 0);
                 FrameEditor.cursorColumn = 0;
                 stopwatch.Stop();

@@ -12,7 +12,6 @@ namespace WaveTracker.Audio
 {
     public class Channel
     {
-        private ChannelManager _manager;
         int id;
         public Wave currentWave;
         public int waveIndex { get; private set; }
@@ -57,7 +56,6 @@ namespace WaveTracker.Audio
         float detuneOffset; // Pxx command
         int waveMorphAmt; // Ixx command
         float fmAmt; // Mxx command
-        float syncTime;
 
         int channelVolume; // volume column
         int channelNote; // notes column
@@ -84,11 +82,10 @@ namespace WaveTracker.Audio
         private VoiceState _state;
         public bool isPlaying => _state == VoiceState.On;
 
-        public Channel(int id, ChannelManager manager)
+        public Channel(int id)
         {
             this.id = id;
             tickEvents = new List<TickEvent>();
-            _manager = manager;
             Reset();
         }
 
@@ -299,7 +296,7 @@ namespace WaveTracker.Audio
         public void SetWave(int w)
         {
             waveIndex = w;
-            currentWave = _manager.waveBank.GetWave(w);
+            currentWave = ChannelManager.waveBank.GetWave(w);
         }
 
         public void ResetTick(int num)
@@ -380,7 +377,7 @@ namespace WaveTracker.Audio
 
         public float EvaluateWave(float time)
         {
-            return currentWave.GetSampleMorphed(time + Game1.currentSong.waves[waveIndex + 1].GetSampleAtPosition((float)time) * fmAmt, Game1.currentSong.waves[(waveIndex + 1) % 100], waveMorphAmt / 99f);
+            return currentWave.GetSampleMorphed(time + Game1.currentSong.waves[(waveIndex + 1) % 100].GetSampleAtPosition((float)time) * fmAmt, Game1.currentSong.waves[(waveIndex + 1) % 100], waveMorphAmt / 99f);
         }
 
 

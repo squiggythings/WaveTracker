@@ -24,7 +24,6 @@ namespace WaveTracker.Tracker
         public static int nextPlaybackRow;
         public static bool hasNext;
         static int tickCounter;
-        public static ChannelManager channelManager;
         public static int ticksPerRowOverride;
         public static int ticksPerRow;
         public static Frame frame => Game1.currentSong.frames[playbackFrame];
@@ -61,7 +60,7 @@ namespace WaveTracker.Tracker
                 {
                     if (Input.dialogOpenCooldown == 0)
                     {
-                        channelManager.PlayRow(FrameEditor.thisRow);
+                        ChannelManager.PlayRow(FrameEditor.thisRow);
                         FrameEditor.Move(0, 1);
                     }
                 }
@@ -78,7 +77,7 @@ namespace WaveTracker.Tracker
             Stop();
             isPlaying = true;
             tickCounter = 0;
-            channelManager.Reset();
+            ChannelManager.Reset();
             playbackFrame = FrameEditor.currentFrame;
             playbackRow = 0;
             Rendering.Visualization.GetWaveColors();
@@ -88,7 +87,7 @@ namespace WaveTracker.Tracker
                 FrameEditor.currentFrame = Playback.playbackFrame;
             }
             Restore();
-            channelManager.ResetTicks(0);
+            ChannelManager.ResetTicks(0);
             PlayRow();
         }
 
@@ -96,7 +95,7 @@ namespace WaveTracker.Tracker
         {
             Stop();
             isPlaying = true;
-            channelManager.Reset();
+            ChannelManager.Reset();
             tickCounter = 0;
             playbackFrame = FrameEditor.currentFrame;
             playbackRow = FrameEditor.currentRow;
@@ -107,7 +106,7 @@ namespace WaveTracker.Tracker
                 FrameEditor.currentFrame = Playback.playbackFrame;
             }
             Restore();
-            channelManager.ResetTicks(0);
+            ChannelManager.ResetTicks(0);
             PlayRow();
         }
 
@@ -116,7 +115,7 @@ namespace WaveTracker.Tracker
             Stop();
             tickCounter = 0;
             isPlaying = true;
-            channelManager.Reset();
+            ChannelManager.Reset();
             playbackFrame = 0;
             Rendering.Visualization.GetWaveColors();
             playbackRow = 0;
@@ -126,18 +125,18 @@ namespace WaveTracker.Tracker
                 FrameEditor.currentFrame = Playback.playbackFrame;
             }
             Restore();
-            channelManager.ResetTicks(0);
+            ChannelManager.ResetTicks(0);
             PlayRow();
         }
 
         public static void Stop()
         {
             isPlaying = false;
-            foreach (Channel c in channelManager.channels)
+            foreach (Channel c in ChannelManager.channels)
             {
                 c.Cut();
             }
-            channelManager.Reset();
+            ChannelManager.Reset();
         }
 
         public static void Tick()
@@ -147,7 +146,7 @@ namespace WaveTracker.Tracker
                 if (!lastIsPlaying)
                 {
                     tickCounter = 0;
-                    channelManager.ResetTicks(0);
+                    ChannelManager.ResetTicks(0);
                     lastIsPlaying = true;
                     hasNext = false;
                     PlayRow();
@@ -203,17 +202,17 @@ namespace WaveTracker.Tracker
                 if (lastIsPlaying)
                 {
                     lastIsPlaying = false;
-                    channelManager.Reset();
+                    ChannelManager.Reset();
                 }
 
             }
-            //channelManager.Tick(0);
+            //ChannelManager.Tick(0);
         }
 
         static void PlayRow()
         {
             if (playbackFrame < Game1.currentSong.frames.Count)
-                channelManager.PlayRow(Game1.currentSong.frames[playbackFrame].pattern[playbackRow]);
+                ChannelManager.PlayRow(Game1.currentSong.frames[playbackFrame].pattern[playbackRow]);
         }
 
         static void MoveNextRow()
@@ -290,11 +289,11 @@ namespace WaveTracker.Tracker
                 {
                     if (f == frame && r == row)
                     {
-                        //channelManager.PlayRow(FrameEditor.thisSong.frames[frame].pattern[row]);
-                        channelManager.RestoreRow(FrameEditor.thisSong.frames[f].pattern[r]);
+                        //ChannelManager.PlayRow(FrameEditor.thisSong.frames[frame].pattern[row]);
+                        ChannelManager.RestoreRow(FrameEditor.thisSong.frames[f].pattern[r]);
                         return;
                     }
-                    channelManager.RestoreRow(FrameEditor.thisSong.frames[f].pattern[r]);
+                    ChannelManager.RestoreRow(FrameEditor.thisSong.frames[f].pattern[r]);
                 }
             }
         }

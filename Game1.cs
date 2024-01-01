@@ -15,6 +15,7 @@ using System.Security.Principal;
 using WaveTracker.UI;
 using WaveTracker.Rendering;
 using WaveTracker.Tracker;
+using WaveTracker.Audio;
 
 namespace WaveTracker
 {
@@ -40,7 +41,6 @@ namespace WaveTracker
         public Rendering.Toolbar toolbar;
         //public OuzoTracker.Forms.CreateInstrumentDialog control1;
         Audio.AudioEngine audioEngine;
-        Audio.ChannelManager channelManager;
         int lastPianoKey;
         public static int previewChannel;
         public static Tracker.Song newSong;
@@ -87,8 +87,8 @@ namespace WaveTracker
             waveBank = new Rendering.WaveBank();
             instrumentBank = new Rendering.InstrumentBank();
 
-            channelManager = new Audio.ChannelManager(Tracker.Song.CHANNEL_COUNT, waveBank);
-            frameRenderer.Initialize(channelManager);
+            ChannelManager.Initialize(Tracker.Song.CHANNEL_COUNT, waveBank);
+            frameRenderer.Initialize();
             FrameEditor.UnmuteAllChannels();
             FrameEditor.channelScrollbar = new UI.ScrollbarHorizontal(22, 323, 768, 7, null);
             FrameEditor.channelScrollbar.SetSize(Tracker.Song.CHANNEL_COUNT, 12);
@@ -123,7 +123,7 @@ namespace WaveTracker
             targetBatch = new SpriteBatch(GraphicsDevice);
             target = new RenderTarget2D(GraphicsDevice, ScreenWidth, ScreenHeight);
             audioEngine = new Audio.AudioEngine();
-            audioEngine.Initialize(channelManager);
+            audioEngine.Initialize();
             SaveLoad.NewFile();
             SaveLoad.LoadFrom(filename);
         }
@@ -153,8 +153,8 @@ namespace WaveTracker
             FrameEditor.channelScrollbar.y = bottomOfScreen - 14;
             if (Input.GetKeyDown(Keys.F12, KeyModifier.None))
             {
-                channelManager.Reset();
-                channelManager.ResetTicks(0);
+                ChannelManager.Reset();
+                ChannelManager.ResetTicks(0);
                 audioEngine.Reset();
             }
 
@@ -192,18 +192,18 @@ namespace WaveTracker
                     previewChannel = FrameEditor.currentColumn / 5;
                     if (!Playback.isPlaying)
                         Audio.AudioEngine._tickCounter = 0;
-                    channelManager.channels[previewChannel].SetMacro(Rendering.InstrumentBank.CurrentInstrumentIndex);
-                    channelManager.channels[previewChannel].TriggerNote(pianoInput);
+                    ChannelManager.channels[previewChannel].SetMacro(Rendering.InstrumentBank.CurrentInstrumentIndex);
+                    ChannelManager.channels[previewChannel].TriggerNote(pianoInput);
                 }
             }
             if (pianoInput == -1 && lastPianoKey != -1)
             {
-                channelManager.channels[previewChannel].PreviewCut();
+                ChannelManager.channels[previewChannel].PreviewCut();
             }
             if (Rendering.WaveEditor.enabled)
             {
-                if (!Audio.ChannelManager.instance.channels[previewChannel].waveEnv.toPlay.isActive)
-                    Audio.ChannelManager.instance.channels[previewChannel].SetWave(Rendering.WaveBank.currentWave);
+                if (!Audio.ChannelManager.channels[previewChannel].waveEnv.toPlay.isActive)
+                    Audio.ChannelManager.channels[previewChannel].SetWave(Rendering.WaveBank.currentWave);
             }
             Tracker.Playback.Update(gameTime);
 

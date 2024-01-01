@@ -12,27 +12,25 @@ using WaveTracker.Tracker;
 
 namespace WaveTracker.Audio
 {
-    public class ChannelManager
+    public static class ChannelManager
     {
-        public List<Channel> channels;
-        public Rendering.WaveBank waveBank;
-        public static ChannelManager instance;
+        public static Channel previewChannel;
+        public static List<Channel> channels;
+        public static Rendering.WaveBank waveBank;
 
-        public ChannelManager(int numChannels, Rendering.WaveBank waveBank)
+        public static void Initialize(int numChannels, Rendering.WaveBank waveBank)
         {
-            this.waveBank = waveBank;
+            ChannelManager.waveBank = waveBank;
 
             channels = new List<Channel>();
             for (int i = 0; i < numChannels; i++)
             {
-                channels.Add(new Channel(i, this));
+                channels.Add(new Channel(i));
             }
-            Playback.channelManager = this;
-            instance = this;
         }
 
 
-        public void Reset()
+        public static void Reset()
         {
             foreach (Channel channel in channels)
             {
@@ -40,7 +38,7 @@ namespace WaveTracker.Audio
             }
         }
 
-        public void ResetTicks(int num)
+        public static void ResetTicks(int num)
         {
             foreach (Channel channel in channels)
             {
@@ -48,12 +46,7 @@ namespace WaveTracker.Audio
             }
         }
 
-        public Channel GetCurrentChannel()
-        {
-            return channels[FrameEditor.currentColumn / 5];
-        }
-
-        public void PlayRow(short[] row)
+        public static void PlayRow(short[] row)
         {
             int channelNum = 0;
             for (int i = 0; i < row.Length; i += 5)
@@ -103,7 +96,7 @@ namespace WaveTracker.Audio
             }
         }
 
-        public void RestoreRow(short[] row)
+        public static void RestoreRow(short[] row)
         {
             int channelNum = 0;
             for (int i = 0; i < row.Length; i += 5)

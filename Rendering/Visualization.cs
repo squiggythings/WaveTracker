@@ -113,9 +113,9 @@ namespace WaveTracker.Rendering
         public void fillstates(List<List<ChannelState>> states)
         {
             List<ChannelState> rowOfStates = new List<ChannelState>();
-            for (int c = 0; c < ChannelManager.instance.channels.Count; c++)
+            for (int c = 0; c < ChannelManager.channels.Count; c++)
             {
-                Channel chan = ChannelManager.instance.channels[c];
+                Channel chan = ChannelManager.channels[c];
 
                 if ((chan.currentMacro.macroType == MacroType.Wave || chan.currentMacro.sample.useInVisualization) && chan.CurrentAmplitude > 0.01f && chan.CurrentPitch >= 0 && chan.CurrentPitch < 120 && FrameEditor.channelToggles[c])
                 {
@@ -168,7 +168,7 @@ namespace WaveTracker.Rendering
             // draw first row separator
             DrawRect(tx - 1, py, 1, numVisibleRows * 7 + 22, Colors.theme.rowSeparator);
             DrawBubbleRect(tx - 81, py, 80, 18, Color.White);
-            foreach (Channel ch in ChannelManager.instance.channels)
+            foreach (Channel ch in ChannelManager.channels)
             {
                 DrawBubbleRect(tx, py, 34, 18, Color.White);
 
@@ -396,7 +396,7 @@ namespace WaveTracker.Rendering
             DrawRect(px + w / 2, py, 1, h, crossColor);
             WriteTwiceAsBig("" + channelNum, px + 2, py - 4, Colors.theme.cursor);
 
-            Channel ch = ChannelManager.instance.channels[channelNum - 1];
+            Channel ch = ChannelManager.channels[channelNum - 1];
             float samp1 = 0;
             float lastSamp = 0;
             float scopezoom = 40f / (Preferences.profile.visualizerScopeZoom / 100f);

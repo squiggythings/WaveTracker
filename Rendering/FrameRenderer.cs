@@ -8,6 +8,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using WaveTracker.UI;
 using WaveTracker.Tracker;
+using WaveTracker.Audio;
 
 namespace WaveTracker.Rendering
 {
@@ -19,7 +20,7 @@ namespace WaveTracker.Rendering
         public static int centerRow => numOfVisibleRows / 2;
         public static int numOfVisibleRows = 24;
 
-        public void Initialize(Audio.ChannelManager man)
+        public void Initialize()
         {
             headers = new ChannelHeader[Song.CHANNEL_COUNT + 1];
             for (int i = 0; i < headers.Length; i++)
@@ -27,7 +28,7 @@ namespace WaveTracker.Rendering
                 if (i == 0)
                     headers[i] = new ChannelHeader(i - 1, null);
                 else
-                    headers[i] = new ChannelHeader(i - 1, man.channels[i - 1]);
+                    headers[i] = new ChannelHeader(i - 1, ChannelManager.channels[i - 1]);
                 headers[i].x = 22 + (i - 1) * 64;
                 headers[i].y = 1;
                 headers[i].SetParent(this);

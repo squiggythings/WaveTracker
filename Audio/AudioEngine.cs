@@ -61,13 +61,11 @@ namespace WaveTracker.Audio
 
         public static float[,] currentBuffer;
 
-        public static ChannelManager channelManager;
 
-        public void Initialize(ChannelManager channelMan)
+        public void Initialize()
         {
             exportingDialog = new Rendering.ExportingDialog();
             currentBuffer = new float[2, SamplesPerBuffer];
-            channelManager = channelMan;
             audioProvider = new Provider();
             audioProvider.SetWaveFormat(AudioEngine.sampleRate, 2); // 44.1khz stereo
             wasapiOut = new WasapiOut();
@@ -135,7 +133,7 @@ namespace WaveTracker.Audio
             samplesRead = 0;
             processedRows = 0;
 
-            ChannelManager.instance.Reset();
+            ChannelManager.Reset();
             Tracker.Playback.PlayFromBeginning();
             WaveFileWriter.CreateWaveFile(path, source);
             wasapiOut.Play();
@@ -162,10 +160,10 @@ namespace WaveTracker.Audio
                 {
                     buffer[n + offset] = buffer[n + offset + 1] = 0;
 
-                    for (int c = 0; c < channelManager.channels.Count; ++c)
+                    for (int c = 0; c < ChannelManager.channels.Count; ++c)
                     {
                         float l = 0, r = 0;
-                        channelManager.channels[c].ProcessSingleSample(out l, out r, true, delta);
+                        ChannelManager.channels[c].ProcessSingleSample(out l, out r, true, delta);
                         buffer[n + offset] += l;
                         buffer[n + offset + 1] += r;
                     }
@@ -194,7 +192,7 @@ namespace WaveTracker.Audio
                     {
                         _tickCounter = 0;
                         Tracker.Playback.Tick();
-                        foreach (Channel c in channelManager.channels)
+                        foreach (Channel c in ChannelManager.channels)
                         {
                             c.NextTick();
                         }
