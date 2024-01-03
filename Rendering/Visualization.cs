@@ -163,11 +163,16 @@ namespace WaveTracker.Rendering
 
 
             // draw background
-            DrawRect(tx - 1, py, 841, numVisibleRows * 7 + 22, Colors.theme.background);
+            //DrawRect(tx - 1, py, 841, numVisibleRows * 7 + 22, Colors.theme.background);
+            DrawRect(0, py, 960, numVisibleRows * 7 + 90, Colors.theme.background);
+
+            int rowSeparatorHeight = numVisibleRows * 7 + 90;
 
             // draw first row separator
-            DrawRect(tx - 1, py, 1, numVisibleRows * 7 + 22, Colors.theme.rowSeparator);
+            DrawRect(tx - 1, py, 1, rowSeparatorHeight, Colors.theme.rowSeparator);
+
             DrawBubbleRect(tx - 81, py, 80, 18, Color.White);
+            DrawRect(0,py+18,960,1,Colors.theme.rowSeparator);
             foreach (Channel ch in ChannelManager.channels)
             {
                 DrawBubbleRect(tx, py, 34, 18, Color.White);
@@ -184,12 +189,12 @@ namespace WaveTracker.Rendering
                 tx += 35;
 
                 // draw row separator
-                DrawRect(tx - 1, py, 1, numVisibleRows * 7 + 22, Colors.theme.rowSeparator);
+                DrawRect(tx - 1, py, 1, rowSeparatorHeight, Colors.theme.rowSeparator);
             }
             DrawBubbleRect(tx, py, 150, 18, Color.White);
             //DrawRect(tx + 2, py + 12, 80, 3, UIColors.panel);
             px += 58;
-            py += 18;
+            py += 19;
             for (int i = 0; i < numVisibleRows; ++i)
             {
                 int rowY = py + i * 7;
@@ -392,9 +397,14 @@ namespace WaveTracker.Rendering
 
             Color crossColor = new Color(44, 53, 77);
             DrawRect(px, py, w, h, new Color(20, 24, 46));
-            DrawRect(px, py + h / 2, w, 1, crossColor);
-            DrawRect(px + w / 2, py, 1, h, crossColor);
-            WriteTwiceAsBig("" + channelNum, px + 2, py - 4, Colors.theme.cursor);
+
+            if (Preferences.profile.visualizerScopeCrosshairs > 0)
+            {
+                DrawRect(px, py + h / 2, w, 1, crossColor);
+                if (Preferences.profile.visualizerScopeCrosshairs > 1)
+                    DrawRect(px + w / 2, py, 1, h, crossColor);
+            }
+            WriteTwiceAsBig("" + channelNum, px + 2, py - 4, new Color(126, 133, 168));
 
             Channel ch = ChannelManager.channels[channelNum - 1];
             float samp1 = 0;

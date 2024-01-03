@@ -13,8 +13,10 @@ namespace WaveTracker.UI
         private Forms.EnterText dialog;
         public bool canEdit = true;
         string label;
+        string textPrefix = "";
         int textboxWidth;
         public bool ValueWasChanged { get; private set; }
+        public bool ValueWasChangedInternally { get; set; }
         public string Text { get; set; }
         string lastText;
         public int maxLength = 32;
@@ -29,10 +31,16 @@ namespace WaveTracker.UI
             SetParent(parent);
         }
 
+        public void SetPrefix(string prefix)
+        {
+            this.textPrefix = prefix;
+        }
+
         public void Update()
         {
             if (enabled)
             {
+                ValueWasChangedInternally = false;
                 if (Clicked && canEdit)
                 {
                     if (Input.dialogOpenCooldown == 0)
@@ -66,8 +74,8 @@ namespace WaveTracker.UI
             DrawRect(width - textboxWidth + 1, 1, textboxWidth - 2, height - 2, Color.White);
             if (canEdit)
                 DrawRect(width - textboxWidth + 1, 1, textboxWidth - 2, 1, new Color(193, 196, 213));
-            string t = Text + "";
-            
+            string t = textPrefix + Text + "";
+
             Write(Helpers.TrimTextToWidth(textboxWidth, t), width - textboxWidth + 4, height / 2 - 3, text);
 
         }
@@ -82,6 +90,7 @@ namespace WaveTracker.UI
             if (dialog.ShowDialog() == DialogResult.OK)
             {
                 Text = Helpers.FlushString(dialog.textBox.Text);
+                ValueWasChangedInternally = true;
             }
         }
     }

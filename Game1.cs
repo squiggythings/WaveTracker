@@ -94,6 +94,7 @@ namespace WaveTracker
             FrameEditor.channelScrollbar.SetSize(Tracker.Song.CHANNEL_COUNT, 12);
             editSettings = new Rendering.EditSettings();
             visualization = new Rendering.Visualization(frameRenderer);
+            ColorButton.colorPicker = new ColorPickerDialog();
             this.IsFixedTimeStep = false;
             base.Initialize();
 
@@ -233,6 +234,7 @@ namespace WaveTracker
             }
             audioEngine.exportingDialog.Update();
             Preferences.dialog.Update();
+            ColorButton.colorPicker.Update();
             toolbar.Update();
             base.Update(gameTime);
             lastPianoKey = pianoInput;
@@ -290,6 +292,7 @@ namespace WaveTracker
             }
             toolbar.Draw();
             Preferences.dialog.Draw();
+            ColorButton.colorPicker.Draw();
             if (!VisualizerMode)
             {
                 waveBank.editor.Draw();

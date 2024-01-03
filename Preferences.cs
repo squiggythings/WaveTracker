@@ -7,6 +7,7 @@ using System.Xml.Serialization;
 using System.IO;
 using System.Xml;
 using System.Diagnostics;
+using WaveTracker.Rendering;
 
 namespace WaveTracker
 {
@@ -142,6 +143,8 @@ volume              25%
         [XmlElement(ElementName = "resamp_smp")]
         public int defaultResampleSample = 1;
 
+        //[XmlElement(ElementName = "colorTheme")]
+        //public ColorTheme theme = ColorTheme.Default;
 
         [XmlElement(ElementName = "visPianSpeed")]
         public int visualizerPianoSpeed = 8; // 10 default
@@ -157,6 +160,8 @@ volume              25%
         public bool visualizerScopeColors = true;
         [XmlElement(ElementName = "visScopeThickness")]
         public int visualizerScopeThickness = 1;
+        [XmlElement(ElementName = "visScopeCrosshair")]
+        public int visualizerScopeCrosshairs = 0;
 
 
         [XmlElement(ElementName = "masVol")]

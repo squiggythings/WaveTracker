@@ -192,6 +192,12 @@ namespace WaveTracker
             int tmp2 = (int)(b * (tmp - 1072632447) + 1072632447);
             return BitConverter.Int64BitsToDouble(((long)tmp2) << 32);
         }
+        /// <summary>
+        /// Sets alpha of color. from 0-255
+        /// </summary>
+        /// <param name="c"></param>
+        /// <param name="a"></param>
+        /// <returns></returns>
         public static Color Alpha(Color c, int a)
         {
             return new Color(c.R, c.G, c.B, a);
@@ -437,6 +443,13 @@ namespace WaveTracker
         }
 
 
+        /// <summary>
+        /// Converts from HSL to RGB. Hue from 0-360, Saturation and Lightness from 0.0-1.0
+        /// </summary>
+        /// <param name="h">Hue from 0-360</param>
+        /// <param name="s">Saturation from 0.0-1.0</param>
+        /// <param name="l">Lightness from 0.0-1.0</param>
+        /// <returns>RGB version of the HSL color</returns>
         public static Color HSLtoRGB(int h, float s, float l)
         {
             byte r = 0;
@@ -482,7 +495,101 @@ namespace WaveTracker
 
             return v1;
         }
+        public static Color HexCodeToColor(string hexCode)
+        {
+            if (hexCode.StartsWith("#"))
+            {
+                hexCode = hexCode.Substring(1);
+            }
+            byte[] bytes = Convert.FromHexString(hexCode.ToUpper());
+            if (bytes.Length > 3)
+                return new Color(bytes[0], bytes[1], bytes[2], bytes[3]);
+            else
+                return new Color(bytes[0], bytes[1], bytes[2], (byte)255);
+        }
     }
+
+    public struct HSLColor
+    {
+        /// <summary>
+        /// Hue from 0.0-360.0
+        /// </summary>
+        public float H;
+        /// <summary>
+        /// Saturation from 0.0-1.0
+        /// </summary>
+        public float S;
+        /// <summary>
+        /// Lightness from 0.0-1.0
+        /// </summary>
+        public float L;
+        /// <summary>
+        /// Alpha from 0.0-1.0
+        /// </summary>
+        public float A;
+
+        public HSLColor(float h, float s, float l, float a)
+        {
+            H = h;
+            S = s;
+            L = l;
+            A = a;
+        }
+
+        public HSLColor(float h, float s, float l)
+        {
+            H = h;
+            S = s;
+            L = l;
+            A = 1.0f;
+        }
+
+        public Color ToRGB()
+        {
+            byte r = 0;
+            byte g = 0;
+            byte b = 0;
+
+            if (S == 0)
+            {
+                r = g = b = (byte)(L * 255);
+            }
+            else
+            {
+                float v1, v2;
+                float hue = (float)H / 360;
+
+                v2 = (L < 0.5) ? (L * (1 + S)) : ((L + S) - (L * S));
+                v1 = 2 * L - v2;
+
+                r = (byte)(255 * HueToRGB(v1, v2, hue + (1.0f / 3)));
+                g = (byte)(255 * HueToRGB(v1, v2, hue));
+                b = (byte)(255 * HueToRGB(v1, v2, hue - (1.0f / 3)));
+            }
+
+            return new Color(r, g, b, (byte)(A * 255));
+        }
+        private static float HueToRGB(float v1, float v2, float vH)
+        {
+            if (vH < 0)
+                vH += 1;
+
+            if (vH > 1)
+                vH -= 1;
+
+            if ((6 * vH) < 1)
+                return (v1 + (v2 - v1) * 6 * vH);
+
+            if ((2 * vH) < 1)
+                return v2;
+
+            if ((3 * vH) < 2)
+                return (v1 + (v2 - v1) * ((2.0f / 3) - vH) * 6);
+
+            return v1;
+        }
+    }
+
     public static class ExtensionMethods
     {
         public static float Map(this float value, float fromSource, float toSource, float fromTarget, float toTarget)
@@ -495,13 +602,81 @@ namespace WaveTracker
             return new Color(value.R + other.R, value.G + other.G, value.B + other.B, value.A + other.A);
         }
 
+        public static Color ToNegative(this Color value)
+        {
+            return new Color(255 - value.R, 255 - value.G, 255 - value.B, 255);
+        }
+
+        public static HSLColor ToHSL(this Color value)
+        {
+            float _R = (value.R / 255f);
+            float _G = (value.G / 255f);
+            float _B = (value.B / 255f);
+
+            float _Min = Math.Min(Math.Min(_R, _G), _B);
+            float _Max = Math.Max(Math.Max(_R, _G), _B);
+            float _Delta = _Max - _Min;
+
+            float H = 0;
+            float S = 0;
+            float L = (float)((_Max + _Min) / 2.0f);
+
+            if (_Delta != 0)
+            {
+                if (L < 0.5f)
+                {
+                    S = (float)(_Delta / (_Max + _Min));
+                }
+                else
+                {
+                    S = (float)(_Delta / (2.0f - _Max - _Min));
+                }
+
+
+                if (_R == _Max)
+                {
+                    H = (_G - _B) / _Delta;
+                }
+                else if (_G == _Max)
+                {
+                    H = 2f + (_B - _R) / _Delta;
+                }
+                else if (_B == _Max)
+                {
+                    H = 4f + (_R - _G) / _Delta;
+                }
+            }
+            H = H * 60f;
+            if (H < 0) H += 360;
+            H %= 360;
+            return new HSLColor(H, S, L, value.A / 255f);
+        }
+
+        public static string GetHexCode(this Color value)
+        {
+            byte[] bytes = { value.R, value.G, value.B };
+            return Convert.ToHexString(bytes).ToLower();
+        }
+        public static string GetHexCodeWithAlpha(this Color value)
+        {
+            if (value.A == 255)
+                return GetHexCode(value);
+            else
+                return GetHexCodeWithAlphaAlways(value);
+        }
+        public static string GetHexCodeWithAlphaAlways(this Color value)
+        {
+            byte[] bytes = { value.R, value.G, value.B, value.A };
+            return Convert.ToHexString(bytes).ToLower();
+        }
+
         public static Color Lerp(this Color col, Color other, float t)
         {
-            byte r = (byte)MathHelper.Lerp(col.R,other.R,t);
+            byte r = (byte)MathHelper.Lerp(col.R, other.R, t);
             byte g = (byte)MathHelper.Lerp(col.G, other.G, t);
             byte b = (byte)MathHelper.Lerp(col.B, other.B, t);
             byte a = (byte)MathHelper.Lerp(col.A, other.A, t);
-            return new Color(r,g,b,a);
+            return new Color(r, g, b, a);
         }
     }
 }

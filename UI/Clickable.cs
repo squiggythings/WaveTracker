@@ -41,6 +41,7 @@ namespace WaveTracker.UI
             }
         }
         public bool IsPressed { get { return IsHovered && Input.GetClick(KeyModifier._Any) && globalPointIsInBounds(Input.lastClickLocation); } }
+
         public bool Clicked
         {
             get

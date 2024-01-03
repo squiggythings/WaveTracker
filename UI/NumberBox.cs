@@ -24,9 +24,11 @@ namespace WaveTracker.UI
         int min = int.MinValue;
         int max = int.MaxValue;
         int valueSaved;
+        bool canScroll = true;
         public enum DisplayMode { Number, Note, PlusMinus }
         public DisplayMode displayMode = DisplayMode.Number;
         public bool ValueWasChanged { get; private set; }
+        public bool ValueWasChangedInternally { get; private set; }
         int lastValue;
         int _value;
         public int Value { get { return _value; } set { _value = Math.Clamp(value, min, max); } }
@@ -39,10 +41,14 @@ namespace WaveTracker.UI
             this.width = width;
             this.boxWidth = boxWidth;
             height = 13;
+            canScroll = true;
             SetParent(parent);
             bUp = new SpriteButton(width - 10, 0, 10, 6, buttons, 1, this);
             bDown = new SpriteButton(width - 10, 7, 10, 6, buttons, 2, this);
         }
+
+        public void EnableScrolling() { canScroll = true; }
+        public void DisableScrolling() { canScroll = false; }
 
         public void SetValueLimits(int min, int max)
         {
@@ -54,6 +60,7 @@ namespace WaveTracker.UI
         {
             if (enabled && inFocus)
             {
+                int valueBeforeUpdate = Value;
                 if (DoubleClicked && MouseX < width - 10)
                 {
                     if (!dialogOpen)
@@ -81,7 +88,7 @@ namespace WaveTracker.UI
                 }
                 bUp.enabled = Value < max;
                 bDown.enabled = Value > min;
-                if (IsHovered)
+                if (IsHovered && canScroll)
                     Value += Input.MouseScrollWheel(KeyModifier.None);
 
                 if (bUp.Clicked)
@@ -98,6 +105,8 @@ namespace WaveTracker.UI
                 {
                     ValueWasChanged = false;
                 }
+
+                ValueWasChangedInternally = Value != valueBeforeUpdate;
             }
         }
 

@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using System.Xml.Serialization;
 
 namespace WaveTracker.Rendering
 {
@@ -11,29 +12,50 @@ namespace WaveTracker.Rendering
 
     public class ColorTheme
     {
+        [XmlElement(ElementName = "patternText")]
         public Color patternText;
+        [XmlElement(ElementName = "patternTextHighlighted")]
         public Color patternTextHighlighted;
+        [XmlElement(ElementName = "patternTextSubHighlight")]
         public Color patternTextSubHighlight;
+        [XmlElement(ElementName = "patternEmptyTextAlpha")]
         public int patternEmptyTextAlpha;
 
+        [XmlElement(ElementName = "instrumentColumnWave")]
         public Color instrumentColumnWave;
+        [XmlElement(ElementName = "instrumentColumnSample")]
         public Color instrumentColumnSample;
+        [XmlElement(ElementName = "volumeColumn")]
         public Color volumeColumn;
+        [XmlElement(ElementName = "effectColumn")]
         public Color effectColumn;
+        [XmlElement(ElementName = "effectColumnParameter")]
         public Color effectColumnParameter;
 
+        [XmlElement(ElementName = "backgroundHighlighted")]
         public Color backgroundHighlighted;
+        [XmlElement(ElementName = "backgroundSubHighlight")]
         public Color backgroundSubHighlight;
+        [XmlElement(ElementName = "background")]
         public Color background;
 
+        [XmlElement(ElementName = "rowPlaybackColor")]
         public Color rowPlaybackColor;
+        [XmlElement(ElementName = "rowPlaybackText")]
         public Color rowPlaybackText;
+        [XmlElement(ElementName = "rowEditColor")]
         public Color rowEditColor;
+        [XmlElement(ElementName = "rowEditText")]
         public Color rowEditText;
+        [XmlElement(ElementName = "rowCurrentColor")]
         public Color rowCurrentColor;
+        [XmlElement(ElementName = "rowCurrentText")]
         public Color rowCurrentText;
+        [XmlElement(ElementName = "cursor")]
         public Color cursor;
+        [XmlElement(ElementName = "rowSeparator")]
         public Color rowSeparator;
+        [XmlElement(ElementName = "selection")]
         public Color selection;
 
         static Color AddBrightness(Color color, float amt)

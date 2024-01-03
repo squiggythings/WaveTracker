@@ -14,6 +14,7 @@ namespace WaveTracker.Rendering
     {
         Button begin, cancel;
         Button all, none;
+        public SpriteButton closeX;
         NumberBox loops;
         Checkbox[] channels;
         public static bool isOpen;
@@ -22,6 +23,7 @@ namespace WaveTracker.Rendering
             InitializeDialogCentered("Export to .wav", 206, 114);
             cancel = newBottomButton("Cancel", this);
             begin = newBottomButton("Begin", this);
+            closeX = newCloseButton();
             loops = new NumberBox("", 54, 16, 42, 42, this);
             all = new Button("All", 168, 49, this);
             all.width = 31;
@@ -62,7 +64,7 @@ namespace WaveTracker.Rendering
             if (enabled)
             {
                 loops.Update();
-                if (cancel.Clicked)
+                if (cancel.Clicked || closeX.Clicked)
                     Close();
                 if (begin.Clicked)
                 {
@@ -91,6 +93,7 @@ namespace WaveTracker.Rendering
             if (enabled)
             {
                 DrawDialog();
+                closeX.Draw();
                 cancel.Draw();
                 begin.Draw();
                 loops.Draw();
