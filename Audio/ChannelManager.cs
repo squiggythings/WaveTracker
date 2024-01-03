@@ -40,10 +40,10 @@ namespace WaveTracker.Audio
 
         public static void ResetTicks(int num)
         {
-            foreach (Channel channel in channels)
-            {
-                channel.ResetTick(num);
-            }
+            //foreach (Channel channel in channels)
+            //{
+            //    channel.ResetTick(num);
+            //}
         }
 
         public static void PlayRow(short[] row)
@@ -76,7 +76,7 @@ namespace WaveTracker.Audio
                 {
                     Playback.ticksPerRowOverride = parameter;
                 }
-                else if (effect >= 0 && effect != 10 && effect != 11 && effect != 18)
+                else if (effect >= 0 && effect != 10 && effect != 11 && effect != 18 && effect != 25)
                     channels[channelNum].QueueEvent(TickEventType.Effect, effect, parameter, delay);
                 if (volume >= 0)
                     channels[channelNum].QueueEvent(TickEventType.Volume, volume, 0, delay);
@@ -84,11 +84,15 @@ namespace WaveTracker.Audio
                     channels[channelNum].QueueEvent(TickEventType.Instrument, instrument, 0, delay);
                 if (note != -1)
                     channels[channelNum].QueueEvent(TickEventType.Note, note, 0, delay);
-                if (effect == 18)
+                if (effect == 18) // SXX
                 {
                     channels[channelNum].QueueEvent(TickEventType.Note, -2, 0, parameter + 1);
                 }
-                if (effect == 10 || effect == 11)
+                if (effect == 25) // LXX
+                {
+                    channels[channelNum].QueueEvent(TickEventType.Note, -3, 0, parameter);
+                }
+                if (effect == 10 || effect == 11) // QXX RXX
                 {
                     channels[channelNum].QueueEvent(TickEventType.Effect, effect, parameter, delay);
                 }

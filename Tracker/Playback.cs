@@ -147,7 +147,7 @@ namespace WaveTracker.Tracker
                 if (!lastIsPlaying)
                 {
                     tickCounter = 0;
-                    ChannelManager.ResetTicks(0);
+//                    ChannelManager.ResetTicks(0);
                     lastIsPlaying = true;
                     hasNext = false;
                     PlayRow();

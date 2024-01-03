@@ -76,7 +76,6 @@ namespace WaveTracker.Audio
         float _fadeMultiplier = 1;
         float _volumeSmooth;
         float _fmSmooth;
-        public int _tickTime;
         public float coarseSampleVolume;
         public int tickNum;
         int macroID;
@@ -194,7 +193,7 @@ namespace WaveTracker.Audio
 
         public void SetMacro(int id)
         {
-            
+
             if (id < Game1.currentSong.instruments.Count)
             {
                 Macro m = Game1.currentSong.instruments[id];
@@ -339,10 +338,6 @@ namespace WaveTracker.Audio
             currentWave = ChannelManager.waveBank.GetWave(w);
         }
 
-        public void ResetTick(int num)
-        {
-            _tickTime = num;
-        }
 
         public void TriggerNote(int num)
         {
@@ -372,7 +367,6 @@ namespace WaveTracker.Audio
             }
             arpEnv.Start();
             arpEnvelopeResult = arpEnv.Evaluate();
-            _tickTime = 0;
             if (currentMacro.macroType == MacroType.Sample)
                 _time = 0;
             _frequency = Helpers.NoteToFrequency(totalPitch);
@@ -739,7 +733,7 @@ namespace WaveTracker.Audio
         {
             released = true;
             if (toPlay.HasRelease)
-                step = toPlay.releaseIndex;
+                step = toPlay.releaseIndex + 1;
         }
 
         public int Evaluate()

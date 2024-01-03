@@ -38,6 +38,7 @@ namespace WaveTracker.Audio
         public List<MMDevice> devices;
         public Rendering.ExportingDialog exportingDialog;
         Provider audioProvider;
+        
 
         public static int tickSpeed
         {
@@ -61,6 +62,10 @@ namespace WaveTracker.Audio
 
         public static float[,] currentBuffer;
 
+        public static void ResetTicks()
+        {
+            _tickCounter = 0;
+        }
 
         public void Initialize()
         {

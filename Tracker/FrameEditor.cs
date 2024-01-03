@@ -1294,6 +1294,7 @@ namespace WaveTracker
                 if (Input.GetKeyRepeat(Keys.M, KeyModifier.None)) return 23;
                 if (Input.GetKeyRepeat(Keys.I, KeyModifier.None)) return 19;
                 if (Input.GetKeyRepeat(Keys.J, KeyModifier.None)) return 24;
+                if (Input.GetKeyRepeat(Keys.L, KeyModifier.None)) return 25;
             }
             else
             {
@@ -1320,6 +1321,7 @@ namespace WaveTracker
                 if (Input.GetKeyDown(Keys.M, KeyModifier.None)) return 23;
                 if (Input.GetKeyDown(Keys.I, KeyModifier.None)) return 19;
                 if (Input.GetKeyDown(Keys.J, KeyModifier.None)) return 24;
+                if (Input.GetKeyDown(Keys.L, KeyModifier.None)) return 25;
             }
 
             return -1;

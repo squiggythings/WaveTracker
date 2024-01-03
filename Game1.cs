@@ -192,13 +192,15 @@ namespace WaveTracker
                 {
                     previewChannel = FrameEditor.currentColumn / 5;
                     if (!Playback.isPlaying)
-                        Audio.AudioEngine._tickCounter = 0;
+                        AudioEngine.ResetTicks();
                     ChannelManager.previewChannel.SetMacro(Rendering.InstrumentBank.CurrentInstrumentIndex);
                     ChannelManager.previewChannel.TriggerNote(pianoInput);
                 }
             }
             if (pianoInput == -1 && lastPianoKey != -1)
             {
+                if (!Playback.isPlaying)
+                    AudioEngine.ResetTicks();
                 ChannelManager.previewChannel.PreviewCut();
             }
             
