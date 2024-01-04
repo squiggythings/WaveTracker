@@ -10,14 +10,11 @@ using WaveTracker.UI;
 using WaveTracker.Tracker;
 using System.Diagnostics;
 
-namespace WaveTracker.UI
-{
-    public class TabGroup : Element
-    {
+namespace WaveTracker.UI {
+    public class TabGroup : Element {
         public List<Tab> tabs;
         public int selected { get; set; }
-        public TabGroup(int x, int y, Element parent)
-        {
+        public TabGroup(int x, int y, Element parent) {
             this.x = x;
             this.y = y;
             tabs = new List<Tab>();
@@ -26,28 +23,21 @@ namespace WaveTracker.UI
 
         public Tab GetSelectedTab => tabs[selected];
 
-        public void ClearTabs()
-        {
+        public void ClearTabs() {
             tabs.Clear();
         }
 
-        public void AddTab(string label, bool hasToggle)
-        {
-            if (tabs.Count == 0)
-            {
+        public void AddTab(string label, bool hasToggle) {
+            if (tabs.Count == 0) {
                 tabs.Add(new Tab(label, 0, 0, hasToggle, this));
-            }
-            else
-            {
+            } else {
                 tabs.Add(new Tab(label, tabs[tabs.Count - 1].x + tabs[tabs.Count - 1].width + 1, 0, hasToggle, this));
             }
         }
 
-        public void Update()
-        {
+        public void Update() {
             int i = 0;
-            foreach (Tab tab in tabs)
-            {
+            foreach (Tab tab in tabs) {
                 tab.Update();
                 if (tab.IsPressed)
                     selected = i;
@@ -55,11 +45,9 @@ namespace WaveTracker.UI
             }
         }
 
-        public void Draw()
-        {
+        public void Draw() {
             int i = 0;
-            foreach (Tab tab in tabs)
-            {
+            foreach (Tab tab in tabs) {
                 tab.toggle.y = selected == i ? 2 : 3;
                 tab.Draw(selected == i);
                 ++i;
@@ -68,14 +56,12 @@ namespace WaveTracker.UI
 
     }
 
-    public class Tab : Clickable
-    {
+    public class Tab : Clickable {
         public bool hasToggle;
         public string label;
         public Checkbox toggle;
 
-        public Tab(string label, int x, int y, bool hasToggle, Element parent)
-        {
+        public Tab(string label, int x, int y, bool hasToggle, Element parent) {
             width = Helpers.getWidthOfText(label) + (hasToggle ? 20 : 12);
             height = 13;
             this.x = x;
@@ -86,49 +72,34 @@ namespace WaveTracker.UI
             SetParent(parent);
         }
 
-        public void Update()
-        {
-            if (hasToggle)
-            {
+        public void Update() {
+            if (hasToggle) {
                 toggle.Update();
             }
         }
 
-        public void Draw(bool selected)
-        {
+        public void Draw(bool selected) {
             Color bgCol;
-            if (selected)
-            {
+            if (selected) {
                 bgCol = Color.White;
-            }
-            else
-            {
-                if (IsHovered)
-                {
+            } else {
+                if (IsHovered) {
                     bgCol = new Color(191, 194, 212);
-                }
-                else
-                {
+                } else {
                     bgCol = new Color(176, 180, 202);
                 }
             }
             DrawRect(0, 1, width, height, bgCol);
             DrawRect(1, 0, width - 2, height, bgCol);
             int y = selected ? 3 : 4;
-            if (hasToggle)
-            {
-                if (selected)
-                {
+            if (hasToggle) {
+                if (selected) {
                     toggle.Draw();
-                }
-                else
-                {
+                } else {
                     toggle.DrawAsTabToggle();
                 }
                 Write(label, 14, y, Helpers.Alpha(new Color(20, 24, 46), toggle.Value ? 255 : 80));
-            }
-            else
-            {
+            } else {
                 Write(label, 5, y, new Color(20, 24, 46));
             }
         }

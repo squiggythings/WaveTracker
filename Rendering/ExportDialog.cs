@@ -8,18 +8,15 @@ using System.Text;
 using System.Threading.Tasks;
 using WaveTracker.UI;
 
-namespace WaveTracker.Rendering
-{
-    public class ExportDialog : Dialog
-    {
+namespace WaveTracker.Rendering {
+    public class ExportDialog : Dialog {
         Button begin, cancel;
         Button all, none;
         public SpriteButton closeX;
         NumberBox loops;
         Checkbox[] channels;
         public static bool isOpen;
-        public ExportDialog()
-        {
+        public ExportDialog() {
             InitializeDialogCentered("Export to .wav", 206, 114);
             cancel = newBottomButton("Cancel", this);
             begin = newBottomButton("Begin", this);
@@ -33,54 +30,43 @@ namespace WaveTracker.Rendering
             loops.SetValueLimits(1, 99);
             channels = new Checkbox[24];
             int i = 0;
-            for (int y = 49; y <= 68; y += 19)
-            {
-                for (int x = 7; x <= 150; x += 13)
-                {
+            for (int y = 49; y <= 68; y += 19) {
+                for (int x = 7; x <= 150; x += 13) {
                     channels[i] = new Checkbox(x, y, this);
                     ++i;
                 }
             }
         }
 
-        public new void Open()
-        {
+        public new void Open() {
             isOpen = true;
             base.Open();
-            for (int i = 0; i < channels.Length; ++i)
-            {
+            for (int i = 0; i < channels.Length; ++i) {
                 channels[i].Value = FrameEditor.channelToggles[i];
             }
         }
 
-        public new void Close()
-        {
+        public new void Close() {
             isOpen = false;
             base.Close();
         }
 
-        public void Update()
-        {
-            if (enabled)
-            {
+        public void Update() {
+            if (enabled) {
                 loops.Update();
                 if (cancel.Clicked || closeX.Clicked)
                     Close();
-                if (begin.Clicked)
-                {
+                if (begin.Clicked) {
                     Close();
                     Audio.AudioEngine.instance.RenderTo("", loops.Value, false);
                 }
-                if (all.Clicked)
-                {
+                if (all.Clicked) {
                     FrameEditor.UnmuteAllChannels();
                 }
-                if (none.Clicked)
-                {
+                if (none.Clicked) {
                     FrameEditor.MuteAllChannels();
                 }
-                for (int i = 0; i < channels.Length; ++i)
-                {
+                for (int i = 0; i < channels.Length; ++i) {
                     channels[i].Value = FrameEditor.channelToggles[i];
                     channels[i].Update();
                     FrameEditor.channelToggles[i] = channels[i].Value;
@@ -88,10 +74,8 @@ namespace WaveTracker.Rendering
             }
         }
 
-        public void Draw()
-        {
-            if (enabled)
-            {
+        public void Draw() {
+            if (enabled) {
                 DrawDialog();
                 closeX.Draw();
                 cancel.Draw();
@@ -104,8 +88,7 @@ namespace WaveTracker.Rendering
                 DrawRect(55, 41, 104, 1, UIColors.labelLight);
                 all.Draw();
                 none.Draw();
-                for (int i = 0; i < channels.Length; ++i)
-                {
+                for (int i = 0; i < channels.Length; ++i) {
                     channels[i].Draw();
                     WriteCenter((i + 1) + "", channels[i].x + 4, channels[i].y + 10, UIColors.label);
                 }

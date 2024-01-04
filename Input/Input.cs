@@ -8,10 +8,8 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using WaveTracker.UI;
 
-namespace WaveTracker
-{
-    public class Input
-    {
+namespace WaveTracker {
+    public class Input {
         static KeyboardState currentKeyState;
         static KeyboardState previousKeyState;
 
@@ -43,30 +41,24 @@ namespace WaveTracker
         public static bool internalDialogIsOpen;
         public static Element focus = null;
         public static int focusTimer;
-        public static void Intialize()
-        {
+        public static void Intialize() {
             keyTimePairs = new Dictionary<Keys, int>();
-            foreach (Keys k in Enum.GetValues(typeof(Keys)))
-            {
+            foreach (Keys k in Enum.GetValues(typeof(Keys))) {
                 keyTimePairs.Add(k, 0);
             }
             timeSinceLastClick = 1000;
         }
 
-        public static void DialogStarted()
-        {
+        public static void DialogStarted() {
             dialogOpenCooldown = 5;
         }
 
-        public static void GetState(GameTime gameTime)
-        {
+        public static void GetState(GameTime gameTime) {
             cancelClick = false;
-            if (focusTimer > 0)
-            {
+            if (focusTimer > 0) {
                 focusTimer--;
             }
-            if (dialogOpenCooldown > 0)
-            {
+            if (dialogOpenCooldown > 0) {
                 dialogOpenCooldown--;
                 if (dialogOpenCooldown > 2)
                     return;
@@ -76,13 +68,10 @@ namespace WaveTracker
             previousKeyState = currentKeyState;
             currentKeyState = Microsoft.Xna.Framework.Input.Keyboard.GetState();
             currentModifier = getCurrentModifier();
-            foreach (Keys k in Enum.GetValues(typeof(Keys)))
-            {
-                if (currentKeyState.IsKeyDown(k))
-                {
+            foreach (Keys k in Enum.GetValues(typeof(Keys))) {
+                if (currentKeyState.IsKeyDown(k)) {
                     keyTimePairs[k] += 1;
-                }
-                else
+                } else
                     keyTimePairs[k] = 0;
 
             }
@@ -96,23 +85,19 @@ namespace WaveTracker
 
 
 
-            if (GetClickDown(KeyModifier._Any))
-            {
+            if (GetClickDown(KeyModifier._Any)) {
                 doubleClick = false;
             }
-            if (GetClickDown(KeyModifier._Any) && timeSinceLastClick < DOUBLE_CLICK_TIME && Vector2.Distance(lastClickLocation.ToVector2(), lastClickReleaseLocation.ToVector2()) < 5)
-            {
+            if (GetClickDown(KeyModifier._Any) && timeSinceLastClick < DOUBLE_CLICK_TIME && Vector2.Distance(lastClickLocation.ToVector2(), lastClickReleaseLocation.ToVector2()) < 5) {
                 timeSinceDoubleClick = 0;
                 doubleClick = true;
             }
-            if (GetClickDown(KeyModifier._Any))
-            {
+            if (GetClickDown(KeyModifier._Any)) {
                 lastClickLocation = new Point(MousePositionX, MousePositionY);
                 timeSinceLastClick = 0;
             }
             singleClick = false;
-            if (GetClickUp(KeyModifier._Any))
-            {
+            if (GetClickUp(KeyModifier._Any)) {
                 timeSinceLastClickUp = 0;
                 if (doubleClick == false)
                     singleClick = true;
@@ -123,20 +108,17 @@ namespace WaveTracker
 
         public static Vector2 MousePos { get { return new Vector2(MousePositionX, MousePositionY); } }
 
-        public static void CancelClick()
-        {
+        public static void CancelClick() {
             cancelClick = true;
         }
-        public static bool GetKey(Keys key, KeyModifier modifier)
-        {
+        public static bool GetKey(Keys key, KeyModifier modifier) {
             if (modifierMatches(modifier))
                 return currentKeyState.IsKeyDown(key);
             else
                 return false;
         }
 
-        public static bool GetKeyDown(Keys key, KeyModifier modifier)
-        {
+        public static bool GetKeyDown(Keys key, KeyModifier modifier) {
 
             if (modifierMatches(modifier))
                 return currentKeyState.IsKeyDown(key) && !previousKeyState.IsKeyDown(key);
@@ -146,24 +128,19 @@ namespace WaveTracker
 
 
         // TODO: FIX THIS METHOD
-        public static bool GetKeyRepeat(Keys key, KeyModifier modifier)
-        {
+        public static bool GetKeyRepeat(Keys key, KeyModifier modifier) {
 
-            if (modifierMatches(modifier))
-            {
+            if (modifierMatches(modifier)) {
                 if (keyTimePairs[key] == 1)
                     return true;
-                if (keyTimePairs[key] > 30)
-                {
+                if (keyTimePairs[key] > 30) {
                     return keyTimePairs[key] % 2 == 0;
                 }
                 return false;
-            }
-            else
+            } else
                 return false;
         }
-        public static bool GetKeyUp(Keys key, KeyModifier modifier)
-        {
+        public static bool GetKeyUp(Keys key, KeyModifier modifier) {
 
             if (modifierMatches(modifier))
                 return !currentKeyState.IsKeyDown(key) && previousKeyState.IsKeyDown(key);
@@ -171,8 +148,7 @@ namespace WaveTracker
                 return false;
         }
 
-        public static bool GetClickUp(KeyModifier modifier)
-        {
+        public static bool GetClickUp(KeyModifier modifier) {
 
             if (modifierMatches(modifier) && !cancelClick)
                 return currentMouseState.LeftButton == ButtonState.Released && previousMouseState.LeftButton == ButtonState.Pressed;
@@ -180,24 +156,21 @@ namespace WaveTracker
                 return false;
         }
 
-        public static bool GetSingleClickUp(KeyModifier modifier)
-        {
+        public static bool GetSingleClickUp(KeyModifier modifier) {
 
             if (modifierMatches(modifier) && !cancelClick)
                 return GetClickUp(modifier) && singleClick;
             else
                 return false;
         }
-        public static bool GetClickDown(KeyModifier modifier)
-        {
+        public static bool GetClickDown(KeyModifier modifier) {
 
             if (modifierMatches(modifier) && !cancelClick)
                 return currentMouseState.LeftButton == ButtonState.Pressed && previousMouseState.LeftButton == ButtonState.Released;
             else
                 return false;
         }
-        public static bool GetClick(KeyModifier modifier)
-        {
+        public static bool GetClick(KeyModifier modifier) {
 
             if (modifierMatches(modifier) && !cancelClick)
                 return currentMouseState.LeftButton == ButtonState.Pressed;
@@ -205,8 +178,7 @@ namespace WaveTracker
                 return false;
         }
 
-        public static bool GetDoubleClick(KeyModifier modifier)
-        {
+        public static bool GetDoubleClick(KeyModifier modifier) {
 
             if (modifierMatches(modifier))
                 return GetClickDown(modifier) && doubleClick;
@@ -221,27 +193,22 @@ namespace WaveTracker
 
         public static int MouseDeltaY { get { return (currentMouseState.Y / Game1.ScreenScale) - (previousMouseState.Y / Game1.ScreenScale); } }
 
-        public static int MouseScrollWheel(KeyModifier modifier)
-        {
-            if (modifierMatches(modifier))
-            {
+        public static int MouseScrollWheel(KeyModifier modifier) {
+            if (modifierMatches(modifier)) {
                 if (currentMouseState.ScrollWheelValue < previousMouseState.ScrollWheelValue) return -1;
                 if (currentMouseState.ScrollWheelValue > previousMouseState.ScrollWheelValue) return 1;
                 return 0;
-            }
-            else
+            } else
                 return 0;
         }
 
-        static bool modifierMatches(KeyModifier mod)
-        {
+        static bool modifierMatches(KeyModifier mod) {
             if (mod == KeyModifier._Any)
                 return true;
             return currentModifier == mod;
         }
 
-        static KeyModifier getCurrentModifier()
-        {
+        static KeyModifier getCurrentModifier() {
 
             bool ctrl = (currentKeyState.IsKeyDown(Keys.LeftControl) || currentKeyState.IsKeyDown(Keys.RightControl));
             bool alt = (currentKeyState.IsKeyDown(Keys.LeftAlt) || currentKeyState.IsKeyDown(Keys.RightAlt));
@@ -266,8 +233,7 @@ namespace WaveTracker
     }
 
 
-    public enum KeyModifier
-    {
+    public enum KeyModifier {
         None,
         Ctrl,
         Shift,

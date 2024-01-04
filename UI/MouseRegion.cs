@@ -8,12 +8,9 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-namespace WaveTracker.UI
-{
-    public class MouseRegion : Clickable
-    {
-        public MouseRegion(int x, int y, int width, int height, Element parent)
-        {
+namespace WaveTracker.UI {
+    public class MouseRegion : Clickable {
+        public MouseRegion(int x, int y, int width, int height, Element parent) {
             enabled = true;
             this.x = x;
             this.y = y;

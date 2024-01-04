@@ -10,15 +10,12 @@ using WaveTracker.UI;
 using WaveTracker.Tracker;
 using System.Windows.Forms;
 
-namespace WaveTracker.Rendering
-{
-    public class FrameView : UI.Panel
-    {
+namespace WaveTracker.Rendering {
+    public class FrameView : UI.Panel {
         Texture2D arrow;
         FrameButton[] frames = new FrameButton[25];
         public SpriteButton bNewFrame, bDeleteFrame, bDuplicateFrame, bMoveLeft, bMoveRight;
-        public void Initialize(Texture2D sprite, GraphicsDevice device)
-        {
+        public void Initialize(Texture2D sprite, GraphicsDevice device) {
             bNewFrame = new SpriteButton(4, 10, 15, 15, sprite, 19, this);
             bNewFrame.SetTooltip("Insert Frame", "Insert a new frame after this one");
             bDeleteFrame = new SpriteButton(19, 10, 15, 15, sprite, 24, this);
@@ -35,10 +32,8 @@ namespace WaveTracker.Rendering
             arrow = new Texture2D(device, 7, 4);
             Color[] data = new Color[7 * 4];
             Color arrowColor = new Color(8, 124, 232);
-            for (int y = 0; y < 4; y++)
-            {
-                for (int x = 0; x < 7; ++x)
-                {
+            for (int y = 0; y < 4; y++) {
+                for (int x = 0; x < 7; ++x) {
                     if (x >= y && x < 7 - y)
                         data[x + y * 7] = arrowColor;
                     else
@@ -46,8 +41,7 @@ namespace WaveTracker.Rendering
                 }
             }
             arrow.SetData(data);
-            for (int i = 0; i < frames.Length; ++i)
-            {
+            for (int i = 0; i < frames.Length; ++i) {
                 frames[i] = new FrameButton(i - frames.Length / 2, this);
                 frames[i].x = 54 + i * 18;
                 frames[i].y = 21;
@@ -57,27 +51,22 @@ namespace WaveTracker.Rendering
             InitializePanel("Frames", 2, 106, 504, 42);
         }
 
-        public void Update()
-        {
-            foreach (FrameButton button in frames)
-            {
+        public void Update() {
+            foreach (FrameButton button in frames) {
                 button.Update();
             }
             bDeleteFrame.enabled = FrameEditor.thisSong.frames.Count > 1;
             bNewFrame.enabled = bDuplicateFrame.enabled = FrameEditor.thisSong.frames.Count < 100;
             bMoveRight.enabled = FrameEditor.currentFrame < FrameEditor.thisSong.frames.Count - 1;
             bMoveLeft.enabled = FrameEditor.currentFrame > 0;
-            if (new Rectangle(80, 12, 397, 28).Contains(MouseX, MouseY) && Input.focus == null)
-            {
-                if (Input.MouseScrollWheel(KeyModifier.None) < 0)
-                {
+            if (new Rectangle(80, 12, 397, 28).Contains(MouseX, MouseY) && Input.focus == null) {
+                if (Input.MouseScrollWheel(KeyModifier.None) < 0) {
                     if (Playback.isPlaying && FrameEditor.followMode)
                         Playback.NextFrame();
                     else
                         FrameEditor.NextFrame();
                 }
-                if (Input.MouseScrollWheel(KeyModifier.None) > 0)
-                {
+                if (Input.MouseScrollWheel(KeyModifier.None) > 0) {
                     if (Playback.isPlaying && FrameEditor.followMode)
                         Playback.PreviousFrame();
                     else
@@ -85,21 +74,17 @@ namespace WaveTracker.Rendering
 
                 }
             }
-            if (!Playback.isPlaying)
-            {
-                if (bNewFrame.Clicked)
-                {
+            if (!Playback.isPlaying) {
+                if (bNewFrame.Clicked) {
                     FrameEditor.thisSong.frames.Insert(++FrameEditor.currentFrame, new Frame());
                     FrameEditor.Goto(FrameEditor.currentFrame, FrameEditor.currentRow);
                 }
-                if (bDuplicateFrame.Clicked || Input.GetKeyDown(Microsoft.Xna.Framework.Input.Keys.D, KeyModifier.Ctrl))
-                {
+                if (bDuplicateFrame.Clicked || Input.GetKeyDown(Microsoft.Xna.Framework.Input.Keys.D, KeyModifier.Ctrl)) {
                     FrameEditor.thisSong.frames.Insert(FrameEditor.currentFrame + 1, FrameEditor.thisFrame.Clone());
                     FrameEditor.Goto(FrameEditor.currentFrame, FrameEditor.currentRow);
 
                 }
-                if (bDeleteFrame.Clicked)
-                {
+                if (bDeleteFrame.Clicked) {
                     FrameEditor.thisSong.frames.RemoveAt(FrameEditor.currentFrame);
                     FrameEditor.currentFrame--;
                     if (FrameEditor.currentFrame < 0)
@@ -108,21 +93,18 @@ namespace WaveTracker.Rendering
                 }
 
 
-                if (bMoveRight.Clicked)
-                {
+                if (bMoveRight.Clicked) {
                     FrameEditor.thisSong.frames.Reverse(FrameEditor.currentFrame++, 2);
                     FrameEditor.Goto(FrameEditor.currentFrame, FrameEditor.currentRow);
                 }
-                if (bMoveLeft.Clicked)
-                {
+                if (bMoveLeft.Clicked) {
                     FrameEditor.thisSong.frames.Reverse(--FrameEditor.currentFrame, 2);
                     FrameEditor.Goto(FrameEditor.currentFrame, FrameEditor.currentRow);
                 }
             }
         }
 
-        public void Draw()
-        {
+        public void Draw() {
             DrawPanel();
             DrawRect(1, 9, 52, 33, Color.White);
             DrawRect(0, 9, 1, 32, Color.White);
@@ -133,8 +115,7 @@ namespace WaveTracker.Rendering
             bMoveRight.Draw();
             DrawRect(67, 12, 423, 28, new Color(32, 37, 64));
             DrawSprite(arrow, 275, 15, new Rectangle(0, 0, 7, 4));
-            foreach (FrameButton button in frames)
-            {
+            foreach (FrameButton button in frames) {
                 button.Draw();
             }
             DrawRect(54, 11, 13, 29, new Color(223, 224, 232));

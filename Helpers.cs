@@ -12,10 +12,8 @@ using System.Diagnostics;
 using NAudio.Wave;
 using NAudio.Wave.SampleProviders;
 
-namespace WaveTracker
-{
-    public class Helpers
-    {
+namespace WaveTracker {
+    public class Helpers {
         /// <summary>
         /// Returns the name of a note value.
         /// <br></br>
@@ -23,16 +21,14 @@ namespace WaveTracker
         /// </summary>
         /// <param name="noteNum"></param>
         /// <returns></returns>
-        public static string GetNoteName(int noteNum)
-        {
-            if (noteNum == -3) { return "OFF"; }
-            if (noteNum == -2) { return "REL"; }
-            if (noteNum < 0) { return "..."; }
+        public static string GetNoteName(int noteNum) {
+            if (noteNum == Tracker.Frame.NOTE_CUT_VALUE) { return "OFF"; }
+            if (noteNum == Tracker.Frame.NOTE_RELEASE_VALUE) { return "REL"; }
+            if (noteNum == Tracker.Frame.NOTE_EMPTY_VALUE) { return "..."; }
             int noteWithinOctave = noteNum % 12;
             int octave = noteNum / 12;
             string noteName = "";
-            switch (noteWithinOctave)
-            {
+            switch (noteWithinOctave) {
                 case 0:
                     noteName = "C-";
                     break;
@@ -75,10 +71,8 @@ namespace WaveTracker
 
 
 
-        public static string GetEffectCharacter(int num)
-        {
-            return num switch
-            {
+        public static string GetEffectCharacter(int num) {
+            return num switch {
                 0 => "0",
                 1 => "1",
                 2 => "2",
@@ -107,13 +101,11 @@ namespace WaveTracker
             };
         }
 
-        public static bool isEffectFrameTerminator(int num)
-        {
+        public static bool isEffectFrameTerminator(int num) {
             return num >= 20 && num <= 22;
         }
 
-        public static int getWidthOfText(string text)
-        {
+        public static int getWidthOfText(string text) {
             int ret = 0;
             string alphabet = " 0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz!@#$%^&*()_+-={}[]\\|'\":;?/>.<,~`©àèìòùÀÈÌÒÙáéíóúýÁÉÍÓÚÝâêîôûÂÊÎÔÛãñõÃÑÕäëïöüÿÄËÏÖÜŸæçÇ";
             string chars5 = "WX&%#@~YM«»mw";
@@ -121,8 +113,7 @@ namespace WaveTracker
             string chars2 = "(),[]*j";
             string chars1 = "li.'!";
 
-            foreach (char c in text)
-            {
+            foreach (char c in text) {
                 if (alphabet.Contains(c))
                     if (chars5.Contains(c))
                         ret += 6;
@@ -140,16 +131,12 @@ namespace WaveTracker
             return ret - 1;
         }
 
-        public static string TrimTextToWidth(int width, string t)
-        {
+        public static string TrimTextToWidth(int width, string t) {
 
-            if (getWidthOfText(t) > width - 6)
-            {
-                while (getWidthOfText(t + "...") > width - 6)
-                {
+            if (getWidthOfText(t) > width - 6) {
+                while (getWidthOfText(t + "...") > width - 6) {
                     t = t.Remove(t.Length - 1, 1);
-                    if (t[t.Length - 1] == ' ')
-                    {
+                    if (t[t.Length - 1] == ' ') {
                         t = t.Remove(t.Length - 1, 1);
                     }
                 }
@@ -157,38 +144,31 @@ namespace WaveTracker
             }
             return t;
         }
-        public static string FlushString(string original)
-        {
+        public static string FlushString(string original) {
             string alphabet = " 0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz!@#$%^&*()_+-={}[]\\|'\":;?/>.<,~`©àèìòùÀÈÌÒÙáéíóúýÁÉÍÓÚÝâêîôûÂÊÎÔÛãñõÃÑÕäëïöüÿÄËÏÖÜŸæçÇ";
             string ret = "";
-            foreach (char c in original)
-            {
+            foreach (char c in original) {
                 if (alphabet.Contains(c))
                     ret += c;
             }
             return ret;
         }
-        public static bool isEffectHexadecimal(int effectNum)
-        {
+        public static bool isEffectHexadecimal(int effectNum) {
             return new List<int> { 0, 4, 10, 11, 7 }.Contains(effectNum);
         }
 
-        public static float NoteToFrequency(float noteNum)
-        {
+        public static float NoteToFrequency(float noteNum) {
             return (float)Math.Pow(2, (noteNum - 57) / 12.0) * 440;
         }
 
-        public static float Mod(float a, float b)
-        {
+        public static float Mod(float a, float b) {
             return (a - b * MathF.Floor(a / b));
         }
-        public static double Mod(double a, double b)
-        {
+        public static double Mod(double a, double b) {
             return (a - b * Math.Floor(a / b));
         }
 
-        public static double PowerA(double a, double b)
-        {
+        public static double PowerA(double a, double b) {
             int tmp = (int)(BitConverter.DoubleToInt64Bits(a) >> 32);
             int tmp2 = (int)(b * (tmp - 1072632447) + 1072632447);
             return BitConverter.Int64BitsToDouble(((long)tmp2) << 32);
@@ -199,25 +179,21 @@ namespace WaveTracker
         /// <param name="c"></param>
         /// <param name="a"></param>
         /// <returns></returns>
-        public static Color Alpha(Color c, int a)
-        {
+        public static Color Alpha(Color c, int a) {
             return new Color(c.R, c.G, c.B, a);
         }
 
-        public static Color LerpColor(Color a, Color b, float amt)
-        {
+        public static Color LerpColor(Color a, Color b, float amt) {
             Color c = Color.White;
             c.R = (byte)(a.R + (b.R - a.R) * amt);
             c.G = (byte)(a.G + (b.G - a.G) * amt);
             c.B = (byte)(a.B + (b.B - a.B) * amt);
             return c;
         }
-        public static float Map(float value, float from1, float to1, float from2, float to2)
-        {
+        public static float Map(float value, float from1, float to1, float from2, float to2) {
             return (value - from1) / (to1 - from1) * (to2 - from2) + from2;
         }
-        public static float MapClamped(float value, float from1, float to1, float from2, float to2)
-        {
+        public static float MapClamped(float value, float from1, float to1, float from2, float to2) {
             if (from2 < to2)
                 return Math.Clamp((value - from1) / (to1 - from1) * (to2 - from2) + from2, from2, to2);
             else
@@ -231,8 +207,7 @@ namespace WaveTracker
         //        return Math.Clamp(b1 + (s - a1) * (b2 - b1) / (a2 - a1), b1, b2);
         //}
 
-        public static int GetPianoInput(int currentOctave)
-        {
+        public static int GetPianoInput(int currentOctave) {
 
             if (Input.GetKey(Keys.Z, KeyModifier.None)) return currentOctave * 12 + 0;
             if (Input.GetKey(Keys.S, KeyModifier.None)) return currentOctave * 12 + 1;
@@ -270,8 +245,7 @@ namespace WaveTracker
             if (Input.GetKey(Keys.P, KeyModifier.None)) return currentOctave * 12 + 28;
             return -1;
         }
-        public static int GetPianoInputDown(int currentOctave)
-        {
+        public static int GetPianoInputDown(int currentOctave) {
 
             if (Input.GetKeyDown(Keys.Z, KeyModifier.None)) return currentOctave * 12 + 0;
             if (Input.GetKeyDown(Keys.S, KeyModifier.None)) return currentOctave * 12 + 1;
@@ -309,8 +283,7 @@ namespace WaveTracker
             if (Input.GetKeyDown(Keys.P, KeyModifier.None)) return currentOctave * 12 + 28;
             return -1;
         }
-        public static int GetPianoInputUp(int currentOctave)
-        {
+        public static int GetPianoInputUp(int currentOctave) {
 
             if (Input.GetKeyUp(Keys.Z, KeyModifier.None)) return currentOctave * 12 + 0;
             if (Input.GetKeyUp(Keys.S, KeyModifier.None)) return currentOctave * 12 + 1;
@@ -349,10 +322,8 @@ namespace WaveTracker
             return -1;
         }
 
-        public static bool isNoteBlackKey(int noteNum)
-        {
-            switch (noteNum % 12)
-            {
+        public static bool isNoteBlackKey(int noteNum) {
+            switch (noteNum % 12) {
                 case 0:
                 case 2:
                 case 4:
@@ -365,12 +336,10 @@ namespace WaveTracker
             return true;
         }
 
-        public static bool readWav(string filepath, out float[] L, out float[] R)
-        {
+        public static bool readWav(string filepath, out float[] L, out float[] R) {
             List<float> LChannel = new List<float>();
             List<float> RChannel = new List<float>();
-            try
-            {
+            try {
                 AudioFileReader Nreader = new AudioFileReader(filepath);
                 ISampleProvider isp;
                 bool mono = Nreader.WaveFormat.Channels == 1;
@@ -378,8 +347,7 @@ namespace WaveTracker
                 var outFormat = new WaveFormat(44100, Nreader.WaveFormat.Channels);
                 IWaveProvider waveProvider = Nreader.ToWaveProvider();
                 if (Preferences.profile.automaticallyResampleSamples)
-                    using (var resampler = new MediaFoundationResampler(Nreader, outFormat))
-                    {
+                    using (var resampler = new MediaFoundationResampler(Nreader, outFormat)) {
                         isp = resampler.ToSampleProvider();
                     }
                 else
@@ -387,8 +355,7 @@ namespace WaveTracker
                 long sampleLength = (long)(Nreader.Length * (44100.0 / Nreader.WaveFormat.SampleRate));
                 float[] buffer = new float[sampleLength / 4];
                 isp.Read(buffer, 0, buffer.Length);
-                for (int s = 0, v = 0; v < buffer.Length; s++)
-                {
+                for (int s = 0, v = 0; v < buffer.Length; s++) {
                     if (s > 44100 * 120)
                         break;
                     LChannel.Add(buffer[v++]);
@@ -400,47 +367,13 @@ namespace WaveTracker
                 L = LChannel.ToArray();
                 R = RChannel.ToArray();
                 return true;
-            }
-            catch
-            {
+            } catch {
                 LChannel.Add(0f);
                 RChannel.Add(0f);
                 L = LChannel.ToArray();
                 R = RChannel.ToArray();
                 return false;
             }
-        }
-
-        public int FileNextInt(FileStream stream)
-        {
-            byte[] arr = new byte[4];
-            for (int i = 0; i < 4; ++i)
-            {
-                arr[i] = (byte)stream.ReadByte();
-            }
-            return BitConverter.ToInt32(arr);
-        }
-
-        public short FileNextShort(FileStream stream)
-        {
-            byte[] arr = new byte[2];
-            for (int i = 0; i < 4; ++i)
-            {
-                arr[i] = (byte)stream.ReadByte();
-            }
-            return BitConverter.ToInt16(arr);
-        }
-
-        public string FileNextString(FileStream stream)
-        {
-            int length = FileNextInt(stream);
-            byte[] arr = new byte[2];
-            string ret = "";
-            for (int i = 0; i < length; ++i)
-            {
-                ret += BitConverter.ToChar(new byte[2] { (byte)stream.ReadByte(), (byte)stream.ReadByte() });
-            }
-            return ret;
         }
 
 
@@ -451,18 +384,14 @@ namespace WaveTracker
         /// <param name="s">Saturation from 0.0-1.0</param>
         /// <param name="l">Lightness from 0.0-1.0</param>
         /// <returns>RGB version of the HSL color</returns>
-        public static Color HSLtoRGB(int h, float s, float l)
-        {
+        public static Color HSLtoRGB(int h, float s, float l) {
             byte r = 0;
             byte g = 0;
             byte b = 0;
 
-            if (s == 0)
-            {
+            if (s == 0) {
                 r = g = b = (byte)(l * 255);
-            }
-            else
-            {
+            } else {
                 float v1, v2;
                 float hue = (float)h / 360;
 
@@ -477,8 +406,7 @@ namespace WaveTracker
             return new Color(r, g, b);
         }
 
-        private static float HueToRGB(float v1, float v2, float vH)
-        {
+        private static float HueToRGB(float v1, float v2, float vH) {
             if (vH < 0)
                 vH += 1;
 
@@ -496,10 +424,8 @@ namespace WaveTracker
 
             return v1;
         }
-        public static Color HexCodeToColor(string hexCode)
-        {
-            if (hexCode.StartsWith("#"))
-            {
+        public static Color HexCodeToColor(string hexCode) {
+            if (hexCode.StartsWith("#")) {
                 hexCode = hexCode.Substring(1);
             }
             byte[] bytes = Convert.FromHexString(hexCode.ToUpper());
@@ -510,8 +436,7 @@ namespace WaveTracker
         }
     }
 
-    public struct HSLColor
-    {
+    public struct HSLColor {
         /// <summary>
         /// Hue from 0.0-360.0
         /// </summary>
@@ -529,34 +454,28 @@ namespace WaveTracker
         /// </summary>
         public float A;
 
-        public HSLColor(float h, float s, float l, float a)
-        {
+        public HSLColor(float h, float s, float l, float a) {
             H = h;
             S = s;
             L = l;
             A = a;
         }
 
-        public HSLColor(float h, float s, float l)
-        {
+        public HSLColor(float h, float s, float l) {
             H = h;
             S = s;
             L = l;
             A = 1.0f;
         }
 
-        public Color ToRGB()
-        {
+        public Color ToRGB() {
             byte r = 0;
             byte g = 0;
             byte b = 0;
 
-            if (S == 0)
-            {
+            if (S == 0) {
                 r = g = b = (byte)(L * 255);
-            }
-            else
-            {
+            } else {
                 float v1, v2;
                 float hue = (float)H / 360;
 
@@ -570,8 +489,7 @@ namespace WaveTracker
 
             return new Color(r, g, b, (byte)(A * 255));
         }
-        private static float HueToRGB(float v1, float v2, float vH)
-        {
+        private static float HueToRGB(float v1, float v2, float vH) {
             if (vH < 0)
                 vH += 1;
 
@@ -591,25 +509,20 @@ namespace WaveTracker
         }
     }
 
-    public static class ExtensionMethods
-    {
-        public static float Map(this float value, float fromSource, float toSource, float fromTarget, float toTarget)
-        {
+    public static class ExtensionMethods {
+        public static float Map(this float value, float fromSource, float toSource, float fromTarget, float toTarget) {
             return (value - fromSource) / (toSource - fromSource) * (toTarget - fromTarget) + fromTarget;
         }
 
-        public static Color AddTo(this Color value, Color other)
-        {
+        public static Color AddTo(this Color value, Color other) {
             return new Color(value.R + other.R, value.G + other.G, value.B + other.B, value.A + other.A);
         }
 
-        public static Color ToNegative(this Color value)
-        {
+        public static Color ToNegative(this Color value) {
             return new Color(255 - value.R, 255 - value.G, 255 - value.B, 255);
         }
 
-        public static HSLColor ToHSL(this Color value)
-        {
+        public static HSLColor ToHSL(this Color value) {
             float _R = (value.R / 255f);
             float _G = (value.G / 255f);
             float _B = (value.B / 255f);
@@ -622,28 +535,19 @@ namespace WaveTracker
             float S = 0;
             float L = (float)((_Max + _Min) / 2.0f);
 
-            if (_Delta != 0)
-            {
-                if (L < 0.5f)
-                {
+            if (_Delta != 0) {
+                if (L < 0.5f) {
                     S = (float)(_Delta / (_Max + _Min));
-                }
-                else
-                {
+                } else {
                     S = (float)(_Delta / (2.0f - _Max - _Min));
                 }
 
 
-                if (_R == _Max)
-                {
+                if (_R == _Max) {
                     H = (_G - _B) / _Delta;
-                }
-                else if (_G == _Max)
-                {
+                } else if (_G == _Max) {
                     H = 2f + (_B - _R) / _Delta;
-                }
-                else if (_B == _Max)
-                {
+                } else if (_B == _Max) {
                     H = 4f + (_R - _G) / _Delta;
                 }
             }
@@ -653,26 +557,22 @@ namespace WaveTracker
             return new HSLColor(H, S, L, value.A / 255f);
         }
 
-        public static string GetHexCode(this Color value)
-        {
+        public static string GetHexCode(this Color value) {
             byte[] bytes = { value.R, value.G, value.B };
             return Convert.ToHexString(bytes).ToLower();
         }
-        public static string GetHexCodeWithAlpha(this Color value)
-        {
+        public static string GetHexCodeWithAlpha(this Color value) {
             if (value.A == 255)
                 return GetHexCode(value);
             else
                 return GetHexCodeWithAlphaAlways(value);
         }
-        public static string GetHexCodeWithAlphaAlways(this Color value)
-        {
+        public static string GetHexCodeWithAlphaAlways(this Color value) {
             byte[] bytes = { value.R, value.G, value.B, value.A };
             return Convert.ToHexString(bytes).ToLower();
         }
 
-        public static Color Lerp(this Color col, Color other, float t)
-        {
+        public static Color Lerp(this Color col, Color other, float t) {
             byte r = (byte)MathHelper.Lerp(col.R, other.R, t);
             byte g = (byte)MathHelper.Lerp(col.G, other.G, t);
             byte b = (byte)MathHelper.Lerp(col.B, other.B, t);

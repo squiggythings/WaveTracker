@@ -13,10 +13,8 @@ using Microsoft.Xna.Framework.Input;
 using System.Diagnostics;
 
 
-namespace WaveTracker.Rendering
-{
-    public class InstrumentEditor : Element
-    {
+namespace WaveTracker.Rendering {
+    public class InstrumentEditor : Element {
         public static bool enabled;
         public Macro currentMacro;
         public int startcooldown;
@@ -31,12 +29,11 @@ namespace WaveTracker.Rendering
         public SampleBrowser browser;
         public Dropdown sample_resampleDropdown;
         public Dropdown wave_modTypeDropdown;
-        Macro instrument => Game1.currentSong.instruments[id];
+        Macro instrument => Song.currentSong.instruments[id];
         TabGroup tabGroup;
         public static Texture2D tex;
 
-        public InstrumentEditor(Texture2D tex)
-        {
+        public InstrumentEditor(Texture2D tex) {
             InstrumentEditor.tex = tex;
             x = 193;
             y = 100;
@@ -132,19 +129,14 @@ namespace WaveTracker.Rendering
 
         }
 
-        public void Update()
-        {
-            if (enabled)
-            {
-                if (startcooldown > 0)
-                {
+        public void Update() {
+            if (enabled) {
+                if (startcooldown > 0) {
 
                     //SetTabToggles();
                     startcooldown--;
-                    if (instrument.macroType == MacroType.Sample)
-                    {
-                        if (tabGroup.selected == 0)
-                        {
+                    if (instrument.macroType == MacroType.Sample) {
+                        if (tabGroup.selected == 0) {
                             sample_resampleDropdown.Value = (int)instrument.sample.resampleMode;
                             sample_baseKey.Value = instrument.sample.BaseKey;
                             sample_detune.Value = instrument.sample.Detune;
@@ -153,28 +145,19 @@ namespace WaveTracker.Rendering
                             sample_loopPingpong.Value = instrument.sample.sampleLoopType == SampleLoopType.PingPong;
                             visualize_toggle.Value = instrument.sample.useInVisualization;
                         }
-                    }
-                    else
-                    {
+                    } else {
                         wave_modTypeDropdown.Value = instrument.waveModType;
                         envelopeEditor.SetEnvelope(instrument.volumeEnvelope, 0);
                     }
-                }
-                else
-                {
-                    if (closeButton.Clicked || Input.GetKeyDown(Microsoft.Xna.Framework.Input.Keys.Escape, KeyModifier.None))
-                    {
+                } else {
+                    if (closeButton.Clicked || Input.GetKeyDown(Microsoft.Xna.Framework.Input.Keys.Escape, KeyModifier.None)) {
                         Close();
                     }
-                    if (instrument.macroType == MacroType.Sample)
-                    {
-                        if (tabGroup.selected == 0)
-                        {
+                    if (instrument.macroType == MacroType.Sample) {
+                        if (tabGroup.selected == 0) {
                             #region sample editor
-                            if (instrument.macroType == MacroType.Sample)
-                            {
-                                if (sample_importSample.Clicked)
-                                {
+                            if (instrument.macroType == MacroType.Sample) {
+                                if (sample_importSample.Clicked) {
                                     browser.Open(this);
                                 }
 
@@ -193,8 +176,7 @@ namespace WaveTracker.Rendering
                                     instrument.sample.Amplify(1.1f);
                                 if (sample_amplifyDown.Clicked)
                                     instrument.sample.Amplify(0.9f);
-                                if (instrument.sample.sampleLoopType != SampleLoopType.OneShot)
-                                {
+                                if (instrument.sample.sampleLoopType != SampleLoopType.OneShot) {
                                     sample_loopPoint.SetValueLimits(0, instrument.sample.sampleDataAccessL.Length < 1 ? 0 : instrument.sample.sampleDataAccessL.Length - 2);
                                     sample_loopPoint.Value = instrument.sample.sampleLoopIndex;
                                     sample_loopPoint.Update();
@@ -233,28 +215,20 @@ namespace WaveTracker.Rendering
                                 instrument.sample.useInVisualization = visualize_toggle.Value;
                             }
                             #endregion
-                        }
-                        else
-                        {
+                        } else {
                             ShowEnvelope(tabGroup.selected - 1);
                         }
 
-                    }
-                    else
-                    {
-                        if (tabGroup.selected == 4 && tabGroup.tabs[4].toggle.Value)
-                        {
+                    } else {
+                        if (tabGroup.selected == 4 && tabGroup.tabs[4].toggle.Value) {
                             wave_modTypeDropdown.enabled = true;
                             wave_modTypeDropdown.Value = instrument.waveModType;
                             wave_modTypeDropdown.Update();
-                            if (wave_modTypeDropdown.Value != instrument.waveModType)
-                            {
+                            if (wave_modTypeDropdown.Value != instrument.waveModType) {
                                 ChannelManager.previewChannel.ResetModulations();
                             }
                             instrument.waveModType = wave_modTypeDropdown.Value;
-                        }
-                        else
-                        {
+                        } else {
                             wave_modTypeDropdown.enabled = false;
                         }
                         ShowEnvelope(tabGroup.selected);
@@ -267,8 +241,7 @@ namespace WaveTracker.Rendering
             }
         }
 
-        public void ShowEnvelope(int id)
-        {
+        public void ShowEnvelope(int id) {
             if (id == 0)
                 envelopeEditor.EditEnvelope(instrument.volumeEnvelope, id, ChannelManager.previewChannel.volumeEnv, startcooldown == 0);
             if (id == 1)
@@ -281,26 +254,22 @@ namespace WaveTracker.Rendering
                 envelopeEditor.EditEnvelope(instrument.waveModEnvelope, id, ChannelManager.previewChannel.waveModEnv, startcooldown == 0);
         }
 
-        public void EditMacro(Macro m, int num)
-        {
-            if (Input.focus == null)
-            {
+        public void EditMacro(Macro m, int num) {
+            if (Input.focus == null) {
                 Input.focus = this;
                 //Input.internalDialogIsOpen = true;
                 startcooldown = 4;
                 enabled = true;
                 id = num;
                 tabGroup = new TabGroup(8, 15, this);
-                if (m.macroType == MacroType.Wave)
-                {
+                if (m.macroType == MacroType.Wave) {
                     tabGroup.AddTab("Volume", true);
                     tabGroup.AddTab("Arpeggio", true);
                     tabGroup.AddTab("Pitch", true);
                     tabGroup.AddTab("Wave", true);
                     tabGroup.AddTab("Wave Mod", true);
                 }
-                if (m.macroType == MacroType.Sample)
-                {
+                if (m.macroType == MacroType.Sample) {
                     tabGroup.AddTab("Sample", false);
                     tabGroup.AddTab("Volume", true);
                     tabGroup.AddTab("Arpeggio", true);
@@ -311,44 +280,37 @@ namespace WaveTracker.Rendering
             }
         }
 
-        public void SetTabTogglesFromInstrument()
-        {
-            if (instrument.macroType == MacroType.Wave)
-            {
+        public void SetTabTogglesFromInstrument() {
+            if (instrument.macroType == MacroType.Wave) {
                 tabGroup.tabs[0].toggle.Value = instrument.volumeEnvelope.isActive;
                 tabGroup.tabs[1].toggle.Value = instrument.arpEnvelope.isActive;
                 tabGroup.tabs[2].toggle.Value = instrument.pitchEnvelope.isActive;
                 tabGroup.tabs[3].toggle.Value = instrument.waveEnvelope.isActive;
                 tabGroup.tabs[4].toggle.Value = instrument.waveModEnvelope.isActive;
             }
-            if (instrument.macroType == MacroType.Sample)
-            {
+            if (instrument.macroType == MacroType.Sample) {
                 tabGroup.tabs[1].toggle.Value = instrument.volumeEnvelope.isActive;
                 tabGroup.tabs[2].toggle.Value = instrument.arpEnvelope.isActive;
                 tabGroup.tabs[3].toggle.Value = instrument.pitchEnvelope.isActive;
             }
         }
 
-        public void ReadFromTabTogglesIntoInstrument()
-        {
-            if (instrument.macroType == MacroType.Wave)
-            {
+        public void ReadFromTabTogglesIntoInstrument() {
+            if (instrument.macroType == MacroType.Wave) {
                 instrument.volumeEnvelope.isActive = tabGroup.tabs[0].toggle.Value;
                 instrument.arpEnvelope.isActive = tabGroup.tabs[1].toggle.Value;
                 instrument.pitchEnvelope.isActive = tabGroup.tabs[2].toggle.Value;
                 instrument.waveEnvelope.isActive = tabGroup.tabs[3].toggle.Value;
                 instrument.waveModEnvelope.isActive = tabGroup.tabs[4].toggle.Value;
             }
-            if (instrument.macroType == MacroType.Sample)
-            {
+            if (instrument.macroType == MacroType.Sample) {
                 instrument.volumeEnvelope.isActive = tabGroup.tabs[1].toggle.Value;
                 instrument.arpEnvelope.isActive = tabGroup.tabs[2].toggle.Value;
                 instrument.pitchEnvelope.isActive = tabGroup.tabs[3].toggle.Value;
             }
         }
 
-        public int pianoInput()
-        {
+        public int pianoInput() {
             if (!enabled || !inFocus)
                 return -1;
 
@@ -358,24 +320,20 @@ namespace WaveTracker.Rendering
                 return -1;
             if (!Input.GetClick(KeyModifier.None))
                 return -1;
-            else
-            {
+            else {
                 return (MouseX - 44) / 4;
             }
         }
 
-        public void Close()
-        {
+        public void Close() {
             envelopeEditor.ResetScrollbar();
             enabled = false;
             Input.internalDialogIsOpen = false;
             Input.focus = null;
         }
 
-        public void Draw()
-        {
-            if (enabled)
-            {
+        public void Draw() {
+            if (enabled) {
                 // black box across screen behind window
                 DrawRect(-x, -y, 960, 600, Helpers.Alpha(Color.Black, 90));
 
@@ -399,11 +357,9 @@ namespace WaveTracker.Rendering
                     else
                         DrawSprite(tex, sample_baseKey.Value * 4 + 44, 307, new Rectangle(586, 0, 4, 24));
                 // draw currently played key
-                if (Game1.pianoInput > -1)
-                {
+                if (Game1.pianoInput > -1) {
                     int note = Game1.pianoInput + ChannelManager.previewChannel.arpEnv.Evaluate();
-                    if (note >= 0 && note < 120)
-                    {
+                    if (note >= 0 && note < 120) {
                         if (Helpers.isNoteBlackKey(note))
                             DrawSprite(tex, note * 4 + 44, 307, new Rectangle(582, 0, 4, 24));
                         else
@@ -412,10 +368,8 @@ namespace WaveTracker.Rendering
                 }
 
 
-                if (instrument.macroType == MacroType.Sample)
-                {
-                    if (tabGroup.selected == 0)
-                    {
+                if (instrument.macroType == MacroType.Sample) {
+                    if (tabGroup.selected == 0) {
                         // sample length information
                         Write(instrument.sample.sampleDataAccessL.Length + " samples", 20, 37, UIColors.label);
                         WriteRightAlign((instrument.sample.sampleDataAccessL.Length / (float)AudioEngine.sampleRate).ToString("F5") + " seconds", 547, 37, UIColors.label);
@@ -425,13 +379,10 @@ namespace WaveTracker.Rendering
                         DrawSprite(tex, sample_importSample.x + 68, sample_importSample.y + (sample_importSample.IsPressed ? 2 : 2), new Rectangle(595, 0, 11, 9));
 
                         // waveforms
-                        if (instrument.sample.sampleDataAccessR.Length > 0)
-                        {
+                        if (instrument.sample.sampleDataAccessR.Length > 0) {
                             DrawWaveform(20, 46, instrument.sample.sampleDataAccessL);
                             DrawWaveform(20, 134, instrument.sample.sampleDataAccessR);
-                        }
-                        else
-                        {
+                        } else {
                             DrawRect(20, 133, 528, 1, UIColors.black);
                             DrawRect(11, 46, 8, 175, Color.White);
                             DrawWaveform(20, 46, instrument.sample.sampleDataAccessL, 175);
@@ -440,8 +391,7 @@ namespace WaveTracker.Rendering
                         sample_loopForward.Draw();
                         sample_loopOneshot.Draw();
 
-                        if (instrument.sample.sampleLoopType != SampleLoopType.OneShot)
-                        {
+                        if (instrument.sample.sampleLoopType != SampleLoopType.OneShot) {
                             sample_loopPoint.Value = instrument.sample.sampleLoopIndex;
                             sample_loopPoint.Draw();
                         }
@@ -458,48 +408,38 @@ namespace WaveTracker.Rendering
                         sample_detune.Draw();
                         sample_baseKey.Draw();
                         visualize_toggle.Draw();
-                    }
-                    else
-                    {
+                    } else {
                         envelopeEditor.Draw();
                     }
-                }
-                else
-                {
+                } else {
                     envelopeEditor.Draw();
-                    if (tabGroup.selected == 4)
-                    {
+                    if (tabGroup.selected == 4) {
                         WriteRightAlign("Mode", wave_modTypeDropdown.x - 4, wave_modTypeDropdown.y + 3, UIColors.label);
                         wave_modTypeDropdown.Draw();
                     }
                 }
-                if (!tabGroup.GetSelectedTab.toggle.Value && tabGroup.GetSelectedTab.hasToggle)
-                {
+                if (!tabGroup.GetSelectedTab.toggle.Value && tabGroup.GetSelectedTab.hasToggle) {
                     DrawRect(16, 36, 535, 253, new Color(255, 255, 255, 100));
                 }
                 browser.Draw();
             }
         }
 
-        public void DrawWaveform(int x, int y, float[] data, int height = 87)
-        {
+        public void DrawWaveform(int x, int y, float[] data, int height = 87) {
             int boxLength = 528;
             int boxHeight = height;
             int startY = y + boxHeight / 2;
             int lastSampleNum;
             int sampleNum = 0;
-            if (data.Length > 0)
-            {
-                for (int i = 0; i < boxLength; i++)
-                {
+            if (data.Length > 0) {
+                for (int i = 0; i < boxLength; i++) {
                     float percentage = (float)i / boxLength;
                     lastSampleNum = sampleNum;
                     sampleNum = (int)(percentage * data.Length - 1);
                     sampleNum = Math.Clamp(sampleNum, 0, data.Length - 1);
                     float min = 1;
                     float max = -1;
-                    for (int j = lastSampleNum; j <= sampleNum; j++)
-                    {
+                    for (int j = lastSampleNum; j <= sampleNum; j++) {
                         if (data[j] < min)
                             min = data[j];
                         if (data[j] > max)
@@ -518,8 +458,7 @@ namespace WaveTracker.Rendering
             }
         }
 
-        public void LoadSampleFromFile(string path)
-        {
+        public void LoadSampleFromFile(string path) {
             Macro macro = instrument;
             bool successfulReadWAV = (Helpers.readWav(path, out macro.sample.sampleDataAccessL, out macro.sample.sampleDataAccessR));
             macro.sample.SetBaseKey(Preferences.profile.defaultBaseKey);
@@ -527,17 +466,14 @@ namespace WaveTracker.Rendering
             macro.sample.sampleLoopIndex = 0;
             macro.sample.sampleLoopType = macro.sample.sampleDataAccessL.Length < 1000 ? SampleLoopType.Forward : SampleLoopType.OneShot;
             macro.sample.resampleMode = (Audio.ResamplingModes)Preferences.profile.defaultResampleSample;
-            if (successfulReadWAV)
-            {
+            if (successfulReadWAV) {
                 if (Preferences.profile.automaticallyTrimSamples)
                     macro.sample.TrimSilence();
                 if (Preferences.profile.automaticallyNormalizeSamples)
                     macro.sample.Normalize();
 
                 macro.sample.resampleMode = (Audio.ResamplingModes)Preferences.profile.defaultResampleSample;
-            }
-            else
-            {
+            } else {
                 macro.sample.sampleDataAccessL = Array.Empty<float>();
                 macro.sample.sampleDataAccessR = Array.Empty<float>();
             }

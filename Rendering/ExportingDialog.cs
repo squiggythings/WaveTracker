@@ -9,18 +9,15 @@ using System.Threading.Tasks;
 using WaveTracker.UI;
 
 
-namespace WaveTracker.Rendering
-{
-    public class ExportingDialog : Panel
-    {
+namespace WaveTracker.Rendering {
+    public class ExportingDialog : Panel {
         bool enabled;
         public string Path { get; set; }
         public int TotalRows { get; set; }
         public int ProcessedRows { get; set; }
 
         public Button Cancel;
-        public ExportingDialog()
-        {
+        public ExportingDialog() {
             InitializePanelCentered("Exporting .wav", 300, 88);
             Cancel = new Button("Cancel", width / 2 - 25, 72, this);
             Cancel.width = 51;
@@ -28,46 +25,35 @@ namespace WaveTracker.Rendering
 
         }
 
-        public void Update()
-        {
-            if (enabled)
-            {
-                if (Tracker.Playback.isPlaying)
-                {
+        public void Update() {
+            if (enabled) {
+                if (Tracker.Playback.isPlaying) {
                     Cancel.SetLabel("Cancel");
-                    if (Cancel.Clicked)
-                    {
+                    if (Cancel.Clicked) {
                         Audio.AudioEngine.cancelRender = true;
                         Close();
                     }
-                }
-                else
-                {
+                } else {
                     Cancel.SetLabel("Done");
-                    if (Cancel.Clicked)
-                    {
+                    if (Cancel.Clicked) {
                         Close();
                     }
                 }
             }
         }
 
-        public void Open()
-        {
+        public void Open() {
             Cancel.SetLabel("Cancel");
             enabled = true;
             Input.focus = this;
         }
 
-        public void Close()
-        {
+        public void Close() {
             enabled = false;
             Input.focus = null;
         }
-        public void Draw()
-        {
-            if (enabled)
-            {
+        public void Draw() {
+            if (enabled) {
                 DrawRect(-x, -y, 960, 600, Helpers.Alpha(Color.Black, 90));
                 DrawPanel();
                 int barwidth = width - 20;

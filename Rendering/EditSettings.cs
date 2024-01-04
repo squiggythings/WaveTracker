@@ -7,19 +7,17 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using WaveTracker.UI;
+using WaveTracker.Tracker;
 using System.Windows.Forms;
 
-namespace WaveTracker.Rendering
-{
-    public class EditSettings : UI.Panel
-    {
+namespace WaveTracker.Rendering {
+    public class EditSettings : UI.Panel {
         NumberBox octave;
         NumberBox step;
         Toggle instrumentMask;
         NumberBox highlightPrimary;
         NumberBox highlightSecondary;
-        public void Initialize()
-        {
+        public void Initialize() {
             octave = new NumberBox("Octave", 5, 24, 80, 40, this);
             octave.bUp.SetTooltip("", "Increase current octave - ]");
             octave.bDown.SetTooltip("", "Decrease current octave - [");
@@ -39,8 +37,7 @@ namespace WaveTracker.Rendering
 
         }
 
-        public void Update()
-        {
+        public void Update() {
             octave.Update();
             step.Update();
             highlightPrimary.Update();
@@ -56,21 +53,20 @@ namespace WaveTracker.Rendering
                 step.Value = FrameEditor.step;
 
             if (highlightPrimary.ValueWasChanged)
-                Game1.currentSong.rowHighlight1 = highlightPrimary.Value;
+                Song.currentSong.rowHighlight1 = highlightPrimary.Value;
             else
-                highlightPrimary.Value = Game1.currentSong.rowHighlight1;
+                highlightPrimary.Value = Song.currentSong.rowHighlight1;
 
             if (highlightSecondary.ValueWasChanged)
-                Game1.currentSong.rowHighlight2 = highlightSecondary.Value;
+                Song.currentSong.rowHighlight2 = highlightSecondary.Value;
             else
-                highlightSecondary.Value = Game1.currentSong.rowHighlight2;
+                highlightSecondary.Value = Song.currentSong.rowHighlight2;
 
             instrumentMask.Update();
             FrameEditor.instrumentMask = instrumentMask.Value;
         }
 
-        public void Draw()
-        {
+        public void Draw() {
             DrawPanel();
             octave.Draw();
             step.Draw();

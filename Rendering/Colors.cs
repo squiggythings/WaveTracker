@@ -3,15 +3,12 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System.Xml.Serialization;
 
-namespace WaveTracker.Rendering
-{
-    public class Colors
-    {
+namespace WaveTracker.Rendering {
+    public class Colors {
         public static ColorTheme theme = ColorTheme.Default;
     }
 
-    public class ColorTheme
-    {
+    public class ColorTheme {
         [XmlElement(ElementName = "patternText")]
         public Color patternText;
         [XmlElement(ElementName = "patternTextHighlighted")]
@@ -58,15 +55,12 @@ namespace WaveTracker.Rendering
         [XmlElement(ElementName = "selection")]
         public Color selection;
 
-        static Color AddBrightness(Color color, float amt)
-        {
+        static Color AddBrightness(Color color, float amt) {
             return Helpers.LerpColor(color, Color.White, amt);
         }
-        public static ColorTheme Default
-        {
+        public static ColorTheme Default {
 
-            get
-            {
+            get {
                 ColorTheme ret = new ColorTheme();
                 ret.patternText = Color.White;
                 ret.patternTextHighlighted = new(202, 245, 254);
@@ -94,11 +88,9 @@ namespace WaveTracker.Rendering
                 return ret;
             }
         }
-        public static ColorTheme Famitracker
-        {
+        public static ColorTheme Famitracker {
 
-            get
-            {
+            get {
                 ColorTheme ret = new ColorTheme();
 
                 ret.background = new(0, 0, 0);
@@ -134,11 +126,9 @@ namespace WaveTracker.Rendering
             }
         }
 
-        public static ColorTheme OpenMPT
-        {
+        public static ColorTheme OpenMPT {
 
-            get
-            {
+            get {
                 ColorTheme ret = new ColorTheme();
 
                 ret.background = HexCode("ffffff");
@@ -173,11 +163,9 @@ namespace WaveTracker.Rendering
                 return ret;
             }
         }
-        public static ColorTheme BambooTracker
-        {
+        public static ColorTheme BambooTracker {
 
-            get
-            {
+            get {
                 ColorTheme ret = new ColorTheme();
 
                 ret.background = HexCode("000228");
@@ -213,8 +201,7 @@ namespace WaveTracker.Rendering
             }
         }
 
-        public static Color HexCode(string hex)
-        {
+        public static Color HexCode(string hex) {
             int r = System.Convert.ToInt32(hex.Substring(0, 2), 16);
             int g = System.Convert.ToInt32(hex.Substring(2, 2), 16);
             int b = System.Convert.ToInt32(hex.Substring(4, 2), 16);
@@ -225,8 +212,7 @@ namespace WaveTracker.Rendering
         }
     }
 
-    public class UIColors
-    {
+    public class UIColors {
         /// <summary>
         /// (20, 24, 46)
         /// </summary>

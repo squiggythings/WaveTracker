@@ -12,14 +12,12 @@ using WaveTracker.Audio;
 using System.Windows.Forms;
 
 
-namespace WaveTracker.Rendering
-{
-    public class InstrumentBank : UI.Panel
-    {
+namespace WaveTracker.Rendering {
+    public class InstrumentBank : UI.Panel {
         private Forms.EnterText renameDialog;
         public InstrumentEditor editor;
         bool dialogOpen;
-        public static Song song => Game1.currentSong;
+        static Song song => Song.currentSong;
         int lastIndex;
         int listLength = 32;
         public Scrollbar scrollbar;
@@ -30,12 +28,10 @@ namespace WaveTracker.Rendering
         public SpriteButton bNewWave, bNewSample, bRemove, bDuplicate, bMoveUp, bMoveDown, bRename;
         public SpriteButton bEdit;
 
-        public InstrumentBank()
-        {
+        public InstrumentBank() {
 
         }
-        public void Initialize(Texture2D sprite)
-        {
+        public void Initialize(Texture2D sprite) {
             bNewWave = new SpriteButton(1, 10, 15, 15, sprite, 15, this);
             bNewWave.SetTooltip("New Wave Instrument", "Add a new wave instrument to the track");
             bNewSample = new SpriteButton(16, 10, 15, 15, sprite, 16, this);
@@ -65,8 +61,7 @@ namespace WaveTracker.Rendering
             InitializePanel("Instrument Bank", 790, 152, 170, 488);
         }
 
-        public void Update()
-        {
+        public void Update() {
             editor.Update();
             if (Input.focus != null)
                 return;
@@ -78,31 +73,25 @@ namespace WaveTracker.Rendering
             scrollbar.SetSize(song.instruments.Count, listLength);
             if (Input.internalDialogIsOpen)
                 return;
-            if (MouseX > 1 && MouseX < 162)
-            {
-                if (MouseY > 28)
-                {
+            if (MouseX > 1 && MouseX < 162) {
+                if (MouseY > 28) {
                     // click on item
-                    if (Input.GetClickDown(KeyModifier.None))
-                    {
+                    if (Input.GetClickDown(KeyModifier.None)) {
                         CurrentInstrumentIndex = Math.Clamp((MouseY - 28) / 11 + scrollbar.scrollValue, 0, song.instruments.Count - 1);
                     }
-                    if (Input.GetDoubleClick(KeyModifier.None))
-                    {
+                    if (Input.GetDoubleClick(KeyModifier.None)) {
                         int ix = (MouseY - 28) / 11 + scrollbar.scrollValue;
                         if (ix < song.instruments.Count && ix >= 0)
                             editor.EditMacro(GetCurrentInstrument, CurrentInstrumentIndex);
                     }
                 }
             }
-            if (Input.GetKeyRepeat(Microsoft.Xna.Framework.Input.Keys.Down, KeyModifier.Ctrl))
-            {
+            if (Input.GetKeyRepeat(Microsoft.Xna.Framework.Input.Keys.Down, KeyModifier.Ctrl)) {
                 CurrentInstrumentIndex++;
                 CurrentInstrumentIndex = Math.Clamp(CurrentInstrumentIndex, 0, song.instruments.Count - 1);
                 moveBounds();
             }
-            if (Input.GetKeyRepeat(Microsoft.Xna.Framework.Input.Keys.Up, KeyModifier.Ctrl))
-            {
+            if (Input.GetKeyRepeat(Microsoft.Xna.Framework.Input.Keys.Up, KeyModifier.Ctrl)) {
                 CurrentInstrumentIndex--;
                 CurrentInstrumentIndex = Math.Clamp(CurrentInstrumentIndex, 0, song.instruments.Count - 1);
                 moveBounds();
@@ -112,83 +101,67 @@ namespace WaveTracker.Rendering
             bNewWave.enabled = bNewSample.enabled = bDuplicate.enabled = song.instruments.Count < 100;
             bMoveDown.enabled = CurrentInstrumentIndex < song.instruments.Count - 1;
             bMoveUp.enabled = CurrentInstrumentIndex > 0;
-            if (bNewWave.Clicked)
-            {
+            if (bNewWave.Clicked) {
                 song.instruments.Add(new Macro(MacroType.Wave));
                 CurrentInstrumentIndex = song.instruments.Count - 1;
                 Goto(song.instruments.Count - 1);
             }
-            if (bNewSample.Clicked)
-            {
+            if (bNewSample.Clicked) {
                 song.instruments.Add(new Macro(MacroType.Sample));
                 CurrentInstrumentIndex = song.instruments.Count - 1;
                 Goto(song.instruments.Count - 1);
             }
-            if (bRemove.Clicked)
-            {
+            if (bRemove.Clicked) {
                 FrameEditor.AdjustForDeletedInstrument(CurrentInstrumentIndex);
                 song.instruments.RemoveAt(CurrentInstrumentIndex);
-                if (CurrentInstrumentIndex >= song.instruments.Count)
-                {
+                if (CurrentInstrumentIndex >= song.instruments.Count) {
                     Goto(song.instruments.Count - 1);
                 }
             }
-            if (bDuplicate.Clicked)
-            {
+            if (bDuplicate.Clicked) {
                 song.instruments.Add(GetCurrentInstrument.Clone());
                 Goto(song.instruments.Count - 1);
             }
-            if (bMoveDown.Clicked)
-            {
+            if (bMoveDown.Clicked) {
                 FrameEditor.SwapInstrumentsInSong(CurrentInstrumentIndex, CurrentInstrumentIndex + 1);
                 song.instruments.Reverse(CurrentInstrumentIndex, 2);
                 CurrentInstrumentIndex++;
                 moveBounds();
             }
-            if (bMoveUp.Clicked)
-            {
+            if (bMoveUp.Clicked) {
                 FrameEditor.SwapInstrumentsInSong(CurrentInstrumentIndex, CurrentInstrumentIndex - 1);
                 song.instruments.Reverse(CurrentInstrumentIndex - 1, 2);
                 CurrentInstrumentIndex--;
                 moveBounds();
             }
 
-            if (bEdit.Clicked)
-            {
+            if (bEdit.Clicked) {
                 editor.EditMacro(GetCurrentInstrument, CurrentInstrumentIndex);
             }
 
-            if (bRename.Clicked)
-            {
-                if (!dialogOpen)
-                {
+            if (bRename.Clicked) {
+                if (!dialogOpen) {
                     dialogOpen = true;
                     StartDialog();
                 }
-            }
-            else { dialogOpen = false; }
+            } else { dialogOpen = false; }
             CurrentInstrumentIndex = Math.Clamp(CurrentInstrumentIndex, 0, song.instruments.Count - 1);
-            if (lastIndex != CurrentInstrumentIndex)
-            {
+            if (lastIndex != CurrentInstrumentIndex) {
                 lastIndex = CurrentInstrumentIndex;
                 //ChannelManager.instance.GetCurrentChannel().SetMacro(CurrentInstrumentIndex);
             }
             scrollbar.doUpdate();
         }
 
-        public void Goto(int index)
-        {
+        public void Goto(int index) {
             CurrentInstrumentIndex = index;
             moveBounds();
         }
-        public void moveBounds()
-        {
-            if (CurrentInstrumentIndex > scrollbar.scrollValue + listLength - 1)
-            {
+        public void moveBounds() {
+            if (CurrentInstrumentIndex > scrollbar.scrollValue + listLength - 1) {
                 scrollbar.scrollValue = CurrentInstrumentIndex - listLength + 1;
             }
-            if (CurrentInstrumentIndex < scrollbar.scrollValue)
-            {
+            if (CurrentInstrumentIndex < scrollbar.scrollValue) {
                 scrollbar.scrollValue = CurrentInstrumentIndex;
             }
             scrollbar.SetSize(song.instruments.Count, listLength);
@@ -196,14 +169,12 @@ namespace WaveTracker.Rendering
             scrollbar.doUpdate();
 
         }
-        public void DrawList()
-        {
+        public void DrawList() {
             Color odd = new Color(43, 49, 81);
             Color even = new Color(59, 68, 107);
             Color selected = UIColors.selection;
             int y = 0;
-            for (int i = scrollbar.scrollValue; i < listLength + scrollbar.scrollValue; i++)
-            {
+            for (int i = scrollbar.scrollValue; i < listLength + scrollbar.scrollValue; i++) {
                 Color row;
                 if (i == CurrentInstrumentIndex)
                     row = selected;
@@ -212,8 +183,7 @@ namespace WaveTracker.Rendering
                 else
                     row = odd;
                 DrawRect(1, 28 + y * 11, 163, 11, row);
-                if (song.instruments.Count > i && i >= 0)
-                {
+                if (song.instruments.Count > i && i >= 0) {
                     WriteMonospaced(i.ToString("D2"), 15, 30 + y * 11, Color.White, 4);
                     Write(song.instruments[i].name, 29, 30 + y * 11, Color.White);
                     if (song.instruments[i].macroType == MacroType.Wave)
@@ -226,8 +196,7 @@ namespace WaveTracker.Rendering
         }
 
 
-        public void Draw()
-        {
+        public void Draw() {
             DrawPanel();
             DrawRect(0, 9, 170, 17, Color.White);
             bNewWave.Draw();
@@ -243,15 +212,13 @@ namespace WaveTracker.Rendering
 
         }
 
-        public void StartDialog()
-        {
+        public void StartDialog() {
             Input.DialogStarted();
             renameDialog = new Forms.EnterText();
             renameDialog.textBox.Text = GetCurrentInstrument.name;
             renameDialog.Text = "Rename Instrument " + CurrentInstrumentIndex.ToString("D2");
             renameDialog.label.Text = "";
-            if (renameDialog.ShowDialog() == DialogResult.OK)
-            {
+            if (renameDialog.ShowDialog() == DialogResult.OK) {
                 song.instruments[CurrentInstrumentIndex].SetName(Helpers.FlushString(renameDialog.textBox.Text));
             }
         }

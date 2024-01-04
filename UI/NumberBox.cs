@@ -9,10 +9,8 @@ using Microsoft.Xna.Framework.Graphics;
 using System.Windows.Forms;
 using WaveTracker.Rendering;
 
-namespace WaveTracker.UI
-{
-    public class NumberBox : Clickable
-    {
+namespace WaveTracker.UI {
+    public class NumberBox : Clickable {
         private Forms.EnterText dialog;
         bool dialogOpen;
 
@@ -33,8 +31,7 @@ namespace WaveTracker.UI
         int _value;
         public int Value { get { return _value; } set { _value = Math.Clamp(value, min, max); } }
 
-        public NumberBox(string label, int x, int y, int width, int boxWidth, Element parent)
-        {
+        public NumberBox(string label, int x, int y, int width, int boxWidth, Element parent) {
             this.label = label;
             this.x = x;
             this.y = y;
@@ -50,37 +47,27 @@ namespace WaveTracker.UI
         public void EnableScrolling() { canScroll = true; }
         public void DisableScrolling() { canScroll = false; }
 
-        public void SetValueLimits(int min, int max)
-        {
+        public void SetValueLimits(int min, int max) {
             this.min = min;
             this.max = max;
         }
 
-        public void Update()
-        {
-            if (enabled && inFocus)
-            {
+        public void Update() {
+            if (enabled && inFocus) {
                 int valueBeforeUpdate = Value;
-                if (DoubleClicked && MouseX < width - 10)
-                {
-                    if (!dialogOpen)
-                    {
+                if (DoubleClicked && MouseX < width - 10) {
+                    if (!dialogOpen) {
                         dialogOpen = true;
                         StartDialog();
                     }
-                }
-                else
-                {
+                } else {
                     dialogOpen = false;
                 }
-                if (LastClickPos.X >= 0 && LastClickPos.Y >= 0)
-                {
-                    if (LastClickPos.X <= width - 10 && LastClickPos.Y <= height)
-                    {
+                if (LastClickPos.X >= 0 && LastClickPos.Y >= 0) {
+                    if (LastClickPos.X <= width - 10 && LastClickPos.Y <= height) {
                         if (Input.GetClickDown(KeyModifier.None))
                             valueSaved = Value;
-                        if (Input.GetClick(KeyModifier.None))
-                        {
+                        if (Input.GetClick(KeyModifier.None)) {
                             Value = valueSaved - (MouseY - LastClickPos.Y) / 2;
                             Game1.mouseCursorArrow = 2;
                         }
@@ -96,13 +83,10 @@ namespace WaveTracker.UI
                 if (bDown.Clicked)
                     Value--;
 
-                if (Value != lastValue)
-                {
+                if (Value != lastValue) {
                     ValueWasChanged = true;
                     lastValue = Value;
-                }
-                else
-                {
+                } else {
                     ValueWasChanged = false;
                 }
 
@@ -110,13 +94,11 @@ namespace WaveTracker.UI
             }
         }
 
-        public void Draw()
-        {
+        public void Draw() {
             Color dark = UIColors.label;
             Color text = UIColors.black;
             Color labelCol = UIColors.labelDark;
-            if (IsHovered)
-            {
+            if (IsHovered) {
                 labelCol = Color.Black;
                 dark = UIColors.label;
             }
@@ -139,17 +121,14 @@ namespace WaveTracker.UI
             bDown.Draw();
         }
 
-        public void StartDialog()
-        {
+        public void StartDialog() {
             Input.DialogStarted();
             dialog = new Forms.EnterText();
             dialog.textBox.Text = Value + "";
             dialog.label.Text = label;
-            if (dialog.ShowDialog() == DialogResult.OK)
-            {
+            if (dialog.ShowDialog() == DialogResult.OK) {
                 int a;
-                if (int.TryParse(dialog.textBox.Text, out a))
-                {
+                if (int.TryParse(dialog.textBox.Text, out a)) {
                     Value = a;
                 }
             }

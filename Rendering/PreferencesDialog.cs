@@ -10,18 +10,15 @@ using System.Threading.Tasks;
 using WaveTracker.UI;
 
 
-namespace WaveTracker.Rendering
-{
-    public class PreferencesDialog : Dialog
-    {
+namespace WaveTracker.Rendering {
+    public class PreferencesDialog : Dialog {
         public SpriteButton closeX;
         public Button ok, cancel, apply;
         public Button closeButton;
         OptionList pageGeneral, pageSample, pageAppearance, pageVisualizer;
         TabGroup tabGroup;
         //public List<Option>
-        public PreferencesDialog()
-        {
+        public PreferencesDialog() {
             InitializeDialogCentered("Preferences", 290, 336);
             closeX = newCloseButton();
             apply = newBottomButton("Apply", this);
@@ -133,8 +130,7 @@ namespace WaveTracker.Rendering
 
         }
 
-        public new void Open()
-        {
+        public new void Open() {
             pageGeneral.GetOption(1).SetValue(Preferences.profile.showRowNumbersInHex);
             pageGeneral.GetOption(2).SetValue(Preferences.profile.showNoteCutAndReleaseAsText);
             pageGeneral.GetOption(3).SetValue(Preferences.profile.fadeVolumeColumn);
@@ -168,21 +164,16 @@ namespace WaveTracker.Rendering
             base.Open();
         }
 
-        public void Update()
-        {
-            if (enabled)
-            {
-                if (closeX.Clicked || cancel.Clicked)
-                {
+        public void Update() {
+            if (enabled) {
+                if (closeX.Clicked || cancel.Clicked) {
                     Close();
                 }
-                if (ok.Clicked)
-                {
+                if (ok.Clicked) {
                     ApplyChanges();
                     Close();
                 }
-                if (apply.Clicked)
-                {
+                if (apply.Clicked) {
                     ApplyChanges();
                 }
                 tabGroup.Update();
@@ -197,10 +188,8 @@ namespace WaveTracker.Rendering
             }
         }
 
-        public void Draw()
-        {
-            if (enabled)
-            {
+        public void Draw() {
+            if (enabled) {
                 DrawDialog();
                 tabGroup.Draw();
                 DrawRoundedRect(tabGroup.x, tabGroup.y + 13, width - 8, height - 20 - 24, Color.White);
@@ -215,23 +204,19 @@ namespace WaveTracker.Rendering
                 int rectstartY = pageGeneral.y + pageGeneral.getListHeight() + 10;
 
                 OptionList activePage;
-                if (tabGroup.selected == 0)
-                {
+                if (tabGroup.selected == 0) {
                     pageGeneral.Draw();
                     activePage = pageGeneral;
-                }
-                else if (tabGroup.selected == 1)
-                {
+                } else if (tabGroup.selected == 1) {
                     pageSample.Draw();
                     activePage = pageSample;
                 }
-                //else if (tabGroup.selected == 2)
-                //{
-                //    pageAppearance.Draw();
-                //    activePage = pageAppearance;
-                //}
-                else
-                {
+                  //else if (tabGroup.selected == 2)
+                  //{
+                  //    pageAppearance.Draw();
+                  //    activePage = pageAppearance;
+                  //}
+                  else {
                     pageVisualizer.Draw();
                     activePage = pageVisualizer;
                 }
@@ -242,8 +227,7 @@ namespace WaveTracker.Rendering
             }
         }
 
-        public void ApplyChanges()
-        {
+        public void ApplyChanges() {
             Preferences.profile.showRowNumbersInHex = pageGeneral.GetOption(1).GetValueBool();
             Preferences.profile.showNoteCutAndReleaseAsText = pageGeneral.GetOption(2).GetValueBool();
             Preferences.profile.fadeVolumeColumn = pageGeneral.GetOption(3).GetValueBool();
@@ -279,50 +263,41 @@ namespace WaveTracker.Rendering
         }
     }
 
-    public class OptionList : Element
-    {
+    public class OptionList : Element {
         bool enabled;
         public int width;
         Scrollbar scrollbar;
         List<Option> options;
         public string HoveredDescription { get; private set; }
-        public void AddNumberBox(string label, int min, int max, bool scrollingEnabled = true)
-        {
+        public void AddNumberBox(string label, int min, int max, bool scrollingEnabled = true) {
             Opt_Number n = new Opt_Number(label, min, max, scrollingEnabled, 0, getListHeight(), width, 16, this);
             options.Add(n);
         }
-        public void AddCheckbox(string label)
-        {
+        public void AddCheckbox(string label) {
             Opt_Checkbox n = new Opt_Checkbox(label, 0, getListHeight(), width, 16, this);
             options.Add(n);
         }
-        public void AddLabel(string label)
-        {
+        public void AddLabel(string label) {
             Opt_Label n = new Opt_Label(label, 0, getListHeight(), width, 16, this);
             options.Add(n);
         }
-        public void AddDropdown(string label, string[] items, bool placeNextToLabel = false, int customMargin = 0, int customWidth = 0)
-        {
+        public void AddDropdown(string label, string[] items, bool placeNextToLabel = false, int customMargin = 0, int customWidth = 0) {
             Opt_Dropdown n = new Opt_Dropdown(label, items, 0, getListHeight(), width, 16, this, placeNextToLabel, customMargin, customWidth);
             options.Add(n);
         }
-        public void AddColorBox(string label, bool placeNextToLabel = false, int customMargin = 0)
-        {
+        public void AddColorBox(string label, bool placeNextToLabel = false, int customMargin = 0) {
             Opt_Color n = new Opt_Color(label, 0, getListHeight(), width, 16, this, placeNextToLabel, customMargin);
             options.Add(n);
         }
-        public void AddBreak()
-        {
+        public void AddBreak() {
             Opt_Label n = new Opt_Label("", 0, getListHeight(), width, 6, this);
             options.Add(n);
         }
 
 
-        public int getListHeight()
-        {
+        public int getListHeight() {
             int y = 0;
-            foreach (Option option in options)
-            {
+            foreach (Option option in options) {
                 y += option.optionHeight;
             }
             return y;
@@ -330,8 +305,7 @@ namespace WaveTracker.Rendering
         public Option getLastOption => options.Count > 0 ? options[options.Count - 1] : null;
         public Option GetOption(int index) { return options[index]; }
 
-        public OptionList(int x, int y, int width, Element parent)
-        {
+        public OptionList(int x, int y, int width, Element parent) {
             this.x = x;
             this.y = y;
             enabled = true;
@@ -341,15 +315,12 @@ namespace WaveTracker.Rendering
             options = new List<Option>();
         }
 
-        public void Update()
-        {
-            if (enabled)
-            {
+        public void Update() {
+            if (enabled) {
                 scrollbar.SetSize(options.Count - 1, 13);
                 scrollbar.Update();
                 HoveredDescription = "";
-                foreach (Option option in options)
-                {
+                foreach (Option option in options) {
                     if (option.IsHovered)
                         HoveredDescription = option.description + "";
 
@@ -360,12 +331,9 @@ namespace WaveTracker.Rendering
             }
         }
 
-        public void Draw()
-        {
-            if (enabled)
-            {
-                for (int i = scrollbar.scrollValue + scrollbar.viewportSize; i >= scrollbar.scrollValue; i--)
-                {
+        public void Draw() {
+            if (enabled) {
+                for (int i = scrollbar.scrollValue + scrollbar.viewportSize; i >= scrollbar.scrollValue; i--) {
                     if (i < options.Count && i >= 0)
                         options[i].Draw();
                 }
@@ -374,8 +342,7 @@ namespace WaveTracker.Rendering
         }
     }
 
-    public abstract class Option : Element
-    {
+    public abstract class Option : Element {
         protected const int padding = 4;
         public string label;
         public string description = "";
@@ -395,12 +362,10 @@ namespace WaveTracker.Rendering
         public abstract void Draw();
     }
 
-    public class Opt_Number : Option
-    {
+    public class Opt_Number : Option {
         public int Value => numbox.Value;
         public NumberBox numbox;
-        public Opt_Number(string label, int min, int max, bool canScroll, int x, int y, int width, int height, Element parent)
-        {
+        public Opt_Number(string label, int min, int max, bool canScroll, int x, int y, int width, int height, Element parent) {
             this.label = label;
             optionHeight = height;
             optionWidth = width;
@@ -412,58 +377,46 @@ namespace WaveTracker.Rendering
             int maxWidth = Helpers.getWidthOfText(min + "wwww");
             numbox = new NumberBox(label, 0, (optionHeight - 13) / 2, width, width - Helpers.getWidthOfText(label) - 10, this);
             numbox.SetValueLimits(min, max);
-            if (!canScroll)
-            {
+            if (!canScroll) {
                 numbox.DisableScrolling();
             }
         }
-        public override bool GetValueBool()
-        {
+        public override bool GetValueBool() {
             throw new Exception("Option has the wrong data type, cannot call bool");
         }
-        public override int GetValueInt()
-        {
+        public override int GetValueInt() {
             return Value;
         }
-        public override string GetValueString()
-        {
+        public override string GetValueString() {
             throw new Exception("Option has the wrong data type, cannot call string");
         }
 
-        public override void SetValue(int val)
-        {
+        public override void SetValue(int val) {
             numbox.Value = val;
         }
-        public override void SetValue(bool val)
-        {
+        public override void SetValue(bool val) {
             throw new Exception("Option has the wrong data type, cannot call bool");
         }
-        public override void SetValue(string val)
-        {
+        public override void SetValue(string val) {
             throw new Exception("Option has the wrong data type, cannot call string");
         }
 
-        public override void Update()
-        {
+        public override void Update() {
             numbox.Update();
         }
 
-        public override void Draw()
-        {
-            if (IsHovered)
-            {
+        public override void Draw() {
+            if (IsHovered) {
                 DrawRect(-padding, 0, optionWidth + padding, optionHeight, UIColors.selectionLight);
             }
             numbox.Draw();
         }
     }
 
-    public class Opt_Color : Option
-    {
+    public class Opt_Color : Option {
         public string Value => colorButton.HexValue;
         public ColorButton colorButton;
-        public Opt_Color(string label, int x, int y, int width, int height, Element parent, bool nextToLabel = false, int customMargin = 0)
-        {
+        public Opt_Color(string label, int x, int y, int width, int height, Element parent, bool nextToLabel = false, int customMargin = 0) {
             this.label = label;
             this.x = x;
             this.y = y;
@@ -475,12 +428,9 @@ namespace WaveTracker.Rendering
             colorButton = new ColorButton(Color.White, 0, (height - 13) / 2, this);
             colorButton.width = 100;
 
-            if (customMargin > 0)
-            {
+            if (customMargin > 0) {
                 colorButton.x = customMargin;
-            }
-            else
-            {
+            } else {
                 if (nextToLabel)
                     colorButton.x = Helpers.getWidthOfText(label) + 8;
                 else
@@ -488,39 +438,30 @@ namespace WaveTracker.Rendering
             }
 
         }
-        public override bool GetValueBool()
-        {
+        public override bool GetValueBool() {
             throw new Exception("Option has the wrong data type, cannot call bool");
         }
-        public override int GetValueInt()
-        {
+        public override int GetValueInt() {
             throw new Exception("Option has the wrong data type, cannot call int");
         }
-        public override string GetValueString()
-        {
+        public override string GetValueString() {
             return colorButton.HexValue;
         }
-        public override void SetValue(int val)
-        {
+        public override void SetValue(int val) {
             throw new Exception("Option has the wrong data type, cannot call int");
         }
-        public override void SetValue(bool val)
-        {
+        public override void SetValue(bool val) {
             throw new Exception("Option has the wrong data type, cannot call bool");
         }
-        public override void SetValue(string val)
-        {
+        public override void SetValue(string val) {
             colorButton.HexValue = val;
         }
-        public override void Update()
-        {
+        public override void Update() {
             colorButton.Update();
         }
 
-        public override void Draw()
-        {
-            if (IsHovered)
-            {
+        public override void Draw() {
+            if (IsHovered) {
                 DrawRect(-padding, 0, optionWidth + padding, optionHeight, UIColors.selectionLight);
             }
             Write(label, 0, optionHeight / 2 - 4, UIColors.labelDark);
@@ -528,12 +469,10 @@ namespace WaveTracker.Rendering
         }
     }
 
-    public class Opt_Checkbox : Option
-    {
+    public class Opt_Checkbox : Option {
         public bool Value => checkbox.Value;
         public CheckboxLabeled checkbox;
-        public Opt_Checkbox(string label, int x, int y, int width, int height, Element parent)
-        {
+        public Opt_Checkbox(string label, int x, int y, int width, int height, Element parent) {
             this.label = label;
             this.x = x;
             this.y = y;
@@ -546,50 +485,39 @@ namespace WaveTracker.Rendering
             checkbox.height = optionHeight;
         }
 
-        public override void Update()
-        {
+        public override void Update() {
             checkbox.Update();
         }
-        public override bool GetValueBool()
-        {
+        public override bool GetValueBool() {
             return checkbox.Value;
         }
-        public override int GetValueInt()
-        {
+        public override int GetValueInt() {
             return checkbox.Value ? 1 : 0;
         }
-        public override string GetValueString()
-        {
+        public override string GetValueString() {
             throw new Exception("Option has the wrong data type, cannot call string");
         }
-        public override void SetValue(int val)
-        {
+        public override void SetValue(int val) {
             throw new Exception("Option has the wrong data type, cannot call int");
         }
-        public override void SetValue(bool val)
-        {
+        public override void SetValue(bool val) {
             checkbox.Value = val;
         }
-        public override void SetValue(string val)
-        {
+        public override void SetValue(string val) {
             throw new Exception("Option has the wrong data type, cannot call string");
         }
-        public override void Draw()
-        {
-            if (IsHovered)
-            {
+        public override void Draw() {
+            if (IsHovered) {
                 DrawRect(-padding, 0, optionWidth + padding, optionHeight, UIColors.selectionLight);
             }
             checkbox.Draw();
         }
     }
 
-    public class Opt_Dropdown : Option
-    {
+    public class Opt_Dropdown : Option {
         public int Value => dropdown.Value;
         public Dropdown dropdown;
-        public Opt_Dropdown(string label, string[] items, int x, int y, int width, int height, Element parent, bool nextToLabel = false, int customMargin = 0, int customWidth = 0)
-        {
+        public Opt_Dropdown(string label, string[] items, int x, int y, int width, int height, Element parent, bool nextToLabel = false, int customMargin = 0, int customWidth = 0) {
             this.label = label;
             this.x = x;
             this.y = y;
@@ -602,12 +530,9 @@ namespace WaveTracker.Rendering
             dropdown.SetMenuItems(items);
             if (customWidth > 0)
                 dropdown.width = customWidth;
-            if (customMargin > 0)
-            {
+            if (customMargin > 0) {
                 dropdown.x = customMargin;
-            }
-            else
-            {
+            } else {
                 if (nextToLabel)
                     dropdown.x = Helpers.getWidthOfText(label) + 8;
                 else
@@ -615,39 +540,30 @@ namespace WaveTracker.Rendering
             }
 
         }
-        public override bool GetValueBool()
-        {
+        public override bool GetValueBool() {
             throw new Exception("Option has the wrong data type, cannot call bool");
         }
-        public override int GetValueInt()
-        {
+        public override int GetValueInt() {
             return dropdown.Value;
         }
-        public override string GetValueString()
-        {
+        public override string GetValueString() {
             throw new Exception("Option has the wrong data type, cannot call string");
         }
-        public override void SetValue(int val)
-        {
+        public override void SetValue(int val) {
             dropdown.Value = val;
         }
-        public override void SetValue(bool val)
-        {
+        public override void SetValue(bool val) {
             throw new Exception("Option has the wrong data type, cannot call bool");
         }
-        public override void SetValue(string val)
-        {
+        public override void SetValue(string val) {
             throw new Exception("Option has the wrong data type, cannot call string");
         }
-        public override void Update()
-        {
+        public override void Update() {
             dropdown.Update();
         }
 
-        public override void Draw()
-        {
-            if (IsHovered)
-            {
+        public override void Draw() {
+            if (IsHovered) {
                 DrawRect(-padding, 0, optionWidth + padding, optionHeight, UIColors.selectionLight);
             }
             Write(label, 0, optionHeight / 2 - 4, UIColors.labelDark);
@@ -655,15 +571,13 @@ namespace WaveTracker.Rendering
         }
     }
 
-    public class Opt_Label : Option
-    {
+    public class Opt_Label : Option {
         int labelInset = 4;
         int barpadding = 3;
 
         public bool Value => numbox.Value;
         public SpriteToggle numbox;
-        public Opt_Label(string label, int x, int y, int width, int height, Element parent)
-        {
+        public Opt_Label(string label, int x, int y, int width, int height, Element parent) {
             this.label = label;
             this.x = x;
             this.y = y;
@@ -677,44 +591,33 @@ namespace WaveTracker.Rendering
             //numbox = new SpriteToggle();
         }
 
-        public override void Update()
-        {
+        public override void Update() {
 
         }
-        public override bool GetValueBool()
-        {
+        public override bool GetValueBool() {
             throw new Exception("Option has the wrong data type, cannot call bool");
         }
-        public override string GetValueString()
-        {
+        public override string GetValueString() {
             throw new Exception("Option has the wrong data type, cannot call string");
         }
-        public override int GetValueInt()
-        {
+        public override int GetValueInt() {
             throw new Exception("Option has the wrong data type, cannot call int");
         }
-        public override void SetValue(int val)
-        {
+        public override void SetValue(int val) {
             throw new Exception("Option has the wrong data type, cannot call int");
         }
-        public override void SetValue(bool val)
-        {
+        public override void SetValue(bool val) {
             throw new Exception("Option has the wrong data type, cannot call bool");
         }
-        public override void SetValue(string val)
-        {
+        public override void SetValue(string val) {
             throw new Exception("Option has the wrong data type, cannot call string");
         }
-        public override void Draw()
-        {
+        public override void Draw() {
             if (label == "")
                 return;
-            if (label == "--")
-            {
+            if (label == "--") {
                 DrawRect(-padding, optionHeight / 2 - 1, padding + optionWidth, 1, UIColors.labelLight);
-            }
-            else
-            {
+            } else {
                 int textWidth = Helpers.getWidthOfText(label);
                 DrawRect(-padding, optionHeight / 2 - 1, padding + labelInset - barpadding, 1, UIColors.labelLight);
                 DrawRect(textWidth + barpadding + labelInset, optionHeight / 2 - 1, optionWidth - textWidth - barpadding - labelInset, 1, UIColors.labelLight);

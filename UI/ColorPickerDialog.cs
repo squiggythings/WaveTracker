@@ -9,10 +9,8 @@ using System.Text;
 using System.Threading.Tasks;
 using WaveTracker.Rendering;
 
-namespace WaveTracker.UI
-{
-    public class ColorPickerDialog : Dialog
-    {
+namespace WaveTracker.UI {
+    public class ColorPickerDialog : Dialog {
         public ColorButton parentButton;
         Button cancel, ok;
         Color color;
@@ -32,8 +30,7 @@ namespace WaveTracker.UI
         Textbox hexCode;
         NumberBox redNum, greenNum, blueNum, alphaNum;
 
-        public ColorPickerDialog()
-        {
+        public ColorPickerDialog() {
             InitializeDialogCentered("Pick Color...", 221, 160);
             closeX = newCloseButton();
             cancel = newBottomButton("Cancel", this);
@@ -63,8 +60,7 @@ namespace WaveTracker.UI
 
         }
 
-        public void Open(ColorButton button)
-        {
+        public void Open(ColorButton button) {
             this.parentButton = button;
             color = parentButton.color;
             SetAllValuesFromColor();
@@ -72,34 +68,27 @@ namespace WaveTracker.UI
             Open(Input.focus);
         }
 
-        public void Update()
-        {
-            if (enabled)
-            {
-                if (canStart)
-                {
+        public void Update() {
+            if (enabled) {
+                if (canStart) {
                     if (cancel.Clicked || closeX.Clicked)
                         Close();
-                    if (ok.Clicked)
-                    {
+                    if (ok.Clicked) {
                         parentButton.color = color;
                         Close();
                     }
 
 
-                    if (colorSpectrumRegion.DidClickInRegion)
-                    {
+                    if (colorSpectrumRegion.DidClickInRegion) {
                         hslColor.H = colorSpectrumRegion.MouseXClamped * 360f;
                         hslColor.L = 1 - colorSpectrumRegion.MouseYClamped;
                         UpdateColorFromHSL();
                     }
-                    if (satSliderRegion.DidClickInRegion)
-                    {
+                    if (satSliderRegion.DidClickInRegion) {
                         hslColor.S = satSliderRegion.MouseXClamped;
                         UpdateColorFromHSL();
                     }
-                    if (alphaSliderRegion.DidClickInRegion)
-                    {
+                    if (alphaSliderRegion.DidClickInRegion) {
                         hslColor.A = satSliderRegion.MouseXClamped;
                         UpdateColorFromHSL();
                     }
@@ -123,14 +112,12 @@ namespace WaveTracker.UI
                     hexCode.Update();
                     if (hexCode.ValueWasChangedInternally)
                         UpdateColorFromHex();
-                }
-                else if (Input.GetClickUp(KeyModifier._Any))
+                } else if (Input.GetClickUp(KeyModifier._Any))
                     canStart = true;
             }
         }
 
-        void SetAllValuesFromColor()
-        {
+        void SetAllValuesFromColor() {
             redNum.Value = color.R;
             greenNum.Value = color.G;
             blueNum.Value = color.B;
@@ -141,8 +128,7 @@ namespace WaveTracker.UI
             hexCode.Text = color.GetHexCodeWithAlpha();
         }
 
-        void UpdateColorFromHex()
-        {
+        void UpdateColorFromHex() {
             color = Helpers.HexCodeToColor(hexCode.Text);
             Debug.WriteLine("hexCodeUpdated: " + hexCode.Text);
             hexCode.Text = color.GetHexCodeWithAlpha();
@@ -153,14 +139,12 @@ namespace WaveTracker.UI
             alphaNum.Value = color.A;
         }
 
-        void UpdateColorFromRGB()
-        {
+        void UpdateColorFromRGB() {
             color = new Color(redNum.Value, greenNum.Value, blueNum.Value, alphaNum.Value);
             hslColor = color.ToHSL();
             hexCode.Text = color.GetHexCodeWithAlpha();
         }
-        void UpdateColorFromHSL()
-        {
+        void UpdateColorFromHSL() {
             color = hslColor.ToRGB();
             hexCode.Text = color.GetHexCodeWithAlpha();
             redNum.Value = color.R;
@@ -169,8 +153,7 @@ namespace WaveTracker.UI
             alphaNum.Value = color.A;
         }
 
-        void DrawSelectorPoint(int x, int y)
-        {
+        void DrawSelectorPoint(int x, int y) {
             Color ptCol = Color.White;
             if ((color.R * 30 + color.G * 59 + color.B * 11) / 100 < 128)
                 ptCol = Color.White;
@@ -187,10 +170,8 @@ namespace WaveTracker.UI
             DrawRect(x, y - 1, 1, 1, ptCol);
         }
 
-        public void Draw()
-        {
-            if (enabled)
-            {
+        public void Draw() {
+            if (enabled) {
                 DrawDialog();
                 closeX.Draw();
                 cancel.Draw();
@@ -202,10 +183,8 @@ namespace WaveTracker.UI
                 DrawRect(specX - 1, specY - 1, spectrumWidth + 1, spectrumHeight + 1, UIColors.labelLight);
                 DrawRect(specX, specY, spectrumWidth + 1, spectrumHeight + 1, Color.White);
                 // draw color spectrum
-                for (int x = 0; x < spectrumWidth; x++)
-                {
-                    for (int y = 0; y < spectrumHeight; y++)
-                    {
+                for (int x = 0; x < spectrumWidth; x++) {
+                    for (int y = 0; y < spectrumHeight; y++) {
                         Color col = Helpers.HSLtoRGB((int)(x * (360f / spectrumWidth)), hslColor.S, 1.0f - y / (float)spectrumHeight);
                         DrawRect(x + specX, y + specY, 1, 1, col);
                     }
@@ -214,8 +193,7 @@ namespace WaveTracker.UI
                 specY += spectrumHeight + 2;
                 DrawRect(specX - 1, specY - 1, spectrumWidth + 1, sliderHeight + 1, UIColors.labelLight);
                 DrawRect(specX, specY, spectrumWidth + 1, sliderHeight + 1, Color.White);
-                for (int x = 0; x < spectrumWidth; x++)
-                {
+                for (int x = 0; x < spectrumWidth; x++) {
                     Color col = Helpers.HSLtoRGB((int)hslColor.H, x / (float)spectrumWidth, hslColor.L);
                     DrawRect(x + specX, specY, 1, sliderHeight, col);
                 }
@@ -226,15 +204,13 @@ namespace WaveTracker.UI
                 DrawRect(specX, specY, spectrumWidth + 1, sliderHeight + 1, Color.White);
 
                 bool check = true;
-                for (int x = 0; x < spectrumWidth; x += 8)
-                {
+                for (int x = 0; x < spectrumWidth; x += 8) {
                     check = !check;
                     DrawRect(x + specX, specY, 8, sliderHeight / 2, check ? Color.Gray : Color.LightGray);
                     DrawRect(x + specX, specY + sliderHeight / 2, 8, (int)(sliderHeight / 2f + 0.5f), !check ? Color.Gray : Color.LightGray);
                 }
 
-                for (int x = 0; x < spectrumWidth; x++)
-                {
+                for (int x = 0; x < spectrumWidth; x++) {
                     float alpha = x / (float)spectrumWidth;
                     alpha *= 256;
                     Color col = Helpers.Alpha(hslColor.ToRGB(), (int)alpha);
@@ -254,10 +230,8 @@ namespace WaveTracker.UI
                 int prevH = 40;
                 DrawRect(prevX - 1, prevY - 1, prevW + 1, prevH + 1, UIColors.labelLight);
                 DrawRect(prevX, prevY, prevW + 1, prevH + 1, Color.White);
-                for (int i = 0; i < 8; ++i)
-                {
-                    for (int j = 0; j < 5; ++j)
-                    {
+                for (int i = 0; i < 8; ++i) {
+                    for (int j = 0; j < 5; ++j) {
                         if ((i + j) % 2 == 0)
                             DrawRect(prevX + i * 8, prevY + j * 8, 8, 8, Color.Gray);
                         else

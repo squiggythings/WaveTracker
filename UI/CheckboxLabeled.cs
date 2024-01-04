@@ -8,15 +8,12 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-namespace WaveTracker.UI
-{
-    public class CheckboxLabeled : Clickable
-    {
+namespace WaveTracker.UI {
+    public class CheckboxLabeled : Clickable {
         public bool Value { get; set; }
         string label;
 
-        public CheckboxLabeled(string label, int x, int y, int width, Element parent)
-        {
+        public CheckboxLabeled(string label, int x, int y, int width, Element parent) {
             this.x = x;
             this.y = y;
             this.width = width;
@@ -25,55 +22,39 @@ namespace WaveTracker.UI
             SetParent(parent);
         }
 
-        public void Update()
-        {
-            if (Clicked)
-            {
+        public void Update() {
+            if (Clicked) {
                 Value = !Value;
             }
         }
 
-        Rectangle GetBounds(int num)
-        {
+        Rectangle GetBounds(int num) {
             return new Rectangle(0, 0 + num * 9, 9, 9);
         }
 
-        public void Draw()
-        {
-            if (enabled)
-            {
-                if (Value)
-                {
-                    if (IsHovered)
-                    {
+        public void Draw() {
+            if (enabled) {
+                if (Value) {
+                    if (IsHovered) {
                         if (IsPressed)
                             DrawSprite(Checkbox.textureSheet, 0, (height - 9) / 2, GetBounds(5));
                         else
                             DrawSprite(Checkbox.textureSheet, 0, (height - 9) / 2, GetBounds(4));
-                    }
-                    else
-                    {
+                    } else {
                         DrawSprite(Checkbox.textureSheet, 0, (height - 9) / 2, GetBounds(3));
                     }
-                }
-                else
-                {
-                    if (IsHovered)
-                    {
+                } else {
+                    if (IsHovered) {
                         if (IsPressed)
                             DrawSprite(Checkbox.textureSheet, 0, (height - 9) / 2, GetBounds(2));
                         else
                             DrawSprite(Checkbox.textureSheet, 0, (height - 9) / 2, GetBounds(1));
-                    }
-                    else
-                    {
+                    } else {
                         DrawSprite(Checkbox.textureSheet, 0, (height - 9) / 2, GetBounds(0));
                     }
                 }
 
-            }
-            else
-            {
+            } else {
                 if (Value)
                     DrawSprite(Checkbox.textureSheet, 0, (height - 9) / 2, GetBounds(7));
                 else

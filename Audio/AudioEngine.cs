@@ -16,11 +16,10 @@ using NAudio.Wave.SampleProviders;
 using NAudio.CoreAudioApi;
 using System.IO;
 using SharpDX.MediaFoundation.DirectX;
+using WaveTracker.Tracker;
 
-namespace WaveTracker.Audio
-{
-    public class AudioEngine
-    {
+namespace WaveTracker.Audio {
+    public class AudioEngine {
         public const ResamplingModes RESAMPLING_MODE = ResamplingModes.None;
         public const int sampleRate = 44100;
         public static int samplesPerTick => (sampleRate / tickSpeed);
@@ -38,37 +37,31 @@ namespace WaveTracker.Audio
         public List<MMDevice> devices;
         public Rendering.ExportingDialog exportingDialog;
         Provider audioProvider;
-        
 
-        public static int tickSpeed
-        {
-            get
-            {
-                if (Game1.currentSong == null)
+
+        public static int tickSpeed {
+            get {
+                if (Song.currentSong == null)
                     return 60;
-                else return Game1.currentSong.tickRate;
+                else return Song.currentSong.tickRate;
             }
         }
 
-        public static bool quantizeAmplitude
-        {
-            get
-            {
-                if (Game1.currentSong == null)
+        public static bool quantizeAmplitude {
+            get {
+                if (Song.currentSong == null)
                     return true;
-                else return Game1.currentSong.quantizeChannelAmplitude;
+                else return Song.currentSong.quantizeChannelAmplitude;
             }
         }
 
         public static float[,] currentBuffer;
 
-        public static void ResetTicks()
-        {
+        public static void ResetTicks() {
             _tickCounter = 0;
         }
 
-        public void Initialize()
-        {
+        public void Initialize() {
             exportingDialog = new Rendering.ExportingDialog();
             currentBuffer = new float[2, SamplesPerBuffer];
             audioProvider = new Provider();
@@ -80,15 +73,13 @@ namespace WaveTracker.Audio
 
         }
 
-        public void Stop()
-        {
+        public void Stop() {
             if (File.Exists(exportingDialog.Path + ".temp"))
                 File.Delete(exportingDialog.Path + ".temp");
             wasapiOut.Stop();
         }
 
-        public void Reset()
-        {
+        public void Reset() {
             wasapiOut.Stop();
             Thread.Sleep(10);
             wasapiOut = new WasapiOut();
@@ -97,12 +88,10 @@ namespace WaveTracker.Audio
         }
 
 
-        public async void RenderTo(string filepath, int maxloops, bool individualStems)
-        {
-            //Debug.WriteLine("Total Rows with " + maxloops + " loops: " + Game1.currentSong.GetNumberOfRows(maxloops));
-            totalRows = Game1.currentSong.GetNumberOfRows(maxloops);
-            if (!SaveLoad.ChooseExportPath(out filepath))
-            {
+        public async void RenderTo(string filepath, int maxloops, bool individualStems) {
+            //Debug.WriteLine("Total Rows with " + maxloops + " loops: " + Song.currentSong.GetNumberOfRows(maxloops));
+            totalRows = Song.currentSong.GetNumberOfRows(maxloops);
+            if (!SaveLoad.ChooseExportPath(out filepath)) {
                 return;
             }
             exportingDialog.Open();
@@ -112,10 +101,8 @@ namespace WaveTracker.Audio
 
             bool b = await Task.Run(() => WriteToWaveFile(filepath + ".temp", audioProvider));
             Debug.WriteLine("Exported!");
-            if (b)
-            {
-                if (overwriting)
-                {
+            if (b) {
+                if (overwriting) {
                     File.Delete(filepath);
                 }
                 File.Copy(filepath + ".temp", filepath);
@@ -129,8 +116,7 @@ namespace WaveTracker.Audio
         }
 
 
-        bool WriteToWaveFile(string path, IWaveProvider source)
-        {
+        bool WriteToWaveFile(string path, IWaveProvider source) {
             wasapiOut.Stop();
             rendering = true;
             cancelRender = false;
@@ -145,14 +131,10 @@ namespace WaveTracker.Audio
             return !cancelRender;
         }
 
-        public class Provider : WaveProvider32
-        {
-            public override int Read(float[] buffer, int offset, int sampleCount)
-            {
-                if (rendering)
-                {
-                    if (processedRows >= totalRows || cancelRender)
-                    {
+        public class Provider : WaveProvider32 {
+            public override int Read(float[] buffer, int offset, int sampleCount) {
+                if (rendering) {
+                    if (processedRows >= totalRows || cancelRender) {
                         Tracker.Playback.Stop();
                         rendering = false;
                         return 0;
@@ -161,25 +143,22 @@ namespace WaveTracker.Audio
                 int sampleRate = WaveFormat.SampleRate;
                 float delta = (1f / sampleRate) * (tickSpeed / 60f);
 
-                for (int n = 0; n < sampleCount; n += 2)
-                {
+                for (int n = 0; n < sampleCount; n += 2) {
                     buffer[n + offset] = buffer[n + offset + 1] = 0;
                     float l = 0, r = 0;
-                    for (int c = 0; c < ChannelManager.channels.Count; ++c)
-                    {
+                    for (int c = 0; c < ChannelManager.channels.Count; ++c) {
                         l = r = 0;
                         ChannelManager.channels[c].ProcessSingleSample(out l, out r, true, delta);
                         buffer[n + offset] += l;
                         buffer[n + offset + 1] += r;
                     }
-                    
+
                     l = r = 0;
                     ChannelManager.previewChannel.ProcessSingleSample(out l, out r, true, delta);
                     buffer[n + offset] += l;
                     buffer[n + offset + 1] += r;
 
-                    if (!rendering)
-                    {
+                    if (!rendering) {
                         buffer[n + offset] = Math.Clamp(buffer[n + offset], -1, 1);
                         buffer[n + offset + 1] = Math.Clamp(buffer[n + offset + 1], -1, 1);
                         currentBuffer[0, currBufferPosition] = buffer[n + offset];
@@ -192,26 +171,21 @@ namespace WaveTracker.Audio
                     buffer[n + offset + 1] *= Preferences.profile.master_volume;
 
                     if (Game1.VisualizerMode && !rendering)
-                        if (_tickCounter % (samplesPerTick / Preferences.profile.visualizerPianoSpeed) == 0)
-                        {
+                        if (_tickCounter % (samplesPerTick / Preferences.profile.visualizerPianoSpeed) == 0) {
                             Game1.visualization.Update();
                         }
 
                     _tickCounter++;
-                    if (_tickCounter >= samplesPerTick)
-                    {
+                    if (_tickCounter >= samplesPerTick) {
                         _tickCounter = 0;
                         Tracker.Playback.Tick();
-                        foreach (Channel c in ChannelManager.channels)
-                        {
+                        foreach (Channel c in ChannelManager.channels) {
                             c.NextTick();
                         }
                         ChannelManager.previewChannel.NextTick();
                     }
-                    if (rendering)
-                    {
-                        if (processedRows >= totalRows || cancelRender)
-                        {
+                    if (rendering) {
+                        if (processedRows >= totalRows || cancelRender) {
                             return n;
                         }
                     }
@@ -222,8 +196,7 @@ namespace WaveTracker.Audio
 
 
     }
-    public enum ResamplingModes
-    {
+    public enum ResamplingModes {
         None,
         Linear,
         Mix,

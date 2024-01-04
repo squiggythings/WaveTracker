@@ -13,10 +13,8 @@ using System.Diagnostics;
 using NAudio.Wave;
 using System.Threading;
 
-namespace WaveTracker.Rendering
-{
-    public class SampleBrowser : Element
-    {
+namespace WaveTracker.Rendering {
+    public class SampleBrowser : Element {
         public bool enabled;
         public Texture2D icons;
         int selectedFileIndex = -1;
@@ -37,8 +35,7 @@ namespace WaveTracker.Rendering
         enum SortingMethod { ByName, ByType };
         SortingMethod sortMethod;
         bool selectedAnAudioFile => reader != null && (selectedFileIndex < 0 || selectedFileIndex >= entriesInDirectory.Length ? false : File.Exists(entriesInDirectory[selectedFileIndex]));
-        public SampleBrowser(Texture2D tex)
-        {
+        public SampleBrowser(Texture2D tex) {
             this.x = (960 - width) / 2;
             this.y = (500 - height) / 2;
             icons = tex;
@@ -53,32 +50,25 @@ namespace WaveTracker.Rendering
             sortType = new Toggle("Type", width - 36, 30, this);
             entriesInDirectory = new string[0];
             previewOut = new WaveOutEvent();
-            if (Directory.Exists(Preferences.profile.lastBrowseDirectory))
-            {
+            if (Directory.Exists(Preferences.profile.lastBrowseDirectory)) {
                 currentPath = Preferences.profile.lastBrowseDirectory;
-            }
-            else
-            {
+            } else {
                 currentPath = Directory.GetCurrentDirectory();
             }
         }
 
-        public void Update()
-        {
-            if (enabled)
-            {
+        public void Update() {
+            if (enabled) {
                 sortName.Value = sortMethod == SortingMethod.ByName;
                 sortType.Value = sortMethod == SortingMethod.ByType;
-                if (sortName.Clicked)
-                {
+                if (sortName.Clicked) {
                     sortMethod = SortingMethod.ByName;
                     GetFileEntries(true);
                     selectedFileIndex = -1;
                     scrollbar.scrollValue = 0;
                     previewOut.Stop();
                 }
-                if (sortType.Clicked)
-                {
+                if (sortType.Clicked) {
                     sortMethod = SortingMethod.ByType;
                     GetFileEntries(true);
                     selectedFileIndex = -1;
@@ -89,8 +79,7 @@ namespace WaveTracker.Rendering
                 sortType.Value = sortMethod == SortingMethod.ByType;
 
                 backButton.enabled = currentPath != "";
-                if (backButton.Clicked)
-                {
+                if (backButton.Clicked) {
                     selectedFileIndex = -1;
                     if (Directory.GetParent(currentPath) == null)
                         currentPath = "";
@@ -99,14 +88,12 @@ namespace WaveTracker.Rendering
                     scrollbar.scrollValue = 0;
                     previewOut.Stop();
                 }
-                if (ok.Clicked)
-                {
+                if (ok.Clicked) {
                     selectedFilePath = entriesInDirectory[selectedFileIndex];
                     Close();
                     return;
                 }
-                if (cancel.Clicked)
-                {
+                if (cancel.Clicked) {
                     selectedFilePath = "";
                     Close();
                     return;
@@ -115,36 +102,27 @@ namespace WaveTracker.Rendering
 
                 int y = 29;
                 bool newFile = false;
-                for (int i = scrollbar.scrollValue; i < listLength + scrollbar.scrollValue; i++)
-                {
-                    if (MouseX > 2 && MouseX < width - 117)
-                    {
-                        if (MouseY > y && MouseY <= y + 11)
-                        {
-                            if (Input.GetClickDown(KeyModifier.None))
-                            {
+                for (int i = scrollbar.scrollValue; i < listLength + scrollbar.scrollValue; i++) {
+                    if (MouseX > 2 && MouseX < width - 117) {
+                        if (MouseY > y && MouseY <= y + 11) {
+                            if (Input.GetClickDown(KeyModifier.None)) {
                                 if (selectedFileIndex != i)
                                     newFile = true;
                                 selectedFileIndex = i;
-                                if (newFile)
-                                {
+                                if (newFile) {
                                     SelectedANewEntry();
                                     break;
                                 }
                             }
-                            if (Input.GetDoubleClick(KeyModifier.None))
-                            {
-                                if (Directory.Exists(entriesInDirectory[i]))
-                                {
+                            if (Input.GetDoubleClick(KeyModifier.None)) {
+                                if (Directory.Exists(entriesInDirectory[i])) {
                                     // double clicked on a folder
                                     currentPath = entriesInDirectory[i];
                                     selectedFileIndex = -1;
                                     scrollbar.scrollValue = 0;
                                     GetFileEntries(false);
                                     break;
-                                }
-                                else
-                                {
+                                } else {
                                     // double clicked on a file
                                     selectedFilePath = entriesInDirectory[selectedFileIndex];
                                     Close();
@@ -155,16 +133,14 @@ namespace WaveTracker.Rendering
                     }
                     y += 11;
                 }
-                if (Input.GetKeyRepeat(Keys.Up, KeyModifier.None))
-                {
+                if (Input.GetKeyRepeat(Keys.Up, KeyModifier.None)) {
                     selectedFileIndex--;
                     if (selectedFileIndex < 0)
                         selectedFileIndex = 0;
                     moveBounds();
                     SelectedANewEntry();
                 }
-                if (Input.GetKeyRepeat(Keys.Down, KeyModifier.None))
-                {
+                if (Input.GetKeyRepeat(Keys.Down, KeyModifier.None)) {
                     selectedFileIndex++;
                     if (selectedFileIndex > entriesInDirectory.Length - 1)
                         selectedFileIndex = entriesInDirectory.Length - 1;
@@ -179,14 +155,11 @@ namespace WaveTracker.Rendering
             }
         }
 
-        public void moveBounds()
-        {
-            if (selectedFileIndex > scrollbar.scrollValue + listLength - 1)
-            {
+        public void moveBounds() {
+            if (selectedFileIndex > scrollbar.scrollValue + listLength - 1) {
                 scrollbar.scrollValue = selectedFileIndex - listLength + 1;
             }
-            if (selectedFileIndex < scrollbar.scrollValue)
-            {
+            if (selectedFileIndex < scrollbar.scrollValue) {
                 scrollbar.scrollValue = selectedFileIndex;
             }
             scrollbar.SetSize(entriesInDirectory.Length, listLength);
@@ -195,20 +168,15 @@ namespace WaveTracker.Rendering
 
         }
 
-        void SelectedANewEntry()
-        {
+        void SelectedANewEntry() {
             previewOut.Stop();
-            if (File.Exists(entriesInDirectory[selectedFileIndex]))
-            {
+            if (File.Exists(entriesInDirectory[selectedFileIndex])) {
                 //Thread.Sleep(1);
                 reader = new AudioFileReader(entriesInDirectory[selectedFileIndex]);
-                if ((reader.TotalTime.TotalSeconds * reader.WaveFormat.SampleRate) / reader.WaveFormat.Channels <= 400)
-                {
+                if ((reader.TotalTime.TotalSeconds * reader.WaveFormat.SampleRate) / reader.WaveFormat.Channels <= 400) {
                     LoopStream loop = new LoopStream(reader);
                     previewOut.Init(loop);
-                }
-                else
-                {
+                } else {
                     previewOut.Init(reader);
                 }
                 if (Preferences.profile.previewSamples)
@@ -216,19 +184,15 @@ namespace WaveTracker.Rendering
             }
         }
 
-        void GetFileEntries(bool overrideOptimization)
-        {
-            if (currentPath != lastPath || overrideOptimization)
-            {
+        void GetFileEntries(bool overrideOptimization) {
+            if (currentPath != lastPath || overrideOptimization) {
                 // the topmost in the tree, choosing a drive
                 lastPath = currentPath;
                 List<string> entries = new List<string>();
-                if (currentPath == "")
-                {
+                if (currentPath == "") {
 
                     DriveInfo[] allDrives = DriveInfo.GetDrives();
-                    foreach (DriveInfo drive in allDrives)
-                    {
+                    foreach (DriveInfo drive in allDrives) {
                         entries.Add(drive.RootDirectory.FullName);
                     }
                     entriesInDirectory = entries.ToArray();
@@ -237,24 +201,17 @@ namespace WaveTracker.Rendering
 
                 // a drive is already chosen, use the regular Directory system
                 entries = Directory.GetFileSystemEntries(currentPath, "*", SearchOption.TopDirectoryOnly).ToList();
-                for (int i = entries.Count - 1; i >= 0; i--)
-                {
-                    if ((File.GetAttributes(entries[i]) & FileAttributes.Hidden) == FileAttributes.Hidden)
-                    {
+                for (int i = entries.Count - 1; i >= 0; i--) {
+                    if ((File.GetAttributes(entries[i]) & FileAttributes.Hidden) == FileAttributes.Hidden) {
                         entries.RemoveAt(i);
                         continue;
                     }
-                    if (Directory.Exists(entries[i]))
-                    {
+                    if (Directory.Exists(entries[i])) {
                         continue;
-                    }
-                    else
-                    {
-                        if (File.Exists(entries[i]))
-                        {
+                    } else {
+                        if (File.Exists(entries[i])) {
                             string ext = Path.GetExtension(entries[i]);
-                            if (ext == ".wav" || ext == ".mp3" || ext == ".flac" || ext == ".aiff")
-                            {
+                            if (ext == ".wav" || ext == ".mp3" || ext == ".flac" || ext == ".aiff") {
                                 continue;
                             }
                         }
@@ -270,20 +227,15 @@ namespace WaveTracker.Rendering
         }
 
 
-        int sortByType(string a, string b)
-        {
+        int sortByType(string a, string b) {
             int val = Path.GetExtension(a).CompareTo(Path.GetExtension(b));
-            if (val == 0)
-            {
+            if (val == 0) {
                 return a.CompareTo(b);
-            }
-            else
-            {
+            } else {
                 return val;
             }
         }
-        public void Open(InstrumentEditor launch)
-        {
+        public void Open(InstrumentEditor launch) {
             previewOut.Stop();
             launched = launch;
             selectedFileIndex = -1;
@@ -292,8 +244,7 @@ namespace WaveTracker.Rendering
             Input.focus = this;
         }
 
-        public void Close()
-        {
+        public void Close() {
             enabled = false;
             Input.focus = launched;
             if (File.Exists(selectedFilePath))
@@ -304,14 +255,12 @@ namespace WaveTracker.Rendering
             previewOut.Stop();
         }
 
-        public void DrawList()
-        {
+        public void DrawList() {
             Color odd = new Color(43, 49, 81);
             Color even = new Color(59, 68, 107);
             Color selected = UIColors.selection;
             int y = 0;
-            for (int i = scrollbar.scrollValue; i < listLength + scrollbar.scrollValue; i++)
-            {
+            for (int i = scrollbar.scrollValue; i < listLength + scrollbar.scrollValue; i++) {
                 Color row;
                 if (i == selectedFileIndex)
                     row = selected;
@@ -320,8 +269,7 @@ namespace WaveTracker.Rendering
                 else
                     row = odd;
                 DrawRect(2, 29 + y * 11, width - 111, 11, row);
-                if (entriesInDirectory.Length > i && i >= 0)
-                {
+                if (entriesInDirectory.Length > i && i >= 0) {
                     if (currentPath == "")
                         Write(entriesInDirectory[i], 20, 31 + y * 11, Color.White);
                     else
@@ -336,29 +284,23 @@ namespace WaveTracker.Rendering
             scrollbar.Draw();
         }
 
-        string getNicePathString(string path)
-        {
+        string getNicePathString(string path) {
 
             string ret = "";
-            for (int i = path.Length - 1; i >= 0; i--)
-            {
+            for (int i = path.Length - 1; i >= 0; i--) {
                 char c = path[i];
-                if (c == '\\' || c == '/')
-                {
+                if (c == '\\' || c == '/') {
                     if (Helpers.getWidthOfText(ret) > width - 200)
                         return "... > " + ret;
                     ret = " > " + ret;
-                }
-                else
+                } else
                     ret = c + ret;
             }
             return ret;
         }
 
-        public void Draw()
-        {
-            if (enabled)
-            {
+        public void Draw() {
+            if (enabled) {
                 // black box across screen behind window
                 DrawRect(-x, -y, 960, 600, Helpers.Alpha(Color.Black, 90));
 
@@ -374,11 +316,9 @@ namespace WaveTracker.Rendering
                 Write("Sort by:", width - 104, 31, UIColors.labelDark);
                 sortName.Draw();
                 sortType.Draw();
-                if (selectedAnAudioFile)
-                {
+                if (selectedAnAudioFile) {
                     // write file name
-                    if (reader != null)
-                    {
+                    if (reader != null) {
                         Write(Helpers.FlushString(Helpers.TrimTextToWidth(105, Path.GetFileName(reader.FileName))), width - 106, 85, UIColors.label);
                         Write(reader.WaveFormat.Channels == 1 ? "Mono" : "Stereo", width - 106, 95, UIColors.label);
                         Write(reader.WaveFormat.SampleRate + " Hz", width - 106, 105, UIColors.label);
@@ -390,16 +330,14 @@ namespace WaveTracker.Rendering
         }
     }
 
-    public class LoopStream : WaveStream
-    {
+    public class LoopStream : WaveStream {
         WaveStream sourceStream;
         /// <summary>
         /// Creates a new Loop stream
         /// </summary>
         /// <param name="sourceStream">The stream to read from. Note: the Read method of this stream should return 0 when it reaches the end
         /// or else we will not loop to the start again.</param>
-        public LoopStream(WaveStream sourceStream)
-        {
+        public LoopStream(WaveStream sourceStream) {
             this.sourceStream = sourceStream;
             this.EnableLooping = true;
         }
@@ -412,39 +350,32 @@ namespace WaveTracker.Rendering
         /// <summary>
         /// Return source stream's wave format
         /// </summary>
-        public override WaveFormat WaveFormat
-        {
+        public override WaveFormat WaveFormat {
             get { return sourceStream.WaveFormat; }
         }
 
         /// <summary>
         /// LoopStream simply returns
         /// </summary>
-        public override long Length
-        {
+        public override long Length {
             get { return sourceStream.Length; }
         }
 
         /// <summary>
         /// LoopStream simply passes on positioning to source stream
         /// </summary>
-        public override long Position
-        {
+        public override long Position {
             get { return sourceStream.Position; }
             set { sourceStream.Position = value; }
         }
 
-        public override int Read(byte[] buffer, int offset, int count)
-        {
+        public override int Read(byte[] buffer, int offset, int count) {
             int totalBytesRead = 0;
 
-            while (totalBytesRead < count)
-            {
+            while (totalBytesRead < count) {
                 int bytesRead = sourceStream.Read(buffer, offset + totalBytesRead, count - totalBytesRead);
-                if (bytesRead == 0)
-                {
-                    if (sourceStream.Position == 0 || !EnableLooping)
-                    {
+                if (bytesRead == 0) {
+                    if (sourceStream.Position == 0 || !EnableLooping) {
                         // something wrong with the source stream
                         break;
                     }

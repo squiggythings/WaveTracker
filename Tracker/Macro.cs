@@ -10,18 +10,15 @@ using System.IO;
 using System.Diagnostics;
 using ProtoBuf;
 
-namespace WaveTracker.Tracker
-{
+namespace WaveTracker.Tracker {
     [Serializable]
-    public enum MacroType
-    {
+    public enum MacroType {
         Wave,
         Sample
     }
     [Serializable]
     [ProtoContract]
-    public class Macro
-    {
+    public class Macro {
         [ProtoMember(17)]
         public string name;
         [ProtoMember(18)]
@@ -43,8 +40,7 @@ namespace WaveTracker.Tracker
         public Sample sample;
         public const char delimiter = '%';
 
-        public Macro()
-        {
+        public Macro() {
             macroType = MacroType.Wave;
             name = "New Instrument";
             volumeEnvelope = new Envelope(99);
@@ -56,8 +52,7 @@ namespace WaveTracker.Tracker
 
             sample = new Sample();
         }
-        public Macro(MacroType type)
-        {
+        public Macro(MacroType type) {
             macroType = type;
             if (type == MacroType.Wave)
                 name = "New Wave Instrument";
@@ -89,8 +84,7 @@ namespace WaveTracker.Tracker
             sample = new Sample();
         }
 
-        public bool IsEqualTo(Macro other)
-        {
+        public bool IsEqualTo(Macro other) {
             if (name != other.name)
                 return false;
 
@@ -120,8 +114,7 @@ namespace WaveTracker.Tracker
             return true;
         }
 
-        public Macro Clone()
-        {
+        public Macro Clone() {
             Macro m = new Macro(macroType);
             //sample.CreateString();
             //m.Unpack(Pack() + sample.stringBuild.ToString());
@@ -130,12 +123,11 @@ namespace WaveTracker.Tracker
             m.pitchEnvelope = pitchEnvelope.Clone();
             m.arpEnvelope = arpEnvelope.Clone();
             m.waveEnvelope = waveEnvelope.Clone();
-            m.waveModEnvelope= waveModEnvelope.Clone();
+            m.waveModEnvelope = waveModEnvelope.Clone();
             m.waveModType = waveModType;
             m.sample.sampleDataAccessL = new float[sample.sampleDataAccessL.Length];
             m.sample.sampleDataAccessR = new float[sample.sampleDataAccessR.Length];
-            for (int i = 0; i < sample.sampleDataAccessL.Length; i++)
-            {
+            for (int i = 0; i < sample.sampleDataAccessL.Length; i++) {
                 m.sample.sampleDataAccessL[i] = sample.sampleDataAccessL[i];
                 if (sample.sampleDataAccessR.Length != 0)
                     m.sample.sampleDataAccessR[i] = sample.sampleDataAccessR[i];
@@ -149,16 +141,14 @@ namespace WaveTracker.Tracker
             return m;
         }
 
-        public void SetName(string name)
-        {
+        public void SetName(string name) {
             this.name = name;
         }
     }
 
     [Serializable]
     [ProtoContract(SkipConstructor = false)]
-    public class Envelope
-    {
+    public class Envelope {
         [ProtoMember(1)]
         public bool isActive = false;
         [ProtoMember(2)]
@@ -174,13 +164,11 @@ namespace WaveTracker.Tracker
 
         public const int emptyEnvValue = -1;
 
-        public Envelope Clone()
-        {
+        public Envelope Clone() {
             Envelope ret = new Envelope(defaultValue);
             ret.isActive = isActive;
             ret.values = new List<short>();
-            for (int i = 0; i < values.Count; i++)
-            {
+            for (int i = 0; i < values.Count; i++) {
                 ret.values.Add(values[i]);
             }
             ret.loopIndex = loopIndex;
@@ -190,27 +178,23 @@ namespace WaveTracker.Tracker
 
         }
 
-        public void PrepareForSerialization()
-        {
+        public void PrepareForSerialization() {
             relIndexSerialized = (byte)(releaseIndex + 5);
             loopIndexSerialized = (byte)(loopIndex + 5);
         }
-        public void PrepareFromDeserialization()
-        {
+        public void PrepareFromDeserialization() {
             releaseIndex = relIndexSerialized - 5;
             loopIndex = loopIndexSerialized - 5;
         }
 
-        public Envelope(int defaultValue)
-        {
+        public Envelope(int defaultValue) {
             this.defaultValue = defaultValue;
             isActive = false;
             values = new List<short>();
             releaseIndex = emptyEnvValue;
             loopIndex = emptyEnvValue;
         }
-        public bool IsEqualTo(Envelope other)
-        {
+        public bool IsEqualTo(Envelope other) {
             if (other.isActive != isActive)
                 return false;
 
@@ -220,10 +204,8 @@ namespace WaveTracker.Tracker
                 return false;
             if (values.Count != other.values.Count)
                 return false;
-            for (int i = 0; i < values.Count; ++i)
-            {
-                if (values[i] != other.values[i])
-                {
+            for (int i = 0; i < values.Count; ++i) {
+                if (values[i] != other.values[i]) {
                     return false;
                 }
             }
@@ -233,13 +215,10 @@ namespace WaveTracker.Tracker
         public bool HasRelease { get { return releaseIndex != emptyEnvValue; } }
         public bool HasLoop { get { return loopIndex != emptyEnvValue; } }
 
-        public override string ToString()
-        {
+        public override string ToString() {
             string s = "";
-            if (values.Count > 0)
-            {
-                for (int i = 0; i < values.Count - 1; i++)
-                {
+            if (values.Count > 0) {
+                for (int i = 0; i < values.Count - 1; i++) {
                     if (loopIndex == i) s += "| ";
                     if (releaseIndex + 1 == i && releaseIndex >= 0) s += "/ ";
                     s += values[i] + " ";
@@ -252,15 +231,13 @@ namespace WaveTracker.Tracker
             return s;
         }
 
-        public void loadFromString(string input)
-        {
+        public void loadFromString(string input) {
             string[] parts = input.Split(' ');
             int i = 0;
             releaseIndex = -1;
             loopIndex = -1;
             values.Clear();
-            foreach (string part in parts)
-            {
+            foreach (string part in parts) {
                 if (part == "/")
                     releaseIndex = --i;
                 if (part.Contains('|'))
@@ -274,8 +251,7 @@ namespace WaveTracker.Tracker
     }
     [Serializable]
     [ProtoContract(SkipConstructor = false)]
-    public class Sample
-    {
+    public class Sample {
         [ProtoMember(1)]
         public Audio.ResamplingModes resampleMode;
         [ProtoMember(2)]
@@ -298,8 +274,7 @@ namespace WaveTracker.Tracker
         [ProtoMember(10)]
         public float[] sampleDataAccessR = new float[0];
 
-        public Sample()
-        {
+        public Sample() {
             sampleLoopIndex = 0;
 
             useInVisualization = false;
@@ -312,39 +287,32 @@ namespace WaveTracker.Tracker
             _baseFrequency = Helpers.NoteToFrequency(BaseKey - (Detune / 100f));
         }
 
-        public void SetDetune(int value)
-        {
+        public void SetDetune(int value) {
             Detune = value;
             _baseFrequency = Helpers.NoteToFrequency(BaseKey - (Detune / 100f));
         }
 
-        public void SetBaseKey(int value)
-        {
+        public void SetBaseKey(int value) {
             BaseKey = value;
             _baseFrequency = Helpers.NoteToFrequency(BaseKey - (Detune / 100f));
         }
 
 
-        public void Normalize()
-        {
+        public void Normalize() {
             List<float> sampleDataLeft = sampleDataAccessL.ToList();
             List<float> sampleDataRight = sampleDataAccessR.ToList();
             float max = 0;
-            foreach (float sample in sampleDataLeft)
-            {
+            foreach (float sample in sampleDataLeft) {
                 if (Math.Abs(sample) > max)
                     max = MathF.Abs(sample);
             }
-            if (sampleDataRight.Count != 0)
-            {
-                foreach (float sample in sampleDataRight)
-                {
+            if (sampleDataRight.Count != 0) {
+                foreach (float sample in sampleDataRight) {
                     if (Math.Abs(sample) > max)
                         max = MathF.Abs(sample);
                 }
             }
-            for (int i = 0; i < sampleDataLeft.Count; i++)
-            {
+            for (int i = 0; i < sampleDataLeft.Count; i++) {
                 sampleDataLeft[i] /= max;
                 if (sampleDataRight.Count != 0)
                     sampleDataRight[i] /= max;
@@ -353,8 +321,7 @@ namespace WaveTracker.Tracker
             sampleDataAccessR = sampleDataRight.ToArray();
         }
 
-        public void Reverse()
-        {
+        public void Reverse() {
             List<float> sampleDataLeft = sampleDataAccessL.ToList();
             List<float> sampleDataRight = sampleDataAccessR.ToList();
             sampleDataLeft.Reverse();
@@ -364,45 +331,36 @@ namespace WaveTracker.Tracker
             sampleDataAccessR = sampleDataRight.ToArray();
         }
 
-        public void FadeIn()
-        {
+        public void FadeIn() {
             List<float> sampleDataLeft = sampleDataAccessL.ToList();
             List<float> sampleDataRight = sampleDataAccessR.ToList();
-            for (int i = 0; i < sampleDataLeft.Count; i++)
-            {
+            for (int i = 0; i < sampleDataLeft.Count; i++) {
                 sampleDataLeft[i] *= (float)i / sampleDataLeft.Count;
-                if (sampleDataRight.Count != 0)
-                {
+                if (sampleDataRight.Count != 0) {
                     sampleDataRight[i] *= (float)i / sampleDataLeft.Count;
                 }
             }
             sampleDataAccessL = sampleDataLeft.ToArray();
             sampleDataAccessR = sampleDataRight.ToArray();
         }
-        public void FadeOut()
-        {
+        public void FadeOut() {
             List<float> sampleDataLeft = sampleDataAccessL.ToList();
             List<float> sampleDataRight = sampleDataAccessR.ToList();
-            for (int i = 0; i < sampleDataLeft.Count; i++)
-            {
+            for (int i = 0; i < sampleDataLeft.Count; i++) {
                 sampleDataLeft[i] *= 1 - (float)i / sampleDataLeft.Count;
-                if (sampleDataRight.Count != 0)
-                {
+                if (sampleDataRight.Count != 0) {
                     sampleDataRight[i] *= 1 - (float)i / sampleDataLeft.Count;
                 }
             }
             sampleDataAccessL = sampleDataLeft.ToArray();
             sampleDataAccessR = sampleDataRight.ToArray();
         }
-        public void Invert()
-        {
+        public void Invert() {
             List<float> sampleDataLeft = sampleDataAccessL.ToList();
             List<float> sampleDataRight = sampleDataAccessR.ToList();
-            for (int i = 0; i < sampleDataLeft.Count; i++)
-            {
+            for (int i = 0; i < sampleDataLeft.Count; i++) {
                 sampleDataLeft[i] *= -1;
-                if (sampleDataRight.Count != 0)
-                {
+                if (sampleDataRight.Count != 0) {
                     sampleDataRight[i] *= -1;
                 }
             }
@@ -410,61 +368,45 @@ namespace WaveTracker.Tracker
             sampleDataAccessR = sampleDataRight.ToArray();
         }
 
-        public void Amplify(float val)
-        {
+        public void Amplify(float val) {
             List<float> sampleDataLeft = sampleDataAccessL.ToList();
             List<float> sampleDataRight = sampleDataAccessR.ToList();
-            for (int i = 0; i < sampleDataLeft.Count; i++)
-            {
+            for (int i = 0; i < sampleDataLeft.Count; i++) {
                 sampleDataLeft[i] = Math.Clamp(sampleDataLeft[i] * val, -1f, 1f);
-                if (sampleDataRight.Count != 0)
-                {
+                if (sampleDataRight.Count != 0) {
                     sampleDataRight[i] = Math.Clamp(sampleDataRight[i] * val, -1f, 1f);
                 }
             }
             sampleDataAccessL = sampleDataLeft.ToArray();
             sampleDataAccessR = sampleDataRight.ToArray();
         }
-        public void TrimSilence()
-        {
+        public void TrimSilence() {
             List<float> sampleDataLeft = sampleDataAccessL.ToList();
             List<float> sampleDataRight = sampleDataAccessR.ToList();
-            if (sampleDataLeft.Count > 1000)
-            {
-                if (sampleDataRight.Count == 0)
-                {
-                    for (int i = 0; i < sampleDataLeft.Count; ++i)
-                    {
-                        if (Math.Abs(sampleDataLeft[i]) > 0.001f)
-                        {
+            if (sampleDataLeft.Count > 1000) {
+                if (sampleDataRight.Count == 0) {
+                    for (int i = 0; i < sampleDataLeft.Count; ++i) {
+                        if (Math.Abs(sampleDataLeft[i]) > 0.001f) {
                             break;
                         }
                         sampleDataLeft.RemoveAt(i);
                     }
-                    for (int i = sampleDataLeft.Count - 1; i >= 0; --i)
-                    {
-                        if (Math.Abs(sampleDataLeft[i]) > 0.001f)
-                        {
+                    for (int i = sampleDataLeft.Count - 1; i >= 0; --i) {
+                        if (Math.Abs(sampleDataLeft[i]) > 0.001f) {
                             break;
                         }
                         sampleDataLeft.RemoveAt(i);
                     }
-                }
-                else
-                {
-                    for (int i = 0; i < sampleDataLeft.Count; ++i)
-                    {
-                        if (Math.Abs(sampleDataLeft[i]) > 0.001f || Math.Abs(sampleDataRight[i]) > 0.001f)
-                        {
+                } else {
+                    for (int i = 0; i < sampleDataLeft.Count; ++i) {
+                        if (Math.Abs(sampleDataLeft[i]) > 0.001f || Math.Abs(sampleDataRight[i]) > 0.001f) {
                             break;
                         }
                         sampleDataLeft.RemoveAt(i);
                         sampleDataRight.RemoveAt(i);
                     }
-                    for (int i = sampleDataLeft.Count - 1; i >= 0; --i)
-                    {
-                        if (Math.Abs(sampleDataLeft[i]) > 0.001f || Math.Abs(sampleDataRight[i]) > 0.001f)
-                        {
+                    for (int i = sampleDataLeft.Count - 1; i >= 0; --i) {
+                        if (Math.Abs(sampleDataLeft[i]) > 0.001f || Math.Abs(sampleDataRight[i]) > 0.001f) {
                             break;
                         }
                         sampleDataLeft.RemoveAt(i);
@@ -476,56 +418,41 @@ namespace WaveTracker.Tracker
             sampleDataAccessR = sampleDataRight.ToArray();
         }
 
-        public float getMonoSample(float time)
-        {
+        public float getMonoSample(float time) {
             SampleTick(time, 0, out float l, out float r);
             return (l + r) / 2f;
         }
 
-        public void SampleTick(float time, int stereoPhase, out float outputL, out float outputR)
-        {
+        public void SampleTick(float time, int stereoPhase, out float outputL, out float outputR) {
             float sampleIndex = 0;
             float x = (time * (Audio.AudioEngine.sampleRate / _baseFrequency));
             long l = sampleDataAccessL.Length;
             long p = sampleLoopIndex;
-            if (sampleLoopType == SampleLoopType.OneShot || x <= l)
-            {
+            if (sampleLoopType == SampleLoopType.OneShot || x <= l) {
                 sampleIndex = x;
-            }
-            else if (sampleLoopType == SampleLoopType.PingPong)
-            {
+            } else if (sampleLoopType == SampleLoopType.PingPong) {
                 float b = ((x - p) % ((l - p) * 2));
-                if (b < l - p)
-                {
+                if (b < l - p) {
                     sampleIndex = b + p;
-                }
-                else if (b >= l - p)
-                {
+                } else if (b >= l - p) {
                     sampleIndex = l - (b + p - l);
                 }
                 //sampleIndex = Math.Abs((sampleIndex - sampleLoopIndex + (len - 1) - 1) % ((len - 1) * 2) - len) + sampleLoopIndex;
 
-            }
-            else if (sampleLoopType == SampleLoopType.Forward)
-            {
+            } else if (sampleLoopType == SampleLoopType.Forward) {
                 sampleIndex = ((x - p) % (l - p)) + p;
             }
             currentPlaybackPosition = (int)sampleIndex;
-            if (resampleMode == Audio.ResamplingModes.None)
-            {
+            if (resampleMode == Audio.ResamplingModes.None) {
                 outputL = getSample(0, (int)(sampleIndex)) * 1.5f;
                 outputR = getSample(1, (int)(sampleIndex)) * 1.5f;
-            }
-            else if (resampleMode == Audio.ResamplingModes.Linear)
-            {
+            } else if (resampleMode == Audio.ResamplingModes.Linear) {
                 int one = (int)sampleIndex;
                 int two = one + 1;
                 float by = (float)(sampleIndex % 1f);
                 outputL = MathHelper.Lerp(getSample(0, one), getSample(0, two), by) * 1.5f;
                 outputR = MathHelper.Lerp(getSample(1, one), getSample(1, two), by) * 1.5f;
-            }
-            else
-            {
+            } else {
                 int one = (int)sampleIndex;
                 int two = one + 1;
                 float by = (float)(sampleIndex % 1f);
@@ -539,12 +466,10 @@ namespace WaveTracker.Tracker
             }
         }
 
-        public void MixToMono()
-        {
+        public void MixToMono() {
             List<float> sampleDataLeft = sampleDataAccessL.ToList();
             List<float> sampleDataRight = sampleDataAccessR.ToList();
-            for (int i = 0; i < sampleDataLeft.Count; ++i)
-            {
+            for (int i = 0; i < sampleDataLeft.Count; ++i) {
                 sampleDataLeft[i] += sampleDataRight[i];
                 sampleDataLeft[i] /= 2f;
             }
@@ -553,10 +478,8 @@ namespace WaveTracker.Tracker
             sampleDataAccessR = sampleDataRight.ToArray();
         }
 
-        float getSample(int chan, int index)
-        {
-            if (sampleDataAccessL.Length == 0)
-            {
+        float getSample(int chan, int index) {
+            if (sampleDataAccessL.Length == 0) {
                 return 0;
             }
             if (index < 0)
@@ -573,8 +496,7 @@ namespace WaveTracker.Tracker
 
 
     }
-    public enum SampleLoopType
-    {
+    public enum SampleLoopType {
         OneShot,
         Forward,
         PingPong

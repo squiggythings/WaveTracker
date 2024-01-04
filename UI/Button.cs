@@ -6,18 +6,15 @@ using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 
 
-namespace WaveTracker.UI
-{
-    public class Button : Clickable
-    {
+namespace WaveTracker.UI {
+    public class Button : Clickable {
         string label;
         public bool centerLabel = true;
         ButtonColors colors;
         int labelWidth;
         ButtonType type;
 
-        public Button(string label, int x, int y, Element parent)
-        {
+        public Button(string label, int x, int y, Element parent) {
             enabled = true;
             this.x = x;
             this.y = y;
@@ -32,13 +29,11 @@ namespace WaveTracker.UI
             SetParent(parent);
         }
 
-        public void SetLabel(string label)
-        {
+        public void SetLabel(string label) {
             this.label = label;
             labelWidth = Helpers.getWidthOfText(label);
         }
-        Color getBackgroundColor()
-        {
+        Color getBackgroundColor() {
             if (IsPressed)
                 return colors.backgroundColorPressed;
             if (IsHovered)
@@ -46,31 +41,25 @@ namespace WaveTracker.UI
             return colors.backgroundColor;
         }
 
-        Color getTextColor()
-        {
+        Color getTextColor() {
             if (IsPressed)
                 return colors.textColorPressed;
             return colors.textColor;
         }
 
-        Color getBorderColor()
-        {
+        Color getBorderColor() {
             if (IsPressed)
                 return colors.borderColorPressed;
             return colors.borderColor;
         }
 
-        public void Draw()
-        {
-            if (enabled)
-            {
-                if (type == ButtonType.Square)
-                {
+        public void Draw() {
+            if (enabled) {
+                if (type == ButtonType.Square) {
                     DrawRect(0, 0, width, height, getBorderColor());
                     DrawRect(1, 1, width - 2, height - 2, getBackgroundColor());
                 }
-                if (type == ButtonType.Rounded)
-                {
+                if (type == ButtonType.Rounded) {
                     DrawRoundedRect(0, 0, width, height, getBackgroundColor());
                 }
                 int textOffset = type == ButtonType.Rounded && IsPressed ? 1 : 0;
@@ -79,15 +68,11 @@ namespace WaveTracker.UI
                     Write(label, (width - labelWidth) / 2, (height + 1) / 2 - 4 + textOffset, getTextColor());
                 else
                     Write(label, 4, (height + 1) / 2 - 4 + textOffset, getTextColor());
-            }
-            else
-            {
-                if (type == ButtonType.Square)
-                {
+            } else {
+                if (type == ButtonType.Square) {
                     DrawRect(0, 0, width, height, colors.backgroundColorDisabled);
                 }
-                if (type == ButtonType.Rounded)
-                {
+                if (type == ButtonType.Rounded) {
                     DrawRoundedRect(0, 0, width, height, colors.backgroundColorDisabled);
                 }
                 if (centerLabel)

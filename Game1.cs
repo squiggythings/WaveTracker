@@ -17,10 +17,8 @@ using WaveTracker.Rendering;
 using WaveTracker.Tracker;
 using WaveTracker.Audio;
 
-namespace WaveTracker
-{
-    public class Game1 : Game
-    {
+namespace WaveTracker {
+    public class Game1 : Game {
         private GraphicsDeviceManager graphics;
         private SpriteBatch targetBatch;
         public static Texture2D pixel;
@@ -37,7 +35,6 @@ namespace WaveTracker
         Rendering.SongSettings songSettings;
         Rendering.EditSettings editSettings;
         Rendering.FrameView frameView;
-        public static Tracker.Song currentSong;
         public Rendering.Toolbar toolbar;
         //public OuzoTracker.Forms.CreateInstrumentDialog control1;
         Audio.AudioEngine audioEngine;
@@ -52,8 +49,7 @@ namespace WaveTracker
 
 
 
-        public Game1(string[] args)
-        {
+        public Game1(string[] args) {
             if (args.Length > 0)
                 filename = args[0];
             DisplayMode displayMode = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode;
@@ -76,14 +72,13 @@ namespace WaveTracker
 
         }
 
-        protected override void Initialize()
-        {
+        protected override void Initialize() {
 
             Input.Intialize();
             frameRenderer.x = 0;
             frameRenderer.y = 151;
-            currentSong = new Tracker.Song();
-            newSong = currentSong.Clone();
+            Song.currentSong = new Song();
+            newSong = Song.currentSong.Clone();
             waveBank = new Rendering.WaveBank();
             instrumentBank = new Rendering.InstrumentBank();
 
@@ -102,8 +97,7 @@ namespace WaveTracker
 
         public static int bottomOfScreen;
 
-        protected override void LoadContent()
-        {
+        protected override void LoadContent() {
             Checkbox.textureSheet = Content.Load<Texture2D>("instrumentwindow");
             UI.NumberBox.buttons = Content.Load<Texture2D>("window_edit");
             Preferences.dialog = new Rendering.PreferencesDialog();
@@ -129,21 +123,16 @@ namespace WaveTracker
             SaveLoad.LoadFrom(filename);
         }
 
-        protected override void Update(GameTime gameTime)
-        {
-            if (Input.dialogOpenCooldown == 0)
-            {
+        protected override void Update(GameTime gameTime) {
+            if (Input.dialogOpenCooldown == 0) {
                 int mouseX = Mouse.GetState().X;
                 int mouseY = Mouse.GetState().Y;
                 int width = Window.ClientBounds.Width - 2;
                 int height = Window.ClientBounds.Height - 2;
                 if (new Rectangle(1, 1, width, height).Contains(mouseX, mouseY))
-                    if (mouseCursorArrow == 0)
-                    {
+                    if (mouseCursorArrow == 0) {
                         Mouse.SetCursor(MouseCursor.Arrow);
-                    }
-                    else
-                    {
+                    } else {
                         Mouse.SetCursor(MouseCursor.SizeNS);
                         mouseCursorArrow--;
                     }
@@ -152,32 +141,26 @@ namespace WaveTracker
             //Debug.WriteLine("path is: " + SaveLoad.filePath);
             bottomOfScreen = Window.ClientBounds.Height / ScreenScale;
             FrameEditor.channelScrollbar.y = bottomOfScreen - 14;
-            if (Input.GetKeyDown(Keys.F12, KeyModifier.None))
-            {
+            if (Input.GetKeyDown(Keys.F12, KeyModifier.None)) {
                 ChannelManager.Reset();
                 ChannelManager.ResetTicks(0);
                 audioEngine.Reset();
             }
 
             Tooltip.Update(gameTime);
-            if (IsActive)
-            {
+            if (IsActive) {
                 Input.GetState(gameTime);
-            }
-            else
-            {
+            } else {
                 Input.focusTimer = 5;
                 Input.dialogOpenCooldown = 3;
             }
-            if (!VisualizerMode)
-            {
+            if (!VisualizerMode) {
                 waveBank.Update();
                 instrumentBank.Update();
             }
             if (Input.focus == null || Input.focus == waveBank.editor || Input.focus == instrumentBank.editor)
                 pianoInput = Helpers.GetPianoInput(FrameEditor.currentOctave);
-            else
-            {
+            else {
                 pianoInput = -1;
             }
             waveBank.editor.Update();
@@ -186,10 +169,8 @@ namespace WaveTracker
                 pianoInput = waveBank.editor.pianoInput();
             if (instrumentBank.editor.pianoInput() > -1)
                 pianoInput = instrumentBank.editor.pianoInput();
-            if (FrameEditor.currentColumn % 5 == 0 || Rendering.WaveEditor.enabled || Rendering.InstrumentEditor.enabled)
-            {
-                if (pianoInput != -1 && lastPianoKey != pianoInput)
-                {
+            if (FrameEditor.currentColumn % 5 == 0 || Rendering.WaveEditor.enabled || Rendering.InstrumentEditor.enabled) {
+                if (pianoInput != -1 && lastPianoKey != pianoInput) {
                     previewChannel = FrameEditor.currentColumn / 5;
                     if (!Playback.isPlaying)
                         AudioEngine.ResetTicks();
@@ -197,16 +178,15 @@ namespace WaveTracker
                     ChannelManager.previewChannel.TriggerNote(pianoInput);
                 }
             }
-            if (pianoInput == -1 && lastPianoKey != -1)
-            {
+            if (pianoInput == -1 && lastPianoKey != -1) {
                 if (!Playback.isPlaying)
                     AudioEngine.ResetTicks();
                 ChannelManager.previewChannel.PreviewCut();
             }
-            
+
             if (!ChannelManager.previewChannel.waveEnv.toPlay.isActive)
                 ChannelManager.previewChannel.SetWave(WaveBank.lastSelectedWave);
-            
+
             Tracker.Playback.Update(gameTime);
 
             #region octave change
@@ -222,16 +202,13 @@ namespace WaveTracker
 
             #endregion
 
-            if (!VisualizerMode)
-            {
-                songSettings.Update((float)gameTime.ElapsedGameTime.TotalSeconds);
+            if (!VisualizerMode) {
+                songSettings.Update();
                 frameView.Update();
                 frameRenderer.Update(gameTime);
                 FrameEditor.Update();
                 editSettings.Update();
-            }
-            else
-            {
+            } else {
                 frameRenderer.UpdateChannelHeaders();
             }
             audioEngine.exportingDialog.Update();
@@ -242,16 +219,14 @@ namespace WaveTracker
             lastPianoKey = pianoInput;
         }
 
-        protected override void Draw(GameTime gameTime)
-        {
+        protected override void Draw(GameTime gameTime) {
             GraphicsDevice.SetRenderTarget(target);
 
 
             GraphicsDevice.Clear(UIColors.black);
 
             // TODO: Add your drawing code here
-            targetBatch.Begin(SpriteSortMode.Deferred, new BlendState
-            {
+            targetBatch.Begin(SpriteSortMode.Deferred, new BlendState {
                 ColorSourceBlend = Blend.SourceAlpha,
                 ColorDestinationBlend = Blend.InverseSourceAlpha,
                 AlphaSourceBlend = Blend.One,
@@ -260,10 +235,9 @@ namespace WaveTracker
 
             Rendering.Graphics.batch = targetBatch;
 
-            if (!VisualizerMode)
-            {
+            if (!VisualizerMode) {
                 // draw frame editor
-                frameRenderer.DrawFrame(currentSong.frames[FrameEditor.currentFrame], FrameEditor.cursorRow, FrameEditor.cursorColumn);
+                frameRenderer.DrawFrame(Song.currentSong.frames[FrameEditor.currentFrame], FrameEditor.cursorRow, FrameEditor.cursorColumn);
 
                 // draw instrument bank
                 instrumentBank.Draw();
@@ -287,16 +261,13 @@ namespace WaveTracker
                 // draw click position
                 //Rendering.Graphics.DrawRect(Input.lastClickLocation.X, Input.lastClickLocation.Y, 1, 1, Color.Red);
                 //Rendering.Graphics.DrawRect(Input.lastClickReleaseLocation.X, Input.lastClickReleaseLocation.Y, 1, 1, Color.DarkRed);
-            }
-            else
-            {
+            } else {
                 visualization.Draw();
             }
             toolbar.Draw();
             Preferences.dialog.Draw();
             ColorButton.colorPicker.Draw();
-            if (!VisualizerMode)
-            {
+            if (!VisualizerMode) {
                 waveBank.editor.Draw();
                 instrumentBank.editor.Draw();
                 audioEngine.exportingDialog.Draw();
@@ -325,14 +296,10 @@ namespace WaveTracker
             //targetBatch.Draw(pixel, new Rectangle(0, 0, 1920, scrOffsetY), Color.White);
             //targetBatch.Draw(pixel, new Rectangle(0, 1080 + scrOffsetY, 1920, 90), Color.White);
             targetBatch.Draw(target, new Rectangle(0, 0, ScreenWidth * ScreenScale, ScreenHeight * ScreenScale), Color.White);
-            if (VisualizerMode && Input.focus == null)
-            {
-                try
-                {
+            if (VisualizerMode && Input.focus == null) {
+                try {
                     visualization.DrawPiano(visualization.states);
-                }
-                catch
-                {
+                } catch {
                     //visualization.DrawPiano(visualization.statesPrev);
                 }
                 visualization.DrawOscilloscopes();
@@ -342,8 +309,7 @@ namespace WaveTracker
             base.Draw(gameTime);
         }
 
-        protected override void OnExiting(object sender, EventArgs args)
-        {
+        protected override void OnExiting(object sender, EventArgs args) {
             // Do stuff here
             //SaveLoad.DoUnsavedCheck();
             Debug.WriteLine("Closing WaveTracker...");

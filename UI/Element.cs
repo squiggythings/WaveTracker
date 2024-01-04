@@ -7,16 +7,12 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using WaveTracker.Rendering;
 
-namespace WaveTracker.UI
-{
-    public abstract class Element
-    {
+namespace WaveTracker.UI {
+    public abstract class Element {
         public int x, y;
         public Element parent;
-        protected int MouseX
-        { get { return Input.MousePositionX - (x + offX); } }
-        protected int MouseY
-        { get { return Input.MousePositionY - (y + offY); } }
+        protected int MouseX { get { return Input.MousePositionX - (x + offX); } }
+        protected int MouseY { get { return Input.MousePositionY - (y + offY); } }
 
         protected int offX { get { if (parent == null) return 0; return parent.x + parent.offX; } }
         protected int offY { get { if (parent == null) return 0; return parent.y + parent.offY; } }
@@ -24,10 +20,8 @@ namespace WaveTracker.UI
         protected int globalX { get { return x + offX; } }
         protected int globalY { get { return y + offY; } }
 
-        public bool inFocus
-        {
-            get
-            {
+        public bool inFocus {
+            get {
                 if (Input.focus == null) return true;
                 if (parent == null) return Input.focus == this;
                 if (parent.inFocus)
@@ -36,90 +30,71 @@ namespace WaveTracker.UI
             }
         }
 
-        public void SetParent(Element parent)
-        {
+        public void SetParent(Element parent) {
             this.parent = parent;
         }
-        protected void Write(string text, int x, int y, Color color)
-        {
+        protected void Write(string text, int x, int y, Color color) {
             Graphics.Write(text, this.x + x + offX, this.y + y + offY, color);
         }
 
-        protected void WriteMultiline(string text, int x, int y, int width, Color color)
-        {
+        protected void WriteMultiline(string text, int x, int y, int width, Color color) {
             string str = "";
             string[] words = text.Split(' ');
             int w = 0;
-            foreach (string word in words)
-            {
+            foreach (string word in words) {
                 w += Helpers.getWidthOfText(word + " ");
-                if (w > width)
-                {
+                if (w > width) {
                     str += "\n" + word + " ";
                     w = Helpers.getWidthOfText(word + " ");
-                }
-                else
-                {
+                } else {
                     str += word + " ";
                 }
             }
             string[] lines = str.Split('\n');
-            foreach (string line in lines)
-            {
+            foreach (string line in lines) {
                 Write(line, x, y, color);
                 y += 10;
             }
         }
-        protected void WriteTwiceAsBig(string text, int x, int y, Color c)
-        {
+        protected void WriteTwiceAsBig(string text, int x, int y, Color c) {
             Graphics.WriteTwiceAsBig(text, this.x + x + offX, this.y + y + offY, c);
         }
 
-        protected void WriteRightAlign(string text, int x, int y, Color color)
-        {
+        protected void WriteRightAlign(string text, int x, int y, Color color) {
             Graphics.WriteRightJustified(text, this.x + x + offX, this.y + y + offY, color);
         }
 
-        protected void WriteCenter(string text, int x, int y, Color color)
-        {
+        protected void WriteCenter(string text, int x, int y, Color color) {
             Write(text, x - Helpers.getWidthOfText(text) / 2, y, color);
         }
 
-        protected void WriteMonospaced(string text, int x, int y, Color color, int width)
-        {
+        protected void WriteMonospaced(string text, int x, int y, Color color, int width) {
             Graphics.WriteMonospaced(text, this.x + x + offX, this.y + y + offY, color, width);
         }
-        protected void WriteMonospaced(string text, int x, int y, Color color)
-        {
+        protected void WriteMonospaced(string text, int x, int y, Color color) {
             Graphics.WriteMonospaced(text, this.x + x + offX, this.y + y + offY, color, 5);
         }
 
-        protected void DrawRect(int x, int y, int width, int height, Color color)
-        {
+        protected void DrawRect(int x, int y, int width, int height, Color color) {
             Graphics.DrawRect(this.x + x + offX, this.y + y + offY, width, height, color);
         }
 
-        protected void DrawRoundedRect(int x, int y, int width, int height, Color color)
-        {
+        protected void DrawRoundedRect(int x, int y, int width, int height, Color color) {
             Graphics.DrawRect(this.x + x + offX, this.y + y + offY + 1, width, height - 2, color);
             Graphics.DrawRect(this.x + x + offX + 1, this.y + y + offY, width - 2, height, color);
         }
 
-        protected void DrawSprite(Texture2D sprite, int x, int y, Rectangle bounds)
-        {
+        protected void DrawSprite(Texture2D sprite, int x, int y, Rectangle bounds) {
             Graphics.DrawSprite(sprite, this.x + x + offX, this.y + y + offY, bounds);
         }
-        protected void DrawSprite(Texture2D sprite, int x, int y, int width, int height, Rectangle spriteBounds)
-        {
+        protected void DrawSprite(Texture2D sprite, int x, int y, int width, int height, Rectangle spriteBounds) {
             Graphics.DrawSprite(sprite, this.x + x + offX, this.y + y + offY, width, height, spriteBounds);
         }
-        protected void DrawSprite(Texture2D sprite, int x, int y, int width, int height, Rectangle spriteBounds, Color col)
-        {
+        protected void DrawSprite(Texture2D sprite, int x, int y, int width, int height, Rectangle spriteBounds, Color col) {
             Graphics.DrawSprite(sprite, this.x + x + offX, this.y + y + offY, width, height, spriteBounds, col);
         }
 
-        public Point globalPointToLocalPoint(Point p)
-        {
+        public Point globalPointToLocalPoint(Point p) {
             return new Point(p.X - globalX, p.Y - globalY);
         }
 

@@ -8,20 +8,16 @@ using System.Text;
 using System.Threading.Tasks;
 using WaveTracker.Rendering;
 
-namespace WaveTracker.UI
-{
-    public class ColorButton : Clickable
-    {
+namespace WaveTracker.UI {
+    public class ColorButton : Clickable {
         public static ColorPickerDialog colorPicker;
         public Color color { get; set; }
-        public string HexValue
-        {
+        public string HexValue {
             get { return color.GetHexCodeWithAlpha(); }
             set { color = Helpers.HexCodeToColor(value); }
         }
 
-        public ColorButton(Color color, int x, int y, Element parent)
-        {
+        public ColorButton(Color color, int x, int y, Element parent) {
             enabled = true;
             this.x = x;
             this.y = y;
@@ -33,10 +29,8 @@ namespace WaveTracker.UI
             SetParent(parent);
         }
 
-        public void Update()
-        {
-            if (Clicked)
-            {
+        public void Update() {
+            if (Clicked) {
                 colorPicker.Open(this);
                 //Random r = new Random();
                 //color = new Color((byte)r.Next(256), (byte)r.Next(256), (byte)r.Next(256));
@@ -46,20 +40,16 @@ namespace WaveTracker.UI
 
 
 
-        public void Draw()
-        {
+        public void Draw() {
 
 
             Color displayColor = color;
             if (IsPressed)
                 displayColor = displayColor.ToNegative();
             Color textColor = Color.White;
-            if ((displayColor.R * 30 + displayColor.G * 59 + displayColor.B * 11) / 100 < 128)
-            {
+            if ((displayColor.R * 30 + displayColor.G * 59 + displayColor.B * 11) / 100 < 128) {
                 textColor = Color.White;
-            }
-            else
-            {
+            } else {
                 textColor = Color.Black;
             }
             DrawRect(0, 0, width, height, ButtonColors.Round.backgroundColor);
@@ -68,12 +58,9 @@ namespace WaveTracker.UI
             DrawRect(1, 1, width - 2, height - 2, displayColor);
 
             Color outlineColor;
-            if (IsHovered)
-            {
+            if (IsHovered) {
                 outlineColor = textColor;
-            }
-            else
-            {
+            } else {
                 outlineColor = Helpers.Alpha(Color.White, 80);
             }
             DrawRect(1, 1, width - 2, 1, outlineColor);

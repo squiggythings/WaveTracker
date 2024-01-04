@@ -9,10 +9,8 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System.Diagnostics;
 
-namespace WaveTracker.Rendering
-{
-    public class Toolbar : Element
-    {
+namespace WaveTracker.Rendering {
+    public class Toolbar : Element {
         public static Texture2D sprite;
         public SpriteButton file_new;
         public SpriteButton file_open;
@@ -41,8 +39,7 @@ namespace WaveTracker.Rendering
         public bool saveDialogOpen, loadDialogOpen;
         public ExportDialog exportDialog;
 
-        public Toolbar(Texture2D sprite)
-        {
+        public Toolbar(Texture2D sprite) {
             Toolbar.sprite = sprite;
             x = 2;
             int px = 0;
@@ -114,8 +111,7 @@ namespace WaveTracker.Rendering
             exportDialog = new ExportDialog();
         }
 
-        public void Update()
-        {
+        public void Update() {
             file_export.enabled = !Game1.VisualizerMode;
             playback_record.enabled = !Game1.VisualizerMode;
             edit_copy.enabled = FrameEditor.selectionActive && !Game1.VisualizerMode;
@@ -126,20 +122,17 @@ namespace WaveTracker.Rendering
             frame_next.enabled = !Game1.VisualizerMode;
             frame_prev.enabled = !Game1.VisualizerMode;
 
-            if (Input.GetKeyDown(Keys.S, KeyModifier.Ctrl))
-            {
+            if (Input.GetKeyDown(Keys.S, KeyModifier.Ctrl)) {
                 SaveLoad.SaveFile();
             }
-            if (Input.GetKeyDown(Keys.O, KeyModifier.Ctrl))
-            { SaveLoad.OpenFile(); }
+            if (Input.GetKeyDown(Keys.O, KeyModifier.Ctrl)) { SaveLoad.OpenFile(); }
 
             if (file_new.Clicked) { SaveLoad.NewFile(); }
 
             if (file_open.Clicked) { SaveLoad.OpenFile(); }
             if (file_save.Clicked) { SaveLoad.SaveFile(); }
             if (file_saveAs.Clicked) { SaveLoad.SaveFileAs(); }
-            if (file_export.Clicked)
-            {
+            if (file_export.Clicked) {
                 Input.CancelClick();
                 exportDialog.Open();
             }
@@ -172,14 +165,12 @@ namespace WaveTracker.Rendering
             Game1.VisualizerMode = visualizerMode.Value;
             FrameEditor.followMode = followMode.Value;
             exportDialog.Update();
-            if (SaveLoad.savecooldown > 0)
-            {
-                
+            if (SaveLoad.savecooldown > 0) {
+
                 SaveLoad.savecooldown--;
             }
         }
-        public void Draw()
-        {
+        public void Draw() {
             DrawRect(-x, 0, 960, 15, Color.White);
             file_new.Draw();
             file_open.Draw();

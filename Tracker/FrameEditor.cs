@@ -8,16 +8,14 @@ using Microsoft.Xna.Framework.Input;
 using WaveTracker.Tracker;
 using System.Diagnostics;
 
-namespace WaveTracker
-{
-    public static class FrameEditor
-    {
+namespace WaveTracker {
+    public static class FrameEditor {
 
         /// <summary>
         /// starting point of when channels will be rendered, 0 is leftmost
         /// </summary>
         public static int channelScroll;
-        public static Song thisSong => Game1.currentSong;
+        public static Song thisSong => Song.currentSong;
         public static bool canEdit;
         public static bool followMode = true;
         static bool playback;
@@ -57,10 +55,10 @@ namespace WaveTracker
         public static UI.ScrollbarHorizontal channelScrollbar;
         static bool lastSelectionActive;
 
-        static int patternEditorLeftBound { get { return 22; } }
-        static int patternEditorRightBound { get { return 790; } }
-        static int patternEditorTopBound { get { return 182; } }
-        static int patternEditorBottomBound { get { return Game1.bottomOfScreen - 15; } }
+        public static int patternEditorLeftBound { get { return 22; } }
+        public static int patternEditorRightBound { get { return 790; } }
+        public static int patternEditorTopBound { get { return 182; } }
+        public static int patternEditorBottomBound { get { return Game1.bottomOfScreen - 15; } }
 
         /// <summary>
         /// The row that the cursor is on
@@ -69,14 +67,11 @@ namespace WaveTracker
         /// <summary>
         /// The column in the pattern data that the cursor will edit, (5 per channel: note, instrument, volume, effect or effect parameter)
         /// </summary>
-        public static int currentColumn
-        {
-            get
-            {
+        public static int currentColumn {
+            get {
                 int channel = cursorColumn / 8;
                 int positionAlongChannel = cursorColumn % 8;
-                return positionAlongChannel switch
-                {
+                return positionAlongChannel switch {
                     0 => 0 + channel * 5,
                     1 or 2 => 1 + channel * 5,
                     3 or 4 => 2 + channel * 5,
@@ -97,8 +92,7 @@ namespace WaveTracker
         public static int cursorRow { get; set; }
 
 
-        public static void Update()
-        {
+        public static void Update() {
 
             // If out of focus do not run anything
             if (Input.focus != null)
@@ -121,25 +115,19 @@ namespace WaveTracker
 
             if (Input.GetKeyRepeat(Keys.Space, KeyModifier.None))
                 canEdit = !canEdit;
-            if (!Game1.VisualizerMode)
-            {
+            if (!Game1.VisualizerMode) {
                 #region selection with mouse
 
-                if (Input.MousePositionX < patternEditorRightBound)
-                {
-                    if (Input.MousePositionY > patternEditorTopBound && Input.MouseScrollWheel(KeyModifier.Alt) != 0)
-                    {
+                if (Input.MousePositionX < patternEditorRightBound) {
+                    if (Input.MousePositionY > patternEditorTopBound && Input.MouseScrollWheel(KeyModifier.Alt) != 0) {
                         channelScroll -= Input.MouseScrollWheel(KeyModifier.Alt);
                     }
-                    if (Input.GetClickDown(KeyModifier._Any))
-                    {
+                    if (Input.GetClickDown(KeyModifier._Any)) {
                         if (Input.MousePositionY > patternEditorTopBound && Input.MousePositionX < patternEditorRightBound)
                             selectionActive = false;
                     }
-                    if (Input.GetDoubleClick(KeyModifier._Any))
-                    {
-                        if (mouseInBounds(mrow, mcolumn - channelScroll * 8) && !selectionActive)
-                        {
+                    if (Input.GetDoubleClick(KeyModifier._Any)) {
+                        if (mouseInBounds(mrow, mcolumn - channelScroll * 8) && !selectionActive) {
                             int chan = currentColumn / 5;
                             selectionStart.X = chan * 5;
                             selectionEnd.X = chan * 5 + 4;
@@ -149,14 +137,10 @@ namespace WaveTracker
                             selectionActive = true;
                         }
                     }
-                    if (Input.GetClick(KeyModifier._Any))
-                    {
-                        if (mouseInBounds(mrow, mcolumn - channelScroll * 8) && Input.doubleClick == false)
-                        {
-                            if (Vector2.Distance(Input.MousePos, Input.lastClickLocation.ToVector2()) > 7)
-                            {
-                                if (!isDragging)
-                                {
+                    if (Input.GetClick(KeyModifier._Any)) {
+                        if (mouseInBounds(mrow, mcolumn - channelScroll * 8) && Input.doubleClick == false) {
+                            if (Vector2.Distance(Input.MousePos, Input.lastClickLocation.ToVector2()) > 7) {
+                                if (!isDragging) {
                                     selectionStart = new Point(cursorColToFileCol(mcolumn), mrow);
                                     selectionFrame = currentFrame;
                                     selectionActive = true;
@@ -175,10 +159,8 @@ namespace WaveTracker
                     }
 
                     // click on a cell to move to it
-                    if (Input.GetSingleClickUp(KeyModifier._Any))
-                    {
-                        if (!isDragging && mouseInBounds(mrow, mcolumn - channelScroll * 8))
-                        {
+                    if (Input.GetSingleClickUp(KeyModifier._Any)) {
+                        if (!isDragging && mouseInBounds(mrow, mcolumn - channelScroll * 8)) {
                             if (!playback || !followMode)
                                 cursorRow = mrow;
                             cursorColumn = mcolumn;
@@ -189,8 +171,7 @@ namespace WaveTracker
                 #endregion
             }
             // moving cursor with scroll
-            if (!playback || !followMode)
-            {
+            if (!playback || !followMode) {
                 if (Input.MousePositionY > 151 && Input.MousePositionX < 790 && Input.MousePositionY < Game1.bottomOfScreen - 15)
                     Move(0, Input.MouseScrollWheel(KeyModifier.None) * -Preferences.profile.pageJumpAmount);
                 if (Input.GetKeyRepeat(Keys.PageUp, KeyModifier.None))
@@ -205,44 +186,37 @@ namespace WaveTracker
                     Goto(currentFrame, thisFrame.GetLastRow());
             }
             #region moving cursor with arrows
-            if (Input.GetKeyRepeat(Keys.Down, KeyModifier.None) || Input.GetKeyDown(Keys.Down, KeyModifier.Alt))
-            {
+            if (Input.GetKeyRepeat(Keys.Down, KeyModifier.None) || Input.GetKeyDown(Keys.Down, KeyModifier.Alt)) {
                 selectionActive = false;
                 if (!playback || !followMode)
                     Move(0, Preferences.profile.ignoreStepWhenMoving ? 1 : step);
             }
 
-            if (Input.GetKeyRepeat(Keys.Up, KeyModifier.None) || Input.GetKeyDown(Keys.Up, KeyModifier.Alt))
-            {
+            if (Input.GetKeyRepeat(Keys.Up, KeyModifier.None) || Input.GetKeyDown(Keys.Up, KeyModifier.Alt)) {
                 selectionActive = false;
                 if (!playback || !followMode)
                     Move(0, Preferences.profile.ignoreStepWhenMoving ? -1 : -step);
             }
 
-            if (Input.GetKeyRepeat(Keys.Right, KeyModifier.None))
-            {
+            if (Input.GetKeyRepeat(Keys.Right, KeyModifier.None)) {
                 selectionActive = false;
                 Move(1, 0);
                 correctChanScroll();
             }
-            if (Input.GetKeyRepeat(Keys.Left, KeyModifier.None))
-            {
+            if (Input.GetKeyRepeat(Keys.Left, KeyModifier.None)) {
                 selectionActive = false;
                 Move(-1, 0);
                 correctChanScroll();
             }
-            if (Input.focusTimer == 0)
-            {
-                if (Input.GetKeyRepeat(Keys.Right, KeyModifier.Alt) || Input.GetKeyRepeat(Keys.Tab, KeyModifier.None))
-                {
+            if (Input.focusTimer == 0) {
+                if (Input.GetKeyRepeat(Keys.Right, KeyModifier.Alt) || Input.GetKeyRepeat(Keys.Tab, KeyModifier.None)) {
                     if (Input.GetKeyRepeat(Keys.Tab, KeyModifier.None))
                         cursorColumn = cursorColumn / 8 * 8;
                     Move(8, 0);
                     selectionActive = false;
                     correctChanScroll();
                 }
-                if (Input.GetKeyRepeat(Keys.Left, KeyModifier.Alt) || Input.GetKeyRepeat(Keys.Tab, KeyModifier.Shift))
-                {
+                if (Input.GetKeyRepeat(Keys.Left, KeyModifier.Alt) || Input.GetKeyRepeat(Keys.Tab, KeyModifier.Shift)) {
                     if (Input.GetKeyRepeat(Keys.Tab, KeyModifier.Shift))
                         cursorColumn = cursorColumn / 8 * 8;
                     Move(-8, 0);
@@ -250,29 +224,23 @@ namespace WaveTracker
                     correctChanScroll();
                 }
             }
-            if (selectionActive && currentFrame != selectionFrame)
-            {
+            if (selectionActive && currentFrame != selectionFrame) {
                 selectionActive = false;
             }
 
             #endregion
             #region muting and unmuting channels with function keys
-            if (Input.GetKeyDown(Keys.F10, KeyModifier.Alt))
-            {
+            if (Input.GetKeyDown(Keys.F10, KeyModifier.Alt)) {
                 SoloChannel(currentColumn / 5);
             }
-            if (Input.GetKeyDown(Keys.F9, KeyModifier.Alt))
-            {
+            if (Input.GetKeyDown(Keys.F9, KeyModifier.Alt)) {
                 ToggleChannel(currentColumn / 5);
             }
             #endregion
-            if (!Game1.VisualizerMode)
-            {
+            if (!Game1.VisualizerMode) {
                 #region selection with arrows
-                if (!playback && Input.GetKeyRepeat(Keys.Down, KeyModifier.Shift))
-                {
-                    if (!selectionActive)
-                    {
+                if (!playback && Input.GetKeyRepeat(Keys.Down, KeyModifier.Shift)) {
+                    if (!selectionActive) {
                         selectionStart = new Point(currentColumn, currentRow);
                         selectionFrame = currentFrame;
                         selectionActive = true;
@@ -281,10 +249,8 @@ namespace WaveTracker
                     selectionEnd = new Point(currentColumn, currentRow);
                 }
 
-                if (!playback && Input.GetKeyRepeat(Keys.Up, KeyModifier.Shift))
-                {
-                    if (!selectionActive)
-                    {
+                if (!playback && Input.GetKeyRepeat(Keys.Up, KeyModifier.Shift)) {
+                    if (!selectionActive) {
                         selectionStart = new Point(currentColumn, currentRow);
                         selectionFrame = currentFrame;
                         selectionActive = true;
@@ -293,10 +259,8 @@ namespace WaveTracker
                     selectionEnd = new Point(currentColumn, currentRow);
                 }
 
-                if (Input.GetKeyRepeat(Keys.Right, KeyModifier.Shift))
-                {
-                    if (!selectionActive)
-                    {
+                if (Input.GetKeyRepeat(Keys.Right, KeyModifier.Shift)) {
+                    if (!selectionActive) {
                         selectionStart = new Point(currentColumn, currentRow);
                         selectionFrame = currentFrame;
                         selectionActive = true;
@@ -304,10 +268,8 @@ namespace WaveTracker
                     Move(1, 0);
                     selectionEnd = new Point(currentColumn, currentRow);
                 }
-                if (Input.GetKeyRepeat(Keys.Left, KeyModifier.Shift))
-                {
-                    if (!selectionActive)
-                    {
+                if (Input.GetKeyRepeat(Keys.Left, KeyModifier.Shift)) {
+                    if (!selectionActive) {
                         selectionStart = new Point(currentColumn, currentRow);
                         selectionFrame = currentFrame;
                         selectionActive = true;
@@ -318,15 +280,11 @@ namespace WaveTracker
                 #endregion
 
                 #region Ctrl-A selection
-                if (Input.GetKeyDown(Keys.A, KeyModifier.Ctrl))
-                {
-                    if (selectionMax.X - selectionMin.X == 4 && selectionMin.Y == 0 && selectionMax.Y == thisFrame.GetLastRow())
-                    {
+                if (Input.GetKeyDown(Keys.A, KeyModifier.Ctrl)) {
+                    if (selectionMax.X - selectionMin.X == 4 && selectionMin.Y == 0 && selectionMax.Y == thisFrame.GetLastRow()) {
                         selectionStart.X = 0;
                         selectionEnd.X = Song.CHANNEL_COUNT * 5 - 1;
-                    }
-                    else
-                    {
+                    } else {
                         int chan = currentColumn / 5;
                         selectionStart.X = chan * 5;
                         selectionEnd.X = chan * 5 + 4;
@@ -341,14 +299,11 @@ namespace WaveTracker
                 #region create selection bounds
                 // create bounds of selection
                 CreateSelectionBounds();
-                if (selectionActive)
-                {
+                if (selectionActive) {
                     if (!lastSelectionActive)
                         CopyToScaleClipboard();
                     lastSelectionActive = true;
-                }
-                else
-                {
+                } else {
                     if (lastSelectionActive)
                         scaleclipboard.Clear();
                     lastSelectionActive = false;
@@ -356,8 +311,7 @@ namespace WaveTracker
                 #endregion
             }
             #region moving frames with ctrl-left and ctrl-right
-            if (Input.GetKeyRepeat(Keys.Right, KeyModifier.Ctrl))
-            {
+            if (Input.GetKeyRepeat(Keys.Right, KeyModifier.Ctrl)) {
                 selectionActive = false;
                 if (playback && followMode)
                     Playback.NextFrame();
@@ -366,8 +320,7 @@ namespace WaveTracker
             }
 
 
-            if (Input.GetKeyRepeat(Keys.Left, KeyModifier.Ctrl))
-            {
+            if (Input.GetKeyRepeat(Keys.Left, KeyModifier.Ctrl)) {
                 selectionActive = false;
                 if (playback && followMode)
                     Playback.PreviousFrame();
@@ -375,17 +328,14 @@ namespace WaveTracker
                     PreviousFrame();
             }
             #endregion
-            if (!Game1.VisualizerMode)
-            {
+            if (!Game1.VisualizerMode) {
                 #region cell input
                 {
                     int input;
-                    switch (currentColumn % 5)
-                    {
+                    switch (currentColumn % 5) {
                         case 0:
                             input = getPianoInput();
-                            if (input != -1)
-                            {
+                            if (input != -1) {
                                 SetCellValue(Math.Clamp(input, -3, 119), cursorColumn, step);
                                 selectionActive = false;
                                 AddToHistory();
@@ -394,8 +344,7 @@ namespace WaveTracker
                         case 1:
                         case 2:
                             input = getDecimalInput();
-                            if (input != -1)
-                            {
+                            if (input != -1) {
                                 SetCellValue(input, cursorColumn, step);
 
                                 if (currentColumn % 5 == 1 && thisFrame.pattern[currentRow - step][currentColumn] < thisSong.instruments.Count)
@@ -406,8 +355,7 @@ namespace WaveTracker
                             break;
                         case 3:
                             input = getEffectInput();
-                            if (input != -1)
-                            {
+                            if (input != -1) {
                                 SetCellValue(input, cursorColumn, Helpers.isEffectFrameTerminator(input) ? 0 : step);
                                 selectionActive = false;
                                 AddToHistory();
@@ -418,8 +366,7 @@ namespace WaveTracker
                                 input = getHexInput();
                             else
                                 input = getDecimalInput();
-                            if (input != -1)
-                            {
+                            if (input != -1) {
                                 SetCellValue(input, cursorColumn, step);
                                 selectionActive = false;
                                 AddToHistory();
@@ -428,26 +375,20 @@ namespace WaveTracker
                     }
                 }
                 // cut/deleting
-                if (Input.GetKeyDown(Keys.X, KeyModifier.Ctrl))
-                {
+                if (Input.GetKeyDown(Keys.X, KeyModifier.Ctrl)) {
                     Cut();
                 }
-                if (Input.GetKeyRepeat(Keys.Delete, KeyModifier.None))
-                {
+                if (Input.GetKeyRepeat(Keys.Delete, KeyModifier.None)) {
                     Delete();
                 }
                 #endregion
 
                 #region incrementing values and transposition
                 // shift up 1
-                if (canEdit)
-                {
-                    if (Input.MouseScrollWheel(KeyModifier.Shift) == 1 || Input.GetKeyRepeat(Keys.F2, KeyModifier.Shift))
-                    {
-                        for (int x = selectionMin.X; x <= selectionMax.X; x++)
-                        {
-                            for (int y = selectionMin.Y; y <= selectionMax.Y; y++)
-                            {
+                if (canEdit) {
+                    if (Input.MouseScrollWheel(KeyModifier.Shift) == 1 || Input.GetKeyRepeat(Keys.F2, KeyModifier.Shift)) {
+                        for (int x = selectionMin.X; x <= selectionMax.X; x++) {
+                            for (int y = selectionMin.Y; y <= selectionMax.Y; y++) {
                                 if (x % 5 != 0)
                                     IncrementCell(y, x, 1);
                             }
@@ -455,12 +396,9 @@ namespace WaveTracker
                         AddToHistory();
                     }
                     // shift down 1
-                    if (Input.MouseScrollWheel(KeyModifier.Shift) == -1 || Input.GetKeyRepeat(Keys.F1, KeyModifier.Shift))
-                    {
-                        for (int x = selectionMin.X; x <= selectionMax.X; x++)
-                        {
-                            for (int y = selectionMin.Y; y <= selectionMax.Y; y++)
-                            {
+                    if (Input.MouseScrollWheel(KeyModifier.Shift) == -1 || Input.GetKeyRepeat(Keys.F1, KeyModifier.Shift)) {
+                        for (int x = selectionMin.X; x <= selectionMax.X; x++) {
+                            for (int y = selectionMin.Y; y <= selectionMax.Y; y++) {
                                 if (x % 5 != 0)
                                     IncrementCell(y, x, -1);
                             }
@@ -470,12 +408,9 @@ namespace WaveTracker
 
 
                     // note up 1
-                    if (Input.MouseScrollWheel(KeyModifier.Ctrl) == 1 || Input.GetKeyRepeat(Keys.F2, KeyModifier.Ctrl))
-                    {
-                        for (int x = selectionMin.X; x <= selectionMax.X; x++)
-                        {
-                            for (int y = selectionMin.Y; y <= selectionMax.Y; y++)
-                            {
+                    if (Input.MouseScrollWheel(KeyModifier.Ctrl) == 1 || Input.GetKeyRepeat(Keys.F2, KeyModifier.Ctrl)) {
+                        for (int x = selectionMin.X; x <= selectionMax.X; x++) {
+                            for (int y = selectionMin.Y; y <= selectionMax.Y; y++) {
                                 if (x % 5 == 0)
                                     IncrementCell(y, x, 1);
                             }
@@ -484,12 +419,9 @@ namespace WaveTracker
                     }
 
                     // note down 1
-                    if (Input.MouseScrollWheel(KeyModifier.Ctrl) == -1 || Input.GetKeyRepeat(Keys.F1, KeyModifier.Ctrl))
-                    {
-                        for (int x = selectionMin.X; x <= selectionMax.X; x++)
-                        {
-                            for (int y = selectionMin.Y; y <= selectionMax.Y; y++)
-                            {
+                    if (Input.MouseScrollWheel(KeyModifier.Ctrl) == -1 || Input.GetKeyRepeat(Keys.F1, KeyModifier.Ctrl)) {
+                        for (int x = selectionMin.X; x <= selectionMax.X; x++) {
+                            for (int y = selectionMin.Y; y <= selectionMax.Y; y++) {
                                 if (x % 5 == 0)
                                     IncrementCell(y, x, -1);
                             }
@@ -498,12 +430,9 @@ namespace WaveTracker
                     }
 
                     // note octave down
-                    if (Input.GetKeyRepeat(Keys.F4, KeyModifier.Ctrl))
-                    {
-                        for (int x = selectionMin.X; x <= selectionMax.X; x++)
-                        {
-                            for (int y = selectionMin.Y; y <= selectionMax.Y; y++)
-                            {
+                    if (Input.GetKeyRepeat(Keys.F4, KeyModifier.Ctrl)) {
+                        for (int x = selectionMin.X; x <= selectionMax.X; x++) {
+                            for (int y = selectionMin.Y; y <= selectionMax.Y; y++) {
                                 if (x % 5 == 0)
                                     IncrementCell(y, x, 12);
                             }
@@ -512,12 +441,9 @@ namespace WaveTracker
                     }
 
                     // note octave up
-                    if (Input.GetKeyRepeat(Keys.F3, KeyModifier.Ctrl))
-                    {
-                        for (int x = selectionMin.X; x <= selectionMax.X; x++)
-                        {
-                            for (int y = selectionMin.Y; y <= selectionMax.Y; y++)
-                            {
+                    if (Input.GetKeyRepeat(Keys.F3, KeyModifier.Ctrl)) {
+                        for (int x = selectionMin.X; x <= selectionMax.X; x++) {
+                            for (int y = selectionMin.Y; y <= selectionMax.Y; y++) {
                                 if (x % 5 == 0)
                                     IncrementCell(y, x, -12);
                             }
@@ -526,15 +452,13 @@ namespace WaveTracker
                     }
 
                     // volume scale up 1
-                    if (Input.MouseScrollWheel(KeyModifier.ShiftAlt) == 1 || Input.GetKeyRepeat(Keys.F2, KeyModifier.ShiftAlt))
-                    {
+                    if (Input.MouseScrollWheel(KeyModifier.ShiftAlt) == 1 || Input.GetKeyRepeat(Keys.F2, KeyModifier.ShiftAlt)) {
                         ScaleVolumes(1);
                         AddToHistory();
                     }
 
                     // volume scale down 1
-                    if (Input.MouseScrollWheel(KeyModifier.ShiftAlt) == -1 || Input.GetKeyRepeat(Keys.F1, KeyModifier.ShiftAlt))
-                    {
+                    if (Input.MouseScrollWheel(KeyModifier.ShiftAlt) == -1 || Input.GetKeyRepeat(Keys.F1, KeyModifier.ShiftAlt)) {
                         ScaleVolumes(-1);
                         AddToHistory();
                     }
@@ -542,10 +466,8 @@ namespace WaveTracker
                 #endregion
 
                 #region interpolation
-                if (Input.GetKey(Keys.G, KeyModifier.Ctrl) && canEdit)
-                {
-                    if (selectionActive)
-                    {
+                if (Input.GetKey(Keys.G, KeyModifier.Ctrl) && canEdit) {
+                    if (selectionActive) {
                         Interpolate(selectionMin.Y, selectionMax.Y, selectionMin.X);
                         AddToHistory();
                     }
@@ -553,42 +475,29 @@ namespace WaveTracker
                 #endregion
 
                 #region inserting and backspace
-                if (Input.GetKeyRepeat(Keys.Insert, KeyModifier.None) && canEdit)
-                {
-                    if (selectionActive)
-                    {
-                        for (int i = selectionMin.X; i <= selectionMax.X; i++)
-                        {
+                if (Input.GetKeyRepeat(Keys.Insert, KeyModifier.None) && canEdit) {
+                    if (selectionActive) {
+                        for (int i = selectionMin.X; i <= selectionMax.X; i++) {
                             InsertVal(selectionMin.Y, i, -1);
                         }
-                    }
-                    else
-                    {
-                        for (int i = currentColumn / 5 * 5; i < currentColumn / 5 * 5 + 5; ++i)
-                        {
+                    } else {
+                        for (int i = currentColumn / 5 * 5; i < currentColumn / 5 * 5 + 5; ++i) {
                             InsertVal(currentRow, i, -1);
                         }
                     }
                     AddToHistory();
                 }
-                if (Input.GetKeyRepeat(Keys.Back, KeyModifier.None) && currentRow > 0 && canEdit)
-                {
-                    if (selectionActive)
-                    {
-                        for (int j = selectionMax.Y; j >= selectionMin.Y; j--)
-                        {
-                            for (int i = selectionMin.X; i <= selectionMax.X; i++)
-                            {
+                if (Input.GetKeyRepeat(Keys.Back, KeyModifier.None) && currentRow > 0 && canEdit) {
+                    if (selectionActive) {
+                        for (int j = selectionMax.Y; j >= selectionMin.Y; j--) {
+                            for (int i = selectionMin.X; i <= selectionMax.X; i++) {
                                 Backspace(j, i);
                             }
                         }
                         selectionActive = false;
-                    }
-                    else
-                    {
+                    } else {
                         Move(0, -1);
-                        for (int i = currentColumn / 5 * 5; i < currentColumn / 5 * 5 + 5; ++i)
-                        {
+                        for (int i = currentColumn / 5 * 5; i < currentColumn / 5 * 5 + 5; ++i) {
                             Backspace(currentRow, i);
                         }
                     }
@@ -597,10 +506,8 @@ namespace WaveTracker
                 #endregion
 
                 #region reversing
-                if (Input.GetKeyRepeat(Keys.R, KeyModifier.Ctrl) && canEdit)
-                {
-                    if (selectionActive)
-                    {
+                if (Input.GetKeyRepeat(Keys.R, KeyModifier.Ctrl) && canEdit) {
+                    if (selectionActive) {
                         Reverse();
                         AddToHistory();
                     }
@@ -608,14 +515,10 @@ namespace WaveTracker
                 #endregion
 
                 #region alt+s instrument change 
-                if (canEdit && selectionActive)
-                {
-                    if (Input.GetKeyDown(Keys.S, KeyModifier.Alt))
-                    {
-                        for (int i = selectionMin.X; i <= selectionMax.X; ++i)
-                        {
-                            for (int j = selectionMin.Y; j <= selectionMax.Y; ++j)
-                            {
+                if (canEdit && selectionActive) {
+                    if (Input.GetKeyDown(Keys.S, KeyModifier.Alt)) {
+                        for (int i = selectionMin.X; i <= selectionMax.X; ++i) {
+                            for (int j = selectionMin.Y; j <= selectionMax.Y; ++j) {
                                 if (i % 5 == 1 && thisFrame.pattern[j][i] >= 0)
                                     thisFrame.pattern[j][i] = (short)Rendering.InstrumentBank.CurrentInstrumentIndex;
                             }
@@ -625,18 +528,13 @@ namespace WaveTracker
                 #endregion
 
                 #region alt+r randomization
-                if (canEdit && selectionActive)
-                {
+                if (canEdit && selectionActive) {
                     float range = 0.5f;
                     Random r = new Random();
-                    if (Input.GetKeyDown(Keys.R, KeyModifier.Alt))
-                    {
-                        for (int i = selectionMin.X; i <= selectionMax.X; ++i)
-                        {
-                            for (int j = selectionMin.Y; j <= selectionMax.Y; ++j)
-                            {
-                                if (i % 5 == 2 && thisFrame.pattern[j][i] >= 0)
-                                {
+                    if (Input.GetKeyDown(Keys.R, KeyModifier.Alt)) {
+                        for (int i = selectionMin.X; i <= selectionMax.X; ++i) {
+                            for (int j = selectionMin.Y; j <= selectionMax.Y; ++j) {
+                                if (i % 5 == 2 && thisFrame.pattern[j][i] >= 0) {
                                     double val = thisFrame.pattern[j][i] * (1 + ((r.NextDouble() - 0.5f) * range));
                                     thisFrame.pattern[j][i] = (short)Math.Clamp(val, 0, 99);
                                 }
@@ -648,16 +546,13 @@ namespace WaveTracker
 
                 #region clipboard
 
-                if (Input.GetKeyRepeat(Keys.C, KeyModifier.Ctrl))
-                {
+                if (Input.GetKeyRepeat(Keys.C, KeyModifier.Ctrl)) {
                     CopyToClipboard();
                 }
-                if (Input.GetKeyRepeat(Keys.V, KeyModifier.Ctrl))
-                {
+                if (Input.GetKeyRepeat(Keys.V, KeyModifier.Ctrl)) {
                     PasteFromClipboard();
                 }
-                if (Input.GetKeyRepeat(Keys.M, KeyModifier.Ctrl))
-                {
+                if (Input.GetKeyRepeat(Keys.M, KeyModifier.Ctrl)) {
                     PasteAndMix();
                 }
 
@@ -681,38 +576,32 @@ namespace WaveTracker
             channelScroll = channelScrollbar.scrollValue;
         }
 
-        public static void ClearHistory()
-        {
+        public static void ClearHistory() {
             history.Clear();
             history.Add(FrameEditorState.Current());
             historyIndex = 0;
         }
 
-        public static void AddToHistory()
-        {
-            if (history.Count == 0)
-            {
+        public static void AddToHistory() {
+            if (history.Count == 0) {
                 history.Add(FrameEditorState.Current());
                 historyIndex = 0;
                 return;
             }
             if (!canEdit)
                 return;
-            while (history.Count - 1 > historyIndex)
-            {
+            while (history.Count - 1 > historyIndex) {
                 history.RemoveAt(history.Count - 1);
             }
             history.Add(FrameEditorState.Current());
             thisSong.frameEdits++;
             historyIndex++;
-            if (history.Count > 64)
-            {
+            if (history.Count > 64) {
                 history.RemoveAt(0);
                 historyIndex--;
             }
         }
-        public static void Undo()
-        {
+        public static void Undo() {
             history[historyIndex].positionBefore.Load(true);
             historyIndex--;
             if (historyIndex < 0)
@@ -720,8 +609,7 @@ namespace WaveTracker
             history[historyIndex].Load();
             thisSong.frameEdits--;
         }
-        public static void Redo()
-        {
+        public static void Redo() {
             historyIndex++;
             if (historyIndex >= history.Count)
                 historyIndex = history.Count - 1;
@@ -734,14 +622,10 @@ namespace WaveTracker
         /// <summary>
         /// Delete selection
         /// </summary>
-        public static void Delete()
-        {
-            if (canEdit)
-            {
-                for (int x = selectionMin.X; x <= selectionMax.X; x++)
-                {
-                    for (int y = selectionMin.Y; y <= selectionMax.Y; y++)
-                    {
+        public static void Delete() {
+            if (canEdit) {
+                for (int x = selectionMin.X; x <= selectionMax.X; x++) {
+                    for (int y = selectionMin.Y; y <= selectionMax.Y; y++) {
                         thisFrame.pattern[y][x] = -1;
 
                         if (x % 5 == 0) thisFrame.pattern[y][x + 1] = -1;
@@ -758,10 +642,8 @@ namespace WaveTracker
         /// <summary>
         /// Copy selection to clipboard then delete
         /// </summary>
-        public static void Cut()
-        {
-            if (selectionActive)
-            {
+        public static void Cut() {
+            if (selectionActive) {
                 CopyToClipboard();
                 Delete();
             }
@@ -769,20 +651,16 @@ namespace WaveTracker
         /// <summary>
         /// Copy selection to the clipboard
         /// </summary>
-        public static void CopyToClipboard()
-        {
-            if (selectionActive)
-            {
+        public static void CopyToClipboard() {
+            if (selectionActive) {
                 clipboard.Clear();
 
                 // clipboard is the same size as the selection
                 clipboardStartCol = selectionMin.X;
 
-                for (int x = selectionMin.X; x <= selectionMax.X; x++)
-                {
+                for (int x = selectionMin.X; x <= selectionMax.X; x++) {
                     clipboard.Add(new List<short>());
-                    for (int y = selectionMin.Y; y <= selectionMax.Y; y++)
-                    {
+                    for (int y = selectionMin.Y; y <= selectionMax.Y; y++) {
                         int cy = y - selectionMin.Y;
                         int cx = x - selectionMin.X;
                         clipboard[cx].Add(thisFrame.pattern[y][x]);
@@ -796,39 +674,29 @@ namespace WaveTracker
         /// <summary>
         /// When about to scale, copy the original values to the scale clipboard so as little fidelity is lost when scaling down then back up.
         /// </summary>
-        public static void CopyToScaleClipboard()
-        {
-            if (selectionActive)
-            {
+        public static void CopyToScaleClipboard() {
+            if (selectionActive) {
                 scaleclipboard.Clear();
 
-                foreach (short[] row in thisFrame.pattern)
-                {
+                foreach (short[] row in thisFrame.pattern) {
                     scaleclipboard.Add(new List<float>());
-                    foreach (short val in row)
-                    {
+                    foreach (short val in row) {
                         scaleclipboard[scaleclipboard.Count - 1].Add(val);
                     }
                 }
             }
         }
 
-        public static void PasteFromClipboard()
-        {
+        public static void PasteFromClipboard() {
             if (!canEdit)
                 return;
-            if (clipboard.Count > 0)
-            {
+            if (clipboard.Count > 0) {
                 int startRow = (currentColumn / 5 * 5) + clipboardStartCol % 5;
                 int startCol = currentRow;
-                for (int y = 0; y < clipboard.Count; y++)
-                {
-                    if (startRow + y < Song.CHANNEL_COUNT * 5)
-                    {
-                        for (int x = 0; x < clipboard[y].Count; x++)
-                        {
-                            if (startCol + x < thisSong.rowsPerFrame)
-                            {
+                for (int y = 0; y < clipboard.Count; y++) {
+                    if (startRow + y < Song.CHANNEL_COUNT * 5) {
+                        for (int x = 0; x < clipboard[y].Count; x++) {
+                            if (startCol + x < thisSong.rowsPerFrame) {
                                 thisFrame.pattern[startCol + x][startRow + y] = clipboard[y][x];
                             }
                         }
@@ -848,22 +716,16 @@ namespace WaveTracker
         /// <summary>
         /// Paste contents of clipboards only in empty spaces
         /// </summary>
-        public static void PasteAndMix()
-        {
+        public static void PasteAndMix() {
             if (!canEdit)
                 return;
-            if (clipboard.Count > 0)
-            {
+            if (clipboard.Count > 0) {
                 int startRow = (currentColumn / 5 * 5) + clipboardStartCol % 5;
                 int startCol = currentRow;
-                for (int y = 0; y < clipboard.Count; y++)
-                {
-                    if (startRow + y < Song.CHANNEL_COUNT * 5)
-                    {
-                        for (int x = 0; x < clipboard[y].Count; x++)
-                        {
-                            if (startCol + x < thisSong.rowsPerFrame)
-                            {
+                for (int y = 0; y < clipboard.Count; y++) {
+                    if (startRow + y < Song.CHANNEL_COUNT * 5) {
+                        for (int x = 0; x < clipboard[y].Count; x++) {
+                            if (startCol + x < thisSong.rowsPerFrame) {
                                 int row = startCol + x;
                                 int col = startRow + y;
                                 if (thisFrame.pattern[row][col] == -1)
@@ -884,10 +746,8 @@ namespace WaveTracker
         /// <summary>
         /// Converts selection start and end to selection min and max.
         /// </summary>
-        public static void CreateSelectionBounds()
-        {
-            if (selectionActive)
-            {
+        public static void CreateSelectionBounds() {
+            if (selectionActive) {
 
                 selectionStart.X = Math.Clamp(selectionStart.X, 0, Song.CHANNEL_COUNT * 5 - 1);
                 selectionStart.Y = Math.Clamp(selectionStart.Y, 0, thisFrame.GetLastRow());
@@ -902,9 +762,7 @@ namespace WaveTracker
                 if (selectionMin.X % 5 == 4)
                     selectionMin.X -= 1;
 
-            }
-            else
-            {
+            } else {
                 selectionMin.Y = currentRow;
                 selectionMin.X = currentColumn;
                 selectionMax.Y = currentRow;
@@ -917,12 +775,10 @@ namespace WaveTracker
         /// <param name="row"></param>
         /// <param name="col"></param>
         /// <param name="amt"></param>
-        public static void IncrementCell(int row, int col, int amt)
-        {
+        public static void IncrementCell(int row, int col, int amt) {
             int currentCellValue = thisFrame.pattern[row][col];
             if (currentCellValue < 0) return;
-            if (col % 5 != 3)
-            {
+            if (col % 5 != 3) {
                 thisFrame.pattern[row][col] += (short)amt;
 
                 // clamp values
@@ -941,10 +797,8 @@ namespace WaveTracker
         /// <param name="row"></param>
         /// <param name="column"></param>
         /// <param name="val"></param>
-        public static void InsertVal(int row, int column, int val)
-        {
-            for (int i = thisSong.rowsPerFrame - 1; i > row; i--)
-            {
+        public static void InsertVal(int row, int column, int val) {
+            for (int i = thisSong.rowsPerFrame - 1; i > row; i--) {
                 thisFrame.pattern[i][column] = thisFrame.pattern[i - 1][column];
             }
             thisFrame.pattern[row][column] = (short)val;
@@ -955,10 +809,8 @@ namespace WaveTracker
         /// </summary>
         /// <param name="row"></param>
         /// <param name="column"></param>
-        public static void Backspace(int row, int column)
-        {
-            for (int i = row; i < thisSong.rowsPerFrame - 1; i++)
-            {
+        public static void Backspace(int row, int column) {
+            for (int i = row; i < thisSong.rowsPerFrame - 1; i++) {
                 thisFrame.pattern[i][column] = thisFrame.pattern[i + 1][column];
             }
             thisFrame.pattern[thisSong.rowsPerFrame - 1][column] = -1;
@@ -967,15 +819,11 @@ namespace WaveTracker
         /// <summary>
         /// Reverse current selection
         /// </summary>
-        static void Reverse()
-        {
-            if (canEdit)
-            {
+        static void Reverse() {
+            if (canEdit) {
                 int row = 0;
-                for (int y = selectionMin.Y; y <= selectionMax.Y; y += 2)
-                {
-                    for (int x = selectionMin.X; x <= selectionMax.X; x++)
-                    {
+                for (int y = selectionMin.Y; y <= selectionMax.Y; y += 2) {
+                    for (int x = selectionMin.X; x <= selectionMax.X; x++) {
                         short one = thisFrame.pattern[selectionMin.Y + row][x];
                         short two = thisFrame.pattern[selectionMax.Y - row][x];
                         thisFrame.pattern[selectionMin.Y + row][x] = two;
@@ -992,10 +840,8 @@ namespace WaveTracker
         /// <param name="startRow"></param>
         /// <param name="endRow"></param>
         /// <param name="col"></param>
-        static void Interpolate(int startRow, int endRow, int col)
-        {
-            if (canEdit)
-            {
+        static void Interpolate(int startRow, int endRow, int col) {
+            if (canEdit) {
                 // if column is effect move to effect parameter
                 if (col % 5 == 3)
                     col++;
@@ -1007,31 +853,24 @@ namespace WaveTracker
                 if (startVal < 0 || endVal < 0 || col % 5 == 3) return;
 
                 // lerp from start to end filling in the rows in between
-                for (int i = startRow; i <= endRow; i++)
-                {
+                for (int i = startRow; i <= endRow; i++) {
                     float percentage = (i - startRow) / (float)(endRow - startRow);
                     thisFrame.pattern[i][col] = (short)Math.Round(MathHelper.Lerp(startVal, endVal, percentage));
-                    if (col % 5 == 4)
-                    {
+                    if (col % 5 == 4) {
                         thisFrame.pattern[i][col - 1] = thisFrame.pattern[startRow][col - 1];
                     }
                 }
             }
         }
 
-        static void ScaleVolumes(int direction)
-        {
-            if (canEdit)
-            {
+        static void ScaleVolumes(int direction) {
+            if (canEdit) {
                 int cx = 0;
-                for (int x = selectionMin.X; x <= selectionMax.X; x++)
-                {
-                    if (x % 5 == 2)
-                    {
+                for (int x = selectionMin.X; x <= selectionMax.X; x++) {
+                    if (x % 5 == 2) {
                         // gets max value in selection
                         float max = 0;
-                        for (int y = selectionMin.Y; y <= selectionMax.Y; y++)
-                        {
+                        for (int y = selectionMin.Y; y <= selectionMax.Y; y++) {
                             if (scaleclipboard[y][x] > max)
                                 max = scaleclipboard[y][x];
                         }
@@ -1040,10 +879,8 @@ namespace WaveTracker
                         float factor = (max + direction) / (float)max;
 
                         // multiply every value in the selection to scale the values
-                        for (int y = selectionMin.Y; y <= selectionMax.Y; y++)
-                        {
-                            if (thisFrame.pattern[y][x] >= 0)
-                            {
+                        for (int y = selectionMin.Y; y <= selectionMax.Y; y++) {
+                            if (thisFrame.pattern[y][x] >= 0) {
                                 scaleclipboard[y][x] *= factor;
                                 int val = (short)Math.Round(scaleclipboard[y][x]);
                                 thisFrame.pattern[y][x] = (short)Math.Clamp(val, 0, 99);
@@ -1061,10 +898,8 @@ namespace WaveTracker
         /// <param name="val"></param>
         /// <param name="cursorCol"></param>
         /// <param name="stepAmt"></param>
-        static void SetCellValue(int val, int cursorCol, int stepAmt)
-        {
-            if (canEdit)
-            {
+        static void SetCellValue(int val, int cursorCol, int stepAmt) {
+            if (canEdit) {
                 short[] previousRow = thisRow;
                 int previousCellValue = thisRow[currentColumn];
                 int channelIDX = currentColumn / 5 * 5;
@@ -1115,17 +950,14 @@ namespace WaveTracker
                 if (chanCol == 5) // effect
                 {
                     thisFrame.pattern[currentRow][channelIDX + 3] = (short)val;
-                    if (thisFrame.pattern[currentRow][channelIDX + 4] == -1)
-                    {
+                    if (thisFrame.pattern[currentRow][channelIDX + 4] == -1) {
                         thisFrame.pattern[currentRow][channelIDX + 4] = 0;
                     }
-                    if (!Helpers.isEffectHexadecimal(val) && thisFrame.pattern[currentRow][channelIDX + 4] > 99)
-                    {
+                    if (!Helpers.isEffectHexadecimal(val) && thisFrame.pattern[currentRow][channelIDX + 4] > 99) {
                         thisFrame.pattern[currentRow][channelIDX + 4] = 99;
                     }
                 }
-                if (thisFrame.pattern[currentRow][channelIDX + 3] != -1)
-                {
+                if (thisFrame.pattern[currentRow][channelIDX + 3] != -1) {
                     int baseNum = Helpers.isEffectHexadecimal(thisFrame.pattern[currentRow][channelIDX + 3]) ? 16 : 10;
                     if (chanCol == 6) // effect parameter tens
                     {
@@ -1152,10 +984,8 @@ namespace WaveTracker
         /// </summary>
         /// <returns>
         /// </returns>
-        static int getHexInput()
-        {
-            if (Preferences.profile.keyRepeat)
-            {
+        static int getHexInput() {
+            if (Preferences.profile.keyRepeat) {
                 if (Input.GetKeyRepeat(Keys.D0, KeyModifier.None))
                     return 0;
                 if (Input.GetKeyRepeat(Keys.D1, KeyModifier.None))
@@ -1188,9 +1018,7 @@ namespace WaveTracker
                     return 14;
                 if (Input.GetKeyRepeat(Keys.F, KeyModifier.None))
                     return 15;
-            }
-            else
-            {
+            } else {
                 if (Input.GetKeyDown(Keys.D0, KeyModifier.None))
                     return 0;
                 if (Input.GetKeyDown(Keys.D1, KeyModifier.None))
@@ -1231,10 +1059,8 @@ namespace WaveTracker
         /// </summary>
         /// <returns>
         /// </returns>
-        static int getDecimalInput()
-        {
-            if (Preferences.profile.keyRepeat)
-            {
+        static int getDecimalInput() {
+            if (Preferences.profile.keyRepeat) {
                 if (Input.GetKeyRepeat(Keys.D0, KeyModifier.None)) return 0;
                 if (Input.GetKeyRepeat(Keys.D1, KeyModifier.None)) return 1;
                 if (Input.GetKeyRepeat(Keys.D2, KeyModifier.None)) return 2;
@@ -1245,9 +1071,7 @@ namespace WaveTracker
                 if (Input.GetKeyRepeat(Keys.D7, KeyModifier.None)) return 7;
                 if (Input.GetKeyRepeat(Keys.D8, KeyModifier.None)) return 8;
                 if (Input.GetKeyRepeat(Keys.D9, KeyModifier.None)) return 9;
-            }
-            else
-            {
+            } else {
                 if (Input.GetKeyDown(Keys.D0, KeyModifier.None)) return 0;
                 if (Input.GetKeyDown(Keys.D1, KeyModifier.None)) return 1;
                 if (Input.GetKeyDown(Keys.D2, KeyModifier.None)) return 2;
@@ -1267,10 +1091,8 @@ namespace WaveTracker
         /// <returns>Effect ID of the current key pressed <br></br>
         /// Returns -1 if none.
         /// </returns>
-        static int getEffectInput()
-        {
-            if (Preferences.profile.keyRepeat)
-            {
+        static int getEffectInput() {
+            if (Preferences.profile.keyRepeat) {
                 if (Input.GetKeyRepeat(Keys.D0, KeyModifier.None)) return 0;
                 if (Input.GetKeyRepeat(Keys.D1, KeyModifier.None)) return 1;
                 if (Input.GetKeyRepeat(Keys.D2, KeyModifier.None)) return 2;
@@ -1295,9 +1117,7 @@ namespace WaveTracker
                 if (Input.GetKeyRepeat(Keys.I, KeyModifier.None)) return 19;
                 if (Input.GetKeyRepeat(Keys.J, KeyModifier.None)) return 24;
                 if (Input.GetKeyRepeat(Keys.L, KeyModifier.None)) return 25;
-            }
-            else
-            {
+            } else {
                 if (Input.GetKeyDown(Keys.D0, KeyModifier.None)) return 0;
                 if (Input.GetKeyDown(Keys.D1, KeyModifier.None)) return 1;
                 if (Input.GetKeyDown(Keys.D2, KeyModifier.None)) return 2;
@@ -1333,10 +1153,8 @@ namespace WaveTracker
         /// <returns>MIDI note number of the key pressed on the keyboard (taking into account current octave selection). <br></br>
         /// Returns -1 if none.
         /// </returns>
-        static int getPianoInput()
-        {
-            if (Preferences.profile.keyRepeat)
-            {
+        static int getPianoInput() {
+            if (Preferences.profile.keyRepeat) {
                 if (Input.GetKeyRepeat(Keys.OemPlus, KeyModifier.None)) return -3;
                 if (Input.GetKeyRepeat(Keys.D1, KeyModifier.None)) return -2;
 
@@ -1374,9 +1192,7 @@ namespace WaveTracker
                 if (Input.GetKeyRepeat(Keys.O, KeyModifier.None)) return currentOctave * 12 + 26;
                 if (Input.GetKeyRepeat(Keys.D0, KeyModifier.None)) return currentOctave * 12 + 27;
                 if (Input.GetKeyRepeat(Keys.P, KeyModifier.None)) return currentOctave * 12 + 28;
-            }
-            else
-            {
+            } else {
                 if (Input.GetKeyDown(Keys.OemPlus, KeyModifier.None)) return -3;
                 if (Input.GetKeyDown(Keys.D1, KeyModifier.None)) return -2;
 
@@ -1422,40 +1238,29 @@ namespace WaveTracker
         /// </summary>
         /// <param name="inst"></param>
         /// <param name="inst2"></param>
-        public static void SwapInstrumentsInSong(int inst, int inst2)
-        {
-            foreach (Frame f in Game1.currentSong.frames)
-            {
-                for (int row = 0; row < f.pattern.Length; row++)
-                {
-                    for (int col = 0; col < f.pattern[row].Length; col++)
-                    {
-                        if (col % 5 == 1)
-                        {
+        public static void SwapInstrumentsInSong(int inst, int inst2) {
+            foreach (Frame f in Song.currentSong.frames) {
+                for (int row = 0; row < f.pattern.Length; row++) {
+                    for (int col = 0; col < f.pattern[row].Length; col++) {
+                        if (col % 5 == 1) {
                             // ex: swapping 00 with 01
                             // all instruments that are 01 are set to 255
                             // all instruments that are 00 are set to 01
-                            if (f.pattern[row][col] == inst2)
-                            {
+                            if (f.pattern[row][col] == inst2) {
                                 f.pattern[row][col] = 255;
                             }
-                            if (f.pattern[row][col] == inst)
-                            {
+                            if (f.pattern[row][col] == inst) {
                                 f.pattern[row][col] = (short)inst2;
                             }
                         }
                     }
                 }
-                for (int row = 0; row < f.pattern.Length; row++)
-                {
-                    for (int col = 0; col < f.pattern[row].Length; col++)
-                    {
-                        if (col % 5 == 1)
-                        {
+                for (int row = 0; row < f.pattern.Length; row++) {
+                    for (int col = 0; col < f.pattern[row].Length; col++) {
+                        if (col % 5 == 1) {
                             // ex: swapping 00 with 01
                             // all instruments that are 255 are set to 00
-                            if (f.pattern[row][col] == 255)
-                            {
+                            if (f.pattern[row][col] == 255) {
                                 f.pattern[row][col] = (short)inst;
                             }
                         }
@@ -1469,22 +1274,14 @@ namespace WaveTracker
         /// Any instance where the deleted instrument was used will be deleted as well.
         /// </summary>
         /// <param name="indexOfDeletedInstrument"></param>
-        public static void AdjustForDeletedInstrument(int indexOfDeletedInstrument)
-        {
-            foreach (Frame f in Game1.currentSong.frames)
-            {
-                for (int row = 0; row < f.pattern.Length; row++)
-                {
-                    for (int col = 0; col < f.pattern[row].Length; col++)
-                    {
-                        if (col % 5 == 1)
-                        {
-                            if (f.pattern[row][col] > indexOfDeletedInstrument)
-                            {
+        public static void AdjustForDeletedInstrument(int indexOfDeletedInstrument) {
+            foreach (Frame f in Song.currentSong.frames) {
+                for (int row = 0; row < f.pattern.Length; row++) {
+                    for (int col = 0; col < f.pattern[row].Length; col++) {
+                        if (col % 5 == 1) {
+                            if (f.pattern[row][col] > indexOfDeletedInstrument) {
                                 f.pattern[row][col]--;
-                            }
-                            else if (f.pattern[row][col] == indexOfDeletedInstrument)
-                            {
+                            } else if (f.pattern[row][col] == indexOfDeletedInstrument) {
                                 f.pattern[row][col] = -1;
                             }
                         }
@@ -1498,8 +1295,7 @@ namespace WaveTracker
         /// <param name="mrow"></param>
         /// <param name="mcolumn"></param>
         /// <returns></returns>
-        static bool mouseInBounds(int mrow, int mcolumn)
-        {
+        static bool mouseInBounds(int mrow, int mcolumn) {
             if (Input.MousePositionY > Game1.bottomOfScreen - 15)
                 return false;
             if (channelScrollbar.barisPressed || channelScrollbar.barWasPressed > 0)
@@ -1509,15 +1305,13 @@ namespace WaveTracker
         /// <summary>
         /// Returns the top-most coordinate of the row 'row'. Used for rendering purposes
         /// </summary>
-        public static int getStartPosOfRow(int row)
-        {
+        public static int getStartPosOfRow(int row) {
             return (row + Rendering.FrameRenderer.centerRow - currentRow) * 7 + 184;
         }
         /// <summary>
         /// Returns the bottom-most coordinate of the row 'row'. Used for rendering purposes
         /// </summary>
-        public static int getEndPosOfRow(int row)
-        {
+        public static int getEndPosOfRow(int row) {
             return (row + Rendering.FrameRenderer.centerRow - currentRow) * 7 + 184 + 7;
         }
 
@@ -1530,13 +1324,11 @@ namespace WaveTracker
         /// </summary>
         /// <param name="col"></param>
         /// <returns></returns>
-        public static int getStartPosOfFileColumn(int col)
-        {
+        public static int getStartPosOfFileColumn(int col) {
             int channel = col / 5;
             int internalColumn = col % 5;
             int ret = 0;
-            switch (internalColumn)
-            {
+            switch (internalColumn) {
                 case 0:
                     ret = 0;
                     break;
@@ -1561,13 +1353,11 @@ namespace WaveTracker
         /// <br></br>
         /// Note: 'col' is a file column(5 per channel) not a cursor column(8 per channel)
         /// </summary>
-        public static int getEndPosOfFileColumn(int col)
-        {
+        public static int getEndPosOfFileColumn(int col) {
             int channel = col / 5;
             int internalColumn = col % 5;
             int ret = 0;
-            switch (internalColumn)
-            {
+            switch (internalColumn) {
                 case 0:
                     ret = 18;
                     break;
@@ -1593,11 +1383,9 @@ namespace WaveTracker
         /// </summary>
         /// <param name="cursorCol"></param>
         /// <returns></returns>
-        public static int cursorColToFileCol(int cursorCol)
-        {
+        public static int cursorColToFileCol(int cursorCol) {
             int chan = cursorCol / 8;
-            switch (cursorCol % 8)
-            {
+            switch (cursorCol % 8) {
                 case 0: // note
                     return 0 + chan * 5; // returns note column of current channel
                 case 1: // instrument digit 1
@@ -1627,8 +1415,7 @@ namespace WaveTracker
         /// </summary>
         /// <param name="mx"></param>
         /// <returns></returns>
-        public static int getCursorColumnFromGlobalX(int mx)
-        {
+        public static int getCursorColumnFromGlobalX(int mx) {
             mx -= 22;
             int channel = mx / 64;
             int positionAlongChannel = (mx + 0) % 64;
@@ -1656,17 +1443,14 @@ namespace WaveTracker
             return columnWithinChannel + channel * 8 + channelScroll * 8;
         }
 
-        public static void Move(int x, int y)
-        {
+        public static void Move(int x, int y) {
             int frameLength = thisFrame.GetLastRow() + 1;
             cursorColumn += x;
-            while (y < 0)
-            {
+            while (y < 0) {
                 MoveOneRow(-1);
                 y++;
             }
-            while (y > 0)
-            {
+            while (y > 0) {
                 MoveOneRow(1);
                 y--;
             }
@@ -1678,86 +1462,70 @@ namespace WaveTracker
         /// 'dir' must be either 1 or -1
         /// </summary>
         /// <param name="dir"></param>
-        static void MoveOneRow(int dir)
-        {
+        static void MoveOneRow(int dir) {
             cursorRow += dir;
-            if (cursorRow < 0)
-            {
+            if (cursorRow < 0) {
                 PreviousFrame();
                 cursorRow = thisFrame.GetLastRow();
             }
-            if (cursorRow > thisFrame.GetLastRow())
-            {
+            if (cursorRow > thisFrame.GetLastRow()) {
                 NextFrame();
                 cursorRow = 0;
             }
         }
 
-        static void correctChanScroll()
-        {
+        static void correctChanScroll() {
             while (cursorColumn - channelScroll * 8 >= 96)
                 channelScroll++;
             while (cursorColumn - channelScroll * 8 < 0)
                 channelScroll--;
         }
 
-        public static void Goto(int frame, int row)
-        {
+        public static void Goto(int frame, int row) {
             currentFrame = frame;
             cursorRow = Math.Clamp(row, 0, thisFrame.GetLastRow());
             if (cursorRow > thisFrame.GetLastRow())
                 cursorRow = thisFrame.GetLastRow();
 
         }
-        public static void NextFrame()
-        {
+        public static void NextFrame() {
             currentFrame++;
-            currentFrame %= Game1.currentSong.frames.Count;
+            currentFrame %= Song.currentSong.frames.Count;
             if (cursorRow > thisFrame.GetLastRow())
                 cursorRow = thisFrame.GetLastRow();
         }
 
-        public static void PreviousFrame()
-        {
+        public static void PreviousFrame() {
             currentFrame--;
-            currentFrame += Game1.currentSong.frames.Count;
-            currentFrame %= Game1.currentSong.frames.Count;
+            currentFrame += Song.currentSong.frames.Count;
+            currentFrame %= Song.currentSong.frames.Count;
             if (cursorRow > thisFrame.GetLastRow())
                 cursorRow = thisFrame.GetLastRow();
         }
 
-        public static void ToggleChannel(int num)
-        {
+        public static void ToggleChannel(int num) {
             channelToggles[num] = !channelToggles[num];
         }
 
-        public static void SoloChannel(int num)
-        {
+        public static void SoloChannel(int num) {
             for (int i = 0; i < channelToggles.Length; ++i)
                 channelToggles[i] = i == num;
         }
 
-        public static void MuteAllChannels()
-        {
+        public static void MuteAllChannels() {
             for (int i = 0; i < channelToggles.Length; ++i)
                 channelToggles[i] = false;
         }
-        public static void UnmuteAllChannels()
-        {
+        public static void UnmuteAllChannels() {
             for (int i = 0; i < channelToggles.Length; ++i)
                 channelToggles[i] = true;
         }
 
-        public static bool isChannelSoloed(int num)
-        {
-            for (int i = 0; i < channelToggles.Length; ++i)
-            {
-                if (i == num)
-                {
+        public static bool isChannelSoloed(int num) {
+            for (int i = 0; i < channelToggles.Length; ++i) {
+                if (i == num) {
                     if (channelToggles[i] == false) return false;
-                }
-                else
-                {
+                } else {
                     if (channelToggles[i] == true) return false;
                 }
             }

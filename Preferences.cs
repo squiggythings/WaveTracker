@@ -9,44 +9,32 @@ using System.Xml;
 using System.Diagnostics;
 using WaveTracker.Rendering;
 
-namespace WaveTracker
-{
-    public static class Preferences
-    {
+namespace WaveTracker {
+    public static class Preferences {
 
         public static PreferenceProfile profile;
         public static Rendering.PreferencesDialog dialog;
 
         static string settingspath => Directory.GetCurrentDirectory() + "/WaveTracker_pref";
-        public static void ReadFromFile()
-        {
-            if (File.Exists(settingspath))
-            {
+        public static void ReadFromFile() {
+            if (File.Exists(settingspath)) {
                 var serializer = new XmlSerializer(typeof(PreferenceProfile));
-                try
-                {
-                    using (Stream reader = new FileStream(settingspath, FileMode.Open))
-                    {
+                try {
+                    using (Stream reader = new FileStream(settingspath, FileMode.Open)) {
                         profile = (PreferenceProfile)serializer.Deserialize(reader);
                     }
-                }
-                catch
-                {
+                } catch {
                     profile = PreferenceProfile.defaultProfile;
                     SaveToFile();
                 }
-            }
-            else
-            {
+            } else {
                 profile = PreferenceProfile.defaultProfile;
                 SaveToFile();
             }
         }
 
-        public static void SaveToFile()
-        {
-            using (var writer = new StreamWriter(settingspath))
-            {
+        public static void SaveToFile() {
+            using (var writer = new StreamWriter(settingspath)) {
                 var serializer = new XmlSerializer(typeof(PreferenceProfile));
                 serializer.Serialize(writer, profile);
                 writer.Flush();
@@ -99,8 +87,7 @@ volume              25%
          */
     }
     [Serializable]
-    public class PreferenceProfile
-    {
+    public class PreferenceProfile {
         [XmlElement(ElementName = "hexRows")]
         public bool showRowNumbersInHex = false;
         [XmlElement(ElementName = "noteCutLines")]
@@ -168,10 +155,8 @@ volume              25%
         public float master_volume = 1f;
         [XmlElement(ElementName = "smpDir")]
         public string lastBrowseDirectory = @"";
-        public static PreferenceProfile defaultProfile
-        {
-            get
-            {
+        public static PreferenceProfile defaultProfile {
+            get {
                 PreferenceProfile profile = new PreferenceProfile();
                 return profile;
             }

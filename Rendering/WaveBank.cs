@@ -9,25 +9,20 @@ using Microsoft.Xna.Framework.Input;
 using WaveTracker.UI;
 using WaveTracker.Tracker;
 
-namespace WaveTracker.Rendering
-{
-    public class WaveBank : Panel
-    {
+namespace WaveTracker.Rendering {
+    public class WaveBank : Panel {
         WaveBankElement[] waveBankElements;
-        public Song song => Game1.currentSong;
+        public Song song => Song.currentSong;
         public WaveEditor editor;
         public static int currentWave;
         public static int lastSelectedWave;
-        public WaveBank()
-        {
+        public WaveBank() {
             waveBankElements = new WaveBankElement[100];
             InitializePanel("Wave Bank", 510, 18, 448, 130);
             lastSelectedWave = 0;
             int index = 0;
-            for (int y = 0; y < 5; y++)
-            {
-                for (int x = 0; x < 20; x++)
-                {
+            for (int y = 0; y < 5; y++) {
+                for (int x = 0; x < 20; x++) {
                     waveBankElements[index] = new WaveBankElement(this, index);
                     waveBankElements[index].x = x * 22 + 4;
                     waveBankElements[index].y = y * 22 + 13;
@@ -36,25 +31,20 @@ namespace WaveTracker.Rendering
                 }
             }
         }
-        public Wave GetWave(int num)
-        {
+        public Wave GetWave(int num) {
             return song.waves[num];
         }
-        public void Initialize()
-        {
+        public void Initialize() {
 
         }
 
-        public void Update()
-        {
+        public void Update() {
             int i = 0;
             if (Input.focus == null)
                 currentWave = -1;
-            foreach (WaveBankElement e in waveBankElements)
-            {
+            foreach (WaveBankElement e in waveBankElements) {
                 e.Update();
-                if (e.Clicked)
-                {
+                if (e.Clicked) {
                     currentWave = i;
                     lastSelectedWave = i;
                     editor.EditWave(song.waves[i], i);
@@ -66,12 +56,10 @@ namespace WaveTracker.Rendering
             }
         }
 
-        public void Draw()
-        {
+        public void Draw() {
             DrawPanel();
             DrawRect(2, 11, 444, 114, new Color(43, 49, 81));
-            foreach (WaveBankElement e in waveBankElements)
-            {
+            foreach (WaveBankElement e in waveBankElements) {
                 e.Draw();
             }
         }

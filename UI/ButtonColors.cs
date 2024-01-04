@@ -6,10 +6,8 @@ using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 
-namespace WaveTracker.UI
-{
-    public struct ButtonColors
-    {
+namespace WaveTracker.UI {
+    public struct ButtonColors {
         public Color backgroundColor;
         public Color backgroundColorHover;
         public Color backgroundColorPressed;
@@ -20,10 +18,8 @@ namespace WaveTracker.UI
         public Color textColorDisabled;
         public Color backgroundColorDisabled;
         public Color toggleBackgroundColor;
-        public static ButtonColors Default
-        {
-            get
-            {
+        public static ButtonColors Default {
+            get {
                 ButtonColors result = new ButtonColors();
 
                 result.backgroundColor = new Color(190, 192, 211);
@@ -42,10 +38,8 @@ namespace WaveTracker.UI
             }
         }
 
-        public static ButtonColors Round
-        {
-            get
-            {
+        public static ButtonColors Round {
+            get {
                 ButtonColors result = new ButtonColors();
 
                 result.backgroundColor = new Color(104, 111, 153);
@@ -65,10 +59,8 @@ namespace WaveTracker.UI
             }
         }
 
-        public static ButtonColors RoundLight
-        {
-            get
-            {
+        public static ButtonColors RoundLight {
+            get {
                 ButtonColors result = new ButtonColors();
 
                 result.backgroundColorHover = new Color(170, 174, 199);

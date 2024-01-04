@@ -6,10 +6,8 @@ using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using System.Windows.Forms;
 
-namespace WaveTracker.UI
-{
-    public class Textbox : Clickable
-    {
+namespace WaveTracker.UI {
+    public class Textbox : Clickable {
         private Forms.EnterText dialog;
         public bool canEdit = true;
         string label;
@@ -20,8 +18,7 @@ namespace WaveTracker.UI
         public string Text { get; set; }
         string lastText;
         public int maxLength = 32;
-        public Textbox(string label, int x, int y, int width, int textBoxWidth, Element parent)
-        {
+        public Textbox(string label, int x, int y, int width, int textBoxWidth, Element parent) {
             this.width = width;
             this.textboxWidth = textBoxWidth;
             this.x = x;
@@ -31,42 +28,32 @@ namespace WaveTracker.UI
             SetParent(parent);
         }
 
-        public void SetPrefix(string prefix)
-        {
+        public void SetPrefix(string prefix) {
             this.textPrefix = prefix;
         }
 
-        public void Update()
-        {
-            if (enabled)
-            {
+        public void Update() {
+            if (enabled) {
                 ValueWasChangedInternally = false;
-                if (Clicked && canEdit)
-                {
-                    if (Input.dialogOpenCooldown == 0)
-                    {
+                if (Clicked && canEdit) {
+                    if (Input.dialogOpenCooldown == 0) {
                         StartDialog();
                     }
                 }
 
-                if (Text != lastText)
-                {
+                if (Text != lastText) {
                     ValueWasChanged = true;
                     lastText = Text;
-                }
-                else
-                {
+                } else {
                     ValueWasChanged = false;
                 }
             }
         }
 
-        public void Draw()
-        {
+        public void Draw() {
             Color dark = new Color(104, 111, 153);
             Color text = new Color(20, 24, 46);
-            if (IsHovered && canEdit)
-            {
+            if (IsHovered && canEdit) {
                 dark = text;
             }
             Write(label + "", 0, height / 2 - 3, dark);
@@ -75,20 +62,20 @@ namespace WaveTracker.UI
             if (canEdit)
                 DrawRect(width - textboxWidth + 1, 1, textboxWidth - 2, 1, new Color(193, 196, 213));
             string t = textPrefix + Text + "";
-
-            Write(Helpers.TrimTextToWidth(textboxWidth, t), width - textboxWidth + 4, height / 2 - 3, text);
+            if (Text.Length > 0)
+                Write(Helpers.TrimTextToWidth(textboxWidth, t), width - textboxWidth + 4, height / 2 - 3, text);
+            else
+                Write(Helpers.TrimTextToWidth(textboxWidth, t), width - textboxWidth + 4, height / 2 - 3, text);
 
         }
 
-        public void StartDialog()
-        {
+        public void StartDialog() {
             Input.DialogStarted();
             dialog = new Forms.EnterText();
             dialog.textBox.Text = Text;
             dialog.label.Text = label;
             dialog.textBox.MaxLength = maxLength;
-            if (dialog.ShowDialog() == DialogResult.OK)
-            {
+            if (dialog.ShowDialog() == DialogResult.OK) {
                 Text = Helpers.FlushString(dialog.textBox.Text);
                 ValueWasChangedInternally = true;
             }

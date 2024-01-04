@@ -7,12 +7,13 @@ using System.Text.Json;
 using ProtoBuf;
 
 
-namespace WaveTracker.Tracker
-{
+namespace WaveTracker.Tracker {
     [Serializable]
     [ProtoContract(SkipConstructor = true)]
-    public class Song
-    {
+    public class Song {
+
+        public static Song currentSong;
+
         public const int CHANNEL_COUNT = 24;
         [ProtoMember(1)]
         public List<Frame> frames = new List<Frame>();
@@ -44,8 +45,7 @@ namespace WaveTracker.Tracker
         public int rowHighlight2;
 
 
-        public Song()
-        {
+        public Song() {
             name = "";
             author = "";
             year = "";
@@ -56,8 +56,7 @@ namespace WaveTracker.Tracker
             frames.Add(new Frame());
 
             waves = new Wave[100];
-            for (int i = 0; i < 100; i++)
-            {
+            for (int i = 0; i < 100; i++) {
                 waves[i] = new Wave();
             }
             waves[0] = Wave.Sine;
@@ -82,8 +81,7 @@ namespace WaveTracker.Tracker
             quantizeChannelAmplitude = false;
         }
 
-        public bool Equals(Song other)
-        {
+        public bool Equals(Song other) {
             if (other.name != name)
                 return false;
             if (other.author != author)
@@ -96,8 +94,7 @@ namespace WaveTracker.Tracker
                 return false;
             if (other.frames.Count != frames.Count)
                 return false;
-            for (int i = 0; i < 100; ++i)
-            {
+            for (int i = 0; i < 100; ++i) {
                 if (!waves[i].isEqualTo(other.waves[i]))
                     return false;
             }
@@ -105,8 +102,7 @@ namespace WaveTracker.Tracker
                 return false;
             if (other.instruments.Count != instruments.Count)
                 return false;
-            for (int i = 0; i < instruments.Count; i++)
-            {
+            for (int i = 0; i < instruments.Count; i++) {
                 if (!instruments[i].IsEqualTo(other.instruments[i]))
                     return false;
             }
@@ -114,14 +110,11 @@ namespace WaveTracker.Tracker
             return true;
         }
 
-        public void InitializeForSerialization()
-        {
-            foreach(Frame f in frames)
-            {
+        public void InitializeForSerialization() {
+            foreach (Frame f in frames) {
                 f.SetRows();
             }
-            foreach(Macro m in instruments)
-            {
+            foreach (Macro m in instruments) {
                 m.volumeEnvelope.PrepareForSerialization();
                 m.arpEnvelope.PrepareForSerialization();
                 m.pitchEnvelope.PrepareForSerialization();
@@ -129,14 +122,11 @@ namespace WaveTracker.Tracker
             }
         }
 
-        public void Deserialize()
-        {
-            foreach (Frame f in frames)
-            {
+        public void Deserialize() {
+            foreach (Frame f in frames) {
                 f.ReadRows();
             }
-            foreach (Macro m in instruments)
-            {
+            foreach (Macro m in instruments) {
                 m.volumeEnvelope.PrepareFromDeserialization();
                 m.arpEnvelope.PrepareFromDeserialization();
                 m.pitchEnvelope.PrepareFromDeserialization();
@@ -144,8 +134,7 @@ namespace WaveTracker.Tracker
             }
         }
 
-        public Song Clone()
-        {
+        public Song Clone() {
             Song s = new Song();
             s.UnpackSequence(PackSequence());
             s.name = name;
@@ -157,13 +146,11 @@ namespace WaveTracker.Tracker
             s.waves = new Wave[100];
             s.tickRate = tickRate;
             s.quantizeChannelAmplitude = quantizeChannelAmplitude;
-            for (int i = 0; i < 100; i++)
-            {
+            for (int i = 0; i < 100; i++) {
                 s.waves[i] = waves[i].Clone();
             }
             s.instruments = new List<Macro>();
-            for (int i = 0; i < instruments.Count; i++)
-            {
+            for (int i = 0; i < instruments.Count; i++) {
                 s.instruments.Add(instruments[i].Clone());
             }
             s.frameEdits = frameEdits;
@@ -172,40 +159,32 @@ namespace WaveTracker.Tracker
             return s;
         }
 
-        public List<string> PackSequence()
-        {
+        public List<string> PackSequence() {
             List<string> ret = new List<string>();
-            for (int i = 0; i < frames.Count; i++)
-            {
+            for (int i = 0; i < frames.Count; i++) {
                 ret.Add(frames[i].Pack());
             }
             return ret;
         }
 
-        public void UnpackSequence(List<string> otherFrames)
-        {
+        public void UnpackSequence(List<string> otherFrames) {
             frames.Clear();
-            for (int i = 0; i < otherFrames.Count; i++)
-            {
+            for (int i = 0; i < otherFrames.Count; i++) {
                 frames.Add(new Frame());
                 frames[i].Unpack(otherFrames[i]);
             }
         }
-        public string GetTicksAsString()
-        {
+        public string GetTicksAsString() {
             string ret = "";
-            for (int i = 0; i < ticksPerRow.Length - 1; i++)
-            {
+            for (int i = 0; i < ticksPerRow.Length - 1; i++) {
                 ret += ticksPerRow[i] + " ";
             }
             ret += ticksPerRow[(int)ticksPerRow.Length - 1];
             return ret;
         }
-        public void LoadTicksFromString(string text)
-        {
+        public void LoadTicksFromString(string text) {
             List<int> ticks = new List<int>();
-            foreach (string word in text.Split(' '))
-            {
+            foreach (string word in text.Split(' ')) {
                 if (checkTickString(word))
                     ticks.Add(int.Parse(word));
             }
@@ -213,39 +192,32 @@ namespace WaveTracker.Tracker
                 ticks.Add(1);
             ticksPerRow = new int[ticks.Count];
             int n = 0;
-            foreach (int i in ticks)
-            {
+            foreach (int i in ticks) {
                 ticksPerRow[n] = i;
                 n++;
             }
 
         }
 
-        public int GetNumberOfRows(int loops)
-        {
+        public int GetNumberOfRows(int loops) {
             int frame = 0;
             int row = 0;
             int rows = 0;
-            while (loops > 0)
-            {
-                while (row <= frames[frame].GetLastRow())
-                {
+            while (loops > 0) {
+                while (row <= frames[frame].GetLastRow()) {
                     rows++;
                     row++;
                 }
                 int[] nextPos = GetNextPositionOfFrame(frame);
-                if (nextPos[0] <= frame)
-                {
+                if (nextPos[0] <= frame) {
                     loops--;
                 }
                 frame = nextPos[0];
                 row = nextPos[1];
-                if (frame < 0)
-                {
+                if (frame < 0) {
                     break;
                 }
-                if (frame >= frames.Count)
-                {
+                if (frame >= frames.Count) {
                     frame = 0;
                     row = 0;
                     loops--;
@@ -254,24 +226,20 @@ namespace WaveTracker.Tracker
             return rows;
         }
 
-        public int[] GetNumberOfRows()
-        {
+        public int[] GetNumberOfRows() {
             int frame = 0;
             int row = 0;
             int loopStartRow;
             int loopStartFrame;
             int rowsUntilLoopPoint = 0;
 
-            while (true)
-            {
-                while (row <= frames[frame].GetLastRow())
-                {
+            while (true) {
+                while (row <= frames[frame].GetLastRow()) {
                     rowsUntilLoopPoint++;
                     row++;
                 }
                 int[] nextPos = GetNextPositionOfFrame(frame);
-                if (nextPos[0] <= frame)
-                {
+                if (nextPos[0] <= frame) {
                     loopStartFrame = nextPos[0];
                     loopStartRow = nextPos[1];
                     break;
@@ -290,52 +258,43 @@ namespace WaveTracker.Tracker
             int rowsUntilLoopStart = 0;
             row = 0;
             frame = 0;
-            while (true)
-            {
-                while (row <= frames[frame].GetLastRow())
-                {
+            while (true) {
+                while (row <= frames[frame].GetLastRow()) {
                     rowsUntilLoopStart++;
                     row++;
                 }
                 int[] nextPos = GetNextPositionOfFrame(frame);
                 frame = nextPos[0];
                 row = nextPos[1];
-                if (frame == loopStartFrame && row == loopStartRow)
-                {
+                if (frame == loopStartFrame && row == loopStartRow) {
                     break;
                 }
             }
             return new int[] { rowsUntilLoopStart, rowsUntilLoopPoint };
         }
 
-        int[] GetNextPositionOfFrame(int frameIndex)
-        {
+        int[] GetNextPositionOfFrame(int frameIndex) {
             Frame frame = frames[frameIndex];
             short[] row = frame.pattern[frame.GetLastRow()];
-            for (int i = 3; i < CHANNEL_COUNT * 5; i += 5)
-            {
+            for (int i = 3; i < CHANNEL_COUNT * 5; i += 5) {
                 int effect = row[i];
                 int parameter = row[i + 1];
                 if (effect == 20) // CXX
                 {
                     return new int[] { -1, -1 };
-                }
-                else if (effect == 21) // BXX
-                {
+                } else if (effect == 21) // BXX
+                  {
                     return new int[] { parameter % frames.Count, 0 };
-                }
-                else if (effect == 22) // DXX
-                {
+                } else if (effect == 22) // DXX
+                  {
                     return new int[] { frameIndex + 1, parameter };
                 }
             }
             return new int[] { frameIndex + 1, 0 };
         }
 
-        bool checkTickString(string st)
-        {
-            foreach (char c in st)
-            {
+        bool checkTickString(string st) {
+            foreach (char c in st) {
                 if (!"0123456789".Contains(c))
                     return false;
             }
@@ -343,5 +302,5 @@ namespace WaveTracker.Tracker
         }
     }
 
-   
+
 }
