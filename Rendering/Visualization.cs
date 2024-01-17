@@ -110,7 +110,7 @@ namespace WaveTracker.Rendering {
                 states.Insert(0, rowOfStates);
             else
                 states.Add(rowOfStates);
-            int lastIndex = Game1.bottomOfScreen * 2 - 340;
+            int lastIndex = Game1.WindowHeight * 2 - 340;
             while (states.Count > lastIndex && lastIndex > 0)
                 states.RemoveAt(lastIndex);
         }
@@ -124,12 +124,12 @@ namespace WaveTracker.Rendering {
                 DrawSprite(InstrumentEditor.tex, 20, 20, 600, 24, new Rectangle(16, 688, 600, 24));
             oscilloscopeHeight = 5;
             int py = oscilloscopeHeight * 8 + 40;
-            int dist = Game1.bottomOfScreen - py - 18 - 15;
+            int dist = Game1.WindowHeight - py - 18 - 15;
             int numVisibleRows = dist / 7;
             while (numVisibleRows > 11) {
                 oscilloscopeHeight++;
                 py = oscilloscopeHeight * 8 + 40;
-                dist = Game1.bottomOfScreen - py - 18 - 15;
+                dist = Game1.WindowHeight - py - 18 - 15;
                 numVisibleRows = dist / 7;
             }
 

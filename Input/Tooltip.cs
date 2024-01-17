@@ -22,7 +22,7 @@ namespace WaveTracker {
 
         }
         public static void Draw() {
-            int y = Game1.bottomOfScreen - 8;
+            int y = Game1.WindowHeight - 8;
             Rendering.Graphics.DrawRect(0, y, 960, 9, new Color(230, 230, 230, 255));
             if (TooltipText != lasttooltip) {
                 hoverTime = 0;

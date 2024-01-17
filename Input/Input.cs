@@ -10,6 +10,7 @@ using WaveTracker.UI;
 
 namespace WaveTracker {
     public class Input {
+
         static KeyboardState currentKeyState;
         static KeyboardState previousKeyState;
 
@@ -36,8 +37,9 @@ namespace WaveTracker {
         static bool cancelClick;
 
         static KeyModifier currentModifier;
-        public static bool singleClick;
+        static bool singleClick;
         public static bool doubleClick;
+        static bool dragging;
         public static bool internalDialogIsOpen;
         public static Element focus = null;
         public static int focusTimer;
@@ -71,7 +73,8 @@ namespace WaveTracker {
             foreach (Keys k in Enum.GetValues(typeof(Keys))) {
                 if (currentKeyState.IsKeyDown(k)) {
                     keyTimePairs[k] += 1;
-                } else
+                }
+                else
                     keyTimePairs[k] = 0;
 
             }
@@ -95,6 +98,15 @@ namespace WaveTracker {
             if (GetClickDown(KeyModifier._Any)) {
                 lastClickLocation = new Point(MousePositionX, MousePositionY);
                 timeSinceLastClick = 0;
+            }
+            if (GetClick(KeyModifier._Any)) {
+                Vector2 mousePosition = new Vector2(MousePositionX, MousePositionY);
+                if (Vector2.Distance(lastClickLocation.ToVector2(), mousePosition) > 5) {
+                    dragging = true;
+                }
+            }
+            else {
+                dragging = false;
             }
             singleClick = false;
             if (GetClickUp(KeyModifier._Any)) {
@@ -137,7 +149,8 @@ namespace WaveTracker {
                     return keyTimePairs[key] % 2 == 0;
                 }
                 return false;
-            } else
+            }
+            else
                 return false;
         }
         public static bool GetKeyUp(Keys key, KeyModifier modifier) {
@@ -198,7 +211,8 @@ namespace WaveTracker {
                 if (currentMouseState.ScrollWheelValue < previousMouseState.ScrollWheelValue) return -1;
                 if (currentMouseState.ScrollWheelValue > previousMouseState.ScrollWheelValue) return 1;
                 return 0;
-            } else
+            }
+            else
                 return 0;
         }
 
@@ -230,6 +244,11 @@ namespace WaveTracker {
                 return KeyModifier.Shift;
             return KeyModifier.None;
         }
+
+        public static bool MouseIsDragging {
+            get { return dragging; }
+        }
+
     }
 
 

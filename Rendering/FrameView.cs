@@ -8,10 +8,9 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using WaveTracker.UI;
 using WaveTracker.Tracker;
-using System.Windows.Forms;
 
 namespace WaveTracker.Rendering {
-    public class FrameView : UI.Panel {
+    public class FrameView : Panel {
         Texture2D arrow;
         FrameButton[] frames = new FrameButton[25];
         public SpriteButton bNewFrame, bDeleteFrame, bDuplicateFrame, bMoveLeft, bMoveRight;

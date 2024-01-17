@@ -46,7 +46,7 @@ namespace WaveTracker {
         public static bool VisualizerMode;
         public static Rendering.Visualization visualization;
         string filename;
-
+        PatternEditor patternEditor;
 
 
         public Game1(string[] args) {
@@ -70,6 +70,8 @@ namespace WaveTracker {
             var form = (System.Windows.Forms.Form)System.Windows.Forms.Form.FromHandle(Window.Handle);
             form.WindowState = System.Windows.Forms.FormWindowState.Maximized;
 
+            patternEditor = new PatternEditor(0, 184);
+            
         }
 
         protected override void Initialize() {
@@ -79,6 +81,11 @@ namespace WaveTracker {
             frameRenderer.y = 151;
             Song.currentSong = new Song();
             newSong = Song.currentSong.Clone();
+
+            WTModule.currentModule = new WTModule();
+            WTSong.currentSong = WTModule.currentModule.Song;
+            patternEditor.OnSwitchSong();
+
             waveBank = new Rendering.WaveBank();
             instrumentBank = new Rendering.InstrumentBank();
 
@@ -95,7 +102,8 @@ namespace WaveTracker {
 
         }
 
-        public static int bottomOfScreen;
+        public static int WindowHeight;
+        public static int WindowWidth;
 
         protected override void LoadContent() {
             Checkbox.textureSheet = Content.Load<Texture2D>("instrumentwindow");
@@ -132,15 +140,17 @@ namespace WaveTracker {
                 if (new Rectangle(1, 1, width, height).Contains(mouseX, mouseY))
                     if (mouseCursorArrow == 0) {
                         Mouse.SetCursor(MouseCursor.Arrow);
-                    } else {
+                    }
+                    else {
                         Mouse.SetCursor(MouseCursor.SizeNS);
                         mouseCursorArrow--;
                     }
             }
             Window.Title = SaveLoad.fileName + (SaveLoad.isSaved ? "" : "*") + " - WaveTracker";
             //Debug.WriteLine("path is: " + SaveLoad.filePath);
-            bottomOfScreen = Window.ClientBounds.Height / ScreenScale;
-            FrameEditor.channelScrollbar.y = bottomOfScreen - 14;
+            WindowHeight = Window.ClientBounds.Height / ScreenScale;
+            WindowWidth = Window.ClientBounds.Width / ScreenScale;
+            FrameEditor.channelScrollbar.y = WindowHeight - 14;
             if (Input.GetKeyDown(Keys.F12, KeyModifier.None)) {
                 ChannelManager.Reset();
                 ChannelManager.ResetTicks(0);
@@ -150,7 +160,8 @@ namespace WaveTracker {
             Tooltip.Update(gameTime);
             if (IsActive) {
                 Input.GetState(gameTime);
-            } else {
+            }
+            else {
                 Input.focusTimer = 5;
                 Input.dialogOpenCooldown = 3;
             }
@@ -206,9 +217,10 @@ namespace WaveTracker {
                 songSettings.Update();
                 frameView.Update();
                 frameRenderer.Update(gameTime);
-                FrameEditor.Update();
+                //FrameEditor.Update();
                 editSettings.Update();
-            } else {
+            }
+            else {
                 frameRenderer.UpdateChannelHeaders();
             }
             audioEngine.exportingDialog.Update();
@@ -217,13 +229,17 @@ namespace WaveTracker {
             toolbar.Update();
             base.Update(gameTime);
             lastPianoKey = pianoInput;
+            patternEditor.Update();
         }
 
         protected override void Draw(GameTime gameTime) {
+            graphics.PreferredBackBufferWidth = Window.ClientBounds.Width;
+            graphics.PreferredBackBufferHeight = Window.ClientBounds.Height;
+            graphics.ApplyChanges();
+
             GraphicsDevice.SetRenderTarget(target);
-
-
             GraphicsDevice.Clear(UIColors.black);
+            
 
             // TODO: Add your drawing code here
             targetBatch.Begin(SpriteSortMode.Deferred, new BlendState {
@@ -237,7 +253,9 @@ namespace WaveTracker {
 
             if (!VisualizerMode) {
                 // draw frame editor
-                frameRenderer.DrawFrame(Song.currentSong.frames[FrameEditor.currentFrame], FrameEditor.cursorRow, FrameEditor.cursorColumn);
+                //frameRenderer.DrawFrame(Song.currentSong.frames[FrameEditor.currentFrame], FrameEditor.cursorRow, FrameEditor.cursorColumn);
+
+                patternEditor.Draw();
 
                 // draw instrument bank
                 instrumentBank.Draw();
@@ -255,13 +273,15 @@ namespace WaveTracker {
                 frameView.Draw();
 
 
-                FrameEditor.channelScrollbar.Draw();
-                Rendering.Graphics.DrawRect(0, FrameEditor.channelScrollbar.y, FrameEditor.channelScrollbar.x, FrameEditor.channelScrollbar.height, new Color(223, 224, 232));
+                //FrameEditor.channelScrollbar.Draw();
+                //Rendering.Graphics.DrawRect(0, FrameEditor.channelScrollbar.y, FrameEditor.channelScrollbar.x, FrameEditor.channelScrollbar.height, new Color(223, 224, 232));
 
+               
                 // draw click position
                 //Rendering.Graphics.DrawRect(Input.lastClickLocation.X, Input.lastClickLocation.Y, 1, 1, Color.Red);
                 //Rendering.Graphics.DrawRect(Input.lastClickReleaseLocation.X, Input.lastClickReleaseLocation.Y, 1, 1, Color.DarkRed);
-            } else {
+            }
+            else {
                 visualization.Draw();
             }
             toolbar.Draw();

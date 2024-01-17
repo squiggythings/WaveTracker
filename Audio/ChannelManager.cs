@@ -15,7 +15,7 @@ namespace WaveTracker.Audio {
         public static Channel previewChannel;
         public static List<Channel> channels;
         public static Rendering.WaveBank waveBank;
-        
+
         public static void Initialize(int numChannels, Rendering.WaveBank waveBank) {
             ChannelManager.waveBank = waveBank;
             previewChannel = new Channel(-1);
@@ -54,16 +54,20 @@ namespace WaveTracker.Audio {
                 else if (effect == 20) // CXX
                 {
                     Playback.StopNext();
-                } else if (effect == 21) // BXX
+                }
+                else if (effect == 21) // BXX
                   {
                     Playback.GotoNext(parameter % FrameEditor.thisSong.frames.Count, 0);
-                } else if (effect == 22) // DXX
+                }
+                else if (effect == 22) // DXX
                   {
                     Playback.GotoNext(Playback.playbackFrame + 1, parameter);
-                } else if (effect == 15) // FXX
+                }
+                else if (effect == 15) // FXX
                   {
                     Playback.ticksPerRowOverride = parameter;
-                } else if (effect >= 0 && effect != 10 && effect != 11 && effect != 18 && effect != 25)
+                }
+                else if (effect >= 0 && effect != 10 && effect != 11 && effect != 18 && effect != 25)
                     channels[channelNum].QueueEvent(TickEventType.Effect, effect, parameter, delay);
                 if (volume >= 0)
                     channels[channelNum].QueueEvent(TickEventType.Volume, volume, 0, delay);
@@ -105,6 +109,54 @@ namespace WaveTracker.Audio {
                 if (instrument >= 0)
                     channels[channelNum].SetMacro(instrument);
                 channelNum++;
+            }
+        }
+
+        /// <summary>
+        /// Returns true if channel is muted
+        /// </summary>
+        /// <param name="channel"></param>
+        /// <returns></returns>
+        public static bool IsChannelMuted(int channel) {
+            return channels[channel].IsMuted;
+        }
+        /// <summary>
+        /// Mutes a specific channel
+        /// </summary>
+        /// <param name="channel"></param>
+        public static void MuteChannel(int channel) {
+            channels[channel].IsMuted = true;
+        }
+        /// <summary>
+        /// Unmutes a specific channel
+        /// </summary>
+        /// <param name="channel"></param>
+        public static void UnmuteChannel(int channel) {
+            channels[channel].IsMuted = false;
+        }
+        /// <summary>
+        /// Unmutes all playback channels
+        /// </summary>
+        public static void UnmuteAllChannels() {
+            foreach (Channel channel in channels) {
+                channel.IsMuted = false;
+            }
+        }
+        /// <summary>
+        /// Mutes all playback channels
+        /// </summary>
+        public static void MuteAllChannels() {
+            foreach (Channel channel in channels) {
+                channel.IsMuted = true;
+            }
+        }
+        /// <summary>
+        /// Mutes all channels except for the selected
+        /// </summary>
+        /// <param name="channel"></param>
+        public static void SoloChannel(int channel) {
+            for (int i = 0; i < channels.Count; i++) {
+                channels[channel].IsMuted = channel != i;
             }
         }
     }

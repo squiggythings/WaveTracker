@@ -58,7 +58,7 @@ namespace WaveTracker {
         public static int patternEditorLeftBound { get { return 22; } }
         public static int patternEditorRightBound { get { return 790; } }
         public static int patternEditorTopBound { get { return 182; } }
-        public static int patternEditorBottomBound { get { return Game1.bottomOfScreen - 15; } }
+        public static int patternEditorBottomBound { get { return Game1.WindowHeight - 15; } }
 
         /// <summary>
         /// The row that the cursor is on
@@ -172,7 +172,7 @@ namespace WaveTracker {
             }
             // moving cursor with scroll
             if (!playback || !followMode) {
-                if (Input.MousePositionY > 151 && Input.MousePositionX < 790 && Input.MousePositionY < Game1.bottomOfScreen - 15)
+                if (Input.MousePositionY > 151 && Input.MousePositionX < 790 && Input.MousePositionY < Game1.WindowHeight - 15)
                     Move(0, Input.MouseScrollWheel(KeyModifier.None) * -Preferences.profile.pageJumpAmount);
                 if (Input.GetKeyRepeat(Keys.PageUp, KeyModifier.None))
                     Move(0, -Preferences.profile.pageJumpAmount);
@@ -1296,7 +1296,7 @@ namespace WaveTracker {
         /// <param name="mcolumn"></param>
         /// <returns></returns>
         static bool mouseInBounds(int mrow, int mcolumn) {
-            if (Input.MousePositionY > Game1.bottomOfScreen - 15)
+            if (Input.MousePositionY > Game1.WindowHeight - 15)
                 return false;
             if (channelScrollbar.barisPressed || channelScrollbar.barWasPressed > 0)
                 return false;

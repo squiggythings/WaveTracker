@@ -149,7 +149,7 @@ namespace WaveTracker.Rendering {
                 }
                 scrollbar.SetSize(entriesInDirectory.Length, listLength);
                 scrollbar.scrollValue = Math.Clamp(scrollbar.scrollValue, 0, Math.Clamp(entriesInDirectory.Length - listLength, 0, 999999));
-                scrollbar.doUpdate();
+                scrollbar.UpdateScrollValue();
                 scrollbar.Update();
                 ok.enabled = selectedAnAudioFile;
             }
@@ -164,7 +164,7 @@ namespace WaveTracker.Rendering {
             }
             scrollbar.SetSize(entriesInDirectory.Length, listLength);
             scrollbar.scrollValue = Math.Clamp(scrollbar.scrollValue, 0, Math.Clamp(entriesInDirectory.Length - listLength, 0, 999999));
-            scrollbar.doUpdate();
+            scrollbar.UpdateScrollValue();
 
         }
 

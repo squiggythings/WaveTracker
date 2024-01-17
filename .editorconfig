@@ -1,0 +1,4 @@
+﻿[*.{cs,vb}]
+
+# IDE0028: Simplify collection initialization
+dotnet_diagnostic.IDE0028.severity = silent

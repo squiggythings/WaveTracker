@@ -11,6 +11,7 @@ using WaveTracker.Tracker;
 namespace WaveTracker.Audio {
     public class Channel {
         int id;
+        public bool IsMuted { get; set; }
         public Wave currentWave;
         public int waveIndex { get; private set; }
         public List<TickEvent> tickEvents;
@@ -93,7 +94,8 @@ namespace WaveTracker.Audio {
         public void QueueEvent(TickEventType eventType, int val1, int val2, int delay) {
             if (delay < 0) {
                 DoEvent(new TickEvent(eventType, val1, val2, delay));
-            } else {
+            }
+            else {
                 tickEvents.Add(new TickEvent(eventType, val1, val2, delay));
             }
         }
@@ -212,9 +214,11 @@ namespace WaveTracker.Audio {
                         if (!waveModEnv.envelopeEnded) {
                             if (currentMacro.waveModType == 0) {
                                 waveMorphAmt = waveModEnv.Evaluate();
-                            } else if (currentMacro.waveModType == 1) {
+                            }
+                            else if (currentMacro.waveModType == 1) {
                                 waveBendAmt = waveModEnv.Evaluate();
-                            } else if (currentMacro.waveModType == 2) {
+                            }
+                            else if (currentMacro.waveModType == 2) {
                                 fmAmt = waveModEnv.Evaluate() / 20f;
                                 _fmSmooth = fmAmt;
                             }
@@ -365,6 +369,9 @@ namespace WaveTracker.Audio {
             }
         }
 
+        /// <summary>
+        /// Pan value from 0.0-1.0, 0.5f is center
+        /// </summary>
         public float CurrentPan { get { return panValue; } }
 
         public float CurrentPitch { get { return totalPitch; } }
@@ -380,13 +387,15 @@ namespace WaveTracker.Audio {
             if (tremoloIntensity > 0) {
                 tremoloTime += deltaTime * tremoloSpeed * 6f;
                 tremoloMultiplier = 1f + (float)(Math.Sin(tremoloTime * 1) / 2 - 0.5f) * tremoloIntensity / 16f;
-            } else {
+            }
+            else {
                 tremoloMultiplier = 1;
             }
             if (vibratoIntensity > 0) {
                 vibratoTime += deltaTime * vibratoSpeed * 3f;
                 vibratoOffset = (float)Math.Sin(vibratoTime * 2) * vibratoIntensity / 5f;
-            } else
+            }
+            else
                 vibratoOffset = 0;
             if (pitchFallSpeed != 0)
                 pitchFallOffset += pitchFallSpeed * deltaTime * 2;
@@ -397,7 +406,8 @@ namespace WaveTracker.Audio {
                 channelNotePorta += (channelNote - lastNote) * deltaTime * portaSpeed;
                 if (channelNotePorta < channelNote)
                     channelNotePorta = channelNote;
-            } else if (channelNotePorta < channelNote) {
+            }
+            else if (channelNotePorta < channelNote) {
                 channelNotePorta += (channelNote - lastNote) * deltaTime * portaSpeed;
                 if (channelNotePorta > channelNote)
                     channelNotePorta = channelNote;
@@ -407,7 +417,8 @@ namespace WaveTracker.Audio {
                 bendOffset -= deltaTime * bendSpeed;
                 if (bendOffset < targetBendAmt)
                     bendOffset = targetBendAmt;
-            } else if (bendOffset < targetBendAmt) {
+            }
+            else if (bendOffset < targetBendAmt) {
                 bendOffset += deltaTime * bendSpeed;
                 if (bendOffset > targetBendAmt)
                     bendOffset = targetBendAmt;
@@ -437,9 +448,11 @@ namespace WaveTracker.Audio {
                     if (!waveModEnv.envelopeEnded && _state != VoiceState.Off) {
                         if (currentMacro.waveModType == 0) {
                             waveMorphAmt = waveModEnv.Evaluate();
-                        } else if (currentMacro.waveModType == 1) {
+                        }
+                        else if (currentMacro.waveModType == 1) {
                             waveBendAmt = waveModEnv.Evaluate();
-                        } else if (currentMacro.waveModType == 2) {
+                        }
+                        else if (currentMacro.waveModType == 2) {
                             fmAmt = waveModEnv.Evaluate() / 20f;
                         }
                     }
@@ -470,7 +483,8 @@ namespace WaveTracker.Audio {
             }
             if (arpeggionote2 == arpeggionote3 && arpeggionote2 == 0) {
                 arpeggioOffset = 0;
-            } else {
+            }
+            else {
                 switch (arpCounter) {
                     case 0:
                         arpeggioOffset = 0;
@@ -548,7 +562,8 @@ namespace WaveTracker.Audio {
                         if (_fadeMultiplier < 0.001f) {
                             noteOn = false;
                         }
-                    } else {
+                    }
+                    else {
                         _fadeMultiplier = 1;
                         _time += delta;
 
@@ -561,10 +576,12 @@ namespace WaveTracker.Audio {
                             if (stereoPhaseOffset != 0) {
                                 sampleL = EvaluateWave((float)_time - stereoPhaseOffset);
                                 sampleR = EvaluateWave((float)_time + stereoPhaseOffset);
-                            } else {
+                            }
+                            else {
                                 sampleR = sampleL = EvaluateWave((float)_time);
                             }
-                        } else {
+                        }
+                        else {
                             currentMacro.sample.SampleTick((float)_time, 0, out sampleL, out sampleR);
                             sampleL *= 1.25f;
                             sampleR *= 1.25f;
@@ -600,7 +617,7 @@ namespace WaveTracker.Audio {
                 }
                 left = l * 0.2f * bassBoost;
                 right = r * 0.2f * bassBoost;
-                if (id >= 0 && !FrameEditor.channelToggles[id]) {
+                if (id >= 0 && IsMuted) {
                     left = 0;
                     right = 0;
                 }
@@ -665,14 +682,16 @@ namespace WaveTracker.Audio {
                         if (toPlay.releaseIndex >= toPlay.loopIndex) {
                             if (step > toPlay.releaseIndex && !released)
                                 step = toPlay.loopIndex;
-                        } else {
+                        }
+                        else {
                             if (step >= toPlay.values.Count) {
                                 step = toPlay.loopIndex;
                             }
                         }
                     }
 
-                } else // no release
+                }
+                else // no release
                   {
                     if (toPlay.HasLoop) {
                         if (step >= toPlay.values.Count) {
@@ -683,7 +702,8 @@ namespace WaveTracker.Audio {
                 if (step >= toPlay.values.Count) {
                     envelopeEnded = true;
                     step = toPlay.values.Count - 1;
-                } else {
+                }
+                else {
                     envelopeEnded = false;
                 }
             }

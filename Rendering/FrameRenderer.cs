@@ -31,7 +31,7 @@ namespace WaveTracker.Rendering {
             }
         }
         public void Update(GameTime gameTime) {
-            numOfVisibleRows = (Game1.bottomOfScreen - 184) / 7 - 1;
+            numOfVisibleRows = (Game1.WindowHeight - 184) / 7 - 1;
             if (numOfVisibleRows < 5) numOfVisibleRows = 5;
             foreach (ChannelHeader header in headers) {
                 if (header.id != -1) {
@@ -217,7 +217,6 @@ namespace WaveTracker.Rendering {
         }
 
         void WriteNote(int value, int x, int y, Color rowText, bool currRow) {
-
             if (value == -2) // off
             {
                 if (Preferences.profile.showNoteCutAndReleaseAsText)

@@ -69,6 +69,57 @@ namespace WaveTracker {
             return noteName + octave;
         }
 
+        /// <summary>
+        /// Returns a MIDI note number as a string in the format: note-octave
+        /// </summary>
+        /// <returns></returns>
+        public static string MIDINoteToText(int note) {
+            if (note == Tracker.PatternEvent.NOTE_CUT) { return "OFF"; }
+            if (note == Tracker.PatternEvent.NOTE_RELEASE) { return "REL"; }
+            if (note == Tracker.PatternEvent.EMPTY) { return "···"; }
+            int noteWithinOctave = note % 12;
+            int octave = note / 12 - 1;
+            string noteName = "";
+            switch (noteWithinOctave) {
+                case 0:
+                    noteName = "C-";
+                    break;
+                case 1:
+                    noteName = "C#";
+                    break;
+                case 2:
+                    noteName = "D-";
+                    break;
+                case 3:
+                    noteName = "D#";
+                    break;
+                case 4:
+                    noteName = "E-";
+                    break;
+                case 5:
+                    noteName = "F-";
+                    break;
+                case 6:
+                    noteName = "F#";
+                    break;
+                case 7:
+                    noteName = "G-";
+                    break;
+                case 8:
+                    noteName = "G#";
+                    break;
+                case 9:
+                    noteName = "A-";
+                    break;
+                case 10:
+                    noteName = "A#";
+                    break;
+                case 11:
+                    noteName = "B-";
+                    break;
+            }
+            return noteName + octave;
+        }
 
 
         public static string GetEffectCharacter(int num) {

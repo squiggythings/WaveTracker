@@ -30,21 +30,9 @@ namespace WaveTracker.Rendering {
 
         public static void WriteMonospaced(string text, int x, int y, Color c, int width = 5) {
             foreach (char ch in text) {
-                batch.DrawString(Game1.font, ch + "", new Vector2((int)x, (int)y - 5), c);
+                batch.DrawString(Game1.font, ch + "", new Vector2(x, y - 5), c);
                 x += width + 1;
             }
-        }
-
-        public static void WriteMonospaced(string text, int x, int y, Color c) {
-            foreach (char ch in text) {
-                batch.DrawString(Game1.font, ch + "", new Vector2((int)x, (int)y - 5), c);
-                x += 6;
-            }
-        }
-
-        public static void DrawRoundedRect(int x, int y, int width, int height, Color color) {
-            DrawRect(x, y + 1, width, height - 2, color);
-            DrawRect(x + 1, y, width - 2, height, color);
         }
 
         public static void DrawSprite(Texture2D sprite, int x, int y, Rectangle bounds) {

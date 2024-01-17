@@ -62,12 +62,12 @@ namespace WaveTracker.UI {
                         if (IsHovered)
                             scrollValue -= Input.MouseScrollWheel(KeyModifier._Any) * coarseStepAmount;
                     }
-                    doUpdate();
+                    UpdateScrollValue();
                 }
             }
         }
 
-        public void doUpdate() {
+        public void UpdateScrollValue() {
             if (viewportSize < totalSize) {
                 scrollValue = Math.Clamp(scrollValue, 0, totalSize - viewportSize);
                 bar.Y = (int)Math.Round(barValFromVal() * (height - 2) + 1);

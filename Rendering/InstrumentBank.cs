@@ -57,16 +57,19 @@ namespace WaveTracker.Rendering {
             bRename = new SpriteButton(124, 10, 15, 15, sprite, 25, this);
             bRename.SetTooltip("Rename Instrument", "Rename this instrument");
 
-            scrollbar = new Scrollbar(1, 28, 169, 367, this);
-            InitializePanel("Instrument Bank", 790, 152, 170, 488);
+            InitializePanel("Instrument Bank", 790, 152, 156, 488);
+            scrollbar = new Scrollbar(1, 28, width - 1, 367, this);
+
         }
 
         public void Update() {
+            x = Game1.WindowWidth - width;
+
             editor.Update();
             if (Input.focus != null)
                 return;
             scrollbar.Update();
-            listLength = (Game1.bottomOfScreen - 180 - 10) / 11;
+            listLength = (Game1.WindowHeight - y - 28 - 8) / 11;
             if (listLength <= 0)
                 listLength = 1;
             scrollbar.height = listLength * 11;
@@ -144,13 +147,14 @@ namespace WaveTracker.Rendering {
                     dialogOpen = true;
                     StartDialog();
                 }
-            } else { dialogOpen = false; }
+            }
+            else { dialogOpen = false; }
             CurrentInstrumentIndex = Math.Clamp(CurrentInstrumentIndex, 0, song.instruments.Count - 1);
             if (lastIndex != CurrentInstrumentIndex) {
                 lastIndex = CurrentInstrumentIndex;
                 //ChannelManager.instance.GetCurrentChannel().SetMacro(CurrentInstrumentIndex);
             }
-            scrollbar.doUpdate();
+            scrollbar.UpdateScrollValue();
         }
 
         public void Goto(int index) {
@@ -166,7 +170,7 @@ namespace WaveTracker.Rendering {
             }
             scrollbar.SetSize(song.instruments.Count, listLength);
             scrollbar.scrollValue = Math.Clamp(scrollbar.scrollValue, 0, Math.Clamp(song.instruments.Count - listLength, 0, 100));
-            scrollbar.doUpdate();
+            scrollbar.UpdateScrollValue();
 
         }
         public void DrawList() {
@@ -182,7 +186,7 @@ namespace WaveTracker.Rendering {
                     row = even;
                 else
                     row = odd;
-                DrawRect(1, 28 + y * 11, 163, 11, row);
+                DrawRect(1, 28 + y * 11, width - 7, 11, row);
                 if (song.instruments.Count > i && i >= 0) {
                     WriteMonospaced(i.ToString("D2"), 15, 30 + y * 11, Color.White, 4);
                     Write(song.instruments[i].name, 29, 30 + y * 11, Color.White);
@@ -198,7 +202,7 @@ namespace WaveTracker.Rendering {
 
         public void Draw() {
             DrawPanel();
-            DrawRect(0, 9, 170, 17, Color.White);
+            DrawRect(0, 9, width, 17, Color.White);
             bNewWave.Draw();
             bNewSample.Draw();
             bRemove.Draw();
