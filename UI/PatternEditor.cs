@@ -24,6 +24,8 @@ namespace WaveTracker.UI {
         public int CurrentOctave { get; set; }
         public bool InstrumentMask { get; set; }
 
+        public int InputStep { get; set; }
+
         /// <summary>
         /// The position of the main cursor in the song
         /// </summary>
@@ -39,14 +41,28 @@ namespace WaveTracker.UI {
         bool selectionActive;
 
         /// <summary>
-        /// The start position of the selection
+        /// The start position of a selection the user makes
         /// </summary>
         CursorPos selectionStart;
 
         /// <summary>
-        /// The end position of the selection
+        /// The end position of a selection the user makes
         /// </summary>
         CursorPos selectionEnd;
+
+        /// <summary>
+        /// The top-left position of the selection rectangle
+        /// </summary>
+        CursorPos selectionMin;
+        /// <summary>
+        /// The bottom-right position of the selection rectangle
+        /// </summary>
+        CursorPos selectionMax;
+
+        /// <summary>
+        /// A list of all positions in the selection
+        /// </summary>
+        List<CursorPos> selection;
 
         /// <summary>
         /// The index of the leftmost channel to render
@@ -69,6 +85,8 @@ namespace WaveTracker.UI {
         WTFrame CurrentFrame => CurrentSong.FrameSequence[cursorPosition.Frame];
         WTPattern CurrentPattern => CurrentFrame.GetPattern();
 
+        PatternEvent CurrentPatternEvent => CurrentSong[cursorPosition.Frame][cursorPosition.Row][cursorPosition.Channel];
+
         public PatternEditor(int x, int y) {
             this.x = x;
             this.y = y;
@@ -76,6 +94,8 @@ namespace WaveTracker.UI {
             for (int i = 0; i < channelHeaders.Length; ++i) {
                 channelHeaders[i] = new WChannelHeader(0, -32, 63, 31, i, this);
             }
+            InputStep = 1;
+            selection = new List<CursorPos>();
         }
 
         public void Update() {
@@ -92,48 +112,19 @@ namespace WaveTracker.UI {
             FirstVisibleChannel = Math.Clamp(FirstVisibleChannel, 0, CurrentSong.ChannelCount - 1);
 
 
-            // get the total width of channels that are not visible on the left side
-            int prevWidth = 0;
-            for (int i = 0; i < FirstVisibleChannel; ++i) {
-                prevWidth += GetWidthOfChannel(i);
-            }
-
-            // figure out which channel headers are visible, and enable/position/update them
-            int px = ROW_COLUMN_WIDTH - prevWidth;
-            for (int channel = 0; channel < channelHeaders.Length; ++channel) {
-
-                if (px >= ROW_COLUMN_WIDTH && px < width) {
-                    channelHeaders[channel].enabled = true;
-                    LastVisibleChannel = channel;
-                }
-                else {
-                    channelHeaders[channel].enabled = false;
-                }
-                channelHeaders[channel].x = px;
-                channelHeaders[channel].width = GetWidthOfChannel(channel) - 1;
-                channelHeaders[channel].NumEffectColumns = CurrentSong.NumEffectColumns[channel];
-                channelHeaders[channel].Update();
-
-                // if the user changed the number of effect columns
-                if (channelHeaders[channel].NumEffectColumns != CurrentSong.NumEffectColumns[channel]) {
-                    CurrentSong.NumEffectColumns[channel] = channelHeaders[channel].NumEffectColumns;
-                    channelHeaders[channel].width = GetWidthOfChannel(channel) - 1;
-                    cursorPosition.Normalize(CurrentSong);
-                }
-                px += GetWidthOfChannel(channel);
-            }
-
+            CalculateChannelPositioning();
+            #region change octave
             if (Input.GetKeyRepeat(Keys.OemOpenBrackets, KeyModifier.None) || Input.GetKeyRepeat(Keys.Divide, KeyModifier.None))
                 CurrentOctave--;
             if (Input.GetKeyRepeat(Keys.OemCloseBrackets, KeyModifier.None) || Input.GetKeyRepeat(Keys.Multiply, KeyModifier.None))
                 CurrentOctave++;
             CurrentOctave = Math.Clamp(CurrentOctave, 0, 9);
-
+            #endregion
 
             //////////////////////////////
             //        NAVIGATION        //
             //////////////////////////////
-
+            #region home/end navigation
             // On home key press
             if (Input.GetKeyRepeat(Keys.Home, KeyModifier.None)) {
                 GoToTopOfFrame();
@@ -142,130 +133,272 @@ namespace WaveTracker.UI {
             if (Input.GetKeyRepeat(Keys.End, KeyModifier.None)) {
                 GoToBottomOfFrame();
             }
-
+            #endregion
+            #region moving cursor with arrow keys
             // On arrow keys
             if (Input.GetKeyRepeat(Keys.Left, KeyModifier.None)) {
+                CancelSelection();
                 MoveCursorLeft();
             }
             if (Input.GetKeyRepeat(Keys.Right, KeyModifier.None)) {
+                CancelSelection();
                 MoveCursorRight();
             }
             if (Input.GetKeyRepeat(Keys.Left, KeyModifier.Ctrl)) {
+                CancelSelection();
                 PreviousFrame();
             }
             if (Input.GetKeyRepeat(Keys.Right, KeyModifier.Ctrl)) {
+                CancelSelection();
                 NextFrame();
             }
             if (Input.GetKeyRepeat(Keys.Left, KeyModifier.Alt)) {
+                CancelSelection();
                 MoveToChannel(cursorPosition.Channel - 1);
             }
             if (Input.GetKeyRepeat(Keys.Right, KeyModifier.Alt)) {
+                CancelSelection();
                 MoveToChannel(cursorPosition.Channel + 1);
             }
-
             if (Input.GetKeyRepeat(Keys.Down, KeyModifier.None)) {
+                CancelSelection();
                 MoveToRow(cursorPosition.Row + 1);
             }
             if (Input.GetKeyRepeat(Keys.Up, KeyModifier.None)) {
+                CancelSelection();
                 MoveToRow(cursorPosition.Row - 1);
             }
+            #endregion
+            #region navigate with mouse
+            if (ClickedDown) {
+                CancelSelection();
+            }
+            if (Clicked && MouseX < channelHeaders[Song.CHANNEL_COUNT - 1].x + width) {
+                cursorPosition = GetCursorPositionFromPoint(MouseX, MouseY);
+            }
+            #endregion
+            #region selection with arrow keys
+            if (Input.GetKeyRepeat(Keys.Left, KeyModifier.Shift)) {
+                if (!selectionActive) {
+                    SetSelectionStart(cursorPosition);
+                    selectionActive = true;
+                }
+                MoveCursorLeft();
+                SetSelectionEnd(cursorPosition);
+            }
+            if (Input.GetKeyRepeat(Keys.Right, KeyModifier.Shift)) {
+                if (!selectionActive) {
+                    SetSelectionStart(cursorPosition);
+                    selectionActive = true;
+                }
+                MoveCursorRight();
+                SetSelectionEnd(cursorPosition);
+            }
+            if (Input.GetKeyRepeat(Keys.Left, KeyModifier.ShiftAlt)) {
+                if (!selectionActive) {
+                    SetSelectionStart(cursorPosition);
+                    selectionActive = true;
+                }
+                MoveToChannel(cursorPosition.Channel - 1);
+                SetSelectionEnd(cursorPosition);
+            }
+            if (Input.GetKeyRepeat(Keys.Right, KeyModifier.ShiftAlt)) {
+                if (!selectionActive) {
+                    SetSelectionStart(cursorPosition);
+                    selectionActive = true;
+                }
+                MoveToChannel(cursorPosition.Channel + 1);
+                SetSelectionEnd(cursorPosition);
+            }
+            if (Input.GetKeyRepeat(Keys.Down, KeyModifier.Shift)) {
+                if (!selectionActive) {
+                    SetSelectionStart(cursorPosition);
+                    selectionActive = true;
+                }
+                MoveToRow(cursorPosition.Row + 1);
+                SetSelectionEnd(cursorPosition);
+            }
+            if (Input.GetKeyRepeat(Keys.Up, KeyModifier.Shift)) {
+                if (!selectionActive) {
+                    SetSelectionStart(cursorPosition);
+                    selectionActive = true;
+                }
+                MoveToRow(cursorPosition.Row - 1);
+                SetSelectionEnd(cursorPosition);
+            }
+            #endregion
 
-            PatternEvent currentPatternEvent = CurrentSong[cursorPosition.Frame][cursorPosition.Row][cursorPosition.Channel];
+            #region selection with mouse
+            if (Input.MouseIsDragging && IsHovered && globalPointIsInBounds(Input.lastClickLocation)) {
+                if (!selectionActive) {
+                    SetSelectionStart(GetCursorPositionFromPoint(LastClickPos.X, LastClickPos.Y));
+                    selectionActive = true;
+                }
+                if (GetMouseLineNumber() == 0) {
+                    MoveToRow(cursorPosition.Row - 1);
+                }
+                if (GetMouseLineNumber() > NumVisibleLines - 2) {
+                    MoveToRow(cursorPosition.Row + 1);
+                }
+                SetSelectionEnd(GetCursorPositionFromPoint(MouseX, MouseY));
+            }
+            #endregion
+            #region selection with CTRL-A and ESC
+            if (Input.GetKeyRepeat(Keys.A, KeyModifier.Ctrl)) {
+                if (selectionMax.Channel == cursorPosition.Channel && selectionMax.Row == CurrentPattern.GetModifiedLength() - 1 && selectionMax.Frame == cursorPosition.Frame && selectionMax.Column == GetNumFullColumns(cursorPosition.Channel) - 1 &&
+                    selectionMin.Channel == cursorPosition.Channel && selectionMin.Row == 0 && selectionMin.Frame == cursorPosition.Frame && selectionMin.Column == 0) {
+                    SetSelectionStart(cursorPosition);
+                    selectionStart.Channel = 0;
+                    selectionStart.Row = 0;
+                    selectionStart.Column = 0;
+                    SetSelectionEnd(cursorPosition);
+                    selectionEnd.Channel = CurrentSong.ChannelCount - 1;
+                    selectionEnd.Row = CurrentPattern.GetModifiedLength() - 1;
+                    selectionEnd.Column = GetNumFullColumns(selectionEnd.Channel) - 1;
+                }
+                else {
+                    selectionActive = true;
+                    SetSelectionStart(cursorPosition);
+                    selectionStart.Row = 0;
+                    selectionStart.Column = 0;
+                    SetSelectionEnd(cursorPosition);
+                    selectionEnd.Row = CurrentPattern.GetModifiedLength() - 1;
+                    selectionEnd.Column = GetNumFullColumns(selectionEnd.Channel) - 1;
+                }
+            }
+            if (Input.GetKeyRepeat(Keys.Escape, KeyModifier.None)) {
+                CancelSelection();
+            }
+            #endregion
 
+            if (!selectionActive) {
+                selectionStart = selectionEnd = cursorPosition;
+            }
+            CreateSelectionBounds();
+
+            if (Input.GetKeyDown(Keys.Space, KeyModifier.None)) {
+                EditMode = !EditMode;
+            }
+            if (!EditMode)
+                return;
+
+            ///////////////////////////////
+            //           INPUT           //
+            ///////////////////////////////
+            #region field input
             if (cursorPosition.Column == 0) {
+                // input note column
                 foreach (Keys k in KeyInputs_Piano.Keys) {
                     if (KeyPress(k, KeyModifier.None)) {
                         int note = KeyInputs_Piano[k];
                         if (note != PatternEvent.NOTE_CUT && note != PatternEvent.NOTE_RELEASE)
                             note += (CurrentOctave + 1) * 12;
-                        currentPatternEvent.Note = note;
+                        CurrentPatternEvent.Note = note;
                         if (!InstrumentMask) {
-                            currentPatternEvent.Instrument = InstrumentBank.CurrentInstrumentIndex;
+                            CurrentPatternEvent.Instrument = InstrumentBank.CurrentInstrumentIndex;
                         }
-                       
+                        MoveToRow(cursorPosition.Row + InputStep);
                     }
                 }
             }
-            else if (cursorPosition.Column == 1 || cursorPosition.Column == 3) {
+            else if (cursorPosition.Column == CursorPos.COLUMN_INSTRUMENT1 || cursorPosition.Column == CursorPos.COLUMN_VOLUME1) {
+                // input 10's place decimals (inst + vol)
                 foreach (Keys k in KeyInputs_Decimal.Keys) {
                     if (KeyPress(k, KeyModifier.None)) {
                         int val = CurrentSong[cursorPosition];
                         if (val == PatternEvent.EMPTY)
                             val = 0;
                         CurrentSong[cursorPosition] = KeyInputs_Decimal[k] * 10 + val % 10;
+                        MoveToRow(cursorPosition.Row + InputStep);
                         break;
                     }
                 }
             }
-            else if (cursorPosition.Column == 2 || cursorPosition.Column == 4) {
+            else if (cursorPosition.Column == CursorPos.COLUMN_INSTRUMENT2 || cursorPosition.Column == CursorPos.COLUMN_VOLUME2) {
+                // input 1's place decimals (inst + vol)
                 foreach (Keys k in KeyInputs_Decimal.Keys) {
                     if (KeyPress(k, KeyModifier.None)) {
                         int val = CurrentSong[cursorPosition];
                         if (val == PatternEvent.EMPTY)
                             val = 0;
                         CurrentSong[cursorPosition] = (val / 10 * 10) + KeyInputs_Decimal[k];
+                        MoveToRow(cursorPosition.Row + InputStep);
                         break;
                     }
                 }
             }
-            else if (cursorPosition.GetColumnType() == 5) {
+            else if (cursorPosition.GetColumnType() == CursorPos.COLUMN_EFFECT) {
+                // input effects
                 foreach (Keys k in KeyInputs_Effect.Keys) {
                     if (KeyPress(k, KeyModifier.None)) {
                         CurrentSong[cursorPosition] = KeyInputs_Effect[k];
+                        MoveToRow(cursorPosition.Row + InputStep);
                         break;
                     }
                 }
             }
-            else if (cursorPosition.GetColumnType() == 6) {
-                if (currentPatternEvent.GetEffect((cursorPosition.Column - 5) / 3).ParameterIsHex) {
+            else if (cursorPosition.GetColumnType() == CursorPos.COLUMN_EFFECT_PARAMETER1) {
+                // input 10's place effect parameters (or 16's if it is hex)
+                if (CurrentPatternEvent.GetEffect((cursorPosition.Column - 5) / 3).ParameterIsHex) {
+                    // hex
                     foreach (Keys k in KeyInputs_Hex.Keys) {
                         if (KeyPress(k, KeyModifier.None)) {
                             int val = CurrentSong[cursorPosition];
                             if (val == PatternEvent.EMPTY)
                                 val = 0;
                             CurrentSong[cursorPosition] = KeyInputs_Hex[k] * 16 + val % 16;
+                            MoveToRow(cursorPosition.Row + InputStep);
                             break;
                         }
                     }
                 }
                 else {
+                    // decimal
                     foreach (Keys k in KeyInputs_Decimal.Keys) {
                         if (KeyPress(k, KeyModifier.None)) {
                             int val = CurrentSong[cursorPosition];
                             if (val == PatternEvent.EMPTY)
                                 val = 0;
                             CurrentSong[cursorPosition] = KeyInputs_Decimal[k] * 10 + val % 10;
+                            MoveToRow(cursorPosition.Row + InputStep);
                             break;
                         }
                     }
                 }
             }
-            else if (cursorPosition.GetColumnType() == 7) {
-                if (currentPatternEvent.GetEffect((cursorPosition.Column - 5) / 3).ParameterIsHex) {
+            else if (cursorPosition.GetColumnType() == CursorPos.COLUMN_EFFECT_PARAMETER2) {
+                // input 1's place effect parameters
+                if (CurrentPatternEvent.GetEffect((cursorPosition.Column - 5) / 3).ParameterIsHex) {
+                    // hex
                     foreach (Keys k in KeyInputs_Hex.Keys) {
                         if (KeyPress(k, KeyModifier.None)) {
                             int val = CurrentSong[cursorPosition];
                             if (val == PatternEvent.EMPTY)
                                 val = 0;
                             CurrentSong[cursorPosition] = (val / 16 * 16) + KeyInputs_Hex[k];
+                            MoveToRow(cursorPosition.Row + InputStep);
                             break;
                         }
                     }
                 }
                 else {
+                    // decimal
                     foreach (Keys k in KeyInputs_Decimal.Keys) {
                         if (KeyPress(k, KeyModifier.None)) {
                             int val = CurrentSong[cursorPosition];
                             if (val == PatternEvent.EMPTY)
                                 val = 0;
                             CurrentSong[cursorPosition] = (val / 10 * 10) + KeyInputs_Decimal[k];
+                            MoveToRow(cursorPosition.Row + InputStep);
                             break;
                         }
                     }
                 }
             }
-
+            #endregion
+            #region scroll field modifiers
             if (IsHovered) {
+                // scrolling up and down the pattern
                 if (Input.MouseScrollWheel(KeyModifier.None) > 0 || Input.GetKeyRepeat(Keys.PageUp, KeyModifier.None)) {
                     MoveToRow(cursorPosition.Row - Preferences.profile.pageJumpAmount);
                 }
@@ -273,31 +406,67 @@ namespace WaveTracker.UI {
                     MoveToRow(cursorPosition.Row + Preferences.profile.pageJumpAmount);
                 }
 
-
-                if (CurrentSong[cursorPosition] == PatternEvent.EMPTY) {
-
-                }
-                else {
-                    // if cursor is on the note column
-                    if (cursorPosition.Column == 0) {
-                        if (Input.MouseScrollWheel(KeyModifier.Ctrl) > 0)
-                            CurrentSong[cursorPosition]++;
-                        else if (Input.MouseScrollWheel(KeyModifier.Ctrl) < 0)
-                            CurrentSong[cursorPosition]--;
+                // scrolling field modifiers
+                if (CurrentSong[cursorPosition] != PatternEvent.EMPTY) {
+                    if (cursorPosition.GetColumnType() == CursorPos.COLUMN_NOTE) {
+                        // if cursor is on the note column, use SCROLL+CTRL to transpose
+                        CurrentSong[cursorPosition] += Input.MouseScrollWheel(KeyModifier.Ctrl);
                     }
-                    // if cursor is not an effect number
-                    if (cursorPosition.GetColumnType() != 6) {
-                        if (Input.MouseScrollWheel(KeyModifier.Shift) > 0)
-                            CurrentSong[cursorPosition]++;
-                        else if (Input.MouseScrollWheel(KeyModifier.Shift) < 0)
-                            CurrentSong[cursorPosition]--;
+                    else if (cursorPosition.GetColumnType() >= CursorPos.COLUMN_INSTRUMENT1 && cursorPosition.GetColumnType() <= CursorPos.COLUMN_INSTRUMENT2) {
+                        // if cursor is instrument or volume, use SCROLL+SHIFT to adjust
+                        CurrentSong[cursorPosition] += Input.MouseScrollWheel(KeyModifier.Shift);
+                    }
+                    else if (cursorPosition.GetColumnType() != CursorPos.COLUMN_EFFECT) {
+                        // if cursor is an effect parameter
+                        if (CurrentPatternEvent.GetEffect((cursorPosition.Column - 5) / 3).ParameterIsHex) {
+                            // if effect is hex, adjust each digit independently
+                            if (cursorPosition.GetColumnType() == CursorPos.COLUMN_EFFECT_PARAMETER1)
+                                CurrentSong[cursorPosition] += Input.MouseScrollWheel(KeyModifier.Shift) * 16;
+                            else
+                                CurrentSong[cursorPosition] += Input.MouseScrollWheel(KeyModifier.Shift);
+                        }
+                        else {
+                            // if effect is decimal, use SCROLL+SHIFT to adjust
+                            CurrentSong[cursorPosition] += Input.MouseScrollWheel(KeyModifier.Shift);
+                        }
                     }
                 }
             }
+            #endregion
 
-            if (Clicked && MouseX < channelHeaders[Song.CHANNEL_COUNT - 1].x + width) {
-                cursorPosition = GetCursorPositionFromPoint(MouseX, MouseY);
+
+            #region backspace + delete
+            if (KeyPress(Keys.Back, KeyModifier.None)) {
+                if (cursorPosition.Column == CursorPos.COLUMN_NOTE) {
+                    if (selectionActive) {
+                        int frameWrap = 0;
+                        CursorPos p = selectionMin;
+                        while (!p.IsRightOf(selectionMax)) {
+                            p.Frame = selectionMin.Frame;
+                            p.Row = selectionMin.Row;
+                            while (!p.IsBelow(selectionMin)) {
+                                PullRowsUp(p);
+                                p.MoveToRow(p.Row + 1, CurrentSong, ref frameWrap);
+                            }
+                            p.MoveRight(CurrentSong);
+                        }
+                    }
+                    else {
+                        MoveToRow(cursorPosition.Row - 1);
+                        PullRowsUp(cursorPosition.Frame, cursorPosition.Row, cursorPosition.Channel);
+                    }
+                    AddToUndoHistory();
+                }
             }
+            if (KeyPress(Keys.Delete, KeyModifier.None)) {
+                if (cursorPosition.Column == CursorPos.COLUMN_NOTE) {
+                    CurrentPatternEvent.Note = PatternEvent.EMPTY;
+                    CurrentPatternEvent.Instrument = PatternEvent.EMPTY;
+                    MoveToRow(cursorPosition.Row + 1);
+                    AddToUndoHistory();
+                }
+            }
+            #endregion
         }
 
         public void Draw() {
@@ -309,12 +478,14 @@ namespace WaveTracker.UI {
             int frameWrap = 0;
             renderPos.MoveToRow(renderPos.Row - NumVisibleLines / 2, WTSong.currentSong, ref frameWrap);
             for (int i = 0; i < NumVisibleLines; i++) {
-                DrawRowBG(i, renderPos.Frame, renderPos.Row);
+                DrawRowBG(i, renderPos.Frame, renderPos.Row, frameWrap);
 
                 renderPos.MoveToRow(renderPos.Row + 1, WTSong.currentSong, ref frameWrap);
             }
 
-            DrawCursor(cursorPosition);
+            // draw cursor behind text if the cursor cel is not empty
+            if (!cursorPosition.IsPositionEmpty(CurrentSong))
+                DrawCursor(cursorPosition);
 
 
             renderPos = cursorPosition;
@@ -327,12 +498,11 @@ namespace WaveTracker.UI {
                 renderPos.MoveToRow(renderPos.Row + 1, WTSong.currentSong, ref frameWrap);
             }
 
+            // draw cursor infront of text if the cursor cel is empty
+            if (cursorPosition.IsPositionEmpty(CurrentSong))
+                DrawCursor(cursorPosition);
 
-
-            //DrawRect(GetRectFromCursorPos(GetCursorPositionFromPoint(MouseX, MouseY)), Color.Aqua);
-            DrawRect(MouseX, MouseY, 1, 1, Color.Red);
-
-
+            DrawRect(MouseX, MouseY, 1, 1, Color.Green);
 
             DrawRect(ROW_COLUMN_WIDTH - 1, -32, 1, height + 32, Colors.theme.rowSeparator);
             for (int i = FirstVisibleChannel; i <= LastVisibleChannel; ++i) {
@@ -369,13 +539,14 @@ namespace WaveTracker.UI {
             PatternEvent thisEvent = CurrentSong[frame][row][channel];
 
             bool isCursorOnThisRow = frameWrap == 0 && cursorPosition.Row == row;
+            bool isCursorOnThisEvent = isCursorOnThisRow && cursorPosition.Channel == channel;
             Color emptyColor;
             if (isCursorOnThisRow)
                 emptyColor = (EditMode ? Colors.theme.rowEditText : Colors.theme.rowCurrentText);
             else
                 emptyColor = Helpers.Alpha(rowTextColor, Colors.theme.patternEmptyTextAlpha);
 
-            // Draw note
+            // draw note
 
             if (thisEvent.Note == PatternEvent.NOTE_CUT) {
                 if (Preferences.profile.showNoteCutAndReleaseAsText)
@@ -430,7 +601,7 @@ namespace WaveTracker.UI {
             }
             else {
                 Color volumeColor;
-                bool isCursorOverThisVolumeText = isCursorOnThisRow && cursorPosition.Channel == channel && (cursorPosition.Column == 3 || cursorPosition.Column == 4);
+                bool isCursorOverThisVolumeText = isCursorOnThisEvent && (cursorPosition.Column == 3 || cursorPosition.Column == 4);
                 if (Preferences.profile.fadeVolumeColumn && !isCursorOverThisVolumeText) {
                     volumeColor = Helpers.Alpha(Colors.theme.volumeColumn, (int)(thisEvent.Volume / 100f * 180 + (255 - 180)));
                 }
@@ -462,17 +633,23 @@ namespace WaveTracker.UI {
                 _ => 1
             };
             DrawRect(rect.X + offset, rect.Y, width, 7, Colors.theme.cursor);
-            Write("Chan: " + (position.Channel + 1), rect.X, rect.Y + 10, Color.White);
-            Write("Col: " + position.Column, rect.X, rect.Y + 20, Color.White);
-            Write("Oct: " + CurrentOctave, rect.X, rect.Y + 30, Color.White);
+            //Write("Chan: " + (position.Channel + 1), rect.X, rect.Y + 10, Color.White);
+            //Write("Col: " + position.Column, rect.X, rect.Y + 20, Color.White);
+            //Write("Oct: " + CurrentOctave, rect.X, rect.Y + 30, Color.White);
         }
 
-        void DrawRowBG(int line, int frame, int row) {
-            Color rowBGcolor;
-            if (frame == cursorPosition.Frame && row == cursorPosition.Row) {
+        void DrawRowBG(int line, int frame, int row, int frameWrap) {
+            CursorPos thisPos = new CursorPos();
+            thisPos.Row = row;
+            thisPos.Frame = frame;
+            Color rowBGcolor = new Color();
+            bool needToDrawRowBG = true;
+            int linePositionY = line * 7;
+
+            if (frame == cursorPosition.Frame && row == cursorPosition.Row && frameWrap == 0) {
                 rowBGcolor = EditMode ? Colors.theme.rowEditColor : Colors.theme.rowCurrentColor;
             }
-            else if (Playback.playbackFrame == frame && Playback.playbackRow == row) {
+            else if (Playback.isPlaying && Playback.playbackFrame == frame && Playback.playbackRow == row) {
                 rowBGcolor = Colors.theme.rowPlaybackColor;
             }
             else if (row % WTSong.currentSong.RowHighlightPrimary == 0) {
@@ -482,12 +659,36 @@ namespace WaveTracker.UI {
                 rowBGcolor = Colors.theme.backgroundSubHighlight;
             }
             else {
-                return;
+                // this row is not highlighted, no need to draw a background
+                needToDrawRowBG = false;
             }
 
-            DrawRect(ROW_COLUMN_WIDTH, line * 7, width - ROW_COLUMN_WIDTH, 7, rowBGcolor);
-        }
+            if (needToDrawRowBG) {
+                DrawRect(ROW_COLUMN_WIDTH, linePositionY, width - ROW_COLUMN_WIDTH, 7, rowBGcolor);
+            }
 
+            // if this row is within the selection bounds
+            if (selectionActive && !thisPos.IsAbove(selectionMin) && !thisPos.IsBelow(selectionMax)) {
+                int start = channelHeaders[selectionMin.Channel].x + columnStartPosOffsets[selectionMin.Column];
+                int end = channelHeaders[selectionMax.Channel].x + columnStartPosOffsets[selectionMax.Column] + columnSpaceWidths[selectionMax.Column];
+                bool endsOnRowSeparator = selectionMax.GetColumnType() == CursorPos.COLUMN_EFFECT_PARAMETER2;
+                if (endsOnRowSeparator)
+                    end--;
+                if (start < ROW_COLUMN_WIDTH - 1)
+                    start = ROW_COLUMN_WIDTH - 1;
+                if (end < ROW_COLUMN_WIDTH - 1)
+                    end = ROW_COLUMN_WIDTH - 1;
+                DrawRect(start, linePositionY, end - start + 1, 7, Colors.theme.selection);
+
+                // draw selection outline
+                DrawRect(start, linePositionY, 1, 7, Colors.theme.selection);
+                DrawRect(end, linePositionY, 1, 7, Colors.theme.selection);
+                if (selectionMin.Row == row && selectionMin.Frame == frame)
+                    DrawRect(start, linePositionY, end - start, 1, Colors.theme.selection);
+                if (selectionMax.Row == row && selectionMax.Frame == frame)
+                    DrawRect(start, linePositionY + 6, end - start, 1, Colors.theme.selection);
+            }
+        }
         #endregion
 
 
@@ -584,6 +785,32 @@ namespace WaveTracker.UI {
 
 
         /// <summary>
+        /// Pulls all rows of the current channel below startRow up one, leaving a blank row at the end.
+        /// </summary>
+        /// <param name="startRow"></param>
+        void PullRowsUp(int frame, int startRow, int channel) {
+            for (int i = startRow; i < 255; i++) {
+                CurrentSong[frame][i][channel].CopyFrom(CurrentSong[frame][i + 1][channel]);
+            }
+            CurrentSong[frame][255][channel].SetEmpty();
+        }
+
+        /// <summary>
+        /// Pulls all rows of the current channel below startRow up one, leaving a blank row at the end.
+        /// </summary>
+        /// <param name="startRow"></param>
+        void PullRowsUp(CursorPos pos) {
+            for (int i = pos.Row; i < 255; i++) {
+                CurrentSong[pos.Frame][i][pos.Channel][pos.Column] = CurrentSong[pos.Frame][i + 1][pos.Channel][pos.Column];
+            }
+            CurrentSong[pos.Frame][255][pos.Channel][pos.Column] = PatternEvent.EMPTY;
+        }
+
+        void AddToUndoHistory() {
+
+        }
+
+        /// <summary>
         /// Moves to the next frame in the song
         /// </summary>
         public void NextFrame() {
@@ -613,12 +840,6 @@ namespace WaveTracker.UI {
             cursorPosition.Row = CurrentFrame.GetLength() - 1;
         }
 
-        /// <summary>
-        /// Removes the selection
-        /// </summary>
-        void CancelSelection() {
-            selectionActive = false;
-        }
 
         /// <summary>
         /// Gets a key press, taking into account the key repeat setting in preferences
@@ -633,35 +854,90 @@ namespace WaveTracker.UI {
                 return Input.GetKeyDown(key, keyModifier);
         }
 
+        void SetSelectionStart(CursorPos pos) {
+            selectionStart = pos;
+        }
+
+        void SetSelectionEnd(CursorPos pos) {
+            selectionEnd = pos;
+        }
+
 
         /// <summary>
-        /// Modifies a cursor position to be selection
-        /// <br></br>Automatically adjusts the columns to go to the end of the section
+        /// Ensures that selectionStart will be the top left corner of the selection and selectionEnd will be the bottom right.
         /// </summary>
-        /// <param name="pos"></param>
-        /// <returns></returns>
-        public CursorPos CursorPositionToSelectionPosition(CursorPos pos) {
-            if (pos.Column == 1)
-                pos.Column = 2;
-            if (pos.Column == 3)
-                pos.Column = 4;
-            if (pos.Column == 5 || pos.Column == 6)
-                pos.Column = 7;
-            if (pos.Column == 8 || pos.Column == 9)
-                pos.Column = 10;
-            if (pos.Column == 11 || pos.Column == 12)
-                pos.Column = 13;
-            if (pos.Column == 14 || pos.Column == 15)
-                pos.Column = 16;
-            return pos;
+        void CreateSelectionBounds() {
+            selectionMin = selectionStart;
+            selectionMax = selectionEnd;
+
+            // perform any swaps necessary
+            if (selectionStart.IsBelow(selectionEnd)) {
+                selectionMin.Row = selectionEnd.Row;
+                selectionMin.Frame = selectionEnd.Frame;
+                selectionMax.Row = selectionStart.Row;
+                selectionMax.Frame = selectionStart.Frame;
+            }
+            if (selectionStart.IsRightOf(selectionEnd)) {
+                selectionMax.Channel = selectionStart.Channel;
+                selectionMax.Column = selectionStart.Column;
+                selectionMin.Channel = selectionEnd.Channel;
+                selectionMin.Column = selectionEnd.Column;
+            }
+
+            // adjust the cursor positions to fill all of mulit-digit fields like instrument, volume and effects
+            if (selectionMax.Column == 1)
+                selectionMax.Column = 2;
+            else if (selectionMax.Column == 3)
+                selectionMax.Column = 4;
+            else if (selectionMax.Column == 5 || selectionMax.Column == 6)
+                selectionMax.Column = 7;
+            else if (selectionMax.Column == 8 || selectionMax.Column == 9)
+                selectionMax.Column = 10;
+            else if (selectionMax.Column == 11 || selectionMax.Column == 12)
+                selectionMax.Column = 13;
+            else if (selectionMax.Column == 14 || selectionMax.Column == 15)
+                selectionMax.Column = 16;
+            if (selectionMin.Column == 2)
+                selectionMin.Column = 1;
+            else if (selectionMin.Column == 4)
+                selectionMin.Column = 3;
+            else if (selectionMin.Column == 6 || selectionMin.Column == 7)
+                selectionMin.Column = 5;
+            else if (selectionMin.Column == 9 || selectionMin.Column == 10)
+                selectionMin.Column = 8;
+            else if (selectionMin.Column == 12 || selectionMin.Column == 13)
+                selectionMin.Column = 11;
+            else if (selectionMin.Column == 15 || selectionMin.Column == 16)
+                selectionMin.Column = 14;
+
         }
 
-        void SetSelectionBegin() {
-
+        /// <summary>
+        /// Populates the selection array with all the CursorPositions inside the selection bounds
+        /// </summary>
+        void GetSelectionPositions() {
+            int frameWrap = 0;
+            CursorPos p = selectionMin;
+            selection.Clear();
+            while (!p.IsRightOf(selectionMax)) {
+                p.Row = selectionMin.Row;
+                p.Frame = selectionMin.Frame;
+                while (!p.IsBelow(selectionMax)) {
+                    selection.Add(p);
+                    p.MoveToRow(p.Row + 1, CurrentSong, ref frameWrap);
+                }
+                p.MoveRight(CurrentSong);
+            }
         }
 
-        void SetSelectionEnd() {
-
+        /// <summary>
+        /// Removes the selection
+        /// </summary>
+        void CancelSelection() {
+            selectionActive = false;
+            selectionMin = cursorPosition;
+            selectionMax = cursorPosition;
+            CreateSelectionBounds();
         }
 
         /// <summary>
@@ -788,6 +1064,15 @@ namespace WaveTracker.UI {
         }
 
         /// <summary>
+        /// Returns the number of cursor columns a channel track has
+        /// </summary>
+        /// <param name="channel"></param>
+        /// <returns></returns>
+        int GetNumFullColumns(int channel) {
+            return 5 + CurrentSong.NumEffectColumns[channel] * 3;
+        }
+
+        /// <summary>
         /// Gets the cursor position under a point
         /// </summary>
         /// <returns></returns>
@@ -833,6 +1118,7 @@ namespace WaveTracker.UI {
             }
             return new Rectangle(x, lineNumber * 7, columnSpaceWidths[position.Column], 7);
         }
+
 
         /// <summary>
         /// Returns the starting x position of a channel visible in the frame view

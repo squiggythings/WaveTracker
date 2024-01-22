@@ -15,6 +15,15 @@ namespace WaveTracker.Tracker {
     /// </summary>
     public struct CursorPos {
 
+        public const int COLUMN_NOTE = 0;
+        public const int COLUMN_INSTRUMENT1 = 1;
+        public const int COLUMN_INSTRUMENT2 = 2;
+        public const int COLUMN_VOLUME1 = 3;
+        public const int COLUMN_VOLUME2 = 4;
+        public const int COLUMN_EFFECT = 5;
+        public const int COLUMN_EFFECT_PARAMETER1 = 6;
+        public const int COLUMN_EFFECT_PARAMETER2 = 7;
+
         /// <summary>
         /// Broad y position, the frame this position is on
         /// </summary>
@@ -85,6 +94,8 @@ namespace WaveTracker.Tracker {
                 return 5 + (Column - 5) % 3;
         }
 
+
+
         /// <summary>
         /// Initializes this position at the beginning of a song
         /// </summary>
@@ -150,7 +161,7 @@ namespace WaveTracker.Tracker {
         public void MoveRight(WTSong song) {
             int column = Column + 1;
             if (column > song.GetNumColumnsOfChannel(Channel) - 1) {
-                MoveToChannel(Channel - 1, song);
+                MoveToChannel(Channel + 1, song);
                 column = 0;
             }
             Column = column;
@@ -188,6 +199,23 @@ namespace WaveTracker.Tracker {
         }
 
         /// <summary>
+        /// Returns true if this position in song is empty
+        /// </summary>
+        /// <param name="song"></param>
+        /// <returns></returns>
+        public bool IsPositionEmpty(WTSong song) {
+            if (GetColumnType() == COLUMN_EFFECT_PARAMETER1) {
+                return song[Frame][Row][Channel][Column - 1] == PatternEvent.EMPTY;
+            }
+            else if (GetColumnType() == COLUMN_EFFECT_PARAMETER2) {
+                return song[Frame][Row][Channel][Column - 2] == PatternEvent.EMPTY;
+            }
+            else {
+                return song[this] == PatternEvent.EMPTY;
+            }
+        }
+
+        /// <summary>
         /// Moves the cursor to a frame
         /// </summary>
         /// <param name="frame"></param>
@@ -203,7 +231,5 @@ namespace WaveTracker.Tracker {
             // make sure the cursor is in bounds of this frame
             Row = Math.Clamp(Row, 0, song.FrameSequence[Frame].GetLength() - 1);
         }
-
-
     }
 }

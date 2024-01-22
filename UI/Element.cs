@@ -79,6 +79,10 @@ namespace WaveTracker.UI {
             Graphics.DrawRect(this.x + x + offX, this.y + y + offY, width, height, color);
         }
 
+        protected void DrawRect(Rectangle rect, Color color) {
+            Graphics.DrawRect(this.x + rect.X + offX, this.y + rect.Y + offY, rect.Width, rect.Height, color);
+        }
+
         protected void DrawRoundedRect(int x, int y, int width, int height, Color color) {
             Graphics.DrawRect(this.x + x + offX, this.y + y + offY + 1, width, height - 2, color);
             Graphics.DrawRect(this.x + x + offX + 1, this.y + y + offY, width - 2, height, color);

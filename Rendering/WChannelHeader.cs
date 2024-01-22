@@ -169,7 +169,7 @@ namespace WaveTracker.Rendering {
 
 
         void DrawExpansionArrow(int x, int y, bool facingLeft, bool hovered) {
-            Color c = hovered ? UIColors.labelDark : Helpers.Alpha(UIColors.labelLight, 120);
+            Color c = hovered ? UIColors.labelDark : Helpers.Alpha(UIColors.labelLight, 200);
             if (facingLeft) {
                 DrawRect(x + 2, y, 1, 5, c);
                 DrawRect(x + 1, y + 1, 1, 3, c);

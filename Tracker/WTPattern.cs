@@ -315,6 +315,29 @@ namespace WaveTracker.Tracker {
                 return false;
             }
         }
+        public void SetEmpty() {
+            note = EMPTY;
+            instrument = EMPTY;
+            volume = EMPTY;
+            effect1.Type = (char)EMPTY;
+            effect1.Parameter = EMPTY;
+            effect2.Type = (char)EMPTY;
+            effect2.Parameter = EMPTY;
+            effect3.Type = (char)EMPTY;
+            effect3.Parameter = EMPTY;
+            effect4.Type = (char)EMPTY;
+            effect4.Parameter = EMPTY;
+        }
+
+        public void CopyFrom(PatternEvent other) {
+            note = other.note;
+            instrument = other.instrument;
+            volume = other.volume;
+            Effect1 = other.Effect1;
+            Effect2 = other.Effect2;
+            Effect3 = other.Effect3;
+            Effect4 = other.Effect4;
+        }
 
         /// <summary>
         /// Returns the specific effect, effectNum, under this event
