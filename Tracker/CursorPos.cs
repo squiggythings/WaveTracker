@@ -205,10 +205,10 @@ namespace WaveTracker.Tracker {
         /// <returns></returns>
         public bool IsPositionEmpty(WTSong song) {
             if (GetColumnType() == COLUMN_EFFECT_PARAMETER1) {
-                return song[Frame][Row][Channel][Column - 1] == PatternEvent.EMPTY;
+                return song[Frame][Row][Channel][PatternEvent.CursorColumnToEventColumn(Column - 1)] == PatternEvent.EMPTY;
             }
             else if (GetColumnType() == COLUMN_EFFECT_PARAMETER2) {
-                return song[Frame][Row][Channel][Column - 2] == PatternEvent.EMPTY;
+                return song[Frame][Row][Channel][PatternEvent.CursorColumnToEventColumn(Column - 2)] == PatternEvent.EMPTY;
             }
             else {
                 return song[this] == PatternEvent.EMPTY;

@@ -338,3 +338,5 @@ paket-files/
 *.suo
 obj/
 bin/
+Content/obj/
+Content/bin/
