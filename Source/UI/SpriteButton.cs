@@ -11,14 +11,14 @@ using Microsoft.Xna.Framework.Input;
 namespace WaveTracker.UI {
     public class SpriteButton : Clickable {
         int texNum;
-        Texture2D ;
-        public SpriteButton(int x, int y, int w, int h, Texture2D , int texNum, Element parent) {
+        Texture2D source;
+        public SpriteButton(int x, int y, int w, int h, Texture2D source, int texNum, Element parent) {
             enabled = true;
             this.x = x;
             this.y = y;
             width = w;
             height = h;
-            this. = ;
+            this.source = source;
             this.texNum = texNum;
             SetParent(parent);
         }
@@ -28,20 +28,20 @@ namespace WaveTracker.UI {
             return new Rectangle(0 + texNum * width, 0 + num * height, width, height);
         }
         public void Draw() {
-            if ( == null) return;
+            if (source == null) return;
             if (enabled) {
                 if (IsHovered) {
                     if (IsPressed) {
-                        DrawSprite(, 0, 0, GetBounds(2));
+                        DrawSprite(source, 0, 0, GetBounds(2));
                     } else {
-                        DrawSprite(, 0, 0, GetBounds(1));
+                        DrawSprite(source, 0, 0, GetBounds(1));
                     }
                 } else {
-                    DrawSprite(, 0, 0, GetBounds(0));
+                    DrawSprite(source, 0, 0, GetBounds(0));
                 }
             } else {
                 if (IsHovered) { };
-                DrawSprite(, 0, 0, GetBounds(4));
+                DrawSprite(source, 0, 0, GetBounds(4));
             }
         }
 

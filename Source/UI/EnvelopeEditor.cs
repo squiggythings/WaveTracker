@@ -1,17 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
-using WaveTracker.Tracker;
-using WaveTracker.Rendering;
+using System;
 using WaveTracker.Audio;
+using WaveTracker.Rendering;
+using WaveTracker.Tracker;
 
-namespace WaveTracker.UI
-{
+namespace WaveTracker.UI {
     public class EnvelopeEditor : Clickable {
         Envelope envelope;
         Scrollbar scrollbar;

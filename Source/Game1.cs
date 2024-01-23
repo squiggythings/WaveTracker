@@ -17,35 +17,33 @@ using WaveTracker.Rendering;
 using WaveTracker.Tracker;
 using WaveTracker.Audio;
 
-namespace WaveTracker
-{
+namespace WaveTracker {
     public class Game1 : Game {
         private GraphicsDeviceManager graphics;
         private SpriteBatch targetBatch;
         public static Texture2D pixel;
         public static Texture2D channelHeaderSprite;
 
-        public int ScreenWidth = 960;
-        public int ScreenHeight = 600;
+        public int ScreenWidth = 1920;
+        public int ScreenHeight = 1080;
         public static int ScreenScale = 2;
         public static SpriteFont font;
         RenderTarget2D target;
-        Rendering.FrameRenderer frameRenderer;
-        Rendering.InstrumentBank instrumentBank;
-        Rendering.WaveBank waveBank;
-        Rendering.SongSettings songSettings;
-        Rendering.EditSettings editSettings;
-        Rendering.FrameView frameView;
-        public Rendering.Toolbar toolbar;
-        //public OuzoTracker.Forms.CreateInstrumentDialog control1;
+        FrameRenderer frameRenderer;
+        InstrumentBank instrumentBank;
+        WaveBank waveBank;
+        SongSettings songSettings;
+        EditSettings editSettings;
+        FrameView frameView;
+        public Toolbar toolbar;
         AudioEngine audioEngine;
         int lastPianoKey;
         public static int previewChannel;
-        public static Tracker.Song newSong;
+        public static Song newSong;
         public static int pianoInput;
         public static int mouseCursorArrow;
         public static bool VisualizerMode;
-        public static Rendering.Visualization visualization;
+        public static Visualization visualization;
         string filename;
         PatternEditor patternEditor;
 
@@ -65,14 +63,14 @@ namespace WaveTracker
             IsMouseVisible = true;
             Preferences.profile = PreferenceProfile.defaultProfile;
             Preferences.ReadFromFile();
-            frameRenderer = new Rendering.FrameRenderer();
-            frameView = new Rendering.FrameView();
-            songSettings = new Rendering.SongSettings();
-            var form = (System.Windows.Forms.Form)System.Windows.Forms.Form.FromHandle(Window.Handle);
+            frameRenderer = new FrameRenderer();
+            frameView = new FrameView();
+            songSettings = new SongSettings();
+            var form = (System.Windows.Forms.Form)System.Windows.Forms.Control.FromHandle(Window.Handle);
             form.WindowState = System.Windows.Forms.FormWindowState.Maximized;
 
             patternEditor = new PatternEditor(0, 184);
-            
+
         }
 
         protected override void Initialize() {
@@ -87,18 +85,18 @@ namespace WaveTracker
             WTSong.currentSong = WTModule.currentModule.Song;
             patternEditor.OnSwitchSong();
 
-            waveBank = new Rendering.WaveBank();
-            instrumentBank = new Rendering.InstrumentBank();
+            waveBank = new WaveBank();
+            instrumentBank = new InstrumentBank();
 
             ChannelManager.Initialize(Tracker.Song.CHANNEL_COUNT, waveBank);
             frameRenderer.Initialize();
             FrameEditor.UnmuteAllChannels();
-            FrameEditor.channelScrollbar = new UI.ScrollbarHorizontal(22, 323, 768, 7, null);
-            FrameEditor.channelScrollbar.SetSize(Tracker.Song.CHANNEL_COUNT, 12);
-            editSettings = new Rendering.EditSettings();
-            visualization = new Rendering.Visualization(frameRenderer);
+            //FrameEditor.channelScrollbar = new UI.ScrollbarHorizontal(22, 323, 768, 7, null);
+            //FrameEditor.channelScrollbar.SetSize(Tracker.Song.CHANNEL_COUNT, 12);
+            editSettings = new EditSettings();
+            visualization = new Visualization(frameRenderer);
             ColorButton.colorPicker = new ColorPickerDialog();
-            this.IsFixedTimeStep = false;
+            IsFixedTimeStep = false;
             base.Initialize();
 
         }
@@ -108,17 +106,17 @@ namespace WaveTracker
 
         protected override void LoadContent() {
             Checkbox.textureSheet = Content.Load<Texture2D>("instrumentwindow");
-            UI.NumberBox.buttons = Content.Load<Texture2D>("window_edit");
-            Preferences.dialog = new Rendering.PreferencesDialog();
+            NumberBox.buttons = Content.Load<Texture2D>("window_edit");
+            Preferences.dialog = new PreferencesDialog();
             editSettings.Initialize();
             font = Content.Load<SpriteFont>("custom_font");
             channelHeaderSprite = Content.Load<Texture2D>("trackerchannelheader");
-            toolbar = new Rendering.Toolbar(Content.Load<Texture2D>("toolbar"));
-            waveBank.editor = new Rendering.WaveEditor(Content.Load<Texture2D>("wave_window"));
+            toolbar = new Toolbar(Content.Load<Texture2D>("toolbar"));
+            waveBank.editor = new WaveEditor(Content.Load<Texture2D>("wave_window"));
 
             instrumentBank.Initialize(Content.Load<Texture2D>("toolbar"));
-            instrumentBank.editor = new Rendering.InstrumentEditor(Content.Load<Texture2D>("instrumentwindow"));
-            instrumentBank.editor.browser = new Rendering.SampleBrowser(Content.Load<Texture2D>("window_edit"));
+            instrumentBank.editor = new InstrumentEditor(Content.Load<Texture2D>("instrumentwindow"));
+            instrumentBank.editor.browser = new SampleBrowser(Content.Load<Texture2D>("window_edit"));
             songSettings.Initialize(Content.Load<Texture2D>("window_edit"));
             frameView.Initialize(Content.Load<Texture2D>("toolbar"), GraphicsDevice);
             pixel = new Texture2D(GraphicsDevice, 1, 1);
@@ -151,7 +149,7 @@ namespace WaveTracker
             //Debug.WriteLine("path is: " + SaveLoad.filePath);
             WindowHeight = Window.ClientBounds.Height / ScreenScale;
             WindowWidth = Window.ClientBounds.Width / ScreenScale;
-            FrameEditor.channelScrollbar.y = WindowHeight - 14;
+            //FrameEditor.channelScrollbar.y = WindowHeight - 14;
             if (Input.GetKeyDown(Keys.F12, KeyModifier.None)) {
                 ChannelManager.Reset();
                 ChannelManager.ResetTicks(0);
@@ -181,12 +179,12 @@ namespace WaveTracker
                 pianoInput = waveBank.editor.pianoInput();
             if (instrumentBank.editor.pianoInput() > -1)
                 pianoInput = instrumentBank.editor.pianoInput();
-            if (FrameEditor.currentColumn % 5 == 0 || Rendering.WaveEditor.enabled || Rendering.InstrumentEditor.enabled) {
+            if (FrameEditor.currentColumn % 5 == 0 || WaveEditor.enabled || InstrumentEditor.enabled) {
                 if (pianoInput != -1 && lastPianoKey != pianoInput) {
                     previewChannel = FrameEditor.currentColumn / 5;
                     if (!Playback.isPlaying)
                         AudioEngine.ResetTicks();
-                    ChannelManager.previewChannel.SetMacro(Rendering.InstrumentBank.CurrentInstrumentIndex);
+                    ChannelManager.previewChannel.SetMacro(InstrumentBank.CurrentInstrumentIndex);
                     ChannelManager.previewChannel.TriggerNote(pianoInput);
                 }
             }
@@ -240,14 +238,14 @@ namespace WaveTracker
 
             GraphicsDevice.SetRenderTarget(target);
             GraphicsDevice.Clear(UIColors.black);
-            
+
 
             // TODO: Add your drawing code here
             targetBatch.Begin(SpriteSortMode.Deferred, new BlendState {
-                ColorBlend = Blend.Alpha,
-                ColorDestinationBlend = Blend.InverseAlpha,
-                AlphaBlend = Blend.One,
-                AlphaDestinationBlend = Blend.InverseAlpha,
+                ColorSourceBlend = Blend.SourceAlpha,
+                ColorDestinationBlend = Blend.InverseSourceAlpha,
+                AlphaSourceBlend = Blend.One,
+                AlphaDestinationBlend = Blend.InverseSourceAlpha,
             }, SamplerState.PointClamp, DepthStencilState.Default, RasterizerState.CullNone);
 
             Rendering.Graphics.batch = targetBatch;
@@ -277,7 +275,7 @@ namespace WaveTracker
                 //FrameEditor.channelScrollbar.Draw();
                 //Rendering.Graphics.DrawRect(0, FrameEditor.channelScrollbar.y, FrameEditor.channelScrollbar.x, FrameEditor.channelScrollbar.height, new Color(223, 224, 232));
 
-               
+
                 // draw click position
                 //Rendering.Graphics.DrawRect(Input.lastClickLocation.X, Input.lastClickLocation.Y, 1, 1, Color.Red);
                 //Rendering.Graphics.DrawRect(Input.lastClickReleaseLocation.X, Input.lastClickReleaseLocation.Y, 1, 1, Color.DarkRed);

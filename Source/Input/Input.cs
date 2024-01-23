@@ -24,7 +24,8 @@ namespace WaveTracker {
         static float lastTimeSinceLastClickUp;
         static float timeSinceDoubleClick;
 
-        public const int DOUBLE_CLICK_TIME = 350;
+        const int DOUBLE_CLICK_TIME = 350;
+        const float MOUSE_DRAG_DISTANCE = 5;
         public static int dialogOpenCooldown;
 
         static Dictionary<Keys, int> keyTimePairs;
@@ -38,11 +39,13 @@ namespace WaveTracker {
 
         static KeyModifier currentModifier;
         static bool singleClick;
-        public static bool doubleClick;
+        static bool doubleClick;
         static bool dragging;
+        static bool wasDragging;
         public static bool internalDialogIsOpen;
         public static Element focus = null;
         public static int focusTimer;
+        static double clickTimer;
         public static void Intialize() {
             keyTimePairs = new Dictionary<Keys, int>();
             foreach (Keys k in Enum.GetValues(typeof(Keys))) {
@@ -89,31 +92,39 @@ namespace WaveTracker {
 
 
             if (GetClickDown(KeyModifier._Any)) {
-                doubleClick = false;
-            }
-            if (GetClickDown(KeyModifier._Any) && timeSinceLastClick < DOUBLE_CLICK_TIME && Vector2.Distance(lastClickLocation.ToVector2(), lastClickReleaseLocation.ToVector2()) < 5) {
-                timeSinceDoubleClick = 0;
-                doubleClick = true;
-            }
-            if (GetClickDown(KeyModifier._Any)) {
                 lastClickLocation = new Point(MousePositionX, MousePositionY);
+                if (timeSinceLastClick < DOUBLE_CLICK_TIME && Vector2.Distance(lastClickReleaseLocation.ToVector2(), MousePos) < MOUSE_DRAG_DISTANCE) {
+
+                    //this is a double click
+                    doubleClick = true;
+                }
+                else {
+                    //this is a normal click
+                    doubleClick = false;
+                }
                 timeSinceLastClick = 0;
             }
+
             if (GetClick(KeyModifier._Any)) {
-                Vector2 mousePosition = new Vector2(MousePositionX, MousePositionY);
-                if (Vector2.Distance(lastClickLocation.ToVector2(), mousePosition) > 5) {
+                if (Vector2.Distance(lastClickLocation.ToVector2(), MousePos) > MOUSE_DRAG_DISTANCE) {
                     dragging = true;
                 }
             }
             else {
+                if (dragging) {
+                    wasDragging = true;
+                }
+                else {
+                    wasDragging = false;
+                }
                 dragging = false;
             }
             singleClick = false;
             if (GetClickUp(KeyModifier._Any)) {
                 timeSinceLastClickUp = 0;
-                if (doubleClick == false)
-                    singleClick = true;
-                doubleClick = false;
+                //if (doubleClick == false)
+                //    singleClick = true;
+                //doubleClick = false;
                 lastClickReleaseLocation = new Point(MousePositionX, MousePositionY);
             }
         }
@@ -171,10 +182,7 @@ namespace WaveTracker {
 
         public static bool GetSingleClickUp(KeyModifier modifier) {
 
-            if (modifierMatches(modifier) && !cancelClick)
-                return GetClickUp(modifier) && singleClick;
-            else
-                return false;
+            return GetClickUp(modifier) && !doubleClick;
         }
         public static bool GetClickDown(KeyModifier modifier) {
 
@@ -193,10 +201,7 @@ namespace WaveTracker {
 
         public static bool GetDoubleClick(KeyModifier modifier) {
 
-            if (modifierMatches(modifier))
-                return GetClickDown(modifier) && doubleClick;
-            else
-                return false;
+            return GetClickDown(modifier) && doubleClick;
         }
 
         public static int MousePositionX { get { return (currentMouseState.X) / Game1.ScreenScale; } }
@@ -247,6 +252,12 @@ namespace WaveTracker {
 
         public static bool MouseIsDragging {
             get { return dragging; }
+        }
+        /// <summary>
+        /// True if the user just released a mouse drag this frame
+        /// </summary>
+        public static bool MouseJustEndedDragging {
+            get { return wasDragging; }
         }
 
     }

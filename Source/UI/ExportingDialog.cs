@@ -7,9 +7,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using WaveTracker.UI;
+using WaveTracker.Rendering;
 
-
-namespace WaveTracker.Rendering {
+namespace WaveTracker.UI {
     public class ExportingDialog : Panel {
         bool enabled;
         public string Path { get; set; }
@@ -33,7 +33,8 @@ namespace WaveTracker.Rendering {
                         Audio.AudioEngine.cancelRender = true;
                         Close();
                     }
-                } else {
+                }
+                else {
                     Cancel.SetLabel("Done");
                     if (Cancel.Clicked) {
                         Close();

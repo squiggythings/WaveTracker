@@ -7,13 +7,13 @@ using System.Xml.Serialization;
 using System.IO;
 using System.Xml;
 using System.Diagnostics;
-using WaveTracker.Rendering;
+using WaveTracker.UI;
 
 namespace WaveTracker {
     public static class Preferences {
 
         public static PreferenceProfile profile;
-        public static Rendering.PreferencesDialog dialog;
+        public static PreferencesDialog dialog;
 
         static string settingspath => Directory.GetCurrentDirectory() + "/WaveTracker_pref";
         public static void ReadFromFile() {

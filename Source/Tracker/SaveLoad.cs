@@ -18,7 +18,7 @@ using System.Xml.Serialization;
 using System.Runtime.Serialization;
 using ProtoBuf;
 using WaveTracker.Rendering;
-using WaveTracker.Input;
+using WaveTracker;
 using WaveTracker.Audio;
 
 namespace WaveTracker

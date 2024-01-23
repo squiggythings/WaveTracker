@@ -13,7 +13,7 @@ using Microsoft.Xna.Framework.Input;
 using System.Diagnostics;
 
 
-namespace WaveTracker.Rendering {
+namespace WaveTracker.UI {
     public class InstrumentEditor : Element {
         public static bool enabled;
         public Macro currentMacro;

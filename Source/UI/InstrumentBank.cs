@@ -12,7 +12,7 @@ using WaveTracker.Audio;
 using System.Windows.Forms;
 
 
-namespace WaveTracker.Rendering {
+namespace WaveTracker.UI {
     public class InstrumentBank : UI.Panel {
         private Forms.EnterText renameDialog;
         public InstrumentEditor editor;

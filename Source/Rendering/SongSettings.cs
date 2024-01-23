@@ -20,7 +20,7 @@ namespace WaveTracker.Rendering {
         SpriteButton editButton;
         float ampLeft, ampRight;
         int ampL, ampR;
-        public void Initialize(Texture2D editButton) {
+        public void Initialize(Texture2D editButtonsource) {
             title = new Textbox("Title", 4, 12, 155, 110, this);
 
             //title.canEdit = false;
@@ -35,7 +35,7 @@ namespace WaveTracker.Rendering {
             rows.SetValueLimits(1, 256);
             //rows.canEdit = false;
 
-            editButton = new SpriteButton(296, 0, 10, 9, editButton, 0, this);
+            editButton = new SpriteButton(296, 0, 10, 9, editButtonsource, 0, this);
             editButton.SetTooltip("Edit Song Settings", "Open the song settings editing window");
             InitializePanel("Song", 2, 18, 306, 84);
         }

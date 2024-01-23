@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 using WaveTracker.UI;
 
 
-namespace WaveTracker.Rendering {
+namespace WaveTracker.UI {
     public class PreferencesDialog : Dialog {
         public SpriteButton closeX;
         public Button ok, cancel, apply;

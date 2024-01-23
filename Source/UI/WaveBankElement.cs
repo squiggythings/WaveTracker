@@ -9,7 +9,7 @@ using Microsoft.Xna.Framework.Input;
 using WaveTracker.UI;
 using WaveTracker.Tracker;
 
-namespace WaveTracker.Rendering {
+namespace WaveTracker.UI {
     public class WaveBankElement : Clickable {
         Wave wave => Song.currentSong.waves[id];
         int id;

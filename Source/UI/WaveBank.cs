@@ -10,7 +10,7 @@ using WaveTracker.UI;
 using WaveTracker.Tracker;
 using WaveTracker.Audio;
 
-namespace WaveTracker.Rendering
+namespace WaveTracker.UI
 {
     public class WaveBank : Panel {
         WaveBankElement[] waveBankElements;

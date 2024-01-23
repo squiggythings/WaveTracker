@@ -11,7 +11,7 @@ using WaveTracker.Tracker;
 using System.Diagnostics;
 using System.Threading;
 using WaveTracker.Rendering;
-using WaveTracker.Input;
+using WaveTracker;
 using WaveTracker.Audio;
 
 namespace WaveTracker.Tracker

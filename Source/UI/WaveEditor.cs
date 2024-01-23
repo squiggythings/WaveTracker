@@ -11,7 +11,7 @@ using WaveTracker.UI;
 using WaveTracker.Tracker;
 using System.Windows.Forms;
 
-namespace WaveTracker.Rendering {
+namespace WaveTracker.UI {
     public class WaveEditor : Element {
         public Texture2D tex;
         public static bool enabled;

@@ -3,7 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System.Xml.Serialization;
 
-namespace WaveTracker.Rendering {
+namespace WaveTracker {
     public class Colors {
         public static ColorTheme theme = ColorTheme.Default;
     }

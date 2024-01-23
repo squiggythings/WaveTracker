@@ -13,7 +13,7 @@ using System.Diagnostics;
 using NAudio.Wave;
 using System.Threading;
 
-namespace WaveTracker.Rendering {
+namespace WaveTracker.UI {
     public class SampleBrowser : Element {
         public bool enabled;
         public Texture2D icons;
@@ -331,14 +331,14 @@ namespace WaveTracker.Rendering {
     }
 
     public class LoopStream : WaveStream {
-        WaveStream Stream;
+        WaveStream sourceStream;
         /// <summary>
         /// Creates a new Loop stream
         /// </summary>
-        /// <param name="Stream">The stream to read from. Note: the Read method of this stream should return 0 when it reaches the end
+        /// <param name="sourceStream">The stream to read from. Note: the Read method of this stream should return 0 when it reaches the end
         /// or else we will not loop to the start again.</param>
-        public LoopStream(WaveStream Stream) {
-            this.Stream = Stream;
+        public LoopStream(WaveStream sourceStream) {
+            this.sourceStream = sourceStream;
             this.EnableLooping = true;
         }
 
@@ -348,39 +348,39 @@ namespace WaveTracker.Rendering {
         public bool EnableLooping { get; set; }
 
         /// <summary>
-        /// Return  stream's wave format
+        /// Return source stream's wave format
         /// </summary>
         public override WaveFormat WaveFormat {
-            get { return Stream.WaveFormat; }
+            get { return sourceStream.WaveFormat; }
         }
 
         /// <summary>
         /// LoopStream simply returns
         /// </summary>
         public override long Length {
-            get { return Stream.Length; }
+            get { return sourceStream.Length; }
         }
 
         /// <summary>
-        /// LoopStream simply passes on positioning to  stream
+        /// LoopStream simply passes on positioning to source stream
         /// </summary>
         public override long Position {
-            get { return Stream.Position; }
-            set { Stream.Position = value; }
+            get { return sourceStream.Position; }
+            set { sourceStream.Position = value; }
         }
 
         public override int Read(byte[] buffer, int offset, int count) {
             int totalBytesRead = 0;
 
             while (totalBytesRead < count) {
-                int bytesRead = Stream.Read(buffer, offset + totalBytesRead, count - totalBytesRead);
+                int bytesRead = sourceStream.Read(buffer, offset + totalBytesRead, count - totalBytesRead);
                 if (bytesRead == 0) {
-                    if (Stream.Position == 0 || !EnableLooping) {
-                        // something wrong with the  stream
+                    if (sourceStream.Position == 0 || !EnableLooping) {
+                        // something wrong with the source stream
                         break;
                     }
                     // loop
-                    Stream.Position = 0;
+                    sourceStream.Position = 0;
                 }
                 totalBytesRead += bytesRead;
             }

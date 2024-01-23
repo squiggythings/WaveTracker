@@ -7,8 +7,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using WaveTracker.UI;
+using WaveTracker.Rendering;
 
-namespace WaveTracker.Rendering {
+namespace WaveTracker.UI{
     public class ExportDialog : Dialog {
         Button begin, cancel;
         Button all, none;

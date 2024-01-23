@@ -561,8 +561,8 @@ namespace WaveTracker {
     }
 
     public static class ExtensionMethods {
-        public static float Map(this float value, float from, float to, float fromTarget, float toTarget) {
-            return (value - from) / (to - from) * (toTarget - fromTarget) + fromTarget;
+        public static float Map(this float value, float fromSource, float toSource, float fromTarget, float toTarget) {
+            return (value - fromSource) / (toSource - fromSource) * (toTarget - fromTarget) + fromTarget;
         }
 
         public static Color AddTo(this Color value, Color other) {

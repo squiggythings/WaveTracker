@@ -9,7 +9,7 @@ using Microsoft.Xna.Framework.Input;
 using WaveTracker.UI;
 using WaveTracker.Tracker;
 
-namespace WaveTracker.Rendering {
+namespace WaveTracker.UI {
     public class FrameView : Panel {
         Texture2D arrow;
         FrameButton[] frames = new FrameButton[25];

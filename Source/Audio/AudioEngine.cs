@@ -1,26 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Audio;
-using Microsoft.Xna.Framework.Input;
-using System.Diagnostics;
-using System.Threading;
+﻿using NAudio.CoreAudioApi;
 using NAudio.Wave;
-using NAudio.Dsp;
-using NAudio.Wasapi;
-using NAudio.Wave.SampleProviders;
-using NAudio.CoreAudioApi;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
-using SharpDX.MediaFoundation.DirectX;
+using System.Threading;
+using System.Threading.Tasks;
 using WaveTracker.Tracker;
-using WaveTracker.Rendering;
+using WaveTracker.UI;
 
-namespace WaveTracker.Audio
-{
+namespace WaveTracker.Audio {
     public class AudioEngine {
         public const ResamplingModes RESAMPLING_MODE = ResamplingModes.None;
         public const int sampleRate = 44100;
@@ -64,7 +53,7 @@ namespace WaveTracker.Audio
         }
 
         public void Initialize() {
-            exportingDialog = new Rendering.ExportingDialog();
+            exportingDialog = new ExportingDialog();
             currentBuffer = new float[2, SamplesPerBuffer];
             audioProvider = new Provider();
             audioProvider.SetWaveFormat(AudioEngine.sampleRate, 2); // 44.1khz stereo
@@ -118,7 +107,7 @@ namespace WaveTracker.Audio
         }
 
 
-        bool WriteToWaveFile(string path, IWaveProvider ) {
+        bool WriteToWaveFile(string path, IWaveProvider source) {
             wasapiOut.Stop();
             rendering = true;
             cancelRender = false;
@@ -128,7 +117,7 @@ namespace WaveTracker.Audio
 
             ChannelManager.Reset();
             Tracker.Playback.PlayFromBeginning();
-            WaveFileWriter.CreateWaveFile(path, );
+            WaveFileWriter.CreateWaveFile(path, source);
             wasapiOut.Play();
             return !cancelRender;
         }

@@ -9,7 +9,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System.Diagnostics;
 
-namespace WaveTracker.Rendering {
+namespace WaveTracker.UI {
     public class Toolbar : Element {
         public static Texture2D sprite;
         public SpriteButton file_new;

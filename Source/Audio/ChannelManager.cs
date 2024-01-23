@@ -1,23 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Audio;
-using Microsoft.Xna.Framework.Input;
-using WaveTracker.UI;
+﻿using System.Collections.Generic;
 using WaveTracker.Tracker;
+using WaveTracker.UI;
 
-namespace WaveTracker.Audio
-{
+namespace WaveTracker.Audio {
     public static class ChannelManager {
         public static Channel previewChannel;
         public static List<Channel> channels;
-        public static Rendering.WaveBank waveBank;
+        public static WaveBank waveBank;
 
-        public static void Initialize(int numChannels, Rendering.WaveBank waveBank) {
+        public static void Initialize(int numChannels, WaveBank waveBank) {
             ChannelManager.waveBank = waveBank;
             previewChannel = new Channel(-1);
             channels = new List<Channel>();
@@ -159,6 +150,18 @@ namespace WaveTracker.Audio
             for (int i = 0; i < channels.Count; i++) {
                 channels[channel].IsMuted = channel != i;
             }
+        }
+        /// <summary>
+        /// Returns true if the given channel is solo-ed
+        /// </summary>
+        /// <param name="channel"></param>
+        /// <returns></returns>
+        public static bool IsChannelSoloed(int channel) {
+            for (int i = 0; i < channels.Count; i++) {
+                if (channels[channel].IsMuted != (channel != i))
+                    return false;
+            }
+            return true;
         }
     }
 }

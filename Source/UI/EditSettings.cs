@@ -1,23 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
-using WaveTracker.UI;
+﻿using Microsoft.Xna.Framework;
 using WaveTracker.Tracker;
-using System.Windows.Forms;
 
-namespace WaveTracker.Rendering {
-    public class EditSettings : UI.Panel {
+namespace WaveTracker.UI {
+    public class EditSettings : Panel
+    {
         NumberBox octave;
         NumberBox step;
         Toggle instrumentMask;
         NumberBox highlightPrimary;
         NumberBox highlightSecondary;
-        public void Initialize() {
+        public void Initialize()
+        {
             octave = new NumberBox("Octave", 5, 24, 80, 40, this);
             octave.bUp.SetTooltip("", "Increase current octave - ]");
             octave.bDown.SetTooltip("", "Decrease current octave - [");
@@ -37,7 +30,8 @@ namespace WaveTracker.Rendering {
 
         }
 
-        public void Update() {
+        public void Update()
+        {
             octave.Update();
             step.Update();
             highlightPrimary.Update();
@@ -66,7 +60,8 @@ namespace WaveTracker.Rendering {
             FrameEditor.instrumentMask = instrumentMask.Value;
         }
 
-        public void Draw() {
+        public void Draw()
+        {
             DrawPanel();
             octave.Draw();
             step.Draw();

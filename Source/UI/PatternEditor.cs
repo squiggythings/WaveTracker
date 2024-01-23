@@ -9,9 +9,9 @@ using System.Text;
 using System.Threading.Tasks;
 using WaveTracker.Rendering;
 using WaveTracker.Tracker;
+using WaveTracker;
 
-namespace WaveTracker.UI
-{
+namespace WaveTracker.UI {
 
     /// <summary>
     /// The pattern editor interface, including the channel headers
@@ -174,7 +174,7 @@ namespace WaveTracker.UI
             if (ClickedDown) {
                 CancelSelection();
             }
-            if (Clicked && MouseX < channelHeaders[Song.CHANNEL_COUNT - 1].x + width) {
+            if (Clicked && MouseX < channelHeaders[Song.CHANNEL_COUNT - 1].x + width && !Input.MouseJustEndedDragging) {
                 cursorPosition = GetCursorPositionFromPoint(MouseX, MouseY);
             }
             #endregion
@@ -230,7 +230,7 @@ namespace WaveTracker.UI
             #endregion
 
             #region selection with mouse
-            if (Input.MouseIsDragging && IsHovered && globalPointIsInBounds(Input.lastClickLocation)) {
+            if (Input.MouseIsDragging && globalPointIsInBounds(Input.lastClickLocation)) {
                 if (!selectionActive) {
                     SetSelectionStart(GetCursorPositionFromPoint(LastClickPos.X, LastClickPos.Y));
                     selectionActive = true;
@@ -855,22 +855,29 @@ namespace WaveTracker.UI
                 return Input.GetKeyDown(key, keyModifier);
         }
 
+        /// <summary>
+        /// Sets the selection start position
+        /// </summary>
+        /// <param name="pos"></param>
         void SetSelectionStart(CursorPos pos) {
             selectionStart = pos;
         }
 
+        /// <summary>
+        /// Sets the selection end position
+        /// </summary>
+        /// <param name="pos"></param>
         void SetSelectionEnd(CursorPos pos) {
             selectionEnd = pos;
         }
 
 
         /// <summary>
-        /// Ensures that selectionStart will be the top left corner of the selection and selectionEnd will be the bottom right.
+        /// Sets selectionMin and selectionMax to the upper-right and bottom-left of the selection bounds from selectionStart and selectionEnd
         /// </summary>
         void CreateSelectionBounds() {
             selectionMin = selectionStart;
             selectionMax = selectionEnd;
-
             // perform any swaps necessary
             if (selectionStart.IsBelow(selectionEnd)) {
                 selectionMin.Row = selectionEnd.Row;
@@ -883,6 +890,14 @@ namespace WaveTracker.UI
                 selectionMax.Column = selectionStart.Column;
                 selectionMin.Channel = selectionEnd.Channel;
                 selectionMin.Column = selectionEnd.Column;
+            }
+
+            // if the user selected on the row column, set the selection to span all channels
+            if (selectionMax.Channel == -1 && selectionMin.Channel == -1) {
+                selectionMin.Channel = 0;
+                selectionMin.Column = 0;
+                selectionMax.Channel = CurrentSong.ChannelCount - 1;
+                selectionMax.Column = GetNumFullColumns(selectionMax.Channel) - 1;
             }
 
             // adjust the cursor positions to fill all of mulit-digit fields like instrument, volume and effects
@@ -911,6 +926,12 @@ namespace WaveTracker.UI
             else if (selectionMin.Column == 15 || selectionMin.Column == 16)
                 selectionMin.Column = 14;
 
+            if (selectionMin.Channel < 0)
+                selectionMin.Channel = 0;
+            if (selectionMax.Channel < 0)
+                selectionMax.Channel = 0;
+            if (selectionMax.Column >= GetNumFullColumns(selectionMax.Channel))
+                selectionMax.Column = GetNumFullColumns(selectionMax.Channel) - 1;
         }
 
         /// <summary>
@@ -1084,6 +1105,7 @@ namespace WaveTracker.UI
                 Channel = GetChannelAtPoint(x),
                 Column = GetColumnAtPoint(x)
             };
+
             int lineNum = y / ROW_HEIGHT;
             int frameWrap = 0;
 

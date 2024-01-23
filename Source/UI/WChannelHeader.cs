@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 using WaveTracker.Audio;
 using WaveTracker.UI;
 
-namespace WaveTracker.Rendering {
+namespace WaveTracker.UI {
     public class WChannelHeader : Clickable {
 
         /// <summary>
@@ -78,11 +78,21 @@ namespace WaveTracker.Rendering {
             if (enabled) {
                 if (MouseIsValid) {
                     if (!collapseEffectButton.IsHovered && !expandEffectButton.IsHovered) {
-                        if (Clicked) {
+                        if (SingleClickedM(KeyModifier.None)) {
                             if (ChannelManager.IsChannelMuted(channelNum))
                                 ChannelManager.UnmuteChannel(channelNum);
                             else
                                 ChannelManager.MuteChannel(channelNum);
+                        }
+                        if (DoubleClickedM(KeyModifier.None)) {
+                            if (ChannelManager.IsChannelSoloed(channelNum)) {
+
+                            }
+                            else {
+                                ChannelManager.SoloChannel(channelNum);
+                            }
+                            ChannelManager.MuteAllChannels();
+                            ChannelManager.UnmuteChannel(channelNum);
                         }
                     }
 
@@ -117,6 +127,12 @@ namespace WaveTracker.Rendering {
                     if (channelNum >= 0)
                         Write("Channel " + (channelNum + 1), 4, 11, new Color(230, 69, 57));
                     arrowOffset = 12;
+                }
+                else if (IsPressed) {
+                    DrawRoundedRect(0, 0, width, height, new Color(223, 224, 232));
+                    DrawRect(0, 20, width, height - 20, new Color(208, 209, 221));
+                    if (channelNum >= 0)
+                        Write("Channel " + (channelNum + 1), 4, 10, new Color(104, 111, 153));
                 }
                 else {
                     DrawRoundedRect(0, 0, width, height, Color.White);

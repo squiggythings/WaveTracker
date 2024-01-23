@@ -8,7 +8,7 @@ using Microsoft.Xna.Framework.Input;
 using WaveTracker.Tracker;
 using System.Diagnostics;
 using WaveTracker.Rendering;
-using WaveTracker.Input;
+using WaveTracker.UI;
 
 namespace WaveTracker {
     public static class FrameEditor {
@@ -140,7 +140,7 @@ namespace WaveTracker {
                         }
                     }
                     if (Input.GetClick(KeyModifier._Any)) {
-                        if (mouseInBounds(mrow, mcolumn - channelScroll * 8) && Input.doubleClick == false) {
+                        if (mouseInBounds(mrow, mcolumn - channelScroll * 8) && Input.GetDoubleClick(KeyModifier.None) == false) {
                             if (Vector2.Distance(Input.MousePos, Input.lastClickLocation.ToVector2()) > 7) {
                                 if (!isDragging) {
                                     selectionStart = new Point(cursorColToFileCol(mcolumn), mrow);
