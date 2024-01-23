@@ -4,16 +4,16 @@
     <_LastSelectedProfileId>C:\Users\Elias\source\repos\WaveTracker\Properties\PublishProfiles\FolderProfile.pubxml</_LastSelectedProfileId>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Update="Forms\EditSongSettings.cs">
+    <Compile Update="Source\Forms\EditSongSettings.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Update="Forms\EnterText.cs">
+    <Compile Update="Source\Forms\EnterText.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Update="Forms\Preferences.cs">
+    <Compile Update="Source\Forms\Preferences.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Update="Forms\UnsavedFileWarning.cs">
+    <Compile Update="Source\Forms\UnsavedFileWarning.cs">
       <SubType>Form</SubType>
     </Compile>
   </ItemGroup>

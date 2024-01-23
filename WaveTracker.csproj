@@ -13,7 +13,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Remove="Forms2\**" />
-    <EmbeddedResource Remove="Forms2\**" />
+    <EmbeddedRe Remove="Forms2\**" />
     <None Remove="Forms2\**" />
   </ItemGroup>
   <ItemGroup>
