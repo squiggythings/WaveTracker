@@ -25,6 +25,6 @@ namespace WaveTracker.UI {
         public float MouseXClamped => Math.Clamp(MouseX / (float)(width - 1), 0f, 1f);
         public float MouseYClamped => Math.Clamp(MouseY / (float)(height - 1), 0f, 1f);
 
-        public bool DidClickInRegion => Input.GetClick(KeyModifier._Any) && globalPointIsInBounds(Input.lastClickLocation);
+        public bool DidClickInRegion => Input.GetClick(KeyModifier._Any) && GlobalPointIsInBounds(Input.lastClickLocation);
     }
 }

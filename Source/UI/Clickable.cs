@@ -32,35 +32,40 @@ namespace WaveTracker.UI {
                 return h;
             }
         }
-        public bool IsPressed { get { return IsHovered && Input.GetClick(KeyModifier._Any) && globalPointIsInBounds(Input.lastClickLocation); } }
+        public bool IsPressed { get { return IsHovered && Input.GetClick(KeyModifier._Any) && GlobalPointIsInBounds(Input.lastClickLocation); } }
 
         public bool Clicked {
             get {
-                return enabled && IsHovered && Input.GetClickUp(KeyModifier._Any) && globalPointIsInBounds(Input.lastClickLocation) && globalPointIsInBounds(Input.lastClickReleaseLocation);
+                return enabled && IsHovered && Input.GetClickUp(KeyModifier._Any) && GlobalPointIsInBounds(Input.lastClickLocation) && GlobalPointIsInBounds(Input.lastClickReleaseLocation);
             }
         }
         public bool ClickedDown {
             get {
-                return enabled && IsHovered && Input.GetClickDown(KeyModifier._Any) && globalPointIsInBounds(Input.lastClickLocation);
+                return enabled && IsHovered && Input.GetClickDown(KeyModifier._Any) && GlobalPointIsInBounds(Input.lastClickLocation);
             }
         }
 
         public bool DoubleClicked {
             get {
-                return enabled && IsHovered && Input.GetDoubleClick(KeyModifier._Any) && globalPointIsInBounds(Input.lastClickLocation) && globalPointIsInBounds(Input.lastClickReleaseLocation);
+                return enabled && IsHovered && Input.GetDoubleClick(KeyModifier._Any) && GlobalPointIsInBounds(Input.lastClickLocation) && GlobalPointIsInBounds(Input.lastClickReleaseLocation);
             }
         }
 
         public bool ClickedM(KeyModifier modifier) {
             if (!inFocus)
                 return false;
-            return enabled && IsHovered && Input.GetClickUp(modifier) && globalPointIsInBounds(Input.lastClickLocation) && globalPointIsInBounds(Input.lastClickReleaseLocation);
+            return enabled && IsHovered && Input.GetClickUp(modifier) && GlobalPointIsInBounds(Input.lastClickLocation) && GlobalPointIsInBounds(Input.lastClickReleaseLocation);
         }
 
         public bool SingleClickedM(KeyModifier modifier) {
             if (!inFocus)
                 return false;
-            return enabled && IsHovered && Input.GetSingleClickUp(modifier) && globalPointIsInBounds(Input.lastClickLocation) && globalPointIsInBounds(Input.lastClickReleaseLocation);
+            return enabled && IsHovered && Input.GetSingleClickUp(modifier) && GlobalPointIsInBounds(Input.lastClickLocation) && GlobalPointIsInBounds(Input.lastClickReleaseLocation);
+        }
+
+
+        public bool IsPressedM(KeyModifier modifier) {
+            return IsHovered && Input.GetClick(modifier) && GlobalPointIsInBounds(Input.lastClickLocation);
         }
 
 
@@ -68,7 +73,7 @@ namespace WaveTracker.UI {
             return enabled && IsHovered && Input.GetDoubleClick(modifier);
         }
 
-        public bool globalPointIsInBounds(Point p) {
+        public bool GlobalPointIsInBounds(Point p) {
             return p.X >= this.globalX && p.Y >= this.globalY && p.X < this.globalX + this.width && p.Y < this.globalY + this.height;
         }
     }

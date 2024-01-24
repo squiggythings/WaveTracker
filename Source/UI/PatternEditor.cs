@@ -260,7 +260,7 @@ namespace WaveTracker.UI {
             }
             #endregion
             #region selection with mouse
-            if (Input.GetClick(KeyModifier.None) && Input.MouseIsDragging && globalPointIsInBounds(Input.lastClickLocation)) {
+            if (Input.GetClick(KeyModifier.None) && Input.MouseIsDragging && GlobalPointIsInBounds(Input.lastClickLocation)) {
                 if (!selectionActive) {
                     SetSelectionStart(GetCursorPositionFromPoint(LastClickPos.X, LastClickPos.Y));
                     selectionActive = true;
@@ -273,7 +273,7 @@ namespace WaveTracker.UI {
                 }
                 SetSelectionEnd(GetCursorPositionFromPoint(MouseX, MouseY));
             }
-            if (SingleClickedM(KeyModifier.Shift) && MouseX < channelHeaders[Song.CHANNEL_COUNT - 1].x + width && !Input.MouseJustEndedDragging) {
+            if (IsPressedM(KeyModifier.Shift)) {
                 if (!selectionActive) {
                     SetSelectionStart(cursorPosition);
                     selectionActive = true;
