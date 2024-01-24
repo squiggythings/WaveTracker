@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using WaveTracker.Rendering;
 using WaveTracker.Tracker;
 using WaveTracker;
+using WaveTracker.Audio;
 
 namespace WaveTracker.UI {
 
@@ -120,6 +121,17 @@ namespace WaveTracker.UI {
             if (Input.GetKeyRepeat(Keys.OemCloseBrackets, KeyModifier.None) || Input.GetKeyRepeat(Keys.Multiply, KeyModifier.None))
                 CurrentOctave++;
             CurrentOctave = Math.Clamp(CurrentOctave, 0, 9);
+            #endregion
+            #region solo/mute channels function keys
+            if (Input.GetKeyRepeat(Keys.F9, KeyModifier.Alt))
+                ChannelManager.ToggleChannel(cursorPosition.Channel);
+
+            if (Input.GetKeyRepeat(Keys.F10, KeyModifier.Alt)) {
+                if (ChannelManager.IsChannelSoloed(cursorPosition.Channel))
+                    ChannelManager.UnmuteAllChannels();
+                else
+                    ChannelManager.SoloChannel(cursorPosition.Channel);
+            }
             #endregion
 
             //////////////////////////////
@@ -271,6 +283,7 @@ namespace WaveTracker.UI {
                 CancelSelection();
             }
             #endregion
+
 
             if (!selectionActive) {
                 selectionStart = selectionEnd = cursorPosition;

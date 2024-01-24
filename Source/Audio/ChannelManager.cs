@@ -134,6 +134,15 @@ namespace WaveTracker.Audio {
                 channel.IsMuted = false;
             }
         }
+
+        /// <summary>
+        /// Toggles a specific channel
+        /// </summary>
+        /// <param name="channel"></param>
+        public static void ToggleChannel(int channel) {
+            channels[channel].IsMuted = !channels[channel].IsMuted;
+        }
+
         /// <summary>
         /// Mutes all playback channels
         /// </summary>
@@ -148,17 +157,29 @@ namespace WaveTracker.Audio {
         /// <param name="channel"></param>
         public static void SoloChannel(int channel) {
             for (int i = 0; i < channels.Count; i++) {
-                channels[channel].IsMuted = channel != i;
+                channels[i].IsMuted = channel != i;
             }
         }
         /// <summary>
-        /// Returns true if the given channel is solo-ed
+        /// Returns true if all channels are muted
+        /// </summary>
+        /// <returns></returns>
+        public static bool IsEveryChannelMuted() {
+            for (int i = 0; i < channels.Count; i++) {
+                if (!channels[i].IsMuted)
+                    return false;
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// Returns true if the given channel is soloed
         /// </summary>
         /// <param name="channel"></param>
         /// <returns></returns>
         public static bool IsChannelSoloed(int channel) {
             for (int i = 0; i < channels.Count; i++) {
-                if (channels[channel].IsMuted != (channel != i))
+                if (channels[i].IsMuted != (channel != i))
                     return false;
             }
             return true;

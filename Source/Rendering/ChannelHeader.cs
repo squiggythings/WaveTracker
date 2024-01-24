@@ -52,7 +52,6 @@ namespace WaveTracker.Rendering
             //}
             
             if (DoubleClickedM(KeyModifier.None)) {
-                Input.CancelClick();
                 if (FrameEditor.isChannelSoloed(id))
                     FrameEditor.UnmuteAllChannels();
                 else

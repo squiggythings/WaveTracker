@@ -38,14 +38,12 @@ namespace WaveTracker {
         static bool cancelClick;
 
         static KeyModifier currentModifier;
-        static bool singleClick;
-        static bool doubleClick;
+       public static bool doubleClick;
         static bool dragging;
         static bool wasDragging;
         public static bool internalDialogIsOpen;
         public static Element focus = null;
         public static int focusTimer;
-        static double clickTimer;
         public static void Intialize() {
             keyTimePairs = new Dictionary<Keys, int>();
             foreach (Keys k in Enum.GetValues(typeof(Keys))) {
@@ -93,8 +91,7 @@ namespace WaveTracker {
 
             if (GetClickDown(KeyModifier._Any)) {
                 lastClickLocation = new Point(MousePositionX, MousePositionY);
-                if (timeSinceLastClick < DOUBLE_CLICK_TIME && Vector2.Distance(lastClickReleaseLocation.ToVector2(), MousePos) < MOUSE_DRAG_DISTANCE) {
-
+                if (!doubleClick && timeSinceLastClick < DOUBLE_CLICK_TIME && Vector2.Distance(lastClickReleaseLocation.ToVector2(), MousePos) < MOUSE_DRAG_DISTANCE) {
                     //this is a double click
                     doubleClick = true;
                 }
@@ -119,12 +116,8 @@ namespace WaveTracker {
                 }
                 dragging = false;
             }
-            singleClick = false;
             if (GetClickUp(KeyModifier._Any)) {
                 timeSinceLastClickUp = 0;
-                //if (doubleClick == false)
-                //    singleClick = true;
-                //doubleClick = false;
                 lastClickReleaseLocation = new Point(MousePositionX, MousePositionY);
             }
         }
@@ -200,7 +193,6 @@ namespace WaveTracker {
         }
 
         public static bool GetDoubleClick(KeyModifier modifier) {
-
             return GetClickDown(modifier) && doubleClick;
         }
 

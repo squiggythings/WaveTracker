@@ -75,24 +75,18 @@ namespace WaveTracker.UI {
 
         public void Update() {
 
+
             if (enabled) {
                 if (MouseIsValid) {
                     if (!collapseEffectButton.IsHovered && !expandEffectButton.IsHovered) {
                         if (SingleClickedM(KeyModifier.None)) {
-                            if (ChannelManager.IsChannelMuted(channelNum))
-                                ChannelManager.UnmuteChannel(channelNum);
-                            else
-                                ChannelManager.MuteChannel(channelNum);
+                            ChannelManager.ToggleChannel(channelNum);
                         }
                         if (DoubleClickedM(KeyModifier.None)) {
-                            if (ChannelManager.IsChannelSoloed(channelNum)) {
-
-                            }
-                            else {
+                            if (ChannelManager.IsEveryChannelMuted() || ChannelManager.IsChannelSoloed(channelNum))
+                                ChannelManager.UnmuteAllChannels();
+                            else
                                 ChannelManager.SoloChannel(channelNum);
-                            }
-                            ChannelManager.MuteAllChannels();
-                            ChannelManager.UnmuteChannel(channelNum);
                         }
                     }
 
@@ -128,7 +122,7 @@ namespace WaveTracker.UI {
                         Write("Channel " + (channelNum + 1), 4, 11, new Color(230, 69, 57));
                     arrowOffset = 12;
                 }
-                else if (IsPressed) {
+                else if (IsPressed && !(collapseEffectButton.IsHovered || expandEffectButton.IsHovered)) {
                     DrawRoundedRect(0, 0, width, height, new Color(223, 224, 232));
                     DrawRect(0, 20, width, height - 20, new Color(208, 209, 221));
                     if (channelNum >= 0)
