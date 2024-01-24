@@ -37,8 +37,8 @@ namespace WaveTracker {
         public static Point lastClickReleaseLocation;
         static bool cancelClick;
 
-        static KeyModifier currentModifier;
-       public static bool doubleClick;
+        public static KeyModifier CurrentModifier { get; set; }
+        static bool doubleClick;
         static bool dragging;
         static bool wasDragging;
         public static bool internalDialogIsOpen;
@@ -70,7 +70,7 @@ namespace WaveTracker {
             lastTimeSinceLastClickUp = timeSinceLastClickUp;
             previousKeyState = currentKeyState;
             currentKeyState = Microsoft.Xna.Framework.Input.Keyboard.GetState();
-            currentModifier = getCurrentModifier();
+            CurrentModifier = getCurrentModifier();
             foreach (Keys k in Enum.GetValues(typeof(Keys))) {
                 if (currentKeyState.IsKeyDown(k)) {
                     keyTimePairs[k] += 1;
@@ -216,7 +216,7 @@ namespace WaveTracker {
         static bool modifierMatches(KeyModifier mod) {
             if (mod == KeyModifier._Any)
                 return true;
-            return currentModifier == mod;
+            return CurrentModifier == mod;
         }
 
         static KeyModifier getCurrentModifier() {

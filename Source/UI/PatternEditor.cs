@@ -77,6 +77,12 @@ namespace WaveTracker.UI {
         public int LastVisibleChannel { get; private set; }
 
         /// <summary>
+        /// The position of the right-bound of the last channel<br></br>
+        /// Where the pattern editor ends.
+        /// </summary>
+        public int LastChannelEndPos { get; private set; }
+
+        /// <summary>
         /// Contents of the clipboard to copy/paste
         /// </summary>
         byte[][] clipboard;
@@ -94,8 +100,9 @@ namespace WaveTracker.UI {
             this.y = y;
             channelHeaders = new WChannelHeader[WTModule.NUM_CHANNELS];
             for (int i = 0; i < channelHeaders.Length; ++i) {
-                channelHeaders[i] = new WChannelHeader(0, -32, 63, 31, i, this);
+                channelHeaders[i] = new WChannelHeader(0, -32, 63, i, this);
             }
+
             InputStep = 1;
             selection = new List<CursorPos>();
         }
@@ -115,6 +122,17 @@ namespace WaveTracker.UI {
 
 
             CalculateChannelPositioning();
+
+            if (MouseY < 0 && MouseY >= -32) {
+                if (MouseX < ROW_COLUMN_WIDTH || MouseX > LastChannelEndPos) {
+                    if (MouseX < width) {
+                        if (Input.GetClick(KeyModifier.None)) {
+                            ChannelManager.UnmuteAllChannels();
+                        }
+                    }
+                }
+            }
+
             #region change octave
             if (Input.GetKeyRepeat(Keys.OemOpenBrackets, KeyModifier.None) || Input.GetKeyRepeat(Keys.Divide, KeyModifier.None))
                 CurrentOctave--;
@@ -137,6 +155,7 @@ namespace WaveTracker.UI {
             //////////////////////////////
             //        NAVIGATION        //
             //////////////////////////////
+
             #region home/end navigation
             // On home key press
             if (Input.GetKeyRepeat(Keys.Home, KeyModifier.None)) {
@@ -186,7 +205,7 @@ namespace WaveTracker.UI {
             if (ClickedDown) {
                 CancelSelection();
             }
-            if (Clicked && MouseX < channelHeaders[Song.CHANNEL_COUNT - 1].x + width && !Input.MouseJustEndedDragging) {
+            if (SingleClickedM(KeyModifier.None) && MouseX < channelHeaders[Song.CHANNEL_COUNT - 1].x + width && !Input.MouseJustEndedDragging) {
                 cursorPosition = GetCursorPositionFromPoint(MouseX, MouseY);
             }
             #endregion
@@ -240,9 +259,8 @@ namespace WaveTracker.UI {
                 SetSelectionEnd(cursorPosition);
             }
             #endregion
-
             #region selection with mouse
-            if (Input.MouseIsDragging && globalPointIsInBounds(Input.lastClickLocation)) {
+            if (Input.GetClick(KeyModifier.None) && Input.MouseIsDragging && globalPointIsInBounds(Input.lastClickLocation)) {
                 if (!selectionActive) {
                     SetSelectionStart(GetCursorPositionFromPoint(LastClickPos.X, LastClickPos.Y));
                     selectionActive = true;
@@ -252,6 +270,13 @@ namespace WaveTracker.UI {
                 }
                 if (GetMouseLineNumber() > NumVisibleLines - 2) {
                     MoveToRow(cursorPosition.Row + 1);
+                }
+                SetSelectionEnd(GetCursorPositionFromPoint(MouseX, MouseY));
+            }
+            if (SingleClickedM(KeyModifier.Shift) && MouseX < channelHeaders[Song.CHANNEL_COUNT - 1].x + width && !Input.MouseJustEndedDragging) {
+                if (!selectionActive) {
+                    SetSelectionStart(cursorPosition);
+                    selectionActive = true;
                 }
                 SetSelectionEnd(GetCursorPositionFromPoint(MouseX, MouseY));
             }
@@ -487,6 +512,8 @@ namespace WaveTracker.UI {
 
             DrawRect(0, 0, width, height, Colors.theme.background);
 
+            DrawHeaderRect(0, -32, width);
+            DrawRect(ROW_COLUMN_WIDTH - 2, -32, channelHeaders[LastVisibleChannel].x + channelHeaders[LastVisibleChannel].width - ROW_COLUMN_WIDTH + 4, 1, Colors.theme.rowSeparator);
 
             CursorPos renderPos = cursorPosition;
             int frameWrap = 0;
@@ -521,8 +548,12 @@ namespace WaveTracker.UI {
             DrawRect(ROW_COLUMN_WIDTH - 1, -32, 1, height + 32, Colors.theme.rowSeparator);
             for (int i = FirstVisibleChannel; i <= LastVisibleChannel; ++i) {
                 channelHeaders[i].Draw();
+                //DrawRect(channelHeaders[i].x + channelHeaders[i].width - 1, -32, 3, 1, Colors.theme.rowSeparator);
+                //DrawRect(channelHeaders[i].x - 2, -32, 3, 1, Colors.theme.rowSeparator);
+                //DrawRect(channelHeaders[i].x + channelHeaders[i].width + 1, -32, 1, 1, Colors.theme.rowSeparator);
                 DrawRect(channelHeaders[i].x + channelHeaders[i].width, -32, 1, height + 32, Colors.theme.rowSeparator);
             }
+            // DrawRect(channelHeaders[LastVisibleChannel].x + channelHeaders[LastVisibleChannel].x - 2, -32, 3, 1, Colors.theme.rowSeparator);
 
             DrawRect(width, -32, 1, height + 32, Colors.theme.rowSeparator);
             DrawRect(width + 1, -32, 1, 1, Colors.theme.rowSeparator);
@@ -637,7 +668,10 @@ namespace WaveTracker.UI {
             }
         }
 
-
+        void DrawHeaderRect(int x, int y, int width) {
+            DrawRect(x, y, width, 31, Color.White);
+            DrawRect(x, y + 20, width, 11, new Color(223, 224, 232));
+        }
         void DrawCursor(CursorPos position) {
             Rectangle rect = GetRectFromCursorPos(position);
             int width = position.Column == 0 ? 17 : 6;
@@ -1009,6 +1043,7 @@ namespace WaveTracker.UI {
                 }
                 px += GetWidthOfChannel(channel);
             }
+            LastChannelEndPos = channelHeaders[channelHeaders.Length - 1].x + channelHeaders[channelHeaders.Length - 1].width;
         }
 
 

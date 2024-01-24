@@ -61,11 +61,11 @@ namespace WaveTracker.UI {
         /// </summary>
         int amplitude;
 
-        public WChannelHeader(int x, int y, int width, int height, int channelNum, PatternEditor parentEditor) {
+        public WChannelHeader(int x, int y, int width, int channelNum, PatternEditor parentEditor) {
             this.x = x;
             this.y = y;
             this.width = width;
-            this.height = height;
+            height = 31;
             this.channelNum = channelNum;
             this.parentEditor = parentEditor;
             expandEffectButton = new MouseRegion(56, 7, 6, 13, this);
@@ -82,7 +82,7 @@ namespace WaveTracker.UI {
                         if (SingleClickedM(KeyModifier.None)) {
                             ChannelManager.ToggleChannel(channelNum);
                         }
-                        if (DoubleClickedM(KeyModifier.None)) {
+                        if (DoubleClickedM(KeyModifier.None) || ClickedM(KeyModifier.Ctrl)) {
                             if (ChannelManager.IsEveryChannelMuted() || ChannelManager.IsChannelSoloed(channelNum))
                                 ChannelManager.UnmuteAllChannels();
                             else
@@ -134,7 +134,6 @@ namespace WaveTracker.UI {
                     if (channelNum >= 0)
                         Write("Channel " + (channelNum + 1), 4, 10, new Color(104, 111, 153));
                 }
-
 
                 // draw expansion arrows
                 if (collapseEffectButton.enabled)
