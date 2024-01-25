@@ -93,12 +93,22 @@ namespace WaveTracker.Tracker {
         }
 
         /// <summary>
-        /// Inserts a frame so that references the same pattern as the previous one
+        /// Inserts a frame that references the same pattern as the previous one
         /// </summary>
         /// <param name="index"></param>
         public void DuplicateFrame(int index) {
             if (FrameSequence.Count < 100)
                 FrameSequence.Insert(index, FrameSequence[index]);
+        }
+
+        /// <summary>
+        /// Removes a frame at the given index
+        /// </summary>
+        /// <param name="index"></param>
+        public void RemoveFrame(int index) {
+            if (FrameSequence.Count > 2) {
+                FrameSequence.RemoveAt(index);
+            }
         }
 
         /// <summary>

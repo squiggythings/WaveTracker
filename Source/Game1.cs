@@ -34,7 +34,7 @@ namespace WaveTracker {
         WaveBank waveBank;
         SongSettings songSettings;
         EditSettings editSettings;
-        FrameView frameView;
+        FramesPanel frameView;
         public Toolbar toolbar;
         AudioEngine audioEngine;
         int lastPianoKey;
@@ -51,7 +51,6 @@ namespace WaveTracker {
         public Game1(string[] args) {
             if (args.Length > 0)
                 filename = args[0];
-            DisplayMode displayMode = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode;
             graphics = new GraphicsDeviceManager(this);
             //graphics.PreferredBackBufferWidth = 1920;  // set this value to the desired width of your window
             //graphics.PreferredBackBufferHeight = 1080 - 72;   // set this value to the desired height of your window
@@ -64,7 +63,7 @@ namespace WaveTracker {
             Preferences.profile = PreferenceProfile.defaultProfile;
             Preferences.ReadFromFile();
             frameRenderer = new FrameRenderer();
-            frameView = new FrameView();
+            frameView = new FramesPanel(2, 106, 504, 42);
             songSettings = new SongSettings();
             var form = (System.Windows.Forms.Form)System.Windows.Forms.Control.FromHandle(Window.Handle);
             form.WindowState = System.Windows.Forms.FormWindowState.Maximized;
@@ -88,7 +87,7 @@ namespace WaveTracker {
             waveBank = new WaveBank();
             instrumentBank = new InstrumentBank();
 
-            ChannelManager.Initialize(Tracker.Song.CHANNEL_COUNT, waveBank);
+            ChannelManager.Initialize(WTModule.NUM_CHANNELS, waveBank);
             frameRenderer.Initialize();
             FrameEditor.UnmuteAllChannels();
             //FrameEditor.channelScrollbar = new UI.ScrollbarHorizontal(22, 323, 768, 7, null);

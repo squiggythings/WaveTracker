@@ -35,7 +35,7 @@ namespace WaveTracker.UI {
         /// <summary>
         /// The position of the main cursor in the song
         /// </summary>
-        public CursorPos GetCursorPos { get { return cursorPosition; } }
+        public CursorPos CursorPosition { get { return cursorPosition; } }
 
         /// <summary>
         /// Whether or not there is a selection active in the pattern editor
@@ -89,7 +89,7 @@ namespace WaveTracker.UI {
 
         WChannelHeader[] channelHeaders;
 
-        WTSong CurrentSong => WTSong.currentSong;
+        public WTSong CurrentSong => WTSong.currentSong;
         WTFrame CurrentFrame => CurrentSong.FrameSequence[cursorPosition.Frame];
         WTPattern CurrentPattern => CurrentFrame.GetPattern();
 
@@ -781,7 +781,7 @@ namespace WaveTracker.UI {
         /// Moves the cursor to a frame
         /// </summary>
         /// <param name="frame"></param>
-        void MoveToFrame(int frame) {
+        public void MoveToFrame(int frame) {
             int numFrames = WTSong.currentSong.FrameSequence.Count;
 
             frame %= numFrames;
@@ -872,6 +872,25 @@ namespace WaveTracker.UI {
         public void PreviousFrame() {
             MoveToFrame(cursorPosition.Frame - 1);
             CancelSelection();
+        }
+
+        /// <summary>
+        /// Inserts a new frame at the currrent cursor position, and moves the cursor to that frame.<br></br>
+        /// The new frame will have the next empty pattern
+        /// </summary>
+        public void InsertNewFrame() {
+            CurrentSong.InsertNewFrame(cursorPosition.Frame);
+            MoveToFrame(cursorPosition.Frame + 1);
+        }
+
+        public void DuplicateFrame() {
+            CurrentSong.DuplicateFrame(cursorPosition.Frame);
+            MoveToFrame(cursorPosition.Frame + 1);
+        }
+
+        public void RemoveFrame() {
+            CurrentSong.RemoveFrame(cursorPosition.Frame);
+            MoveToFrame(cursorPosition.Frame - 1);
         }
 
         /// <summary>

@@ -1,20 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
-using WaveTracker.UI;
 using WaveTracker.Tracker;
 
 namespace WaveTracker.UI {
-    public class FrameView : Panel {
+    public class FramesPanel : Panel {
         Texture2D arrow;
-        FrameButton[] frames = new FrameButton[25];
+        FrameButton[] frames;
+        PatternEditor patternEditor;
         public SpriteButton bNewFrame, bDeleteFrame, bDuplicateFrame, bMoveLeft, bMoveRight;
-        public void Initialize(Texture2D sprite, GraphicsDevice device) {
+
+        public FramesPanel(int x, int y, int width, int height) {
+            InitializePanel("Frames", x, y, width, height);
+        }
+
+        public void Initialize(Texture2D sprite, GraphicsDevice device, PatternEditor patternEditor) {
+            this.patternEditor = patternEditor;
             bNewFrame = new SpriteButton(4, 10, 15, 15, sprite, 19, this);
             bNewFrame.SetTooltip("Insert Frame", "Insert a new frame after this one");
             bDeleteFrame = new SpriteButton(19, 10, 15, 15, sprite, 24, this);
@@ -40,14 +40,12 @@ namespace WaveTracker.UI {
                 }
             }
             arrow.SetData(data);
+            frames = new FrameButton[25];
             for (int i = 0; i < frames.Length; ++i) {
-                frames[i] = new FrameButton(i - frames.Length / 2, this);
+                frames[i] = new FrameButton(i - frames.Length / 2, patternEditor, this);
                 frames[i].x = 54 + i * 18;
                 frames[i].y = 21;
             }
-
-
-            InitializePanel("Frames", 2, 106, 504, 42);
         }
 
         public void Update() {
@@ -56,49 +54,54 @@ namespace WaveTracker.UI {
             }
             bDeleteFrame.enabled = FrameEditor.thisSong.frames.Count > 1;
             bNewFrame.enabled = bDuplicateFrame.enabled = FrameEditor.thisSong.frames.Count < 100;
-            bMoveRight.enabled = FrameEditor.currentFrame < FrameEditor.thisSong.frames.Count - 1;
-            bMoveLeft.enabled = FrameEditor.currentFrame > 0;
+            bMoveRight.enabled = patternEditor.CursorPosition.Frame < patternEditor.CurrentSong.FrameSequence.Count - 1;
+            bMoveLeft.enabled = patternEditor.CursorPosition.Frame > 0;
             if (new Rectangle(80, 12, 397, 28).Contains(MouseX, MouseY) && Input.focus == null) {
                 if (Input.MouseScrollWheel(KeyModifier.None) < 0) {
                     if (Playback.isPlaying && FrameEditor.followMode)
                         Playback.NextFrame();
                     else
-                        FrameEditor.NextFrame();
+                        patternEditor.NextFrame();
                 }
                 if (Input.MouseScrollWheel(KeyModifier.None) > 0) {
                     if (Playback.isPlaying && FrameEditor.followMode)
                         Playback.PreviousFrame();
                     else
-                        FrameEditor.PreviousFrame();
+                        patternEditor.PreviousFrame();
 
                 }
             }
             if (!Playback.isPlaying) {
                 if (bNewFrame.Clicked) {
-                    FrameEditor.thisSong.frames.Insert(++FrameEditor.currentFrame, new Frame());
-                    FrameEditor.Goto(FrameEditor.currentFrame, FrameEditor.currentRow);
+                    patternEditor.InsertNewFrame();
+                    //FrameEditor.thisSong.frames.Insert(++FrameEditor.currentFrame, new Frame());
+                    //FrameEditor.Goto(FrameEditor.currentFrame, FrameEditor.currentRow);
                 }
                 if (bDuplicateFrame.Clicked || Input.GetKeyDown(Microsoft.Xna.Framework.Input.Keys.D, KeyModifier.Ctrl)) {
-                    FrameEditor.thisSong.frames.Insert(FrameEditor.currentFrame + 1, FrameEditor.thisFrame.Clone());
-                    FrameEditor.Goto(FrameEditor.currentFrame, FrameEditor.currentRow);
+                    patternEditor.DuplicateFrame();
+                    //FrameEditor.thisSong.frames.Insert(FrameEditor.currentFrame + 1, FrameEditor.thisFrame.Clone());
+                    //FrameEditor.Goto(FrameEditor.currentFrame, FrameEditor.currentRow);
 
                 }
                 if (bDeleteFrame.Clicked) {
-                    FrameEditor.thisSong.frames.RemoveAt(FrameEditor.currentFrame);
-                    FrameEditor.currentFrame--;
-                    if (FrameEditor.currentFrame < 0)
-                        FrameEditor.currentFrame = 0;
-                    FrameEditor.Goto(FrameEditor.currentFrame, FrameEditor.currentRow);
+                    patternEditor.RemoveFrame();
+                    //FrameEditor.thisSong.frames.RemoveAt(FrameEditor.currentFrame);
+                    //FrameEditor.currentFrame--;
+                    //if (FrameEditor.currentFrame < 0)
+                    //    FrameEditor.currentFrame = 0;
+                    //FrameEditor.Goto(FrameEditor.currentFrame, FrameEditor.currentRow);
                 }
 
 
                 if (bMoveRight.Clicked) {
-                    FrameEditor.thisSong.frames.Reverse(FrameEditor.currentFrame++, 2);
-                    FrameEditor.Goto(FrameEditor.currentFrame, FrameEditor.currentRow);
+                    patternEditor.MoveFrameRight();
+                    //FrameEditor.thisSong.frames.Reverse(FrameEditor.currentFrame++, 2);
+                    //FrameEditor.Goto(FrameEditor.currentFrame, FrameEditor.currentRow);
                 }
                 if (bMoveLeft.Clicked) {
-                    FrameEditor.thisSong.frames.Reverse(--FrameEditor.currentFrame, 2);
-                    FrameEditor.Goto(FrameEditor.currentFrame, FrameEditor.currentRow);
+                    patternEditor.MoveFrameLeft();
+                    //FrameEditor.thisSong.frames.Reverse(--FrameEditor.currentFrame, 2);
+                    //FrameEditor.Goto(FrameEditor.currentFrame, FrameEditor.currentRow);
                 }
             }
         }

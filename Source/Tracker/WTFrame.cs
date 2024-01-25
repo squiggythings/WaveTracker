@@ -10,14 +10,15 @@ using System.Threading.Tasks;
 
 namespace WaveTracker.Tracker {
     /// <summary>
-    /// A frame is part of a song's frame sequence which determines what patterns to play.
-    /// 
+    ///  Object in a song's frame sequence which determines what patterns to play.
     /// </summary>
     public struct WTFrame {
+
         /// <summary>
         /// The index of the pattern this frame should reference
         /// </summary>
         public int PatternIndex { get; set; }
+
         /// <summary>
         /// The song that owns this frame
         /// </summary>
@@ -39,12 +40,14 @@ namespace WaveTracker.Tracker {
             return Parent.Patterns[PatternIndex].GetModifiedLength();
         }
 
+        /// <summary>
+        /// Creates a new frame that holds a pattern index and a reference to song that holds it.
+        /// </summary>
+        /// <param name="index"></param>
+        /// <param name="parent"></param>
         public WTFrame(int index, WTSong parent) {
             PatternIndex = index;
             Parent = parent;
         }
-
-
-
     }
 }
