@@ -196,7 +196,14 @@ namespace WaveTracker.Tracker {
                 ticksPerRow[n] = i;
                 n++;
             }
+        }
 
+        bool checkTickString(string st) {
+            foreach (char c in st) {
+                if (!"0123456789".Contains(c))
+                    return false;
+            }
+            return true;
         }
 
         public int GetNumberOfRows(int loops) {
@@ -291,14 +298,6 @@ namespace WaveTracker.Tracker {
                 }
             }
             return new int[] { frameIndex + 1, 0 };
-        }
-
-        bool checkTickString(string st) {
-            foreach (char c in st) {
-                if (!"0123456789".Contains(c))
-                    return false;
-            }
-            return true;
         }
     }
 

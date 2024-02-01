@@ -17,43 +17,52 @@ namespace WaveTracker.Tracker {
         /// <summary>
         /// The name of this song
         /// </summary>
+        [ProtoMember(1)]
         public string Name { get; set; }
 
         /// <summary>
         /// The song's speed or groove setting
         /// </summary>
+        [ProtoMember(2)]
         public int[] TicksPerRow { get; set; }
 
         /// <summary>
         /// The length of each frame in this song
         /// </summary>
+        [ProtoMember(3)]
         public int RowsPerFrame { get; set; }
 
         /// <summary>
         /// The bank of patterns available to use in sequencing
         /// </summary>
+        [ProtoMember(4)]
         public WTPattern[] Patterns { get; private set; }
 
         /// <summary>
         /// The order of frames in this song
         /// </summary>
+        [ProtoMember(5)]
         public List<WTFrame> FrameSequence { get; set; }
 
         /// <summary>
         /// The number of effect columns each channel has
         /// </summary>
+        [ProtoMember(6)]
         public int[] NumEffectColumns { get; set; }
 
         /// <summary>
         /// Measure highlighting
         /// </summary>
+        [ProtoMember(7)]
         public int RowHighlightPrimary { get; set; }
 
         /// <summary>
         /// Beat highlighting
         /// </summary>
+        [ProtoMember(8)]
         public int RowHighlightSecondary { get; set; }
 
+        [ProtoMember(9)]
         public int ChannelCount { get { return WTModule.NUM_CHANNELS; } }
 
         /// <summary>
@@ -112,6 +121,17 @@ namespace WaveTracker.Tracker {
         }
 
         /// <summary>
+        /// Swaps two frames in the list
+        /// </summary>
+        /// <param name="index1"></param>
+        /// <param name="index2"></param>
+        public void SwapFrames(int index1, int index2) {
+            if (index1 >= 0 && index2 >= 0 && index1 < FrameSequence.Count && index2 < FrameSequence.Count) {
+                (FrameSequence[index1], FrameSequence[index2]) = (FrameSequence[index2], FrameSequence[index1]);
+            }
+        }
+
+        /// <summary>
         /// Gets the index of the next free pattern in the pattern bank
         /// </summary>
         /// <returns></returns>
@@ -135,6 +155,52 @@ namespace WaveTracker.Tracker {
         }
 
         /// <summary>
+        /// Returns the ticks per row as a string separated by spaces
+        /// </summary>
+        /// <returns></returns>
+        public string GetTicksAsString() {
+            string ret = "";
+            for (int i = 0; i < TicksPerRow.Length - 1; i++) {
+                ret += TicksPerRow[i] + " ";
+            }
+            ret += TicksPerRow[TicksPerRow.Length - 1];
+            return ret;
+        }
+        /// <summary>
+        /// Sets the ticks per row from an input string separated by spaces
+        /// </summary>
+        /// <param name="text"></param>
+        public void LoadTicksFromString(string text) {
+            List<int> ticks = new List<int>();
+            foreach (string word in text.Split(' ')) {
+                if (IsStringANumber(word))
+                    ticks.Add(int.Parse(word));
+            }
+            if (ticks.Count == 0)
+                ticks.Add(1);
+            TicksPerRow = new int[ticks.Count];
+            int n = 0;
+            foreach (int i in ticks) {
+                TicksPerRow[n] = i;
+                n++;
+            }
+        }
+
+        /// <summary>
+        /// Returns true if 
+        /// </summary>
+        /// <param name="str"></param>
+        /// <returns></returns>
+        bool IsStringANumber(string str) {
+            foreach (char c in str) {
+                if (!"0123456789".Contains(c))
+                    return false;
+            }
+            return true;
+        }
+
+
+        /// <summary>
         /// Accesses the byte at the cursor position.
         /// </summary>
         /// <param name="row"></param>
@@ -142,10 +208,10 @@ namespace WaveTracker.Tracker {
         /// <exception cref="IndexOutOfRangeException"></exception>
         public int this[CursorPos cursorPosition] {
             get {
-                return Patterns[FrameSequence[cursorPosition.Frame].PatternIndex][cursorPosition.Row][cursorPosition.Channel][PatternEvent.CursorColumnToEventColumn(cursorPosition.Column)];
+                return Patterns[FrameSequence[cursorPosition.Frame].PatternIndex][cursorPosition.Row][cursorPosition.Channel][cursorPosition.GetColumnType()];
             }
             set {
-                Patterns[FrameSequence[cursorPosition.Frame].PatternIndex][cursorPosition.Row][cursorPosition.Channel][PatternEvent.CursorColumnToEventColumn(cursorPosition.Column)] = value;
+                Patterns[FrameSequence[cursorPosition.Frame].PatternIndex][cursorPosition.Row][cursorPosition.Channel][cursorPosition.GetColumnType()] = value;
             }
         }
 

@@ -6,22 +6,25 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
+using ProtoBuf;
 
 namespace WaveTracker.Tracker {
     /// <summary>
     ///  Object in a song's frame sequence which determines what patterns to play.
     /// </summary>
+    [ProtoContract(SkipConstructor = true)]
     public struct WTFrame {
 
         /// <summary>
         /// The index of the pattern this frame should reference
         /// </summary>
+        [ProtoMember(1)]
         public int PatternIndex { get; set; }
 
         /// <summary>
         /// The song that owns this frame
         /// </summary>
+        [ProtoMember(2)]
         public WTSong Parent { get; private set; }
 
         /// <summary>

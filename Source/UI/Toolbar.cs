@@ -39,7 +39,9 @@ namespace WaveTracker.UI {
         public bool saveDialogOpen, loadDialogOpen;
         public ExportDialog exportDialog;
 
-        public Toolbar(Texture2D sprite) {
+        PatternEditor patternEditor;
+
+        public Toolbar(Texture2D sprite, PatternEditor patternEditor) {
             Toolbar.sprite = sprite;
             x = 2;
             int px = 0;
@@ -109,6 +111,7 @@ namespace WaveTracker.UI {
             visualizerMode.x = 955 - visualizerMode.width;
             visualizerMode.SetTooltip("", "Toggle visualizer presentation mode");
             exportDialog = new ExportDialog();
+            this.patternEditor = patternEditor;
         }
 
         public void Update() {
@@ -151,19 +154,21 @@ namespace WaveTracker.UI {
             if (playback_playFromBeginning.Clicked) { Tracker.Playback.PlayFromBeginning(); }
             if (playback_stop.Clicked) { Tracker.Playback.Stop(); }
             if (playback_record.Clicked) { FrameEditor.canEdit = !FrameEditor.canEdit; }
-            playback_record.Value = FrameEditor.canEdit;
+            playback_record.Value = patternEditor.EditMode;
 
             if (frame_next.Clicked) { FrameEditor.NextFrame(); }
             if (frame_prev.Clicked) { FrameEditor.PreviousFrame(); }
 
             if (preferences.Clicked) { Preferences.dialog.Open(); }
 
-            followMode.Value = FrameEditor.followMode;
-            visualizerMode.Value = Game1.VisualizerMode;
+            followMode.Value = patternEditor.FollowMode;
             followMode.Update();
+            patternEditor.FollowMode = followMode.Value;
+
+            visualizerMode.Value = Game1.VisualizerMode;
             visualizerMode.Update();
             Game1.VisualizerMode = visualizerMode.Value;
-            FrameEditor.followMode = followMode.Value;
+            
             exportDialog.Update();
             if (SaveLoad.savecooldown > 0) {
 

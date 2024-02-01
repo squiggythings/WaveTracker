@@ -6,11 +6,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
+using ProtoBuf;
 
 namespace WaveTracker.Tracker {
+    [ProtoContract(SkipConstructor = true)]
     public class WTPattern {
+        [ProtoMember(1)]
         PatternRow[] rows;
+        [ProtoMember(2)]
         WTSong parent;
 
         /// <summary>
@@ -49,10 +52,6 @@ namespace WaveTracker.Tracker {
             }
         }
 
-        public void SetValue(int row, int channel, int column, byte value) {
-
-        }
-
         /// <summary>
         /// Gets the length of this frame, taking into account effects that cut this pattern short. (Cxx, Dxx, and Bxx)
         /// </summary>
@@ -77,7 +76,9 @@ namespace WaveTracker.Tracker {
     /// <summary>
     /// A row of channel events
     /// </summary>
+    [ProtoContract(SkipConstructor = true)]
     public class PatternRow {
+        [ProtoMember(1)]
         private PatternEvent[] channelEvents;
 
         /// <summary>
@@ -93,6 +94,9 @@ namespace WaveTracker.Tracker {
             }
         }
 
+        /// <summary>
+        /// The number of pattern events in this row
+        /// </summary>
         public int Length => channelEvents.Length;
 
         /// <summary>
@@ -126,6 +130,7 @@ namespace WaveTracker.Tracker {
     /// <summary>
     /// A single row in a channel track. Can contain commands for note, instrument, volume, and effects
     /// </summary>
+    [ProtoContract(SkipConstructor = true)]
     public class PatternEvent {
         /// <summary>
         /// The byte value reserved to mean an empty space in the pattern
@@ -139,13 +144,19 @@ namespace WaveTracker.Tracker {
         /// The byte value reserved to mean a note release in a pattern
         /// </summary>
         public const byte NOTE_RELEASE = 253;
-
+        [ProtoMember(1)]
         private byte note;
+        [ProtoMember(2)]
         private byte instrument;
+        [ProtoMember(3)]
         private byte volume;
+        [ProtoMember(4)]
         private Effect effect1;
+        [ProtoMember(5)]
         private Effect effect2;
+        [ProtoMember(6)]
         private Effect effect3;
+        [ProtoMember(7)]
         private Effect effect4;
 
         /// <summary>
@@ -235,27 +246,6 @@ namespace WaveTracker.Tracker {
         /// </summary>
         public Effect Effect4 { get { return effect4; } set { effect4 = value; } }
 
-        /// <summary>
-        /// Converts a cursor column position to an event column position
-        /// </summary>
-        /// <param name="cursorColumn"></param>
-        /// <returns></returns>
-        public static int CursorColumnToEventColumn(int cursorColumn) {
-            return cursorColumn switch {
-                0 => 0,         // note
-                1 or 2 => 1,    // instrument
-                3 or 4 => 2,    // volume
-                5 => 3,         // fx1 
-                6 or 7 => 4,    // fx1 param
-                8 => 5,         // fx2 
-                9 or 10 => 6,   // fx2 param
-                11 => 7,        // fx3
-                12 or 13 => 8,  // fx3 param
-                14 => 9,        // fx4
-                15 or 16 => 10, // fx4 param
-                _ => throw new IndexOutOfRangeException()
-            };
-        }
 
         /// <summary>
         /// Returns the value of the property at column. <br></br>
@@ -283,6 +273,47 @@ namespace WaveTracker.Tracker {
             }
             set {
                 switch (column) {
+                    case 0: Note = value; break;
+                    case 1: Instrument = value; break;
+                    case 2: Volume = value; break;
+                    case 3: effect1.Type = (char)value; break;
+                    case 4: effect1.Parameter = value; break;
+                    case 5: effect2.Type = (char)value; break;
+                    case 6: effect2.Parameter = value; break;
+                    case 7: effect3.Type = (char)value; break;
+                    case 8: effect3.Parameter = value; break;
+                    case 9: effect4.Type = (char)value; break;
+                    case 10: effect4.Parameter = value; break;
+                    default: throw new IndexOutOfRangeException();
+                }
+            }
+        }
+        /// <summary>
+        /// Returns the value of the property at column. <br></br>
+        /// (Double digit values, [vol, inst, effect parameters] are treated as 1 value)
+        /// </summary>
+        /// <param name="column"></param>
+        /// <returns></returns>
+        /// <exception cref="IndexOutOfRangeException"></exception>
+        public int this[CursorColumnType columnType] {
+            get {
+                return (int)columnType switch {
+                    0 => Note,
+                    1 => Instrument,
+                    2 => Volume,
+                    3 => (int)Effect1.Type,
+                    4 => Effect1.Parameter,
+                    5 => (int)Effect2.Type,
+                    6 => Effect2.Parameter,
+                    7 => (int)Effect3.Type,
+                    8 => Effect3.Parameter,
+                    9 => (int)Effect4.Type,
+                    10 => Effect4.Parameter,
+                    _ => throw new IndexOutOfRangeException(),
+                };
+            }
+            set {
+                switch ((int)columnType) {
                     case 0: Note = value; break;
                     case 1: Instrument = value; break;
                     case 2: Volume = value; break;
@@ -358,9 +389,12 @@ namespace WaveTracker.Tracker {
     /// <summary>
     /// Stores an effect, with a type and parameter value.
     /// </summary>
+    [ProtoContract(SkipConstructor = true)]
     public struct Effect {
 
+        [ProtoMember(1)]
         char type;
+        [ProtoMember(2)]
         byte parameter;
 
         /// <summary>

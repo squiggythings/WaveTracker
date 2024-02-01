@@ -103,7 +103,7 @@ namespace WaveTracker.Rendering {
                 rowTextColor = Colors.theme.patternTextSubHighlight;
                 rowColor = Colors.theme.backgroundSubHighlight;
             }
-            if (Playback.isPlaying && Playback.playbackFrame == FrameEditor.currentFrame && Playback.playbackRow == rowNum && !Audio.AudioEngine.rendering) {
+            if (Playback.isPlaying && Playback.position.Frame == FrameEditor.currentFrame && Playback.position.Row == rowNum && !Audio.AudioEngine.rendering) {
                 rowColor = Colors.theme.rowPlaybackColor;
             }
             if (rowNum == cursorRow)

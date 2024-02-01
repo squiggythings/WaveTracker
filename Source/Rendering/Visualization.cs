@@ -118,6 +118,8 @@ namespace WaveTracker.Rendering
 
 
         public void Draw() {
+            return;
+            /*
             fillstates(statesPrev);
             if (Preferences.profile.visualizerHighlightKeys)
                 DrawSprite(InstrumentEditor.tex, 20, 20, 600, 24, new Rectangle(16, 688, 600, 24), new Color(128, 128, 128, 128));
@@ -177,29 +179,31 @@ namespace WaveTracker.Rendering
             py += 19;
             for (int i = 0; i < numVisibleRows; ++i) {
                 int rowY = py + i * 7;
-                int thisRow = Playback.playbackRow + i - numVisibleRows / 2;
-                if (thisRow == Playback.playbackRow) {
+                int thisRow = Playback.position.Row + i - numVisibleRows / 2;
+                if (thisRow == Playback.position.Row) {
                     DrawRect(px, rowY, 35 * Song.CHANNEL_COUNT, 7, Colors.theme.rowSeparator);
                     DrawRect(px, rowY, 35 * Song.CHANNEL_COUNT, 7, Helpers.Alpha(Colors.theme.cursor, 90));
                 }
 
-                if (thisRow >= 0 && thisRow <= Playback.frame.GetLastRow())
+                if (thisRow >= 0 && thisRow <= Playback.frame.GetLength())
                     for (int channel = 0; channel < Song.CHANNEL_COUNT * 5; channel += 5) {
+
                         int rowX = px + (channel / 5) * 35;
-                        bool hasNote = Playback.frame.pattern[thisRow][channel + 0] != -1;
-                        bool hasInstrument = Playback.frame.pattern[thisRow][channel + 1] != -1;
+                        bool hasNote = Playback.frame.GetPattern()[thisRow][channel].Note != PatternEvent.EMPTY;
+                        bool hasInstrument = Playback.frame.GetPattern()[thisRow][channel].Instrument != PatternEvent.EMPTY;
                         if (hasNote) {
-                            WriteNote(Playback.frame.pattern[thisRow][channel + 0], rowX + 3, rowY, thisRow == Playback.playbackRow);
+                            WriteNote(Playback.frame.pattern[thisRow][channel + 0], rowX + 3, rowY, thisRow == Playback.position.Row);
                         } else {
-                            WriteEffect(Playback.frame.pattern[thisRow][channel + 3], Playback.frame.pattern[thisRow][channel + 4], rowX + 3, rowY, thisRow == Playback.playbackRow);
+                            WriteEffect(Playback.frame.pattern[thisRow][channel + 3], Playback.frame.pattern[thisRow][channel + 4], rowX + 3, rowY, thisRow == Playback.position.Row);
                         }
                         if (hasInstrument) {
-                            WriteInstrument(Playback.frame.pattern[thisRow][channel + 1], rowX + 22, rowY, thisRow == Playback.playbackRow);
+                            WriteInstrument(Playback.frame.pattern[thisRow][channel + 1], rowX + 22, rowY, thisRow == Playback.position.Row);
                         } else {
-                            WriteVolume(Playback.frame.pattern[thisRow][channel + 2], rowX + 22, rowY, thisRow == Playback.playbackRow);
+                            WriteVolume(Playback.frame.pattern[thisRow][channel + 2], rowX + 22, rowY, thisRow == Playback.position.Row);
                         }
                     }
             }
+            */
         }
 
 
@@ -404,7 +408,7 @@ namespace WaveTracker.Rendering
                         int alpha = (int)states[0][i].volume.Map(0, 1, 60, 255);
                         if (!Preferences.profile.visualizerPianoFade)
                             alpha = 255;
-                        if (!Helpers.isNoteBlackKey(pitch)) {
+                        if (!Helpers.IsNoteBlackKey(pitch)) {
                             wo = 1;
                             psheight += 14;
                             pswidth = 8;

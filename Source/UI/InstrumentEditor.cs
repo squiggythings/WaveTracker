@@ -352,7 +352,7 @@ namespace WaveTracker.UI {
                 DrawRect(9, 28, 280, 1, Color.White);
                 // draw sample base key
                 if (instrument.macroType == MacroType.Sample && tabGroup.selected == 0)
-                    if (Helpers.isNoteBlackKey(sample_baseKey.Value))
+                    if (Helpers.IsNoteBlackKey(sample_baseKey.Value))
                         DrawSprite(tex, sample_baseKey.Value * 4 + 44, 307, new Rectangle(590, 0, 4, 24));
                     else
                         DrawSprite(tex, sample_baseKey.Value * 4 + 44, 307, new Rectangle(586, 0, 4, 24));
@@ -360,7 +360,7 @@ namespace WaveTracker.UI {
                 if (Game1.pianoInput > -1) {
                     int note = Game1.pianoInput + ChannelManager.previewChannel.arpEnv.Evaluate();
                     if (note >= 0 && note < 120) {
-                        if (Helpers.isNoteBlackKey(note))
+                        if (Helpers.IsNoteBlackKey(note))
                             DrawSprite(tex, note * 4 + 44, 307, new Rectangle(582, 0, 4, 24));
                         else
                             DrawSprite(tex, note * 4 + 44, 307, new Rectangle(578, 0, 4, 24));

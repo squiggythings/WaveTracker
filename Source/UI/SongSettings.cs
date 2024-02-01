@@ -11,8 +11,8 @@ using System.Windows.Forms;
 using Microsoft.Xna.Framework.Audio;
 using WaveTracker.Tracker;
 
-namespace WaveTracker.Rendering {
-    public class SongSettings : UI.Panel {
+namespace WaveTracker.UI {
+    public class SongSettings : Panel {
         Forms.EditSongSettings dialog;
         bool dialogOpen;
         Textbox title, author, copyright, speed;
@@ -45,32 +45,32 @@ namespace WaveTracker.Rendering {
             title.Text = Song.currentSong.name;
             title.Update();
             if (title.ValueWasChangedInternally) {
-                Song.currentSong.name = author.Text;
+                WTModule.currentModule.Title = author.Text;
             }
 
             author.Text = Song.currentSong.author;
             author.Update();
             if (author.ValueWasChangedInternally) {
-                Song.currentSong.author = author.Text;
+                WTModule.currentModule.Author = author.Text;
             }
 
             copyright.Text = Song.currentSong.year;
             copyright.Update();
             if (copyright.ValueWasChangedInternally) {
-                Song.currentSong.year = copyright.Text;
+                WTModule.currentModule.Year = copyright.Text;
             }
 
-            speed.Text = Song.currentSong.GetTicksAsString();
+            speed.Text = WTSong.currentSong.GetTicksAsString();
             speed.Update();
             if (speed.ValueWasChangedInternally) {
-                Song.currentSong.LoadTicksFromString(speed.Text);
+                WTSong.currentSong.LoadTicksFromString(speed.Text);
             }
 
 
-            rows.Value = Song.currentSong.rowsPerFrame;
+            rows.Value = WTSong.currentSong.RowsPerFrame;
             rows.Update();
             if (rows.ValueWasChangedInternally) {
-                Song.currentSong.rowsPerFrame = rows.Value;
+                WTSong.currentSong.RowsPerFrame = rows.Value;
             }
             if (editButton.Clicked) {
                 if (!dialogOpen) {

@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 
@@ -87,14 +88,34 @@ namespace WaveTracker.Tracker {
         /// <br></br>0: Note, 1: inst1, 2: inst2, 3: vol1, 4: vol2, 5: fx, 6: fxparam1, 7: fxparam2
         /// </summary>
         /// <returns></returns>
-        public int GetColumnType() {
+        public int GetColumnAsSingleEffectChannel() {
             if (Column < 5)
                 return Column;
             else
                 return 5 + (Column - 5) % 3;
         }
 
-
+        /// <summary>
+        /// Returns the column type of this position. Corresponds 1:1 to columns in a PatternEvent
+        /// </summary>
+        /// <returns></returns>
+        /// <exception cref="IndexOutOfRangeException"></exception>
+        public CursorColumnType GetColumnType() {
+            return Column switch {
+                0 => CursorColumnType.Note,
+                1 or 2 => CursorColumnType.Instrument,
+                3 or 4 => CursorColumnType.Volume,
+                5 => CursorColumnType.Effect1,
+                6 or 7 => CursorColumnType.Effect1Param,
+                8 => CursorColumnType.Effect2,
+                9 or 10 => CursorColumnType.Effect2Param,
+                11 => CursorColumnType.Effect3,
+                12 or 13 => CursorColumnType.Effect3Param,
+                14 => CursorColumnType.Effect4,
+                15 or 16 => CursorColumnType.Effect4Param,
+                _ => throw new IndexOutOfRangeException()
+            };
+        }
 
         /// <summary>
         /// Initializes this position at the beginning of a song
@@ -199,16 +220,29 @@ namespace WaveTracker.Tracker {
         }
 
         /// <summary>
+        /// Moves the cursor to a row
+        /// </summary>
+        /// <param name="row"></param>
+        public void MoveToRow(int row, WTSong song) {
+            while (row < 0) {
+                MoveToFrame(Frame - 1, song);
+                row += song.FrameSequence[Frame].GetLength();
+            }
+            while (row >= song.FrameSequence[Frame].GetLength()) {
+                row -= song.FrameSequence[Frame].GetLength();
+                MoveToFrame(Frame + 1, song);
+            }
+            Row = row;
+        }
+
+        /// <summary>
         /// Returns true if this position in song is empty
         /// </summary>
         /// <param name="song"></param>
         /// <returns></returns>
         public bool IsPositionEmpty(WTSong song) {
-            if (GetColumnType() == COLUMN_EFFECT_PARAMETER1) {
-                return song[Frame][Row][Channel][PatternEvent.CursorColumnToEventColumn(Column - 1)] == PatternEvent.EMPTY;
-            }
-            else if (GetColumnType() == COLUMN_EFFECT_PARAMETER2) {
-                return song[Frame][Row][Channel][PatternEvent.CursorColumnToEventColumn(Column - 2)] == PatternEvent.EMPTY;
+            if (GetColumnAsSingleEffectChannel() == COLUMN_EFFECT_PARAMETER1 || GetColumnAsSingleEffectChannel() == COLUMN_EFFECT_PARAMETER2) {
+                return song[Frame][Row][Channel][(int)GetColumnType() - 1] == PatternEvent.EMPTY;
             }
             else {
                 return song[this] == PatternEvent.EMPTY;
@@ -231,5 +265,30 @@ namespace WaveTracker.Tracker {
             // make sure the cursor is in bounds of this frame
             Row = Math.Clamp(Row, 0, song.FrameSequence[Frame].GetLength() - 1);
         }
+
+        public override string ToString() {
+            return "[f:" + Frame + "|r:" + Row + "|t:" + Channel + "|c:" + Column + "]";
+        }
+
+        public static bool operator ==(CursorPos a, CursorPos b) {
+            return a.Frame == b.Frame && a.Row == b.Row && a.Channel == b.Channel && a.Column == b.Column;
+        }
+        public static bool operator !=(CursorPos a, CursorPos b) {
+            return a.Frame != b.Frame || a.Row != b.Row || a.Channel != b.Channel || a.Column != b.Column;
+        }
+    }
+
+    public enum CursorColumnType {
+        Note,
+        Instrument,
+        Volume,
+        Effect1,
+        Effect1Param,
+        Effect2,
+        Effect2Param,
+        Effect3,
+        Effect3Param,
+        Effect4,
+        Effect4Param
     }
 }

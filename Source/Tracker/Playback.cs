@@ -14,20 +14,20 @@ using WaveTracker.Rendering;
 using WaveTracker;
 using WaveTracker.Audio;
 
-namespace WaveTracker.Tracker
-{
+namespace WaveTracker.Tracker {
     public static class Playback {
         public static bool isPlaying;
         static bool lastIsPlaying;
-        public static int playbackFrame;
-        public static int playbackRow;
+        public static CursorPos position;
+        public static CursorPos nextPlaybackPosition;
         public static int nextPlaybackFrame;
         public static int nextPlaybackRow;
-        public static bool hasNext;
+        public static bool hasGotoTriggerFlag;
         static int tickCounter;
         public static int ticksPerRowOverride;
         public static int ticksPerRow;
-        public static Frame frame => Song.currentSong.frames[playbackFrame];
+        public static PatternEditor patternEditor;
+        public static WTFrame frame => WTSong.currentSong.FrameSequence[position.Frame];
 
         public static void Update(GameTime gameTime) {
             if (Input.GetKeyDown(Keys.F5, KeyModifier.None)) {
@@ -43,15 +43,16 @@ namespace WaveTracker.Tracker
                 if (Input.dialogOpenCooldown == 0)
                     if (isPlaying) {
                         Stop();
-                    } else {
+                    }
+                    else {
                         Play();
                     }
             }
             if (!Game1.VisualizerMode) {
                 if (Input.GetKeyRepeat(Keys.Enter, KeyModifier.Ctrl)) {
                     if (Input.dialogOpenCooldown == 0) {
-                        ChannelManager.PlayRow(FrameEditor.thisRow);
-                        FrameEditor.Move(0, 1);
+                        ChannelManager.PlayRow(patternEditor.CurrentSong[patternEditor.CursorPosition.Frame][patternEditor.CursorPosition.Row]);
+                        patternEditor.MoveToRow(patternEditor.CursorPosition.Row + 1);
                     }
                 }
                 if (Input.GetKeyDown(Keys.Enter, KeyModifier.Alt)) {
@@ -67,15 +68,13 @@ namespace WaveTracker.Tracker
             tickCounter = 0;
             ChannelManager.Reset();
             ChannelManager.previewChannel.Reset();
-            playbackFrame = FrameEditor.currentFrame;
-            playbackRow = 0;
+            position.Frame = patternEditor.CursorPosition.Frame;
+            position.Row = 0;
             Visualization.GetWaveColors();
             if (FrameEditor.followMode && !AudioEngine.rendering) {
-                FrameEditor.cursorRow = Playback.playbackRow;
-                FrameEditor.currentFrame = Playback.playbackFrame;
+                patternEditor.SnapToPlaybackPosition();
             }
             Restore();
-            ChannelManager.ResetTicks(0);
             PlayRow();
         }
 
@@ -84,15 +83,12 @@ namespace WaveTracker.Tracker
             isPlaying = true;
             ChannelManager.Reset();
             tickCounter = 0;
-            playbackFrame = FrameEditor.currentFrame;
-            playbackRow = FrameEditor.currentRow;
+            position = patternEditor.CursorPosition;
             Visualization.GetWaveColors();
-            if (FrameEditor.followMode && !AudioEngine.rendering) {
-                FrameEditor.cursorRow = Playback.playbackRow;
-                FrameEditor.currentFrame = Playback.playbackFrame;
+            if (patternEditor.FollowMode && !AudioEngine.rendering) {
+                patternEditor.SnapToPlaybackPosition();
             }
             Restore();
-            ChannelManager.ResetTicks(0);
             PlayRow();
         }
 
@@ -101,15 +97,14 @@ namespace WaveTracker.Tracker
             tickCounter = 0;
             isPlaying = true;
             ChannelManager.Reset();
-            playbackFrame = 0;
+
             Visualization.GetWaveColors();
-            playbackRow = 0;
-            if (FrameEditor.followMode && !AudioEngine.rendering) {
-                FrameEditor.cursorRow = Playback.playbackRow;
-                FrameEditor.currentFrame = Playback.playbackFrame;
+            position.Frame = 0;
+            position.Row = 0;
+            if (patternEditor.FollowMode && !AudioEngine.rendering) {
+                patternEditor.SnapToPlaybackPosition();
             }
             Restore();
-            ChannelManager.ResetTicks(0);
             PlayRow();
         }
 
@@ -121,53 +116,55 @@ namespace WaveTracker.Tracker
             ChannelManager.Reset();
         }
 
+        static void SetTicksPerRow() {
+            if (ticksPerRowOverride == -1)
+                ticksPerRow = patternEditor.CurrentSong.TicksPerRow[position.Row % patternEditor.CurrentSong.TicksPerRow.Length];
+            else
+                ticksPerRow = ticksPerRowOverride;
+        }
+
         public static void Tick() {
             if (isPlaying) {
                 if (!lastIsPlaying) {
+                    // start playback
                     tickCounter = 0;
-                    //                    ChannelManager.ResetTicks(0);
                     lastIsPlaying = true;
-                    hasNext = false;
+                    hasGotoTriggerFlag = false;
                     PlayRow();
-
-                    if (ticksPerRowOverride == -1)
-                        ticksPerRow = FrameEditor.thisSong.ticksPerRow[playbackRow % FrameEditor.thisSong.ticksPerRow.Length];
-                    else
-                        ticksPerRow = ticksPerRowOverride;
+                    SetTicksPerRow();
                 }
                 if (tickCounter >= ticksPerRow) {
+                    // reached next row
                     tickCounter = 0;
-                    if (hasNext) {
-                        hasNext = false;
+                    if (hasGotoTriggerFlag) {
+                        hasGotoTriggerFlag = false;
                         if (nextPlaybackFrame < 0) // CXX command
                         {
                             AudioEngine.processedRows += 2;
                             Stop();
                             return;
-                        } else {
-                            playbackFrame = nextPlaybackFrame;
-                            playbackRow = nextPlaybackRow;
-                            if (FrameEditor.followMode && !AudioEngine.rendering) {
-                                FrameEditor.cursorRow = Playback.playbackRow;
-                                FrameEditor.currentFrame = Playback.playbackFrame;
+                        }
+                        else {
+                            nextPlaybackPosition.Frame = nextPlaybackFrame;
+                            nextPlaybackPosition.Row = nextPlaybackRow;
+                            if (patternEditor.FollowMode && !AudioEngine.rendering) {
+                                patternEditor.SnapToPlaybackPosition();
                             }
                         }
-                    } else {
+                    }
+                    else {
                         MoveNextRow();
                     }
                     if (AudioEngine.rendering) {
                         AudioEngine.processedRows++;
-                        Debug.WriteLine("Percentage: " + (100f * AudioEngine.processedRows / AudioEngine.totalRows) + "%");
                     }
                     PlayRow();
-                    if (ticksPerRowOverride == -1)
-                        ticksPerRow = FrameEditor.thisSong.ticksPerRow[playbackRow % FrameEditor.thisSong.ticksPerRow.Length];
-                    else
-                        ticksPerRow = ticksPerRowOverride;
+                    SetTicksPerRow();
 
                 }
                 tickCounter++;
-            } else {
+            }
+            else {
                 if (lastIsPlaying) {
                     lastIsPlaying = false;
                     ChannelManager.Reset();
@@ -178,73 +175,66 @@ namespace WaveTracker.Tracker
         }
 
         static void PlayRow() {
-            if (playbackFrame < Song.currentSong.frames.Count)
-                ChannelManager.PlayRow(Song.currentSong.frames[playbackFrame].pattern[playbackRow]);
+            if (position.Frame < WTSong.currentSong.FrameSequence.Count)
+                ChannelManager.PlayRow(patternEditor.CurrentSong[position.Frame][position.Row]);
         }
 
         static void MoveNextRow() {
-            playbackRow++;
-            if (playbackRow >= Song.currentSong.rowsPerFrame) {
-                playbackRow = 0;
-                playbackFrame++;
-                if (playbackFrame >= Song.currentSong.frames.Count) {
-                    playbackFrame = 0;
-                }
-            }
+            position.MoveToRow(position.Row + 1, patternEditor.CurrentSong);
             if (isPlaying) {
-                if (FrameEditor.followMode && !AudioEngine.rendering) {
-                    FrameEditor.cursorRow = Playback.playbackRow;
-                    FrameEditor.currentFrame = Playback.playbackFrame;
+                if (patternEditor.FollowMode && !AudioEngine.rendering) {
+                    patternEditor.SnapToPlaybackPosition();
                 }
             }
         }
 
         public static void NextFrame() {
-            playbackFrame++;
-            playbackFrame %= Song.currentSong.frames.Count;
-            playbackRow = 0;
+            position.MoveToFrame(position.Frame + 1, patternEditor.CurrentSong);
             PlayRow();
         }
 
         public static void PreviousFrame() {
-            playbackFrame--;
-            playbackFrame += Song.currentSong.frames.Count;
-            playbackFrame %= Song.currentSong.frames.Count;
-            playbackRow = 0;
+            position.MoveToFrame(position.Frame - 1, patternEditor.CurrentSong);
             PlayRow();
         }
+        /// <summary>
+        /// Makes sure playback will stop on the next row
+        /// </summary>
         public static void StopNext() {
-            hasNext = true;
+            hasGotoTriggerFlag = true;
             nextPlaybackFrame = -1;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="fr"></param>
+        /// <param name="row"></param>
         public static void GotoNext(int fr, int row) {
-
-            hasNext = true;
-            nextPlaybackFrame = fr % FrameEditor.thisSong.frames.Count;
-            nextPlaybackRow = row % (FrameEditor.thisSong.frames[nextPlaybackFrame].GetLastRow() + 1);
+            hasGotoTriggerFlag = true;
+            nextPlaybackFrame = fr % patternEditor.CurrentSong.FrameSequence.Count;
+            nextPlaybackRow = row % (patternEditor.CurrentSong.FrameSequence[nextPlaybackFrame].GetLength() + 1);
         }
 
-        public static void Goto(int fr, int row) {
-            playbackFrame = fr;
-            playbackRow = row;
+        public static void Goto(int frame, int row) {
+            position.Frame = frame;
+            position.Row = row;
         }
 
         static void Restore() {
             if (Preferences.profile.restoreChannelState) {
-                RestoreUntil(playbackFrame, playbackRow);
+                RestoreUntil(position.Frame, position.Row);
             }
         }
-        public static void RestoreUntil(int frame, int row) {
+        static void RestoreUntil(int frame, int row) {
             ticksPerRowOverride = -1;
             for (int f = 0; f <= frame; f++) {
-                for (int r = 0; r < FrameEditor.thisSong.rowsPerFrame; r++) {
+                int frameLength = patternEditor.CurrentSong[f].GetModifiedLength();
+                for (int r = 0; r < frameLength; r++) {
+                    ChannelManager.RestoreRow(patternEditor.CurrentSong[f][r]);
                     if (f == frame && r == row) {
-                        //ChannelManager.PlayRow(FrameEditor.thisSong.frames[frame].pattern[row]);
-                        ChannelManager.RestoreRow(FrameEditor.thisSong.frames[f].pattern[r]);
                         return;
                     }
-                    ChannelManager.RestoreRow(FrameEditor.thisSong.frames[f].pattern[r]);
                 }
             }
         }

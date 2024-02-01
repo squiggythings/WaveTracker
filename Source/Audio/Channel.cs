@@ -100,80 +100,80 @@ namespace WaveTracker.Audio {
             }
         }
 
-        public void EffectCommand(int command, int parameter) {
-            if (command == 4) // 4XY
+        public void ApplyEffect(char command, int parameter) {
+            if (command == '4') // 4XY
             {
                 if (parameter == 0)
                     vibratoTime = 0;
                 vibratoSpeed = (parameter + 1) / 16;
                 vibratoIntensity = parameter % 16;
             }
-            if (command == 7) // 7XY
+            if (command == '7') // 7XY
             {
                 tremoloSpeed = (parameter + 1) / 16;
                 tremoloIntensity = parameter % 16;
             }
-            if (command == 8) // 8XX
+            if (command == '8') // 8XX
             {
                 Pan(parameter / 100f);
             }
-            if (command == 1) // 1XX
+            if (command == '1') // 1XX
             {
                 pitchFallSpeed = parameter / 1f;
             }
-            if (command == 2) // 2XX
+            if (command == '2') // 2XX
             {
                 pitchFallSpeed = -parameter / 1f;
             }
-            if (command == 3) // 3XX
+            if (command == '3') // 3XX
             {
                 portaSpeed = parameter * 1.15f;
             }
-            if (command == 10) // QXY
+            if (command == 'Q') // QXY
             {
                 bendSpeed = (parameter / 16) * 11 + 1;
                 targetBendAmt += parameter % 16;
             }
-            if (command == 11) // RXY
+            if (command == 'R') // RXY
             {
                 bendSpeed = (parameter / 16) * 11 + 1;
                 targetBendAmt -= parameter % 16;
             }
-            if (command == 0) //0XY
+            if (command == '0') //0XY
             {
                 arpCounter = 0;
                 arpeggionote2 = parameter / 16;
                 arpeggionote3 = parameter % 16;
             }
-            if (command == 9) //0XY
+            if (command == '9') //9XY
             {
                 stereoPhaseOffset = parameter / 200f;
             }
-            if (command == 14) // PXX
+            if (command == 'P') // PXX
             {
                 detuneOffset = (parameter - 50) / 37.5f;
             }
-            if (command == 16) // VXX
+            if (command == 'V') // VXX
             {
                 SetWave(parameter);
             }
-            if (command == 12) // AXX
+            if (command == 'A') // AXX
             {
                 volumeSlideSpeed = -parameter;
             }
-            if (command == 13) // WXX
+            if (command == 'W') // WXX
             {
                 volumeSlideSpeed = parameter;
             }
-            if (command == 19) // IXX
+            if (command == 'I') // IXX
             {
                 waveMorphAmt = parameter;
             }
-            if (command == 23) // MXX
+            if (command == 'M') // MXX
             {
                 fmAmt = parameter / 20f;
             }
-            if (command == 24) // Jxx
+            if (command == 'J') // Jxx
             {
                 waveBendAmt = parameter;
             }
@@ -316,7 +316,7 @@ namespace WaveTracker.Audio {
         }
 
 
-        public void TriggerNote(int num) {
+        public void TriggerNote(int midiNum) {
 
             pitchFallOffset = 0;
             if (!noteOn) {
@@ -329,9 +329,9 @@ namespace WaveTracker.Audio {
                 _time = 0.0M;
             targetBendAmt = 0;
             bendOffset = 0;
-            if (channelNote != num || _state != VoiceState.On) {
+            if (channelNote != midiNum || _state != VoiceState.On) {
                 lastNote = channelNotePorta;
-                channelNote = num;
+                channelNote = midiNum;
                 if (portaSpeed == 0)
                     channelNotePorta = channelNote;
                 portaTime = 0;
@@ -473,11 +473,13 @@ namespace WaveTracker.Audio {
             for (int i = 0; i < tickEvents.Count; i++) {
                 TickEvent t = tickEvents[i];
                 if (t != null) {
-                    t.Update();
                     if (t.countdown <= 0) {
                         DoEvent(t);
                         tickEvents.Remove(t);
                         i--;
+                    }
+                    else {
+                        t.Update();
                     }
                 }
             }
@@ -518,18 +520,18 @@ namespace WaveTracker.Audio {
                 SetMacro(t.value);
             }
             if (t.eventType == TickEventType.Note) {
-                if (t.value == -2)
+                if (t.value == PatternEvent.NOTE_CUT)
                     Cut();
-                else if (t.value == -3)
+                else if (t.value == PatternEvent.NOTE_RELEASE)
                     Release();
-                else if (t.value >= 0)
+                else if (t.value != PatternEvent.EMPTY)
                     TriggerNote(t.value);
             }
             if (t.eventType == TickEventType.Volume) {
                 SetVolume(t.value);
             }
             if (t.eventType == TickEventType.Effect) {
-                EffectCommand(t.value, t.value2);
+                ApplyEffect((char)t.value, t.value2);
             }
         }
 

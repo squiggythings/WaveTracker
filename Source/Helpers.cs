@@ -209,7 +209,7 @@ namespace WaveTracker {
         }
 
         public static float NoteToFrequency(float noteNum) {
-            return (float)Math.Pow(2, (noteNum - 57) / 12.0) * 440;
+            return (float)Math.Pow(2, (noteNum - 69) / 12.0) * 440;
         }
 
         public static float Mod(float a, float b) {
@@ -258,8 +258,13 @@ namespace WaveTracker {
         //        return Math.Clamp(b1 + (s - a1) * (b2 - b1) / (a2 - a1), b1, b2);
         //}
 
+        /// <summary>
+        /// Returns the midi note number of the current piano key held down, -1 if none are pressed
+        /// </summary>
+        /// <param name="currentOctave"></param>
+        /// <returns></returns>
         public static int GetPianoInput(int currentOctave) {
-
+            currentOctave++;
             if (Input.GetKey(Keys.Z, KeyModifier.None)) return currentOctave * 12 + 0;
             if (Input.GetKey(Keys.S, KeyModifier.None)) return currentOctave * 12 + 1;
             if (Input.GetKey(Keys.X, KeyModifier.None)) return currentOctave * 12 + 2;
@@ -297,7 +302,7 @@ namespace WaveTracker {
             return -1;
         }
         public static int GetPianoInputDown(int currentOctave) {
-
+            currentOctave++;
             if (Input.GetKeyDown(Keys.Z, KeyModifier.None)) return currentOctave * 12 + 0;
             if (Input.GetKeyDown(Keys.S, KeyModifier.None)) return currentOctave * 12 + 1;
             if (Input.GetKeyDown(Keys.X, KeyModifier.None)) return currentOctave * 12 + 2;
@@ -335,7 +340,7 @@ namespace WaveTracker {
             return -1;
         }
         public static int GetPianoInputUp(int currentOctave) {
-
+            currentOctave++;
             if (Input.GetKeyUp(Keys.Z, KeyModifier.None)) return currentOctave * 12 + 0;
             if (Input.GetKeyUp(Keys.S, KeyModifier.None)) return currentOctave * 12 + 1;
             if (Input.GetKeyUp(Keys.X, KeyModifier.None)) return currentOctave * 12 + 2;
@@ -373,18 +378,16 @@ namespace WaveTracker {
             return -1;
         }
 
-        public static bool isNoteBlackKey(int noteNum) {
-            switch (noteNum % 12) {
-                case 0:
-                case 2:
-                case 4:
-                case 5:
-                case 7:
-                case 9:
-                case 11:
-                    return false;
-            }
-            return true;
+        /// <summary>
+        /// Returns true if the midi note number is a black key
+        /// </summary>
+        /// <param name="noteNum"></param>
+        /// <returns></returns>
+        public static bool IsNoteBlackKey(int midiNoteNum) {
+            return (midiNoteNum % 12) switch {
+                0 or 2 or 4 or 5 or 7 or 9 or 11 => false,
+                _ => true,
+            };
         }
 
         public static bool readWav(string filepath, out float[] L, out float[] R) {
