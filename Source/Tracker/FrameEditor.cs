@@ -60,7 +60,7 @@ namespace WaveTracker {
         public static int patternEditorLeftBound { get { return 22; } }
         public static int patternEditorRightBound { get { return 790; } }
         public static int patternEditorTopBound { get { return 182; } }
-        public static int patternEditorBottomBound { get { return Game1.WindowHeight - 15; } }
+        public static int patternEditorBottomBound { get { return App.WindowHeight - 15; } }
 
         /// <summary>
         /// The row that the cursor is on
@@ -117,7 +117,7 @@ namespace WaveTracker {
 
             if (Input.GetKeyRepeat(Keys.Space, KeyModifier.None))
                 canEdit = !canEdit;
-            if (!Game1.VisualizerMode) {
+            if (!App.VisualizerMode) {
                 #region selection with mouse
 
                 if (Input.MousePositionX < patternEditorRightBound) {
@@ -174,7 +174,7 @@ namespace WaveTracker {
             }
             // moving cursor with scroll
             if (!playback || !followMode) {
-                if (Input.MousePositionY > 151 && Input.MousePositionX < 790 && Input.MousePositionY < Game1.WindowHeight - 15)
+                if (Input.MousePositionY > 151 && Input.MousePositionX < 790 && Input.MousePositionY < App.WindowHeight - 15)
                     Move(0, Input.MouseScrollWheel(KeyModifier.None) * -Preferences.profile.pageJumpAmount);
                 if (Input.GetKeyRepeat(Keys.PageUp, KeyModifier.None))
                     Move(0, -Preferences.profile.pageJumpAmount);
@@ -239,7 +239,7 @@ namespace WaveTracker {
                 ToggleChannel(currentColumn / 5);
             }
             #endregion
-            if (!Game1.VisualizerMode) {
+            if (!App.VisualizerMode) {
                 #region selection with arrows
                 if (!playback && Input.GetKeyRepeat(Keys.Down, KeyModifier.Shift)) {
                     if (!selectionActive) {
@@ -332,7 +332,7 @@ namespace WaveTracker {
                     PreviousFrame();
             }
             #endregion
-            if (!Game1.VisualizerMode) {
+            if (!App.VisualizerMode) {
                 #region cell input
                 {
                     int input;
@@ -1308,7 +1308,7 @@ namespace WaveTracker {
         /// <param name="mcolumn"></param>
         /// <returns></returns>
         static bool mouseInBounds(int mrow, int mcolumn) {
-            if (Input.MousePositionY > Game1.WindowHeight - 15)
+            if (Input.MousePositionY > App.WindowHeight - 15)
                 return false;
             if (channelScrollbar.barisPressed || channelScrollbar.barWasPressed > 0)
                 return false;

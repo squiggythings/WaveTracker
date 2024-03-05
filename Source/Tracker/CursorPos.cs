@@ -3,7 +3,9 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -165,27 +167,70 @@ namespace WaveTracker.Tracker {
         }
 
         /// <summary>
-        /// Moves the position one column to the left in a song
+        /// Moves the position one cursor column to the left in a song
         /// </summary>
         public void MoveLeft(WTSong song) {
             int column = Column - 1;
             if (column < 0) {
                 MoveToChannel(Channel - 1, song);
-                column = song.GetNumColumnsOfChannel(Channel) - 1;
+                column = song.GetNumCursorColumns(Channel) - 1;
             }
             Column = column;
         }
 
         /// <summary>
-        /// Moves the position one column to the right in a song
+        /// Moves the position one cursor column to the right in a song
         /// </summary>
         public void MoveRight(WTSong song) {
             int column = Column + 1;
-            if (column > song.GetNumColumnsOfChannel(Channel) - 1) {
+            if (column > song.GetNumCursorColumns(Channel) - 1) {
                 MoveToChannel(Channel + 1, song);
                 column = 0;
             }
             Column = column;
+        }
+
+        /// <summary>
+        /// Set's this position's column to the beginning of a file column type.<br></br>
+        /// I.E. moving to instrument column type will move the position to inst1, volume column types move to vol1 etc...
+        /// </summary>
+        /// <param name="type"></param>
+        public void GoToBeginningOfColumnType(CursorColumnType type) {
+            switch (type) {
+                case CursorColumnType.Note:
+                    Column = 0; // note
+                    break;
+                case CursorColumnType.Instrument:
+                    Column = 1; // inst1
+                    break;
+                case CursorColumnType.Volume:
+                    Column = 3; // vol1
+                    break;
+                case CursorColumnType.Effect1:
+                    Column = 5; //fx1
+                    break;
+                case CursorColumnType.Effect1Param:
+                    Column = 6; //fx1param1
+                    break;
+                case CursorColumnType.Effect2:
+                    Column = 8; //fx2
+                    break;
+                case CursorColumnType.Effect2Param:
+                    Column = 9; //fx2param1
+                    break;
+                case CursorColumnType.Effect3:
+                    Column = 11; //fx3
+                    break;
+                case CursorColumnType.Effect3Param:
+                    Column = 12; //fx3param1
+                    break;
+                case CursorColumnType.Effect4:
+                    Column = 14; //fx4
+                    break;
+                case CursorColumnType.Effect4Param:
+                    Column = 15; //fx4param1
+                    break;
+            }
         }
 
         /// <summary>
@@ -270,12 +315,15 @@ namespace WaveTracker.Tracker {
             return "[f:" + Frame + "|r:" + Row + "|t:" + Channel + "|c:" + Column + "]";
         }
 
-        public static bool operator ==(CursorPos a, CursorPos b) {
-            return a.Frame == b.Frame && a.Row == b.Row && a.Channel == b.Channel && a.Column == b.Column;
-        }
-        public static bool operator !=(CursorPos a, CursorPos b) {
-            return a.Frame != b.Frame || a.Row != b.Row || a.Channel != b.Channel || a.Column != b.Column;
-        }
+        public override bool Equals(object obj) => obj is CursorPos other && Equals(other);
+
+        public bool Equals(CursorPos p) => Frame == p.Frame && Row == p.Row && Channel == p.Channel && Column == p.Column;
+
+        public override int GetHashCode() => (Frame, Row, Channel, Column).GetHashCode();
+
+        public static bool operator ==(CursorPos lhs, CursorPos rhs) => lhs.Equals(rhs);
+
+        public static bool operator !=(CursorPos lhs, CursorPos rhs) => !(lhs == rhs);
     }
 
     public enum CursorColumnType {

@@ -48,7 +48,7 @@ namespace WaveTracker.Tracker {
                         Play();
                     }
             }
-            if (!Game1.VisualizerMode) {
+            if (!App.VisualizerMode) {
                 if (Input.GetKeyRepeat(Keys.Enter, KeyModifier.Ctrl)) {
                     if (Input.dialogOpenCooldown == 0) {
                         ChannelManager.PlayRow(patternEditor.CurrentSong[patternEditor.CursorPosition.Frame][patternEditor.CursorPosition.Row]);

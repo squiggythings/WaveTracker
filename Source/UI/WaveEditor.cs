@@ -355,13 +355,13 @@ namespace WaveTracker.UI {
                     }
                 }
 
-                if (Game1.pianoInput > -1) {
-                    int note = Game1.pianoInput;
+                if (App.pianoInput > -1) {
+                    int note = App.pianoInput;
                     if (note >= 0 && note < 120) {
-                        if (Helpers.IsNoteBlackKey(Game1.pianoInput))
-                            DrawSprite(tex, Game1.pianoInput * 4 + 10, 235, new Rectangle(504, 61, 4, 24));
+                        if (Helpers.IsNoteBlackKey(App.pianoInput))
+                            DrawSprite(tex, App.pianoInput * 4 + 10, 235, new Rectangle(504, 61, 4, 24));
                         else
-                            DrawSprite(tex, Game1.pianoInput * 4 + 10, 235, new Rectangle(500, 61, 4, 24));
+                            DrawSprite(tex, App.pianoInput * 4 + 10, 235, new Rectangle(500, 61, 4, 24));
                     }
                 }
             }

@@ -161,9 +161,9 @@ namespace WaveTracker.Audio {
                     buffer[n + offset] *= Preferences.profile.master_volume;
                     buffer[n + offset + 1] *= Preferences.profile.master_volume;
 
-                    if (Game1.VisualizerMode && !rendering)
+                    if (App.VisualizerMode && !rendering)
                         if (_tickCounter % (samplesPerTick / Preferences.profile.visualizerPianoSpeed) == 0) {
-                            Game1.visualization.Update();
+                            App.visualization.Update();
                         }
 
                     _tickCounter++;

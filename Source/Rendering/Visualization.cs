@@ -111,7 +111,7 @@ namespace WaveTracker.Rendering
                 states.Insert(0, rowOfStates);
             else
                 states.Add(rowOfStates);
-            int lastIndex = Game1.WindowHeight * 2 - 340;
+            int lastIndex = App.WindowHeight * 2 - 340;
             while (states.Count > lastIndex && lastIndex > 0)
                 states.RemoveAt(lastIndex);
         }

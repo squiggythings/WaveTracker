@@ -15,7 +15,7 @@ namespace WaveTracker
         [STAThread]
         static void Main(string[] args)
         {
-            using (var game = new Game1(args))
+            using (var game = new App(args))
                 game.Run();
 
         }

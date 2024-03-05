@@ -13,8 +13,8 @@ namespace WaveTracker.Tracker {
     public class WTPattern {
         [ProtoMember(1)]
         PatternRow[] rows;
-        [ProtoMember(2)]
-        WTSong parent;
+
+        public WTSong parent { get; set; }
 
         /// <summary>
         /// Returns true if this pattern is empty
@@ -71,6 +71,14 @@ namespace WaveTracker.Tracker {
             // if no ending effect return the complete length
             return parent.RowsPerFrame;
         }
+
+        public string PackToString() {
+            string patternAsString = "";
+            foreach(PatternRow row in rows) {
+                patternAsString += row.PackToString();
+            }
+            return patternAsString;
+        }
     }
 
     /// <summary>
@@ -125,6 +133,14 @@ namespace WaveTracker.Tracker {
             }
         }
 
+        public string PackToString() {
+            string rowAsString = "";
+            foreach(PatternEvent e in channelEvents) {
+                rowAsString += e.PackToString();
+            }
+            return rowAsString;
+        }
+
     }
 
     /// <summary>
@@ -133,17 +149,18 @@ namespace WaveTracker.Tracker {
     [ProtoContract(SkipConstructor = true)]
     public class PatternEvent {
         /// <summary>
-        /// The byte value reserved to mean an empty space in the pattern
+        /// The byte value reserved to denote an empty space in the pattern
         /// </summary>
         public const byte EMPTY = 255;
         /// <summary>
-        /// The byte value reserved to mean a note cut in a pattern
+        /// The byte value reserved to denote a note cut in a pattern
         /// </summary>
         public const byte NOTE_CUT = 254;
         /// <summary>
-        /// The byte value reserved to mean a note release in a pattern
+        /// The byte value reserved to denote a note release in a pattern
         /// </summary>
         public const byte NOTE_RELEASE = 253;
+
         [ProtoMember(1)]
         private byte note;
         [ProtoMember(2)]
@@ -384,6 +401,12 @@ namespace WaveTracker.Tracker {
                 _ => throw new IndexOutOfRangeException(),
             };
         }
+
+
+        public string PackToString() {
+            // 11 chars long
+            return (char)note + (char)instrument + (char)volume + Effect1.PackToString() + Effect2.PackToString() + Effect3.PackToString() + Effect4.PackToString();
+        }
     }
 
     /// <summary>
@@ -484,6 +507,10 @@ namespace WaveTracker.Tracker {
             else {
                 return parameter.ToString("D2");
             }
+        }
+
+        public string PackToString() {
+            return "" + type + (char)Parameter;
         }
 
         /* Effects Cheatsheet

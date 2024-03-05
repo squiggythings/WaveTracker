@@ -196,12 +196,12 @@ namespace WaveTracker {
             return GetClickDown(modifier) && doubleClick;
         }
 
-        public static int MousePositionX { get { return (currentMouseState.X) / Game1.ScreenScale; } }
-        public static int MousePositionY { get { return (currentMouseState.Y) / Game1.ScreenScale; } }
+        public static int MousePositionX { get { return (currentMouseState.X) / App.ScreenScale; } }
+        public static int MousePositionY { get { return (currentMouseState.Y) / App.ScreenScale; } }
 
-        public static int MouseDeltaX { get { return (currentMouseState.X / Game1.ScreenScale) - (previousMouseState.X / Game1.ScreenScale); } }
+        public static int MouseDeltaX { get { return (currentMouseState.X / App.ScreenScale) - (previousMouseState.X / App.ScreenScale); } }
 
-        public static int MouseDeltaY { get { return (currentMouseState.Y / Game1.ScreenScale) - (previousMouseState.Y / Game1.ScreenScale); } }
+        public static int MouseDeltaY { get { return (currentMouseState.Y / App.ScreenScale) - (previousMouseState.Y / App.ScreenScale); } }
 
         public static int MouseScrollWheel(KeyModifier modifier) {
             if (modifierMatches(modifier)) {

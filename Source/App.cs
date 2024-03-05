@@ -18,7 +18,7 @@ using WaveTracker.Tracker;
 using WaveTracker.Audio;
 
 namespace WaveTracker {
-    public class Game1 : Game {
+    public class App : Game {
         private GraphicsDeviceManager graphics;
         private SpriteBatch targetBatch;
         public static Texture2D pixel;
@@ -30,7 +30,7 @@ namespace WaveTracker {
         public static SpriteFont font;
         RenderTarget2D target;
         FrameRenderer frameRenderer;
-        InstrumentBank instrumentBank;
+        
         WaveBank waveBank;
         SongSettings songSettings;
         EditSettings editSettings;
@@ -44,10 +44,11 @@ namespace WaveTracker {
         public static bool VisualizerMode;
         public static Visualization visualization;
         string filename;
-        PatternEditor patternEditor;
+        public static PatternEditor PatternEditor { get; private set; }
+        public static InstrumentBank instrumentBank;
 
 
-        public Game1(string[] args) {
+        public App(string[] args) {
             if (args.Length > 0)
                 filename = args[0];
             graphics = new GraphicsDeviceManager(this);
@@ -67,7 +68,7 @@ namespace WaveTracker {
             var form = (System.Windows.Forms.Form)System.Windows.Forms.Control.FromHandle(Window.Handle);
             form.WindowState = System.Windows.Forms.FormWindowState.Maximized;
 
-            patternEditor = new PatternEditor(0, 184);
+            PatternEditor = new PatternEditor(0, 184);
 
         }
 
@@ -81,7 +82,7 @@ namespace WaveTracker {
 
             WTModule.currentModule = new WTModule();
             WTSong.currentSong = WTModule.currentModule.Song;
-            patternEditor.OnSwitchSong();
+            PatternEditor.OnSwitchSong();
 
             waveBank = new WaveBank();
             instrumentBank = new InstrumentBank();
@@ -108,14 +109,14 @@ namespace WaveTracker {
             editSettings.Initialize();
             font = Content.Load<SpriteFont>("custom_font");
             channelHeaderSprite = Content.Load<Texture2D>("trackerchannelheader");
-            toolbar = new Toolbar(Content.Load<Texture2D>("toolbar"), patternEditor);
+            toolbar = new Toolbar(Content.Load<Texture2D>("toolbar"), PatternEditor);
             waveBank.editor = new WaveEditor(Content.Load<Texture2D>("wave_window"));
 
             instrumentBank.Initialize(Content.Load<Texture2D>("toolbar"));
             instrumentBank.editor = new InstrumentEditor(Content.Load<Texture2D>("instrumentwindow"));
             instrumentBank.editor.browser = new SampleBrowser(Content.Load<Texture2D>("window_edit"));
             songSettings.Initialize(Content.Load<Texture2D>("window_edit"));
-            frameView.Initialize(Content.Load<Texture2D>("toolbar"), GraphicsDevice, patternEditor);
+            frameView.Initialize(Content.Load<Texture2D>("toolbar"), GraphicsDevice, PatternEditor);
             pixel = new Texture2D(GraphicsDevice, 1, 1);
             pixel.SetData(new[] { Color.White });
             // TODO: use this.Content to load your game content here
@@ -166,7 +167,7 @@ namespace WaveTracker {
                 instrumentBank.Update();
             }
             if (Input.focus == null || Input.focus == waveBank.editor || Input.focus == instrumentBank.editor)
-                pianoInput = Helpers.GetPianoInput(patternEditor.CurrentOctave);
+                pianoInput = Helpers.GetPianoInput(PatternEditor.CurrentOctave);
             else {
                 pianoInput = -1;
             }
@@ -176,7 +177,7 @@ namespace WaveTracker {
                 pianoInput = waveBank.editor.pianoInput();
             if (instrumentBank.editor.pianoInput() > -1)
                 pianoInput = instrumentBank.editor.pianoInput();
-            if (patternEditor.CursorPosition.GetColumnAsSingleEffectChannel() == CursorPos.COLUMN_NOTE || WaveEditor.enabled || InstrumentEditor.enabled) {
+            if (PatternEditor.CursorPosition.GetColumnAsSingleEffectChannel() == CursorPos.COLUMN_NOTE || WaveEditor.enabled || InstrumentEditor.enabled) {
                 if (pianoInput != -1 && lastPianoKey != pianoInput) {
                     if (!Playback.isPlaying)
                         AudioEngine.ResetTicks();
@@ -212,7 +213,7 @@ namespace WaveTracker {
             toolbar.Update();
             base.Update(gameTime);
             lastPianoKey = pianoInput;
-            patternEditor.Update();
+            PatternEditor.Update();
         }
 
         protected override void Draw(GameTime gameTime) {
@@ -238,7 +239,7 @@ namespace WaveTracker {
                 // draw frame editor
                 //frameRenderer.DrawFrame(Song.currentSong.frames[FrameEditor.currentFrame], FrameEditor.cursorRow, FrameEditor.cursorColumn);
 
-                patternEditor.Draw();
+                PatternEditor.Draw();
 
                 // draw instrument bank
                 instrumentBank.Draw();

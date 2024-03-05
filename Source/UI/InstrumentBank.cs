@@ -63,13 +63,13 @@ namespace WaveTracker.UI {
         }
 
         public void Update() {
-            x = Game1.WindowWidth - width;
+            x = App.WindowWidth - width;
 
             editor.Update();
             if (Input.focus != null)
                 return;
             scrollbar.Update();
-            listLength = (Game1.WindowHeight - y - 28 - 8) / 11;
+            listLength = (App.WindowHeight - y - 28 - 8) / 11;
             if (listLength <= 0)
                 listLength = 1;
             scrollbar.height = listLength * 11;

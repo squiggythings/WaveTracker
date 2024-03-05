@@ -8,12 +8,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using ProtoBuf;
-
+using System.Diagnostics;
 
 namespace WaveTracker.Tracker {
     public class WTSongState {
 
-        MemoryStream songData;
+        List<string> packedString;
         /// <summary>
         /// The cursor position before this action was committed
         /// </summary>
@@ -21,17 +21,20 @@ namespace WaveTracker.Tracker {
         /// <summary>
         /// The cursor position after this action was committed
         /// </summary>
-        public CursorPos nextPosition { get; private set; }
+        public CursorPos currentPosition { get; private set; }
 
         public WTSongState(WTSong song, CursorPos previous, CursorPos next) {
-            Serializer.Serialize(songData, song);
+            //songData = new MemoryStream();
+            //Serializer.Serialize(songData, song);
+            packedString = song.PackPatternsToString();
             previousPosition = previous;
-            nextPosition = next;
+            currentPosition = next;
+            Debug.WriteLine("str: [" + packedString[0] + "]");
         }
 
-        WTSong GetSong() {
-            return Serializer.Deserialize<WTSong>(songData);
-        }
+        //public WTSong GetSong() {
+        //    //return Serializer.Deserialize<WTSong>(songData);
+        //}
 
     }
 }

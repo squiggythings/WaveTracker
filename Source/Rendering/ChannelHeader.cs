@@ -87,21 +87,21 @@ namespace WaveTracker.Rendering
 
         public void Draw() {
             if (id < 0) {
-                DrawSprite(Game1.channelHeaderSprite, 0, 0, new Rectangle(63 * 3, 0, 63, 31));
+                DrawSprite(App.channelHeaderSprite, 0, 0, new Rectangle(63 * 3, 0, 63, 31));
                 return;
             }
             if (FrameEditor.channelToggles[id]) {
                 if (IsPressed)
-                    DrawSprite(Game1.channelHeaderSprite, 0, 0, new Rectangle(63 * 2, 0, 63, 31));
+                    DrawSprite(App.channelHeaderSprite, 0, 0, new Rectangle(63 * 2, 0, 63, 31));
                 else
-                    DrawSprite(Game1.channelHeaderSprite, 0, 0, new Rectangle(0, 0, 63, 31));
+                    DrawSprite(App.channelHeaderSprite, 0, 0, new Rectangle(0, 0, 63, 31));
                 Write("Channel " + (id + 1), 6, 10, new Color(104, 111, 153));
                 if (!AudioEngine.rendering) {
                     DrawRect(6, 25, amplitude == 0 ? 0 : amplitude + 1, 3, new Color(0, 219, 39));
                     DrawRect(21 + (int)(channelToDisplay.CurrentPan * 19), 22, 3, 2, Color.White);
                 }
             } else {
-                DrawSprite(Game1.channelHeaderSprite, 0, 0, new Rectangle(63, 0, 63, 31));
+                DrawSprite(App.channelHeaderSprite, 0, 0, new Rectangle(63, 0, 63, 31));
                 Write("Channel " + (id + 1), 6, 11, new Color(230, 69, 57));
                 if (!AudioEngine.rendering) {
                     DrawRect(6, 26, amplitude == 0 ? 0 : amplitude + 1, 3, new Color(104, 111, 153));

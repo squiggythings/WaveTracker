@@ -31,7 +31,7 @@ namespace WaveTracker.Rendering {
             }
         }
         public void Update(GameTime gameTime) {
-            numOfVisibleRows = (Game1.WindowHeight - 184) / 7 - 1;
+            numOfVisibleRows = (App.WindowHeight - 184) / 7 - 1;
             if (numOfVisibleRows < 5) numOfVisibleRows = 5;
             foreach (ChannelHeader header in headers) {
                 if (header.id != -1) {

@@ -138,34 +138,34 @@ namespace WaveTracker {
             get {
                 ColorTheme ret = new ColorTheme();
 
-                ret.background = Helpers.HexCodeToColor("ffffff");
-                ret.backgroundHighlighted = Helpers.HexCodeToColor("f2f6f2");
-                ret.backgroundSubHighlight = Helpers.HexCodeToColor("e0e8e0");
+                ret.background.SetFromHex("ffffff");
+                ret.backgroundHighlighted.SetFromHex("f2f6f2");
+                ret.backgroundSubHighlight.SetFromHex("e0e8e0");
 
-                ret.patternText = Helpers.HexCodeToColor("000080");
-                ret.patternTextHighlighted = Helpers.HexCodeToColor("000080");
-                ret.patternTextSubHighlight = Helpers.HexCodeToColor("000080");
+                ret.patternText.SetFromHex("000080");
+                ret.patternTextHighlighted.SetFromHex("000080");
+                ret.patternTextSubHighlight.SetFromHex("000080");
                 ret.patternEmptyTextAlpha = 255;
 
-                ret.instrumentColumnWave = Helpers.HexCodeToColor("008080");
-                ret.instrumentColumnSample = Helpers.HexCodeToColor("008080");
-                ret.volumeColumn = Helpers.HexCodeToColor("008000");
-                ret.effectColumn = Helpers.HexCodeToColor("800000");
+                ret.instrumentColumnWave.SetFromHex("008080");
+                ret.instrumentColumnSample.SetFromHex("008080");
+                ret.volumeColumn.SetFromHex("008000");
+                ret.effectColumn.SetFromHex("800000");
                 ret.effectColumnParameter = ret.effectColumn;
 
-                ret.selection = Helpers.HexCodeToColor("8080ff");
-                ret.cursor = Helpers.HexCodeToColor("8080ff");
+                ret.selection.SetFromHex("8080ff");
+                ret.cursor.SetFromHex("8080ff");
 
-                ret.rowCurrentColor = Helpers.HexCodeToColor("c0c0c0");
-                ret.rowCurrentText = Helpers.HexCodeToColor("000000");
+                ret.rowCurrentColor.SetFromHex("c0c0c0");
+                ret.rowCurrentText.SetFromHex("000000");
 
-                ret.rowEditColor = Helpers.HexCodeToColor("c0c0c0");
-                ret.rowEditText = Helpers.HexCodeToColor("000000");
+                ret.rowEditColor.SetFromHex("c0c0c0");
+                ret.rowEditText.SetFromHex("000000");
 
-                ret.rowPlaybackColor = Helpers.HexCodeToColor("ffff80");
-                ret.rowPlaybackText = Helpers.HexCodeToColor("000000");
+                ret.rowPlaybackColor.SetFromHex("ffff80");
+                ret.rowPlaybackText.SetFromHex("000000");
 
-                ret.rowSeparator = Helpers.HexCodeToColor("a0a0a0");
+                ret.rowSeparator.SetFromHex("a0a0a0");
 
                 return ret;
             }
@@ -175,34 +175,34 @@ namespace WaveTracker {
             get {
                 ColorTheme ret = new ColorTheme();
 
-                ret.background = Helpers.HexCodeToColor("000228");
-                ret.backgroundHighlighted = Helpers.HexCodeToColor("1b2750");
-                ret.backgroundSubHighlight = Helpers.HexCodeToColor("1f327f");
+                ret.background.SetFromHex("000228");
+                ret.backgroundHighlighted.SetFromHex("1b2750");
+                ret.backgroundSubHighlight.SetFromHex("1f327f");
 
-                ret.patternText = Helpers.HexCodeToColor("d29672");
-                ret.patternTextHighlighted = Helpers.HexCodeToColor("e7691b");
-                ret.patternTextSubHighlight = Helpers.HexCodeToColor("e7691b");
+                ret.patternText.SetFromHex("d29672");
+                ret.patternTextHighlighted.SetFromHex("e7691b");
+                ret.patternTextSubHighlight.SetFromHex("e7691b");
                 ret.patternEmptyTextAlpha = 60;
 
-                ret.instrumentColumnWave = Helpers.HexCodeToColor("2bcbbe");
-                ret.instrumentColumnSample = Helpers.HexCodeToColor("2bcbbe");
-                ret.volumeColumn = Helpers.HexCodeToColor("e78504");
-                ret.effectColumn = Helpers.HexCodeToColor("27c792");
+                ret.instrumentColumnWave.SetFromHex("2bcbbe");
+                ret.instrumentColumnSample.SetFromHex("2bcbbe");
+                ret.volumeColumn.SetFromHex("e78504");
+                ret.effectColumn.SetFromHex("27c792");
                 ret.effectColumnParameter = ret.effectColumn;
 
-                ret.selection = Helpers.HexCodeToColor("0000ff80");
-                ret.cursor = Helpers.HexCodeToColor("88a8d3");
+                ret.selection.SetFromHex("0000ff80");
+                ret.cursor.SetFromHex("88a8d3");
 
-                ret.rowCurrentColor = Helpers.HexCodeToColor("1152a8");
-                ret.rowCurrentText = Helpers.HexCodeToColor("ffffff");
+                ret.rowCurrentColor.SetFromHex("1152a8");
+                ret.rowCurrentText.SetFromHex("ffffff");
 
-                ret.rowEditColor = Helpers.HexCodeToColor("a84b4c");
-                ret.rowEditText = Helpers.HexCodeToColor("ffffff");
+                ret.rowEditColor.SetFromHex("a84b4c");
+                ret.rowEditText.SetFromHex("ffffff");
 
-                ret.rowPlaybackColor = Helpers.HexCodeToColor("436998");
-                ret.rowPlaybackText = Helpers.HexCodeToColor("b4b4b4");
+                ret.rowPlaybackColor.SetFromHex("436998");
+                ret.rowPlaybackText.SetFromHex("b4b4b4");
 
-                ret.rowSeparator = Helpers.HexCodeToColor("000000");
+                ret.rowSeparator.SetFromHex("000000");
 
                 return ret;
             }

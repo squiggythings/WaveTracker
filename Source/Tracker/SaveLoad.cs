@@ -29,7 +29,7 @@ namespace WaveTracker
         public static Song savedSong;
 
 
-        public static bool isSaved { get { if (Song.currentSong.Equals(Game1.newSong)) return true; if (savedSong == null) return false; else return savedSong.Equals(Song.currentSong); } }
+        public static bool isSaved { get { if (Song.currentSong.Equals(App.newSong)) return true; if (savedSong == null) return false; else return savedSong.Equals(Song.currentSong); } }
         public static string filePath = "";
 
         public static string fileName { get { if (filePath == "") return "Untitled.wtm"; return Path.GetFileName(filePath); } }

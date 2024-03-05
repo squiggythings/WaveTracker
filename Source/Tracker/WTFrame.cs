@@ -24,7 +24,6 @@ namespace WaveTracker.Tracker {
         /// <summary>
         /// The song that owns this frame
         /// </summary>
-        [ProtoMember(2)]
         public WTSong Parent { get; private set; }
 
         /// <summary>
@@ -41,6 +40,10 @@ namespace WaveTracker.Tracker {
         /// <returns></returns>
         public int GetLength() {
             return Parent.Patterns[PatternIndex].GetModifiedLength();
+        }
+
+        public void SetParentSong(WTSong song) {
+            Parent = song;
         }
 
         /// <summary>

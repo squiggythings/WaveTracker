@@ -14,7 +14,7 @@ namespace WaveTracker.UI {
         public Color color { get; set; }
         public string HexValue {
             get { return color.GetHexCodeWithAlpha(); }
-            set { color = Helpers.HexCodeToColor(value); }
+            set { color.SetFromHex(value); }
         }
 
         public ColorButton(Color color, int x, int y, Element parent) {
@@ -22,9 +22,7 @@ namespace WaveTracker.UI {
             this.x = x;
             this.y = y;
             this.color = color;
-            width = 45 + 10;
-            //if (width < 30)
-            //    width = 30;
+            width = 55;
             height = 13;
             SetParent(parent);
         }
@@ -32,9 +30,6 @@ namespace WaveTracker.UI {
         public void Update() {
             if (Clicked) {
                 colorPicker.Open(this);
-                //Random r = new Random();
-                //color = new Color((byte)r.Next(256), (byte)r.Next(256), (byte)r.Next(256));
-
             }
         }
 
@@ -49,7 +44,8 @@ namespace WaveTracker.UI {
             Color textColor = Color.White;
             if ((displayColor.R * 30 + displayColor.G * 59 + displayColor.B * 11) / 100 < 128) {
                 textColor = Color.White;
-            } else {
+            }
+            else {
                 textColor = Color.Black;
             }
             DrawRect(0, 0, width, height, ButtonColors.Round.backgroundColor);
@@ -60,7 +56,8 @@ namespace WaveTracker.UI {
             Color outlineColor;
             if (IsHovered) {
                 outlineColor = textColor;
-            } else {
+            }
+            else {
                 outlineColor = Helpers.Alpha(Color.White, 80);
             }
             DrawRect(1, 1, width - 2, 1, outlineColor);

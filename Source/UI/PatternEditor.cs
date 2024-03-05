@@ -44,7 +44,7 @@ namespace WaveTracker.UI {
         /// <summary>
         /// Whether or not there is a selection active in the pattern editor
         /// </summary>
-        bool selectionActive;
+        public bool SelectionIsActive { get; private set; }
 
         /// <summary>
         /// The start position of a selection the user makes
@@ -56,14 +56,7 @@ namespace WaveTracker.UI {
         /// </summary>
         CursorPos selectionEnd;
 
-        /// <summary>
-        /// The top-left position of the selection rectangle
-        /// </summary>
-        CursorPos selectionMin;
-        /// <summary>
-        /// The bottom-right position of the selection rectangle
-        /// </summary>
-        CursorPos selectionMax;
+
 
         /// <summary>
         /// Used for optimization purposes
@@ -74,6 +67,8 @@ namespace WaveTracker.UI {
         /// A list of all positions in the selection
         /// </summary>
         List<CursorPos> selection;
+
+        PatternSelection currentSelection;
 
         /// <summary>
         /// The index of the leftmost channel to render
@@ -100,6 +95,7 @@ namespace WaveTracker.UI {
         /// The list of states that could be reverted back to
         /// </summary>
         FixedSizeStack<WTSongState> undoHistory;
+
         /// <summary>
         /// The list of states that could be reverted forward to
         /// </summary>
@@ -128,17 +124,18 @@ namespace WaveTracker.UI {
             undoHistory = new FixedSizeStack<WTSongState>();
             redoHistory = new FixedSizeStack<WTSongState>();
             selection = new List<CursorPos>();
+            currentSelection = new PatternSelection();
         }
 
         public void Update() {
 
             // responsive height
             int bottomMargin = 3;
-            height = Game1.WindowHeight - y - bottomMargin;
+            height = App.WindowHeight - y - bottomMargin;
 
             // responsive width
             int rightMargin = 156;
-            width = Game1.WindowWidth - x - rightMargin - 1;
+            width = App.WindowWidth - x - rightMargin - 1;
 
             FirstVisibleChannel -= Input.MouseScrollWheel(KeyModifier.Alt);
             FirstVisibleChannel = Math.Clamp(FirstVisibleChannel, 0, CurrentSong.ChannelCount - 1);
@@ -238,49 +235,49 @@ namespace WaveTracker.UI {
             #endregion
             #region selection with arrow keys
             if (Input.GetKeyRepeat(Keys.Left, KeyModifier.Shift)) {
-                if (!selectionActive) {
+                if (!SelectionIsActive) {
                     SetSelectionStart(cursorPosition);
-                    selectionActive = true;
+                    SelectionIsActive = true;
                 }
                 MoveCursorLeft();
                 SetSelectionEnd(cursorPosition);
             }
             if (Input.GetKeyRepeat(Keys.Right, KeyModifier.Shift)) {
-                if (!selectionActive) {
+                if (!SelectionIsActive) {
                     SetSelectionStart(cursorPosition);
-                    selectionActive = true;
+                    SelectionIsActive = true;
                 }
                 MoveCursorRight();
                 SetSelectionEnd(cursorPosition);
             }
             if (Input.GetKeyRepeat(Keys.Left, KeyModifier.ShiftAlt)) {
-                if (!selectionActive) {
+                if (!SelectionIsActive) {
                     SetSelectionStart(cursorPosition);
-                    selectionActive = true;
+                    SelectionIsActive = true;
                 }
                 MoveToChannel(cursorPosition.Channel - 1);
                 SetSelectionEnd(cursorPosition);
             }
             if (Input.GetKeyRepeat(Keys.Right, KeyModifier.ShiftAlt)) {
-                if (!selectionActive) {
+                if (!SelectionIsActive) {
                     SetSelectionStart(cursorPosition);
-                    selectionActive = true;
+                    SelectionIsActive = true;
                 }
                 MoveToChannel(cursorPosition.Channel + 1);
                 SetSelectionEnd(cursorPosition);
             }
             if (Input.GetKeyRepeat(Keys.Down, KeyModifier.Shift)) {
-                if (!selectionActive) {
+                if (!SelectionIsActive) {
                     SetSelectionStart(cursorPosition);
-                    selectionActive = true;
+                    SelectionIsActive = true;
                 }
                 MoveToRow(cursorPosition.Row + 1);
                 SetSelectionEnd(cursorPosition);
             }
             if (Input.GetKeyRepeat(Keys.Up, KeyModifier.Shift)) {
-                if (!selectionActive) {
+                if (!SelectionIsActive) {
                     SetSelectionStart(cursorPosition);
-                    selectionActive = true;
+                    SelectionIsActive = true;
                 }
                 MoveToRow(cursorPosition.Row - 1);
                 SetSelectionEnd(cursorPosition);
@@ -288,9 +285,9 @@ namespace WaveTracker.UI {
             #endregion
             #region selection with mouse
             if (Input.GetClick(KeyModifier.None) && Input.MouseIsDragging && GlobalPointIsInBounds(Input.lastClickLocation)) {
-                if (!selectionActive) {
+                if (!SelectionIsActive) {
                     SetSelectionStart(GetCursorPositionFromPoint(LastClickPos.X, LastClickPos.Y));
-                    selectionActive = true;
+                    SelectionIsActive = true;
                 }
                 if (GetMouseLineNumber() == 0) {
                     MoveToRow(cursorPosition.Row - 1);
@@ -301,17 +298,17 @@ namespace WaveTracker.UI {
                 SetSelectionEnd(GetCursorPositionFromPoint(MouseX, MouseY));
             }
             if (IsPressedM(KeyModifier.Shift)) {
-                if (!selectionActive) {
+                if (!SelectionIsActive) {
                     SetSelectionStart(cursorPosition);
-                    selectionActive = true;
+                    SelectionIsActive = true;
                 }
                 SetSelectionEnd(GetCursorPositionFromPoint(MouseX, MouseY));
             }
             #endregion
             #region selection with CTRL-A and ESC
             if (Input.GetKeyRepeat(Keys.A, KeyModifier.Ctrl)) {
-                if (selectionMax.Channel == cursorPosition.Channel && selectionMax.Row == CurrentPattern.GetModifiedLength() - 1 && selectionMax.Frame == cursorPosition.Frame && selectionMax.Column == GetNumFullColumns(cursorPosition.Channel) - 1 &&
-                    selectionMin.Channel == cursorPosition.Channel && selectionMin.Row == 0 && selectionMin.Frame == cursorPosition.Frame && selectionMin.Column == 0) {
+                if (currentSelection.maxPosition.Channel == cursorPosition.Channel && currentSelection.maxPosition.Row == CurrentPattern.GetModifiedLength() - 1 && currentSelection.maxPosition.Frame == cursorPosition.Frame && currentSelection.maxPosition.Column == CurrentSong.GetNumCursorColumns(cursorPosition.Channel) - 1 &&
+                    currentSelection.minPosition.Channel == cursorPosition.Channel && currentSelection.minPosition.Row == 0 && currentSelection.minPosition.Frame == cursorPosition.Frame && currentSelection.minPosition.Column == 0) {
                     SetSelectionStart(cursorPosition);
                     selectionStart.Channel = 0;
                     selectionStart.Row = 0;
@@ -319,16 +316,16 @@ namespace WaveTracker.UI {
                     SetSelectionEnd(cursorPosition);
                     selectionEnd.Channel = CurrentSong.ChannelCount - 1;
                     selectionEnd.Row = CurrentPattern.GetModifiedLength() - 1;
-                    selectionEnd.Column = GetNumFullColumns(selectionEnd.Channel) - 1;
+                    selectionEnd.Column = CurrentSong.GetNumCursorColumns(selectionEnd.Channel) - 1;
                 }
                 else {
-                    selectionActive = true;
+                    SelectionIsActive = true;
                     SetSelectionStart(cursorPosition);
                     selectionStart.Row = 0;
                     selectionStart.Column = 0;
                     SetSelectionEnd(cursorPosition);
                     selectionEnd.Row = CurrentPattern.GetModifiedLength() - 1;
-                    selectionEnd.Column = GetNumFullColumns(selectionEnd.Channel) - 1;
+                    selectionEnd.Column = CurrentSong.GetNumCursorColumns(selectionEnd.Channel) - 1;
                 }
             }
             if (Input.GetKeyRepeat(Keys.Escape, KeyModifier.None)) {
@@ -337,10 +334,11 @@ namespace WaveTracker.UI {
             #endregion
 
 
-            if (!selectionActive) {
+            if (!SelectionIsActive) {
                 selectionStart = selectionEnd = cursorPosition;
             }
-            CreateSelectionBounds();
+            currentSelection.Set(CurrentSong, selectionStart, selectionEnd);
+            //CreateSelectionBounds();
 
             if (Input.GetKeyDown(Keys.Space, KeyModifier.None)) {
                 EditMode = !EditMode;
@@ -499,49 +497,60 @@ namespace WaveTracker.UI {
                 }
             }
             #endregion
-            #region backspace + delete + insert
+            #region backspace + insert + delete
             if (KeyPress(Keys.Back, KeyModifier.None)) {
-                if (selectionActive) {
-                    foreach (CursorPos p in selection) {
-                        PullRowsUp(p);
+                if (SelectionIsActive) {
+                    for (int x = currentSelection.SelectionPositions.GetLength(0) - 1; x >= 0; x--) {
+                        for (int y = currentSelection.SelectionPositions.GetLength(1) - 1; y >= 0; y--) {
+                            PullRowsUp(currentSelection.SelectionPositions[x, y]);
+                        }
                     }
                     CancelSelection();
                 }
                 else if (cursorPosition.Row > 0) {
                     MoveToRow(cursorPosition.Row - 1);
                     CursorPos p = cursorPosition;
-                    p.Column = 0;
-                    while (p.Column < GetNumColumns(p.Channel)) {
+                    for (int i = 0; i < CurrentSong.GetNumCursorColumns(cursorPosition.Channel); ++i) {
+                        p.GoToBeginningOfColumnType((CursorColumnType)i);
                         PullRowsUp(p);
-                        p.MoveRight(CurrentSong);
                     }
                 }
                 AddToUndoHistory();
             }
             if (KeyPress(Keys.Insert, KeyModifier.None)) {
-                if (selectionActive) {
-                    CursorPos p = selectionMin;
-                    while (p.IsLeftOf(selectionMax)) {
+                if (SelectionIsActive) {
+                    CursorPos p = currentSelection.minPosition;
+                    while (p.IsLeftOf(currentSelection.maxPosition)) {
                         PushRowsDown(p);
                         p.MoveRight(CurrentSong);
                     }
-                    PushRowsDown(p);
+
+                    for (int x = 0; x < currentSelection.SelectionPositions.GetLength(0); x++) {
+                        PushRowsDown(currentSelection.SelectionPositions[x, 0]);
+                    }
+                    //PushRowsDown(p);
                 }
                 else {
                     CursorPos p = cursorPosition;
-                    p.Column = 0;
-                    while (p.Column < GetNumColumns(p.Channel)) {
+                    for (int i = 0; i < CurrentSong.GetNumCursorColumns(cursorPosition.Channel); ++i) {
+                        p.GoToBeginningOfColumnType((CursorColumnType)i);
                         PushRowsDown(p);
-                        p.MoveRight(CurrentSong);
                     }
                 }
                 AddToUndoHistory();
             }
             if (KeyPress(Keys.Delete, KeyModifier.None)) {
-                foreach (CursorPos p in selection) {
-                    CurrentSong[p] = PatternEvent.EMPTY;
-                }
-                if (!selectionActive) {
+                CursorPos p = currentSelection.minPosition;
+                do {
+                    p.Channel = currentSelection.minPosition.Channel;
+                    p.Column = currentSelection.minPosition.Column;
+                    do {
+                        CurrentSong[p] = PatternEvent.EMPTY;
+                        p.MoveRight(CurrentSong);
+                    } while (p.IsLeftOf(currentSelection.maxPosition));
+                    p.MoveToRow(p.Row + 1, CurrentSong);
+                } while (p.IsAbove(currentSelection.maxPosition));
+                if (!SelectionIsActive) {
                     // if no selection and we delete the note, also delete the instrument and volume
                     if (cursorPosition.GetColumnType() == CursorColumnType.Note) {
                         CurrentPatternEvent.Instrument = PatternEvent.EMPTY;
@@ -604,13 +613,7 @@ namespace WaveTracker.UI {
             DrawRect(width, -32, 1, height + 32, Colors.theme.rowSeparator);
             DrawRect(width + 1, -32, 1, 1, Colors.theme.rowSeparator);
 
-            int ix = 0;
-            foreach (CursorPos p in selection) {
-                Rectangle r = GetRectFromCursorPos(p);
-                DrawRect(r.X + 1, r.Y + 3, 2, 1, Color.Blue);
-                Write(ix + "", r.X, r.Y, Color.Aqua);
-                ix++;
-            }
+
         }
         #region Draw Methods
         void DrawRow(int line, int frame, int row, int frameWrap) {
@@ -770,10 +773,10 @@ namespace WaveTracker.UI {
             }
 
             // if this row is within the selection bounds
-            if (selectionActive && !thisPos.IsAbove(selectionMin) && !thisPos.IsBelow(selectionMax)) {
-                int start = channelHeaders[selectionMin.Channel].x + columnStartPosOffsets[selectionMin.Column];
-                int end = channelHeaders[selectionMax.Channel].x + columnStartPosOffsets[selectionMax.Column] + columnSpaceWidths[selectionMax.Column];
-                bool endsOnRowSeparator = selectionMax.GetColumnAsSingleEffectChannel() == CursorPos.COLUMN_EFFECT_PARAMETER2;
+            if (SelectionIsActive && !thisPos.IsAbove(currentSelection.minPosition) && !thisPos.IsBelow(currentSelection.maxPosition)) {
+                int start = channelHeaders[currentSelection.minPosition.Channel].x + columnStartPosOffsets[currentSelection.minPosition.Column];
+                int end = channelHeaders[currentSelection.maxPosition.Channel].x + columnStartPosOffsets[currentSelection.maxPosition.Column] + columnSpaceWidths[currentSelection.maxPosition.Column];
+                bool endsOnRowSeparator = currentSelection.maxPosition.GetColumnAsSingleEffectChannel() == CursorPos.COLUMN_EFFECT_PARAMETER2;
                 if (endsOnRowSeparator)
                     end--;
                 if (start < ROW_COLUMN_WIDTH - 1)
@@ -785,52 +788,32 @@ namespace WaveTracker.UI {
                 // draw selection outline
                 DrawRect(start, linePositionY, 1, 7, Colors.theme.selection);
                 DrawRect(end, linePositionY, 1, 7, Colors.theme.selection);
-                if (selectionMin.Row == row && selectionMin.Frame == frame)
+                if (currentSelection.minPosition.Row == row && currentSelection.minPosition.Frame == frame)
                     DrawRect(start, linePositionY, end - start, 1, Colors.theme.selection);
-                if (selectionMax.Row == row && selectionMax.Frame == frame)
+                if (currentSelection.maxPosition.Row == row && currentSelection.maxPosition.Frame == frame)
                     DrawRect(start, linePositionY + 6, end - start, 1, Colors.theme.selection);
             }
         }
         #endregion
 
 
+        #region move cursor methods
+
+        /// <summary>
+        /// Resets the cursor position and view to the beginning of the song
+        /// </summary>
         public void OnSwitchSong() {
-            MoveToChannel(0);
-            MoveToFrame(0);
-            MoveToRow(0);
+            cursorPosition.Initialize();
             FirstVisibleChannel = 0;
         }
 
-
-        #region move cursor methods
         /// <summary>
         /// Moves the cursor to a row
         /// </summary>
         /// <param name="row"></param>
         public void MoveToRow(int row) {
 
-            bool wrapFrames = true;
-            bool wrapCursor = true;
-            if (wrapFrames) {
-                while (row < 0) {
-                    MoveToFrame(cursorPosition.Frame - 1);
-                    row += CurrentFrame.GetLength();
-                }
-                while (row >= CurrentFrame.GetLength()) {
-                    row -= CurrentFrame.GetLength();
-                    MoveToFrame(cursorPosition.Frame + 1);
-                }
-            }
-            else if (wrapCursor) {
-                row %= CurrentFrame.GetLength();
-                if (row < 0) {
-                    row += CurrentFrame.GetLength();
-                }
-            }
-            else {
-                row = Math.Clamp(row, 0, CurrentFrame.GetLength() - 1);
-            }
-            cursorPosition.Row = row;
+            cursorPosition.MoveToRow(row, CurrentSong);
         }
 
         /// <summary>
@@ -838,40 +821,21 @@ namespace WaveTracker.UI {
         /// </summary>
         /// <param name="frame"></param>
         public void MoveToFrame(int frame) {
-            int numFrames = WTSong.currentSong.FrameSequence.Count;
-
-            frame %= numFrames;
-            if (frame < 0) {
-                frame += numFrames;
-            }
-            cursorPosition.Frame = frame;
-
-            // make sure the cursor is in bounds of this frame
-            cursorPosition.Row = Math.Clamp(cursorPosition.Row, 0, CurrentFrame.GetLength() - 1);
+            cursorPosition.MoveToFrame(frame, CurrentSong);
         }
 
         /// <summary>
         /// Moves the cursor one column to the left
         /// </summary>
         void MoveCursorLeft() {
-            int column = cursorPosition.Column - 1;
-            if (column < 0) {
-                MoveToChannel(cursorPosition.Channel - 1);
-                column = WTSong.currentSong.GetNumColumnsOfChannel(cursorPosition.Channel) - 1;
-            }
-            cursorPosition.Column = column;
+            cursorPosition.MoveLeft(CurrentSong);
         }
 
         /// <summary>
         /// Moves the cursor one column to the right
         /// </summary>
         void MoveCursorRight() {
-            int column = cursorPosition.Column + 1;
-            if (column > WTSong.currentSong.GetNumColumnsOfChannel(cursorPosition.Channel) - 1) {
-                MoveToChannel(cursorPosition.Channel + 1);
-                column = 0;
-            }
-            cursorPosition.Column = column;
+            cursorPosition.MoveRight(CurrentSong);
         }
 
         /// <summary>
@@ -879,14 +843,147 @@ namespace WaveTracker.UI {
         /// </summary>
         /// <param name="channel"></param>
         void MoveToChannel(int channel) {
-            channel %= WTSong.currentSong.ChannelCount;
-            if (channel < 0) {
-                channel += WTSong.currentSong.ChannelCount;
-            }
-            cursorPosition.Channel = channel;
-            cursorPosition.Column = 0;
+            cursorPosition.MoveToChannel(channel, CurrentSong);
         }
         #endregion
+
+        #region selectionMethods
+
+        /// <summary>
+        /// Sets the selection start position
+        /// </summary>
+        /// <param name="pos"></param>
+        void SetSelectionStart(CursorPos pos) {
+            selectionStart = pos;
+        }
+
+        /// <summary>
+        /// Sets the selection end position
+        /// </summary>
+        /// <param name="pos"></param>
+        void SetSelectionEnd(CursorPos pos) {
+            selectionEnd = pos;
+        }
+
+
+        /// <summary>
+        /// Sets currentSelection.minPosition and currentSelection.maxPosition to the upper-right and bottom-left of the selection bounds from selectionStart and selectionEnd
+        /// </summary>
+        void CreateSelectionBounds() {
+            return;
+            if (lastSelectionStart == selectionStart && lastSelectionEnd == selectionEnd)
+                return;
+            currentSelection.minPosition = selectionStart;
+            currentSelection.maxPosition = selectionEnd;
+            lastSelectionStart = selectionStart;
+            lastSelectionEnd = selectionEnd;
+            // perform any swaps necessary
+            if (selectionStart.IsBelow(selectionEnd)) {
+                currentSelection.minPosition.Row = selectionEnd.Row;
+                currentSelection.minPosition.Frame = selectionEnd.Frame;
+                currentSelection.maxPosition.Row = selectionStart.Row;
+                currentSelection.maxPosition.Frame = selectionStart.Frame;
+            }
+            if (selectionStart.IsRightOf(selectionEnd)) {
+                currentSelection.maxPosition.Channel = selectionStart.Channel;
+                currentSelection.maxPosition.Column = selectionStart.Column;
+                currentSelection.minPosition.Channel = selectionEnd.Channel;
+                currentSelection.minPosition.Column = selectionEnd.Column;
+            }
+
+            // if the user selected on the row column, set the selection to span all channels
+            if (currentSelection.maxPosition.Channel == -1 && currentSelection.minPosition.Channel == -1) {
+                currentSelection.minPosition.Channel = 0;
+                currentSelection.minPosition.Column = 0;
+                currentSelection.maxPosition.Channel = CurrentSong.ChannelCount - 1;
+                currentSelection.maxPosition.Column = CurrentSong.GetNumCursorColumns(currentSelection.maxPosition.Channel) - 1;
+            }
+
+            // adjust the cursor positions to fill all of mulit-digit fields like instrument, volume and effects
+            if (currentSelection.maxPosition.Column == 1)
+                currentSelection.maxPosition.Column = 2;
+            else if (currentSelection.maxPosition.Column == 3)
+                currentSelection.maxPosition.Column = 4;
+            else if (currentSelection.maxPosition.Column == 5 || currentSelection.maxPosition.Column == 6)
+                currentSelection.maxPosition.Column = 7;
+            else if (currentSelection.maxPosition.Column == 8 || currentSelection.maxPosition.Column == 9)
+                currentSelection.maxPosition.Column = 10;
+            else if (currentSelection.maxPosition.Column == 11 || currentSelection.maxPosition.Column == 12)
+                currentSelection.maxPosition.Column = 13;
+            else if (currentSelection.maxPosition.Column == 14 || currentSelection.maxPosition.Column == 15)
+                currentSelection.maxPosition.Column = 16;
+            if (currentSelection.minPosition.Column == 2)
+                currentSelection.minPosition.Column = 1;
+            else if (currentSelection.minPosition.Column == 4)
+                currentSelection.minPosition.Column = 3;
+            else if (currentSelection.minPosition.Column == 6 || currentSelection.minPosition.Column == 7)
+                currentSelection.minPosition.Column = 5;
+            else if (currentSelection.minPosition.Column == 9 || currentSelection.minPosition.Column == 10)
+                currentSelection.minPosition.Column = 8;
+            else if (currentSelection.minPosition.Column == 12 || currentSelection.minPosition.Column == 13)
+                currentSelection.minPosition.Column = 11;
+            else if (currentSelection.minPosition.Column == 15 || currentSelection.minPosition.Column == 16)
+                currentSelection.minPosition.Column = 14;
+
+            if (currentSelection.minPosition.Channel < 0)
+                currentSelection.minPosition.Channel = 0;
+            if (currentSelection.maxPosition.Channel < 0)
+                currentSelection.maxPosition.Channel = 0;
+            if (currentSelection.maxPosition.Column >= CurrentSong.GetNumCursorColumns(currentSelection.maxPosition.Channel))
+                currentSelection.maxPosition.Column = CurrentSong.GetNumCursorColumns(currentSelection.maxPosition.Channel) - 1;
+
+            //GetSelectionPositions();
+        }
+
+        /// <summary>
+        /// Populates the selection array with all the CursorPositions inside the selection bounds
+        /// </summary>
+        void GetSelectionPositions() {
+            CursorPos p = currentSelection.maxPosition;
+            selection.Clear();
+            //while (!p.IsRightOf(currentSelection.maxPosition)) {
+            //    p.Row = currentSelection.minPosition.Row;
+            //    p.Frame = currentSelection.minPosition.Frame;
+            //    while (p.IsAbove(currentSelection.maxPosition)) {
+            //        selection.Add(p);
+            //        p.MoveToRow(p.Row + 1, CurrentSong);
+            //    }
+            //    selection.Add(p);
+            //    p.MoveRight(CurrentSong);
+            //}
+            while (p.IsBelow(currentSelection.minPosition)) {
+                p.Channel = currentSelection.maxPosition.Channel;
+                p.Column = currentSelection.maxPosition.Column;
+                while (p.IsRightOf(currentSelection.minPosition)) {
+                    selection.Add(p);
+                    p.MoveLeft(CurrentSong);
+                }
+                selection.Add(p);
+                p.MoveToRow(p.Row - 1, CurrentSong);
+            }
+            p.Channel = currentSelection.maxPosition.Channel;
+            p.Column = currentSelection.maxPosition.Column;
+            while (p.IsRightOf(currentSelection.minPosition)) {
+                selection.Add(p);
+                p.MoveLeft(CurrentSong);
+            }
+            selection.Add(p);
+        }
+
+        /// <summary>
+        /// Removes the selection
+        /// </summary>
+        void CancelSelection() {
+
+            currentSelection = new PatternSelection(CurrentSong, cursorPosition, cursorPosition);
+            SelectionIsActive = false;
+            //currentSelection.minPosition = cursorPosition;
+            //currentSelection.maxPosition = cursorPosition;
+            //CreateSelectionBounds();
+        }
+
+        #endregion
+
 
         /// <summary>
         /// Pulls all rows below pos up one, leaving a blank row at the end.
@@ -904,23 +1001,96 @@ namespace WaveTracker.UI {
         /// </summary>
         /// <param name="pos"></param>
         void PushRowsDown(CursorPos pos) {
-            for (int i = 255; i > pos.Row - 1; i--) {
+            for (int i = 255; i > pos.Row; i--) {
                 CurrentSong[pos.Frame][i][pos.Channel][pos.GetColumnType()] = CurrentSong[pos.Frame][i - 1][pos.Channel][pos.GetColumnType()];
             }
             CurrentSong[pos.Frame][pos.Row][pos.Channel][pos.GetColumnType()] = PatternEvent.EMPTY;
         }
 
+        /// <summary>
+        /// Adds the current song state to the undo stack, and clears redo history.
+        /// </summary>
         void AddToUndoHistory() {
             undoHistory.Push(new WTSongState(CurrentSong, lastCursorPosition, cursorPosition));
-            if (undoHistory.Count > 100)
-                undoHistory.
+            redoHistory.Clear();
         }
 
+        /// <summary>
+        /// Reverts the song to the state at the top of the undo stack, moving the current state to the redo stack
+        /// </summary>
         public void Undo() {
+            WTSongState newState = undoHistory.Pop();
+            redoHistory.Push(new WTSongState(CurrentSong, lastCursorPosition, cursorPosition));
+            cursorPosition = newState.previousPosition;
+            //WTSong.currentSong = newState.GetSong();
+        }
+
+        /// <summary>
+        /// Returns true if there are any actions that can be undone
+        /// </summary>
+        /// <returns></returns>
+        public bool CanUndo() {
+            return undoHistory.Count > 0;
+        }
+
+        /// <summary>
+        /// Reverts the song to the state at the top of the undo stack 
+        /// </summary>
+        public void Redo() {
+            WTSongState newState = redoHistory.Pop();
+            undoHistory.Push(new WTSongState(CurrentSong, lastCursorPosition, cursorPosition));
+            //WTSong.currentSong = newState.GetSong();
+            cursorPosition = newState.currentPosition;
+        }
+
+        /// <summary>
+        /// Returns true if there are any actions that can be redone.
+        /// </summary>
+        /// <returns></returns>
+        public bool CanRedo() {
+            return redoHistory.Count > 0;
+        }
+
+        /// <summary>
+        /// Removes all data in the selection and copies it to the clipboard
+        /// </summary>
+        public void Cut() {
+            CopyToClipboard();
 
         }
 
-        public void Redo() {
+        /// <summary>
+        /// Copies the current selection to the clipboard
+        /// </summary>
+        public void CopyToClipboard() {
+
+        }
+
+        /// <summary>
+        /// Pastes the contents of the clipboard into the song at the current cursor position
+        /// </summary>
+        public void PasteFromClipboard() {
+
+        }
+
+        /// <summary>
+        /// Pastes the contents of the clipboard into the song at the current cursor position, without overwriting existing contents.
+        /// </summary>
+        public void PasteAndMix() {
+
+        }
+
+        /// <summary>
+        /// Interpolates values linearly from the start of the selection to the end.
+        /// </summary>
+        public void InterpolateSelection() {
+
+        }
+
+        /// <summary>
+        /// Reverses the selection vertically, contents at the end will become the starting contents.
+        /// </summary>
+        public void ReverseSelection() {
 
         }
 
@@ -1011,135 +1181,8 @@ namespace WaveTracker.UI {
                 return Input.GetKeyDown(key, keyModifier);
         }
 
-        /// <summary>
-        /// Sets the selection start position
-        /// </summary>
-        /// <param name="pos"></param>
-        void SetSelectionStart(CursorPos pos) {
-            selectionStart = pos;
-        }
-
-        /// <summary>
-        /// Sets the selection end position
-        /// </summary>
-        /// <param name="pos"></param>
-        void SetSelectionEnd(CursorPos pos) {
-            selectionEnd = pos;
-        }
 
 
-        /// <summary>
-        /// Sets selectionMin and selectionMax to the upper-right and bottom-left of the selection bounds from selectionStart and selectionEnd
-        /// </summary>
-        void CreateSelectionBounds() {
-            if (lastSelectionStart == selectionStart && lastSelectionEnd == selectionEnd)
-                return;
-            selectionMin = selectionStart;
-            selectionMax = selectionEnd;
-            lastSelectionStart = selectionStart;
-            lastSelectionEnd = selectionEnd;
-            // perform any swaps necessary
-            if (selectionStart.IsBelow(selectionEnd)) {
-                selectionMin.Row = selectionEnd.Row;
-                selectionMin.Frame = selectionEnd.Frame;
-                selectionMax.Row = selectionStart.Row;
-                selectionMax.Frame = selectionStart.Frame;
-            }
-            if (selectionStart.IsRightOf(selectionEnd)) {
-                selectionMax.Channel = selectionStart.Channel;
-                selectionMax.Column = selectionStart.Column;
-                selectionMin.Channel = selectionEnd.Channel;
-                selectionMin.Column = selectionEnd.Column;
-            }
-
-            // if the user selected on the row column, set the selection to span all channels
-            if (selectionMax.Channel == -1 && selectionMin.Channel == -1) {
-                selectionMin.Channel = 0;
-                selectionMin.Column = 0;
-                selectionMax.Channel = CurrentSong.ChannelCount - 1;
-                selectionMax.Column = GetNumFullColumns(selectionMax.Channel) - 1;
-            }
-
-            // adjust the cursor positions to fill all of mulit-digit fields like instrument, volume and effects
-            if (selectionMax.Column == 1)
-                selectionMax.Column = 2;
-            else if (selectionMax.Column == 3)
-                selectionMax.Column = 4;
-            else if (selectionMax.Column == 5 || selectionMax.Column == 6)
-                selectionMax.Column = 7;
-            else if (selectionMax.Column == 8 || selectionMax.Column == 9)
-                selectionMax.Column = 10;
-            else if (selectionMax.Column == 11 || selectionMax.Column == 12)
-                selectionMax.Column = 13;
-            else if (selectionMax.Column == 14 || selectionMax.Column == 15)
-                selectionMax.Column = 16;
-            if (selectionMin.Column == 2)
-                selectionMin.Column = 1;
-            else if (selectionMin.Column == 4)
-                selectionMin.Column = 3;
-            else if (selectionMin.Column == 6 || selectionMin.Column == 7)
-                selectionMin.Column = 5;
-            else if (selectionMin.Column == 9 || selectionMin.Column == 10)
-                selectionMin.Column = 8;
-            else if (selectionMin.Column == 12 || selectionMin.Column == 13)
-                selectionMin.Column = 11;
-            else if (selectionMin.Column == 15 || selectionMin.Column == 16)
-                selectionMin.Column = 14;
-
-            if (selectionMin.Channel < 0)
-                selectionMin.Channel = 0;
-            if (selectionMax.Channel < 0)
-                selectionMax.Channel = 0;
-            if (selectionMax.Column >= GetNumFullColumns(selectionMax.Channel))
-                selectionMax.Column = GetNumFullColumns(selectionMax.Channel) - 1;
-
-            GetSelectionPositions();
-        }
-
-        /// <summary>
-        /// Populates the selection array with all the CursorPositions inside the selection bounds
-        /// </summary>
-        void GetSelectionPositions() {
-            CursorPos p = selectionMax;
-            selection.Clear();
-            //while (!p.IsRightOf(selectionMax)) {
-            //    p.Row = selectionMin.Row;
-            //    p.Frame = selectionMin.Frame;
-            //    while (p.IsAbove(selectionMax)) {
-            //        selection.Add(p);
-            //        p.MoveToRow(p.Row + 1, CurrentSong);
-            //    }
-            //    selection.Add(p);
-            //    p.MoveRight(CurrentSong);
-            //}
-            while (p.IsBelow(selectionMin)) {
-                p.Channel = selectionMax.Channel;
-                p.Column = selectionMax.Column;
-                while (p.IsRightOf(selectionMin)) {
-                    selection.Add(p);
-                    p.MoveLeft(CurrentSong);
-                }
-                selection.Add(p);
-                p.MoveToRow(p.Row - 1, CurrentSong);
-            }
-            p.Channel = selectionMax.Channel;
-            p.Column = selectionMax.Column;
-            while (p.IsRightOf(selectionMin)) {
-                selection.Add(p);
-                p.MoveLeft(CurrentSong);
-            }
-            selection.Add(p);
-        }
-
-        /// <summary>
-        /// Removes the selection
-        /// </summary>
-        void CancelSelection() {
-            selectionActive = false;
-            selectionMin = cursorPosition;
-            selectionMax = cursorPosition;
-            CreateSelectionBounds();
-        }
 
         /// <summary>
         /// Calculates where channels are positioned based on the horziontal scroll and their expansions
@@ -1239,7 +1282,7 @@ namespace WaveTracker.UI {
             if (channel < 0)
                 return 0;
             if (channel > LastVisibleChannel)
-                return GetNumColumns(channel) - 1;
+                return CurrentSong.GetNumCursorColumns(channel) - 1;
 
             x -= GetStartPositionOfChannel(channel);
 
@@ -1254,25 +1297,6 @@ namespace WaveTracker.UI {
 
             return col;
 
-        }
-
-        /// <summary>
-        /// Returns the number of columns a channel track has
-        /// <br></br>Uses file columns. [Note, Inst, Vol, FX1, FX1param, FX2, FX2 param, ...]
-        /// </summary>
-        /// <param name="channel"></param>
-        /// <returns></returns>
-        int GetNumColumns(int channel) {
-            return 3 + CurrentSong.NumEffectColumns[channel] * 2;
-        }
-
-        /// <summary>
-        /// Returns the number of cursor columns a channel track has
-        /// </summary>
-        /// <param name="channel"></param>
-        /// <returns></returns>
-        int GetNumFullColumns(int channel) {
-            return 5 + CurrentSong.NumEffectColumns[channel] * 3;
         }
 
         /// <summary>

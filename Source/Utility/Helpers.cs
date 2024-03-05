@@ -445,7 +445,8 @@ namespace WaveTracker {
 
             if (s == 0) {
                 r = g = b = (byte)(l * 255);
-            } else {
+            }
+            else {
                 float v1, v2;
                 float hue = (float)h / 360;
 
@@ -490,78 +491,7 @@ namespace WaveTracker {
         }
     }
 
-    public struct HSLColor {
-        /// <summary>
-        /// Hue from 0.0-360.0
-        /// </summary>
-        public float H;
-        /// <summary>
-        /// Saturation from 0.0-1.0
-        /// </summary>
-        public float S;
-        /// <summary>
-        /// Lightness from 0.0-1.0
-        /// </summary>
-        public float L;
-        /// <summary>
-        /// Alpha from 0.0-1.0
-        /// </summary>
-        public float A;
 
-        public HSLColor(float h, float s, float l, float a) {
-            H = h;
-            S = s;
-            L = l;
-            A = a;
-        }
-
-        public HSLColor(float h, float s, float l) {
-            H = h;
-            S = s;
-            L = l;
-            A = 1.0f;
-        }
-
-        public Color ToRGB() {
-            byte r = 0;
-            byte g = 0;
-            byte b = 0;
-
-            if (S == 0) {
-                r = g = b = (byte)(L * 255);
-            } else {
-                float v1, v2;
-                float hue = (float)H / 360;
-
-                v2 = (L < 0.5) ? (L * (1 + S)) : ((L + S) - (L * S));
-                v1 = 2 * L - v2;
-
-                r = (byte)(255 * HueToRGB(v1, v2, hue + (1.0f / 3)));
-                g = (byte)(255 * HueToRGB(v1, v2, hue));
-                b = (byte)(255 * HueToRGB(v1, v2, hue - (1.0f / 3)));
-            }
-
-            return new Color(r, g, b, (byte)(A * 255));
-        }
-        private static float HueToRGB(float v1, float v2, float vH) {
-            if (vH < 0)
-                vH += 1;
-
-            if (vH > 1)
-                vH -= 1;
-
-            if ((6 * vH) < 1)
-                return (v1 + (v2 - v1) * 6 * vH);
-
-            if ((2 * vH) < 1)
-                return v2;
-
-            if ((3 * vH) < 2)
-                return (v1 + (v2 - v1) * ((2.0f / 3) - vH) * 6);
-
-            return v1;
-        }
-    }
 
     public static class ExtensionMethods {
         public static float Map(this float value, float fromSource, float toSource, float fromTarget, float toTarget) {
@@ -574,6 +504,19 @@ namespace WaveTracker {
 
         public static Color ToNegative(this Color value) {
             return new Color(255 - value.R, 255 - value.G, 255 - value.B, 255);
+        }
+
+        /// <summary>
+        /// Returns true if this string only contains numbers
+        /// </summary>
+        /// <param name="str"></param>
+        /// <returns></returns>
+        public static bool IsNumeric(this string str) {
+            foreach (char c in str) {
+                if (!"0123456789".Contains(c))
+                    return false;
+            }
+            return true;
         }
 
         public static HSLColor ToHSL(this Color value) {
@@ -592,16 +535,19 @@ namespace WaveTracker {
             if (_Delta != 0) {
                 if (L < 0.5f) {
                     S = (float)(_Delta / (_Max + _Min));
-                } else {
+                }
+                else {
                     S = (float)(_Delta / (2.0f - _Max - _Min));
                 }
 
 
                 if (_R == _Max) {
                     H = (_G - _B) / _Delta;
-                } else if (_G == _Max) {
+                }
+                else if (_G == _Max) {
                     H = 2f + (_B - _R) / _Delta;
-                } else if (_B == _Max) {
+                }
+                else if (_B == _Max) {
                     H = 4f + (_R - _G) / _Delta;
                 }
             }
@@ -632,6 +578,24 @@ namespace WaveTracker {
             byte b = (byte)MathHelper.Lerp(col.B, other.B, t);
             byte a = (byte)MathHelper.Lerp(col.A, other.A, t);
             return new Color(r, g, b, a);
+        }
+
+        /// <summary>
+        /// Sets this color from a hex string <c>hexCode</c><br></br>
+        /// <c>hexCode</c> can optionally contain alpha information.
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="hexCode"></param>
+        /// <returns></returns>
+        public static Color SetFromHex(this Color value, string hexCode) {
+            if (hexCode.StartsWith("#")) {
+                hexCode = hexCode.Substring(1);
+            }
+            byte[] bytes = Convert.FromHexString(hexCode.ToUpper());
+            if (bytes.Length > 3)
+                return new Color(bytes[0], bytes[1], bytes[2], bytes[3]);
+            else
+                return new Color(bytes[0], bytes[1], bytes[2], (byte)255);
         }
     }
 }

@@ -34,8 +34,8 @@ namespace WaveTracker.UI {
         public SpriteButton frame_next;
 
         public SpriteButton preferences;
-        public Toggle followMode;
-        public Toggle visualizerMode;
+        public Toggle followModeToggle;
+        public Toggle visualizerModeToggle;
         public bool saveDialogOpen, loadDialogOpen;
         public ExportDialog exportDialog;
 
@@ -104,26 +104,26 @@ namespace WaveTracker.UI {
             preferences.SetTooltip("Preferences", "Open WaveTracker preferences");
             px += 20;
 
-            followMode = new Toggle("Follow mode", px, 1, this);
-            followMode.SetTooltip("", "Toggle whether the cursor follows the playhead during playback");
+            followModeToggle = new Toggle("Follow mode", px, 1, this);
+            followModeToggle.SetTooltip("", "Toggle whether the cursor follows the playhead during playback");
 
-            visualizerMode = new Toggle("Visualizer", 0, 1, this);
-            visualizerMode.x = 955 - visualizerMode.width;
-            visualizerMode.SetTooltip("", "Toggle visualizer presentation mode");
+            visualizerModeToggle = new Toggle("Visualizer", 0, 1, this);
+            visualizerModeToggle.x = 955 - visualizerModeToggle.width;
+            visualizerModeToggle.SetTooltip("", "Toggle visualizer presentation mode");
             exportDialog = new ExportDialog();
             this.patternEditor = patternEditor;
         }
 
         public void Update() {
-            file_export.enabled = !Game1.VisualizerMode;
-            playback_record.enabled = !Game1.VisualizerMode;
-            edit_copy.enabled = FrameEditor.selectionActive && !Game1.VisualizerMode;
-            edit_cut.enabled = FrameEditor.selectionActive && !Game1.VisualizerMode;
-            edit_paste.enabled = FrameEditor.clipboard.Count > 0 && !Game1.VisualizerMode;
-            edit_redo.enabled = FrameEditor.historyIndex < FrameEditor.history.Count - 1 && !Game1.VisualizerMode;
-            edit_undo.enabled = FrameEditor.historyIndex > 0 && !Game1.VisualizerMode;
-            frame_next.enabled = !Game1.VisualizerMode;
-            frame_prev.enabled = !Game1.VisualizerMode;
+            file_export.enabled = !App.VisualizerMode;
+            playback_record.enabled = !App.VisualizerMode;
+            edit_copy.enabled = patternEditor.SelectionIsActive && !App.VisualizerMode;
+            edit_cut.enabled = patternEditor.SelectionIsActive && !App.VisualizerMode;
+            edit_paste.enabled = FrameEditor.clipboard.Count > 0 && !App.VisualizerMode;
+            edit_redo.enabled = patternEditor.CanRedo() && !App.VisualizerMode;
+            edit_undo.enabled = patternEditor.CanUndo() && !App.VisualizerMode;
+            frame_next.enabled = !App.VisualizerMode;
+            frame_prev.enabled = !App.VisualizerMode;
 
             if (Input.GetKeyDown(Keys.S, KeyModifier.Ctrl)) {
                 SaveLoad.SaveFile();
@@ -143,35 +143,35 @@ namespace WaveTracker.UI {
 
 
 
-            if (edit_undo.Clicked) { FrameEditor.Undo(); }
-            if (edit_redo.Clicked) { FrameEditor.Redo(); }
+            if (edit_undo.Clicked) { patternEditor.Undo(); }
+            if (edit_redo.Clicked) { patternEditor.Redo(); }
 
-            if (edit_cut.Clicked) { FrameEditor.Cut(); }
-            if (edit_copy.Clicked) { FrameEditor.CopyToClipboard(); }
-            if (edit_paste.Clicked) { FrameEditor.PasteFromClipboard(); }
+            if (edit_cut.Clicked) { patternEditor.Cut(); }
+            if (edit_copy.Clicked) { patternEditor.CopyToClipboard(); }
+            if (edit_paste.Clicked) { patternEditor.PasteFromClipboard(); }
 
             if (playback_play.Clicked) { Tracker.Playback.Play(); }
             if (playback_playFromBeginning.Clicked) { Tracker.Playback.PlayFromBeginning(); }
             if (playback_stop.Clicked) { Tracker.Playback.Stop(); }
-            if (playback_record.Clicked) { FrameEditor.canEdit = !FrameEditor.canEdit; }
             playback_record.Value = patternEditor.EditMode;
+            if (playback_record.Clicked) { patternEditor.EditMode = !patternEditor.EditMode; }
+            
 
-            if (frame_next.Clicked) { FrameEditor.NextFrame(); }
-            if (frame_prev.Clicked) { FrameEditor.PreviousFrame(); }
+            if (frame_next.Clicked) { patternEditor.NextFrame(); }
+            if (frame_prev.Clicked) { patternEditor.PreviousFrame(); }
 
             if (preferences.Clicked) { Preferences.dialog.Open(); }
 
-            followMode.Value = patternEditor.FollowMode;
-            followMode.Update();
-            patternEditor.FollowMode = followMode.Value;
+            followModeToggle.Value = patternEditor.FollowMode;
+            followModeToggle.Update();
+            patternEditor.FollowMode = followModeToggle.Value;
 
-            visualizerMode.Value = Game1.VisualizerMode;
-            visualizerMode.Update();
-            Game1.VisualizerMode = visualizerMode.Value;
+            visualizerModeToggle.Value = App.VisualizerMode;
+            visualizerModeToggle.Update();
+            App.VisualizerMode = visualizerModeToggle.Value;
             
             exportDialog.Update();
             if (SaveLoad.savecooldown > 0) {
-
                 SaveLoad.savecooldown--;
             }
         }
@@ -200,8 +200,8 @@ namespace WaveTracker.UI {
 
             preferences.Draw();
 
-            followMode.Draw();
-            visualizerMode.Draw();
+            followModeToggle.Draw();
+            visualizerModeToggle.Draw();
             //exportDialog.Draw();
         }
     }

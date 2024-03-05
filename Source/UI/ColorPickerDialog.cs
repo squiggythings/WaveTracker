@@ -129,7 +129,7 @@ namespace WaveTracker.UI {
         }
 
         void UpdateColorFromHex() {
-            color = Helpers.HexCodeToColor(hexCode.Text);
+            color.SetFromHex(hexCode.Text);
             Debug.WriteLine("hexCodeUpdated: " + hexCode.Text);
             hexCode.Text = color.GetHexCodeWithAlpha();
             hslColor = color.ToHSL();

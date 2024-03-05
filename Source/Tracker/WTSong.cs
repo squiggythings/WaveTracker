@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 using ProtoBuf;
 
 namespace WaveTracker.Tracker {
-    [ProtoContract(SkipConstructor = true)]
+    [ProtoContract]
     public class WTSong {
 
         public static WTSong currentSong;
@@ -62,7 +62,6 @@ namespace WaveTracker.Tracker {
         [ProtoMember(8)]
         public int RowHighlightSecondary { get; set; }
 
-        [ProtoMember(9)]
         public int ChannelCount { get { return WTModule.NUM_CHANNELS; } }
 
         /// <summary>
@@ -80,10 +79,32 @@ namespace WaveTracker.Tracker {
             FrameSequence = new List<WTFrame>();
             FrameSequence.Add(new WTFrame(0, this));
             TicksPerRow = new int[] { 4 };
-            RowsPerFrame = 16;
+            RowsPerFrame = 256;
             RowHighlightPrimary = 16;
             RowHighlightSecondary = 4;
         }
+
+        [ProtoBeforeSerialization]
+        internal void BeforeSerialized() {
+            return;
+            for (int i = 0; i < Patterns.Length; ++i) {
+                if (Patterns[i].IsEmpty)
+                    Patterns[i] = null;
+            }
+        }
+        [ProtoAfterSerialization]
+        internal void AfterDeserialized() {
+            for (int i = 0; i < Patterns.Length; ++i) {
+                if (Patterns[i] == null)
+                    Patterns[i] = new WTPattern(this);
+                else
+                    Patterns[i].parent = this;
+            }
+            for (int i = 0; i < FrameSequence.Count; ++i) {
+                FrameSequence[i].SetParentSong(this);
+            }
+        }
+
 
         /// <summary>
         /// Appends a new frame at the end of the sequence using the next free pattern
@@ -144,17 +165,6 @@ namespace WaveTracker.Tracker {
         }
 
         /// <summary>
-        /// Returns the number of columns on a channel, accounting for effect expansions
-        /// </summary>
-        public int GetNumColumnsOfChannel(int channel) {
-            // note 1 column
-            // vol 2 columns
-            // inst 2 columns
-            // effect 3 columns
-            return 5 + NumEffectColumns[channel] * 3;
-        }
-
-        /// <summary>
         /// Returns the ticks per row as a string separated by spaces
         /// </summary>
         /// <returns></returns>
@@ -173,7 +183,7 @@ namespace WaveTracker.Tracker {
         public void LoadTicksFromString(string text) {
             List<int> ticks = new List<int>();
             foreach (string word in text.Split(' ')) {
-                if (IsStringANumber(word))
+                if (word.IsNumeric())
                     ticks.Add(int.Parse(word));
             }
             if (ticks.Count == 0)
@@ -187,16 +197,23 @@ namespace WaveTracker.Tracker {
         }
 
         /// <summary>
-        /// Returns true if 
+        /// Returns the number of file columns a channel track has.
+        /// <br></br>File columns: [Note, Inst, Vol, FX1, FX1param, FX2, FX2 param, ...]
         /// </summary>
-        /// <param name="str"></param>
+        /// <param name="channel"></param>
         /// <returns></returns>
-        bool IsStringANumber(string str) {
-            foreach (char c in str) {
-                if (!"0123456789".Contains(c))
-                    return false;
-            }
-            return true;
+        public int GetNumColumns(int channel) {
+            return 3 + NumEffectColumns[channel] * 2;
+        }
+
+        /// <summary>
+        /// Returns the number of cursor columns a channel track has.
+        /// <br></br>Cursor columns: [Note, Inst1, Inst2, Vol1, Vol2, FX1, FX1param1 FX1param2, ...]
+        /// </summary>
+        /// <param name="channel"></param>
+        /// <returns></returns>
+        public int GetNumCursorColumns(int channel) {
+            return 5 + NumEffectColumns[channel] * 3;
         }
 
 
@@ -228,6 +245,14 @@ namespace WaveTracker.Tracker {
             set {
                 Patterns[FrameSequence[frame].PatternIndex] = value;
             }
+        }
+
+        public List<string> PackPatternsToString() {
+            List<string> patterns = new List<string>();
+            foreach (WTPattern pattern in Patterns) {
+                patterns.Add(pattern.PackToString());
+            }
+            return patterns;
         }
     }
 }
