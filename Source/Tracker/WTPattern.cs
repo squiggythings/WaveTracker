@@ -11,74 +11,175 @@ using ProtoBuf;
 namespace WaveTracker.Tracker {
     [ProtoContract(SkipConstructor = true)]
     public class WTPattern {
-        [ProtoMember(1)]
-        PatternRow[] rows;
+        //PatternRow[] rows;
+        byte[][] cells;
 
-        public WTSong parent { get; set; }
+        [ProtoMember(1)]
+        string cellsAsString;
+
+        public WTSong ParentSong { get; set; }
 
         /// <summary>
         /// Returns true if this pattern is empty
         /// </summary>
         public bool IsEmpty {
             get {
-                foreach (PatternRow row in rows) {
-                    if (!row.IsEmpty) return false;
+                for (int row = 0; row < cells.Length; ++row) {
+                    for (int column = 0; column < cells[row].Length; ++column) {
+                        if (cells[row][column] != EVENT_EMPTY) return false;
+                    }
                 }
                 return true;
             }
         }
 
         /// <summary>
-        /// Initializes a new pattern with all blank events
+        /// Resizes this pattern to hold <c>channelCount</c> channels
         /// </summary>
-        /// <param name="parent"></param>
-        public WTPattern(WTSong parent) {
-            this.parent = parent;
-            rows = new PatternRow[256];
-            for (int i = 0; i < rows.Length; ++i) {
-                rows[i] = new PatternRow(parent.ChannelCount);
+        /// <param name="channelCount"></param>
+        public void Resize(int channelCount) {
+            for (int row = 0; row < cells.Length; ++row) {
+                byte[] resizedRow = new byte[channelCount * 11];
+                for (int column = 0; column < resizedRow.Length; ++column) {
+                    resizedRow[column] = cells[row][column];
+                }
+
+                cells[row] = resizedRow;
             }
         }
 
         /// <summary>
-        /// Gets a row of events in this pattern
+        /// Initializes a new pattern with all empty events
+        /// </summary>
+        /// <param name="parentSong"></param>
+        public WTPattern(WTSong parentSong) {
+            ParentSong = parentSong;
+            cells = new byte[256][];
+            for (int row = 0; row < cells.Length; row++) {
+                cells[row] = new byte[parentSong.ParentModule.ChannelCount * 11];
+                for (int column = 0; column < cells[row].Length; ++column) {
+                    cells[row][column] = EVENT_EMPTY;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Gets a row of cells in this pattern
         /// </summary>
         /// <param name="row"></param>
         /// <returns></returns>
-        /// <exception cref="IndexOutOfRangeException"></exception>
-        public PatternRow this[int row] {
+        public byte[] this[int row] {
             get {
-                return rows[row];
+                return cells[row];
             }
         }
 
         /// <summary>
-        /// Gets the length of this frame, taking into account effects that cut this pattern short. (Cxx, Dxx, and Bxx)
+        /// Accesses a cell in this pattern
+        /// </summary>
+        /// <param name="row"></param>
+        /// <param name="column"></param>
+        /// <returns></returns>
+        /// <exception cref="IndexOutOfRangeException"></exception>
+        public byte this[int row, int column] {
+            get {
+                return cells[row][column];
+            }
+            set {
+                cells[row][column] = value;
+            }
+        }
+
+        /// <summary>
+        /// Accesses a cell by channel
+        /// </summary>
+        /// <param name="row"></param>
+        /// <param name="channel"></param>
+        /// <param name="cellType"></param>
+        /// <returns></returns>
+        public byte this[int row, int channel, CellType cellType] {
+            get {
+                return cells[row][channel * 11 + (int)cellType];
+            }
+            set {
+                cells[row][channel * 11 + (int)cellType] = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets the length of this pattern, taking into account effects that may cut it short. (Cxx, Dxx, and Bxx)
         /// </summary>
         public int GetModifiedLength() {
-            for (int r = 0; r < parent.RowsPerFrame; r++) {
-                for (int c = 0; c < rows[r].Length; ++c) {
-                    for (int i = 0; i < parent.NumEffectColumns[c]; ++i) {
-
-                        // start at column index 3, the first effect column
-                        // skip by 2 to the next effect column (jump over the effect parameters)
-                        char effectType = (char)rows[r][c][3 + i * 2];
-                        if (effectType == 'C' || effectType == 'D' || effectType == 'B')
-                            return r + 1; // we've found an ending effect, return the length of this span
-                    }
+            for (int row = 0; row < ParentSong.RowsPerFrame; ++row) {
+                for (int channel = 0; channel < ParentSong.ParentModule.ChannelCount; ++channel) {
+                    if ("CDB".Contains((char)this[row, channel, CellType.Effect1]))
+                        return row + 1;
+                    if ("CDB".Contains((char)this[row, channel, CellType.Effect2]))
+                        return row + 1;
+                    if ("CDB".Contains((char)this[row, channel, CellType.Effect3]))
+                        return row + 1;
+                    if ("CDB".Contains((char)this[row, channel, CellType.Effect4]))
+                        return row + 1;
                 }
             }
-            // if no ending effect return the complete length
-            return parent.RowsPerFrame;
+            return ParentSong.RowsPerFrame;
         }
 
         public string PackToString() {
-            string patternAsString = "";
-            foreach(PatternRow row in rows) {
-                patternAsString += row.PackToString();
+            StringBuilder stringBuilder = new StringBuilder();
+            for (int row = 0; row < cells.Length; ++row) {
+                for (int column = 0; column < cells[row].Length; ++column) {
+                    stringBuilder.Append((char)cells[row][column]);
+                }
             }
-            return patternAsString;
+            return stringBuilder.ToString();
         }
+
+        public void UnpackFromString(string packedString) {
+            int numColumns = packedString.Length / 11;
+            for (int row = 0; row < 256; ++row) {
+                for (int column = 0; column < numColumns; ++column) {
+                    cells[row][column] = (byte)packedString[row * numColumns * 11 + column];
+                }
+            }
+        }
+
+        [ProtoBeforeSerialization]
+        internal void BeforeSerialized() {
+            cellsAsString = PackToString();
+
+        }
+        [ProtoAfterDeserialization]
+        internal void AfterDeserialized() {
+            UnpackFromString(cellsAsString);
+        }
+
+        /// <summary>
+        /// The byte value reserved to denote an empty space in the pattern
+        /// </summary>
+        public const byte EVENT_EMPTY = 255;
+        /// <summary>
+        /// The byte value reserved to denote a note cut in a pattern
+        /// </summary>
+        public const byte EVENT_NOTE_CUT = 254;
+        /// <summary>
+        /// The byte value reserved to denote a note release in a pattern
+        /// </summary>
+        public const byte EVENT_NOTE_RELEASE = 253;
+    }
+
+    public enum CellType {
+        Note,
+        Instrument,
+        Volume,
+        Effect1,
+        Effect1Parameter,
+        Effect2,
+        Effect2Parameter,
+        Effect3,
+        Effect3Parameter,
+        Effect4,
+        Effect4Parameter
     }
 
     /// <summary>
@@ -88,6 +189,7 @@ namespace WaveTracker.Tracker {
     public class PatternRow {
         [ProtoMember(1)]
         private PatternEvent[] channelEvents;
+        private byte[] cells;
 
         /// <summary>
         /// Returns true if this row is empty
@@ -116,6 +218,10 @@ namespace WaveTracker.Tracker {
             for (int i = 0; i < channelEvents.Length; i++) {
                 channelEvents[i] = new PatternEvent();
             }
+            cells = new byte[numChannels * 11];
+            for (int i = 0; i < cells.Length; i++) {
+                cells[i] = PatternEvent.EMPTY;
+            }
         }
 
         /// <summary>
@@ -135,7 +241,7 @@ namespace WaveTracker.Tracker {
 
         public string PackToString() {
             string rowAsString = "";
-            foreach(PatternEvent e in channelEvents) {
+            foreach (PatternEvent e in channelEvents) {
                 rowAsString += e.PackToString();
             }
             return rowAsString;

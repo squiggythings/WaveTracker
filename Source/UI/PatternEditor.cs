@@ -11,6 +11,7 @@ using WaveTracker.Rendering;
 using WaveTracker.Tracker;
 using WaveTracker;
 using WaveTracker.Audio;
+using System.Threading;
 
 namespace WaveTracker.UI {
 
@@ -104,17 +105,15 @@ namespace WaveTracker.UI {
 
         WChannelHeader[] channelHeaders;
 
-        public WTSong CurrentSong => WTSong.currentSong;
-        WTFrame CurrentFrame => CurrentSong.FrameSequence[cursorPosition.Frame];
+        WTFrame CurrentFrame => App.CurrentSong.FrameSequence[cursorPosition.Frame];
         WTPattern CurrentPattern => CurrentFrame.GetPattern();
 
-        PatternEvent CurrentPatternEvent => CurrentSong[cursorPosition.Frame][cursorPosition.Row][cursorPosition.Channel];
 
         public PatternEditor(int x, int y) {
             Playback.patternEditor = this;
             this.x = x;
             this.y = y;
-            channelHeaders = new WChannelHeader[WTModule.NUM_CHANNELS];
+            channelHeaders = new WChannelHeader[WTModule.DEFAULT_CHANNEL_COUNT];
             for (int i = 0; i < channelHeaders.Length; ++i) {
                 channelHeaders[i] = new WChannelHeader(0, -32, 63, i, this);
             }
@@ -138,7 +137,7 @@ namespace WaveTracker.UI {
             width = App.WindowWidth - x - rightMargin - 1;
 
             FirstVisibleChannel -= Input.MouseScrollWheel(KeyModifier.Alt);
-            FirstVisibleChannel = Math.Clamp(FirstVisibleChannel, 0, CurrentSong.ChannelCount - 1);
+            FirstVisibleChannel = Math.Clamp(FirstVisibleChannel, 0, App.CurrentModule.ChannelCount - 1);
 
 
             CalculateChannelPositioning();
@@ -337,7 +336,7 @@ namespace WaveTracker.UI {
             if (!SelectionIsActive) {
                 selectionStart = selectionEnd = cursorPosition;
             }
-            currentSelection.Set(CurrentSong, selectionStart, selectionEnd);
+            //currentSelection.Set(CurrentSong, selectionStart, selectionEnd);
             //CreateSelectionBounds();
 
             if (Input.GetKeyDown(Keys.Space, KeyModifier.None)) {
@@ -350,52 +349,56 @@ namespace WaveTracker.UI {
             //           EDITING           //
             /////////////////////////////////
             #region field input
-            if (cursorPosition.Column == 0) {
+            int currentCellColumn = cursorPosition.GetCellColumn();
+            if (cursorPosition.GetCellIndex() == 0) {
                 // input note column
                 foreach (Keys k in KeyInputs_Piano.Keys) {
                     if (KeyPress(k, KeyModifier.None)) {
                         int note = KeyInputs_Piano[k];
                         if (note != PatternEvent.NOTE_CUT && note != PatternEvent.NOTE_RELEASE)
                             note += (CurrentOctave + 1) * 12;
-                        CurrentPatternEvent.Note = note;
+                        CurrentPattern[cursorPosition.Row, cursorPosition.Row, CellType.Note] = (byte)note;
                         if (!InstrumentMask) {
-                            CurrentPatternEvent.Instrument = InstrumentBank.CurrentInstrumentIndex;
+                            CurrentPattern[cursorPosition.Row, cursorPosition.Row, CellType.Instrument] = (byte)InstrumentBank.CurrentInstrumentIndex;
                         }
                         MoveToRow(cursorPosition.Row + InputStep);
                     }
                 }
             }
-            else if (cursorPosition.Column == CursorPos.COLUMN_INSTRUMENT1 || cursorPosition.Column == CursorPos.COLUMN_VOLUME1) {
+            else if (cursorPosition.Column == CursorColumnType.Instrument1 || cursorPosition.Column == CursorColumnType.Volume1) {
                 // input 10's place decimals (inst + vol)
                 foreach (Keys k in KeyInputs_Decimal.Keys) {
                     if (KeyPress(k, KeyModifier.None)) {
-                        int val = CurrentSong[cursorPosition];
+                        int val = App.CurrentSong[cursorPosition];
                         if (val == PatternEvent.EMPTY)
                             val = 0;
-                        CurrentSong[cursorPosition] = KeyInputs_Decimal[k] * 10 + val % 10;
+                        App.CurrentSong[cursorPosition] = (byte)(KeyInputs_Decimal[k] * 10 + val % 10);
                         MoveToRow(cursorPosition.Row + InputStep);
                         break;
                     }
                 }
             }
-            else if (cursorPosition.Column == CursorPos.COLUMN_INSTRUMENT2 || cursorPosition.Column == CursorPos.COLUMN_VOLUME2) {
+            else if (cursorPosition.Column == CursorColumnType.Instrument2 || cursorPosition.Column == CursorColumnType.Volume2) {
                 // input 1's place decimals (inst + vol)
                 foreach (Keys k in KeyInputs_Decimal.Keys) {
                     if (KeyPress(k, KeyModifier.None)) {
-                        int val = CurrentSong[cursorPosition];
+                        int val = App.CurrentSong[cursorPosition];
                         if (val == PatternEvent.EMPTY)
                             val = 0;
-                        CurrentSong[cursorPosition] = (val / 10 * 10) + KeyInputs_Decimal[k];
+                        App.CurrentSong[cursorPosition] = (byte)((val / 10 * 10) + KeyInputs_Decimal[k]);
                         MoveToRow(cursorPosition.Row + InputStep);
                         break;
                     }
                 }
             }
-            else if (cursorPosition.GetColumnAsSingleEffectChannel() == CursorPos.COLUMN_EFFECT) {
+            else if (cursorPosition.Column == CursorColumnType.Effect1 ||
+                     cursorPosition.Column == CursorColumnType.Effect2 ||
+                     cursorPosition.Column == CursorColumnType.Effect3 ||
+                     cursorPosition.Column == CursorColumnType.Effect4) {
                 // input effects
                 foreach (Keys k in KeyInputs_Effect.Keys) {
                     if (KeyPress(k, KeyModifier.None)) {
-                        CurrentSong[cursorPosition] = KeyInputs_Effect[k];
+                        App.CurrentSong[cursorPosition] = (byte)KeyInputs_Effect[k];
                         MoveToRow(cursorPosition.Row + InputStep);
                         break;
                     }
@@ -410,7 +413,7 @@ namespace WaveTracker.UI {
                             int val = CurrentSong[cursorPosition];
                             if (val == PatternEvent.EMPTY)
                                 val = 0;
-                            CurrentSong[cursorPosition] = KeyInputs_Hex[k] * 16 + val % 16;
+                            CurrentSong[cursorPosition] = (byte)(KeyInputs_Hex[k] * 16 + val % 16);
                             MoveToRow(cursorPosition.Row + InputStep);
                             break;
                         }
@@ -423,7 +426,7 @@ namespace WaveTracker.UI {
                             int val = CurrentSong[cursorPosition];
                             if (val == PatternEvent.EMPTY)
                                 val = 0;
-                            CurrentSong[cursorPosition] = KeyInputs_Decimal[k] * 10 + val % 10;
+                            CurrentSong[cursorPosition] = (byte)(KeyInputs_Decimal[k] * 10 + val % 10);
                             MoveToRow(cursorPosition.Row + InputStep);
                             break;
                         }
@@ -439,7 +442,7 @@ namespace WaveTracker.UI {
                             int val = CurrentSong[cursorPosition];
                             if (val == PatternEvent.EMPTY)
                                 val = 0;
-                            CurrentSong[cursorPosition] = (val / 16 * 16) + KeyInputs_Hex[k];
+                            CurrentSong[cursorPosition] = (byte)((val / 16 * 16) + KeyInputs_Hex[k]);
                             MoveToRow(cursorPosition.Row + InputStep);
                             break;
                         }
@@ -452,7 +455,7 @@ namespace WaveTracker.UI {
                             int val = CurrentSong[cursorPosition];
                             if (val == PatternEvent.EMPTY)
                                 val = 0;
-                            CurrentSong[cursorPosition] = (val / 10 * 10) + KeyInputs_Decimal[k];
+                            CurrentSong[cursorPosition] = (byte)((val / 10 * 10) + KeyInputs_Decimal[k]);
                             MoveToRow(cursorPosition.Row + InputStep);
                             break;
                         }
@@ -474,24 +477,24 @@ namespace WaveTracker.UI {
                 if (CurrentSong[cursorPosition] != PatternEvent.EMPTY) {
                     if (cursorPosition.GetColumnAsSingleEffectChannel() == CursorPos.COLUMN_NOTE) {
                         // if cursor is on the note column, use SCROLL+CTRL to transpose
-                        CurrentSong[cursorPosition] += Input.MouseScrollWheel(KeyModifier.Ctrl);
+                        CurrentSong[cursorPosition] += (byte)Input.MouseScrollWheel(KeyModifier.Ctrl);
                     }
                     else if (cursorPosition.GetColumnAsSingleEffectChannel() >= CursorPos.COLUMN_INSTRUMENT1 && cursorPosition.GetColumnAsSingleEffectChannel() <= CursorPos.COLUMN_INSTRUMENT2) {
                         // if cursor is instrument or volume, use SCROLL+SHIFT to adjust
-                        CurrentSong[cursorPosition] += Input.MouseScrollWheel(KeyModifier.Shift);
+                        CurrentSong[cursorPosition] += (byte)Input.MouseScrollWheel(KeyModifier.Shift);
                     }
                     else if (cursorPosition.GetColumnAsSingleEffectChannel() != CursorPos.COLUMN_EFFECT) {
                         // if cursor is an effect parameter
                         if (CurrentPatternEvent.GetEffect((cursorPosition.Column - 5) / 3).ParameterIsHex) {
                             // if effect is hex, adjust each digit independently
                             if (cursorPosition.GetColumnAsSingleEffectChannel() == CursorPos.COLUMN_EFFECT_PARAMETER1)
-                                CurrentSong[cursorPosition] += Input.MouseScrollWheel(KeyModifier.Shift) * 16;
+                                CurrentSong[cursorPosition] += (byte)(Input.MouseScrollWheel(KeyModifier.Shift) * 16);
                             else
-                                CurrentSong[cursorPosition] += Input.MouseScrollWheel(KeyModifier.Shift);
+                                CurrentSong[cursorPosition] += (byte)Input.MouseScrollWheel(KeyModifier.Shift);
                         }
                         else {
                             // if effect is decimal, use SCROLL+SHIFT to adjust
-                            CurrentSong[cursorPosition] += Input.MouseScrollWheel(KeyModifier.Shift);
+                            CurrentSong[cursorPosition] += (byte)Input.MouseScrollWheel(KeyModifier.Shift);
                         }
                     }
                 }
@@ -632,13 +635,16 @@ namespace WaveTracker.UI {
 
             // draw pattern events
             for (int channel = FirstVisibleChannel; channel <= LastVisibleChannel; ++channel) {
-                DrawPatternEvent(frame, row, channel, frameWrap, GetStartPositionOfChannel(channel), line * 7, CurrentSong.NumEffectColumns[channel], rowTextColor);
+                DrawPatternEvent(frame, row, channel, frameWrap, GetStartPositionOfChannel(channel), line * 7, App.CurrentSong.NumEffectColumns[channel], rowTextColor);
             }
         }
 
         void DrawPatternEvent(int frame, int row, int channel, int frameWrap, int x, int y, int effectColumns, Color rowTextColor) {
 
-            PatternEvent thisEvent = CurrentSong[frame][row][channel];
+            //PatternEvent thisEvent = App.CurrentSong[frame][row][channel];
+            int noteValue = CurrentPattern[cursorPosition.Row, cursorPosition.Channel, CellType.Instrument];
+            int instrumentValue = CurrentPattern[cursorPosition.Row, cursorPosition.Channel, CellType.Instrument];
+            int volumeValue = CurrentPattern[cursorPosition.Row, cursorPosition.Channel, CellType.Instrument];
 
             bool isCursorOnThisRow = frameWrap == 0 && cursorPosition.Row == row;
             bool isCursorOnThisEvent = isCursorOnThisRow && cursorPosition.Channel == channel;
@@ -650,14 +656,14 @@ namespace WaveTracker.UI {
 
             // draw note
 
-            if (thisEvent.Note == PatternEvent.NOTE_CUT) {
+            if (noteValue == PatternEvent.NOTE_CUT) {
                 if (Preferences.profile.showNoteCutAndReleaseAsText)
                     Write("OFF", x + 2, y, rowTextColor);
                 else {
                     DrawRect(x + 3, y + 2, 13, 2, rowTextColor);
                 }
             }
-            else if (thisEvent.Note == PatternEvent.NOTE_RELEASE) {
+            else if (noteValue == PatternEvent.NOTE_RELEASE) {
                 if (Preferences.profile.showNoteCutAndReleaseAsText)
                     Write("REL", x + 2, y, rowTextColor);
                 else {
@@ -665,11 +671,11 @@ namespace WaveTracker.UI {
                     DrawRect(x + 3, y + 4, 13, 1, rowTextColor);
                 }
             }
-            else if (thisEvent.Note == PatternEvent.EMPTY) {
+            else if (noteValue == PatternEvent.EMPTY) {
                 WriteMonospaced("···", x + 3, y, emptyColor, 4);
             }
             else {
-                string noteName = Helpers.MIDINoteToText(thisEvent.Note);
+                string noteName = Helpers.MIDINoteToText(noteValue);
                 if (noteName.Contains('#')) {
                     Write(noteName, x + 2, y, rowTextColor);
                 }
@@ -680,13 +686,13 @@ namespace WaveTracker.UI {
             }
 
             // draw instrument column
-            if (thisEvent.Instrument == PatternEvent.EMPTY) {
+            if (CurrentPattern[cursorPosition.Row, cursorPosition.Channel, CellType.Instrument] == PatternEvent.EMPTY) {
                 WriteMonospaced("··", x + 22, y, emptyColor, 4);
             }
             else {
                 Color instrumentColor;
-                if (thisEvent.Instrument < WTModule.currentModule.Instruments.Count) {
-                    if (WTModule.currentModule.Instruments[thisEvent.Instrument].macroType == MacroType.Wave)
+                if (instrumentValue < App.CurrentModule.Instruments.Count) {
+                    if (App.CurrentModule.Instruments[instrumentValue].macroType == MacroType.Wave)
                         instrumentColor = Colors.theme.instrumentColumnWave;
                     else
                         instrumentColor = Colors.theme.instrumentColumnSample;
@@ -694,33 +700,40 @@ namespace WaveTracker.UI {
                 else {
                     instrumentColor = Color.Red;
                 }
-                WriteMonospaced(thisEvent.Instrument.ToString("D2"), x + 21, y, instrumentColor, 4);
+                WriteMonospaced(instrumentValue.ToString("D2"), x + 21, y, instrumentColor, 4);
             }
 
             // draw volumn column
-            if (thisEvent.Volume == PatternEvent.EMPTY) {
+            if (volumeValue == PatternEvent.EMPTY) {
                 WriteMonospaced("··", x + 35, y, emptyColor, 4);
             }
             else {
                 Color volumeColor;
-                bool isCursorOverThisVolumeText = isCursorOnThisEvent && (cursorPosition.Column == 3 || cursorPosition.Column == 4);
+                bool isCursorOverThisVolumeText = isCursorOnThisEvent && (cursorPosition.Column == CursorColumnType.Volume1 || cursorPosition.Column == CursorColumnType.Volume2);
                 if (Preferences.profile.fadeVolumeColumn && !isCursorOverThisVolumeText) {
-                    volumeColor = Helpers.Alpha(Colors.theme.volumeColumn, (int)(thisEvent.Volume / 100f * 180 + (255 - 180)));
+                    volumeColor = Helpers.Alpha(Colors.theme.volumeColumn, (int)(volumeValue / 100f * 180 + (255 - 180)));
                 }
                 else {
                     volumeColor = Colors.theme.volumeColumn;
                 }
 
-                WriteMonospaced(thisEvent.Volume.ToString("D2"), x + 34, y, volumeColor, 4);
+                WriteMonospaced(volumeValue.ToString("D2"), x + 34, y, volumeColor, 4);
             }
 
             for (int i = 0; i < effectColumns; ++i) {
-                if (thisEvent.GetEffect(i).Type == PatternEvent.EMPTY) {
+                byte thisEffectType = CurrentPattern[cursorPosition.Row, cursorPosition.Channel, (CellType)((int)CellType.Effect1 + i * 2)];
+                byte thisEffectParameter = CurrentPattern[cursorPosition.Row, cursorPosition.Channel, (CellType)((int)CellType.Effect1Parameter + i * 2)];
+
+                if (thisEffectType == PatternEvent.EMPTY) {
                     WriteMonospaced("···", x + 48 + 18 * i, y, emptyColor, 4);
                 }
                 else {
-                    Write(thisEvent.GetEffect(i).Type + "", x + 47 + 18 * i, y, Colors.theme.effectColumn);
-                    WriteMonospaced(thisEvent.GetEffect(i).GetParameterAsString(), x + 52 + 18 * i, y, Colors.theme.effectColumnParameter, 4);
+                    Write((char)thisEffectType + "", x + 47 + 18 * i, y, Colors.theme.effectColumn);
+                    if (IsEffectHex((char)thisEffectType))
+                        WriteMonospaced(thisEffectParameter.ToString("X2"), x + 52 + 18 * i, y, Colors.theme.effectColumnParameter, 4);
+                    else
+                        WriteMonospaced(thisEffectParameter.ToString("D2"), x + 52 + 18 * i, y, Colors.theme.effectColumnParameter, 4);
+
                 }
             }
         }
@@ -732,7 +745,7 @@ namespace WaveTracker.UI {
         void DrawCursor(CursorPos position) {
             Rectangle rect = GetRectFromCursorPos(position);
             int width = position.Column == 0 ? 17 : 6;
-            int offset = position.Column switch {
+            int offset = (int)position.Column switch {
                 7 or 10 or 13 or 16 => -1,
                 2 or 4 or 6 or 9 or 12 or 15 => 0,
                 _ => 1
@@ -991,9 +1004,9 @@ namespace WaveTracker.UI {
         /// <param name="pos"></param>
         void PullRowsUp(CursorPos pos) {
             for (int i = pos.Row; i < 255; i++) {
-                CurrentSong[pos.Frame][i][pos.Channel][pos.GetColumnType()] = CurrentSong[pos.Frame][i + 1][pos.Channel][pos.GetColumnType()];
+                CurrentSong[pos.Frame][i, pos.Channel, pos.GetCellIndex()] = CurrentSong[pos.Frame][i + 1, pos.Channel, pos.GetCellIndex()];
             }
-            CurrentSong[pos.Frame][255][pos.Channel][pos.GetColumnType()] = PatternEvent.EMPTY;
+            CurrentSong[pos.Frame][255, pos.Channel, pos.GetCellIndex()] = WTPattern.EVENT_EMPTY;
         }
 
         /// <summary>
@@ -1002,9 +1015,9 @@ namespace WaveTracker.UI {
         /// <param name="pos"></param>
         void PushRowsDown(CursorPos pos) {
             for (int i = 255; i > pos.Row; i--) {
-                CurrentSong[pos.Frame][i][pos.Channel][pos.GetColumnType()] = CurrentSong[pos.Frame][i - 1][pos.Channel][pos.GetColumnType()];
+                CurrentSong[pos.Frame][i, pos.Channel, pos.GetCellIndex()] = CurrentSong[pos.Frame][i - 1, pos.Channel, pos.GetCellIndex()];
             }
-            CurrentSong[pos.Frame][pos.Row][pos.Channel][pos.GetColumnType()] = PatternEvent.EMPTY;
+            CurrentSong[pos.Frame][pos.Row, pos.Channel, pos.GetCellIndex()] = WTPattern.EVENT_EMPTY;
         }
 
         /// <summary>
@@ -1325,22 +1338,22 @@ namespace WaveTracker.UI {
         /// <returns></returns>
         Rectangle GetRectFromCursorPos(CursorPos position) {
 
-            position.Normalize(CurrentSong);
+            //position.Normalize(CurrentSong);
 
             CursorPos p = cursorPosition;
 
-            int x = channelHeaders[position.Channel].x + columnStartPosOffsets[position.Column];
+            int x = channelHeaders[position.Channel].x + GetColumnStartPositionOffset(position.Column);
 
             int lineNumber = NumVisibleLines / 2;
             while (p.IsBelow(position)) {
-                p.MoveToRow(p.Row - 1, CurrentSong);
+                p.MoveToRow(p.Row - 1, App.CurrentSong);
                 lineNumber--;
             }
             while (p.IsAbove(position)) {
-                p.MoveToRow(p.Row + 1, CurrentSong);
+                p.MoveToRow(p.Row + 1, App.CurrentSong);
                 lineNumber++;
             }
-            return new Rectangle(x, lineNumber * 7, columnSpaceWidths[position.Column], 7);
+            return new Rectangle(x, lineNumber * 7, GetWidthOfCursorColumn(position.Column), 7);
         }
 
 
@@ -1363,18 +1376,71 @@ namespace WaveTracker.UI {
             // width of note, inst, vol together is 45
             // width of effect + effect param is 18
             // width of the channel separator is 1
-            return 45 + 18 * WTSong.currentSong.NumEffectColumns[channel] + 1;
+            return 45 + 18 * App.CurrentSong.NumEffectColumns[channel] + 1;
+        }
+
+        /// <summary>
+        /// Returns true if the given effect is a hexadecimal effect
+        /// </summary>
+        /// <param name="effectType"></param>
+        /// <returns></returns>
+        static bool IsEffectHex(char effectType) {
+            return effectType switch {
+                '0' or '4' or '7' or 'Q' or 'R' => true,
+                _ => false,
+            };
         }
 
         /// <summary>
         /// The offset start position of columns from the left of a channel track
         /// </summary>
-        readonly int[] columnStartPosOffsets = new int[] { 0, 19, 25, 32, 38, 45, 51, 57, 63, 69, 75, 81, 87, 93, 99, 105, 111 };
-
+        static int GetColumnStartPositionOffset(CursorColumnType cursorColumn) {
+            return cursorColumn switch {
+                CursorColumnType.Note => 0,
+                CursorColumnType.Instrument1 => 19,
+                CursorColumnType.Instrument2 => 25,
+                CursorColumnType.Volume1 => 32,
+                CursorColumnType.Volume2 => 38,
+                CursorColumnType.Effect1 => 45,
+                CursorColumnType.Effect1Param1 => 51,
+                CursorColumnType.Effect1Param2 => 57,
+                CursorColumnType.Effect2 => 63,
+                CursorColumnType.Effect2Param1 => 69,
+                CursorColumnType.Effect2Param2 => 75,
+                CursorColumnType.Effect3 => 81,
+                CursorColumnType.Effect3Param1 => 87,
+                CursorColumnType.Effect3Param2 => 93,
+                CursorColumnType.Effect4 => 99,
+                CursorColumnType.Effect4Param1 => 105,
+                CursorColumnType.Effect4Param2 => 111,
+                _ => 0
+            };
+        }
         /// <summary>
-        /// The width of spaces a column takes up
+        /// The width of the space a cursor column takes up
         /// </summary>
-        readonly int[] columnSpaceWidths = new int[] { 19, 6, 7, 6, 7, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6 };
+        static int GetWidthOfCursorColumn(CursorColumnType cursorColumn) {
+            return cursorColumn switch {
+                CursorColumnType.Note => 19,
+                CursorColumnType.Instrument1 => 6,
+                CursorColumnType.Instrument2 => 7,
+                CursorColumnType.Volume1 => 6,
+                CursorColumnType.Volume2 => 7,
+                CursorColumnType.Effect1 => 6,
+                CursorColumnType.Effect1Param1 => 6,
+                CursorColumnType.Effect1Param2 => 6,
+                CursorColumnType.Effect2 => 6,
+                CursorColumnType.Effect2Param1 => 6,
+                CursorColumnType.Effect2Param2 => 6,
+                CursorColumnType.Effect3 => 6,
+                CursorColumnType.Effect3Param1 => 6,
+                CursorColumnType.Effect3Param2 => 6,
+                CursorColumnType.Effect4 => 6,
+                CursorColumnType.Effect4Param1 => 6,
+                CursorColumnType.Effect4Param2 => 6,
+                _ => 0
+            };
+        }
 
         #region Key Input Dictionaries
         readonly Dictionary<Keys, int> KeyInputs_Piano = new Dictionary<Keys, int>() {

@@ -12,8 +12,6 @@ namespace WaveTracker.Tracker {
     [ProtoContract]
     public class WTSong {
 
-        public static WTSong currentSong;
-
         /// <summary>
         /// The name of this song
         /// </summary>
@@ -62,7 +60,8 @@ namespace WaveTracker.Tracker {
         [ProtoMember(8)]
         public int RowHighlightSecondary { get; set; }
 
-        public int ChannelCount { get { return WTModule.NUM_CHANNELS; } }
+        public WTModule ParentModule { get; set; }
+
 
         /// <summary>
         /// Initializes a new song with empty patterns and default settings
@@ -72,7 +71,7 @@ namespace WaveTracker.Tracker {
             for (int i = 0; i < Patterns.Length; ++i) {
                 Patterns[i] = new WTPattern(this);
             }
-            NumEffectColumns = new int[WTModule.NUM_CHANNELS];
+            NumEffectColumns = new int[ParentModule.ChannelCount];
             for (int i = 0; i < NumEffectColumns.Length; ++i) {
                 NumEffectColumns[i] = 1;
             }
@@ -87,18 +86,15 @@ namespace WaveTracker.Tracker {
         [ProtoBeforeSerialization]
         internal void BeforeSerialized() {
             return;
-            for (int i = 0; i < Patterns.Length; ++i) {
-                if (Patterns[i].IsEmpty)
-                    Patterns[i] = null;
-            }
+           
         }
-        [ProtoAfterSerialization]
+        [ProtoAfterDeserialization]
         internal void AfterDeserialized() {
             for (int i = 0; i < Patterns.Length; ++i) {
                 if (Patterns[i] == null)
                     Patterns[i] = new WTPattern(this);
                 else
-                    Patterns[i].parent = this;
+                    Patterns[i].ParentSong = this;
             }
             for (int i = 0; i < FrameSequence.Count; ++i) {
                 FrameSequence[i].SetParentSong(this);
@@ -223,12 +219,12 @@ namespace WaveTracker.Tracker {
         /// <param name="row"></param>
         /// <returns></returns>
         /// <exception cref="IndexOutOfRangeException"></exception>
-        public int this[CursorPos cursorPosition] {
+        public byte this[CursorPos cursorPosition] {
             get {
-                return Patterns[FrameSequence[cursorPosition.Frame].PatternIndex][cursorPosition.Row][cursorPosition.Channel][cursorPosition.GetColumnType()];
+                return Patterns[FrameSequence[cursorPosition.Frame].PatternIndex][cursorPosition.Row, cursorPosition.Channel, cursorPosition.GetCellIndex()];
             }
             set {
-                Patterns[FrameSequence[cursorPosition.Frame].PatternIndex][cursorPosition.Row][cursorPosition.Channel][cursorPosition.GetColumnType()] = value;
+                Patterns[FrameSequence[cursorPosition.Frame].PatternIndex][cursorPosition.Row, cursorPosition.Channel, cursorPosition.GetCellIndex()] = value;
             }
         }
 

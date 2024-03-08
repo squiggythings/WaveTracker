@@ -27,10 +27,17 @@ namespace WaveTracker {
         public int ScreenWidth = 1920;
         public int ScreenHeight = 1080;
         public static int ScreenScale = 2;
+        /// <summary>
+        /// The height of the app in scaled pixels
+        /// </summary>
+        public static int WindowHeight { get; private set; }
+        /// <summary>
+        /// The width of the app in scaled pixels
+        /// </summary>
+        public static int WindowWidth { get; private set; }
         public static SpriteFont font;
         RenderTarget2D target;
-        FrameRenderer frameRenderer;
-        
+
         WaveBank waveBank;
         SongSettings songSettings;
         EditSettings editSettings;
@@ -46,6 +53,9 @@ namespace WaveTracker {
         string filename;
         public static PatternEditor PatternEditor { get; private set; }
         public static InstrumentBank instrumentBank;
+        public static WTModule CurrentModule { get; set; }
+        public static WTSong CurrentSong { get { return CurrentModule.Songs[0]; } }
+
 
 
         public App(string[] args) {
@@ -62,7 +72,7 @@ namespace WaveTracker {
             IsMouseVisible = true;
             Preferences.profile = PreferenceProfile.defaultProfile;
             Preferences.ReadFromFile();
-            frameRenderer = new FrameRenderer();
+            //frameRenderer = new FrameRenderer();
             frameView = new FramesPanel(2, 106, 504, 42);
             songSettings = new SongSettings();
             var form = (System.Windows.Forms.Form)System.Windows.Forms.Control.FromHandle(Window.Handle);
@@ -75,32 +85,28 @@ namespace WaveTracker {
         protected override void Initialize() {
 
             Input.Intialize();
-            frameRenderer.x = 0;
-            frameRenderer.y = 151;
+            //frameRenderer.x = 0;
+            //frameRenderer.y = 151;
             Song.currentSong = new Song();
             newSong = Song.currentSong.Clone();
 
-            WTModule.currentModule = new WTModule();
-            WTSong.currentSong = WTModule.currentModule.Song;
+            CurrentModule = new WTModule();
             PatternEditor.OnSwitchSong();
 
             waveBank = new WaveBank();
             instrumentBank = new InstrumentBank();
 
-            ChannelManager.Initialize(WTModule.NUM_CHANNELS, waveBank);
-            frameRenderer.Initialize();
+            ChannelManager.Initialize(WTModule.DEFAULT_CHANNEL_COUNT, waveBank);
+            //frameRenderer.Initialize();
             //FrameEditor.channelScrollbar = new UI.ScrollbarHorizontal(22, 323, 768, 7, null);
             //FrameEditor.channelScrollbar.SetSize(Tracker.Song.CHANNEL_COUNT, 12);
             editSettings = new EditSettings();
-            visualization = new Visualization(frameRenderer);
+            visualization = new Visualization();
             ColorButton.colorPicker = new ColorPickerDialog();
             IsFixedTimeStep = false;
             base.Initialize();
 
         }
-
-        public static int WindowHeight;
-        public static int WindowWidth;
 
         protected override void LoadContent() {
             Checkbox.textureSheet = Content.Load<Texture2D>("instrumentwindow");

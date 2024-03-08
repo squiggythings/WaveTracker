@@ -6,15 +6,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ProtoBuf;
 
 
 namespace WaveTracker.Tracker {
+    [ProtoContract]
     public class WTModule {
-        public const int NUM_CHANNELS = 24;
+        public const int DEFAULT_CHANNEL_COUNT = 24;
 
-        public static WTModule currentModule;
-
-        public WTSong Song { get; set; }
+        public List<WTSong> Songs { get; set; }
         /// <summary>
         /// The title of this module
         /// </summary>
@@ -47,8 +47,14 @@ namespace WaveTracker.Tracker {
         /// </summary>
         public List<Macro> Instruments { get; set; }
 
+        /// <summary>
+        /// The number of channels in this module
+        /// </summary>
+        public int ChannelCount { get; set; }
+
         public WTModule() {
-            Song = new WTSong();
+            Songs = new List<WTSong>();
+            Songs.Add(new WTSong());
             Instruments = new List<Macro>();
             Instruments.Add(new Macro(MacroType.Wave));
             WaveBank = new Wave[100];
@@ -58,7 +64,19 @@ namespace WaveTracker.Tracker {
             WaveBank[3] = Wave.Pulse50;
             WaveBank[4] = Wave.Pulse25;
             WaveBank[5] = Wave.Pulse12pt5;
+            ChannelCount = DEFAULT_CHANNEL_COUNT;
         }
 
+        [ProtoBeforeSerialization]
+        internal void BeforeSerialization() {
+            return;
+           
+        }
+        [ProtoAfterDeserialization]
+        internal void AfterDeserialization() {
+            foreach (WTSong song in Songs) {
+                song.ParentModule = this;
+            }
+        }
     }
 }

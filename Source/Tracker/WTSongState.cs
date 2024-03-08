@@ -26,10 +26,11 @@ namespace WaveTracker.Tracker {
         public WTSongState(WTSong song, CursorPos previous, CursorPos next) {
             //songData = new MemoryStream();
             //Serializer.Serialize(songData, song);
+
             packedString = song.PackPatternsToString();
             previousPosition = previous;
             currentPosition = next;
-            Debug.WriteLine("str: [" + packedString[0] + "]");
+            //Debug.WriteLine("str: [" + packedString[0] + "]");
         }
 
         //public WTSong GetSong() {

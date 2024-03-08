@@ -24,14 +24,14 @@ namespace WaveTracker.Tracker {
         /// <summary>
         /// The song that owns this frame
         /// </summary>
-        public WTSong Parent { get; private set; }
+        public WTSong ParentSong { get; private set; }
 
         /// <summary>
         /// Returns the pattern this frame references
         /// </summary>
         /// <returns></returns>
         public WTPattern GetPattern() {
-            return Parent.Patterns[PatternIndex];
+            return ParentSong.Patterns[PatternIndex];
         }
 
         /// <summary>
@@ -39,11 +39,11 @@ namespace WaveTracker.Tracker {
         /// </summary>
         /// <returns></returns>
         public int GetLength() {
-            return Parent.Patterns[PatternIndex].GetModifiedLength();
+            return ParentSong.Patterns[PatternIndex].GetModifiedLength();
         }
 
         public void SetParentSong(WTSong song) {
-            Parent = song;
+            ParentSong = song;
         }
 
         /// <summary>
@@ -53,7 +53,7 @@ namespace WaveTracker.Tracker {
         /// <param name="parent"></param>
         public WTFrame(int index, WTSong parent) {
             PatternIndex = index;
-            Parent = parent;
+            ParentSong = parent;
         }
     }
 }

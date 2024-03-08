@@ -17,7 +17,7 @@ namespace WaveTracker.Rendering
         public List<List<ChannelState>> states;
         public List<List<ChannelState>> statesPrev;
         static Color[] waveColors;
-        FrameRenderer frameRenderer;
+        //FrameRenderer frameRenderer;
         Color currRowEmptyText = new Color(20, 24, 46);
         Color rowEmptyText = new Color(56, 64, 102);
         int oscilloscopeHeight = 48;
@@ -79,8 +79,8 @@ namespace WaveTracker.Rendering
             }
             return (a + b) % b;
         }
-        public Visualization(FrameRenderer fr) {
-            frameRenderer = fr;
+        public Visualization() {
+            //frameRenderer = fr;
             x = 0; y = 0;
             states = new List<List<ChannelState>>();
             states.Add(new List<ChannelState> { new ChannelState(0, 0, Color.Red, false) });
