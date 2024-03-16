@@ -10,17 +10,15 @@ using WaveTracker.UI;
 using WaveTracker.Tracker;
 using WaveTracker.Audio;
 
-namespace WaveTracker.UI
-{
+namespace WaveTracker.UI {
     public class WaveBank : Panel {
         WaveBankElement[] waveBankElements;
         public Song song => Song.currentSong;
         public WaveEditor editor;
         public static int currentWave;
         public static int lastSelectedWave;
-        public WaveBank() {
+        public WaveBank() : base("Wave Bank", 510, 18, 448, 130) {
             waveBankElements = new WaveBankElement[100];
-            InitializePanel("Wave Bank", 510, 18, 448, 130);
             lastSelectedWave = 0;
             int index = 0;
             for (int y = 0; y < 5; y++) {
@@ -59,7 +57,7 @@ namespace WaveTracker.UI
         }
 
         public void Draw() {
-            DrawPanel();
+            base.Draw();
             DrawRect(2, 11, 444, 114, new Color(43, 49, 81));
             foreach (WaveBankElement e in waveBankElements) {
                 e.Draw();

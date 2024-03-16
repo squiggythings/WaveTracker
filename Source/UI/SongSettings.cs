@@ -20,6 +20,10 @@ namespace WaveTracker.UI {
         SpriteButton editButton;
         float ampLeft, ampRight;
         int ampL, ampR;
+
+        public SongSettings() : base("Song", 2, 18, 306, 84) {
+
+        }
         public void Initialize(Texture2D editButtonsource) {
             title = new Textbox("Title", 4, 12, 155, 110, this);
 
@@ -37,7 +41,6 @@ namespace WaveTracker.UI {
 
             editButton = new SpriteButton(296, 0, 10, 9, editButtonsource, 0, this);
             editButton.SetTooltip("Edit Song Settings", "Open the song settings editing window");
-            InitializePanel("Song", 2, 18, 306, 84);
         }
 
         public void Update() {
@@ -101,7 +104,7 @@ namespace WaveTracker.UI {
             ampRight *= 1 - meterDecay / 10f;
         }
         public void Draw() {
-            DrawPanel();
+            base.Draw();
             editButton.Draw();
             title.Draw();
             author.Draw();

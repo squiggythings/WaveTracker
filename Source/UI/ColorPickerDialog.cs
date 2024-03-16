@@ -15,7 +15,6 @@ namespace WaveTracker.UI {
         Button cancel, ok;
         Color color;
         HSLColor hslColor;
-        public SpriteButton closeX;
 
 
         MouseRegion colorSpectrumRegion;
@@ -30,11 +29,9 @@ namespace WaveTracker.UI {
         Textbox hexCode;
         NumberBox redNum, greenNum, blueNum, alphaNum;
 
-        public ColorPickerDialog() {
-            InitializeDialogCentered("Pick Color...", 221, 160);
-            closeX = newCloseButton();
-            cancel = newBottomButton("Cancel", this);
-            ok = newBottomButton("OK", this);
+        public ColorPickerDialog() : base("Pick Color...", 221, 160) {
+            cancel = AddNewBottomButton("Cancel", this);
+            ok = AddNewBottomButton("OK", this);
             colorSpectrumRegion = new MouseRegion(spectrumX, spectrumY, spectrumWidth, spectrumHeight, this);
             colorSpectrumRegion.SetTooltip("", "Set hue and lightness of color");
             satSliderRegion = new MouseRegion(spectrumX, spectrumY + spectrumHeight + 2, spectrumWidth, sliderHeight, this);
@@ -61,17 +58,17 @@ namespace WaveTracker.UI {
         }
 
         public void Open(ColorButton button) {
+            base.Open(Input.focus);
             this.parentButton = button;
             color = parentButton.Color;
             SetAllValuesFromColor();
             canStart = false;
-            Open(Input.focus);
         }
 
         public void Update() {
-            if (enabled) {
+            if (windowIsEnabled) {
                 if (canStart) {
-                    if (cancel.Clicked || closeX.Clicked)
+                    if (cancel.Clicked || ExitButton.Clicked)
                         Close();
                     if (ok.Clicked) {
                         parentButton.Color = color;
@@ -112,7 +109,8 @@ namespace WaveTracker.UI {
                     hexCode.Update();
                     if (hexCode.ValueWasChangedInternally)
                         UpdateColorFromHex();
-                } else if (!Input.GetClick(KeyModifier._Any))
+                }
+                else if (!Input.GetClick(KeyModifier._Any))
                     canStart = true;
             }
         }
@@ -130,7 +128,6 @@ namespace WaveTracker.UI {
 
         void UpdateColorFromHex() {
             color.SetFromHex(hexCode.Text);
-            Debug.WriteLine("hexCodeUpdated: " + hexCode.Text);
             hexCode.Text = color.GetHexCodeWithAlpha();
             hslColor = color.ToHSL();
             redNum.Value = color.R;
@@ -170,12 +167,9 @@ namespace WaveTracker.UI {
             DrawRect(x, y - 1, 1, 1, pointColor);
         }
 
-        public void Draw() {
-            if (enabled) {
-                DrawDialog();
-                closeX.Draw();
-                cancel.Draw();
-                ok.Draw();
+        public new void Draw() {
+            if (windowIsEnabled) {
+                base.Draw();
 
 
                 int specX = colorSpectrumRegion.x;

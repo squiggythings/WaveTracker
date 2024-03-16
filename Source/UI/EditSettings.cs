@@ -8,7 +8,7 @@ namespace WaveTracker.UI {
         Toggle instrumentMask;
         NumberBox highlightPrimary;
         NumberBox highlightSecondary;
-        public void Initialize() {
+        public EditSettings() : base("Edit Settings", 312, 18, 194, 84) {
             octave = new NumberBox("Octave", 5, 24, 80, 40, this);
             octave.bUp.SetTooltip("", "Increase current octave - ]");
             octave.bDown.SetTooltip("", "Decrease current octave - [");
@@ -23,9 +23,6 @@ namespace WaveTracker.UI {
             step.SetValueLimits(0, 256);
             highlightPrimary.SetValueLimits(1, 256);
             highlightSecondary.SetValueLimits(1, 256);
-
-            InitializePanel("Edit Settings", 312, 18, 194, 84);
-
         }
 
         public void Update() {
@@ -57,8 +54,8 @@ namespace WaveTracker.UI {
             App.PatternEditor.InstrumentMask = instrumentMask.Value;
         }
 
-        public void Draw() {
-            DrawPanel();
+        public new void Draw() {
+            base.Draw();
             octave.Draw();
             step.Draw();
             highlightPrimary.Draw();
@@ -67,7 +64,6 @@ namespace WaveTracker.UI {
             DrawRect(93, 14, 1, 63, new Color(163, 167, 194));
             Write("Note Input", 5, 15, new Color(163, 167, 194));
             Write("Row Highlight", 100, 15, new Color(163, 167, 194));
-
         }
     }
 }

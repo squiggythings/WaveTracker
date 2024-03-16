@@ -27,7 +27,7 @@ namespace WaveTracker.UI {
         public SpriteButton bNewWave, bNewSample, bRemove, bDuplicate, bMoveUp, bMoveDown, bRename;
         public SpriteButton bEdit;
 
-        public InstrumentBank() {
+        public InstrumentBank() : base ("Instrument Bank", 790, 152, 156, 488) {
 
         }
         public void Initialize(Texture2D sprite) {
@@ -56,7 +56,6 @@ namespace WaveTracker.UI {
             bRename = new SpriteButton(124, 10, 15, 15, sprite, 25, this);
             bRename.SetTooltip("Rename Instrument", "Rename this instrument");
 
-            InitializePanel("Instrument Bank", 790, 152, 156, 488);
             scrollbar = new Scrollbar(1, 28, width - 1, 367, this);
 
         }
@@ -200,7 +199,7 @@ namespace WaveTracker.UI {
 
 
         public void Draw() {
-            DrawPanel();
+            base.Draw();
             DrawRect(0, 9, width, 17, Color.White);
             bNewWave.Draw();
             bNewSample.Draw();

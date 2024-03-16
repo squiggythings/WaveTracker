@@ -12,18 +12,15 @@ using WaveTracker.UI;
 
 namespace WaveTracker.UI {
     public class PreferencesDialog : Dialog {
-        public SpriteButton closeX;
         public Button ok, cancel, apply;
         public Button closeButton;
         OptionList pageGeneral, pageSample, pageAppearance, pageVisualizer;
         TabGroup tabGroup;
         //public List<Option>
-        public PreferencesDialog() {
-            InitializeDialogCentered("Preferences", 290, 336);
-            closeX = newCloseButton();
-            apply = newBottomButton("Apply", this);
-            cancel = newBottomButton("Cancel", this);
-            ok = newBottomButton("OK", this);
+        public PreferencesDialog() : base("Preferences", 290, 336) {
+            apply = AddNewBottomButton("Apply", this);
+            cancel = AddNewBottomButton("Cancel", this);
+            ok = AddNewBottomButton("OK", this);
             tabGroup = new TabGroup(4, 12, this);
             tabGroup.AddTab("General", false);
             tabGroup.AddTab("Samples/Waves", false);
@@ -165,8 +162,8 @@ namespace WaveTracker.UI {
         }
 
         public void Update() {
-            if (enabled) {
-                if (closeX.Clicked || cancel.Clicked) {
+            if (windowIsEnabled) {
+                if (ExitButton.Clicked || cancel.Clicked) {
                     Close();
                 }
                 if (ok.Clicked) {
@@ -188,15 +185,11 @@ namespace WaveTracker.UI {
             }
         }
 
-        public void Draw() {
-            if (enabled) {
-                DrawDialog();
+        public new void Draw() {
+            if (windowIsEnabled) {
+                base.Draw();
                 tabGroup.Draw();
                 DrawRoundedRect(tabGroup.x, tabGroup.y + 13, width - 8, height - 20 - 24, Color.White);
-                closeX.Draw();
-                apply.Draw();
-                cancel.Draw();
-                ok.Draw();
                 int rectStart = pageGeneral.width + 6 + pageGeneral.x;
                 rectStart = pageGeneral.x - 2;
 

@@ -11,32 +11,36 @@ using WaveTracker.Rendering;
 namespace WaveTracker.UI
 {
     public abstract class Panel : Element {
-        public string label;
-        public int width;
-        public int height;
+        protected string name;
+        protected int width;
+        protected int height;
 
-        public bool isInFocus { get { return MouseX < width && MouseY < height && MouseX >= 0 && MouseY >= 0; } }
-
-        public void InitializePanel(string name, int x, int y, int w, int h) {
-            label = name;
+        /// <summary>
+        /// Creates a new panel element
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <param name="w"></param>
+        /// <param name="h"></param>
+        public Panel(string name, int x, int y, int w, int h) {
+            this.name = name;
             width = w;
             height = h;
             this.x = x;
             this.y = y;
         }
 
-        public void InitializePanelCentered(string name, int w, int h) {
-            label = name;
-            width = w;
-            height = h;
-            this.x = (960 - w) / 2;
-            this.y = (500 - h) / 2;
-        }
-        public void DrawPanel() {
+        /// <summary>
+        /// Returns true if the mouse is within the panel bounds
+        /// </summary>
+        public bool IsMouseOverPanel { get { return MouseX < width && MouseY < height && MouseX >= 0 && MouseY >= 0; } }
+
+        public void Draw() {
             DrawRoundedRect(0, 0, width, height, UIColors.panel);
             DrawRect(1, 0, width - 2, 1, Color.White);
             DrawRect(0, 1, width, 8, Color.White);
-            Write(label, 4, 1, UIColors.panelTitle);
+            Write(name, 4, 1, UIColors.panelTitle);
         }
     }
 }

@@ -113,7 +113,6 @@ namespace WaveTracker {
             Preferences.dialog = new PreferencesDialog();
             ColorButton.colorPicker = new ColorPickerDialog();
             PatternEditor.humanizeDialog = new HumanizeDialog();
-            editSettings.Initialize();
             font = Content.Load<SpriteFont>("custom_font");
             channelHeaderSprite = Content.Load<Texture2D>("trackerchannelheader");
             toolbar = new Toolbar(Content.Load<Texture2D>("toolbar"), PatternEditor);

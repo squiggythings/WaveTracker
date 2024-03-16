@@ -10,15 +10,13 @@ using WaveTracker.UI;
 using WaveTracker.Rendering;
 
 namespace WaveTracker.UI {
-    public class ExportingDialog : Panel {
-        bool enabled;
+    public class ExportingDialog : Window {
         public string Path { get; set; }
         public int TotalRows { get; set; }
         public int ProcessedRows { get; set; }
 
         public Button Cancel;
-        public ExportingDialog() {
-            InitializePanelCentered("Exporting .wav", 300, 88);
+        public ExportingDialog() : base("Exporting .wav", 300, 88, hasExitButton: false) {
             Cancel = new Button("Cancel", width / 2 - 25, 72, this);
             Cancel.width = 51;
             Cancel.centerLabel = true;
@@ -26,7 +24,7 @@ namespace WaveTracker.UI {
         }
 
         public void Update() {
-            if (enabled) {
+            if (windowIsEnabled) {
                 if (Tracker.Playback.isPlaying) {
                     Cancel.SetLabel("Cancel");
                     if (Cancel.Clicked) {
@@ -43,20 +41,14 @@ namespace WaveTracker.UI {
             }
         }
 
-        public void Open() {
+        public new void Open() {
+            base.Open();
             Cancel.SetLabel("Cancel");
-            enabled = true;
-            Input.focus = this;
         }
 
-        public void Close() {
-            enabled = false;
-            Input.focus = null;
-        }
-        public void Draw() {
-            if (enabled) {
-                DrawRect(-x, -y, 960, 600, Helpers.Alpha(Color.Black, 90));
-                DrawPanel();
+        public new void Draw() {
+            if (windowIsEnabled) {
+                base.Draw();
                 int barwidth = width - 20;
                 int maxRow = Audio.AudioEngine.totalRows;
                 int procRow = Math.Clamp(Audio.AudioEngine.processedRows, 0, maxRow);

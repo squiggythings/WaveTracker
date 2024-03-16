@@ -10,8 +10,7 @@ namespace WaveTracker.UI {
         public SpriteButton bNewFrame, bDeleteFrame, bDuplicateFrame, bMoveLeft, bMoveRight;
         //public Button increasePattern, decreasePattern;
 
-        public FramesPanel(int x, int y, int width, int height) {
-            InitializePanel("Frames", x, y, width, height);
+        public FramesPanel(int x, int y, int width, int height) : base("Frames", x, y, width, height) {
         }
 
         public void Initialize(Texture2D sprite, GraphicsDevice device, PatternEditor patternEditor) {
@@ -123,7 +122,7 @@ namespace WaveTracker.UI {
         }
 
         public void Draw() {
-            DrawPanel();
+            base.Draw();
             DrawRect(1, 9, 52, 33, Color.White);
             DrawRect(0, 9, 1, 32, Color.White);
             bNewFrame.Draw();

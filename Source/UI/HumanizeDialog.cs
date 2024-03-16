@@ -12,13 +12,11 @@ namespace WaveTracker.UI {
     public class HumanizeDialog : Dialog {
         PatternEditor parentEditor;
         Button cancel, ok;
-        SpriteButton closeX;
         NumberBox volumeRange;
-        public HumanizeDialog() {
-            InitializeDialogCentered("Humanize Volumes", 146, 58);
-            closeX = newCloseButton();
-            cancel = newBottomButton("Cancel", this);
-            ok = newBottomButton("OK", this);
+        public HumanizeDialog() : base("Humanize Volumes", 146, 58) {
+            InitializeInCenterOfScreen();
+            cancel = AddNewBottomButton("Cancel", this);
+            ok = AddNewBottomButton("OK", this);
             volumeRange = new NumberBox("Randomization Range", 8, 19, 132, 36, this);
             volumeRange.SetValueLimits(0, 99);
             volumeRange.SetTooltip("How much to randomize volumes in this selection");
@@ -31,8 +29,8 @@ namespace WaveTracker.UI {
         }
 
         public void Update() {
-            if (enabled) {
-                if (cancel.Clicked || closeX.Clicked)
+            if (windowIsEnabled) {
+                if (cancel.Clicked || ExitButton.Clicked)
                     Close();
                 if (ok.Clicked) {
                     parentEditor.RandomizeSelectedVolumes(volumeRange.Value);
@@ -42,13 +40,10 @@ namespace WaveTracker.UI {
             }
         }
 
-        public void Draw() {
-            if (enabled) {
-                DrawDialog();
+        public new void Draw() {
+            if (windowIsEnabled) {
+                base.Draw();
                 volumeRange.Draw();
-                cancel.Draw();
-                ok.Draw();
-                closeX.Draw();
             }
         }
     }

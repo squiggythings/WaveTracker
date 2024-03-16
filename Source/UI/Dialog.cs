@@ -9,47 +9,43 @@ using System.Threading.Tasks;
 
 
 namespace WaveTracker.UI {
-    public class Dialog : Panel {
-        protected Element opened;
-        protected bool enabled;
-        int bottomButtons;
+    /// <summary>
+    /// A window that can have buttons at the bottom of the window
+    /// </summary>
+    public abstract class Dialog : Window {
+        List<Button> bottomButtons;
 
-        public void InitializeDialogCentered(string name, int w, int h) {
-            InitializePanel(name, (960 - w) / 2, (500 - h) / 2, w, h);
+
+        /// <summary>
+        /// Initializes a dialog
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="w"></param>
+        /// <param name="h"></param>
+        public Dialog(string name, int width, int height) : base(name, width, height) {
+            this.name = name;
+            this.width = width;
+            this.height = height;
+            bottomButtons = new List<Button>();
         }
 
-        protected SpriteButton newCloseButton() {
-            return new SpriteButton(width - 10, 0, 10, 9, UI.NumberBox.buttons, 4, this);
-        }
+        protected Button AddNewBottomButton(string name, Element parent) {
 
-        protected Button newBottomButton(string name, Element parent) {
-            bottomButtons++;
-
-            Button ret = new Button(name, width - 54 * bottomButtons, height - 16, parent);
+            Button ret = new Button(name, width - 54 * (bottomButtons.Count + 1), height - 16, parent);
             ret.width = 51;
+            bottomButtons.Add(ret);
             return ret;
         }
 
-        protected void Open() {
-            Input.focus = this;
-            enabled = true;
-            opened = null;
-        }
-        protected void Open(Element opened) {
-            Input.focus = this;
-            enabled = true;
-            this.opened = opened;
-        }
-        protected void Close() {
-            Input.focus = opened;
-            enabled = false;
-        }
-
-        public void DrawDialog() {
-            if (enabled) {
-                // black box across screen behind window
-                DrawRect(-x, -y, 960, 600, Helpers.Alpha(Color.Black, 90));
-                DrawPanel();
+        /// <summary>
+        /// Draws the window and the buttons at the bottom
+        /// </summary>
+        public new void Draw() {
+            if (windowIsEnabled) {
+                base.Draw();
+                foreach (Button button in bottomButtons) {
+                    button.Draw();
+                }
             }
         }
     }

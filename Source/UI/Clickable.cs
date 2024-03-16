@@ -1,7 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 
 namespace WaveTracker.UI {
-    public class Clickable : Element {
+    public abstract class Clickable : Element {
         public int width;
         public int height;
         public bool enabled = true;

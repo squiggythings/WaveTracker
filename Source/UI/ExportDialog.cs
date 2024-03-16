@@ -13,15 +13,12 @@ namespace WaveTracker.UI{
     public class ExportDialog : Dialog {
         Button begin, cancel;
         Button all, none;
-        public SpriteButton closeX;
         NumberBox loops;
         Checkbox[] channels;
         public static bool isOpen;
-        public ExportDialog() {
-            InitializeDialogCentered("Export to .wav", 206, 114);
-            cancel = newBottomButton("Cancel", this);
-            begin = newBottomButton("Begin", this);
-            closeX = newCloseButton();
+        public ExportDialog() : base("Export to .wav", 206, 114) {
+            cancel = AddNewBottomButton("Cancel", this);
+            begin = AddNewBottomButton("Begin", this);
             loops = new NumberBox("", 54, 16, 42, 42, this);
             all = new Button("All", 168, 49, this);
             all.width = 31;
@@ -52,10 +49,10 @@ namespace WaveTracker.UI{
             base.Close();
         }
 
-        public void Update() {
-            if (enabled) {
+        public new void Update() {
+            if (windowIsEnabled) {
                 loops.Update();
-                if (cancel.Clicked || closeX.Clicked)
+                if (cancel.Clicked || ExitButton.Clicked)
                     Close();
                 if (begin.Clicked) {
                     Close();
@@ -76,11 +73,8 @@ namespace WaveTracker.UI{
         }
 
         public void Draw() {
-            if (enabled) {
-                DrawDialog();
-                closeX.Draw();
-                cancel.Draw();
-                begin.Draw();
+            if (windowIsEnabled) {
+                base.Draw();
                 loops.Draw();
                 Write("Play song", 7, 19, UIColors.label);
                 Write("times", 104, 19, UIColors.label);
