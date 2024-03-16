@@ -62,7 +62,7 @@ namespace WaveTracker.UI {
         public Checkbox toggle;
 
         public Tab(string label, int x, int y, bool hasToggle, Element parent) {
-            width = Helpers.getWidthOfText(label) + (hasToggle ? 20 : 12);
+            width = Helpers.GetWidthOfText(label) + (hasToggle ? 20 : 12);
             height = 13;
             this.x = x;
             this.y = y;

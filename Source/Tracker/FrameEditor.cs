@@ -352,7 +352,7 @@ namespace WaveTracker {
                                 SetCellValue(input, cursorColumn, step);
 
                                 if (currentColumn % 5 == 1 && thisFrame.pattern[currentRow - step][currentColumn] < thisSong.instruments.Count)
-                                    InstrumentBank.CurrentInstrumentIndex = thisFrame.pattern[currentRow - step][currentColumn];
+                                    App.InstrumentBank.CurrentInstrumentIndex = thisFrame.pattern[currentRow - step][currentColumn];
                                 selectionActive = false;
                                 AddToHistory();
                             }
@@ -366,7 +366,7 @@ namespace WaveTracker {
                             }
                             break;
                         case 4:
-                            if (Helpers.isEffectHexadecimal(thisRow[currentColumn - 1]))
+                            if (Helpers.IsEffectHex((char)thisRow[currentColumn - 1]))
                                 input = getHexInput();
                             else
                                 input = getDecimalInput();
@@ -526,7 +526,7 @@ namespace WaveTracker {
                         for (int i = selectionMin.X; i <= selectionMax.X; ++i) {
                             for (int j = selectionMin.Y; j <= selectionMax.Y; ++j) {
                                 if (i % 5 == 1 && thisFrame.pattern[j][i] >= 0)
-                                    thisFrame.pattern[j][i] = (short)InstrumentBank.CurrentInstrumentIndex;
+                                    thisFrame.pattern[j][i] = (short)App.InstrumentBank.CurrentInstrumentIndex;
                             }
                         }
                     }
@@ -789,7 +789,7 @@ namespace WaveTracker {
                 thisFrame.pattern[row][col] += (short)amt;
 
                 // clamp values
-                if (col % 5 == 4 && Helpers.isEffectHexadecimal(thisFrame.pattern[row][col / 5 * 5 + 3]))
+                if (col % 5 == 4 && Helpers.IsEffectHex((char)thisFrame.pattern[row][col / 5 * 5 + 3]))
                     thisFrame.pattern[row][col] = (short)Math.Clamp(currentCellValue + amt, 0, 255); // hex values
                 else if (col % 5 == 0)
                     thisFrame.pattern[row][col] = (short)Math.Clamp(currentCellValue + amt, 0, 119); // note values
@@ -915,7 +915,7 @@ namespace WaveTracker {
                 {
                     thisFrame.pattern[currentRow][channelIDX + 0] = (short)val;
                     if (!instrumentMask)
-                        thisFrame.pattern[currentRow][channelIDX + 1] = (short)InstrumentBank.CurrentInstrumentIndex;
+                        thisFrame.pattern[currentRow][channelIDX + 1] = (short)App.InstrumentBank.CurrentInstrumentIndex;
                     if (val < 0)
                         thisFrame.pattern[currentRow][channelIDX + 1] = -1;
                 }
@@ -960,12 +960,12 @@ namespace WaveTracker {
                     if (thisFrame.pattern[currentRow][channelIDX + 4] == -1) {
                         thisFrame.pattern[currentRow][channelIDX + 4] = 0;
                     }
-                    if (!Helpers.isEffectHexadecimal(val) && thisFrame.pattern[currentRow][channelIDX + 4] > 99) {
+                    if (!Helpers.IsEffectHex((char)val) && thisFrame.pattern[currentRow][channelIDX + 4] > 99) {
                         thisFrame.pattern[currentRow][channelIDX + 4] = 99;
                     }
                 }
                 if (thisFrame.pattern[currentRow][channelIDX + 3] != -1) {
-                    int baseNum = Helpers.isEffectHexadecimal(thisFrame.pattern[currentRow][channelIDX + 3]) ? 16 : 10;
+                    int baseNum = Helpers.IsEffectHex((char)thisFrame.pattern[currentRow][channelIDX + 3]) ? 16 : 10;
                     if (chanCol == 6) // effect parameter tens
                     {
 

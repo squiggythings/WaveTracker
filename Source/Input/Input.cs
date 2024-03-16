@@ -43,7 +43,13 @@ namespace WaveTracker {
         static bool wasDragging;
         public static bool internalDialogIsOpen;
         public static Element focus = null;
+        public static Element lastFocus = null;
+        /// <summary>
+        /// How many frames since we last switched focus
+        /// </summary>
         public static int focusTimer;
+
+        public static int windowFocusTimer;
         public static void Intialize() {
             keyTimePairs = new Dictionary<Keys, int>();
             foreach (Keys k in Enum.GetValues(typeof(Keys))) {
@@ -58,8 +64,15 @@ namespace WaveTracker {
 
         public static void GetState(GameTime gameTime) {
             cancelClick = false;
-            if (focusTimer > 0) {
-                focusTimer--;
+            if (windowFocusTimer > 0) {
+                windowFocusTimer--;
+            }
+            if (focus != lastFocus) {
+                lastFocus = focus;
+                focusTimer = 0;
+            }
+            else {
+                focusTimer++;
             }
             if (dialogOpenCooldown > 0) {
                 dialogOpenCooldown--;

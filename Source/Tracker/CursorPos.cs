@@ -35,7 +35,7 @@ namespace WaveTracker.Tracker {
         /// Fine x position, the column this position is on
         /// </summary>
         public CursorColumnType Column { get; set; }
-       
+
 
         public bool IsAbove(CursorPos other) {
             if (Frame == other.Frame) return Row < other.Row;
@@ -55,15 +55,6 @@ namespace WaveTracker.Tracker {
         public bool IsRightOf(CursorPos other) {
             if (Channel == other.Channel) return Column > other.Column;
             return Channel > other.Channel;
-        }
-
-        /// <summary>
-        /// Returns the cell type of this position
-        /// </summary>
-        /// <returns></returns>
-        /// <exception cref="IndexOutOfRangeException"></exception>
-        public CellType GetCellIndex() {
-            return CursorColumnToCellColumn(Column);
         }
 
         /// <summary>
@@ -110,7 +101,12 @@ namespace WaveTracker.Tracker {
             Frame = Math.Clamp(Frame, 0, song.FrameSequence.Count - 1);
             Row = Math.Clamp(Row, 0, song.FrameSequence[Frame].GetPattern().GetModifiedLength() - 1);
             Channel = Math.Clamp(Channel, 0, song.ParentModule.ChannelCount);
-            //Column = Math.Clamp(Column, 0, 4 + song.NumEffectColumns[Channel] * 3);
+            Column = (CursorColumnType)Math.Clamp((int)Column, 0, song.GetNumCursorColumns(Channel) - 1);
+        }
+
+        public void ClampRow(int maxRow) {
+            if (Row > maxRow)
+                Row = maxRow;
         }
 
         /// <summary>
@@ -185,25 +181,36 @@ namespace WaveTracker.Tracker {
         }
 
         /// <summary>
+        /// Moves the cursor to a row in a frame, but can never that a frame
+        /// </summary>
+        /// <param name="row"></param>
+        public void MoveToRowClampedToFrame(int row, int frame, WTSong song) {
+            Frame = frame;
+            Row = Math.Clamp(row, 0, song[Frame].GetModifiedLength() - 1);
+        }
+
+
+
+        /// <summary>
         /// Returns true if this position in song is empty
         /// </summary>
         /// <param name="song"></param>
         /// <returns></returns>
         public bool IsPositionEmpty(WTSong song) {
             if (Column == CursorColumnType.Effect1Param1 || Column == CursorColumnType.Effect1Param2) {
-                return song[Frame][Row, Channel, CellType.Effect1] == PatternEvent.EMPTY;
+                return song[Frame][Row, Channel, CellType.Effect1] == WTPattern.EVENT_EMPTY;
             }
             else if (Column == CursorColumnType.Effect2Param1 || Column == CursorColumnType.Effect2Param2) {
-                return song[Frame][Row, Channel, CellType.Effect2] == PatternEvent.EMPTY;
+                return song[Frame][Row, Channel, CellType.Effect2] == WTPattern.EVENT_EMPTY;
             }
             else if (Column == CursorColumnType.Effect3Param1 || Column == CursorColumnType.Effect3Param2) {
-                return song[Frame][Row, Channel, CellType.Effect3] == PatternEvent.EMPTY;
+                return song[Frame][Row, Channel, CellType.Effect3] == WTPattern.EVENT_EMPTY;
             }
             else if (Column == CursorColumnType.Effect4Param1 || Column == CursorColumnType.Effect4Param2) {
-                return song[Frame][Row, Channel, CellType.Effect4] == PatternEvent.EMPTY;
+                return song[Frame][Row, Channel, CellType.Effect4] == WTPattern.EVENT_EMPTY;
             }
             else {
-                return song[Frame][Row, Channel, CursorColumnToCellColumn(Column)] == PatternEvent.EMPTY;
+                return song[Frame][Row, Channel, Column.ToCellType()] == WTPattern.EVENT_EMPTY;
             }
         }
 
@@ -238,29 +245,18 @@ namespace WaveTracker.Tracker {
 
         public static bool operator !=(CursorPos lhs, CursorPos rhs) => !(lhs == rhs);
 
-        CellType CursorColumnToCellColumn(CursorColumnType cursorColumn) {
-            return Column switch {
-                CursorColumnType.Note => CellType.Note,
-                CursorColumnType.Instrument1 or CursorColumnType.Instrument2 => CellType.Instrument,
-                CursorColumnType.Volume1 or CursorColumnType.Volume2 => CellType.Volume,
-                CursorColumnType.Effect1 => CellType.Effect1,
-                CursorColumnType.Effect1Param1 or CursorColumnType.Effect1Param2 => CellType.Effect1Parameter,
-                CursorColumnType.Effect2 => CellType.Effect2,
-                CursorColumnType.Effect2Param1 or CursorColumnType.Effect2Param2 => CellType.Effect2Parameter,
-                CursorColumnType.Effect3 => CellType.Effect3,
-                CursorColumnType.Effect3Param1 or CursorColumnType.Effect3Param2 => CellType.Effect3Parameter,
-                CursorColumnType.Effect4 => CellType.Effect4,
-                CursorColumnType.Effect4Param1 or CursorColumnType.Effect4Param2 => CellType.Effect4Parameter,
-                _ => throw new IndexOutOfRangeException()
-            };
-        }
-
-        public int GetCellColumn() {
-            return Channel * 11 + (int)Column;
+        /// <summary>
+        /// The column of this position in the patterns cell array
+        /// </summary>
+        /// <returns></returns>
+        public int CellColumn {
+            get {
+                return Channel * 11 + (int)Column.ToCellType();
+            }
         }
     }
 
-   
+
 
     public enum CursorColumnType {
         Note,

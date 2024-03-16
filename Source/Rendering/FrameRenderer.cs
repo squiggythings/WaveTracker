@@ -99,7 +99,8 @@ namespace WaveTracker.Rendering {
             if (rowNum % Song.currentSong.rowHighlight1 == 0) {
                 rowTextColor = Colors.theme.patternTextHighlighted;
                 rowColor = Colors.theme.backgroundHighlighted;
-            } else if (rowNum % Song.currentSong.rowHighlight2 == 0) {
+            }
+            else if (rowNum % Song.currentSong.rowHighlight2 == 0) {
                 rowTextColor = Colors.theme.patternTextSubHighlight;
                 rowColor = Colors.theme.backgroundSubHighlight;
             }
@@ -128,7 +129,8 @@ namespace WaveTracker.Rendering {
 
             if (rowNum % Song.currentSong.rowHighlight1 == 0) {
                 rowTextColor = Colors.theme.patternTextHighlighted;
-            } else if (rowNum % Song.currentSong.rowHighlight2 == 0) {
+            }
+            else if (rowNum % Song.currentSong.rowHighlight2 == 0) {
                 rowTextColor = Colors.theme.patternTextSubHighlight;
             }
 
@@ -224,25 +226,29 @@ namespace WaveTracker.Rendering {
                 else {
                     DrawRect(x + 1, y + 2, 13, 2, rowText);
                 }
-            } else if (value == -3) // release 
-              {
+            }
+            else if (value == -3) // release 
+            {
                 if (Preferences.profile.showNoteCutAndReleaseAsText)
                     Write("REL", x, y, rowText);
                 else {
                     DrawRect(x + 1, y + 2, 13, 1, rowText);
                     DrawRect(x + 1, y + 4, 13, 1, rowText);
                 }
-            } else if (value < 0) // empty
-              {
+            }
+            else if (value < 0) // empty
+            {
                 if (FrameEditor.canEdit)
                     WriteMonospaced("···", x + 1, y, currRow ? Colors.theme.rowEditText : Helpers.Alpha(rowText, Colors.theme.patternEmptyTextAlpha), 4);
                 else
                     WriteMonospaced("···", x + 1, y, currRow ? Colors.theme.rowCurrentText : Helpers.Alpha(rowText, Colors.theme.patternEmptyTextAlpha), 4);
-            } else {
-                string val = Helpers.GetNoteName(value);
+            }
+            else {
+                string val = Helpers.MIDINoteToText(value);
                 if (val.Contains('#')) {
                     Write(val, x, y, rowText);
-                } else {
+                }
+                else {
                     WriteMonospaced(val[0] + "-", x, y, rowText, 5);
                     Write(val[2] + "", x + 11, y, rowText);
                 }
@@ -256,10 +262,11 @@ namespace WaveTracker.Rendering {
                     WriteMonospaced("··", x + 1, y, currRow ? Colors.theme.rowEditText : Helpers.Alpha(rowText, Colors.theme.patternEmptyTextAlpha), 4);
                 else
                     WriteMonospaced("··", x + 1, y, currRow ? Colors.theme.rowCurrentText : Helpers.Alpha(rowText, Colors.theme.patternEmptyTextAlpha), 4);
-            } else {
+            }
+            else {
                 if (value >= Song.currentSong.instruments.Count)
                     WriteMonospaced(value.ToString("D2"), x, y, Color.Red, 4);
-                else if (Song.currentSong.instruments[value].macroType == MacroType.Sample)
+                else if (Song.currentSong.instruments[value].instrumentType == InstrumentType.Sample)
                     WriteMonospaced(value.ToString("D2"), x, y, Colors.theme.instrumentColumnSample, 4);
                 else
                     WriteMonospaced(value.ToString("D2"), x, y, Colors.theme.instrumentColumnWave, 4);
@@ -270,7 +277,8 @@ namespace WaveTracker.Rendering {
         void WriteVolume(int value, int x, int y, bool currRow, bool currColumn, Color rowText) {
             if (value < 0) {
                 WriteMonospaced("··", x + 1, y, currRow ? (FrameEditor.canEdit ? Colors.theme.rowEditText : Colors.theme.rowCurrentText) : Helpers.Alpha(rowText, Colors.theme.patternEmptyTextAlpha), 4);
-            } else {
+            }
+            else {
                 if (currRow && currColumn || !Preferences.profile.fadeVolumeColumn)
                     WriteMonospaced(value.ToString("D2"), x, y, Colors.theme.volumeColumn, 4);
                 else
@@ -281,8 +289,9 @@ namespace WaveTracker.Rendering {
         void WriteEffect(int value, int x, int y, bool currRow, Color rowText) {
             if (value < 0) {
                 Write("·", x + 1, y, currRow ? (FrameEditor.canEdit ? Colors.theme.rowEditText : Colors.theme.rowCurrentText) : Helpers.Alpha(rowText, Colors.theme.patternEmptyTextAlpha));
-            } else {
-                Write(Helpers.GetEffectCharacter(value), x, y, Colors.theme.effectColumn);
+            }
+            else {
+                Write("" + Helpers.GetEffectCharacter(value), x, y, Colors.theme.effectColumn);
             }
         }
 
@@ -290,8 +299,9 @@ namespace WaveTracker.Rendering {
 
             if (value < 0) {
                 WriteMonospaced("··", x + 1, y, currRow ? (FrameEditor.canEdit ? Colors.theme.rowEditText : Colors.theme.rowCurrentText) : Helpers.Alpha(rowText, Colors.theme.patternEmptyTextAlpha), 4);
-            } else {
-                if (Helpers.isEffectHexadecimal(effectNum))
+            }
+            else {
+                if (Helpers.IsEffectHex((char)effectNum))
                     WriteMonospaced(value.ToString("X2"), x, y, Colors.theme.effectColumnParameter, 4);
                 else
                     WriteMonospaced(value.ToString("D2"), x, y, Colors.theme.effectColumnParameter, 4);

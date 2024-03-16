@@ -19,7 +19,6 @@ namespace WaveTracker.Tracker {
         public static bool isPlaying;
         static bool lastIsPlaying;
         public static CursorPos position;
-        public static CursorPos nextPlaybackPosition;
         public static int nextPlaybackFrame;
         public static int nextPlaybackRow;
         public static bool hasGotoTriggerFlag;
@@ -27,7 +26,7 @@ namespace WaveTracker.Tracker {
         public static int ticksPerRowOverride;
         public static int ticksPerRow;
         public static PatternEditor patternEditor;
-        public static WTFrame frame => WTSong.currentSong.FrameSequence[position.Frame];
+        public static WTFrame frame => App.CurrentSong.FrameSequence[position.Frame];
 
         public static void Update(GameTime gameTime) {
             if (Input.GetKeyDown(Keys.F5, KeyModifier.None)) {
@@ -51,8 +50,8 @@ namespace WaveTracker.Tracker {
             if (!App.VisualizerMode) {
                 if (Input.GetKeyRepeat(Keys.Enter, KeyModifier.Ctrl)) {
                     if (Input.dialogOpenCooldown == 0) {
-                        ChannelManager.PlayRow(patternEditor.CurrentSong[patternEditor.CursorPosition.Frame][patternEditor.CursorPosition.Row]);
-                        patternEditor.MoveToRow(patternEditor.CursorPosition.Row + 1);
+                        ChannelManager.PlayRow(patternEditor.cursorPosition.Frame, patternEditor.cursorPosition.Row);
+                        patternEditor.MoveToRow(patternEditor.cursorPosition.Row + 1);
                     }
                 }
                 if (Input.GetKeyDown(Keys.Enter, KeyModifier.Alt)) {
@@ -68,7 +67,7 @@ namespace WaveTracker.Tracker {
             tickCounter = 0;
             ChannelManager.Reset();
             ChannelManager.previewChannel.Reset();
-            position.Frame = patternEditor.CursorPosition.Frame;
+            position.Frame = patternEditor.cursorPosition.Frame;
             position.Row = 0;
             Visualization.GetWaveColors();
             if (FrameEditor.followMode && !AudioEngine.rendering) {
@@ -83,7 +82,7 @@ namespace WaveTracker.Tracker {
             isPlaying = true;
             ChannelManager.Reset();
             tickCounter = 0;
-            position = patternEditor.CursorPosition;
+            position = patternEditor.cursorPosition;
             Visualization.GetWaveColors();
             if (patternEditor.FollowMode && !AudioEngine.rendering) {
                 patternEditor.SnapToPlaybackPosition();
@@ -118,7 +117,7 @@ namespace WaveTracker.Tracker {
 
         static void SetTicksPerRow() {
             if (ticksPerRowOverride == -1)
-                ticksPerRow = patternEditor.CurrentSong.TicksPerRow[position.Row % patternEditor.CurrentSong.TicksPerRow.Length];
+                ticksPerRow = App.CurrentSong.TicksPerRow[position.Row % App.CurrentSong.TicksPerRow.Length];
             else
                 ticksPerRow = ticksPerRowOverride;
         }
@@ -145,8 +144,8 @@ namespace WaveTracker.Tracker {
                             return;
                         }
                         else {
-                            nextPlaybackPosition.Frame = nextPlaybackFrame;
-                            nextPlaybackPosition.Row = nextPlaybackRow;
+                            position.Frame = nextPlaybackFrame;
+                            position.Row = nextPlaybackRow;
                             if (patternEditor.FollowMode && !AudioEngine.rendering) {
                                 patternEditor.SnapToPlaybackPosition();
                             }
@@ -175,12 +174,12 @@ namespace WaveTracker.Tracker {
         }
 
         static void PlayRow() {
-            if (position.Frame < WTSong.currentSong.FrameSequence.Count)
-                ChannelManager.PlayRow(patternEditor.CurrentSong[position.Frame][position.Row]);
+            if (position.Frame < App.CurrentSong.FrameSequence.Count)
+                ChannelManager.PlayRow(position.Frame, position.Row);
         }
 
         static void MoveNextRow() {
-            position.MoveToRow(position.Row + 1, patternEditor.CurrentSong);
+            position.MoveToRow(position.Row + 1, App.CurrentSong);
             if (isPlaying) {
                 if (patternEditor.FollowMode && !AudioEngine.rendering) {
                     patternEditor.SnapToPlaybackPosition();
@@ -189,12 +188,12 @@ namespace WaveTracker.Tracker {
         }
 
         public static void NextFrame() {
-            position.MoveToFrame(position.Frame + 1, patternEditor.CurrentSong);
+            position.MoveToFrame(position.Frame + 1, App.CurrentSong);
             PlayRow();
         }
 
         public static void PreviousFrame() {
-            position.MoveToFrame(position.Frame - 1, patternEditor.CurrentSong);
+            position.MoveToFrame(position.Frame - 1, App.CurrentSong);
             PlayRow();
         }
         /// <summary>
@@ -206,14 +205,14 @@ namespace WaveTracker.Tracker {
         }
 
         /// <summary>
-        /// 
+        /// Sets the playback position to apply when playback finishes its current row
         /// </summary>
         /// <param name="fr"></param>
         /// <param name="row"></param>
         public static void GotoNext(int fr, int row) {
             hasGotoTriggerFlag = true;
-            nextPlaybackFrame = fr % patternEditor.CurrentSong.FrameSequence.Count;
-            nextPlaybackRow = row % (patternEditor.CurrentSong.FrameSequence[nextPlaybackFrame].GetLength() + 1);
+            nextPlaybackFrame = fr % App.CurrentSong.FrameSequence.Count;
+            nextPlaybackRow = row % (App.CurrentSong.FrameSequence[nextPlaybackFrame].GetLength() + 1);
         }
 
         public static void Goto(int frame, int row) {
@@ -229,9 +228,9 @@ namespace WaveTracker.Tracker {
         static void RestoreUntil(int frame, int row) {
             ticksPerRowOverride = -1;
             for (int f = 0; f <= frame; f++) {
-                int frameLength = patternEditor.CurrentSong[f].GetModifiedLength();
+                int frameLength = App.CurrentSong[f].GetModifiedLength();
                 for (int r = 0; r < frameLength; r++) {
-                    ChannelManager.RestoreRow(patternEditor.CurrentSong[f][r]);
+                    ChannelManager.RestoreRow(f, r);
                     if (f == frame && r == row) {
                         return;
                     }

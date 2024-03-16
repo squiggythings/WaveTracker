@@ -21,15 +21,14 @@ using WaveTracker.Rendering;
 using WaveTracker;
 using WaveTracker.Audio;
 
-namespace WaveTracker
-{
+namespace WaveTracker {
     public static class SaveLoad {
         public const bool USE_PROTO_BUF = true;
 
-        public static Song savedSong;
+        public static WTModule savedModule;
 
 
-        public static bool isSaved { get { if (Song.currentSong.Equals(App.newSong)) return true; if (savedSong == null) return false; else return savedSong.Equals(Song.currentSong); } }
+        public static bool isSaved { get { if (savedModule == null) return false; else return savedModule.Equals(App.CurrentModule); } }
         public static string filePath = "";
 
         public static string fileName { get { if (filePath == "") return "Untitled.wtm"; return Path.GetFileName(filePath); } }
@@ -39,27 +38,27 @@ namespace WaveTracker
 
         static void SaveTo(string path) {
             Debug.WriteLine("Saving to: " + path);
-            Stopwatch sw = Stopwatch.StartNew();
+            Stopwatch stopwatch = Stopwatch.StartNew();
             //BinaryFormatter formatter = new BinaryFormatter();
 
             try {
-                savedSong = Song.currentSong.Clone();
+                //savedModule = App.CurrentModule.Clone();
             } catch {
                 Debug.WriteLine("failed to save");
                 return;
             }
 
-            savedSong.InitializeForSerialization();
+            //savedSong.InitializeForSerialization();
             //path = Path.ChangeExtension(path, ".wtm");
             using (FileStream fs = new FileStream(path, FileMode.Create)) {
-                Serializer.Serialize(fs, savedSong);
+                Serializer.Serialize(fs, App.CurrentModule);
             }
             //using (FileStream fs = new FileStream(path, FileMode.Create))
             //{
             //    formatter.Serialize(fs, savedSong);
             //}
-            sw.Stop();
-            Debug.WriteLine("saved in " + sw.ElapsedMilliseconds + " ms");
+            stopwatch.Stop();
+            Debug.WriteLine("saved in " + stopwatch.ElapsedMilliseconds + " ms");
             return;
 
         }
@@ -68,7 +67,8 @@ namespace WaveTracker
             if (savecooldown == 0)
                 if (!File.Exists(filePath)) {
                     SaveFileAs();
-                } else {
+                }
+                else {
                     SaveTo(filePath);
                 }
             savecooldown = 4;
@@ -76,7 +76,7 @@ namespace WaveTracker
         }
 
         public static void NewFile() {
-            if (Input.internalDialogIsOpen)
+            if (Input.focus != null)
                 return;
 
             if (!isSaved) {
@@ -89,12 +89,12 @@ namespace WaveTracker
             Playback.Goto(0, 0);
             FrameEditor.cursorColumn = 0;
             FrameEditor.UnmuteAllChannels();
-            savedSong = new Song();
-            Song.currentSong = savedSong.Clone();
+            savedModule = new WTModule();
+            App.CurrentModule = savedModule;
         }
 
         public static void SaveFileAs() {
-            if (Input.internalDialogIsOpen)
+            if (Input.focus != null)
                 return;
             Playback.Stop();
             // set filepath to dialogresult
@@ -128,7 +128,8 @@ namespace WaveTracker
                         FrameEditor.cursorColumn = 0;
                         FrameEditor.UnmuteAllChannels();
                         FrameEditor.ClearHistory();
-                    } else {
+                    }
+                    else {
                         LoadError();
                         filePath = currentPath;
 
@@ -141,32 +142,29 @@ namespace WaveTracker
         public static bool LoadFrom(string path) {
             if (!File.Exists(path))
                 return false;
-            try {
-                Stopwatch stopwatch = new Stopwatch();
-                stopwatch.Start();
+            Stopwatch stopwatch = new Stopwatch();
+            stopwatch.Start();
 
-                //BinaryFormatter formatter = new BinaryFormatter();
+            //BinaryFormatter formatter = new BinaryFormatter();
 
-                MemoryStream ms = new MemoryStream();
-                savedSong = new Song();
-
-                using (FileStream fs = new FileStream(path, FileMode.Open)) {
-                    fs.Position = 0;
-                    savedSong = Serializer.Deserialize<Song>(fs);
-                }
-                savedSong.Deserialize();
-
-
-                Song.currentSong = savedSong.Clone();
-                ChannelManager.Reset();
-                FrameEditor.Goto(0, 0);
-                FrameEditor.cursorColumn = 0;
-                stopwatch.Stop();
-                Debug.WriteLine("opened in " + stopwatch.ElapsedMilliseconds + " ms");
-            } catch {
-                Debug.WriteLine("failed to open");
-                return false;
+            //MemoryStream ms = new MemoryStream();
+            //savedSong = new Song();
+            
+            using (FileStream fs = new FileStream(path, FileMode.Open)) {
+                fs.Position = 0;
+                App.CurrentModule = Serializer.Deserialize<WTModule>(fs);
             }
+            //savedSong.Deserialize();
+
+
+            //Song.currentSong = savedSong.Clone();
+            //App.CurrentModule = WTModule.FromOldSongFormat(Song.currentSong);
+            App.PatternEditor.OnSwitchSong();
+            ChannelManager.Reset();
+            //FrameEditor.Goto(0, 0);
+            //FrameEditor.cursorColumn = 0;
+            stopwatch.Stop();
+            Debug.WriteLine("opened in " + stopwatch.ElapsedMilliseconds + " ms");
             filePath = path;
 
             return true;
@@ -206,17 +204,6 @@ namespace WaveTracker
             if (Input.dialogOpenCooldown == 0) {
                 Input.DialogStarted();
                 ret = MessageBox.Show("Save changes to " + fileName + "?", "WaveTracker", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1);
-            }
-            if (ret == DialogResult.Yes) {
-                SaveFile();
-            }
-            return ret;
-        }
-        public static DialogResult PromptUnsaved2() {
-            DialogResult ret = DialogResult.Cancel;
-            if (Input.dialogOpenCooldown == 0) {
-                Input.DialogStarted();
-                ret = MessageBox.Show("Save changes to " + fileName + "?", "WaveTracker", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1);
             }
             if (ret == DialogResult.Yes) {
                 SaveFile();

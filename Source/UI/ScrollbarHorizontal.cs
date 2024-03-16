@@ -43,7 +43,7 @@ namespace WaveTracker.UI {
 
 
         public void Update() {
-            if (!Input.internalDialogIsOpen || isPartOfInternalDialog) {
+            if (inFocus) {
                 if (viewportSize < totalSize) {
                     if (Input.GetClickDown(KeyModifier._Any)) {
                         lastClickWasOnScrollbar = bar.Contains(lastClickPosition);
@@ -92,9 +92,9 @@ namespace WaveTracker.UI {
 
                 DrawRect(0, bar.Y, width, bar.Height, background);
                 DrawRoundedRect(1, bar.Y + 1, width - 2, bar.Height - 2, barSpace);
-                if (barisPressed && (!Input.internalDialogIsOpen || isPartOfInternalDialog))
+                if (barisPressed && (!Input.internalDialogIsOpen))
                     DrawRoundedRect(bar.X, bar.Y + 1, bar.Width, bar.Height - 2, barPressed);
-                else if (barisHovered && (!Input.internalDialogIsOpen || isPartOfInternalDialog))
+                else if (barisHovered && (!Input.internalDialogIsOpen))
                     DrawRoundedRect(bar.X, bar.Y + 1, bar.Width, bar.Height - 2, barHover);
                 else
                     DrawRoundedRect(bar.X, bar.Y + 1, bar.Width, bar.Height - 2, barDefault);

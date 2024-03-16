@@ -2,15 +2,13 @@
 using WaveTracker.Tracker;
 
 namespace WaveTracker.UI {
-    public class EditSettings : Panel
-    {
+    public class EditSettings : Panel {
         NumberBox octave;
         NumberBox step;
         Toggle instrumentMask;
         NumberBox highlightPrimary;
         NumberBox highlightSecondary;
-        public void Initialize()
-        {
+        public void Initialize() {
             octave = new NumberBox("Octave", 5, 24, 80, 40, this);
             octave.bUp.SetTooltip("", "Increase current octave - ]");
             octave.bDown.SetTooltip("", "Decrease current octave - [");
@@ -30,38 +28,36 @@ namespace WaveTracker.UI {
 
         }
 
-        public void Update()
-        {
+        public void Update() {
             octave.Update();
             step.Update();
             highlightPrimary.Update();
             highlightSecondary.Update();
             if (octave.ValueWasChanged)
-                FrameEditor.currentOctave = octave.Value;
+                App.PatternEditor.CurrentOctave = octave.Value;
             else
-                octave.Value = FrameEditor.currentOctave;
+                octave.Value = App.PatternEditor.CurrentOctave;
 
             if (step.ValueWasChanged)
-                FrameEditor.step = step.Value;
+                App.PatternEditor.InputStep = step.Value;
             else
-                step.Value = FrameEditor.step;
+                step.Value = App.PatternEditor.InputStep;
 
             if (highlightPrimary.ValueWasChanged)
-                Song.currentSong.rowHighlight1 = highlightPrimary.Value;
+                App.CurrentSong.RowHighlightPrimary = highlightPrimary.Value;
             else
-                highlightPrimary.Value = Song.currentSong.rowHighlight1;
+                highlightPrimary.Value = App.CurrentSong.RowHighlightPrimary;
 
             if (highlightSecondary.ValueWasChanged)
-                Song.currentSong.rowHighlight2 = highlightSecondary.Value;
+                App.CurrentSong.RowHighlightSecondary = highlightSecondary.Value;
             else
-                highlightSecondary.Value = Song.currentSong.rowHighlight2;
+                highlightSecondary.Value = App.CurrentSong.RowHighlightSecondary;
 
             instrumentMask.Update();
-            FrameEditor.instrumentMask = instrumentMask.Value;
+            App.PatternEditor.InstrumentMask = instrumentMask.Value;
         }
 
-        public void Draw()
-        {
+        public void Draw() {
             DrawPanel();
             octave.Draw();
             step.Draw();

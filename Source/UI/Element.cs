@@ -42,10 +42,10 @@ namespace WaveTracker.UI {
             string[] words = text.Split(' ');
             int w = 0;
             foreach (string word in words) {
-                w += Helpers.getWidthOfText(word + " ");
+                w += Helpers.GetWidthOfText(word + " ");
                 if (w > width) {
                     str += "\n" + word + " ";
-                    w = Helpers.getWidthOfText(word + " ");
+                    w = Helpers.GetWidthOfText(word + " ");
                 } else {
                     str += word + " ";
                 }
@@ -65,7 +65,7 @@ namespace WaveTracker.UI {
         }
 
         protected void WriteCenter(string text, int x, int y, Color color) {
-            Write(text, x - Helpers.getWidthOfText(text) / 2, y, color);
+            Write(text, x - Helpers.GetWidthOfText(text) / 2, y, color);
         }
 
         protected void WriteMonospaced(string text, int x, int y, Color color, int width) {

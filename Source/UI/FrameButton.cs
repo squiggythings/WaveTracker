@@ -17,13 +17,13 @@ namespace WaveTracker.UI {
         /// <summary>
         /// The index of this button's frame in the song's frame sequence
         /// </summary>
-        int ThisFrameIndex => patternEditor.CursorPosition.Frame + offset;
-
+        int ThisFrameIndex => patternEditor.cursorPosition.Frame + offset;
+        int valueSaved;
         /// <summary>
         /// The frame this button represents
         /// </summary>
-        WTFrame ThisFrame => patternEditor.CurrentSong.FrameSequence[ThisFrameIndex];
-        List<WTFrame> FrameSequence => patternEditor.CurrentSong.FrameSequence;
+        WTFrame ThisFrame => App.CurrentSong.FrameSequence[ThisFrameIndex];
+        List<WTFrame> FrameSequence => App.CurrentSong.FrameSequence;
 
         public FrameButton(int offset, PatternEditor patternEditor, Element parent) {
             height = 15;
@@ -34,24 +34,42 @@ namespace WaveTracker.UI {
         }
 
         public void Update() {
-            if (patternEditor.CursorPosition.Frame + offset == FrameSequence.Count && FrameSequence.Count < 100) {
+            if (patternEditor.cursorPosition.Frame + offset == FrameSequence.Count && FrameSequence.Count < 100) {
                 if (Clicked && offset < 12) {
                     if (!Playback.isPlaying)
-                        patternEditor.CurrentSong.InsertNewFrame(FrameSequence.Count - 1);
+                        App.CurrentSong.AddNewFrame();
                 }
             }
             else if (offset < 12 && offset > -12) {
                 if (Clicked) {
-                    if (Playback.isPlaying && FrameEditor.followMode) {
+                    if (Playback.isPlaying && App.PatternEditor.FollowMode) {
                         Playback.position.Frame += offset;
                         Playback.NextFrame();
                         Playback.PreviousFrame();
                     }
                     else {
-                        patternEditor.MoveToFrame(FrameEditor.currentFrame + offset);
+                        patternEditor.MoveToFrame(App.PatternEditor.cursorPosition.Frame + offset);
                     }
                 }
+                if (ThisFrameIndex < FrameSequence.Count && ThisFrameIndex >= 0) {
+                    if (IsHovered)
+                        ThisFrame.PatternIndex += Input.MouseScrollWheel(KeyModifier.Shift);
+                    if (LastClickPos.X >= 0 && LastClickPos.Y >= 0) {
+                        if (LastClickPos.X <= width && LastClickPos.Y <= height) {
+                            if (Input.GetClickDown(KeyModifier.None))
+                                valueSaved = ThisFrame.PatternIndex;
+                            if (Input.GetClick(KeyModifier.None)) {
+                                if ((MouseY - LastClickPos.Y) / 3 != 0) {
+                                    ThisFrame.PatternIndex = valueSaved - (MouseY - LastClickPos.Y) / 3;
+                                    App.mouseCursorArrow = 2;
+                                }
+                            }
+                        }
+                    }
+
+                }
             }
+
             //if (LastClickPos.X >= 0 && LastClickPos.Y >= 0) {
             //    if (LastClickPos.X <= width - 10 && LastClickPos.Y <= height) {
             //        if (Input.GetClickDown(KeyModifier.None))
@@ -66,28 +84,39 @@ namespace WaveTracker.UI {
         }
 
         public Color GetTextColor() {
-            if (IsHovered || offset == 0) {
-                if (offset < 12 && offset > -12)
+            bool matchesPatternIndex = ThisFrame.PatternIndex == App.CurrentSong.FrameSequence[App.PatternEditor.cursorPosition.Frame].PatternIndex;
+            if (offset < 12 && offset > -12) {
+                if (offset == 0)
                     return Color.White;
+                if (IsHovered) {
+                    return matchesPatternIndex ? Color.White : new Color(147, 152, 178).Lerp(Color.White, 0.75f);
+                }
+                else {
+                    return matchesPatternIndex ? new Color(147, 152, 178).Lerp(Color.White, 0.55f) : new Color(147, 152, 178);
+                }
             }
             return new Color(174, 176, 199);
         }
 
         public void Draw() {
             if (ThisFrameIndex >= 0 && ThisFrameIndex < FrameSequence.Count) {
-                // button
+                // regular button
+                Color buttonColor;
                 if (offset == 0)
-                    DrawRoundedRect(0, 0, width, height, new Color(8, 124, 232));
-                else if (!patternEditor.FollowMode && Playback.position.Frame - patternEditor.CursorPosition.Frame == offset)
-                    DrawRoundedRect(0, 0, width, height, Colors.theme.rowPlaybackColor.AddTo(new Color(40, 20, 40)));
+                    buttonColor = new Color(8, 124, 232);
+                else if (!patternEditor.FollowMode && Playback.isPlaying && Playback.position.Frame - patternEditor.cursorPosition.Frame == offset)
+                    buttonColor = Colors.theme.rowPlaybackColor.AddTo(new Color(40, 20, 40));
                 else if (IsPressed && offset > -12 && offset < 12)
-                    DrawRoundedRect(0, 0, width, height, new Color(89, 96, 138));
+                    buttonColor = new Color(89, 96, 138);
                 else
-                    DrawRoundedRect(0, 0, width, height, new Color(64, 73, 115));
+                    buttonColor = new Color(64, 73, 115);
+                DrawRoundedRect(0, 0, width, height, buttonColor);
                 string label = ThisFrame.PatternIndex.ToString("D2");
-                Write(label, (width - Helpers.getWidthOfText(label)) / 2, (height + 1) / 2 - 4, GetTextColor());
+                Write(label, (width - Helpers.GetWidthOfText(label)) / 2, (height + 1) / 2 - 4, GetTextColor());
+                string frameNumber = ThisFrameIndex.ToString("D2");
+                Write(frameNumber, (width - Helpers.GetWidthOfText(frameNumber)) / 2, -8, buttonColor.AddTo(new Color(10, 10, 10)));
             }
-            else if (ThisFrameIndex == patternEditor.CurrentSong.FrameSequence.Count && FrameEditor.thisSong.frames.Count < 100 && offset < 12) {
+            else if (ThisFrameIndex == App.CurrentSong.FrameSequence.Count && FrameEditor.thisSong.frames.Count < 100 && offset < 12) {
                 // add-new-frame plus button
                 Color stroke;
                 if (IsPressed)

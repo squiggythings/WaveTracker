@@ -13,13 +13,14 @@ namespace WaveTracker.Tracker {
     ///  Object in a song's frame sequence which determines what patterns to play.
     /// </summary>
     [ProtoContract(SkipConstructor = true)]
-    public struct WTFrame {
+    public class WTFrame {
 
         /// <summary>
         /// The index of the pattern this frame should reference
         /// </summary>
         [ProtoMember(1)]
-        public int PatternIndex { get; set; }
+        int patternIndex;
+        public int PatternIndex { get { return patternIndex; } set { patternIndex = Math.Clamp(value, 0, 99); } }
 
         /// <summary>
         /// The song that owns this frame
@@ -40,10 +41,6 @@ namespace WaveTracker.Tracker {
         /// <returns></returns>
         public int GetLength() {
             return ParentSong.Patterns[PatternIndex].GetModifiedLength();
-        }
-
-        public void SetParentSong(WTSong song) {
-            ParentSong = song;
         }
 
         /// <summary>

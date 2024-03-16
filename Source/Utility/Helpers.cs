@@ -11,72 +11,18 @@ using System.IO;
 using System.Diagnostics;
 using NAudio.Wave;
 using NAudio.Wave.SampleProviders;
+using WaveTracker.Tracker;
 
 namespace WaveTracker {
     public class Helpers {
         /// <summary>
-        /// Returns the name of a note value.
-        /// <br></br>
-        /// 48 returns "C-4", 51 returns "D#4"<br></br>-1 returns "...", -2 returns "OFF"
-        /// </summary>
-        /// <param name="noteNum"></param>
-        /// <returns></returns>
-        public static string GetNoteName(int noteNum) {
-            if (noteNum == Tracker.Frame.NOTE_CUT_VALUE) { return "OFF"; }
-            if (noteNum == Tracker.Frame.NOTE_RELEASE_VALUE) { return "REL"; }
-            if (noteNum == Tracker.Frame.NOTE_EMPTY_VALUE) { return "..."; }
-            int noteWithinOctave = noteNum % 12;
-            int octave = noteNum / 12;
-            string noteName = "";
-            switch (noteWithinOctave) {
-                case 0:
-                    noteName = "C-";
-                    break;
-                case 1:
-                    noteName = "C#";
-                    break;
-                case 2:
-                    noteName = "D-";
-                    break;
-                case 3:
-                    noteName = "D#";
-                    break;
-                case 4:
-                    noteName = "E-";
-                    break;
-                case 5:
-                    noteName = "F-";
-                    break;
-                case 6:
-                    noteName = "F#";
-                    break;
-                case 7:
-                    noteName = "G-";
-                    break;
-                case 8:
-                    noteName = "G#";
-                    break;
-                case 9:
-                    noteName = "A-";
-                    break;
-                case 10:
-                    noteName = "A#";
-                    break;
-                case 11:
-                    noteName = "B-";
-                    break;
-            }
-            return noteName + octave;
-        }
-
-        /// <summary>
-        /// Returns a MIDI note number as a string in the format: note-octave
+        /// Returns a MIDI note number as a string in the format: [note][-][octave]
         /// </summary>
         /// <returns></returns>
         public static string MIDINoteToText(int note) {
-            if (note == Tracker.PatternEvent.NOTE_CUT) { return "OFF"; }
-            if (note == Tracker.PatternEvent.NOTE_RELEASE) { return "REL"; }
-            if (note == Tracker.PatternEvent.EMPTY) { return "···"; }
+            if (note == WTPattern.EVENT_NOTE_CUT) { return "OFF"; }
+            if (note == WTPattern.EVENT_NOTE_RELEASE) { return "REL"; }
+            if (note == WTPattern.EVENT_EMPTY) { return "···"; }
             int noteWithinOctave = note % 12;
             int octave = note / 12 - 1;
             string noteName = "";
@@ -121,42 +67,47 @@ namespace WaveTracker {
             return noteName + octave;
         }
 
-
-        public static string GetEffectCharacter(int num) {
+        /// <summary>
+        /// OUTDATED - do not use
+        /// </summary>
+        public static char GetEffectCharacter(int num) {
             return num switch {
-                0 => "0",
-                1 => "1",
-                2 => "2",
-                3 => "3",
-                4 => "4",
-                7 => "7",
-                8 => "8",
-                9 => "9",
-                10 => "Q",
-                11 => "R",
-                12 => "A",
-                13 => "W",
-                14 => "P",
-                15 => "F",
-                16 => "V",
-                17 => "G",
-                18 => "S",
-                19 => "I",
-                20 => "C",
-                21 => "B",
-                22 => "D",
-                23 => "M",
-                24 => "J",
-                25 => "L",
-                _ => "-",
+                0 => '0',
+                1 => '1',
+                2 => '2',
+                3 => '3',
+                4 => '4',
+                7 => '7',
+                8 => '8',
+                9 => '9',
+                10 => 'Q',
+                11 => 'R',
+                12 => 'A',
+                13 => 'W',
+                14 => 'P',
+                15 => 'F',
+                16 => 'V',
+                17 => 'G',
+                18 => 'S',
+                19 => 'I',
+                20 => 'C',
+                21 => 'B',
+                22 => 'D',
+                23 => 'M',
+                24 => 'J',
+                25 => 'J',
+                _ => '-',
             };
         }
 
+        /// <summary>
+        /// OUTDATED - do not use
+        /// </summary>
         public static bool isEffectFrameTerminator(int num) {
             return num >= 20 && num <= 22;
         }
 
-        public static int getWidthOfText(string text) {
+        public static int GetWidthOfText(string text) {
             int ret = 0;
             string alphabet = " 0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz!@#$%^&*()_+-={}[]\\|'\":;?/>.<,~`©àèìòùÀÈÌÒÙáéíóúýÁÉÍÓÚÝâêîôûÂÊÎÔÛãñõÃÑÕäëïöüÿÄËÏÖÜŸæçÇ";
             string chars5 = "WX&%#@~YM«»mw";
@@ -182,10 +133,16 @@ namespace WaveTracker {
             return ret - 1;
         }
 
+        /// <summary>
+        /// Truncates a string if it would go beyond a certain width in pixels, adding ellipses at the end.
+        /// </summary>
+        /// <param name="width"></param>
+        /// <param name="t"></param>
+        /// <returns></returns>
         public static string TrimTextToWidth(int width, string t) {
 
-            if (getWidthOfText(t) > width - 6) {
-                while (getWidthOfText(t + "...") > width - 6) {
+            if (GetWidthOfText(t) > width - 6) {
+                while (GetWidthOfText(t + "...") > width - 6) {
                     t = t.Remove(t.Length - 1, 1);
                     if (t[t.Length - 1] == ' ') {
                         t = t.Remove(t.Length - 1, 1);
@@ -195,6 +152,11 @@ namespace WaveTracker {
             }
             return t;
         }
+        /// <summary>
+        /// Ensures that a string will not contain any characters that the font does not support
+        /// </summary>
+        /// <param name="original"></param>
+        /// <returns></returns>
         public static string FlushString(string original) {
             string alphabet = " 0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz!@#$%^&*()_+-={}[]\\|'\":;?/>.<,~`©àèìòùÀÈÌÒÙáéíóúýÁÉÍÓÚÝâêîôûÂÊÎÔÛãñõÃÑÕäëïöüÿÄËÏÖÜŸæçÇ";
             string ret = "";
@@ -204,8 +166,27 @@ namespace WaveTracker {
             }
             return ret;
         }
-        public static bool isEffectHexadecimal(int effectNum) {
-            return new List<int> { 0, 4, 10, 11, 7 }.Contains(effectNum);
+        /// <summary>
+        /// Returns true if the given effect is a hexadecimal effect
+        /// </summary>
+        /// <param name="effectType"></param>
+        /// <returns></returns>
+        public static bool IsEffectHex(char effectType) {
+            return effectType switch {
+                '0' or '4' or '7' or 'Q' or 'R' => true,
+                _ => false,
+            };
+        }
+        /// <summary>
+        /// Returns true if the given effect is a hexadecimal effect
+        /// </summary>
+        /// <param name="effectType"></param>
+        /// <returns></returns>
+        public static bool IsEffectHex(byte effectType) {
+            return (char)effectType switch {
+                '0' or '4' or '7' or 'Q' or 'R' => true,
+                _ => false,
+            };
         }
 
         public static float NoteToFrequency(float noteNum) {
@@ -439,9 +420,9 @@ namespace WaveTracker {
         /// <param name="l">Lightness from 0.0-1.0</param>
         /// <returns>RGB version of the HSL color</returns>
         public static Color HSLtoRGB(int h, float s, float l) {
-            byte r = 0;
-            byte g = 0;
-            byte b = 0;
+            byte r;
+            byte g;
+            byte b;
 
             if (s == 0) {
                 r = g = b = (byte)(l * 255);
@@ -489,22 +470,48 @@ namespace WaveTracker {
             else
                 return new Color(bytes[0], bytes[1], bytes[2], (byte)255);
         }
+
+        /// <summary>
+        /// Compresses a string with run length encoding
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
+        public static string RLECompress(string input) {
+            StringBuilder output = new StringBuilder();
+            for (int i = 0; i < input.Length; i++) {
+                char count = char.MinValue;
+                while (i < input.Length - 1 && input[i] == input[i + 1]) {
+                    i++;
+                    count++;
+                    if (count == char.MaxValue)
+                        break;
+                }
+                output.Append(count + "" + input[i]);
+            }
+            return output.ToString();
+        }
+
+        /// <summary>
+        /// Decompresses a string encoded with RLECompress
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
+        public static string RLEDecompress(string input) {
+            StringBuilder output = new StringBuilder();
+            for (int i = 0; i < input.Length - 1; i += 2) {
+                char count = input[i];
+                char data = input[i + 1];
+                for (int j = 0; j <= count; j++) {
+                    output.Append(data);
+                }
+            }
+            return output.ToString();
+        }
     }
 
 
 
     public static class ExtensionMethods {
-        public static float Map(this float value, float fromSource, float toSource, float fromTarget, float toTarget) {
-            return (value - fromSource) / (toSource - fromSource) * (toTarget - fromTarget) + fromTarget;
-        }
-
-        public static Color AddTo(this Color value, Color other) {
-            return new Color(value.R + other.R, value.G + other.G, value.B + other.B, value.A + other.A);
-        }
-
-        public static Color ToNegative(this Color value) {
-            return new Color(255 - value.R, 255 - value.G, 255 - value.B, 255);
-        }
 
         /// <summary>
         /// Returns true if this string only contains numbers
@@ -519,6 +526,28 @@ namespace WaveTracker {
             return true;
         }
 
+        public static float Map(this float value, float fromSource, float toSource, float fromTarget, float toTarget) {
+            return (value - fromSource) / (toSource - fromSource) * (toTarget - fromTarget) + fromTarget;
+        }
+
+        public static Color AddTo(this Color value, Color other) {
+            return new Color(value.R + other.R, value.G + other.G, value.B + other.B, value.A + other.A);
+        }
+
+        /// <summary>
+        /// Returns the negative of this color
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static Color ToNegative(this Color value) {
+            return new Color(255 - value.R, 255 - value.G, 255 - value.B, 255);
+        }
+
+        /// <summary>
+        /// Converts this color to an HSLColor
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
         public static HSLColor ToHSL(this Color value) {
             float _R = (value.R / 255f);
             float _G = (value.G / 255f);
@@ -551,27 +580,49 @@ namespace WaveTracker {
                     H = 4f + (_R - _G) / _Delta;
                 }
             }
-            H = H * 60f;
+            H *= 60f;
             if (H < 0) H += 360;
             H %= 360;
             return new HSLColor(H, S, L, value.A / 255f);
         }
 
+        /// <summary>
+        /// Returns the hex code of this color, ignoring alpha
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
         public static string GetHexCode(this Color value) {
             byte[] bytes = { value.R, value.G, value.B };
             return Convert.ToHexString(bytes).ToLower();
         }
+        /// <summary>
+        /// Returns the hex code of this color, including alpha if it has transparency
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
         public static string GetHexCodeWithAlpha(this Color value) {
             if (value.A == 255)
                 return GetHexCode(value);
             else
                 return GetHexCodeWithAlphaAlways(value);
         }
+        /// <summary>
+        /// Returns the hex code of this color, with alpha channel even if it doesnt have transparency
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
         public static string GetHexCodeWithAlphaAlways(this Color value) {
             byte[] bytes = { value.R, value.G, value.B, value.A };
             return Convert.ToHexString(bytes).ToLower();
         }
 
+        /// <summary>
+        /// Lerps this color with another color
+        /// </summary>
+        /// <param name="col"></param>
+        /// <param name="other"></param>
+        /// <param name="t"></param>
+        /// <returns></returns>
         public static Color Lerp(this Color col, Color other, float t) {
             byte r = (byte)MathHelper.Lerp(col.R, other.R, t);
             byte g = (byte)MathHelper.Lerp(col.G, other.G, t);
@@ -587,15 +638,42 @@ namespace WaveTracker {
         /// <param name="value"></param>
         /// <param name="hexCode"></param>
         /// <returns></returns>
-        public static Color SetFromHex(this Color value, string hexCode) {
-            if (hexCode.StartsWith("#")) {
-                hexCode = hexCode.Substring(1);
-            }
-            byte[] bytes = Convert.FromHexString(hexCode.ToUpper());
-            if (bytes.Length > 3)
-                return new Color(bytes[0], bytes[1], bytes[2], bytes[3]);
-            else
-                return new Color(bytes[0], bytes[1], bytes[2], (byte)255);
+        public static void SetFromHex(this ref Color value, string hexCode) {
+            value = Helpers.HexCodeToColor(hexCode);
+        }
+
+        public static CellType ToCellType(this CursorColumnType cursorColumn) {
+            return cursorColumn switch {
+                CursorColumnType.Note => CellType.Note,
+                CursorColumnType.Instrument1 or CursorColumnType.Instrument2 => CellType.Instrument,
+                CursorColumnType.Volume1 or CursorColumnType.Volume2 => CellType.Volume,
+                CursorColumnType.Effect1 => CellType.Effect1,
+                CursorColumnType.Effect1Param1 or CursorColumnType.Effect1Param2 => CellType.Effect1Parameter,
+                CursorColumnType.Effect2 => CellType.Effect2,
+                CursorColumnType.Effect2Param1 or CursorColumnType.Effect2Param2 => CellType.Effect2Parameter,
+                CursorColumnType.Effect3 => CellType.Effect3,
+                CursorColumnType.Effect3Param1 or CursorColumnType.Effect3Param2 => CellType.Effect3Parameter,
+                CursorColumnType.Effect4 => CellType.Effect4,
+                CursorColumnType.Effect4Param1 or CursorColumnType.Effect4Param2 => CellType.Effect4Parameter,
+                _ => throw new IndexOutOfRangeException()
+            };
+        }
+
+        public static CursorColumnType ToNearestCursorColumn(this CellType cellType) {
+            return cellType switch {
+                CellType.Note => CursorColumnType.Note,
+                CellType.Instrument => CursorColumnType.Instrument1,
+                CellType.Volume => CursorColumnType.Volume1,
+                CellType.Effect1 => CursorColumnType.Effect1,
+                CellType.Effect1Parameter => CursorColumnType.Effect1Param1,
+                CellType.Effect2 => CursorColumnType.Effect2,
+                CellType.Effect2Parameter => CursorColumnType.Effect2Param1,
+                CellType.Effect3 => CursorColumnType.Effect3,
+                CellType.Effect3Parameter => CursorColumnType.Effect3Param1,
+                CellType.Effect4 => CursorColumnType.Effect4,
+                CellType.Effect4Parameter => CursorColumnType.Effect4Param1,
+                _ => throw new IndexOutOfRangeException()
+            };
         }
     }
 }

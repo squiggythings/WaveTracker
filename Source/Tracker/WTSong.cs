@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 using ProtoBuf;
 
 namespace WaveTracker.Tracker {
-    [ProtoContract]
+    [ProtoContract(SkipConstructor = true)]
     public class WTSong {
 
         /// <summary>
@@ -33,13 +33,11 @@ namespace WaveTracker.Tracker {
         /// <summary>
         /// The bank of patterns available to use in sequencing
         /// </summary>
-        [ProtoMember(4)]
         public WTPattern[] Patterns { get; private set; }
 
         /// <summary>
         /// The order of frames in this song
         /// </summary>
-        [ProtoMember(5)]
         public List<WTFrame> FrameSequence { get; set; }
 
         /// <summary>
@@ -60,13 +58,25 @@ namespace WaveTracker.Tracker {
         [ProtoMember(8)]
         public int RowHighlightSecondary { get; set; }
 
+        /// <summary>
+        /// The module that this song belongs to
+        /// </summary>
         public WTModule ParentModule { get; set; }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        [ProtoMember(4)]
+        string[] patternsAsStrings;
+
+        [ProtoMember(5)]
+        string frameSequenceAsString;
 
         /// <summary>
         /// Initializes a new song with empty patterns and default settings
         /// </summary>
-        public WTSong() {
+        public WTSong(WTModule parentModule) {
+            ParentModule = parentModule;
             Patterns = new WTPattern[100];
             for (int i = 0; i < Patterns.Length; ++i) {
                 Patterns[i] = new WTPattern(this);
@@ -78,27 +88,23 @@ namespace WaveTracker.Tracker {
             FrameSequence = new List<WTFrame>();
             FrameSequence.Add(new WTFrame(0, this));
             TicksPerRow = new int[] { 4 };
-            RowsPerFrame = 256;
+            RowsPerFrame = 64;
             RowHighlightPrimary = 16;
             RowHighlightSecondary = 4;
         }
 
         [ProtoBeforeSerialization]
         internal void BeforeSerialized() {
+            patternsAsStrings = PackPatternsToStrings();
+            frameSequenceAsString = GetFrameSequenceAsString();
             return;
-           
+
         }
         [ProtoAfterDeserialization]
         internal void AfterDeserialized() {
-            for (int i = 0; i < Patterns.Length; ++i) {
-                if (Patterns[i] == null)
-                    Patterns[i] = new WTPattern(this);
-                else
-                    Patterns[i].ParentSong = this;
-            }
-            for (int i = 0; i < FrameSequence.Count; ++i) {
-                FrameSequence[i].SetParentSong(this);
-            }
+            ParentModule = App.CurrentModule;
+            UnpackFrameSequence(frameSequenceAsString);
+            UnpackPatternsFromStrings(patternsAsStrings);
         }
 
 
@@ -111,7 +117,7 @@ namespace WaveTracker.Tracker {
         }
 
         /// <summary>
-        /// Inserts a new frame at the end of the sequence using the next free pattern
+        /// Inserts a new frame in the sequence using the next free pattern
         /// </summary>
         public void InsertNewFrame(int index) {
             if (FrameSequence.Count < 100)
@@ -124,7 +130,7 @@ namespace WaveTracker.Tracker {
         /// <param name="index"></param>
         public void DuplicateFrame(int index) {
             if (FrameSequence.Count < 100)
-                FrameSequence.Insert(index, FrameSequence[index]);
+                FrameSequence.Insert(index, new WTFrame(FrameSequence[index].PatternIndex, this));
         }
 
         /// <summary>
@@ -154,8 +160,16 @@ namespace WaveTracker.Tracker {
         /// <returns></returns>
         int GetNextFreePattern() {
             for (int i = 0; i < 100; ++i) {
-                if (Patterns[i].IsEmpty)
-                    return i;
+                if (Patterns[i].IsEmpty) {
+                    bool containedInSongAlready = false;
+                    foreach (WTFrame frame in FrameSequence) {
+                        if (frame.PatternIndex == i) {
+                            containedInSongAlready = true;
+                        }
+                    }
+                    if (!containedInSongAlready)
+                        return i;
+                }
             }
             return 99;
         }
@@ -212,19 +226,28 @@ namespace WaveTracker.Tracker {
             return 5 + NumEffectColumns[channel] * 3;
         }
 
+        /// <summary>
+        /// Returns the last cursor column type in a channel (will always be an effectparam2)
+        /// </summary>
+        /// <param name="channel"></param>
+        /// <returns></returns>
+        public CursorColumnType GetLastCursorColumnOfChannel(int channel) {
+            return (CursorColumnType)(4 + NumEffectColumns[channel] * 3);
+        }
+
 
         /// <summary>
-        /// Accesses the byte at the cursor position.
+        /// Accesses the byte at a cursor position.
         /// </summary>
         /// <param name="row"></param>
         /// <returns></returns>
         /// <exception cref="IndexOutOfRangeException"></exception>
-        public byte this[CursorPos cursorPosition] {
+        public int this[CursorPos cursorPosition] {
             get {
-                return Patterns[FrameSequence[cursorPosition.Frame].PatternIndex][cursorPosition.Row, cursorPosition.Channel, cursorPosition.GetCellIndex()];
+                return Patterns[FrameSequence[cursorPosition.Frame].PatternIndex][cursorPosition.Row, cursorPosition.Channel, cursorPosition.Column.ToCellType()];
             }
             set {
-                Patterns[FrameSequence[cursorPosition.Frame].PatternIndex][cursorPosition.Row, cursorPosition.Channel, cursorPosition.GetCellIndex()] = value;
+                Patterns[FrameSequence[cursorPosition.Frame].PatternIndex][cursorPosition.Row, cursorPosition.Channel, cursorPosition.Column.ToCellType()] = value;
             }
         }
 
@@ -243,12 +266,47 @@ namespace WaveTracker.Tracker {
             }
         }
 
-        public List<string> PackPatternsToString() {
-            List<string> patterns = new List<string>();
+        /// <summary>
+        /// Returns an array of 100 strings containing each pattern's data
+        /// </summary>
+        /// <returns></returns>
+        public string[] PackPatternsToStrings() {
+            string[] patternData = new string[100];
+            int i = 0;
             foreach (WTPattern pattern in Patterns) {
-                patterns.Add(pattern.PackToString());
+                if (pattern.IsEmpty) {
+                    patternData[i] = "";
+                }
+                else {
+                    pattern.PackAnyChanges();
+                    patternData[i] = Helpers.RLECompress(pattern.CellsAsString);
+                }
+                ++i;
             }
-            return patterns;
+            return patternData;
+        }
+
+        public void UnpackPatternsFromStrings(string[] packedStrings) {
+            Patterns = new WTPattern[100];
+            for (int i = 0; i < Patterns.Length; ++i) {
+                Patterns[i] = new WTPattern(this);
+                Patterns[i].ReadFromCellData(Helpers.RLEDecompress(packedStrings[i]));
+            }
+        }
+
+        public string GetFrameSequenceAsString() {
+            string frameSequence = "";
+            foreach (WTFrame frame in FrameSequence) {
+                frameSequence += (char)frame.PatternIndex;
+            }
+            return frameSequence;
+        }
+
+        public void UnpackFrameSequence(string frameSequence) {
+            FrameSequence = new List<WTFrame>();
+            foreach (char index in frameSequence) {
+                FrameSequence.Add(new WTFrame(index, this));
+            }
         }
     }
 }

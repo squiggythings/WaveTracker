@@ -119,9 +119,9 @@ namespace WaveTracker.UI {
             playback_record.enabled = !App.VisualizerMode;
             edit_copy.enabled = patternEditor.SelectionIsActive && !App.VisualizerMode;
             edit_cut.enabled = patternEditor.SelectionIsActive && !App.VisualizerMode;
-            edit_paste.enabled = FrameEditor.clipboard.Count > 0 && !App.VisualizerMode;
-            edit_redo.enabled = patternEditor.CanRedo() && !App.VisualizerMode;
-            edit_undo.enabled = patternEditor.CanUndo() && !App.VisualizerMode;
+            edit_paste.enabled = patternEditor.HasClipboard && !App.VisualizerMode;
+            edit_redo.enabled = patternEditor.CanRedo && !App.VisualizerMode;
+            edit_undo.enabled = patternEditor.CanUndo && !App.VisualizerMode;
             frame_next.enabled = !App.VisualizerMode;
             frame_prev.enabled = !App.VisualizerMode;
 

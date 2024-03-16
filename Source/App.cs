@@ -52,7 +52,7 @@ namespace WaveTracker {
         public static Visualization visualization;
         string filename;
         public static PatternEditor PatternEditor { get; private set; }
-        public static InstrumentBank instrumentBank;
+        public static InstrumentBank InstrumentBank { get; private set; }
         public static WTModule CurrentModule { get; set; }
         public static WTSong CurrentSong { get { return CurrentModule.Songs[0]; } }
 
@@ -94,7 +94,7 @@ namespace WaveTracker {
             PatternEditor.OnSwitchSong();
 
             waveBank = new WaveBank();
-            instrumentBank = new InstrumentBank();
+            InstrumentBank = new InstrumentBank();
 
             ChannelManager.Initialize(WTModule.DEFAULT_CHANNEL_COUNT, waveBank);
             //frameRenderer.Initialize();
@@ -102,7 +102,6 @@ namespace WaveTracker {
             //FrameEditor.channelScrollbar.SetSize(Tracker.Song.CHANNEL_COUNT, 12);
             editSettings = new EditSettings();
             visualization = new Visualization();
-            ColorButton.colorPicker = new ColorPickerDialog();
             IsFixedTimeStep = false;
             base.Initialize();
 
@@ -112,15 +111,17 @@ namespace WaveTracker {
             Checkbox.textureSheet = Content.Load<Texture2D>("instrumentwindow");
             NumberBox.buttons = Content.Load<Texture2D>("window_edit");
             Preferences.dialog = new PreferencesDialog();
+            ColorButton.colorPicker = new ColorPickerDialog();
+            PatternEditor.humanizeDialog = new HumanizeDialog();
             editSettings.Initialize();
             font = Content.Load<SpriteFont>("custom_font");
             channelHeaderSprite = Content.Load<Texture2D>("trackerchannelheader");
             toolbar = new Toolbar(Content.Load<Texture2D>("toolbar"), PatternEditor);
             waveBank.editor = new WaveEditor(Content.Load<Texture2D>("wave_window"));
 
-            instrumentBank.Initialize(Content.Load<Texture2D>("toolbar"));
-            instrumentBank.editor = new InstrumentEditor(Content.Load<Texture2D>("instrumentwindow"));
-            instrumentBank.editor.browser = new SampleBrowser(Content.Load<Texture2D>("window_edit"));
+            InstrumentBank.Initialize(Content.Load<Texture2D>("toolbar"));
+            InstrumentBank.editor = new InstrumentEditor(Content.Load<Texture2D>("instrumentwindow"));
+            InstrumentBank.editor.browser = new SampleBrowser(Content.Load<Texture2D>("window_edit"));
             songSettings.Initialize(Content.Load<Texture2D>("window_edit"));
             frameView.Initialize(Content.Load<Texture2D>("toolbar"), GraphicsDevice, PatternEditor);
             pixel = new Texture2D(GraphicsDevice, 1, 1);
@@ -135,6 +136,19 @@ namespace WaveTracker {
         }
 
         protected override void Update(GameTime gameTime) {
+
+            Window.Title = SaveLoad.fileName + (SaveLoad.isSaved ? "" : "*") + " - WaveTracker";
+            WindowHeight = Window.ClientBounds.Height / ScreenScale;
+            WindowWidth = Window.ClientBounds.Width / ScreenScale;
+
+
+            if (IsActive) {
+                Input.GetState(gameTime);
+            }
+            else {
+                Input.windowFocusTimer = 5;
+                Input.dialogOpenCooldown = 3;
+            }
             if (Input.dialogOpenCooldown == 0) {
                 int mouseX = Mouse.GetState().X;
                 int mouseY = Mouse.GetState().Y;
@@ -149,30 +163,20 @@ namespace WaveTracker {
                         mouseCursorArrow--;
                     }
             }
-            Window.Title = SaveLoad.fileName + (SaveLoad.isSaved ? "" : "*") + " - WaveTracker";
-            //Debug.WriteLine("path is: " + SaveLoad.filePath);
-            WindowHeight = Window.ClientBounds.Height / ScreenScale;
-            WindowWidth = Window.ClientBounds.Width / ScreenScale;
-            //FrameEditor.channelScrollbar.y = WindowHeight - 14;
+
+            Tooltip.Update(gameTime);
+
             if (Input.GetKeyDown(Keys.F12, KeyModifier.None)) {
                 ChannelManager.Reset();
                 ChannelManager.ResetTicks(0);
                 audioEngine.Reset();
             }
-
-            Tooltip.Update(gameTime);
-            if (IsActive) {
-                Input.GetState(gameTime);
-            }
-            else {
-                Input.focusTimer = 5;
-                Input.dialogOpenCooldown = 3;
-            }
+            PatternEditor.Update();
             if (!VisualizerMode) {
                 waveBank.Update();
-                instrumentBank.Update();
+                InstrumentBank.Update();
             }
-            if (Input.focus == null || Input.focus == waveBank.editor || Input.focus == instrumentBank.editor)
+            if (Input.focus == null || Input.focus == waveBank.editor || Input.focus == InstrumentBank.editor)
                 pianoInput = Helpers.GetPianoInput(PatternEditor.CurrentOctave);
             else {
                 pianoInput = -1;
@@ -181,9 +185,9 @@ namespace WaveTracker {
 
             if (waveBank.editor.pianoInput() > -1)
                 pianoInput = waveBank.editor.pianoInput();
-            if (instrumentBank.editor.pianoInput() > -1)
-                pianoInput = instrumentBank.editor.pianoInput();
-            if (PatternEditor.CursorPosition.GetColumnAsSingleEffectChannel() == CursorPos.COLUMN_NOTE || WaveEditor.enabled || InstrumentEditor.enabled) {
+            if (InstrumentBank.editor.pianoInput() > -1)
+                pianoInput = InstrumentBank.editor.pianoInput();
+            if (PatternEditor.cursorPosition.Column == CursorColumnType.Note || WaveEditor.enabled || InstrumentEditor.enabled) {
                 if (pianoInput != -1 && lastPianoKey != pianoInput) {
                     if (!Playback.isPlaying)
                         AudioEngine.ResetTicks();
@@ -200,26 +204,26 @@ namespace WaveTracker {
             if (!ChannelManager.previewChannel.waveEnv.toPlay.isActive)
                 ChannelManager.previewChannel.SetWave(WaveBank.lastSelectedWave);
 
-            Tracker.Playback.Update(gameTime);
+            Playback.Update(gameTime);
 
 
             if (!VisualizerMode) {
                 songSettings.Update();
                 frameView.Update();
-                frameRenderer.Update(gameTime);
+                //frameRenderer.Update(gameTime);
                 //FrameEditor.Update();
                 editSettings.Update();
             }
             else {
-                frameRenderer.UpdateChannelHeaders();
+                //sframeRenderer.UpdateChannelHeaders();
             }
             audioEngine.exportingDialog.Update();
             Preferences.dialog.Update();
             ColorButton.colorPicker.Update();
+            PatternEditor.humanizeDialog.Update();
             toolbar.Update();
             base.Update(gameTime);
             lastPianoKey = pianoInput;
-            PatternEditor.Update();
         }
 
         protected override void Draw(GameTime gameTime) {
@@ -248,7 +252,7 @@ namespace WaveTracker {
                 PatternEditor.Draw();
 
                 // draw instrument bank
-                instrumentBank.Draw();
+                InstrumentBank.Draw();
 
                 // draw wave bank
                 waveBank.Draw();
@@ -277,9 +281,10 @@ namespace WaveTracker {
             toolbar.Draw();
             Preferences.dialog.Draw();
             ColorButton.colorPicker.Draw();
+            PatternEditor.humanizeDialog.Draw();
             if (!VisualizerMode) {
                 waveBank.editor.Draw();
-                instrumentBank.editor.Draw();
+                InstrumentBank.editor.Draw();
                 audioEngine.exportingDialog.Draw();
 
             }

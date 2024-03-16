@@ -39,7 +39,7 @@ namespace WaveTracker
                         py = Input.MousePositionY + 10;
                     }
                     show = true;
-                    int width = Helpers.getWidthOfText(TooltipText) + 6;
+                    int width = Helpers.GetWidthOfText(TooltipText) + 6;
                     if (px + width + 1 > 960) {
                         int diff = (px + width + 1) - 960;
                         px -= diff;

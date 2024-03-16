@@ -22,10 +22,10 @@ namespace WaveTracker.UI {
             this.label = label;
             colors = ButtonColors.Round;
             type = ButtonType.Rounded;
-            width = Helpers.getWidthOfText(label) + 8;
+            width = Helpers.GetWidthOfText(label) + 8;
             //if (width < 30)
             //    width = 30;
-            labelWidth = Helpers.getWidthOfText(label);
+            labelWidth = Helpers.GetWidthOfText(label);
             height = 13;
             SetParent(parent);
         }

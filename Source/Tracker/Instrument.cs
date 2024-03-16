@@ -11,20 +11,19 @@ using System.Diagnostics;
 using ProtoBuf;
 using WaveTracker.Audio;
 
-namespace WaveTracker.Tracker
-{
+namespace WaveTracker.Tracker {
     [Serializable]
-    public enum MacroType {
+    public enum InstrumentType {
         Wave,
         Sample
     }
     [Serializable]
     [ProtoContract]
-    public class Macro {
+    public class Instrument {
         [ProtoMember(17)]
         public string name;
         [ProtoMember(18)]
-        public MacroType macroType;
+        public InstrumentType instrumentType;
         [ProtoMember(19)]
         public Envelope volumeEnvelope;
         [ProtoMember(20)]
@@ -42,8 +41,8 @@ namespace WaveTracker.Tracker
         public Sample sample;
         public const char delimiter = '%';
 
-        public Macro() {
-            macroType = MacroType.Wave;
+        public Instrument() {
+            instrumentType = InstrumentType.Wave;
             name = "New Instrument";
             volumeEnvelope = new Envelope(99);
             arpEnvelope = new Envelope(0);
@@ -54,11 +53,11 @@ namespace WaveTracker.Tracker
 
             sample = new Sample();
         }
-        public Macro(MacroType type) {
-            macroType = type;
-            if (type == MacroType.Wave)
+        public Instrument(InstrumentType type) {
+            instrumentType = type;
+            if (type == InstrumentType.Wave)
                 name = "New Wave Instrument";
-            else if (type == MacroType.Sample)
+            else if (type == InstrumentType.Sample)
                 name = "New Sample Instrument";
             else
                 name = "New Instrument";
@@ -86,11 +85,11 @@ namespace WaveTracker.Tracker
             sample = new Sample();
         }
 
-        public bool IsEqualTo(Macro other) {
+        public bool IsEqualTo(Instrument other) {
             if (name != other.name)
                 return false;
 
-            if (macroType != other.macroType)
+            if (instrumentType != other.instrumentType)
                 return false;
 
             if (!volumeEnvelope.IsEqualTo(other.volumeEnvelope))
@@ -116,8 +115,8 @@ namespace WaveTracker.Tracker
             return true;
         }
 
-        public Macro Clone() {
-            Macro m = new Macro(macroType);
+        public Instrument Clone() {
+            Instrument m = new Instrument(instrumentType);
             //sample.CreateString();
             //m.Unpack(Pack() + sample.stringBuild.ToString());
             m.name = name;
@@ -399,7 +398,8 @@ namespace WaveTracker.Tracker
                         }
                         sampleDataLeft.RemoveAt(i);
                     }
-                } else {
+                }
+                else {
                     for (int i = 0; i < sampleDataLeft.Count; ++i) {
                         if (Math.Abs(sampleDataLeft[i]) > 0.001f || Math.Abs(sampleDataRight[i]) > 0.001f) {
                             break;
@@ -420,49 +420,54 @@ namespace WaveTracker.Tracker
             sampleDataAccessR = sampleDataRight.ToArray();
         }
 
-        public float getMonoSample(float time) {
+        public float GetMonoSample(float time) {
             SampleTick(time, 0, out float l, out float r);
             return (l + r) / 2f;
         }
 
-        public void SampleTick(float time, int stereoPhase, out float outputL, out float outputR) {
+        public void SampleTick(float time, float stereoPhase, out float outputL, out float outputR) {
             float sampleIndex = 0;
             float x = (time * (AudioEngine.sampleRate / _baseFrequency));
             long l = sampleDataAccessL.Length;
             long p = sampleLoopIndex;
             if (sampleLoopType == SampleLoopType.OneShot || x <= l) {
                 sampleIndex = x;
-            } else if (sampleLoopType == SampleLoopType.PingPong) {
+            }
+            else if (sampleLoopType == SampleLoopType.PingPong) {
                 float b = ((x - p) % ((l - p) * 2));
                 if (b < l - p) {
                     sampleIndex = b + p;
-                } else if (b >= l - p) {
+                }
+                else if (b >= l - p) {
                     sampleIndex = l - (b + p - l);
                 }
                 //sampleIndex = Math.Abs((sampleIndex - sampleLoopIndex + (len - 1) - 1) % ((len - 1) * 2) - len) + sampleLoopIndex;
 
-            } else if (sampleLoopType == SampleLoopType.Forward) {
+            }
+            else if (sampleLoopType == SampleLoopType.Forward) {
                 sampleIndex = ((x - p) % (l - p)) + p;
             }
             currentPlaybackPosition = (int)sampleIndex;
             if (resampleMode == ResamplingModes.None) {
-                outputL = getSample(0, (int)(sampleIndex)) * 1.5f;
-                outputR = getSample(1, (int)(sampleIndex)) * 1.5f;
-            } else if (resampleMode == ResamplingModes.Linear) {
+                outputL = getSample(0, (int)(sampleIndex + stereoPhase * 100)) * 1.5f;
+                outputR = getSample(1, (int)(sampleIndex - stereoPhase * 100)) * 1.5f;
+            }
+            else if (resampleMode == ResamplingModes.Linear) {
                 int one = (int)sampleIndex;
                 int two = one + 1;
                 float by = (float)(sampleIndex % 1f);
-                outputL = MathHelper.Lerp(getSample(0, one), getSample(0, two), by) * 1.5f;
-                outputR = MathHelper.Lerp(getSample(1, one), getSample(1, two), by) * 1.5f;
-            } else {
+                outputL = MathHelper.Lerp(getSample(0, one + (int)(stereoPhase * 100)), getSample(0, two + (int)(stereoPhase * 100)), by) * 1.5f;
+                outputR = MathHelper.Lerp(getSample(1, one - (int)(stereoPhase * 100)), getSample(1, two - (int)(stereoPhase * 100)), by) * 1.5f;
+            }
+            else {
                 int one = (int)sampleIndex;
                 int two = one + 1;
                 float by = (float)(sampleIndex % 1f);
-                outputL = MathHelper.Lerp(getSample(0, one), getSample(0, two), by);
-                outputR = MathHelper.Lerp(getSample(1, one), getSample(1, two), by);
+                outputL = MathHelper.Lerp(getSample(0, one + (int)(stereoPhase * 100)), getSample(0, two + (int)(stereoPhase * 100)), by);
+                outputR = MathHelper.Lerp(getSample(1, one - (int)(stereoPhase * 100)), getSample(1, two - (int)(stereoPhase * 100)), by);
 
-                outputL += getSample(0, (int)(sampleIndex));
-                outputR += getSample(1, (int)(sampleIndex));
+                outputL += getSample(0, (int)(sampleIndex + stereoPhase * 100));
+                outputR += getSample(1, (int)(sampleIndex - stereoPhase * 100));
                 outputL /= 1.33333333f;
                 outputR /= 1.33333333f;
             }

@@ -25,7 +25,7 @@ namespace WaveTracker.Rendering {
 
 
         public static void WriteRightJustified(string text, int x, int y, Color c) {
-            batch.DrawString(App.font, text, new Vector2((int)x - Helpers.getWidthOfText(text), (int)y - 5), c);
+            batch.DrawString(App.font, text, new Vector2((int)x - Helpers.GetWidthOfText(text), (int)y - 5), c);
         }
 
         public static void WriteMonospaced(string text, int x, int y, Color c, int width = 5) {

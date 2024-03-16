@@ -23,7 +23,7 @@ namespace WaveTracker.UI {
         int max = int.MaxValue;
         int valueSaved;
         bool canScroll = true;
-        public enum DisplayMode { Number, Note, PlusMinus }
+        public enum DisplayMode { Number, Note, NoteOnly, PlusMinus }
         public DisplayMode displayMode = DisplayMode.Number;
         public bool ValueWasChanged { get; private set; }
         public bool ValueWasChangedInternally { get; private set; }
@@ -60,7 +60,8 @@ namespace WaveTracker.UI {
                         dialogOpen = true;
                         StartDialog();
                     }
-                } else {
+                }
+                else {
                     dialogOpen = false;
                 }
                 if (LastClickPos.X >= 0 && LastClickPos.Y >= 0) {
@@ -86,7 +87,8 @@ namespace WaveTracker.UI {
                 if (Value != lastValue) {
                     ValueWasChanged = true;
                     lastValue = Value;
-                } else {
+                }
+                else {
                     ValueWasChanged = false;
                 }
 
@@ -114,7 +116,9 @@ namespace WaveTracker.UI {
             if (displayMode == DisplayMode.Number)
                 Write(Value + "", boxStart + 4, height / 2 - 3, text);
             if (displayMode == DisplayMode.Note)
-                Write(Value + " (" + Helpers.GetNoteName(Value) + ")", boxStart + 4, height / 2 - 3, text);
+                Write(Value + " (" + Helpers.MIDINoteToText(Value) + ")", boxStart + 4, height / 2 - 3, text);
+            if (displayMode == DisplayMode.NoteOnly)
+                Write(Helpers.MIDINoteToText(Value), boxStart + 4, height / 2 - 3, text);
             if (displayMode == DisplayMode.PlusMinus)
                 Write((Value <= 0 ? Value : "+" + Value) + "", boxStart + 4, height / 2 - 3, text);
             bUp.Draw();

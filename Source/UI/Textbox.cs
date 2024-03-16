@@ -51,7 +51,7 @@ namespace WaveTracker.UI {
         }
 
         public void Draw() {
-            Color dark = new Color(104, 111, 153);
+            Color dark = new Color (104, 111, 153);
             Color text = new Color(20, 24, 46);
             if (IsHovered && canEdit) {
                 dark = text;
@@ -62,7 +62,7 @@ namespace WaveTracker.UI {
             if (canEdit)
                 DrawRect(width - textboxWidth + 1, 1, textboxWidth - 2, 1, new Color(193, 196, 213));
             string t = textPrefix + Text + "";
-            if (Text.Length > 0)
+            if (t.Length > 0)
                 Write(Helpers.TrimTextToWidth(textboxWidth, t), width - textboxWidth + 4, height / 2 - 3, text);
             else
                 Write(Helpers.TrimTextToWidth(textboxWidth, t), width - textboxWidth + 4, height / 2 - 3, text);

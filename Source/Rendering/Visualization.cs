@@ -101,8 +101,8 @@ namespace WaveTracker.Rendering
             for (int c = 0; c < ChannelManager.channels.Count; c++) {
                 Channel chan = ChannelManager.channels[c];
 
-                if ((chan.currentMacro.macroType == MacroType.Wave || chan.currentMacro.sample.useInVisualization) && chan.CurrentAmplitude > 0.01f && chan.CurrentPitch >= 0 && chan.CurrentPitch < 120 && FrameEditor.channelToggles[c]) {
-                    ChannelState state = new ChannelState(chan.CurrentPitch, chan.CurrentAmplitude, chan.currentMacro.macroType == MacroType.Wave ? GetColorOfWaveFromTable(chan.waveIndex, chan.waveMorphPosition) : Color.White, chan.isPlaying);
+                if ((chan.currentMacro.instrumentType == InstrumentType.Wave || chan.currentMacro.sample.useInVisualization) && chan.CurrentAmplitude > 0.01f && chan.CurrentPitch >= 0 && chan.CurrentPitch < 120 && FrameEditor.channelToggles[c]) {
+                    ChannelState state = new ChannelState(chan.CurrentPitch, chan.CurrentAmplitude, chan.currentMacro.instrumentType == InstrumentType.Wave ? GetColorOfWaveFromTable(chan.waveIndex, chan.waveMorphPosition) : Color.White, chan.isPlaying);
                     rowOfStates.Add(state);
                 }
             }
@@ -243,7 +243,7 @@ namespace WaveTracker.Rendering
               {
                 WriteMonospaced("···", x + 1, y, currRow ? currRowEmptyText : Helpers.Alpha(Colors.theme.patternText, Colors.theme.patternEmptyTextAlpha), 4);
             } else {
-                string val = Helpers.GetNoteName(value);
+                string val = Helpers.MIDINoteToText(value);
                 if (val.Contains('#')) {
                     Write(val, x, y, c);
                 } else {
@@ -261,7 +261,7 @@ namespace WaveTracker.Rendering
             } else {
                 if (value >= Song.currentSong.instruments.Count)
                     WriteMonospaced(value.ToString("D2"), x, y, Helpers.Alpha(Color.Red, alpha), 4);
-                else if (Song.currentSong.instruments[value].macroType == MacroType.Sample)
+                else if (Song.currentSong.instruments[value].instrumentType == InstrumentType.Sample)
                     WriteMonospaced(value.ToString("D2"), x, y, Helpers.Alpha(Colors.theme.instrumentColumnSample, alpha), 4);
                 else
                     WriteMonospaced(value.ToString("D2"), x, y, Helpers.Alpha(Colors.theme.instrumentColumnWave, alpha), 4);
@@ -285,13 +285,13 @@ namespace WaveTracker.Rendering
             if (value < 0) {
                 Write("·", x + 1, y, currRow ? currRowEmptyText : Helpers.Alpha(Colors.theme.patternText, Colors.theme.patternEmptyTextAlpha));
             } else {
-                Write(Helpers.GetEffectCharacter(value), x, y, Helpers.Alpha(Colors.theme.effectColumn, alpha));
+                Write("" + Helpers.GetEffectCharacter(value), x, y, Helpers.Alpha(Colors.theme.effectColumn, alpha));
             }
 
             if (param < 0) {
                 WriteMonospaced("··", x + 1 + 5, y, currRow ? currRowEmptyText : Helpers.Alpha(Colors.theme.patternText, Colors.theme.patternEmptyTextAlpha), 4);
             } else {
-                if (Helpers.isEffectHexadecimal(value))
+                if (Helpers.IsEffectHex((char)value))
                     WriteMonospaced(param.ToString("X2"), x + 5, y, Helpers.Alpha(Colors.theme.effectColumnParameter, alpha), 4);
                 else
                     WriteMonospaced(param.ToString("D2"), x + 5, y, Helpers.Alpha(Colors.theme.effectColumnParameter, alpha), 4);
@@ -350,25 +350,25 @@ namespace WaveTracker.Rendering
             }
             WriteTwiceAsBig("" + channelNum, px + 2, py - 4, new Color(126, 133, 168));
 
-            Channel ch = ChannelManager.channels[channelNum - 1];
+            Channel channel = ChannelManager.channels[channelNum - 1];
             float samp1 = 0;
             float lastSamp = 0;
             float scopezoom = 40f / (Preferences.profile.visualizerScopeZoom / 100f);
             if (FrameEditor.channelToggles[channelNum - 1]) {
-                if (ch.currentMacro.macroType == MacroType.Wave) {
+                if (channel.currentMacro.instrumentType == InstrumentType.Wave) {
                     // WAVE
-                    Wave wv = ch.currentWave;
+                    Wave wave = channel.currentWave;
                     for (int i = -w / 2; i < w / 2 - 1; ++i) {
                         lastSamp = samp1;
-                        float position = (i / (float)w * ch.CurrentFrequency / scopezoom);
+                        float position = (i / (float)w * channel.CurrentFrequency / scopezoom);
 
-                        samp1 = -ch.EvaluateWave(position) * (h / 2f) * ch.CurrentAmplitude + (h / 2f);
+                        samp1 = -channel.EvaluateWave(position) * (h / 2f) * channel.CurrentAmplitude + (h / 2f);
                         if (i > -w / 2)
-                            DrawOscCol(px + i + w / 2, py - 2, samp1, lastSamp, Preferences.profile.visualizerScopeColors ? GetColorOfWaveFromTable(ch.waveIndex, ch.waveMorphPosition) : Color.White, Preferences.profile.visualizerScopeThickness + 1);
+                            DrawOscCol(px + i + w / 2, py - 2, samp1, lastSamp, Preferences.profile.visualizerScopeColors ? GetColorOfWaveFromTable(channel.waveIndex, channel.waveMorphPosition) : Color.White, Preferences.profile.visualizerScopeThickness + 1);
                     }
                 } else // SAMPLE
                   {
-                    Sample samp = ch.currentMacro.sample;
+                    Sample samp = channel.currentMacro.sample;
 
                     for (int i = -w / 2; i < w / 2 - 1; ++i) {
                         lastSamp = samp1;
@@ -377,7 +377,7 @@ namespace WaveTracker.Rendering
                         // quantized 
 
 
-                        samp1 = -samp.getMonoSample((i / (float)w * ch.CurrentFrequency / scopezoom) + (int)ch.sampleTime) * (h / 2f) * ch.CurrentAmplitudeAsWave / 1.5f + (h / 2f);
+                        samp1 = -samp.GetMonoSample((i / (float)w * channel.CurrentFrequency / scopezoom) + (int)channel.sampleTime) * (h / 2f) * channel.CurrentAmplitudeAsWave / 1.5f + (h / 2f);
                         if (i > -w / 2)
                             DrawOscCol(px + i + w / 2, py - 2, samp1, lastSamp, Color.White, Preferences.profile.visualizerScopeThickness + 1);
                     }

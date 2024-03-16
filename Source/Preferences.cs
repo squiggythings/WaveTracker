@@ -122,7 +122,7 @@ volume              25%
         [XmlElement(ElementName = "smpPreview")]
         public bool previewSamples = true;
         [XmlElement(ElementName = "smpBase")]
-        public int defaultBaseKey = 48;
+        public int defaultBaseKey = 60;
         [XmlElement(ElementName = "smpInclude")]
         public bool includeSamplesInVisualizer = false;
         [XmlElement(ElementName = "resamp_wav")]

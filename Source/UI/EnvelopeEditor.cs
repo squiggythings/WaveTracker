@@ -27,15 +27,11 @@ namespace WaveTracker.UI {
             this.x = x;
             this.y = y;
             envText = new("", -1, 239, 535, 535, this);
-            envText.isPartOfInternalDialog = true;
             envText.maxLength = 256;
             scrollbar = new(44, 20, 489, 200, this);
-            scrollbar.isPartOfInternalDialog = true;
             scrollbar.coarseStepAmount = 2;
             envLength = new("Length", -1, 223, 74, 38, this);
-            envLength.isPartOfInternalDialog = true;
-            envLength.bDown.isPartOfInternalDialog = true;
-            envLength.bUp.isPartOfInternalDialog = true;
+
             envLength.SetValueLimits(0, 220);
 
             SetParent(parent);
@@ -170,11 +166,9 @@ namespace WaveTracker.UI {
         }
 
         public Point CanvasMouseBlockClamped() {
-            int mX = Math.Clamp(MouseX, 46, envelope.values.Count * ColumnWidth + 46);
             int mY = Math.Clamp(MouseY, 20, 219);
 
-            int x = (int)Math.Floor((mX - 46) / (float)ColumnWidth);
-            int y = 0;
+            int y;
 
             if (envelopeType == 0 || envelopeType == 4) // vol + wave mod
             {
@@ -466,8 +460,7 @@ namespace WaveTracker.UI {
         public void EditEnvelope(Envelope envelope, int envelopeType, EnvelopePlayer playback, bool cooldownDone) {
             SetEnvelope(envelope, envelopeType);
             playbackStep = playback.step;
-            isPlaying = !playback.envelopeEnded;
-            scrollbar.isPartOfInternalDialog = true;
+            isPlaying = !playback.EnvelopeEnded;
             Update(cooldownDone);
         }
     }

@@ -11,17 +11,17 @@ using WaveTracker.Rendering;
 namespace WaveTracker.UI {
     public class ColorButton : Clickable {
         public static ColorPickerDialog colorPicker;
-        public Color color { get; set; }
+        public Color Color { get; set; }
         public string HexValue {
-            get { return color.GetHexCodeWithAlpha(); }
-            set { color.SetFromHex(value); }
+            get { return Color.GetHexCodeWithAlpha(); }
+            set { Color = Helpers.HexCodeToColor(value); }
         }
 
         public ColorButton(Color color, int x, int y, Element parent) {
             enabled = true;
             this.x = x;
             this.y = y;
-            this.color = color;
+            this.Color = color;
             width = 55;
             height = 13;
             SetParent(parent);
@@ -36,12 +36,10 @@ namespace WaveTracker.UI {
 
 
         public void Draw() {
-
-
-            Color displayColor = color;
+            Color displayColor = Color;
             if (IsPressed)
                 displayColor = displayColor.ToNegative();
-            Color textColor = Color.White;
+            Color textColor;
             if ((displayColor.R * 30 + displayColor.G * 59 + displayColor.B * 11) / 100 < 128) {
                 textColor = Color.White;
             }
@@ -65,8 +63,8 @@ namespace WaveTracker.UI {
             DrawRect(1, height - 2, width - 2, 1, outlineColor);
             DrawRect(width - 2, 2, 1, height - 4, outlineColor);
 
-            string label = "#" + color.GetHexCode();
-            int labelWidth = Helpers.getWidthOfText(label);
+            string label = "#" + Color.GetHexCode();
+            int labelWidth = Helpers.GetWidthOfText(label);
             Write(label, (width - labelWidth) / 2, (height + 1) / 2 - 4, textColor);
         }
     }

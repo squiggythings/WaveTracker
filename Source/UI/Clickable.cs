@@ -5,7 +5,6 @@ namespace WaveTracker.UI {
         public int width;
         public int height;
         public bool enabled = true;
-        public bool isPartOfInternalDialog = false;
         public string TooltipText {
             get; private set;
         }

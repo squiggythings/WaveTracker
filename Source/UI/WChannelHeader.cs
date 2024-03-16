@@ -75,26 +75,27 @@ namespace WaveTracker.UI {
 
         public void Update() {
 
-
             if (enabled) {
-                if (MouseIsValid) {
-                    if (!collapseEffectButton.IsHovered && !expandEffectButton.IsHovered) {
-                        if (SingleClickedM(KeyModifier.None)) {
-                            ChannelManager.ToggleChannel(channelNum);
+                if (Input.focusTimer > 1) {
+                    if (MouseIsValid) {
+                        if (!collapseEffectButton.IsHovered && !expandEffectButton.IsHovered) {
+                            if (SingleClickedM(KeyModifier.None)) {
+                                ChannelManager.ToggleChannel(channelNum);
+                            }
+                            if (DoubleClickedM(KeyModifier.None) || ClickedM(KeyModifier.Ctrl)) {
+                                if (ChannelManager.IsEveryChannelMuted() || ChannelManager.IsChannelSoloed(channelNum))
+                                    ChannelManager.UnmuteAllChannels();
+                                else
+                                    ChannelManager.SoloChannel(channelNum);
+                            }
                         }
-                        if (DoubleClickedM(KeyModifier.None) || ClickedM(KeyModifier.Ctrl)) {
-                            if (ChannelManager.IsEveryChannelMuted() || ChannelManager.IsChannelSoloed(channelNum))
-                                ChannelManager.UnmuteAllChannels();
-                            else
-                                ChannelManager.SoloChannel(channelNum);
-                        }
-                    }
 
-                    if (expandEffectButton.Clicked) NumEffectColumns++;
-                    if (collapseEffectButton.Clicked) NumEffectColumns--;
+                        if (expandEffectButton.Clicked) NumEffectColumns++;
+                        if (collapseEffectButton.Clicked) NumEffectColumns--;
+                    }
+                    expandEffectButton.enabled = NumEffectColumns < 4;
+                    collapseEffectButton.enabled = NumEffectColumns > 1;
                 }
-                expandEffectButton.enabled = NumEffectColumns < 4;
-                collapseEffectButton.enabled = NumEffectColumns > 1;
             }
         }
 
@@ -152,7 +153,7 @@ namespace WaveTracker.UI {
 
                 // if the user is editing this header's channel, render the preview channel instead
                 Channel channelToDisplay;
-                if (parentEditor.CursorPosition.Channel == channelNum && !ChannelManager.channels[channelNum].isPlaying)
+                if (parentEditor.cursorPosition.Channel == channelNum && !ChannelManager.channels[channelNum].isPlaying)
                     channelToDisplay = ChannelManager.previewChannel;
                 else
                     channelToDisplay = ChannelManager.channels[channelNum];

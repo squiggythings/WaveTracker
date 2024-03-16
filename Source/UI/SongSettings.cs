@@ -30,7 +30,7 @@ namespace WaveTracker.UI {
             // copyright.canEdit = false;
 
             speed = new Textbox("Speed (ticks/row)", 167, 12, 132, 40, this);
-           // speed.canEdit = false;
+            // speed.canEdit = false;
             rows = new NumberBox("Frame Length", 167, 26, 132, 40, this);
             rows.SetValueLimits(1, 256);
             //rows.canEdit = false;
@@ -42,42 +42,45 @@ namespace WaveTracker.UI {
 
         public void Update() {
 
-            title.Text = Song.currentSong.name;
+            title.Text = App.CurrentModule.Title;
             title.Update();
             if (title.ValueWasChangedInternally) {
-                WTModule.currentModule.Title = author.Text;
+                App.CurrentModule.Title = title.Text;
             }
 
-            author.Text = Song.currentSong.author;
+            author.Text = App.CurrentModule.Author;
             author.Update();
             if (author.ValueWasChangedInternally) {
-                WTModule.currentModule.Author = author.Text;
+                App.CurrentModule.Author = author.Text;
             }
 
-            copyright.Text = Song.currentSong.year;
+            copyright.Text = App.CurrentModule.Year;
             copyright.Update();
             if (copyright.ValueWasChangedInternally) {
-                WTModule.currentModule.Year = copyright.Text;
+                App.CurrentModule.Year = copyright.Text;
             }
 
-            speed.Text = WTSong.currentSong.GetTicksAsString();
+            speed.Text = App.CurrentSong.GetTicksAsString();
             speed.Update();
             if (speed.ValueWasChangedInternally) {
-                WTSong.currentSong.LoadTicksFromString(speed.Text);
+                App.CurrentSong.LoadTicksFromString(speed.Text);
             }
 
 
-            rows.Value = WTSong.currentSong.RowsPerFrame;
+            rows.Value = App.CurrentSong.RowsPerFrame;
             rows.Update();
             if (rows.ValueWasChangedInternally) {
-                WTSong.currentSong.RowsPerFrame = rows.Value;
+                App.CurrentSong.RowsPerFrame = rows.Value;
+                App.PatternEditor.cursorPosition.Normalize(App.CurrentSong);
+
             }
             if (editButton.Clicked) {
                 if (!dialogOpen) {
                     dialogOpen = true;
                     StartDialog();
                 }
-            } else {
+            }
+            else {
                 dialogOpen = false;
             }
 
@@ -161,8 +164,9 @@ namespace WaveTracker.UI {
                 DrawRect(px, py + 1, ampL, height - 1, barCol);
                 barCol = ampRight >= 1 && Preferences.profile.meterFlashWhenClipping ? Color.Red : bar;
                 DrawRect(px, py + height + 2, ampR, height - 1, barCol);
-            } else // gradient
-              {
+            }
+            else // gradient
+            {
                 for (int x = 0; x < ampL; x++) {
                     Color barCol = ampLeft >= 1 && Preferences.profile.meterFlashWhenClipping ? Color.Red : Helpers.HSLtoRGB((int)Helpers.MapClamped(x, width * 0.6667f, width, 130, 10), 1, 0.42f);
                     DrawRect(px + x, py + 1, 1, height - 1, barCol);

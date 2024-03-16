@@ -290,7 +290,7 @@ namespace WaveTracker.UI {
             for (int i = path.Length - 1; i >= 0; i--) {
                 char c = path[i];
                 if (c == '\\' || c == '/') {
-                    if (Helpers.getWidthOfText(ret) > width - 200)
+                    if (Helpers.GetWidthOfText(ret) > width - 200)
                         return "... > " + ret;
                     ret = " > " + ret;
                 } else

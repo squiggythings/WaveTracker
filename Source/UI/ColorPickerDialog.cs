@@ -62,7 +62,7 @@ namespace WaveTracker.UI {
 
         public void Open(ColorButton button) {
             this.parentButton = button;
-            color = parentButton.color;
+            color = parentButton.Color;
             SetAllValuesFromColor();
             canStart = false;
             Open(Input.focus);
@@ -74,7 +74,7 @@ namespace WaveTracker.UI {
                     if (cancel.Clicked || closeX.Clicked)
                         Close();
                     if (ok.Clicked) {
-                        parentButton.color = color;
+                        parentButton.Color = color;
                         Close();
                     }
 
@@ -112,7 +112,7 @@ namespace WaveTracker.UI {
                     hexCode.Update();
                     if (hexCode.ValueWasChangedInternally)
                         UpdateColorFromHex();
-                } else if (Input.GetClickUp(KeyModifier._Any))
+                } else if (!Input.GetClick(KeyModifier._Any))
                     canStart = true;
             }
         }
@@ -154,20 +154,20 @@ namespace WaveTracker.UI {
         }
 
         void DrawSelectorPoint(int x, int y) {
-            Color ptCol = Color.White;
+            Color pointColor;
             if ((color.R * 30 + color.G * 59 + color.B * 11) / 100 < 128)
-                ptCol = Color.White;
+                pointColor = Color.White;
             else
-                ptCol = Color.Black;
+                pointColor = Color.Black;
 
             //DrawRect(x + 1, y, 2, 1, ptCol);
             //DrawRect(x, y + 1, 1, 2, ptCol);
             //DrawRect(x - 2, y, 2, 1, ptCol);
             //DrawRect(x, y - 2, 1, 2, ptCol);
-            DrawRect(x + 1, y, 1, 1, ptCol);
-            DrawRect(x, y + 1, 1, 1, ptCol);
-            DrawRect(x - 1, y, 1, 1, ptCol);
-            DrawRect(x, y - 1, 1, 1, ptCol);
+            DrawRect(x + 1, y, 1, 1, pointColor);
+            DrawRect(x, y + 1, 1, 1, pointColor);
+            DrawRect(x - 1, y, 1, 1, pointColor);
+            DrawRect(x, y - 1, 1, 1, pointColor);
         }
 
         public void Draw() {

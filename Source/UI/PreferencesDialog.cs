@@ -374,8 +374,8 @@ namespace WaveTracker.UI {
             origX = x;
             origY = y;
             SetParent(parent);
-            int maxWidth = Helpers.getWidthOfText(min + "wwww");
-            numbox = new NumberBox(label, 0, (optionHeight - 13) / 2, width, width - Helpers.getWidthOfText(label) - 10, this);
+            int maxWidth = Helpers.GetWidthOfText(min + "wwww");
+            numbox = new NumberBox(label, 0, (optionHeight - 13) / 2, width, width - Helpers.GetWidthOfText(label) - 10, this);
             numbox.SetValueLimits(min, max);
             if (!canScroll) {
                 numbox.DisableScrolling();
@@ -432,7 +432,7 @@ namespace WaveTracker.UI {
                 colorButton.x = customMargin;
             } else {
                 if (nextToLabel)
-                    colorButton.x = Helpers.getWidthOfText(label) + 8;
+                    colorButton.x = Helpers.GetWidthOfText(label) + 8;
                 else
                     colorButton.x = width - colorButton.width;
             }
@@ -534,7 +534,7 @@ namespace WaveTracker.UI {
                 dropdown.x = customMargin;
             } else {
                 if (nextToLabel)
-                    dropdown.x = Helpers.getWidthOfText(label) + 8;
+                    dropdown.x = Helpers.GetWidthOfText(label) + 8;
                 else
                     dropdown.x = width - dropdown.width;
             }
@@ -618,7 +618,7 @@ namespace WaveTracker.UI {
             if (label == "--") {
                 DrawRect(-padding, optionHeight / 2 - 1, padding + optionWidth, 1, UIColors.labelLight);
             } else {
-                int textWidth = Helpers.getWidthOfText(label);
+                int textWidth = Helpers.GetWidthOfText(label);
                 DrawRect(-padding, optionHeight / 2 - 1, padding + labelInset - barpadding, 1, UIColors.labelLight);
                 DrawRect(textWidth + barpadding + labelInset, optionHeight / 2 - 1, optionWidth - textWidth - barpadding - labelInset, 1, UIColors.labelLight);
                 Write(label, labelInset, optionHeight / 2 - 4, UIColors.labelLight);

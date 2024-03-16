@@ -30,7 +30,7 @@ namespace WaveTracker.Tracker {
         [ProtoMember(7)]
         public string comment;
         [ProtoMember(8)]
-        public List<Macro> instruments;
+        public List<Instrument> instruments;
         [ProtoMember(9)]
         public Wave[] waves = new Wave[100];
         [ProtoMember(10)]
@@ -73,8 +73,8 @@ namespace WaveTracker.Tracker {
             //waves[9].Randomize();
             //waves[10].Randomize();
 
-            instruments = new List<Macro>();
-            instruments.Add(new Macro(MacroType.Wave));
+            instruments = new List<Instrument>();
+            instruments.Add(new Instrument(InstrumentType.Wave));
             tickRate = 60;
             rowHighlight1 = 16;
             rowHighlight2 = 4;
@@ -114,7 +114,7 @@ namespace WaveTracker.Tracker {
             foreach (Frame f in frames) {
                 f.SetRows();
             }
-            foreach (Macro m in instruments) {
+            foreach (Instrument m in instruments) {
                 m.volumeEnvelope.PrepareForSerialization();
                 m.arpEnvelope.PrepareForSerialization();
                 m.pitchEnvelope.PrepareForSerialization();
@@ -126,7 +126,7 @@ namespace WaveTracker.Tracker {
             foreach (Frame f in frames) {
                 f.ReadRows();
             }
-            foreach (Macro m in instruments) {
+            foreach (Instrument m in instruments) {
                 m.volumeEnvelope.PrepareFromDeserialization();
                 m.arpEnvelope.PrepareFromDeserialization();
                 m.pitchEnvelope.PrepareFromDeserialization();
@@ -149,7 +149,7 @@ namespace WaveTracker.Tracker {
             for (int i = 0; i < 100; i++) {
                 s.waves[i] = waves[i].Clone();
             }
-            s.instruments = new List<Macro>();
+            s.instruments = new List<Instrument>();
             for (int i = 0; i < instruments.Count; i++) {
                 s.instruments.Add(instruments[i].Clone());
             }

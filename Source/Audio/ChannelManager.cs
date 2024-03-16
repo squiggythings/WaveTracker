@@ -9,6 +9,7 @@ namespace WaveTracker.Audio {
         public static List<Channel> channels;
         public static WaveBank waveBank;
 
+
         public static void Initialize(int numChannels, WaveBank waveBank) {
             ChannelManager.waveBank = waveBank;
             previewChannel = new Channel(-1);
@@ -32,61 +33,59 @@ namespace WaveTracker.Audio {
             //}
         }
 
-        public static void PlayRow(PatternRow row) {
+        public static void PlayRow(int frame, int row) {
             int channelNum = 0;
-            for (int channelIndex = 0; channelIndex < row.Length; channelIndex++) {
-                PatternEvent e = row[channelIndex];
-                if (!e.IsEmpty) {
-                    int numEffects = WTSong.currentSong.NumEffectColumns[channelIndex];
+            for (int channelIndex = 0; channelIndex < App.CurrentModule.ChannelCount; channelIndex++) {
+                int numEffects = App.CurrentSong.NumEffectColumns[channelIndex];
+                int delayTicks = 0;
 
-                    int delayTicks = 0;
 
-                    // get delay from Gxx effects
-                    for (int effectIndex = 0; effectIndex < numEffects; effectIndex++) {
-                        char effectType = e.GetEffect(effectIndex).Type;
-                        int effectParam = e.GetEffect(effectIndex).Parameter;
-                        if (effectType == 'G') {
-                            delayTicks = effectParam;
-                        }
+                // get delay from Gxx effects
+                for (int effectIndex = 0; effectIndex < numEffects; effectIndex++) {
+                    char effectType = (char)App.CurrentSong[frame][row, channelIndex, CellType.Effect1 + 2 * effectIndex];
+                    int effectParam = (char)App.CurrentSong[frame][row, channelIndex, CellType.Effect1Parameter + 2 * effectIndex];
+                    if (effectType == 'G') {
+                        delayTicks += effectParam;
                     }
+                }
 
-                    // process all effects except release effects
-                    for (int effectIndex = 0; effectIndex < numEffects; effectIndex++) {
-                        char effectType = e.GetEffect(effectIndex).Type;
-                        int effectParam = e.GetEffect(effectIndex).Parameter;
-                        if (effectType == 'C') {
-                            Playback.StopNext();
-                        }
-                        else if (effectType == 'B') {
-                            Playback.GotoNext(effectParam % WTSong.currentSong.FrameSequence.Count, 0);
-                        }
-                        else if (effectType == 'D') {
-                            Playback.GotoNext(Playback.position.Frame + 1, effectParam);
-                        }
-                        else if (effectType == 'F') {
-                            Playback.ticksPerRowOverride = effectParam;
-                        }
-                        else if (effectType != PatternEvent.EMPTY && effectType != 'L' && effectType != 'S') {
-                            channels[channelIndex].QueueEvent(TickEventType.Effect, effectType, effectParam, delayTicks);
-                        }
+                // process all effects except cut/release and delay effects
+                for (int effectIndex = 0; effectIndex < numEffects; effectIndex++) {
+                    char effectType = (char)App.CurrentSong[frame][row, channelIndex, CellType.Effect1 + 2 * effectIndex];
+                    int effectParam = (char)App.CurrentSong[frame][row, channelIndex, CellType.Effect1Parameter + 2 * effectIndex];
+                    if (effectType == 'C') {
+                        Playback.StopNext();
                     }
-                    // process volume
-                    if (e.Volume != PatternEvent.EMPTY)
-                        channels[channelIndex].QueueEvent(TickEventType.Volume, e.Volume, 0, delayTicks);
-                    if (e.Instrument != PatternEvent.EMPTY)
-                        channels[channelIndex].QueueEvent(TickEventType.Instrument, e.Instrument, 0, delayTicks);
-                    if (e.Note != PatternEvent.EMPTY)
-                        channels[channelIndex].QueueEvent(TickEventType.Note, e.Note, 0, delayTicks);
+                    else if (effectType == 'B') {
+                        Playback.GotoNext(effectParam % App.CurrentSong.FrameSequence.Count, 0);
+                    }
+                    else if (effectType == 'D') {
+                        Playback.GotoNext(Playback.position.Frame + 1, effectParam);
+                    }
+                    else if (effectType == 'F') {
+                        Playback.ticksPerRowOverride = effectParam;
+                    }
+                    else if (effectType != WTPattern.EVENT_EMPTY && effectType != 'L' && effectType != 'S' && effectType != 'G') {
+                        channels[channelIndex].QueueEvent(TickEventType.Effect, effectType, effectParam, delayTicks);
+                    }
+                }
+                // process volume
+                if (App.CurrentSong[frame][row, channelIndex, CellType.Volume] != WTPattern.EVENT_EMPTY)
+                    channels[channelIndex].QueueEvent(TickEventType.Volume, App.CurrentSong[frame][row, channelIndex, CellType.Volume], 0, delayTicks);
+                if (App.CurrentSong[frame][row, channelIndex, CellType.Instrument] != WTPattern.EVENT_EMPTY)
+                    channels[channelIndex].QueueEvent(TickEventType.Instrument, App.CurrentSong[frame][row, channelIndex, CellType.Instrument], 0, delayTicks);
+                if (App.CurrentSong[frame][row, channelIndex, CellType.Note] != WTPattern.EVENT_EMPTY)
+                    channels[channelIndex].QueueEvent(TickEventType.Note, App.CurrentSong[frame][row, channelIndex, CellType.Note], 0, delayTicks);
 
-                    for (int effectIndex = 0; effectIndex < numEffects; effectIndex++) {
-                        char effectType = e.GetEffect(effectIndex).Type;
-                        int effectParam = e.GetEffect(effectIndex).Parameter;
-                        if (effectType == 'L') {
-                            channels[channelNum].QueueEvent(TickEventType.Note, PatternEvent.NOTE_RELEASE, 0, delayTicks + effectParam + 1);
-                        }
-                        if (effectType == 'S') {
-                            channels[channelNum].QueueEvent(TickEventType.Note, PatternEvent.NOTE_CUT, 0, delayTicks + effectParam + 1);
-                        }
+                // process cut/release effects
+                for (int effectIndex = 0; effectIndex < numEffects; effectIndex++) {
+                    char effectType = (char)App.CurrentSong[frame][row, channelIndex, CellType.Effect1 + 2 * effectIndex];
+                    int effectParam = (char)App.CurrentSong[frame][row, channelIndex, CellType.Effect1Parameter + 2 * effectIndex];
+                    if (effectType == 'L') {
+                        channels[channelNum].QueueEvent(TickEventType.Note, WTPattern.EVENT_NOTE_RELEASE, 0, delayTicks + effectParam + 1);
+                    }
+                    if (effectType == 'S') {
+                        channels[channelNum].QueueEvent(TickEventType.Note, WTPattern.EVENT_NOTE_CUT, 0, delayTicks + effectParam + 1);
                     }
                 }
 
@@ -130,17 +129,16 @@ namespace WaveTracker.Audio {
             }
         }
 
-        public static void RestoreRow(PatternRow row) {
-            for (int channelNum = 0; channelNum < row.Length; ++channelNum) {
-                PatternEvent e = row[channelNum];
-                int instrument = e.Instrument;
-                int volume = e.Volume;
-                
+        public static void RestoreRow(int frame, int row) {
+            for (int channelNum = 0; channelNum < App.CurrentModule.ChannelCount; ++channelNum) {
+                int instrument = App.CurrentSong[frame][row, channelNum, CellType.Instrument];
+                int volume = App.CurrentSong[frame][row, channelNum, CellType.Volume];
 
-                for (int i = 0; i < WTSong.currentSong.NumEffectColumns[channelNum]; ++i) {
-                    char effectType = e.GetEffect(i).Type;
-                    int effectParam = e.GetEffect(i).Parameter;
-                    if (effectType != PatternEvent.EMPTY && !"BCDQRSL".Contains(effectType))
+
+                for (int i = 0; i < App.CurrentSong.NumEffectColumns[channelNum]; ++i) {
+                    char effectType = (char)App.CurrentSong[frame][row, channelNum, CellType.Effect1 + 2 * i];
+                    int effectParam = App.CurrentSong[frame][row, channelNum, CellType.Effect1Parameter + 2 * i];
+                    if (effectType != WTPattern.EVENT_EMPTY && !"BCDQRSL".Contains(effectType))
                         channels[channelNum].ApplyEffect(effectType, effectParam);
                     if (effectType == 'F') // FXX
                         Playback.ticksPerRowOverride = effectParam;
@@ -149,7 +147,6 @@ namespace WaveTracker.Audio {
                     channels[channelNum].SetVolume(volume);
                 if (instrument >= 0)
                     channels[channelNum].SetMacro(instrument);
-                channelNum++;
             }
         }
 
