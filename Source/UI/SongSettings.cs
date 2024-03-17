@@ -15,6 +15,8 @@ namespace WaveTracker.UI {
     public class SongSettings : Panel {
         Forms.EditSongSettings dialog;
         bool dialogOpen;
+
+        ModuleSettingsDialog moduleSettingsDialog;
         Textbox title, author, copyright, speed;
         NumberBox rows;
         SpriteButton editButton;
@@ -22,7 +24,7 @@ namespace WaveTracker.UI {
         int ampL, ampR;
 
         public SongSettings() : base("Song", 2, 18, 306, 84) {
-
+            moduleSettingsDialog = new ModuleSettingsDialog();
         }
         public void Initialize(Texture2D editButtonsource) {
             title = new Textbox("Title", 4, 12, 155, 110, this);
@@ -78,10 +80,7 @@ namespace WaveTracker.UI {
 
             }
             if (editButton.Clicked) {
-                if (!dialogOpen) {
-                    dialogOpen = true;
-                    StartDialog();
-                }
+                Dialogs.moduleSettings.Open();
             }
             else {
                 dialogOpen = false;
@@ -103,7 +102,7 @@ namespace WaveTracker.UI {
             ampLeft *= 1 - meterDecay / 10f;
             ampRight *= 1 - meterDecay / 10f;
         }
-        public void Draw() {
+        public new void Draw() {
             base.Draw();
             editButton.Draw();
             title.Draw();

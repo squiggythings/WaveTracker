@@ -11,7 +11,7 @@ using WaveTracker.UI;
 
 namespace WaveTracker.Audio {
     public class AudioEngine {
-        public const ResamplingModes RESAMPLING_MODE = ResamplingModes.None;
+        public const ResamplingMode RESAMPLING_MODE = ResamplingMode.None;
         public const int sampleRate = 44100;
         public static int samplesPerTick => (sampleRate / tickSpeed);
         public static int SamplesPerBuffer => 1000;
@@ -26,7 +26,6 @@ namespace WaveTracker.Audio {
         public static bool rendering;
         public static bool cancelRender;
         public List<MMDevice> devices;
-        public ExportingDialog exportingDialog;
         Provider audioProvider;
 
 
@@ -53,7 +52,7 @@ namespace WaveTracker.Audio {
         }
 
         public void Initialize() {
-            exportingDialog = new ExportingDialog();
+            Dialogs.exportingDialog = new ExportingDialog();
             currentBuffer = new float[2, SamplesPerBuffer];
             audioProvider = new Provider();
             audioProvider.SetWaveFormat(AudioEngine.sampleRate, 2); // 44.1khz stereo
@@ -65,8 +64,8 @@ namespace WaveTracker.Audio {
         }
 
         public void Stop() {
-            if (File.Exists(exportingDialog.Path + ".temp"))
-                File.Delete(exportingDialog.Path + ".temp");
+            if (File.Exists(Dialogs.exportingDialog.Path + ".temp"))
+                File.Delete(Dialogs.exportingDialog.Path + ".temp");
             wasapiOut.Stop();
         }
 
@@ -85,9 +84,9 @@ namespace WaveTracker.Audio {
             if (!SaveLoad.ChooseExportPath(out filepath)) {
                 return;
             }
-            exportingDialog.Open();
-            exportingDialog.Path = filepath;
-            exportingDialog.TotalRows = totalRows;
+            Dialogs.exportingDialog.Open();
+            Dialogs.exportingDialog.Path = filepath;
+            Dialogs.exportingDialog.TotalRows = totalRows;
             bool overwriting = File.Exists(filepath);
 
             bool b = await Task.Run(() => WriteToWaveFile(filepath + ".temp", audioProvider));
@@ -126,7 +125,7 @@ namespace WaveTracker.Audio {
             public override int Read(float[] buffer, int offset, int sampleCount) {
                 if (rendering) {
                     if (processedRows >= totalRows || cancelRender) {
-                        Tracker.Playback.Stop();
+                        Playback.Stop();
                         rendering = false;
                         return 0;
                     }
@@ -187,7 +186,7 @@ namespace WaveTracker.Audio {
 
 
     }
-    public enum ResamplingModes {
+    public enum ResamplingMode {
         None,
         Linear,
         Mix,

@@ -12,6 +12,7 @@ using System.Diagnostics;
 using NAudio.Wave;
 using NAudio.Wave.SampleProviders;
 using WaveTracker.Tracker;
+using WaveTracker.Rendering;
 
 namespace WaveTracker {
     public class Helpers {
@@ -158,6 +159,8 @@ namespace WaveTracker {
         /// <param name="original"></param>
         /// <returns></returns>
         public static string FlushString(string original) {
+            if (original == null)
+                return "";
             string alphabet = " 0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz!@#$%^&*()_+-={}[]\\|'\":;?/>.<,~`©àèìòùÀÈÌÒÙáéíóúýÁÉÍÓÚÝâêîôûÂÊÎÔÛãñõÃÑÕäëïöüÿÄËÏÖÜŸæçÇ";
             string ret = "";
             foreach (char c in original) {

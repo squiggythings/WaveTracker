@@ -13,7 +13,6 @@ namespace WaveTracker {
     public static class Preferences {
 
         public static PreferenceProfile profile;
-        public static PreferencesDialog dialog;
 
         static string settingspath => Directory.GetCurrentDirectory() + "/WaveTracker_pref";
         public static void ReadFromFile() {

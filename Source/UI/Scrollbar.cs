@@ -14,7 +14,7 @@ namespace WaveTracker.UI {
         public int viewportSize;
         public Rectangle bar;
         bool lastClickWasOnScrollbar;
-        public int scrollValue { get; set; }
+        public int ScrollValue { get; set; }
         public int coarseStepAmount { get; set; }
         int barClickOffset;
         public Scrollbar(int x, int y, int width, int height, Element parent) {
@@ -47,9 +47,9 @@ namespace WaveTracker.UI {
                             } else {
                                 // step bar towards mouse
                                 if (MouseY > bar.Y) {
-                                    scrollValue += coarseStepAmount;
+                                    ScrollValue += coarseStepAmount;
                                 } else {
-                                    scrollValue -= coarseStepAmount;
+                                    ScrollValue -= coarseStepAmount;
                                 }
                             }
                         }
@@ -57,10 +57,10 @@ namespace WaveTracker.UI {
                     if (barisPressed) {
                         bar.Y = MouseY + barClickOffset;
 
-                        scrollValue = (int)Math.Round(barValFromPos() * (float)(totalSize - viewportSize));
+                        ScrollValue = (int)Math.Round(barValFromPos() * (float)(totalSize - viewportSize));
                     } else {
                         if (IsHovered)
-                            scrollValue -= Input.MouseScrollWheel(KeyModifier._Any) * coarseStepAmount;
+                            ScrollValue -= Input.MouseScrollWheel(KeyModifier._Any) * coarseStepAmount;
                     }
                     UpdateScrollValue();
                 }
@@ -69,7 +69,7 @@ namespace WaveTracker.UI {
 
         public void UpdateScrollValue() {
             if (viewportSize < totalSize) {
-                scrollValue = Math.Clamp(scrollValue, 0, totalSize - viewportSize);
+                ScrollValue = Math.Clamp(ScrollValue, 0, totalSize - viewportSize);
                 bar.Y = (int)Math.Round(barValFromVal() * (height - 2) + 1);
             }
         }
@@ -99,7 +99,7 @@ namespace WaveTracker.UI {
         }
 
         float barValFromVal() {
-            return scrollValue / (float)(totalSize);
+            return ScrollValue / (float)(totalSize);
         }
 
 

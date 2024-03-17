@@ -50,7 +50,7 @@ namespace WaveTracker.UI{
         }
 
         public new void Update() {
-            if (windowIsEnabled) {
+            if (windowIsOpen) {
                 loops.Update();
                 if (cancel.Clicked || ExitButton.Clicked)
                     Close();
@@ -73,7 +73,7 @@ namespace WaveTracker.UI{
         }
 
         public void Draw() {
-            if (windowIsEnabled) {
+            if (windowIsOpen) {
                 base.Draw();
                 loops.Draw();
                 Write("Play song", 7, 19, UIColors.label);

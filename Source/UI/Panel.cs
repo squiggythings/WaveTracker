@@ -8,8 +8,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using WaveTracker.Rendering;
 
-namespace WaveTracker.UI
-{
+namespace WaveTracker.UI {
     public abstract class Panel : Element {
         protected string name;
         protected int width;
@@ -35,6 +34,14 @@ namespace WaveTracker.UI
         /// Returns true if the mouse is within the panel bounds
         /// </summary>
         public bool IsMouseOverPanel { get { return MouseX < width && MouseY < height && MouseX >= 0 && MouseY >= 0; } }
+
+        public void DrawHorizontalLabel(string labelText, int x, int y, int width, int labelInset = 8) {
+            int textWidth = Helpers.GetWidthOfText(labelText);
+            DrawRect(x, y, labelInset, 1, UIColors.labelLight);
+            DrawRect(textWidth + 11, y, width - textWidth - 11, 1, UIColors.labelLight);
+            DrawRect(textWidth + 3 + labelInset, y, width - textWidth - 3 - labelInset, 1, UIColors.labelLight);
+            Write(labelText, labelInset, y - 3, UIColors.labelLight);
+        }
 
         public void Draw() {
             DrawRoundedRect(0, 0, width, height, UIColors.panel);

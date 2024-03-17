@@ -41,7 +41,7 @@ namespace WaveTracker.UI {
         /// Draws the window and the buttons at the bottom
         /// </summary>
         public new void Draw() {
-            if (windowIsEnabled) {
+            if (windowIsOpen) {
                 base.Draw();
                 foreach (Button button in bottomButtons) {
                     button.Draw();

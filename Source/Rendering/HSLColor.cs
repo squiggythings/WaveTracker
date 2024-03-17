@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-namespace WaveTracker {
+namespace WaveTracker.Rendering {
     public struct HSLColor {
         /// <summary>
         /// Hue from 0.0-360.0

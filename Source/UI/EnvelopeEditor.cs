@@ -40,7 +40,7 @@ namespace WaveTracker.UI {
         }
 
         public void ResetScrollbar() {
-            scrollbar.scrollValue = arpRange - 16;
+            scrollbar.ScrollValue = arpRange - 16;
             scrollbar.Update();
         }
 
@@ -51,10 +51,10 @@ namespace WaveTracker.UI {
                 return 21 + (99 - value) * 2;
             } else if (envelopeType == 1) // arp
               {
-                return 21 + (arpRange - value - scrollbar.scrollValue) * arpHeight;
+                return 21 + (arpRange - value - scrollbar.ScrollValue) * arpHeight;
             } else if (envelopeType == 3) // wave
               {
-                return 21 + (waveRange - value - scrollbar.scrollValue - 2) * waveHeight;
+                return 21 + (waveRange - value - scrollbar.ScrollValue - 2) * waveHeight;
             } else  // pitch
               {
                 return 20 + (99 - value);
@@ -154,10 +154,10 @@ namespace WaveTracker.UI {
                 y = 99 - (MouseY - 21) / 2;
             } else if (envelopeType == 1) // arp
               {
-                y = arpRange - ((MouseY - 21) / arpHeight) - scrollbar.scrollValue;
+                y = arpRange - ((MouseY - 21) / arpHeight) - scrollbar.ScrollValue;
             } else if (envelopeType == 3) // wave
               {
-                y = waveRange - ((MouseY - 21) / waveHeight) - scrollbar.scrollValue - 2;
+                y = waveRange - ((MouseY - 21) / waveHeight) - scrollbar.ScrollValue - 2;
             } else // pitch
               {
                 y = 98 - (MouseY - 21);
@@ -177,12 +177,12 @@ namespace WaveTracker.UI {
               {
                 if (mY > 218)
                     mY = 218;
-                y = arpRange - ((mY - 21) / arpHeight) - scrollbar.scrollValue;
+                y = arpRange - ((mY - 21) / arpHeight) - scrollbar.ScrollValue;
             } else if (envelopeType == 3) // wave
               {
                 if (mY > 218)
                     mY = 218;
-                y = waveRange - ((mY - 21) / waveHeight) - scrollbar.scrollValue - 2;
+                y = waveRange - ((mY - 21) / waveHeight) - scrollbar.ScrollValue - 2;
             } else // pitch
               {
                 y = 98 - (mY - 21);
@@ -340,8 +340,8 @@ namespace WaveTracker.UI {
                             Write(" 00", 29, 213, Color.White);
                             break;
                         case 1:
-                            string valUpper = "" + (arpRange - scrollbar.scrollValue);
-                            string valLower = "" + (arpRange - scrollbar.scrollValue - (200 / arpHeight) + 1);
+                            string valUpper = "" + (arpRange - scrollbar.ScrollValue);
+                            string valLower = "" + (arpRange - scrollbar.ScrollValue - (200 / arpHeight) + 1);
                             while (valUpper.Length < 3)
                                 valUpper = " " + valUpper;
                             while (valLower.Length < 3)
@@ -354,8 +354,8 @@ namespace WaveTracker.UI {
                             Write("-100", 29, 213, Color.White);
                             break;
                         case 3:
-                            valUpper = "" + (waveRange - scrollbar.scrollValue - 2);
-                            valLower = "" + (waveRange - scrollbar.scrollValue - (200 / waveHeight) - 1);
+                            valUpper = "" + (waveRange - scrollbar.ScrollValue - 2);
+                            valLower = "" + (waveRange - scrollbar.ScrollValue - (200 / waveHeight) - 1);
                             while (valUpper.Length < 3)
                                 valUpper = " " + valUpper;
                             while (valLower.Length < 3)

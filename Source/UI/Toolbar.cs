@@ -37,11 +37,8 @@ namespace WaveTracker.UI {
         public Toggle followModeToggle;
         public Toggle visualizerModeToggle;
         public bool saveDialogOpen, loadDialogOpen;
-        public ExportDialog exportDialog;
 
-        PatternEditor patternEditor;
-
-        public Toolbar(Texture2D sprite, PatternEditor patternEditor) {
+        public Toolbar(Texture2D sprite) {
             Toolbar.sprite = sprite;
             x = 2;
             int px = 0;
@@ -110,18 +107,17 @@ namespace WaveTracker.UI {
             visualizerModeToggle = new Toggle("Visualizer", 0, 1, this);
             visualizerModeToggle.x = 955 - visualizerModeToggle.width;
             visualizerModeToggle.SetTooltip("", "Toggle visualizer presentation mode");
-            exportDialog = new ExportDialog();
-            this.patternEditor = patternEditor;
+            Dialogs.exportDialog = new ExportDialog();
         }
 
         public void Update() {
             file_export.enabled = !App.VisualizerMode;
             playback_record.enabled = !App.VisualizerMode;
-            edit_copy.enabled = patternEditor.SelectionIsActive && !App.VisualizerMode;
-            edit_cut.enabled = patternEditor.SelectionIsActive && !App.VisualizerMode;
-            edit_paste.enabled = patternEditor.HasClipboard && !App.VisualizerMode;
-            edit_redo.enabled = patternEditor.CanRedo && !App.VisualizerMode;
-            edit_undo.enabled = patternEditor.CanUndo && !App.VisualizerMode;
+            edit_copy.enabled = App.PatternEditor.SelectionIsActive && !App.VisualizerMode;
+            edit_cut.enabled = App.PatternEditor.SelectionIsActive && !App.VisualizerMode;
+            edit_paste.enabled = App.PatternEditor.HasClipboard && !App.VisualizerMode;
+            edit_redo.enabled = App.PatternEditor.CanRedo && !App.VisualizerMode;
+            edit_undo.enabled = App.PatternEditor.CanUndo && !App.VisualizerMode;
             frame_next.enabled = !App.VisualizerMode;
             frame_prev.enabled = !App.VisualizerMode;
 
@@ -137,40 +133,39 @@ namespace WaveTracker.UI {
             if (file_saveAs.Clicked) { SaveLoad.SaveFileAs(); }
             if (file_export.Clicked) {
                 Input.CancelClick();
-                exportDialog.Open();
+                Dialogs.exportDialog.Open();
             }
 
 
 
 
-            if (edit_undo.Clicked) { patternEditor.Undo(); }
-            if (edit_redo.Clicked) { patternEditor.Redo(); }
+            if (edit_undo.Clicked) { App.PatternEditor.Undo(); }
+            if (edit_redo.Clicked) { App.PatternEditor.Redo(); }
 
-            if (edit_cut.Clicked) { patternEditor.Cut(); }
-            if (edit_copy.Clicked) { patternEditor.CopyToClipboard(); }
-            if (edit_paste.Clicked) { patternEditor.PasteFromClipboard(); }
+            if (edit_cut.Clicked) { App.PatternEditor.Cut(); }
+            if (edit_copy.Clicked) { App.PatternEditor.CopyToClipboard(); }
+            if (edit_paste.Clicked) { App.PatternEditor.PasteFromClipboard(); }
 
             if (playback_play.Clicked) { Tracker.Playback.Play(); }
             if (playback_playFromBeginning.Clicked) { Tracker.Playback.PlayFromBeginning(); }
             if (playback_stop.Clicked) { Tracker.Playback.Stop(); }
-            playback_record.Value = patternEditor.EditMode;
-            if (playback_record.Clicked) { patternEditor.EditMode = !patternEditor.EditMode; }
+            playback_record.Value = App.PatternEditor.EditMode;
+            if (playback_record.Clicked) { App.PatternEditor.EditMode = !App.PatternEditor.EditMode; }
             
 
-            if (frame_next.Clicked) { patternEditor.NextFrame(); }
-            if (frame_prev.Clicked) { patternEditor.PreviousFrame(); }
+            if (frame_next.Clicked) { App.PatternEditor.NextFrame(); }
+            if (frame_prev.Clicked) { App.PatternEditor.PreviousFrame(); }
 
-            if (preferences.Clicked) { Preferences.dialog.Open(); }
+            if (preferences.Clicked) { Dialogs.preferences.Open(); }
 
-            followModeToggle.Value = patternEditor.FollowMode;
+            followModeToggle.Value = App.PatternEditor.FollowMode;
             followModeToggle.Update();
-            patternEditor.FollowMode = followModeToggle.Value;
+            App.PatternEditor.FollowMode = followModeToggle.Value;
 
             visualizerModeToggle.Value = App.VisualizerMode;
             visualizerModeToggle.Update();
             App.VisualizerMode = visualizerModeToggle.Value;
             
-            exportDialog.Update();
             if (SaveLoad.savecooldown > 0) {
                 SaveLoad.savecooldown--;
             }
@@ -202,7 +197,6 @@ namespace WaveTracker.UI {
 
             followModeToggle.Draw();
             visualizerModeToggle.Draw();
-            //exportDialog.Draw();
         }
     }
 }

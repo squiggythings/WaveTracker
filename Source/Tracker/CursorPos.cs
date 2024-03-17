@@ -100,8 +100,23 @@ namespace WaveTracker.Tracker {
         public void Normalize(WTSong song) {
             Frame = Math.Clamp(Frame, 0, song.FrameSequence.Count - 1);
             Row = Math.Clamp(Row, 0, song.FrameSequence[Frame].GetPattern().GetModifiedLength() - 1);
-            Channel = Math.Clamp(Channel, 0, song.ParentModule.ChannelCount);
+            NormalizeHorizontally(song);
             Column = (CursorColumnType)Math.Clamp((int)Column, 0, song.GetNumCursorColumns(Channel) - 1);
+        }
+
+        /// <summary>
+        /// Normalize the cursor point only on the horizontal axis (Channel/Column)
+        /// </summary>
+        /// <param name="song"></param>
+        public void NormalizeHorizontally(WTSong song) {
+            if (Channel < 0) {
+                Channel = 0;
+                Column = CursorColumnType.Note;
+            }
+            else if (Channel > song.ParentModule.ChannelCount - 1) {
+                Channel = song.ParentModule.ChannelCount - 1;
+                Column = song.GetLastCursorColumnOfChannel(Channel);
+            }
         }
 
         public void ClampRow(int maxRow) {
@@ -131,6 +146,15 @@ namespace WaveTracker.Tracker {
                 column = 0;
             }
             Column = (CursorColumnType)column;
+        }
+
+        /// <summary>
+        /// Moves the cursor's x position to a cell column in the pattern
+        /// </summary>
+        /// <param name="cellColumn"></param>
+        public void MoveToCellColumn(int cellColumn) {
+            Channel = cellColumn / 11;
+            Column = WTPattern.GetCellTypeFromCellColumn(cellColumn).ToNearestCursorColumn();
         }
 
         /// <summary>

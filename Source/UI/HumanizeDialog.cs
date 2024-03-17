@@ -14,7 +14,7 @@ namespace WaveTracker.UI {
         Button cancel, ok;
         NumberBox volumeRange;
         public HumanizeDialog() : base("Humanize Volumes", 146, 58) {
-            InitializeInCenterOfScreen();
+            PositionInCenterOfScreen();
             cancel = AddNewBottomButton("Cancel", this);
             ok = AddNewBottomButton("OK", this);
             volumeRange = new NumberBox("Randomization Range", 8, 19, 132, 36, this);
@@ -29,7 +29,8 @@ namespace WaveTracker.UI {
         }
 
         public void Update() {
-            if (windowIsEnabled) {
+            if (windowIsOpen) {
+                DoDragging();
                 if (cancel.Clicked || ExitButton.Clicked)
                     Close();
                 if (ok.Clicked) {
@@ -41,7 +42,7 @@ namespace WaveTracker.UI {
         }
 
         public new void Draw() {
-            if (windowIsEnabled) {
+            if (windowIsOpen) {
                 base.Draw();
                 volumeRange.Draw();
             }

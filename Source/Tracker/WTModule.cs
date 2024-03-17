@@ -57,7 +57,7 @@ namespace WaveTracker.Tracker {
         /// The number of channels in this module
         /// </summary>
         [ProtoMember(8)]
-        public int ChannelCount { get; set; }
+        public int ChannelCount { get; private set; }
 
         /// <summary>
         /// The list of songs in this module
@@ -93,6 +93,19 @@ namespace WaveTracker.Tracker {
             foreach (WTSong song in Songs) {
                 song.ParentModule = this;
             }
+        }
+
+        /// <summary>
+        /// Changes the number of channels in this module
+        /// </summary>
+        /// <param name="newChannelCount"></param>
+        public void ResizeChannelCount(int newChannelCount) {
+            ChannelCount = Math.Clamp(newChannelCount, 1, 24);
+            foreach (WTSong song in Songs) {
+                song.ResizeChannelCount();
+            }
+            App.PatternEditor.CalculateChannelPositioning();
+            App.PatternEditor.OnResizeChannels();
         }
 
         public static WTModule FromOldSongFormat(Song song) {

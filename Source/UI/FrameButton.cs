@@ -31,6 +31,7 @@ namespace WaveTracker.UI {
             this.patternEditor = patternEditor;
             this.offset = offset;
             SetParent(parent);
+            SetTooltip("", "Click + Drag or Shift + Scroll to change pattern number");
         }
 
         public void Update() {

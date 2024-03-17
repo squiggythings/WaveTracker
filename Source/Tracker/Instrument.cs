@@ -141,7 +141,9 @@ namespace WaveTracker.Tracker {
             m.sample.useInVisualization = sample.useInVisualization;
             return m;
         }
-
+        public override string ToString() {
+            return name;
+        }
         public void SetName(string name) {
             this.name = name;
         }
@@ -254,7 +256,7 @@ namespace WaveTracker.Tracker {
     [ProtoContract(SkipConstructor = false)]
     public class Sample {
         [ProtoMember(1)]
-        public ResamplingModes resampleMode;
+        public ResamplingMode resampleMode;
         [ProtoMember(2)]
         public SampleLoopType sampleLoopType;
         [ProtoMember(3)]
@@ -282,7 +284,7 @@ namespace WaveTracker.Tracker {
             sampleDataAccessL = new float[0];
             sampleDataAccessR = new float[0];
             sampleLoopType = SampleLoopType.OneShot;
-            resampleMode = (ResamplingModes)Preferences.profile.defaultResampleSample;
+            resampleMode = (ResamplingMode)Preferences.profile.defaultResampleSample;
             BaseKey = Preferences.profile.defaultBaseKey;
             Detune = 0;
             _baseFrequency = Helpers.NoteToFrequency(BaseKey - (Detune / 100f));
@@ -448,11 +450,11 @@ namespace WaveTracker.Tracker {
                 sampleIndex = ((x - p) % (l - p)) + p;
             }
             currentPlaybackPosition = (int)sampleIndex;
-            if (resampleMode == ResamplingModes.None) {
+            if (resampleMode == ResamplingMode.None) {
                 outputL = getSample(0, (int)(sampleIndex + stereoPhase * 100)) * 1.5f;
                 outputR = getSample(1, (int)(sampleIndex - stereoPhase * 100)) * 1.5f;
             }
-            else if (resampleMode == ResamplingModes.Linear) {
+            else if (resampleMode == ResamplingMode.Linear) {
                 int one = (int)sampleIndex;
                 int two = one + 1;
                 float by = (float)(sampleIndex % 1f);

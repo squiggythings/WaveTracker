@@ -88,11 +88,14 @@ namespace WaveTracker.Tracker {
         /// Resizes this pattern to hold <c>channelCount</c> channels
         /// </summary>
         /// <param name="channelCount"></param>
-        public void Resize(int channelCount) {
+        public void Resize() {
             for (int row = 0; row < cells.Length; ++row) {
-                byte[] resizedRow = new byte[channelCount * 11];
+                byte[] resizedRow = new byte[ParentSong.ParentModule.ChannelCount * 11];
                 for (int column = 0; column < resizedRow.Length; ++column) {
-                    resizedRow[column] = cells[row][column];
+                    if (column < cells[row].Length)
+                        resizedRow[column] = cells[row][column];
+                    else
+                        resizedRow[column] = WTPattern.EVENT_EMPTY;
                 }
 
                 cells[row] = resizedRow;

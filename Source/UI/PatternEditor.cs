@@ -107,8 +107,6 @@ namespace WaveTracker.UI {
         /// </summary>
         WChannelHeader[] channelHeaders;
 
-        public HumanizeDialog humanizeDialog;
-
         WTFrame CurrentFrame => App.CurrentSong.FrameSequence[cursorPosition.Frame];
         WTPattern CurrentPattern => CurrentFrame.GetPattern();
 
@@ -128,6 +126,7 @@ namespace WaveTracker.UI {
 
             InputStep = 1;
             CurrentOctave = 4;
+            FollowMode = true;
             selection = new PatternSelection();
             lastSelection = new PatternSelection();
             history = new List<PatternEditorState>();
@@ -148,7 +147,6 @@ namespace WaveTracker.UI {
 
             FirstVisibleChannel -= Input.MouseScrollWheel(KeyModifier.Alt);
             FirstVisibleChannel = Math.Clamp(FirstVisibleChannel, 0, App.CurrentModule.ChannelCount - 1);
-
 
             CalculateChannelPositioning();
 
@@ -729,7 +727,7 @@ namespace WaveTracker.UI {
             #region alt+h humanize
             if (SelectionIsActive) {
                 if (Input.GetKeyDown(Keys.H, KeyModifier.Alt)) {
-                    humanizeDialog.Open(this);
+                    Dialogs.humanizeDialog.Open(this);
                 }
             }
             #endregion
@@ -818,8 +816,6 @@ namespace WaveTracker.UI {
             if (CurrentPattern.CellIsEmpty(renderCursorPos.Row, renderCursorPos.Channel, renderCursorPos.Column.ToCellType()))
                 DrawCursor(ref renderCursorPos);
 
-            DrawRect(MouseX, MouseY, 1, 1, Color.Green);
-
             DrawRect(ROW_COLUMN_WIDTH - 1, -32, 1, height + 32, Colors.theme.rowSeparator);
             for (int i = FirstVisibleChannel; i <= LastVisibleChannel; ++i) {
                 channelHeaders[i].Draw();
@@ -831,9 +827,10 @@ namespace WaveTracker.UI {
             // DrawRect(channelHeaders[LastVisibleChannel].x + channelHeaders[LastVisibleChannel].x - 2, -32, 3, 1, Colors.theme.rowSeparator);
             //Write(selection.min.ToString(), 0, 0, Color.Red);
             //Write(selection.max.ToString(), 0, 20, Color.Red);
+            //Write(cursorPosition.ToString(), 0, 30, Color.Cyan);
             DrawRect(width, -32, 1, height + 32, Colors.theme.rowSeparator);
             DrawRect(width + 1, -32, 1, 1, Colors.theme.rowSeparator);
-
+            DrawRect(LastChannelEndPos + 1, 0, width - LastChannelEndPos - 1, height, Colors.theme.background);
         }
         void DrawRow(int line, int frame, int row, int frameWrap) {
             // get the row color
@@ -949,7 +946,6 @@ namespace WaveTracker.UI {
                         WriteMonospaced(thisEffectParameter.ToString("X2"), x + 52 + 18 * i, y, Colors.theme.effectColumnParameter, 4);
                     else
                         WriteMonospaced(thisEffectParameter.ToString("D2"), x + 52 + 18 * i, y, Colors.theme.effectColumnParameter, 4);
-
                 }
             }
         }
@@ -1014,6 +1010,8 @@ namespace WaveTracker.UI {
                     start = ROW_COLUMN_WIDTH - 1;
                 if (end < ROW_COLUMN_WIDTH - 1)
                     end = ROW_COLUMN_WIDTH - 1;
+                if (start > end)
+                    return;
                 DrawRect(start, linePositionY, end - start + 1, 7, Colors.theme.selection);
 
                 // draw selection outline
@@ -1036,6 +1034,14 @@ namespace WaveTracker.UI {
         public void OnSwitchSong() {
             cursorPosition.Initialize();
             FirstVisibleChannel = 0;
+        }
+
+        public void OnResizeChannels() {
+            cursorPosition.Normalize(App.CurrentSong);
+            lastCursorPosition.Normalize(App.CurrentSong);
+            CancelSelection();
+            selection.Set(App.CurrentSong, cursorPosition, cursorPosition);
+            lastSelection.Set(App.CurrentSong, cursorPosition, cursorPosition);
         }
 
         /// <summary>
@@ -1246,6 +1252,9 @@ namespace WaveTracker.UI {
             else {
                 for (int column = selection.min.CellColumn; column <= selection.max.CellColumn; ++column) {
                     CurrentPattern[cursorPosition.Row, column] = WTPattern.EVENT_EMPTY;
+                    if (WTPattern.GetCellTypeFromCellColumn(column) == CellType.Note) {
+                        CurrentPattern[cursorPosition.Row, column + 1] = WTPattern.EVENT_EMPTY;
+                    }
                 }
                 MoveToRow(cursorPosition.Row + 1);
             }
@@ -1324,8 +1333,8 @@ namespace WaveTracker.UI {
             selection.IsActive = true;
             SetSelectionStart(p);
             p.MoveToRow(Math.Clamp(p.Row + clipboard.GetLength(0) - 1, 0, CurrentPattern.GetModifiedLength() - 1), App.CurrentSong);
-            p.Channel += clipboard.GetLength(1) / 11;
-            p.Column += clipboard.GetLength(1) % 11;
+            p.MoveToCellColumn(p.CellColumn + clipboard.GetLength(1) - 1);
+            p.NormalizeHorizontally(App.CurrentSong);
             SetSelectionEnd(p);
             selection.Set(App.CurrentSong, selectionStart, selectionEnd);
             AddToUndoHistory();
@@ -1439,8 +1448,8 @@ namespace WaveTracker.UI {
         /// The new frame will have the next empty pattern
         /// </summary>
         public void InsertNewFrame() {
+            App.CurrentSong.InsertNewFrame(cursorPosition.Frame + 1);
             MoveToFrame(cursorPosition.Frame + 1);
-            App.CurrentSong.InsertNewFrame(cursorPosition.Frame);
         }
 
         /// <summary>
@@ -1453,7 +1462,8 @@ namespace WaveTracker.UI {
 
         public void RemoveFrame() {
             App.CurrentSong.RemoveFrame(cursorPosition.Frame);
-            MoveToFrame(cursorPosition.Frame - 1);
+            if (cursorPosition.Frame > 0)
+                MoveToFrame(cursorPosition.Frame - 1);
         }
 
         public void MoveFrameRight() {
@@ -1517,7 +1527,7 @@ namespace WaveTracker.UI {
         /// <summary>
         /// Calculates where channels are positioned based on the horziontal scroll and their expansions
         /// </summary>
-        void CalculateChannelPositioning() {
+        public void CalculateChannelPositioning() {
             // get the total width of channels that are not visible on the left side
             int prevWidth = 0;
             for (int i = 0; i < FirstVisibleChannel; ++i) {
@@ -1526,7 +1536,7 @@ namespace WaveTracker.UI {
 
             // figure out which channel headers are visible, and enable/position/update them
             int px = ROW_COLUMN_WIDTH - prevWidth;
-            for (int channel = 0; channel < channelHeaders.Length; ++channel) {
+            for (int channel = 0; channel < App.CurrentModule.ChannelCount; ++channel) {
 
                 if (px >= ROW_COLUMN_WIDTH && px < width) {
                     channelHeaders[channel].enabled = true;
@@ -1548,7 +1558,7 @@ namespace WaveTracker.UI {
                 }
                 px += GetWidthOfChannel(channel);
             }
-            LastChannelEndPos = channelHeaders[channelHeaders.Length - 1].x + channelHeaders[channelHeaders.Length - 1].width;
+            LastChannelEndPos = channelHeaders[App.CurrentModule.ChannelCount - 1].x + channelHeaders[App.CurrentModule.ChannelCount - 1].width;
         }
 
 
@@ -1620,7 +1630,7 @@ namespace WaveTracker.UI {
             x -= GetWidthOfCursorColumn(col);
             while (x > 0) {
                 col++;
-                if (col > CursorColumnType.Effect4Param2)
+                if (col > App.CurrentSong.GetLastCursorColumnOfChannel(channel))
                     return col - 1;
                 x -= GetWidthOfCursorColumn(col);
             }

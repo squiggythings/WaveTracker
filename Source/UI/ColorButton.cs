@@ -10,7 +10,6 @@ using WaveTracker.Rendering;
 
 namespace WaveTracker.UI {
     public class ColorButton : Clickable {
-        public static ColorPickerDialog colorPicker;
         public Color Color { get; set; }
         public string HexValue {
             get { return Color.GetHexCodeWithAlpha(); }
@@ -29,7 +28,7 @@ namespace WaveTracker.UI {
 
         public void Update() {
             if (Clicked) {
-                colorPicker.Open(this);
+                Dialogs.colorPicker.Open(this);
             }
         }
 

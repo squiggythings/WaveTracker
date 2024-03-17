@@ -76,6 +76,7 @@ namespace WaveTracker.Tracker {
         /// Initializes a new song with empty patterns and default settings
         /// </summary>
         public WTSong(WTModule parentModule) {
+            Name = "New Song";
             ParentModule = parentModule;
             Patterns = new WTPattern[100];
             for (int i = 0; i < Patterns.Length; ++i) {
@@ -91,6 +92,22 @@ namespace WaveTracker.Tracker {
             RowsPerFrame = 64;
             RowHighlightPrimary = 16;
             RowHighlightSecondary = 4;
+        }
+
+        public void ResizeChannelCount() {
+            int[] oldArray = NumEffectColumns;
+            NumEffectColumns = new int[ParentModule.ChannelCount];
+      
+            for (int i = 0; i < NumEffectColumns.Length; ++i) {
+                if (i < oldArray.Length)
+                    NumEffectColumns[i] = oldArray[i];
+                else
+                    NumEffectColumns[i] = 1;
+            }
+            foreach(WTPattern pattern in Patterns) {
+                pattern.Resize();
+            }
+
         }
 
         [ProtoBeforeSerialization]
@@ -112,16 +129,18 @@ namespace WaveTracker.Tracker {
         /// Appends a new frame at the end of the sequence using the next free pattern
         /// </summary>
         public void AddNewFrame() {
-            if (FrameSequence.Count < 100)
+            if (FrameSequence.Count < 100) {
                 FrameSequence.Add(new WTFrame(GetNextFreePattern(), this));
+            }
         }
 
         /// <summary>
         /// Inserts a new frame in the sequence using the next free pattern
         /// </summary>
         public void InsertNewFrame(int index) {
-            if (FrameSequence.Count < 100)
+            if (FrameSequence.Count < 100) {
                 FrameSequence.Insert(index, new WTFrame(GetNextFreePattern(), this));
+            }
         }
 
         /// <summary>
@@ -129,8 +148,9 @@ namespace WaveTracker.Tracker {
         /// </summary>
         /// <param name="index"></param>
         public void DuplicateFrame(int index) {
-            if (FrameSequence.Count < 100)
+            if (FrameSequence.Count < 100) {
                 FrameSequence.Insert(index, new WTFrame(FrameSequence[index].PatternIndex, this));
+            }
         }
 
         /// <summary>
@@ -138,7 +158,7 @@ namespace WaveTracker.Tracker {
         /// </summary>
         /// <param name="index"></param>
         public void RemoveFrame(int index) {
-            if (FrameSequence.Count > 2) {
+            if (FrameSequence.Count > 1) {
                 FrameSequence.RemoveAt(index);
             }
         }
@@ -284,6 +304,10 @@ namespace WaveTracker.Tracker {
                 ++i;
             }
             return patternData;
+        }
+
+        public override string ToString() {
+            return Name;
         }
 
         public void UnpackPatternsFromStrings(string[] packedStrings) {

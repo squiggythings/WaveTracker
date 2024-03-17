@@ -169,7 +169,7 @@ namespace WaveTracker.UI {
                                 #region resampling modes
                                 sample_resampleDropdown.Value = (int)instrument.sample.resampleMode;
                                 sample_resampleDropdown.Update();
-                                instrument.sample.resampleMode = (Audio.ResamplingModes)sample_resampleDropdown.Value;
+                                instrument.sample.resampleMode = (Audio.ResamplingMode)sample_resampleDropdown.Value;
                                 #endregion
 
                                 #region loop modes
@@ -455,14 +455,14 @@ namespace WaveTracker.UI {
             macro.sample.SetDetune(0);
             macro.sample.sampleLoopIndex = 0;
             macro.sample.sampleLoopType = macro.sample.sampleDataAccessL.Length < 1000 ? SampleLoopType.Forward : SampleLoopType.OneShot;
-            macro.sample.resampleMode = (Audio.ResamplingModes)Preferences.profile.defaultResampleSample;
+            macro.sample.resampleMode = (Audio.ResamplingMode)Preferences.profile.defaultResampleSample;
             if (successfulReadWAV) {
                 if (Preferences.profile.automaticallyTrimSamples)
                     macro.sample.TrimSilence();
                 if (Preferences.profile.automaticallyNormalizeSamples)
                     macro.sample.Normalize();
 
-                macro.sample.resampleMode = (Audio.ResamplingModes)Preferences.profile.defaultResampleSample;
+                macro.sample.resampleMode = (Audio.ResamplingMode)Preferences.profile.defaultResampleSample;
             }
             else {
                 macro.sample.sampleDataAccessL = Array.Empty<float>();

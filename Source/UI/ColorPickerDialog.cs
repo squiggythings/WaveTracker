@@ -66,7 +66,7 @@ namespace WaveTracker.UI {
         }
 
         public void Update() {
-            if (windowIsEnabled) {
+            if (windowIsOpen) {
                 if (canStart) {
                     if (cancel.Clicked || ExitButton.Clicked)
                         Close();
@@ -168,7 +168,7 @@ namespace WaveTracker.UI {
         }
 
         public new void Draw() {
-            if (windowIsEnabled) {
+            if (windowIsOpen) {
                 base.Draw();
 
 

@@ -24,7 +24,7 @@ namespace WaveTracker.UI {
         /// <summary>
         /// Whether the window is visible or not
         /// </summary>
-        protected bool windowIsEnabled;
+        protected bool windowIsOpen;
 
         bool isDragging;
         Point dragOffset;
@@ -42,13 +42,16 @@ namespace WaveTracker.UI {
         }
 
 
-        public void InitializeInCenterOfScreen() {
+        /// <summary>
+        /// Positions the window in the center of the screen
+        /// </summary>
+        public void PositionInCenterOfScreen() {
             x = (App.WindowWidth - width) / 2;
             y = (App.WindowHeight - height) / 2;
         }
 
         protected void DoDragging() {
-            if (windowIsEnabled) {
+            if (windowIsOpen) {
                 if (Input.GetClickDown(KeyModifier._Any)) {
                     if (LastClickPos.X >= 0 && LastClickPos.X <= width && LastClickPos.Y >= 0 && LastClickPos.Y <= 9) {
                         isDragging = true;
@@ -66,17 +69,33 @@ namespace WaveTracker.UI {
                         isDragging = false;
                     }
                 }
+                ClampPosition();
             }
         }
 
+        /// <summary>
+        /// Clamps the position of the window to be within screen bounds
+        /// </summary>
+        void ClampPosition() {
+            if (x > App.WindowWidth - width) {
+                x = App.WindowWidth - width;
+            }
+            if (y > App.WindowHeight - height - 10) {
+                y = App.WindowHeight - height - 10;
+            }
+            if (x < 0)
+                x = 0;
+            if (y < 0)
+                y = 0;
+        }
+
         protected new void Draw() {
-            if (windowIsEnabled) {
-                x = Math.Clamp(x, 0, App.WindowWidth - width);
-                y = Math.Clamp(y, 0, App.WindowHeight - height);
+            if (windowIsOpen) {
+                ClampPosition();
 
                 // draw a transparent black rectangle behind the window
                 DrawRect(-x, -y, App.WindowWidth, App.WindowHeight, Helpers.Alpha(Color.Black, 90));
-                
+
                 // draw the panel
                 base.Draw();
                 // draw the exit button if there is one
@@ -87,18 +106,18 @@ namespace WaveTracker.UI {
         protected void Open() {
             opened = Input.focus;
             Input.focus = this;
-            windowIsEnabled = true;
-            InitializeInCenterOfScreen();
+            windowIsOpen = true;
+            PositionInCenterOfScreen();
         }
         protected void Open(Element opened) {
             Input.focus = this;
-            windowIsEnabled = true;
-            InitializeInCenterOfScreen();
+            windowIsOpen = true;
+            PositionInCenterOfScreen();
             this.opened = opened;
         }
         protected void Close() {
             Input.focus = opened;
-            windowIsEnabled = false;
+            windowIsOpen = false;
         }
     }
 }

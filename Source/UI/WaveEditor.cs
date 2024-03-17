@@ -25,7 +25,7 @@ namespace WaveTracker.UI {
         public int id;
         int holdPosY, holdPosX;
         static string clipboardWave = "";
-        static Audio.ResamplingModes clipboardSampleMode = Audio.ResamplingModes.Mix;
+        static Audio.ResamplingMode clipboardSampleMode = Audio.ResamplingMode.Mix;
         int phase;
         public WaveEditor(Texture2D tex) {
             this.tex = tex;
@@ -188,7 +188,7 @@ namespace WaveTracker.UI {
                     }
 
                     ResampleDropdown.Update();
-                    Song.currentSong.waves[WaveBank.currentWave].resamplingMode = (Audio.ResamplingModes)ResampleDropdown.Value;
+                    Song.currentSong.waves[WaveBank.currentWave].resamplingMode = (Audio.ResamplingMode)ResampleDropdown.Value;
                     //if (filterNone.Clicked)
                     //    Song.currentSong.waves[WaveBank.currentWave].resamplingMode = Audio.ResamplingModes.None;
                     //if (filterLinear.Clicked)

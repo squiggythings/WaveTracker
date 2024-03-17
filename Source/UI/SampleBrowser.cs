@@ -65,14 +65,14 @@ namespace WaveTracker.UI {
                     sortMethod = SortingMethod.ByName;
                     GetFileEntries(true);
                     selectedFileIndex = -1;
-                    scrollbar.scrollValue = 0;
+                    scrollbar.ScrollValue = 0;
                     previewOut.Stop();
                 }
                 if (sortType.Clicked) {
                     sortMethod = SortingMethod.ByType;
                     GetFileEntries(true);
                     selectedFileIndex = -1;
-                    scrollbar.scrollValue = 0;
+                    scrollbar.ScrollValue = 0;
                     previewOut.Stop();
                 }
                 sortName.Value = sortMethod == SortingMethod.ByName;
@@ -85,7 +85,7 @@ namespace WaveTracker.UI {
                         currentPath = "";
                     else
                         currentPath = Directory.GetParent(currentPath).ToString();
-                    scrollbar.scrollValue = 0;
+                    scrollbar.ScrollValue = 0;
                     previewOut.Stop();
                 }
                 if (ok.Clicked) {
@@ -102,7 +102,7 @@ namespace WaveTracker.UI {
 
                 int y = 29;
                 bool newFile = false;
-                for (int i = scrollbar.scrollValue; i < listLength + scrollbar.scrollValue; i++) {
+                for (int i = scrollbar.ScrollValue; i < listLength + scrollbar.ScrollValue; i++) {
                     if (MouseX > 2 && MouseX < width - 117) {
                         if (MouseY > y && MouseY <= y + 11) {
                             if (Input.GetClickDown(KeyModifier.None)) {
@@ -119,7 +119,7 @@ namespace WaveTracker.UI {
                                     // double clicked on a folder
                                     currentPath = entriesInDirectory[i];
                                     selectedFileIndex = -1;
-                                    scrollbar.scrollValue = 0;
+                                    scrollbar.ScrollValue = 0;
                                     GetFileEntries(false);
                                     break;
                                 } else {
@@ -148,7 +148,7 @@ namespace WaveTracker.UI {
                     moveBounds();
                 }
                 scrollbar.SetSize(entriesInDirectory.Length, listLength);
-                scrollbar.scrollValue = Math.Clamp(scrollbar.scrollValue, 0, Math.Clamp(entriesInDirectory.Length - listLength, 0, 999999));
+                scrollbar.ScrollValue = Math.Clamp(scrollbar.ScrollValue, 0, Math.Clamp(entriesInDirectory.Length - listLength, 0, 999999));
                 scrollbar.UpdateScrollValue();
                 scrollbar.Update();
                 ok.enabled = selectedAnAudioFile;
@@ -156,14 +156,14 @@ namespace WaveTracker.UI {
         }
 
         public void moveBounds() {
-            if (selectedFileIndex > scrollbar.scrollValue + listLength - 1) {
-                scrollbar.scrollValue = selectedFileIndex - listLength + 1;
+            if (selectedFileIndex > scrollbar.ScrollValue + listLength - 1) {
+                scrollbar.ScrollValue = selectedFileIndex - listLength + 1;
             }
-            if (selectedFileIndex < scrollbar.scrollValue) {
-                scrollbar.scrollValue = selectedFileIndex;
+            if (selectedFileIndex < scrollbar.ScrollValue) {
+                scrollbar.ScrollValue = selectedFileIndex;
             }
             scrollbar.SetSize(entriesInDirectory.Length, listLength);
-            scrollbar.scrollValue = Math.Clamp(scrollbar.scrollValue, 0, Math.Clamp(entriesInDirectory.Length - listLength, 0, 999999));
+            scrollbar.ScrollValue = Math.Clamp(scrollbar.ScrollValue, 0, Math.Clamp(entriesInDirectory.Length - listLength, 0, 999999));
             scrollbar.UpdateScrollValue();
 
         }
@@ -239,7 +239,7 @@ namespace WaveTracker.UI {
             previewOut.Stop();
             launched = launch;
             selectedFileIndex = -1;
-            scrollbar.scrollValue = 0;
+            scrollbar.ScrollValue = 0;
             enabled = true;
             Input.focus = this;
         }
@@ -260,7 +260,7 @@ namespace WaveTracker.UI {
             Color even = new Color(59, 68, 107);
             Color selected = UIColors.selection;
             int y = 0;
-            for (int i = scrollbar.scrollValue; i < listLength + scrollbar.scrollValue; i++) {
+            for (int i = scrollbar.ScrollValue; i < listLength + scrollbar.ScrollValue; i++) {
                 Color row;
                 if (i == selectedFileIndex)
                     row = selected;

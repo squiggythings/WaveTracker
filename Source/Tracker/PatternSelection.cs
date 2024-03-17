@@ -27,7 +27,6 @@ namespace WaveTracker.Tracker {
 
         public void Set(WTSong song, CursorPos startPos, CursorPos endPos) {
             Song = song;
-
             min = startPos;
             max = endPos;
 

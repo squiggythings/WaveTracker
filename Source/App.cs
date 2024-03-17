@@ -100,7 +100,6 @@ namespace WaveTracker {
             //frameRenderer.Initialize();
             //FrameEditor.channelScrollbar = new UI.ScrollbarHorizontal(22, 323, 768, 7, null);
             //FrameEditor.channelScrollbar.SetSize(Tracker.Song.CHANNEL_COUNT, 12);
-            editSettings = new EditSettings();
             visualization = new Visualization();
             IsFixedTimeStep = false;
             base.Initialize();
@@ -110,12 +109,12 @@ namespace WaveTracker {
         protected override void LoadContent() {
             Checkbox.textureSheet = Content.Load<Texture2D>("instrumentwindow");
             NumberBox.buttons = Content.Load<Texture2D>("window_edit");
-            Preferences.dialog = new PreferencesDialog();
-            ColorButton.colorPicker = new ColorPickerDialog();
-            PatternEditor.humanizeDialog = new HumanizeDialog();
+            Dialogs.Initialize();
+            editSettings = new EditSettings();
+            Dialogs.humanizeDialog = new HumanizeDialog();
             font = Content.Load<SpriteFont>("custom_font");
             channelHeaderSprite = Content.Load<Texture2D>("trackerchannelheader");
-            toolbar = new Toolbar(Content.Load<Texture2D>("toolbar"), PatternEditor);
+            toolbar = new Toolbar(Content.Load<Texture2D>("toolbar"));
             waveBank.editor = new WaveEditor(Content.Load<Texture2D>("wave_window"));
 
             InstrumentBank.Initialize(Content.Load<Texture2D>("toolbar"));
@@ -128,7 +127,7 @@ namespace WaveTracker {
             // TODO: use this.Content to load your game content here
             targetBatch = new SpriteBatch(GraphicsDevice);
             target = new RenderTarget2D(GraphicsDevice, ScreenWidth, ScreenHeight);
-            audioEngine = new Audio.AudioEngine();
+            audioEngine = new AudioEngine();
             audioEngine.Initialize();
             SaveLoad.NewFile();
             SaveLoad.LoadFrom(filename);
@@ -216,10 +215,7 @@ namespace WaveTracker {
             else {
                 //sframeRenderer.UpdateChannelHeaders();
             }
-            audioEngine.exportingDialog.Update();
-            Preferences.dialog.Update();
-            ColorButton.colorPicker.Update();
-            PatternEditor.humanizeDialog.Update();
+            Dialogs.Update();
             toolbar.Update();
             base.Update(gameTime);
             lastPianoKey = pianoInput;
@@ -278,16 +274,13 @@ namespace WaveTracker {
                 visualization.Draw();
             }
             toolbar.Draw();
-            Preferences.dialog.Draw();
-            ColorButton.colorPicker.Draw();
-            PatternEditor.humanizeDialog.Draw();
+            Dialogs.Draw();
+         
             if (!VisualizerMode) {
                 waveBank.editor.Draw();
                 InstrumentBank.editor.Draw();
-                audioEngine.exportingDialog.Draw();
 
             }
-            toolbar.exportDialog.Draw();
             Tooltip.Draw();
             //int y = 10;
             //foreach (MMDevice k in audioEngine.devices)

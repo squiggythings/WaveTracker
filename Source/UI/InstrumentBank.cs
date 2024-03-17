@@ -78,10 +78,10 @@ namespace WaveTracker.UI {
                 if (MouseY > 28) {
                     // click on item
                     if (Input.GetClickDown(KeyModifier.None)) {
-                        CurrentInstrumentIndex = Math.Clamp((MouseY - 28) / 11 + scrollbar.scrollValue, 0, App.CurrentModule.Instruments.Count - 1);
+                        CurrentInstrumentIndex = Math.Clamp((MouseY - 28) / 11 + scrollbar.ScrollValue, 0, App.CurrentModule.Instruments.Count - 1);
                     }
                     if (Input.GetDoubleClick(KeyModifier.None)) {
-                        int ix = (MouseY - 28) / 11 + scrollbar.scrollValue;
+                        int ix = (MouseY - 28) / 11 + scrollbar.ScrollValue;
                         if (ix < App.CurrentModule.Instruments.Count && ix >= 0)
                             editor.EditMacro(GetCurrentInstrument, CurrentInstrumentIndex);
                     }
@@ -160,14 +160,14 @@ namespace WaveTracker.UI {
             moveBounds();
         }
         public void moveBounds() {
-            if (CurrentInstrumentIndex > scrollbar.scrollValue + listLength - 1) {
-                scrollbar.scrollValue = CurrentInstrumentIndex - listLength + 1;
+            if (CurrentInstrumentIndex > scrollbar.ScrollValue + listLength - 1) {
+                scrollbar.ScrollValue = CurrentInstrumentIndex - listLength + 1;
             }
-            if (CurrentInstrumentIndex < scrollbar.scrollValue) {
-                scrollbar.scrollValue = CurrentInstrumentIndex;
+            if (CurrentInstrumentIndex < scrollbar.ScrollValue) {
+                scrollbar.ScrollValue = CurrentInstrumentIndex;
             }
             scrollbar.SetSize(App.CurrentModule.Instruments.Count, listLength);
-            scrollbar.scrollValue = Math.Clamp(scrollbar.scrollValue, 0, Math.Clamp(App.CurrentModule.Instruments.Count - listLength, 0, 100));
+            scrollbar.ScrollValue = Math.Clamp(scrollbar.ScrollValue, 0, Math.Clamp(App.CurrentModule.Instruments.Count - listLength, 0, 100));
             scrollbar.UpdateScrollValue();
 
         }
@@ -176,7 +176,7 @@ namespace WaveTracker.UI {
             Color even = new Color(59, 68, 107);
             Color selected = UIColors.selection;
             int y = 0;
-            for (int i = scrollbar.scrollValue; i < listLength + scrollbar.scrollValue; i++) {
+            for (int i = scrollbar.ScrollValue; i < listLength + scrollbar.ScrollValue; i++) {
                 Color row;
                 if (i == CurrentInstrumentIndex)
                     row = selected;

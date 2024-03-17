@@ -162,7 +162,7 @@ namespace WaveTracker.UI {
         }
 
         public void Update() {
-            if (windowIsEnabled) {
+            if (windowIsOpen) {
                 if (ExitButton.Clicked || cancel.Clicked) {
                     Close();
                 }
@@ -186,7 +186,7 @@ namespace WaveTracker.UI {
         }
 
         public new void Draw() {
-            if (windowIsEnabled) {
+            if (windowIsOpen) {
                 base.Draw();
                 tabGroup.Draw();
                 DrawRoundedRect(tabGroup.x, tabGroup.y + 13, width - 8, height - 20 - 24, Color.White);
@@ -317,7 +317,7 @@ namespace WaveTracker.UI {
                     if (option.IsHovered)
                         HoveredDescription = option.description + "";
 
-                    option.y = option.origY - scrollbar.scrollValue * 16;
+                    option.y = option.origY - scrollbar.ScrollValue * 16;
                     if (option.y >= 0 && option.y < 209)
                         option.Update();
                 }
@@ -326,7 +326,7 @@ namespace WaveTracker.UI {
 
         public void Draw() {
             if (enabled) {
-                for (int i = scrollbar.scrollValue + scrollbar.viewportSize; i >= scrollbar.scrollValue; i--) {
+                for (int i = scrollbar.ScrollValue + scrollbar.viewportSize; i >= scrollbar.ScrollValue; i--) {
                     if (i < options.Count && i >= 0)
                         options[i].Draw();
                 }

@@ -44,6 +44,19 @@ namespace WaveTracker.UI {
             bDown = new SpriteButton(width - 10, 7, 10, 6, buttons, 2, this);
         }
 
+        public NumberBox(string label, int x, int y, Element parent) {
+            this.label = label;
+            this.x = x;
+            this.y = y;
+            this.width = Helpers.GetWidthOfText(label) + 46;
+            this.boxWidth = 38;
+            height = 13;
+            canScroll = true;
+            SetParent(parent);
+            bUp = new SpriteButton(width - 10, 0, 10, 6, buttons, 1, this);
+            bDown = new SpriteButton(width - 10, 7, 10, 6, buttons, 2, this);
+        }
+
         public void EnableScrolling() { canScroll = true; }
         public void DisableScrolling() { canScroll = false; }
 

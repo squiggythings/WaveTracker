@@ -14,7 +14,7 @@ namespace WaveTracker.Tracker
     [Serializable]
     public class Wave {
         [ProtoMember(31)]
-        public ResamplingModes resamplingMode;
+        public ResamplingMode resamplingMode;
         [ProtoMember(32)]
         public byte[] samples = new byte[64];
 
@@ -22,7 +22,7 @@ namespace WaveTracker.Tracker
             for (int i = 0; i < 64; i++) {
                 samples[i] = 16;
             }
-            this.resamplingMode = (ResamplingModes)Preferences.profile.defaultResampleWave;
+            this.resamplingMode = (ResamplingMode)Preferences.profile.defaultResampleWave;
         }
 
 
@@ -36,10 +36,10 @@ namespace WaveTracker.Tracker
         }
 
         public Wave(string initialWaveString) {
-            this.resamplingMode = (ResamplingModes)Preferences.profile.defaultResampleWave;
+            this.resamplingMode = (ResamplingMode)Preferences.profile.defaultResampleWave;
             SetWaveformFromString(initialWaveString);
         }
-        public Wave(string initialWaveString, ResamplingModes resampling) {
+        public Wave(string initialWaveString, ResamplingMode resampling) {
             this.resamplingMode = resampling;
             SetWaveformFromString(initialWaveString);
         }
@@ -170,7 +170,7 @@ namespace WaveTracker.Tracker
                 for (int i = 0; i < 64; i++) {
                     samples[i] = 16;
                 }
-                resamplingMode = (ResamplingModes)int.Parse(s[0] + "");
+                resamplingMode = (ResamplingMode)int.Parse(s[0] + "");
 
                 return;
             }
@@ -179,7 +179,7 @@ namespace WaveTracker.Tracker
                 samples[i * 2] = (byte)(c / 32);
                 samples[i * 2 + 1] = (byte)(c % 32);
             }
-            resamplingMode = (ResamplingModes)int.Parse(s[32] + "");
+            resamplingMode = (ResamplingMode)int.Parse(s[32] + "");
         }
 
         public bool isEqualTo(Wave other) {
@@ -237,7 +237,7 @@ namespace WaveTracker.Tracker
         public float GetSampleAtPosition(float t) {
             while (t < 0)
                 t += 1;
-            if (resamplingMode == ResamplingModes.None) {
+            if (resamplingMode == ResamplingMode.None) {
                 return getSample((int)(t * samples.Length)) / 16f - 1f;
             }
             int index1 = (int)(t * samples.Length);
@@ -245,7 +245,7 @@ namespace WaveTracker.Tracker
             float sample1 = getSample(index1) / 16f - 1f;
             float sample2 = getSample(index2) / 16f - 1f;
             float lerpt = (float)(Helpers.Mod(t, 0.015625)) * 64;
-            if (resamplingMode == ResamplingModes.Linear) {
+            if (resamplingMode == ResamplingMode.Linear) {
                 return MathHelper.Lerp(sample1, sample2, lerpt);
             }
 
