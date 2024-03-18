@@ -30,20 +30,23 @@ namespace WaveTracker.UI {
             }
         }
 
-        public ListBox(int x, int y, int width, int numRows, Element parent) {
+        public ListBox(int x, int y, int width, int numVisibleRows, Element parent) {
             this.x = x;
             this.y = y;
             this.width = width;
-            this.height = numRows * 11;
-            this.numRows = numRows;
+            this.height = numVisibleRows * 11;
+            this.numRows = numVisibleRows;
             scrollbar = new Scrollbar(0, 0, width, height, this);
             SetParent(parent);
         }
 
+        /// <summary>
+        /// Sets the list for this box to reference
+        /// </summary>
+        /// <param name="list"></param>
         public void SetList(List<T> list) {
             items = list;
         }
-
 
         public void Update() {
             if (ClickedDown) {
@@ -74,7 +77,7 @@ namespace WaveTracker.UI {
             scrollbar.Update();
         }
 
-        public void MoveBounds() {
+        void MoveBounds() {
             if (SelectedIndex > scrollbar.ScrollValue + numRows - 1) {
                 scrollbar.ScrollValue = SelectedIndex - numRows + 1;
             }
@@ -101,7 +104,7 @@ namespace WaveTracker.UI {
                 if (items.Count > i && i >= 0) {
                     string text;
                     if (ShowItemNumbers) {
-                        text = "#" + (i + 1) + ". " + items[i].ToString();
+                        text = "#" + (i + 1) + " " + items[i].ToString();
                     }
                     else {
                         text = items[i].ToString();

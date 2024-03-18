@@ -31,17 +31,18 @@ namespace WaveTracker.UI {
             this.patternEditor = patternEditor;
             this.offset = offset;
             SetParent(parent);
-            SetTooltip("", "Click + Drag or Shift + Scroll to change pattern number");
         }
 
         public void Update() {
             if (patternEditor.cursorPosition.Frame + offset == FrameSequence.Count && FrameSequence.Count < 100) {
+                SetTooltip("Add frame", "Add a new frame at the end of the song");
                 if (Clicked && offset < 12) {
                     if (!Playback.isPlaying)
                         App.CurrentSong.AddNewFrame();
                 }
             }
             else if (offset < 12 && offset > -12) {
+                SetTooltip("Frame " + ThisFrameIndex.ToString("D2"), "Click+Drag or Shift+Scroll to change pattern number");
                 if (Clicked) {
                     if (Playback.isPlaying && App.PatternEditor.FollowMode) {
                         Playback.position.Frame += offset;

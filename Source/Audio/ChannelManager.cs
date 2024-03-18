@@ -82,10 +82,10 @@ namespace WaveTracker.Audio {
                     char effectType = (char)App.CurrentSong[frame][row, channelIndex, CellType.Effect1 + 2 * effectIndex];
                     int effectParam = (char)App.CurrentSong[frame][row, channelIndex, CellType.Effect1Parameter + 2 * effectIndex];
                     if (effectType == 'L') {
-                        channels[channelNum].QueueEvent(TickEventType.Note, WTPattern.EVENT_NOTE_RELEASE, 0, delayTicks + effectParam + 1);
+                        channels[channelNum].QueueEvent(TickEventType.Note, WTPattern.EVENT_NOTE_RELEASE, 0, delayTicks + effectParam);
                     }
                     if (effectType == 'S') {
-                        channels[channelNum].QueueEvent(TickEventType.Note, WTPattern.EVENT_NOTE_CUT, 0, delayTicks + effectParam + 1);
+                        channels[channelNum].QueueEvent(TickEventType.Note, WTPattern.EVENT_NOTE_CUT, 0, delayTicks + effectParam);
                     }
                 }
 

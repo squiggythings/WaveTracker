@@ -28,6 +28,17 @@ namespace WaveTracker.UI {
             SetParent(parent);
         }
 
+        public Textbox(string label, int x, int y, int width, Element parent) {
+            this.width = width;
+            this.textboxWidth = width - Helpers.GetWidthOfText(label) - 4;
+            this.x = x;
+            this.y = y;
+            this.label = label;
+            this.height = 13;
+            SetParent(parent);
+        }
+
+
         public void SetPrefix(string prefix) {
             this.textPrefix = prefix;
         }
@@ -44,14 +55,15 @@ namespace WaveTracker.UI {
                 if (Text != lastText) {
                     ValueWasChanged = true;
                     lastText = Text;
-                } else {
+                }
+                else {
                     ValueWasChanged = false;
                 }
             }
         }
 
         public void Draw() {
-            Color dark = new Color (104, 111, 153);
+            Color dark = new Color(104, 111, 153);
             Color text = new Color(20, 24, 46);
             if (IsHovered && canEdit) {
                 dark = text;

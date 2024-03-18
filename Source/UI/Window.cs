@@ -77,16 +77,16 @@ namespace WaveTracker.UI {
         /// Clamps the position of the window to be within screen bounds
         /// </summary>
         void ClampPosition() {
-            if (x > App.WindowWidth - width) {
-                x = App.WindowWidth - width;
+            if (x > App.WindowWidth - width - 2) {
+                x = App.WindowWidth - width - 2;
             }
             if (y > App.WindowHeight - height - 10) {
                 y = App.WindowHeight - height - 10;
             }
-            if (x < 0)
-                x = 0;
-            if (y < 0)
-                y = 0;
+            if (x < 2)
+                x = 2;
+            if (y < 2)
+                y = 2;
         }
 
         protected new void Draw() {

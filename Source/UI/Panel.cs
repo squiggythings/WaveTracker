@@ -37,10 +37,9 @@ namespace WaveTracker.UI {
 
         public void DrawHorizontalLabel(string labelText, int x, int y, int width, int labelInset = 8) {
             int textWidth = Helpers.GetWidthOfText(labelText);
-            DrawRect(x, y, labelInset, 1, UIColors.labelLight);
-            DrawRect(textWidth + 11, y, width - textWidth - 11, 1, UIColors.labelLight);
-            DrawRect(textWidth + 3 + labelInset, y, width - textWidth - 3 - labelInset, 1, UIColors.labelLight);
-            Write(labelText, labelInset, y - 3, UIColors.labelLight);
+            DrawRect(x, y, labelInset - 3, 1, UIColors.labelLight);
+            Write(labelText, x + labelInset, y - 3, UIColors.labelLight);
+            DrawRect(x + labelInset + textWidth + 3, y, width - textWidth - 3 - labelInset, 1, UIColors.labelLight);
         }
 
         public void Draw() {
