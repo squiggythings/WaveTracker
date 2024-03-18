@@ -19,6 +19,7 @@ namespace WaveTracker.UI {
         /// </summary>
         int ThisFrameIndex => patternEditor.cursorPosition.Frame + offset;
         int valueSaved;
+        bool isDragging;
         /// <summary>
         /// The frame this button represents
         /// </summary>
@@ -37,20 +38,20 @@ namespace WaveTracker.UI {
             if (patternEditor.cursorPosition.Frame + offset == FrameSequence.Count && FrameSequence.Count < 100) {
                 SetTooltip("Add frame", "Add a new frame at the end of the song");
                 if (Clicked && offset < 12) {
-                    if (!Playback.isPlaying)
-                        App.CurrentSong.AddNewFrame();
+                    App.CurrentSong.AddNewFrame();
                 }
             }
             else if (offset < 12 && offset > -12) {
                 SetTooltip("Frame " + ThisFrameIndex.ToString("D2"), "Click+Drag or Shift+Scroll to change pattern number");
-                if (Clicked) {
+                if (Clicked && !isDragging) {
                     if (Playback.isPlaying && App.PatternEditor.FollowMode) {
                         Playback.position.Frame += offset;
-                        Playback.NextFrame();
-                        Playback.PreviousFrame();
+                        Playback.GotoNextFrame();
+                        Playback.GotoPreviousFrame();
                     }
                     else {
                         patternEditor.MoveToFrame(App.PatternEditor.cursorPosition.Frame + offset);
+                        patternEditor.GoToTopOfFrame();
                     }
                 }
                 if (ThisFrameIndex < FrameSequence.Count && ThisFrameIndex >= 0) {
@@ -61,10 +62,16 @@ namespace WaveTracker.UI {
                             if (Input.GetClickDown(KeyModifier.None))
                                 valueSaved = ThisFrame.PatternIndex;
                             if (Input.GetClick(KeyModifier.None)) {
-                                if ((MouseY - LastClickPos.Y) / 3 != 0) {
-                                    ThisFrame.PatternIndex = valueSaved - (MouseY - LastClickPos.Y) / 3;
+                                if ((MouseY - LastClickPos.Y) / 4 != 0) {
+                                    isDragging = true;
                                     App.mouseCursorArrow = 2;
                                 }
+                                if (isDragging) {
+                                    ThisFrame.PatternIndex = valueSaved - (MouseY - LastClickPos.Y) / 4;
+                                }
+                            }
+                            else {
+                                isDragging = false;
                             }
                         }
                     }
@@ -90,7 +97,7 @@ namespace WaveTracker.UI {
             if (offset < 12 && offset > -12) {
                 if (offset == 0)
                     return Color.White;
-                if (IsHovered) {
+                if (IsHovered || isDragging) {
                     return matchesPatternIndex ? Color.White : new Color(147, 152, 178).Lerp(Color.White, 0.75f);
                 }
                 else {
@@ -108,11 +115,17 @@ namespace WaveTracker.UI {
                     buttonColor = new Color(8, 124, 232);
                 else if (!patternEditor.FollowMode && Playback.isPlaying && Playback.position.Frame - patternEditor.cursorPosition.Frame == offset)
                     buttonColor = Colors.theme.rowPlaybackColor.AddTo(new Color(40, 20, 40));
-                else if (IsPressed && offset > -12 && offset < 12)
+                else if (IsPressed && offset > -12 && offset < 12 && !isDragging)
                     buttonColor = new Color(89, 96, 138);
                 else
                     buttonColor = new Color(64, 73, 115);
                 DrawRoundedRect(0, 0, width, height, buttonColor);
+                if (IsHovered && Input.CurrentModifier == KeyModifier.Shift) {
+                    DrawRect(1, 0, width - 2, 1, Helpers.Alpha(Color.White,70));
+                    DrawRect(0, 1, 1, height - 2, Helpers.Alpha(Color.White, 70));
+                    DrawRect(1, height - 1, width - 2, 1, Helpers.Alpha(Color.White, 70));
+                    DrawRect(width - 1, 1, 1, height - 2, Helpers.Alpha(Color.White, 70));
+                }
                 string label = ThisFrame.PatternIndex.ToString("D2");
                 Write(label, (width - Helpers.GetWidthOfText(label)) / 2, (height + 1) / 2 - 4, GetTextColor());
                 string frameNumber = ThisFrameIndex.ToString("D2");

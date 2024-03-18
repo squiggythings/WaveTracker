@@ -9,13 +9,13 @@ using System.Threading.Tasks;
 using WaveTracker.UI;
 using WaveTracker.Rendering;
 
-namespace WaveTracker.UI{
+namespace WaveTracker.UI {
     public class ExportDialog : Dialog {
-        Button begin, cancel;
-        Button all, none;
-        NumberBox loops;
-        Checkbox[] channels;
-        public static bool isOpen;
+        private Button begin, cancel;
+        private Button all, none;
+        private NumberBox loops;
+        private Checkbox[] channels;
+        public static bool IsOpen { get; private set; }
         public ExportDialog() : base("Export to .wav", 206, 114) {
             cancel = AddNewBottomButton("Cancel", this);
             begin = AddNewBottomButton("Begin", this);
@@ -37,7 +37,7 @@ namespace WaveTracker.UI{
         }
 
         public new void Open() {
-            isOpen = true;
+            IsOpen = true;
             base.Open();
             for (int i = 0; i < channels.Length; ++i) {
                 channels[i].Value = FrameEditor.channelToggles[i];
@@ -45,11 +45,11 @@ namespace WaveTracker.UI{
         }
 
         public new void Close() {
-            isOpen = false;
+            IsOpen = false;
             base.Close();
         }
 
-        public new void Update() {
+        public void Update() {
             if (windowIsOpen) {
                 loops.Update();
                 if (cancel.Clicked || ExitButton.Clicked)
@@ -72,7 +72,7 @@ namespace WaveTracker.UI{
             }
         }
 
-        public void Draw() {
+        public new void Draw() {
             if (windowIsOpen) {
                 base.Draw();
                 loops.Draw();

@@ -635,10 +635,8 @@ namespace WaveTracker.UI {
                 for (int r = selection.min.Row; r <= selection.max.Row; ++r) {
                     for (int c = selection.min.CellColumn; c <= selection.max.CellColumn; ++c) {
                         if (WTPattern.GetCellTypeFromCellColumn(x) == CellType.Note) {
-                            if (CurrentPattern[r, c] != WTPattern.EVENT_EMPTY &&
-                                CurrentPattern[r, c] != WTPattern.EVENT_NOTE_RELEASE &&
-                                CurrentPattern[r, c] != WTPattern.EVENT_NOTE_CUT)
-                                CurrentPattern[r, c] += 1;
+                            if (!CurrentPattern.CellIsEmptyOrNoteCutRelease(r, c))
+                                CurrentPattern[r, c] -= 1;
                         }
                     }
                 }
@@ -647,22 +645,28 @@ namespace WaveTracker.UI {
                 for (int r = selection.min.Row; r <= selection.max.Row; ++r) {
                     for (int c = selection.min.CellColumn; c <= selection.max.CellColumn; ++c) {
                         if (WTPattern.GetCellTypeFromCellColumn(x) == CellType.Note) {
-                            if (CurrentPattern[r, c] != WTPattern.EVENT_EMPTY &&
-                                CurrentPattern[r, c] != WTPattern.EVENT_NOTE_RELEASE &&
-                                CurrentPattern[r, c] != WTPattern.EVENT_NOTE_CUT)
-                                CurrentPattern[r, c] -= 1;
+                            if (!CurrentPattern.CellIsEmptyOrNoteCutRelease(r, c))
+                                CurrentPattern[r, c] += 1;
                         }
                     }
                 }
             }
-            if (KeyPress(Keys.F1, KeyModifier.Ctrl)) {
+            if (KeyPress(Keys.F3, KeyModifier.Ctrl)) {
                 for (int r = selection.min.Row; r <= selection.max.Row; ++r) {
                     for (int c = selection.min.CellColumn; c <= selection.max.CellColumn; ++c) {
                         if (WTPattern.GetCellTypeFromCellColumn(x) == CellType.Note) {
-                            if (CurrentPattern[r, c] != WTPattern.EVENT_EMPTY &&
-                                CurrentPattern[r, c] != WTPattern.EVENT_NOTE_RELEASE &&
-                                CurrentPattern[r, c] != WTPattern.EVENT_NOTE_CUT)
-                                CurrentPattern[r, c] += 1;
+                            if (!CurrentPattern.CellIsEmptyOrNoteCutRelease(r, c))
+                                CurrentPattern[r, c] -= 12;
+                        }
+                    }
+                }
+            }
+            if (KeyPress(Keys.F4, KeyModifier.Ctrl)) {
+                for (int r = selection.min.Row; r <= selection.max.Row; ++r) {
+                    for (int c = selection.min.CellColumn; c <= selection.max.CellColumn; ++c) {
+                        if (WTPattern.GetCellTypeFromCellColumn(x) == CellType.Note) {
+                            if (!CurrentPattern.CellIsEmptyOrNoteCutRelease(r, c))
+                                CurrentPattern[r, c] += 12;
                         }
                     }
                 }
@@ -671,10 +675,58 @@ namespace WaveTracker.UI {
                 for (int r = selection.min.Row; r <= selection.max.Row; ++r) {
                     for (int c = selection.min.CellColumn; c <= selection.max.CellColumn; ++c) {
                         if (WTPattern.GetCellTypeFromCellColumn(x) != CellType.Note) {
-                            if (CurrentPattern[r, c] != WTPattern.EVENT_EMPTY &&
-                                CurrentPattern[r, c] != WTPattern.EVENT_NOTE_RELEASE &&
-                                CurrentPattern[r, c] != WTPattern.EVENT_NOTE_CUT)
+                            if (!CurrentPattern.CellIsEmptyOrNoteCutRelease(r, c))
                                 CurrentPattern[r, c] -= 1;
+                        }
+                    }
+                }
+            }
+            if (KeyPress(Keys.F2, KeyModifier.Shift)) {
+                for (int r = selection.min.Row; r <= selection.max.Row; ++r) {
+                    for (int c = selection.min.CellColumn; c <= selection.max.CellColumn; ++c) {
+                        if (WTPattern.GetCellTypeFromCellColumn(x) != CellType.Note) {
+                            if (!CurrentPattern.CellIsEmptyOrNoteCutRelease(r, c))
+                                CurrentPattern[r, c] += 1;
+                        }
+                    }
+                }
+            }
+            if (KeyPress(Keys.F3, KeyModifier.Shift)) {
+                for (int r = selection.min.Row; r <= selection.max.Row; ++r) {
+                    for (int c = selection.min.CellColumn; c <= selection.max.CellColumn; ++c) {
+                        if (WTPattern.GetCellTypeFromCellColumn(x) != CellType.Note) {
+                            if (!CurrentPattern.CellIsEmptyOrNoteCutRelease(r, c)) {
+                                if (WTPattern.GetCellTypeFromCellColumn(x) == CellType.Note) {
+                                    if (!CurrentPattern.CellIsEmptyOrNoteCutRelease(r, c)) {
+                                        if (WTPattern.GetCellTypeFromCellColumn(c) == CellType.Effect1Parameter ||
+                                            WTPattern.GetCellTypeFromCellColumn(c) == CellType.Effect2Parameter ||
+                                            WTPattern.GetCellTypeFromCellColumn(c) == CellType.Effect3Parameter ||
+                                            WTPattern.GetCellTypeFromCellColumn(c) == CellType.Effect4Parameter &&
+                                            Helpers.IsEffectHex((char)CurrentPattern[r, c - 1]))
+                                            CurrentPattern[r, c] -= 16;
+                                        else
+                                            CurrentPattern[r, c] -= 10;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            if (KeyPress(Keys.F4, KeyModifier.Shift)) {
+                for (int r = selection.min.Row; r <= selection.max.Row; ++r) {
+                    for (int c = selection.min.CellColumn; c <= selection.max.CellColumn; ++c) {
+                        if (WTPattern.GetCellTypeFromCellColumn(x) == CellType.Note) {
+                            if (!CurrentPattern.CellIsEmptyOrNoteCutRelease(r, c)) {
+                                if (WTPattern.GetCellTypeFromCellColumn(c) == CellType.Effect1Parameter ||
+                                    WTPattern.GetCellTypeFromCellColumn(c) == CellType.Effect2Parameter ||
+                                    WTPattern.GetCellTypeFromCellColumn(c) == CellType.Effect3Parameter ||
+                                    WTPattern.GetCellTypeFromCellColumn(c) == CellType.Effect4Parameter &&
+                                    Helpers.IsEffectHex((char)CurrentPattern[r, c - 1]))
+                                    CurrentPattern[r, c] += 16;
+                                else
+                                    CurrentPattern[r, c] += 10;
+                            }
                         }
                     }
                 }
@@ -737,6 +789,9 @@ namespace WaveTracker.UI {
         public void Draw() {
             playbackFrame = Playback.position.Frame;
             playbackRow = Playback.position.Row;
+            if (Playback.isPlaying) {
+                SnapToPlaybackPosition();
+            }
             renderCursorPos = cursorPosition;
             DrawRect(0, 0, width, height, Colors.theme.background);
 
@@ -1400,18 +1455,23 @@ namespace WaveTracker.UI {
         /// Reverses the selection vertically, contents at the end will become the starting contents.
         /// </summary>
         public void ReverseSelection() {
-            int col = selection.min.CellColumn;
             int startRow = selection.min.Row;
             int endRow = selection.max.Row;
-            for (int r = 0; r <= selection.Height / 2; ++r) {
-                int val1 = CurrentPattern[startRow + r, col];
-                int val2 = CurrentPattern[endRow - r, col];
-                CurrentPattern[startRow + r, col] = val2;
-                CurrentPattern[endRow - r, col] = val1;
+            for (int r = 0; r < selection.Height / 2; ++r) {
+                for (int col = selection.min.CellColumn; col <= selection.max.CellColumn; ++col) {
+                    int val1 = CurrentPattern[startRow + r, col];
+                    int val2 = CurrentPattern[endRow - r, col];
+                    CurrentPattern.SetCellRaw(startRow + r, col, (byte)val2);
+                    CurrentPattern.SetCellRaw(endRow - r, col, (byte)val1);
+                }
             }
             AddToUndoHistory();
         }
 
+        /// <summary>
+        /// Randomizes volumes in the selection by +/-<c>randomOffset</c>
+        /// </summary>
+        /// <param name="randomOffset"></param>
         public void RandomizeSelectedVolumes(int randomOffset) {
             if (SelectionIsActive) {
                 Random r = new Random();
@@ -1431,16 +1491,26 @@ namespace WaveTracker.UI {
         /// Moves to the next frame in the song
         /// </summary>
         public void NextFrame() {
-            MoveToFrame(cursorPosition.Frame + 1);
-            CancelSelection();
+            if (Playback.isPlaying) {
+                Playback.GotoNextFrame();
+            }
+            else {
+                MoveToFrame(cursorPosition.Frame + 1);
+                CancelSelection();
+            }
         }
 
         /// <summary>
         /// Moves to the previous frame in the song
         /// </summary>
         public void PreviousFrame() {
-            MoveToFrame(cursorPosition.Frame - 1);
-            CancelSelection();
+            if (Playback.isPlaying) {
+                Playback.GotoPreviousFrame();
+            }
+            else {
+                MoveToFrame(cursorPosition.Frame - 1);
+                CancelSelection();
+            }
         }
 
         /// <summary>
@@ -1496,14 +1566,14 @@ namespace WaveTracker.UI {
         /// <summary>
         /// Moves the cursor to the first row of the current frame
         /// </summary>
-        void GoToTopOfFrame() {
+        public void GoToTopOfFrame() {
             cursorPosition.Row = 0;
         }
 
         /// <summary>
         /// Moves the cursor to the last row of the current frame
         /// </summary>
-        void GoToBottomOfFrame() {
+        public void GoToBottomOfFrame() {
             cursorPosition.Row = CurrentPattern.GetModifiedLength() - 1;
         }
 

@@ -19,6 +19,8 @@ using WaveTracker.Audio;
 
 namespace WaveTracker {
     public class App : Game {
+        public const string VERSION = "0.2.1";
+
         private GraphicsDeviceManager graphics;
         private SpriteBatch targetBatch;
         public static Texture2D pixel;

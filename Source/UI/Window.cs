@@ -17,6 +17,7 @@ namespace WaveTracker.UI {
         /// The red X button in the corner of the window
         /// </summary>
         protected SpriteButton ExitButton { get; private set; }
+
         /// <summary>
         /// The element that opened this window
         /// </summary>

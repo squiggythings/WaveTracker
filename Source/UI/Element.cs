@@ -37,7 +37,7 @@ namespace WaveTracker.UI {
             Graphics.Write(text, this.x + x + offX, this.y + y + offY, color);
         }
 
-        protected void WriteMultiline(string text, int x, int y, int width, Color color) {
+        protected void WriteMultiline(string text, int x, int y, int width, Color color, int lineSpacing = 10) {
             string str = "";
             string[] words = text.Split(' ');
             int w = 0;
@@ -53,7 +53,7 @@ namespace WaveTracker.UI {
             string[] lines = str.Split('\n');
             foreach (string line in lines) {
                 Write(line, x, y, color);
-                y += 10;
+                y += lineSpacing;
             }
         }
         protected void WriteTwiceAsBig(string text, int x, int y, Color c) {

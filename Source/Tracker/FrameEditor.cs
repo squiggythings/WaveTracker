@@ -318,7 +318,7 @@ namespace WaveTracker {
             if (Input.GetKeyRepeat(Keys.Right, KeyModifier.Ctrl)) {
                 selectionActive = false;
                 if (playback && followMode)
-                    Playback.NextFrame();
+                    Playback.GotoNextFrame();
                 else
                     NextFrame();
             }
@@ -327,7 +327,7 @@ namespace WaveTracker {
             if (Input.GetKeyRepeat(Keys.Left, KeyModifier.Ctrl)) {
                 selectionActive = false;
                 if (playback && followMode)
-                    Playback.PreviousFrame();
+                    Playback.GotoPreviousFrame();
                 else
                     PreviousFrame();
             }

@@ -187,13 +187,15 @@ namespace WaveTracker.Tracker {
             }
         }
 
-        public static void NextFrame() {
+        public static void GotoNextFrame() {
             position.MoveToFrame(position.Frame + 1, App.CurrentSong);
+            position.Row = 0;
             PlayRow();
         }
 
-        public static void PreviousFrame() {
+        public static void GotoPreviousFrame() {
             position.MoveToFrame(position.Frame - 1, App.CurrentSong);
+            position.Row = 0;
             PlayRow();
         }
         /// <summary>

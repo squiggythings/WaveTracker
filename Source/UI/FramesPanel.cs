@@ -67,13 +67,13 @@ namespace WaveTracker.UI {
                 if (!Input.GetClick(KeyModifier._Any)) {
                     if (Input.MouseScrollWheel(KeyModifier.None) < 0) {
                         if (Playback.isPlaying && FrameEditor.followMode)
-                            Playback.NextFrame();
+                            Playback.GotoNextFrame();
                         else
                             patternEditor.NextFrame();
                     }
                     if (Input.MouseScrollWheel(KeyModifier.None) > 0) {
                         if (Playback.isPlaying && FrameEditor.followMode)
-                            Playback.PreviousFrame();
+                            Playback.GotoPreviousFrame();
                         else
                             patternEditor.PreviousFrame();
                     }

@@ -22,7 +22,7 @@ namespace WaveTracker.UI {
         /// <param name="name"></param>
         /// <param name="w"></param>
         /// <param name="h"></param>
-        public Dialog(string name, int width, int height) : base(name, width, height) {
+        public Dialog(string name, int width, int height, bool hasExitButton = true) : base(name, width, height, hasExitButton) {
             this.name = name;
             this.width = width;
             this.height = height;

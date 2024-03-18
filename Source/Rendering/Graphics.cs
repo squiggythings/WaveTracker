@@ -10,26 +10,28 @@ using Microsoft.Xna.Framework.Input;
 namespace WaveTracker.Rendering {
     public class Graphics {
         public static SpriteBatch batch;
+        public static SpriteFont font;
+        public static Texture2D pixel;
 
         public static void DrawRect(int x, int y, int width, int height, Color color) {
-            batch.Draw(App.pixel, new Rectangle(x, y, width, height), color);
+            batch.Draw(pixel, new Rectangle(x, y, width, height), color);
         }
 
         public static void Write(string text, int x, int y, Color c) {
-            batch.DrawString(App.font, text, new Vector2((int)x, (int)y - 5), c);
+            batch.DrawString(font, text, new Vector2((int)x, (int)y - 5), c);
         }
 
         public static void WriteTwiceAsBig(string text, int x, int y, Color c) {
-            batch.DrawString(App.font, text, new Vector2((int)x, (int)y - 5), c, 0, Vector2.Zero, 2, SpriteEffects.None, 0);
+            batch.DrawString(font, text, new Vector2((int)x, (int)y - 5), c, 0, Vector2.Zero, 2, SpriteEffects.None, 0);
         }
 
         public static void WriteRightJustified(string text, int x, int y, Color c) {
-            batch.DrawString(App.font, text, new Vector2((int)x - Helpers.GetWidthOfText(text), (int)y - 5), c);
+            batch.DrawString(font, text, new Vector2((int)x - Helpers.GetWidthOfText(text), (int)y - 5), c);
         }
 
         public static void WriteMonospaced(string text, int x, int y, Color c, int width = 5) {
             foreach (char ch in text) {
-                batch.DrawString(App.font, ch + "", new Vector2(x, y - 5), c);
+                batch.DrawString(font, ch + "", new Vector2(x, y - 5), c);
                 x += width + 1;
             }
         }

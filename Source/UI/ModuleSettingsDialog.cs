@@ -24,6 +24,22 @@ namespace WaveTracker.UI {
 
             songsList = new ListBox<WTSong>(9, 25, 149, 10, this);
             songsList.ShowItemNumbers = true;
+            addSong = new Button("Add", 166, 25, this);
+            addSong.width = 51;
+            addSong.SetTooltip("", "Add a song to the end of this module");
+            insertSong = new Button("Insert", 166, 39, this);
+            insertSong.width = 51;
+            insertSong.SetTooltip("", "Insert a song after the currently selected song");
+            removeSong = new Button("Remove", 166, 53, this);
+            removeSong.width = 51;
+            removeSong.SetTooltip("", "Remove the currently selected song from this module");
+            moveSongUp = new Button("Move up", 166, 67, this);
+            moveSongUp.width = 51;
+            moveSongUp.SetTooltip("", "Move the currently selected song up one space in the list");
+            moveSongUp = new Button("Move down", 166, 81, this);
+            moveSongUp.width = 51;
+            moveSongUp.SetTooltip("", "Move the currently selected song down one space in the list");
+
 
             songTitle = new Textbox("Title", 9, songsList.y + songsList.height + 4, songsList.width, this);
         }
@@ -42,6 +58,11 @@ namespace WaveTracker.UI {
         public void Update() {
             if (windowIsOpen) {
                 DoDragging();
+                insertSong.enabled = addSong.enabled = App.CurrentModule.Songs.Count < WTModule.MAX_SONG_COUNT;
+                removeSong.enabled = App.CurrentModule.Songs.Count > 1;
+                moveSongUp.enabled = songsList.SelectedIndex > 0;
+                moveSongDown.enabled = songsList.SelectedIndex < App.CurrentModule.Songs.Count - 1;
+
                 if (ExitButton.Clicked || ok.Clicked) {
                     Close();
                 }
@@ -57,7 +78,7 @@ namespace WaveTracker.UI {
                 songTitle.Text = App.CurrentSong.Name;
                 songTitle.Update();
                 if (songTitle.ValueWasChangedInternally) {
-                    App.CurrentSong.Name = songTitle.Text;
+                    songsList.SelectedItem.Name = songTitle.Text;
                 }
             }
         }
@@ -68,9 +89,19 @@ namespace WaveTracker.UI {
                 DrawHorizontalLabel("Songs", 9, 17, width - 18);
                 songsList.Draw();
                 songTitle.Draw();
-                DrawHorizontalLabel("Module", 9, 170, width - 18);
+                addSong.Draw();
+                insertSong.Draw();
+                removeSong.Draw();
+                moveSongUp.Draw();
+                moveSongDown.Draw();
 
+                DrawHorizontalLabel("Module", 9, 170, width - 18);
                 numberOfChannels.Draw();
+                if (numberOfChannels.Value < App.CurrentModule.ChannelCount) {
+                    WriteMultiline("WARNING: This will permanently delete all data in the removed channels.", numberOfChannels.x, numberOfChannels.y + 16, 200, Color.Red, lineSpacing: 8);
+                }
+
+
             }
         }
     }

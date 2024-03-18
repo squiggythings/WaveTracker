@@ -149,16 +149,25 @@ namespace WaveTracker {
 
             //MemoryStream ms = new MemoryStream();
             //savedSong = new Song();
+
             
-            using (FileStream fs = new FileStream(path, FileMode.Open)) {
-                fs.Position = 0;
-                App.CurrentModule = Serializer.Deserialize<WTModule>(fs);
+            try {
+                using (FileStream fs = new FileStream(path, FileMode.Open)) {
+                    fs.Position = 0;
+                    App.CurrentModule = Serializer.Deserialize<WTModule>(fs);
+                }
+            } catch {
+                using (FileStream fs = new FileStream(path, FileMode.Open)) {
+                    fs.Position = 0;
+                    Song.currentSong = Serializer.Deserialize<Song>(fs);
+                }
+                Song.currentSong.Deserialize();
+                App.CurrentModule = WTModule.FromOldSongFormat(Song.currentSong);
+
             }
-            //savedSong.Deserialize();
 
 
             //Song.currentSong = savedSong.Clone();
-            //App.CurrentModule = WTModule.FromOldSongFormat(Song.currentSong);
             App.PatternEditor.OnSwitchSong();
             ChannelManager.Reset();
             //FrameEditor.Goto(0, 0);

@@ -17,6 +17,8 @@ namespace WaveTracker.UI {
         public static ExportDialog exportDialog;
         public static ExportingDialog exportingDialog;
 
+        //public static WarningMessage warningMessage;
+
         public static void Initialize() {
             moduleSettings = new ModuleSettingsDialog();
             preferences = new PreferencesDialog();
@@ -24,6 +26,7 @@ namespace WaveTracker.UI {
             humanizeDialog = new HumanizeDialog();
             exportDialog = new ExportDialog();
             exportingDialog = new ExportingDialog();
+            //warningMessage = new WarningMessage();
         }
 
         public static void Update() {
@@ -33,6 +36,8 @@ namespace WaveTracker.UI {
             humanizeDialog.Update();
             exportDialog.Update();
             exportingDialog.Update();
+
+            //warningMessage.Update();
         }
 
         public static void Draw() {
@@ -42,6 +47,8 @@ namespace WaveTracker.UI {
             humanizeDialog.Draw();
             exportDialog.Draw();
             exportingDialog.Draw();
+
+           // warningMessage.Draw();
         }
     }
 }
