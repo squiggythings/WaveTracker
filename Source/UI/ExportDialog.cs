@@ -41,7 +41,7 @@ namespace WaveTracker.UI {
             IsOpen = true;
             base.Open();
             for (int i = 0; i < channels.Length; ++i) {
-                channels[i].Value = !ChannelManager.IsChannelMuted(i);
+                channels[i].Value = ChannelManager.IsChannelOn(i);
             }
         }
 
@@ -66,9 +66,9 @@ namespace WaveTracker.UI {
                     ChannelManager.MuteAllChannels();
                 }
                 for (int i = 0; i < channels.Length; ++i) {
-                    channels[i].Value = !ChannelManager.IsChannelMuted(i);
+                    channels[i].Value = ChannelManager.IsChannelOn(i);
                     channels[i].Update();
-                    if (channels[i].Value != !ChannelManager.IsChannelMuted(i))
+                    if (channels[i].Value != ChannelManager.IsChannelOn(i))
                         ChannelManager.ToggleChannel(i);
                 }
             }

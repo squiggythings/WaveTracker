@@ -845,7 +845,7 @@ namespace WaveTracker.UI {
             for (int i = NumVisibleLines / 2; i < NumVisibleLines; i++) {
                 DrawRow(i, frame, row, frameWrap);
                 if (frameWrap != 0)
-                    DrawRect(0, i * 7, width, 7, Helpers.Alpha(Colors.theme.background, 180));
+                    DrawRect(0, i * ROW_HEIGHT, width, ROW_HEIGHT, Helpers.Alpha(Colors.theme.background, 180));
                 row++;
                 if (row >= length) {
                     frame++;
@@ -861,7 +861,7 @@ namespace WaveTracker.UI {
             for (int i = NumVisibleLines / 2; i >= 0; i--) {
                 DrawRow(i, frame, row, frameWrap);
                 if (frameWrap != 0)
-                    DrawRect(0, i * 7, width, 7, Helpers.Alpha(Colors.theme.background, 180));
+                    DrawRect(0, i * ROW_HEIGHT, width, ROW_HEIGHT, Helpers.Alpha(Colors.theme.background, 180));
                 row--;
                 if (row < 0) {
                     frame += App.CurrentSong.FrameSequence.Count - 1;
@@ -902,13 +902,13 @@ namespace WaveTracker.UI {
 
             // draw row numbers
             if (Preferences.profile.showRowNumbersInHex)
-                WriteMonospaced(row.ToString("X2"), 6, line * 7, rowTextColor, 4);
+                WriteMonospaced(row.ToString("X2"), 6, line * ROW_HEIGHT, rowTextColor, 4);
             else
-                WriteMonospaced(row.ToString("D3"), 4, line * 7, rowTextColor, 4);
+                WriteMonospaced(row.ToString("D3"), 4, line * ROW_HEIGHT, rowTextColor, 4);
 
             // draw pattern events
             for (int channel = FirstVisibleChannel; channel <= LastVisibleChannel; ++channel) {
-                DrawPatternEvent(frame, row, channel, frameWrap, GetStartPositionOfChannel(channel), line * 7, App.CurrentSong.NumEffectColumns[channel], rowTextColor);
+                DrawPatternEvent(frame, row, channel, frameWrap, GetStartPositionOfChannel(channel), line * ROW_HEIGHT, App.CurrentSong.NumEffectColumns[channel], rowTextColor);
             }
         }
 
@@ -1022,7 +1022,7 @@ namespace WaveTracker.UI {
                 2 or 4 or 6 or 9 or 12 or 15 => 0,
                 _ => 1
             };
-            DrawRect(rect.X + offset, rect.Y, width, 7, Colors.theme.cursor);
+            DrawRect(rect.X + offset, rect.Y, width, ROW_HEIGHT, Colors.theme.cursor);
             //Write("Chan: " + (position.Channel + 1), rect.X, rect.Y + 10, Color.White);
             //Write("Col: " + position.Column, rect.X, rect.Y + 20, Color.White);
             //Write("Oct: " + CurrentOctave, rect.X, rect.Y + 30, Color.White);
@@ -1034,7 +1034,7 @@ namespace WaveTracker.UI {
             thisPos.Frame = frame;
             Color rowBGcolor = new Color();
             bool needToDrawRowBG = true;
-            int linePositionY = line * 7;
+            int linePositionY = line * ROW_HEIGHT;
 
             if (frame == renderCursorPos.Frame && row == renderCursorPos.Row && frameWrap == 0) {
                 rowBGcolor = EditMode ? Colors.theme.rowEditColor : Colors.theme.rowCurrentColor;
@@ -1054,7 +1054,7 @@ namespace WaveTracker.UI {
             }
 
             if (needToDrawRowBG) {
-                DrawRect(ROW_COLUMN_WIDTH, linePositionY, width - ROW_COLUMN_WIDTH, 7, rowBGcolor);
+                DrawRect(ROW_COLUMN_WIDTH, linePositionY, width - ROW_COLUMN_WIDTH, ROW_HEIGHT, rowBGcolor);
             }
 
             // if this row is within the selection bounds
@@ -1072,15 +1072,15 @@ namespace WaveTracker.UI {
                     end = ROW_COLUMN_WIDTH - 1;
                 if (start > end)
                     return;
-                DrawRect(start, linePositionY, end - start + 1, 7, Colors.theme.selection);
+                DrawRect(start, linePositionY, end - start + 1, ROW_HEIGHT, Colors.theme.selection);
 
                 // draw selection outline
-                DrawRect(start, linePositionY, 1, 7, Colors.theme.selection);
-                DrawRect(end, linePositionY, 1, 7, Colors.theme.selection);
+                DrawRect(start, linePositionY, 1, ROW_HEIGHT, Colors.theme.selection);
+                DrawRect(end, linePositionY, 1, ROW_HEIGHT, Colors.theme.selection);
                 if (selection.min.Row == row && selection.min.Frame == frame)
                     DrawRect(start, linePositionY, end - start, 1, Colors.theme.selection);
                 if (selection.max.Row == row && selection.max.Frame == frame)
-                    DrawRect(start, linePositionY + 6, end - start, 1, Colors.theme.selection);
+                    DrawRect(start, linePositionY + ROW_HEIGHT - 1, end - start, 1, Colors.theme.selection);
             }
         }
         #endregion
@@ -1790,7 +1790,7 @@ namespace WaveTracker.UI {
             //    p.MoveToRow(p.Row + 1, App.CurrentSong);
             //    lineNumber++;
             //}
-            return new Rectangle(x, lineNumber * 7, GetWidthOfCursorColumn(position.Column), 7);
+            return new Rectangle(x, lineNumber * ROW_HEIGHT, GetWidthOfCursorColumn(position.Column), ROW_HEIGHT);
         }
 
 

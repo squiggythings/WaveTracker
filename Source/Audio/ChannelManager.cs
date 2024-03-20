@@ -103,9 +103,9 @@ namespace WaveTracker.Audio {
                     if (effectType == 'F') // FXX
                         Playback.ticksPerRowOverride = effectParam;
                 }
-                if (volume >= 0)
+                if (volume != WTPattern.EVENT_EMPTY)
                     channels[channelNum].SetVolume(volume);
-                if (instrument >= 0)
+                if (instrument != WTPattern.EVENT_EMPTY)
                     channels[channelNum].SetMacro(instrument);
             }
         }
@@ -117,6 +117,15 @@ namespace WaveTracker.Audio {
         /// <returns></returns>
         public static bool IsChannelMuted(int channel) {
             return channels[channel].IsMuted;
+        }
+
+        /// <summary>
+        /// Returns true if channel is unmuted
+        /// </summary>
+        /// <param name="channel"></param>
+        /// <returns></returns>
+        public static bool IsChannelOn(int channel) {
+            return !channels[channel].IsMuted;
         }
         /// <summary>
         /// Mutes a specific channel

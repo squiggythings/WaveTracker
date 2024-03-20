@@ -123,7 +123,7 @@ namespace WaveTracker.UI {
                         Write("Channel " + (channelNum + 1), 4, 11, new Color(230, 69, 57));
                     arrowOffset = 12;
                 }
-                else if (IsPressed && !(collapseEffectButton.IsHovered || expandEffectButton.IsHovered)) {
+                else if (MouseIsValid && IsPressed && !(collapseEffectButton.IsHovered || expandEffectButton.IsHovered)) {
                     DrawRoundedRect(0, 0, width, height, new Color(223, 224, 232));
                     DrawRect(0, 20, width, height - 20, new Color(208, 209, 221));
                     if (channelNum >= 0)

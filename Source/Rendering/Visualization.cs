@@ -100,7 +100,7 @@ namespace WaveTracker.Rendering {
             for (int c = 0; c < ChannelManager.channels.Count; c++) {
                 Channel chan = ChannelManager.channels[c];
 
-                if ((chan.currentMacro.instrumentType == InstrumentType.Wave || chan.currentMacro.sample.useInVisualization) && chan.CurrentAmplitude > 0.01f && chan.CurrentPitch >= 0 && chan.CurrentPitch < 120 && !ChannelManager.IsChannelMuted(c)) {
+                if ((chan.currentMacro.instrumentType == InstrumentType.Wave || chan.currentMacro.sample.useInVisualization) && chan.CurrentAmplitude > 0.01f && chan.CurrentPitch >= 0 && chan.CurrentPitch < 120 && ChannelManager.IsChannelOn(c)) {
                     ChannelState state = new ChannelState(chan.CurrentPitch, chan.CurrentAmplitude, chan.currentMacro.instrumentType == InstrumentType.Wave ? GetColorOfWaveFromTable(chan.waveIndex, chan.waveMorphPosition) : Color.White, chan.isPlaying);
                     rowOfStates.Add(state);
                 }
@@ -361,7 +361,7 @@ namespace WaveTracker.Rendering {
             float samp1 = 0;
             float lastSamp = 0;
             float scopezoom = 40f / (Preferences.profile.visualizerScopeZoom / 100f);
-            if (!ChannelManager.IsChannelMuted(channelNum - 1)) {
+            if (ChannelManager.IsChannelOn(channelNum - 1)) {
                 if (channel.currentMacro.instrumentType == InstrumentType.Wave) {
                     // WAVE
                     Wave wave = channel.currentWave;
