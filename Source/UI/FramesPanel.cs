@@ -66,13 +66,13 @@ namespace WaveTracker.UI {
             if (new Rectangle(80, 12, 397, 28).Contains(MouseX, MouseY) && Input.focus == null) {
                 if (!Input.GetClick(KeyModifier._Any)) {
                     if (Input.MouseScrollWheel(KeyModifier.None) < 0) {
-                        if (Playback.isPlaying && FrameEditor.followMode)
+                        if (Playback.isPlaying && patternEditor.FollowMode)
                             Playback.GotoNextFrame();
                         else
                             patternEditor.NextFrame();
                     }
                     if (Input.MouseScrollWheel(KeyModifier.None) > 0) {
-                        if (Playback.isPlaying && FrameEditor.followMode)
+                        if (Playback.isPlaying && patternEditor.FollowMode)
                             Playback.GotoPreviousFrame();
                         else
                             patternEditor.PreviousFrame();
@@ -121,7 +121,7 @@ namespace WaveTracker.UI {
             }
         }
 
-        public void Draw() {
+        public new void Draw() {
             base.Draw();
             DrawRect(1, 9, 52, 33, Color.White);
             DrawRect(0, 9, 1, 32, Color.White);

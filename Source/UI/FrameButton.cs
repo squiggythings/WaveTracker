@@ -131,7 +131,7 @@ namespace WaveTracker.UI {
                 string frameNumber = ThisFrameIndex.ToString("D2");
                 Write(frameNumber, (width - Helpers.GetWidthOfText(frameNumber)) / 2, -8, buttonColor.AddTo(new Color(10, 10, 10)));
             }
-            else if (ThisFrameIndex == App.CurrentSong.FrameSequence.Count && FrameEditor.thisSong.frames.Count < 100 && offset < 12) {
+            else if (ThisFrameIndex == App.CurrentSong.FrameSequence.Count && App.CurrentSong.FrameSequence.Count < 100 && offset < 12) {
                 // add-new-frame plus button
                 Color stroke;
                 if (IsPressed)

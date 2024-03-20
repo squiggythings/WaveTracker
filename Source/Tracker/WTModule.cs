@@ -13,10 +13,13 @@ namespace WaveTracker.Tracker {
     [ProtoContract(SkipConstructor = true)]
     public class WTModule {
         public const int DEFAULT_CHANNEL_COUNT = 24;
-        public const int MAX_SONG_COUNT = 100;
+        public const int MAX_SONG_COUNT = 32;
 
+        /// <summary>
+        /// The version this module was created in
+        /// </summary>
         [ProtoMember(1)]
-        string version;
+        public string Version { get; private set; }
         /// <summary>
         /// The title of this module
         /// </summary>
@@ -72,8 +75,9 @@ namespace WaveTracker.Tracker {
             ChannelCount = DEFAULT_CHANNEL_COUNT;
             Songs = new List<WTSong>();
             Songs.Add(new WTSong(this));
-            Instruments = new List<Instrument>();
-            Instruments.Add(new Instrument(InstrumentType.Wave));
+            Instruments = new List<Instrument> {
+                new Instrument(InstrumentType.Wave)
+            };
             WaveBank = new Wave[100];
             WaveBank[0] = Wave.Sine;
             WaveBank[1] = Wave.Triangle;
@@ -81,6 +85,8 @@ namespace WaveTracker.Tracker {
             WaveBank[3] = Wave.Pulse50;
             WaveBank[4] = Wave.Pulse25;
             WaveBank[5] = Wave.Pulse12pt5;
+            Version = App.VERSION;
+            TickRate = 60;
             for (int i = 6; i < 100; i++) {
                 WaveBank[i] = new Wave();
             }
@@ -88,7 +94,9 @@ namespace WaveTracker.Tracker {
 
         [ProtoBeforeSerialization]
         internal void BeforeSerialization() {
-            version = App.VERSION;
+            //foreach(WTSong song in Songs) {
+            //    song.BeforeSerialized();
+            //}
             return;
         }
         [ProtoAfterDeserialization]
@@ -112,20 +120,22 @@ namespace WaveTracker.Tracker {
         }
 
         public static WTModule FromOldSongFormat(Song song) {
-            WTModule module = new WTModule();
-            module.Comment = song.comment;
-            module.Title = song.name;
-            module.Author = song.author;
-            module.Year = song.year;
-            module.Instruments = song.instruments;
-            module.WaveBank = song.waves;
-            module.TickRate = song.tickRate;
-            module.ChannelCount = 24;
-            WTSong wtsong = new WTSong(module);
-            wtsong.RowHighlightPrimary = song.rowHighlight1;
-            wtsong.RowHighlightSecondary = song.rowHighlight2;
-            wtsong.TicksPerRow = song.ticksPerRow;
-            wtsong.RowsPerFrame = song.rowsPerFrame;
+            WTModule module = new WTModule() {
+                Comment = song.comment,
+                Title = song.name,
+                Author = song.author,
+                Year = song.year,
+                Instruments = song.instruments,
+                WaveBank = song.waves,
+                TickRate = song.tickRate,
+                ChannelCount = 24
+            };
+            WTSong wtsong = new WTSong(module) {
+                RowHighlightPrimary = song.rowHighlight1,
+                RowHighlightSecondary = song.rowHighlight2,
+                TicksPerRow = song.ticksPerRow,
+                RowsPerFrame = song.rowsPerFrame
+            };
 
             int patternIndex = 0;
             foreach (Frame frame in song.frames) {
@@ -150,6 +160,12 @@ namespace WaveTracker.Tracker {
             return module;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="cellValue"></param>
+        /// <param name="isNote"></param>
+        /// <returns></returns>
         static int ConvertCell(short cellValue, bool isNote) {
             if (cellValue == Frame.NOTE_EMPTY_VALUE) return WTPattern.EVENT_EMPTY;
             if (cellValue == Frame.NOTE_CUT_VALUE) return WTPattern.EVENT_NOTE_CUT;
@@ -159,6 +175,78 @@ namespace WaveTracker.Tracker {
             else
                 return cellValue;
 
+        }
+
+        /// <summary>
+        /// Returns an array of strings containing the name of each song in this module
+        /// </summary>
+        /// <returns></returns>
+        public string[] GetSongNames() {
+            string[] ret = new string[Songs.Count];
+            for (int i = 0; i < Songs.Count; i++) {
+                ret[i] = "#" + (i + 1) + " " + Songs[i].Name;
+            }
+            return ret;
+        }
+
+        /// <summary>
+        /// Swaps instances of <c>inst1</c> and <c>inst2</c> with each other across the whole song.
+        /// </summary>
+        /// <param name="inst"></param>
+        /// <param name="inst2"></param>
+        public void SwapInstrumentsInSongs(int inst1, int inst2) {
+            foreach (WTSong song in Songs) {
+                foreach (WTPattern pattern in song.Patterns) {
+                    for (int row = 0; row < 256; row++) {
+                        for (int channel = 0; channel < ChannelCount; channel++) {
+                            // ex: swapping 00 with 01
+                            // all instruments that are 01 are set to 128
+                            // all instruments that are 00 are set to 01
+                            if (pattern[row, channel, CellType.Instrument] == inst2) {
+                                pattern[row, channel, CellType.Instrument] = 128;
+                            }
+                            if (pattern[row, channel, CellType.Instrument] == inst1) {
+                                pattern[row, channel, CellType.Instrument] = inst2;
+                            }
+                        }
+                    }
+                    for (int row = 0; row < 256; row++) {
+                        for (int channel = 0; channel < ChannelCount; channel++) {
+                            // ex: swapping 00 with 01
+                            // all instruments that are 01 are set to 128
+                            // all instruments that are 00 are set to 01
+                            if (pattern[row, channel, CellType.Instrument] == 128) {
+                                pattern[row, channel, CellType.Instrument] = inst1;
+                            }
+
+                        }
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// If an instrument is deleted, this will shift the values of all instances of instruments in the module, so that they match the new order.
+        /// Any instance where the deleted instrument was used will be deleted as well.
+        /// </summary>
+        /// <param name="indexOfDeletedInstrument"></param>
+        public void AdjustForDeletedInstrument(int indexOfDeletedInstrument) {
+            foreach (WTSong song in Songs) {
+                foreach (WTPattern pattern in song.Patterns) {
+                    for (int row = 0; row < 256; row++) {
+                        for (int channel = 0; channel < ChannelCount; channel++) {
+                            if (!pattern.CellIsEmpty(row, channel, CellType.Instrument)) {
+                                if (pattern[row, channel, CellType.Instrument] > indexOfDeletedInstrument) {
+                                    pattern[row, channel, CellType.Instrument]--;
+                                }
+                                else if (pattern[row, channel, CellType.Instrument] == indexOfDeletedInstrument) {
+                                    pattern[row, channel, CellType.Instrument] = WTPattern.EVENT_EMPTY;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 }

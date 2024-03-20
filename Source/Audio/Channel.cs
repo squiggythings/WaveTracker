@@ -15,7 +15,9 @@ namespace WaveTracker.Audio {
         public Wave currentWave;
         public int waveIndex { get; private set; }
         public List<TickEvent> tickEvents;
-        float totalAmplitude => tremoloMultiplier * (channelVolume / 99f) * (volumeEnv.Evaluate() / 99f); // * currentMacro.GetState().volumeMultiplier;
+        float totalAmplitude {
+            get { return tremoloMultiplier * (channelVolume / 99f) * (volumeEnv.Evaluate() / 99f); }
+        } // * currentMacro.GetState().volumeMultiplier;
         float totalPitch => channelNotePorta + bendOffset + vibratoOffset + pitchFallOffset + arpeggioOffset + detuneOffset + arpEnvelopeResult;
 
         public float waveMorphPosition => waveMorphAmt / 99f;
@@ -610,7 +612,7 @@ namespace WaveTracker.Audio {
                         l = 0;
                         r = 0;
                     }
-                    int quantamt = 16;
+                    int quantamt = 8;
                     l = (float)(Math.Ceiling(l * quantamt)) / (float)quantamt;
                     r = (float)(Math.Ceiling(r * quantamt)) / (float)quantamt;
                 }

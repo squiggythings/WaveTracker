@@ -15,6 +15,8 @@ namespace WaveTracker.Audio {
         public const int sampleRate = 44100;
         public static int samplesPerTick => (sampleRate / tickSpeed);
         public static int SamplesPerBuffer => 1000;
+
+        public const bool quantizeAmplitude = false;
         static int currBufferPosition;
         public static AudioEngine instance;
         public static int totalRows;
@@ -29,19 +31,11 @@ namespace WaveTracker.Audio {
         Provider audioProvider;
 
 
-        public static int tickSpeed {
+        static int tickSpeed {
             get {
-                if (Song.currentSong == null)
+                if (App.CurrentModule == null)
                     return 60;
-                else return Song.currentSong.tickRate;
-            }
-        }
-
-        public static bool quantizeAmplitude {
-            get {
-                if (Song.currentSong == null)
-                    return true;
-                else return Song.currentSong.quantizeChannelAmplitude;
+                else return App.CurrentModule.TickRate;
             }
         }
 
@@ -80,7 +74,7 @@ namespace WaveTracker.Audio {
 
         public async void RenderTo(string filepath, int maxloops, bool individualStems) {
             //Debug.WriteLine("Total Rows with " + maxloops + " loops: " + Song.currentSong.GetNumberOfRows(maxloops));
-            totalRows = Song.currentSong.GetNumberOfRows(maxloops);
+            totalRows = App.CurrentSong.GetNumberOfRows(maxloops);
             if (!SaveLoad.ChooseExportPath(out filepath)) {
                 return;
             }

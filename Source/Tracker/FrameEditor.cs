@@ -12,7 +12,7 @@ using WaveTracker.UI;
 
 namespace WaveTracker {
     public static class FrameEditor {
-
+        /*
         /// <summary>
         /// starting point of when channels will be rendered, 0 is leftmost
         /// </summary>
@@ -1543,6 +1543,6 @@ namespace WaveTracker {
                 }
             }
             return true;
-        }
+        }*/
     }
 }

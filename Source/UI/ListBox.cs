@@ -77,7 +77,7 @@ namespace WaveTracker.UI {
             scrollbar.Update();
         }
 
-        void MoveBounds() {
+        public void MoveBounds() {
             if (SelectedIndex > scrollbar.ScrollValue + numRows - 1) {
                 scrollbar.ScrollValue = SelectedIndex - numRows + 1;
             }

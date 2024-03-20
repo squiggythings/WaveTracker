@@ -61,6 +61,9 @@ namespace WaveTracker.Tracker {
             }
         }
 
+        /// <summary>
+        /// Plays from the beginning of the frame that the cursor is on
+        /// </summary>
         public static void Play() {
             Stop();
             isPlaying = true;
@@ -70,13 +73,16 @@ namespace WaveTracker.Tracker {
             position.Frame = patternEditor.cursorPosition.Frame;
             position.Row = 0;
             Visualization.GetWaveColors();
-            if (FrameEditor.followMode && !AudioEngine.rendering) {
+            if (patternEditor.FollowMode && !AudioEngine.rendering) {
                 patternEditor.SnapToPlaybackPosition();
             }
             Restore();
             PlayRow();
         }
 
+        /// <summary>
+        /// Plays from wherever the cursor is in the song
+        /// </summary>
         public static void PlayFromCursor() {
             Stop();
             isPlaying = true;
@@ -91,6 +97,9 @@ namespace WaveTracker.Tracker {
             PlayRow();
         }
 
+        /// <summary>
+        /// Plays from the beginning of the current song
+        /// </summary>
         public static void PlayFromBeginning() {
             Stop();
             tickCounter = 0;
@@ -107,6 +116,9 @@ namespace WaveTracker.Tracker {
             PlayRow();
         }
 
+        /// <summary>
+        /// Stops playback
+        /// </summary>
         public static void Stop() {
             isPlaying = false;
             foreach (Channel c in ChannelManager.channels) {

@@ -11,7 +11,7 @@ using WaveTracker.Tracker;
 
 namespace WaveTracker.UI {
     public class WaveBankElement : Clickable {
-        Wave wave => Song.currentSong.waves[id];
+        Wave wave => App.CurrentModule.WaveBank[id];
         int id;
         double phase;
 

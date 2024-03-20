@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using ProtoBuf;
+using System.Diagnostics;
 
 namespace WaveTracker.Tracker {
     [ProtoContract(SkipConstructor = true)]
@@ -36,9 +37,21 @@ namespace WaveTracker.Tracker {
         public WTPattern[] Patterns { get; private set; }
 
         /// <summary>
+        /// An array of strings containing the data for all patterns in the module
+        /// </summary>
+        [ProtoMember(4)]
+        string[] patternsAsStrings;
+
+        /// <summary>
         /// The order of frames in this song
         /// </summary>
         public List<WTFrame> FrameSequence { get; set; }
+
+        /// <summary>
+        /// A byte array containing the frame-pattern sequence
+        /// </summary>
+        [ProtoMember(5)]
+        byte[] frameSequence;
 
         /// <summary>
         /// The number of effect columns each channel has
@@ -64,15 +77,6 @@ namespace WaveTracker.Tracker {
         public WTModule ParentModule { get; set; }
 
         /// <summary>
-        /// 
-        /// </summary>
-        [ProtoMember(4)]
-        string[] patternsAsStrings;
-
-        [ProtoMember(5)]
-        string frameSequenceAsString;
-
-        /// <summary>
         /// Initializes a new song with empty patterns and default settings
         /// </summary>
         public WTSong(WTModule parentModule) {
@@ -86,41 +90,69 @@ namespace WaveTracker.Tracker {
             for (int i = 0; i < NumEffectColumns.Length; ++i) {
                 NumEffectColumns[i] = 1;
             }
-            FrameSequence = new List<WTFrame>();
-            FrameSequence.Add(new WTFrame(0, this));
+            FrameSequence = new List<WTFrame> {
+                new WTFrame(0, this)
+            };
             TicksPerRow = new int[] { 4 };
             RowsPerFrame = 64;
             RowHighlightPrimary = 16;
             RowHighlightSecondary = 4;
         }
 
+        /// <summary>
+        /// Returns a copy of this song
+        /// </summary>
+        /// <returns></returns>
+        public WTSong Clone() {
+            WTSong clone = new WTSong(ParentModule);
+            clone.Name = Name + " Copy";
+            clone.UnpackFrameSequence(GetFrameSequenceAsByteArray());
+            int i = 0;
+            foreach (WTPattern pattern in Patterns) {
+                clone.Patterns[i] = pattern.Clone();
+                i++;
+            }
+            Array.Copy(TicksPerRow, clone.TicksPerRow, TicksPerRow.Length);
+            Array.Copy(NumEffectColumns, clone.NumEffectColumns, NumEffectColumns.Length);
+            clone.RowsPerFrame = RowsPerFrame;
+            clone.RowHighlightPrimary = RowHighlightPrimary;
+            clone.RowHighlightSecondary = RowHighlightSecondary;
+            return clone;
+        }
+
+        /// <summary>
+        /// Resizes this song's patterns to fit the parent module's channel count
+        /// </summary>
         public void ResizeChannelCount() {
             int[] oldArray = NumEffectColumns;
             NumEffectColumns = new int[ParentModule.ChannelCount];
-      
+
             for (int i = 0; i < NumEffectColumns.Length; ++i) {
                 if (i < oldArray.Length)
                     NumEffectColumns[i] = oldArray[i];
                 else
                     NumEffectColumns[i] = 1;
             }
-            foreach(WTPattern pattern in Patterns) {
+            foreach (WTPattern pattern in Patterns) {
                 pattern.Resize();
             }
-
         }
 
         [ProtoBeforeSerialization]
         internal void BeforeSerialized() {
+            foreach(WTPattern pattern in Patterns) {
+                pattern.IsDirty = true;
+            }
             patternsAsStrings = PackPatternsToStrings();
-            frameSequenceAsString = GetFrameSequenceAsString();
+            frameSequence = GetFrameSequenceAsByteArray();
+            Debug.WriteLine(patternsAsStrings);
             return;
 
         }
         [ProtoAfterDeserialization]
         internal void AfterDeserialized() {
             ParentModule = App.CurrentModule;
-            UnpackFrameSequence(frameSequenceAsString);
+            UnpackFrameSequence(frameSequence);
             UnpackPatternsFromStrings(patternsAsStrings);
         }
 
@@ -206,6 +238,7 @@ namespace WaveTracker.Tracker {
             ret += TicksPerRow[TicksPerRow.Length - 1];
             return ret;
         }
+
         /// <summary>
         /// Sets the ticks per row from an input string separated by spaces
         /// </summary>
@@ -306,29 +339,72 @@ namespace WaveTracker.Tracker {
             return patternData;
         }
 
+        /// <summary>
+        /// Returns the title of this song
+        /// </summary>
+        /// <returns></returns>
         public override string ToString() {
             return Name;
+        }
+
+        public int GetNumberOfRows(int loops) {
+            int frame = 0;
+            int row = 0;
+            int rows = 0;
+            while (loops > 0) {
+                while (row < FrameSequence[frame].GetLength()) {
+                    rows++;
+                    row++;
+                }
+                int nextFrame;
+                int nextRow;
+                this[frame].GetNextPlaybackPosition(frame, out nextFrame, out nextRow);
+                if (nextFrame <= frame) {
+                    loops--;
+                }
+                frame = nextFrame;
+                row = nextRow;
+                if (frame < 0) { // CXX command
+                    break;
+                }
+                //if (frame >= FrameSequence.Count) {
+                //    frame = 0;
+                //    row = 0;
+                //    loops--;
+                //}
+            }
+            return rows;
         }
 
         public void UnpackPatternsFromStrings(string[] packedStrings) {
             Patterns = new WTPattern[100];
             for (int i = 0; i < Patterns.Length; ++i) {
                 Patterns[i] = new WTPattern(this);
-                Patterns[i].ReadFromCellData(Helpers.RLEDecompress(packedStrings[i]));
+                Patterns[i].ReadCellDataFromString(Helpers.RLEDecompress(packedStrings[i]));
             }
         }
 
-        public string GetFrameSequenceAsString() {
-            string frameSequence = "";
+        /// <summary>
+        /// Returns a string containing the frame sequence data, each char is that frame's pattern index.
+        /// </summary>
+        /// <returns></returns>
+        public byte[] GetFrameSequenceAsByteArray() {
+            byte[] frameSequence = new byte[FrameSequence.Count];
+            int i = 0;
             foreach (WTFrame frame in FrameSequence) {
-                frameSequence += (char)frame.PatternIndex;
+                frameSequence[i] = (byte)frame.PatternIndex;
+                ++i;
             }
             return frameSequence;
         }
 
-        public void UnpackFrameSequence(string frameSequence) {
+        /// <summary>
+        /// Sets this song's frame sequence from an input array where each byte is a pattern index
+        /// </summary>
+        /// <param name="frameSequence"></param>
+        public void UnpackFrameSequence(byte[] frameSequence) {
             FrameSequence = new List<WTFrame>();
-            foreach (char index in frameSequence) {
+            foreach (byte index in frameSequence) {
                 FrameSequence.Add(new WTFrame(index, this));
             }
         }

@@ -113,7 +113,7 @@ namespace WaveTracker.UI {
                 Goto(App.CurrentModule.Instruments.Count - 1);
             }
             if (bRemove.Clicked) {
-                FrameEditor.AdjustForDeletedInstrument(CurrentInstrumentIndex);
+                App.CurrentModule.AdjustForDeletedInstrument(CurrentInstrumentIndex);
                 App.CurrentModule.Instruments.RemoveAt(CurrentInstrumentIndex);
                 if (CurrentInstrumentIndex >= App.CurrentModule.Instruments.Count) {
                     Goto(App.CurrentModule.Instruments.Count - 1);
@@ -124,13 +124,13 @@ namespace WaveTracker.UI {
                 Goto(App.CurrentModule.Instruments.Count - 1);
             }
             if (bMoveDown.Clicked) {
-                FrameEditor.SwapInstrumentsInSong(CurrentInstrumentIndex, CurrentInstrumentIndex + 1);
+                App.CurrentModule.SwapInstrumentsInSongs(CurrentInstrumentIndex, CurrentInstrumentIndex + 1);
                 App.CurrentModule.Instruments.Reverse(CurrentInstrumentIndex, 2);
                 CurrentInstrumentIndex++;
                 moveBounds();
             }
             if (bMoveUp.Clicked) {
-                FrameEditor.SwapInstrumentsInSong(CurrentInstrumentIndex, CurrentInstrumentIndex - 1);
+                App.CurrentModule.SwapInstrumentsInSongs(CurrentInstrumentIndex, CurrentInstrumentIndex - 1);
                 App.CurrentModule.Instruments.Reverse(CurrentInstrumentIndex - 1, 2);
                 CurrentInstrumentIndex--;
                 moveBounds();
@@ -198,7 +198,7 @@ namespace WaveTracker.UI {
         }
 
 
-        public void Draw() {
+        public new void Draw() {
             base.Draw();
             DrawRect(0, 9, width, 17, Color.White);
             bNewWave.Draw();

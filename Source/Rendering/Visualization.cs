@@ -24,7 +24,7 @@ namespace WaveTracker.Rendering
         public static void GetWaveColors() {
             waveColors = new Color[100];
             int i = 0;
-            foreach (Wave w in Song.currentSong.waves) {
+            foreach (Wave w in App.CurrentModule.WaveBank) {
                 bool isEmpty = true;
                 foreach (int sample in w.samples) {
                     if (sample != 16)
@@ -101,7 +101,7 @@ namespace WaveTracker.Rendering
             for (int c = 0; c < ChannelManager.channels.Count; c++) {
                 Channel chan = ChannelManager.channels[c];
 
-                if ((chan.currentMacro.instrumentType == InstrumentType.Wave || chan.currentMacro.sample.useInVisualization) && chan.CurrentAmplitude > 0.01f && chan.CurrentPitch >= 0 && chan.CurrentPitch < 120 && FrameEditor.channelToggles[c]) {
+                if ((chan.currentMacro.instrumentType == InstrumentType.Wave || chan.currentMacro.sample.useInVisualization) && chan.CurrentAmplitude > 0.01f && chan.CurrentPitch >= 0 && chan.CurrentPitch < 120 && !ChannelManager.IsChannelMuted(c)) {
                     ChannelState state = new ChannelState(chan.CurrentPitch, chan.CurrentAmplitude, chan.currentMacro.instrumentType == InstrumentType.Wave ? GetColorOfWaveFromTable(chan.waveIndex, chan.waveMorphPosition) : Color.White, chan.isPlaying);
                     rowOfStates.Add(state);
                 }
@@ -259,9 +259,9 @@ namespace WaveTracker.Rendering
             if (value < 0) {
                 WriteMonospaced("··", x + 1, y, currRow ? currRowEmptyText : Helpers.Alpha(Colors.theme.patternText, Colors.theme.patternEmptyTextAlpha), 4);
             } else {
-                if (value >= Song.currentSong.instruments.Count)
+                if (value >= App.CurrentModule.Instruments.Count)
                     WriteMonospaced(value.ToString("D2"), x, y, Helpers.Alpha(Color.Red, alpha), 4);
-                else if (Song.currentSong.instruments[value].instrumentType == InstrumentType.Sample)
+                else if (App.CurrentModule.Instruments[value].instrumentType == InstrumentType.Sample)
                     WriteMonospaced(value.ToString("D2"), x, y, Helpers.Alpha(Colors.theme.instrumentColumnSample, alpha), 4);
                 else
                     WriteMonospaced(value.ToString("D2"), x, y, Helpers.Alpha(Colors.theme.instrumentColumnWave, alpha), 4);
@@ -354,7 +354,7 @@ namespace WaveTracker.Rendering
             float samp1 = 0;
             float lastSamp = 0;
             float scopezoom = 40f / (Preferences.profile.visualizerScopeZoom / 100f);
-            if (FrameEditor.channelToggles[channelNum - 1]) {
+            if (!ChannelManager.IsChannelMuted(channelNum - 1)) {
                 if (channel.currentMacro.instrumentType == InstrumentType.Wave) {
                     // WAVE
                     Wave wave = channel.currentWave;

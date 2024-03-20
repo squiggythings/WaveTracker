@@ -29,11 +29,11 @@ namespace WaveTracker.Tracker {
         /// <summary>
         /// The song's frameSequence
         /// </summary>
-        string frameSequence;
+        byte[] frameSequence;
 
         public PatternEditorState(WTSong song, PatternEditorPosition previous, PatternEditorPosition next) {
             patternStrings = song.PackPatternsToStrings();
-            frameSequence = song.GetFrameSequenceAsString();
+            frameSequence = song.GetFrameSequenceAsByteArray();
             PrePosition = previous;
             PostPosition = next;
         }

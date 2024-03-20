@@ -18,6 +18,7 @@ namespace WaveTracker.UI {
 
         ModuleSettingsDialog moduleSettingsDialog;
         Textbox title, author, copyright, speed;
+        Dropdown selectedSong;
         NumberBox rows;
         SpriteButton editButton;
         float ampLeft, ampRight;
@@ -32,7 +33,9 @@ namespace WaveTracker.UI {
             //title.canEdit = false;
             author = new Textbox("Author", 4, 26, 155, 110, this);
             //author.canEdit = false;
-            copyright = new Textbox("Copyright", 4, 40, 155, 110, this);
+            //copyright = new Textbox("Copyright", 4, 40, 155, 110, this);
+            selectedSong = new Dropdown(34, 42, this, scrollWrap: false);
+            selectedSong.width = 125;
             // copyright.canEdit = false;
 
             speed = new Textbox("Speed (ticks/row)", 167, 12, 132, 40, this);
@@ -42,7 +45,7 @@ namespace WaveTracker.UI {
             //rows.canEdit = false;
 
             editButton = new SpriteButton(296, 0, 10, 9, editButtonsource, 0, this);
-            editButton.SetTooltip("Edit Song Settings", "Open the song settings editing window");
+            editButton.SetTooltip("Edit module settings", "Open the module settings editing window");
         }
 
         public void Update() {
@@ -59,18 +62,17 @@ namespace WaveTracker.UI {
                 App.CurrentModule.Author = author.Text;
             }
 
-            copyright.Text = App.CurrentModule.Year;
-            copyright.Update();
-            if (copyright.ValueWasChangedInternally) {
-                App.CurrentModule.Year = copyright.Text;
-            }
+            //copyright.Text = App.CurrentModule.Year;
+            //copyright.Update();
+            //if (copyright.ValueWasChangedInternally) {
+            //    App.CurrentModule.Year = copyright.Text;
+            //}
 
             speed.Text = App.CurrentSong.GetTicksAsString();
             speed.Update();
             if (speed.ValueWasChangedInternally) {
                 App.CurrentSong.LoadTicksFromString(speed.Text);
             }
-
 
             rows.Value = App.CurrentSong.RowsPerFrame;
             rows.Update();
@@ -84,6 +86,14 @@ namespace WaveTracker.UI {
             }
             else {
                 dialogOpen = false;
+            }
+
+            selectedSong.SetMenuItems(App.CurrentModule.GetSongNames());
+            selectedSong.Value = App.CurrentSongIndex;
+            selectedSong.Update();
+            if (selectedSong.ValueWasChangedInternally) {
+                App.CurrentSongIndex = selectedSong.Value;
+                App.PatternEditor.OnSwitchSong();
             }
 
 
@@ -107,7 +117,7 @@ namespace WaveTracker.UI {
             editButton.Draw();
             title.Draw();
             author.Draw();
-            copyright.Draw();
+            //copyright.Draw();
             speed.Draw();
             rows.Draw();
             if (Audio.AudioEngine.currentBuffer != null) {
@@ -121,6 +131,8 @@ namespace WaveTracker.UI {
                     DrawVolumeMeters(16, 70, 143, 4);
                 }
             }
+            Write("Song", 4, selectedSong.y + 2, UIColors.label);
+            selectedSong.Draw();
         }
 
 
@@ -265,7 +277,6 @@ namespace WaveTracker.UI {
             int drawX = 0;
             int zoomX = Audio.AudioEngine.SamplesPerBuffer / width * 2;
             while (drawX < width / 2 - 1) {
-                int[] ys = new int[zoomX];
                 int minVal = 99;
                 int maxVal = -99;
                 for (int j = 0; j < zoomX; j++) {
@@ -289,7 +300,6 @@ namespace WaveTracker.UI {
             drawX = 0;
             i = 0;
             while (drawX < 66) {
-                int[] ys = new int[zoomX];
                 int minVal = 99;
                 int maxVal = -99;
                 for (int j = 0; j < zoomX; j++) {
@@ -309,27 +319,6 @@ namespace WaveTracker.UI {
 
                 DrawRect(68 + px + drawX, minVal + py + 17, 1, maxVal - minVal + 1, Color.White);
                 drawX++;
-            }
-        }
-
-        public void StartDialog() {
-            Input.DialogStarted();
-            dialog = new Forms.EditSongSettings();
-            dialog.title.Text = title.Text;
-            dialog.author.Text = author.Text;
-            dialog.copyright.Text = copyright.Text;
-            dialog.songSpeed.Text = speed.Text;
-            dialog.frameLength.Value = Song.currentSong.rowsPerFrame;
-            dialog.tickRate.Value = Song.currentSong.tickRate;
-            dialog.quantizeChannelAmplitude.Checked = Song.currentSong.quantizeChannelAmplitude;
-            if (dialog.ShowDialog() == DialogResult.OK) {
-                Song.currentSong.name = Helpers.FlushString(dialog.title.Text);
-                Song.currentSong.author = Helpers.FlushString(dialog.author.Text);
-                Song.currentSong.year = Helpers.FlushString(dialog.copyright.Text);
-                Song.currentSong.LoadTicksFromString(dialog.songSpeed.Text);
-                Song.currentSong.rowsPerFrame = (int)dialog.frameLength.Value;
-                Song.currentSong.tickRate = dialog.tickRate.Value;
-                Song.currentSong.quantizeChannelAmplitude = dialog.quantizeChannelAmplitude.Checked;
             }
         }
     }

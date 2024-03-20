@@ -114,24 +114,24 @@ namespace WaveTracker.Tracker {
             foreach (Frame f in frames) {
                 f.SetRows();
             }
-            foreach (Instrument m in instruments) {
-                m.volumeEnvelope.PrepareForSerialization();
-                m.arpEnvelope.PrepareForSerialization();
-                m.pitchEnvelope.PrepareForSerialization();
-                m.waveEnvelope.PrepareForSerialization();
-            }
+            //foreach (Instrument m in instruments) {
+            //    m.volumeEnvelope.PrepareForSerialization();
+            //    m.arpEnvelope.PrepareForSerialization();
+            //    m.pitchEnvelope.PrepareForSerialization();
+            //    m.waveEnvelope.PrepareForSerialization();
+            //}
         }
 
         public void Deserialize() {
             foreach (Frame f in frames) {
                 f.ReadRows();
             }
-            foreach (Instrument m in instruments) {
-                m.volumeEnvelope.PrepareFromDeserialization();
-                m.arpEnvelope.PrepareFromDeserialization();
-                m.pitchEnvelope.PrepareFromDeserialization();
-                m.waveEnvelope.PrepareFromDeserialization();
-            }
+            //foreach (Instrument m in instruments) {
+            //    m.volumeEnvelope.PrepareFromDeserialization();
+            //    m.arpEnvelope.PrepareFromDeserialization();
+            //    m.pitchEnvelope.PrepareFromDeserialization();
+            //    m.waveEnvelope.PrepareFromDeserialization();
+            //}
         }
 
         public Song Clone() {

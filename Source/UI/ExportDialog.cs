@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using WaveTracker.UI;
 using WaveTracker.Rendering;
+using WaveTracker.Audio;
 
 namespace WaveTracker.UI {
     public class ExportDialog : Dialog {
@@ -40,7 +41,7 @@ namespace WaveTracker.UI {
             IsOpen = true;
             base.Open();
             for (int i = 0; i < channels.Length; ++i) {
-                channels[i].Value = FrameEditor.channelToggles[i];
+                channels[i].Value = !ChannelManager.IsChannelMuted(i);
             }
         }
 
@@ -59,15 +60,16 @@ namespace WaveTracker.UI {
                     Audio.AudioEngine.instance.RenderTo("", loops.Value, false);
                 }
                 if (all.Clicked) {
-                    FrameEditor.UnmuteAllChannels();
+                    ChannelManager.UnmuteAllChannels();
                 }
                 if (none.Clicked) {
-                    FrameEditor.MuteAllChannels();
+                    ChannelManager.MuteAllChannels();
                 }
                 for (int i = 0; i < channels.Length; ++i) {
-                    channels[i].Value = FrameEditor.channelToggles[i];
+                    channels[i].Value = !ChannelManager.IsChannelMuted(i);
                     channels[i].Update();
-                    FrameEditor.channelToggles[i] = channels[i].Value;
+                    if (channels[i].Value != !ChannelManager.IsChannelMuted(i))
+                        ChannelManager.ToggleChannel(i);
                 }
             }
         }

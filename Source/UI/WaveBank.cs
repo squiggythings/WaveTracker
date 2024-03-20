@@ -13,7 +13,6 @@ using WaveTracker.Audio;
 namespace WaveTracker.UI {
     public class WaveBank : Panel {
         WaveBankElement[] waveBankElements;
-        public Song song => Song.currentSong;
         public WaveEditor editor;
         public static int currentWave;
         public static int lastSelectedWave;
@@ -32,7 +31,7 @@ namespace WaveTracker.UI {
             }
         }
         public Wave GetWave(int num) {
-            return song.waves[num];
+            return App.CurrentModule.WaveBank[num];
         }
         public void Initialize() {
 
@@ -47,7 +46,7 @@ namespace WaveTracker.UI {
                 if (e.Clicked) {
                     currentWave = i;
                     lastSelectedWave = i;
-                    editor.EditWave(song.waves[i], i);
+                    editor.EditWave(App.CurrentModule.WaveBank[i], i);
                     if (!ChannelManager.previewChannel.waveEnv.toPlay.isActive)
                         ChannelManager.previewChannel.SetWave(i);
                 }
@@ -56,7 +55,7 @@ namespace WaveTracker.UI {
             }
         }
 
-        public void Draw() {
+        public new void Draw() {
             base.Draw();
             DrawRect(2, 11, 444, 114, new Color(43, 49, 81));
             foreach (WaveBankElement e in waveBankElements) {

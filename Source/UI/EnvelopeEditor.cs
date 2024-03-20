@@ -308,7 +308,7 @@ namespace WaveTracker.UI {
                     }
 
                     DrawShiftLine();
-                    string s = (int)(envelope.values.Count * (1000f / Song.currentSong.tickRate)) + " ms ";
+                    string s = (int)(envelope.values.Count * (1000f / App.CurrentModule.TickRate)) + " ms ";
                     if (true) {
                         s += "(" + CanvasMouseBlockClamped().X + ", " + CanvasMouseBlockClamped().Y + ")";
 

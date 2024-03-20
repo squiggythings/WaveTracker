@@ -169,9 +169,9 @@ namespace WaveTracker.UI {
 
                 phase++;
 
-                ResampleDropdown.Value = (int)Song.currentSong.waves[WaveBank.currentWave].resamplingMode;
+                ResampleDropdown.Value = (int)App.CurrentModule.WaveBank[WaveBank.currentWave].resamplingMode;
                 if (startcooldown > 0) {
-                    waveText.Text = Song.currentSong.waves[WaveBank.currentWave].ToNumberString();
+                    waveText.Text = App.CurrentModule.WaveBank[WaveBank.currentWave].ToNumberString();
                     startcooldown--;
                 }
                 else {
@@ -181,67 +181,67 @@ namespace WaveTracker.UI {
                     }
                     waveText.Update();
                     if (waveText.ValueWasChanged) {
-                        Song.currentSong.waves[WaveBank.currentWave].SetWaveformFromNumber(waveText.Text);
+                        App.CurrentModule.WaveBank[WaveBank.currentWave].SetWaveformFromNumber(waveText.Text);
                     }
                     else {
-                        waveText.Text = Song.currentSong.waves[WaveBank.currentWave].ToNumberString();
+                        waveText.Text = App.CurrentModule.WaveBank[WaveBank.currentWave].ToNumberString();
                     }
 
                     ResampleDropdown.Update();
-                    Song.currentSong.waves[WaveBank.currentWave].resamplingMode = (Audio.ResamplingMode)ResampleDropdown.Value;
+                    App.CurrentModule.WaveBank[WaveBank.currentWave].resamplingMode = (Audio.ResamplingMode)ResampleDropdown.Value;
                     //if (filterNone.Clicked)
-                    //    Song.currentSong.waves[WaveBank.currentWave].resamplingMode = Audio.ResamplingModes.None;
+                    //    App.CurrentModule.WaveBank[WaveBank.currentWave].resamplingMode = Audio.ResamplingModes.None;
                     //if (filterLinear.Clicked)
-                    //    Song.currentSong.waves[WaveBank.currentWave].resamplingMode = Audio.ResamplingModes.Linear;
+                    //    App.CurrentModule.WaveBank[WaveBank.currentWave].resamplingMode = Audio.ResamplingModes.Linear;
                     //if (filterMix.Clicked)
-                    //    Song.currentSong.waves[WaveBank.currentWave].resamplingMode = Audio.ResamplingModes.Mix;
+                    //    App.CurrentModule.WaveBank[WaveBank.currentWave].resamplingMode = Audio.ResamplingModes.Mix;
 
                     if (presetSine.Clicked)
-                        Song.currentSong.waves[WaveBank.currentWave].SetWaveformFromString("HJKMNOQRSTUUVVVVVVVUUTSRQONMKJHGECB9875432110000000112345789BCEF");
+                        App.CurrentModule.WaveBank[WaveBank.currentWave].SetWaveformFromString("HJKMNOQRSTUUVVVVVVVUUTSRQONMKJHGECB9875432110000000112345789BCEF");
                     if (presetTria.Clicked)
-                        Song.currentSong.waves[WaveBank.currentWave].SetWaveformFromString("GHIJKLMNOPQRSTUVVUTSRQPONMLKJIHGFEDCBA98765432100123456789ABCDEF");
+                        App.CurrentModule.WaveBank[WaveBank.currentWave].SetWaveformFromString("GHIJKLMNOPQRSTUVVUTSRQPONMLKJIHGFEDCBA98765432100123456789ABCDEF");
                     if (presetSaw.Clicked)
-                        Song.currentSong.waves[WaveBank.currentWave].SetWaveformFromString("GGHHIIJJKKLLMMNNOOPPQQRRSSTTUUVV00112233445566778899AABBCCDDEEFF");
+                        App.CurrentModule.WaveBank[WaveBank.currentWave].SetWaveformFromString("GGHHIIJJKKLLMMNNOOPPQQRRSSTTUUVV00112233445566778899AABBCCDDEEFF");
                     if (presetRect50.Clicked)
-                        Song.currentSong.waves[WaveBank.currentWave].SetWaveformFromString("VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV00000000000000000000000000000000");
+                        App.CurrentModule.WaveBank[WaveBank.currentWave].SetWaveformFromString("VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV00000000000000000000000000000000");
                     if (presetRect25.Clicked)
-                        Song.currentSong.waves[WaveBank.currentWave].SetWaveformFromString("VVVVVVVVVVVVVVVV000000000000000000000000000000000000000000000000");
+                        App.CurrentModule.WaveBank[WaveBank.currentWave].SetWaveformFromString("VVVVVVVVVVVVVVVV000000000000000000000000000000000000000000000000");
                     if (presetRect12.Clicked)
-                        Song.currentSong.waves[WaveBank.currentWave].SetWaveformFromString("VVVVVVVV00000000000000000000000000000000000000000000000000000000");
+                        App.CurrentModule.WaveBank[WaveBank.currentWave].SetWaveformFromString("VVVVVVVV00000000000000000000000000000000000000000000000000000000");
 
                     if (presetRand.Clicked)
-                        Song.currentSong.waves[WaveBank.currentWave].Randomize();
+                        App.CurrentModule.WaveBank[WaveBank.currentWave].Randomize();
                     if (presetClear.Clicked)
-                        Song.currentSong.waves[WaveBank.currentWave].SetWaveformFromString("GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG");
+                        App.CurrentModule.WaveBank[WaveBank.currentWave].SetWaveformFromString("GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG");
 
                     if (bCopy.Clicked) {
-                        clipboardWave = Song.currentSong.waves[WaveBank.currentWave].ToString();
-                        clipboardSampleMode = Song.currentSong.waves[WaveBank.currentWave].resamplingMode;
+                        clipboardWave = App.CurrentModule.WaveBank[WaveBank.currentWave].ToString();
+                        clipboardSampleMode = App.CurrentModule.WaveBank[WaveBank.currentWave].resamplingMode;
                     }
                     if (bPaste.Clicked) {
                         if (clipboardWave.Length == 64) {
-                            Song.currentSong.waves[WaveBank.currentWave].SetWaveformFromString(clipboardWave);
-                            Song.currentSong.waves[WaveBank.currentWave].resamplingMode = clipboardSampleMode;
+                            App.CurrentModule.WaveBank[WaveBank.currentWave].SetWaveformFromString(clipboardWave);
+                            App.CurrentModule.WaveBank[WaveBank.currentWave].resamplingMode = clipboardSampleMode;
                         }
                     }
 
                     if (bPhaseL.Clicked)
-                        Song.currentSong.waves[WaveBank.currentWave].ShiftPhase(1);
+                        App.CurrentModule.WaveBank[WaveBank.currentWave].ShiftPhase(1);
 
                     if (bPhaseR.Clicked)
-                        Song.currentSong.waves[WaveBank.currentWave].ShiftPhase(-1);
+                        App.CurrentModule.WaveBank[WaveBank.currentWave].ShiftPhase(-1);
                     if (bMoveUp.Clicked)
-                        Song.currentSong.waves[WaveBank.currentWave].Move(1);
+                        App.CurrentModule.WaveBank[WaveBank.currentWave].Move(1);
                     if (bMoveDown.Clicked)
-                        Song.currentSong.waves[WaveBank.currentWave].Move(-1);
+                        App.CurrentModule.WaveBank[WaveBank.currentWave].Move(-1);
                     if (bInvert.Clicked)
-                        Song.currentSong.waves[WaveBank.currentWave].Invert();
+                        App.CurrentModule.WaveBank[WaveBank.currentWave].Invert();
                     if (bSmooth.Clicked)
-                        Song.currentSong.waves[WaveBank.currentWave].Smooth(2);
+                        App.CurrentModule.WaveBank[WaveBank.currentWave].Smooth(2);
                     if (bMutate.Clicked)
-                        Song.currentSong.waves[WaveBank.currentWave].Mutate();
+                        App.CurrentModule.WaveBank[WaveBank.currentWave].Mutate();
                     if (bNormalize.Clicked)
-                        Song.currentSong.waves[WaveBank.currentWave].Normalize();
+                        App.CurrentModule.WaveBank[WaveBank.currentWave].Normalize();
 
                     if (mouseInBounds()) {
                         if (Input.GetClickDown(KeyModifier._Any)) {
@@ -251,24 +251,24 @@ namespace WaveTracker.UI {
 
 
                         if (Input.GetClick(KeyModifier.None)) {
-                            Song.currentSong.waves[WaveBank.currentWave].samples[canvasPosX] = (byte)canvasPosY;
+                            App.CurrentModule.WaveBank[WaveBank.currentWave].samples[canvasPosX] = (byte)canvasPosY;
                         }
                         if (Input.GetClickUp(KeyModifier.Shift)) {
                             int diff = Math.Abs(holdPosX - canvasPosX);
                             if (diff > 0) {
                                 if (holdPosX < canvasPosX) {
                                     for (int i = holdPosX; i <= canvasPosX; ++i) {
-                                        Song.currentSong.waves[WaveBank.currentWave].samples[i] = (byte)Math.Round(Lerp(holdPosY, canvasPosY, (float)(i - holdPosX) / diff));
+                                        App.CurrentModule.WaveBank[WaveBank.currentWave].samples[i] = (byte)Math.Round(Lerp(holdPosY, canvasPosY, (float)(i - holdPosX) / diff));
                                     }
                                 }
                                 else {
                                     for (int i = canvasPosX; i <= holdPosX; ++i) {
-                                        Song.currentSong.waves[WaveBank.currentWave].samples[i] = (byte)Math.Round(Lerp(canvasPosY, holdPosY, (float)(i - canvasPosX) / diff));
+                                        App.CurrentModule.WaveBank[WaveBank.currentWave].samples[i] = (byte)Math.Round(Lerp(canvasPosY, holdPosY, (float)(i - canvasPosX) / diff));
                                     }
                                 }
                             }
                             else {
-                                Song.currentSong.waves[WaveBank.currentWave].samples[canvasPosX] = (byte)canvasPosY;
+                                App.CurrentModule.WaveBank[WaveBank.currentWave].samples[canvasPosX] = (byte)canvasPosY;
                             }
                         }
                     }
@@ -311,8 +311,8 @@ namespace WaveTracker.UI {
                 Color waveColor = new Color(200, 212, 93);
                 Color waveBG = new Color(59, 125, 79, 150);
                 for (int i = 0; i < 64; ++i) {
-                    int samp = Song.currentSong.waves[WaveBank.currentWave].getSample(i);
-                    int samp2 = Song.currentSong.waves[WaveBank.currentWave].getSample(i + phase);
+                    int samp = App.CurrentModule.WaveBank[WaveBank.currentWave].getSample(i);
+                    int samp2 = App.CurrentModule.WaveBank[WaveBank.currentWave].getSample(i + phase);
 
                     DrawRect(17 + i * 6, 102, 6, -5 * (samp - 16), waveBG);
                     DrawRect(17 + i * 6, 183 - samp * 5, 6, -5, waveColor);

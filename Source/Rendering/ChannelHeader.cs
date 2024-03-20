@@ -13,6 +13,7 @@ using WaveTracker.Audio;
 namespace WaveTracker.Rendering
 {
     public class ChannelHeader : Clickable {
+        /*
         public int id;
         public const int MeterDecayRate = 4;
         float timeSinceSinceSoloed;
@@ -109,6 +110,6 @@ namespace WaveTracker.Rendering
                 }
             }
 
-        }
+        }*/
     }
 }

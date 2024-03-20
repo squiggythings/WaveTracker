@@ -13,15 +13,22 @@ namespace WaveTracker.UI {
         Element previousFocus;
         bool showMenu;
         public int Value { get; set; }
+        public bool ValueWasChangedInternally { get; set; }
+
+        /// <summary>
+        /// If set to true, scrolling over this drop down wrap around the options list
+        /// </summary>
+        public bool ScrollWrap { get; set; }
         int hoveredValue;
         string[] options;
         int cooldown;
 
-        public Dropdown(int x, int y, Element parent) {
+        public Dropdown(int x, int y, Element parent, bool scrollWrap = true) {
             enabled = true;
             this.x = x;
             this.y = y;
             height = 13;
+            ScrollWrap = scrollWrap;
             SetParent(parent);
 
         }
@@ -41,9 +48,13 @@ namespace WaveTracker.UI {
         public void Update() {
             if (!inFocus)
                 cooldown = 2;
+            int previousValue = Value;
             if (IsHovered && Input.MouseScrollWheel(KeyModifier.None) != 0) {
                 Value -= Input.MouseScrollWheel(KeyModifier.None);
-                Value = (Value + options.Length) % options.Length;
+                if (ScrollWrap)
+                    Value = (Value + options.Length) % options.Length;
+                else
+                    Value = Math.Clamp(Value, 0, options.Length - 1);
                 hoveredValue = Value;
             }
             if (showMenu) {
@@ -57,6 +68,7 @@ namespace WaveTracker.UI {
                                 Value = i;
                                 CloseMenu();
                                 Input.CancelClick();
+                                ValueWasChangedInternally = previousValue != Value;
                                 return;
                             }
                         }
@@ -65,23 +77,25 @@ namespace WaveTracker.UI {
                 if (Input.GetClickUp(KeyModifier.None)) {
                     CloseMenu();
                 }
-            } else {
+            }
+            else {
                 if (Clicked && cooldown <= 0) {
                     OpenMenu();
                 }
                 if (cooldown > 0)
                     cooldown--;
             }
+            ValueWasChangedInternally = previousValue != Value;
         }
 
-        public void OpenMenu() {
+        void OpenMenu() {
             previousFocus = Input.focus;
             Input.focus = this;
             hoveredValue = Value;
             showMenu = true;
         }
 
-        public void CloseMenu() {
+        void CloseMenu() {
             showMenu = false;
             Input.focus = previousFocus;
         }
@@ -111,16 +125,17 @@ namespace WaveTracker.UI {
             }
         }
 
-        public void DrawMenu() {
+        void DrawMenu() {
             DrawRect(0, 13, width, 11 * options.Length + 2, UIColors.labelDark);
             for (int i = 0; i < options.Length; i++) {
                 int y = i * 11 + 14;
                 if (i == hoveredValue) {
                     DrawRect(1, y, width - 2, 11, Helpers.LerpColor(UIColors.selection, Color.White, 0.7f));
-                    Write(options[i], 4, y + 2, UIColors.black);
-                } else {
+                    Write(Helpers.TrimTextToWidth(width - 8, options[i]), 4, y + 2, UIColors.black);
+                }
+                else {
                     DrawRect(1, y, width - 2, 11, Color.White);
-                    Write(options[i], 4, y + 2, UIColors.labelDark);
+                    Write(Helpers.TrimTextToWidth(width - 8, options[i]), 4, y + 2, UIColors.labelDark);
                 }
             }
         }

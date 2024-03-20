@@ -12,6 +12,7 @@ using WaveTracker.Audio;
 
 namespace WaveTracker.Rendering {
     public class FrameRenderer : Element {
+        /*
         int cursorRow;
         int cursorColumn;
         ChannelHeader[] headers;
@@ -306,7 +307,7 @@ namespace WaveTracker.Rendering {
                 else
                     WriteMonospaced(value.ToString("D2"), x, y, Colors.theme.effectColumnParameter, 4);
             }
-        }
+        }*/
     }
 
     // || -1 -1 -1 -1 -1 || -1 -1 -1 -1 -1 || -1 -1 -1 -1 -1 ||

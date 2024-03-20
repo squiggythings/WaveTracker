@@ -23,7 +23,6 @@ namespace WaveTracker {
 
         private GraphicsDeviceManager graphics;
         private SpriteBatch targetBatch;
-        public static Texture2D pixel;
         public static Texture2D channelHeaderSprite;
 
         public int ScreenWidth = 1920;
@@ -37,7 +36,6 @@ namespace WaveTracker {
         /// The width of the app in scaled pixels
         /// </summary>
         public static int WindowWidth { get; private set; }
-        public static SpriteFont font;
         RenderTarget2D target;
 
         WaveBank waveBank;
@@ -56,7 +54,8 @@ namespace WaveTracker {
         public static PatternEditor PatternEditor { get; private set; }
         public static InstrumentBank InstrumentBank { get; private set; }
         public static WTModule CurrentModule { get; set; }
-        public static WTSong CurrentSong { get { return CurrentModule.Songs[0]; } }
+        public static int CurrentSongIndex { get; set; }
+        public static WTSong CurrentSong { get { return CurrentModule.Songs[CurrentSongIndex]; } }
 
 
 
@@ -89,8 +88,8 @@ namespace WaveTracker {
             Input.Intialize();
             //frameRenderer.x = 0;
             //frameRenderer.y = 151;
-            Song.currentSong = new Song();
-            newSong = Song.currentSong.Clone();
+            //Song.currentSong = new Song();
+            //newSong = Song.currentSong.Clone();
 
             CurrentModule = new WTModule();
             PatternEditor.OnSwitchSong();
@@ -114,7 +113,7 @@ namespace WaveTracker {
             Dialogs.Initialize();
             editSettings = new EditSettings();
             Dialogs.humanizeDialog = new HumanizeDialog();
-            font = Content.Load<SpriteFont>("custom_font");
+            Graphics.font = Content.Load<SpriteFont>("custom_font");
             channelHeaderSprite = Content.Load<Texture2D>("trackerchannelheader");
             toolbar = new Toolbar(Content.Load<Texture2D>("toolbar"));
             waveBank.editor = new WaveEditor(Content.Load<Texture2D>("wave_window"));
@@ -124,8 +123,8 @@ namespace WaveTracker {
             InstrumentBank.editor.browser = new SampleBrowser(Content.Load<Texture2D>("window_edit"));
             songSettings.Initialize(Content.Load<Texture2D>("window_edit"));
             frameView.Initialize(Content.Load<Texture2D>("toolbar"), GraphicsDevice, PatternEditor);
-            pixel = new Texture2D(GraphicsDevice, 1, 1);
-            pixel.SetData(new[] { Color.White });
+            Graphics.pixel = new Texture2D(GraphicsDevice, 1, 1);
+            Graphics.pixel.SetData(new[] { Color.White });
             // TODO: use this.Content to load your game content here
             targetBatch = new SpriteBatch(GraphicsDevice);
             target = new RenderTarget2D(GraphicsDevice, ScreenWidth, ScreenHeight);
@@ -254,15 +253,14 @@ namespace WaveTracker {
                 // draw wave bank
                 waveBank.Draw();
 
-                // draw song settings
-                songSettings.Draw();
-
                 // draw edit settings
                 editSettings.Draw();
 
                 // draw frame view
                 frameView.Draw();
 
+                // draw song settings
+                songSettings.Draw();
 
                 //FrameEditor.channelScrollbar.Draw();
                 //Rendering.Graphics.DrawRect(0, FrameEditor.channelScrollbar.y, FrameEditor.channelScrollbar.x, FrameEditor.channelScrollbar.height, new Color(223, 224, 232));

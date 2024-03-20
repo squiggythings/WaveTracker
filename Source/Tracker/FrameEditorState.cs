@@ -7,6 +7,7 @@ using Microsoft.Xna.Framework;
 
 namespace WaveTracker.Tracker {
     public struct FrameEditorState {
+        /*
         public List<string> sequence;
         public FrameEditorPosition positionBefore;
         public FrameEditorPosition positionAfter;
@@ -106,6 +107,6 @@ namespace WaveTracker.Tracker {
             FrameEditor.cursorColumn = col;
             FrameEditor.cursorRow = row;
             FrameEditor.currentFrame = frame;
-        }
+        }*/
     }
 }

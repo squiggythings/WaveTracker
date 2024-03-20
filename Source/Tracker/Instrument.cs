@@ -181,11 +181,13 @@ namespace WaveTracker.Tracker {
 
         }
 
-        public void PrepareForSerialization() {
+        [ProtoBeforeSerialization]
+        internal void BeforeSerialization() {
             relIndexSerialized = (byte)(releaseIndex + 5);
             loopIndexSerialized = (byte)(loopIndex + 5);
         }
-        public void PrepareFromDeserialization() {
+        [ProtoAfterDeserialization]
+        internal void AfterDeserialization() {
             releaseIndex = relIndexSerialized - 5;
             loopIndex = loopIndexSerialized - 5;
         }

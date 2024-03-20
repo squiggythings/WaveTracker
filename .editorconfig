@@ -5,3 +5,6 @@ dotnet_diagnostic.IDE0028.severity = silent
 
 # CA1416: Validate platform compatibility
 dotnet_diagnostic.CA1416.severity = none
+
+# IDE0090: Use 'new(...)'
+dotnet_diagnostic.IDE0090.severity = silent

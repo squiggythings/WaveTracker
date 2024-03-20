@@ -84,11 +84,14 @@ namespace WaveTracker {
             }
             Playback.Stop();
             filePath = "";
-            FrameEditor.ClearHistory();
-            FrameEditor.Goto(0, 0);
+            //FrameEditor.ClearHistory();
+            //FrameEditor.Goto(0, 0);
             Playback.Goto(0, 0);
-            FrameEditor.cursorColumn = 0;
-            FrameEditor.UnmuteAllChannels();
+            App.PatternEditor.OnSwitchSong();
+            ChannelManager.UnmuteAllChannels();
+            //FrameEditor.cursorColumn = 0;
+            //FrameEditor.UnmuteAllChannels();
+            Song.currentSong = null;
             savedModule = new WTModule();
             App.CurrentModule = savedModule;
         }
@@ -123,11 +126,12 @@ namespace WaveTracker {
                     if (LoadFrom(filePath)) {
                         Visualization.GetWaveColors();
                         ChannelManager.Reset();
-                        FrameEditor.Goto(0, 0);
+                        App.PatternEditor.OnSwitchSong();
+                        //FrameEditor.Goto(0, 0);
                         Playback.Goto(0, 0);
-                        FrameEditor.cursorColumn = 0;
-                        FrameEditor.UnmuteAllChannels();
-                        FrameEditor.ClearHistory();
+                        //FrameEditor.cursorColumn = 0;
+                        //FrameEditor.UnmuteAllChannels();
+                        //FrameEditor.ClearHistory();
                     }
                     else {
                         LoadError();
@@ -163,6 +167,7 @@ namespace WaveTracker {
                 }
                 Song.currentSong.Deserialize();
                 App.CurrentModule = WTModule.FromOldSongFormat(Song.currentSong);
+                Song.currentSong = null;
 
             }
 
