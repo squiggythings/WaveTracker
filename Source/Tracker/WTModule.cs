@@ -12,8 +12,11 @@ using ProtoBuf;
 namespace WaveTracker.Tracker {
     [ProtoContract(SkipConstructor = true)]
     public class WTModule {
+        public const int MAX_CHANNEL_COUNT = 24;
         public const int DEFAULT_CHANNEL_COUNT = 24;
         public const int MAX_SONG_COUNT = 32;
+
+        public bool IsDirty { get; private set; }
 
         /// <summary>
         /// The version this module was created in
@@ -223,6 +226,20 @@ namespace WaveTracker.Tracker {
                     }
                 }
             }
+        }
+
+        /// <summary>
+        /// Call whenever a change is made to the module that needs to be saved
+        /// </summary>
+        public void SetDirty() {
+            IsDirty = true;
+        }
+
+        /// <summary>
+        /// Called after the module is saved to disk
+        /// </summary>
+        public void OnSaveModule() {
+            IsDirty = false;
         }
 
         /// <summary>

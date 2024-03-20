@@ -26,13 +26,6 @@ namespace WaveTracker.Audio {
             }
         }
 
-        public static void ResetTicks(int num) {
-            //foreach (Channel channel in channels)
-            //{
-            //    channel.ResetTick(num);
-            //}
-        }
-
         public static void PlayRow(int frame, int row) {
             int channelNum = 0;
             for (int channelIndex = 0; channelIndex < App.CurrentModule.ChannelCount; channelIndex++) {
@@ -92,42 +85,6 @@ namespace WaveTracker.Audio {
                     }
                 }
 
-                //else if (effect == 20) // CXX
-                //{
-                //    Playback.StopNext();
-                //}
-                //else if (effect == 21) // BXX
-                //  {
-                //    Playback.GotoNext(parameter % FrameEditor.thisSong.frames.Count, 0);
-                //}
-                //else if (effect == 22) // DXX
-                //  {
-                //    Playback.GotoNext(Playback.playbackFrame + 1, parameter);
-                //}
-                //else if (effect == 15) // FXX
-                //  {
-                //    Playback.ticksPerRowOverride = parameter;
-                //}
-                //else if (effect >= 0 && effect != 10 && effect != 11 && effect != 18 && effect != 25)
-                //    channels[channelNum].QueueEvent(TickEventType.Effect, effect, parameter, delay);
-                //if (volume >= 0)
-                //    channels[channelNum].QueueEvent(TickEventType.Volume, volume, 0, delay);
-                //if (instrument >= 0)
-                //    channels[channelNum].QueueEvent(TickEventType.Instrument, instrument, 0, delay);
-                //if (note != -1)
-                //    channels[channelNum].QueueEvent(TickEventType.Note, note, 0, delay);
-                //if (effect == 18) // SXX
-                //{
-                //    channels[channelNum].QueueEvent(TickEventType.Note, Frame.NOTE_CUT_VALUE, 0, parameter + 1);
-                //}
-                //if (effect == 25) // LXX
-                //{
-                //    channels[channelNum].QueueEvent(TickEventType.Note, Frame.NOTE_RELEASE_VALUE, 0, parameter + 1);
-                //}
-                //if (effect == 10 || effect == 11) // QXX RXX
-                //{
-                //    channels[channelNum].QueueEvent(TickEventType.Effect, effect, parameter, delay);
-                //}
                 channelNum++;
             }
         }

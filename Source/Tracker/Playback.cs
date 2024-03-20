@@ -72,7 +72,6 @@ namespace WaveTracker.Tracker {
             ChannelManager.previewChannel.Reset();
             position.Frame = patternEditor.cursorPosition.Frame;
             position.Row = 0;
-            Visualization.GetWaveColors();
             if (patternEditor.FollowMode && !AudioEngine.rendering) {
                 patternEditor.SnapToPlaybackPosition();
             }
@@ -89,7 +88,6 @@ namespace WaveTracker.Tracker {
             ChannelManager.Reset();
             tickCounter = 0;
             position = patternEditor.cursorPosition;
-            Visualization.GetWaveColors();
             if (patternEditor.FollowMode && !AudioEngine.rendering) {
                 patternEditor.SnapToPlaybackPosition();
             }
@@ -106,7 +104,6 @@ namespace WaveTracker.Tracker {
             isPlaying = true;
             ChannelManager.Reset();
 
-            Visualization.GetWaveColors();
             position.Frame = 0;
             position.Row = 0;
             if (patternEditor.FollowMode && !AudioEngine.rendering) {

@@ -39,7 +39,7 @@ namespace WaveTracker.Tracker {
         }
 
         /// <summary>
-        /// Writes this state's data into the <c>WTSong</c> passed into this function
+        /// Writes this state's data into <c>song</c>
         /// </summary>
         /// <param name="song"></param>
         public void RestoreIntoSong(WTSong song) {

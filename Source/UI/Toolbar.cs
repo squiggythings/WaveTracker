@@ -151,7 +151,7 @@ namespace WaveTracker.UI {
             if (playback_stop.Clicked) { Tracker.Playback.Stop(); }
             playback_record.Value = App.PatternEditor.EditMode;
             if (playback_record.Clicked) { App.PatternEditor.EditMode = !App.PatternEditor.EditMode; }
-            
+
 
             if (frame_next.Clicked) { App.PatternEditor.NextFrame(); }
             if (frame_prev.Clicked) { App.PatternEditor.PreviousFrame(); }
@@ -164,8 +164,12 @@ namespace WaveTracker.UI {
 
             visualizerModeToggle.Value = App.VisualizerMode;
             visualizerModeToggle.Update();
-            App.VisualizerMode = visualizerModeToggle.Value;
-            
+            if (visualizerModeToggle.Value != App.VisualizerMode) {
+                if (visualizerModeToggle.Value)
+                    Rendering.Visualization.GetWaveColors();
+                App.VisualizerMode = visualizerModeToggle.Value;
+            }
+
             if (SaveLoad.savecooldown > 0) {
                 SaveLoad.savecooldown--;
             }

@@ -140,9 +140,7 @@ namespace WaveTracker.Tracker {
 
         [ProtoBeforeSerialization]
         internal void BeforeSerialized() {
-            foreach(WTPattern pattern in Patterns) {
-                pattern.IsDirty = true;
-            }
+            SetPatternsDirty();
             patternsAsStrings = PackPatternsToStrings();
             frameSequence = GetFrameSequenceAsByteArray();
             Debug.WriteLine(patternsAsStrings);
@@ -224,6 +222,12 @@ namespace WaveTracker.Tracker {
                 }
             }
             return 99;
+        }
+
+        public void SetPatternsDirty() {
+            foreach (WTPattern pattern in Patterns) {
+                pattern.IsDirty = true;
+            }
         }
 
         /// <summary>

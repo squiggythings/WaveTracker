@@ -1089,7 +1089,7 @@ namespace WaveTracker.UI {
         #region move cursor methods
 
         /// <summary>
-        /// Resets the cursor position and view to the beginning of the song
+        /// Resets the cursor position and view to the beginning of the song, and clears undo history
         /// </summary>
         public void OnSwitchSong() {
             Debug.WriteLine("switch song");
@@ -1098,6 +1098,11 @@ namespace WaveTracker.UI {
                 Playback.PlayFromBeginning();
             }
             cursorPosition.Initialize();
+            lastCursorPosition.Initialize();
+            CancelSelection();
+            selection.Set(App.CurrentSong, cursorPosition, cursorPosition);
+            lastSelection.Set(App.CurrentSong, cursorPosition, cursorPosition);
+            ClearHistory();
             FirstVisibleChannel = 0;
         }
 
@@ -1204,6 +1209,7 @@ namespace WaveTracker.UI {
         }
 
         public void ClearHistory() {
+            App.CurrentSong.SetPatternsDirty();
             history.Clear();
             history.Add(new PatternEditorState(App.CurrentSong, GetPreviousEditorPosition(), GetCurrentEditorPosition()));
             historyIndex = 0;

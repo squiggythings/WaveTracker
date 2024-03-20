@@ -92,12 +92,12 @@ namespace WaveTracker {
             //newSong = Song.currentSong.Clone();
 
             CurrentModule = new WTModule();
-            PatternEditor.OnSwitchSong();
+            //PatternEditor.OnSwitchSong();
 
             waveBank = new WaveBank();
             InstrumentBank = new InstrumentBank();
 
-            ChannelManager.Initialize(WTModule.DEFAULT_CHANNEL_COUNT, waveBank);
+            ChannelManager.Initialize(WTModule.MAX_CHANNEL_COUNT, waveBank);
             //frameRenderer.Initialize();
             //FrameEditor.channelScrollbar = new UI.ScrollbarHorizontal(22, 323, 768, 7, null);
             //FrameEditor.channelScrollbar.SetSize(Tracker.Song.CHANNEL_COUNT, 12);
@@ -136,7 +136,7 @@ namespace WaveTracker {
 
         protected override void Update(GameTime gameTime) {
 
-            Window.Title = SaveLoad.fileName + (SaveLoad.isSaved ? "" : "*") + " - WaveTracker";
+            Window.Title = SaveLoad.FileName + (SaveLoad.IsSaved ? "" : "*") + " - WaveTracker";
             WindowHeight = Window.ClientBounds.Height / ScreenScale;
             WindowWidth = Window.ClientBounds.Width / ScreenScale;
 
@@ -167,7 +167,6 @@ namespace WaveTracker {
 
             if (Input.GetKeyDown(Keys.F12, KeyModifier.None)) {
                 ChannelManager.Reset();
-                ChannelManager.ResetTicks(0);
                 audioEngine.Reset();
             }
             PatternEditor.Update();

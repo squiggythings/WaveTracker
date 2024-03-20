@@ -11,8 +11,7 @@ using System.Text;
 using System.Threading.Tasks;
 using WaveTracker.Audio;
 
-namespace WaveTracker.Rendering
-{
+namespace WaveTracker.Rendering {
     public class Visualization : Element {
         public List<List<ChannelState>> states;
         public List<List<ChannelState>> statesPrev;
@@ -96,7 +95,7 @@ namespace WaveTracker.Rendering
             fillstates(states);
         }
 
-        public void fillstates(List<List<ChannelState>> states) {
+        void fillstates(List<List<ChannelState>> states) {
             List<ChannelState> rowOfStates = new List<ChannelState>();
             for (int c = 0; c < ChannelManager.channels.Count; c++) {
                 Channel chan = ChannelManager.channels[c];
@@ -231,7 +230,8 @@ namespace WaveTracker.Rendering
                 else {
                     DrawRect(x + 1, y + 2, 13, 2, c);
                 }
-            } else if (value == Frame.NOTE_RELEASE_VALUE) // release 
+            }
+            else if (value == Frame.NOTE_RELEASE_VALUE) // release 
               {
                 if (Preferences.profile.showNoteCutAndReleaseAsText)
                     Write("REL", x, y, c);
@@ -239,14 +239,17 @@ namespace WaveTracker.Rendering
                     DrawRect(x + 1, y + 2, 13, 1, c);
                     DrawRect(x + 1, y + 4, 13, 1, c);
                 }
-            } else if (value == Frame.NOTE_EMPTY_VALUE) // empty
+            }
+            else if (value == Frame.NOTE_EMPTY_VALUE) // empty
               {
                 WriteMonospaced("···", x + 1, y, currRow ? currRowEmptyText : Helpers.Alpha(Colors.theme.patternText, Colors.theme.patternEmptyTextAlpha), 4);
-            } else {
+            }
+            else {
                 string val = Helpers.MIDINoteToText(value);
                 if (val.Contains('#')) {
                     Write(val, x, y, c);
-                } else {
+                }
+                else {
                     WriteMonospaced(val[0] + "-", x, y, c, 5);
                     Write(val[2] + "", x + 11, y, c);
                 }
@@ -258,7 +261,8 @@ namespace WaveTracker.Rendering
             int alpha = currRow ? 255 : 120;
             if (value < 0) {
                 WriteMonospaced("··", x + 1, y, currRow ? currRowEmptyText : Helpers.Alpha(Colors.theme.patternText, Colors.theme.patternEmptyTextAlpha), 4);
-            } else {
+            }
+            else {
                 if (value >= App.CurrentModule.Instruments.Count)
                     WriteMonospaced(value.ToString("D2"), x, y, Helpers.Alpha(Color.Red, alpha), 4);
                 else if (App.CurrentModule.Instruments[value].instrumentType == InstrumentType.Sample)
@@ -272,7 +276,8 @@ namespace WaveTracker.Rendering
         void WriteVolume(int value, int x, int y, bool currRow) {
             if (value < 0) {
                 WriteMonospaced("··", x + 1, y, currRow ? currRowEmptyText : Helpers.Alpha(Colors.theme.patternText, Colors.theme.patternEmptyTextAlpha), 4);
-            } else {
+            }
+            else {
                 int alpha = currRow ? 255 : 100;
 
                 WriteMonospaced(value.ToString("D2"), x, y, Helpers.Alpha(Colors.theme.volumeColumn, alpha), 4);
@@ -284,13 +289,15 @@ namespace WaveTracker.Rendering
 
             if (value < 0) {
                 Write("·", x + 1, y, currRow ? currRowEmptyText : Helpers.Alpha(Colors.theme.patternText, Colors.theme.patternEmptyTextAlpha));
-            } else {
+            }
+            else {
                 Write("" + Helpers.GetEffectCharacter(value), x, y, Helpers.Alpha(Colors.theme.effectColumn, alpha));
             }
 
             if (param < 0) {
                 WriteMonospaced("··", x + 1 + 5, y, currRow ? currRowEmptyText : Helpers.Alpha(Colors.theme.patternText, Colors.theme.patternEmptyTextAlpha), 4);
-            } else {
+            }
+            else {
                 if (Helpers.IsEffectHex((char)value))
                     WriteMonospaced(param.ToString("X2"), x + 5, y, Helpers.Alpha(Colors.theme.effectColumnParameter, alpha), 4);
                 else
@@ -366,7 +373,8 @@ namespace WaveTracker.Rendering
                         if (i > -w / 2)
                             DrawOscCol(px + i + w / 2, py - 2, samp1, lastSamp, Preferences.profile.visualizerScopeColors ? GetColorOfWaveFromTable(channel.waveIndex, channel.waveMorphPosition) : Color.White, Preferences.profile.visualizerScopeThickness + 1);
                     }
-                } else // SAMPLE
+                }
+                else // SAMPLE
                   {
                     Sample samp = channel.currentMacro.sample;
 
