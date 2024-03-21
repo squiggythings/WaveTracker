@@ -380,7 +380,7 @@ namespace WaveTracker.Audio {
         public float CurrentFrequency { get { return _frequency; } }
 
         public float EvaluateWave(float time) {
-            return currentWave.GetSampleMorphed(time + App.CurrentModule.WaveBank[(waveIndex + 1) % 100].GetSampleAtPosition((float)time) * (_fmSmooth * _fmSmooth) / 2f, App.CurrentModule.WaveBank[(waveIndex + 1) % 100], waveMorphAmt / 99f, (waveBendAmt * waveBendAmt / 100f));
+            return currentWave.GetSampleMorphed(time + App.CurrentModule.WaveBank[(waveIndex + 1) % 100].GetSampleAtPosition((float)time) * (_fmSmooth * _fmSmooth) / 2f, App.CurrentModule.WaveBank[(waveIndex + 1) % 100], waveMorphAmt / 99f, waveBendAmt / 100f);
         }
 
 

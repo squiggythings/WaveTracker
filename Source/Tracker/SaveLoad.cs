@@ -71,6 +71,12 @@ namespace WaveTracker {
 
         }
 
+        public static void DoUnsavedCheck() {
+            if (!IsSaved) {
+                if (PromptUnsaved() == DialogResult.Cancel) return;
+            }
+        }
+
         public static void NewFile() {
             if (Input.focus != null)
                 return;

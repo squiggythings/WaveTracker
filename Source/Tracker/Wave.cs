@@ -8,8 +8,7 @@ using Microsoft.Xna.Framework;
 using ProtoBuf;
 using WaveTracker.Audio;
 
-namespace WaveTracker.Tracker
-{
+namespace WaveTracker.Tracker {
     [ProtoContract(SkipConstructor = true)]
     [Serializable]
     public class Wave {
@@ -214,14 +213,17 @@ namespace WaveTracker.Tracker
                 t += 1;
             t = Helpers.Mod(t, 1f);
             if (bendAmt > 0) {
-                bendAmt++;
-                if (t < 0.5f) {
-                    t = MathF.Pow(2 * t, MathF.Sqrt(bendAmt)) / 2f;
-                } else {
-                    t = MathF.Pow(2 - 2 * t, MathF.Sqrt(bendAmt)) / -2f + 1;
-                }
+                bendAmt = (bendAmt + 1) * (bendAmt + 1);
+                float tPow = MathF.Pow(t, bendAmt);
+                float oneMinusTPow = MathF.Pow(1 - t, bendAmt);
+                t = tPow / (tPow + oneMinusTPow);
             }
-            return MathHelper.Lerp(GetSampleAtPosition(t), other.GetSampleAtPosition(t), interpolationAmt);
+            if (interpolationAmt > 0) {
+                return MathHelper.Lerp(GetSampleAtPosition(t), other.GetSampleAtPosition(t), interpolationAmt);
+            }
+            else {
+                return GetSampleAtPosition(t);
+            }
         }
 
 
