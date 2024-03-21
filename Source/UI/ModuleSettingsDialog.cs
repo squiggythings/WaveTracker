@@ -11,51 +11,66 @@ using WaveTracker.Tracker;
 
 namespace WaveTracker.UI {
     public class ModuleSettingsDialog : Dialog {
-        Button ok;
+        Button ok, cancel;
         ListBox<WTSong> songsList;
         Textbox songTitle;
         Button addSong, insertSong, duplicateSong, removeSong, moveSongUp, moveSongDown;
         NumberBox numberOfChannels;
+        Dropdown tickSpeedMode;
         HorizontalSlider tickRateSlider;
         public ModuleSettingsDialog() : base("Module Settings", 224, 264) {
+            cancel = AddNewBottomButton("Cancel", this);
             ok = AddNewBottomButton("OK", this);
-            numberOfChannels = new NumberBox("Number of channels: ", 8, 170, this);
-            numberOfChannels.SetValueLimits(1, 24);
-            numberOfChannels.SetTooltip("", "Change the number of channels in this module (1-24)");
 
-            tickRateSlider = new HorizontalSlider(8, 225, 96, 0, this);
-            tickRateSlider.SetValueLimits(16, 400);
-            tickRateSlider.CoarseAdjustAmount = 16;
-            tickRateSlider.FineAdjustAmount = 4;
-
-
-            songsList = new ListBox<WTSong>(9, 25, 149, 10, this);
+            songsList = new ListBox<WTSong>(8, 25, 149, 10, this);
             songsList.ShowItemNumbers = true;
             addSong = new Button("Add", 166, 25, this);
             addSong.width = 51;
             addSong.SetTooltip("", "Add a song to the end of this module");
-            insertSong = new Button("Insert", 166, 39, this);
+            insertSong = new Button("Insert", 165, 39, this);
             insertSong.width = 51;
             insertSong.SetTooltip("", "Insert a song after the currently selected song");
-            duplicateSong = new Button("Duplicate", 166, 53, this);
+            duplicateSong = new Button("Duplicate", 165, 53, this);
             duplicateSong.width = 51;
             duplicateSong.SetTooltip("", "Create a copy of the currently selected song");
-            removeSong = new Button("Remove", 166, 67, this);
+            removeSong = new Button("Remove", 165, 67, this);
             removeSong.width = 51;
             removeSong.SetTooltip("", "Remove the currently selected song from this module");
-            moveSongUp = new Button("Move up", 166, 81, this);
+            moveSongUp = new Button("Move up", 165, 81, this);
             moveSongUp.width = 51;
             moveSongUp.SetTooltip("", "Move the currently selected song up one space in the list");
-            moveSongDown = new Button("Move down", 166, 95, this);
+            moveSongDown = new Button("Move down", 165, 95, this);
             moveSongDown.width = 51;
             moveSongDown.SetTooltip("", "Move the currently selected song down one space in the list");
 
-            songTitle = new Textbox("Title", 9, songsList.y + songsList.height + 4, songsList.width, this);
+            songTitle = new Textbox("Title", 8, songsList.y + songsList.height + 4, songsList.width, this);
+
+            numberOfChannels = new NumberBox("Number of channels: ", 8, 170, this);
+            numberOfChannels.SetValueLimits(1, 24);
+            numberOfChannels.SetTooltip("", "Change the number of channels in this module (1-24)");
+
+            tickRateSlider = new HorizontalSlider(width - 8 - 112, 225, 112, 14, this);
+            tickRateSlider.SetValueLimits(16, 240);
+            tickRateSlider.CoarseAdjustAmount = 16;
+            tickRateSlider.FineAdjustAmount = 4;
+            tickSpeedMode = new Dropdown(58, 206, this);
+            tickSpeedMode.SetMenuItems(new string[] { "Default (60 Hz)", "Custom" });
         }
 
         public new void Close() {
+            base.Close();
+        }
+
+        public void ApplyClose() {
             if (numberOfChannels.Value != App.CurrentModule.ChannelCount) {
                 App.CurrentModule.ResizeChannelCount(numberOfChannels.Value);
+                App.CurrentModule.SetDirty();
+            }
+            if (tickSpeedMode.Value == 0) {
+                tickRateSlider.Value = 60;
+            }
+            if (tickRateSlider.Value != App.CurrentModule.TickRate) {
+                App.CurrentModule.TickRate = tickRateSlider.Value;
                 App.CurrentModule.SetDirty();
             }
             base.Close();
@@ -65,6 +80,10 @@ namespace WaveTracker.UI {
             numberOfChannels.Value = App.CurrentModule.ChannelCount;
             songsList.SetList(App.CurrentModule.Songs);
             songsList.SelectedIndex = App.CurrentSongIndex;
+            tickRateSlider.Value = App.CurrentModule.TickRate;
+            if (tickRateSlider.Value == 60) {
+                tickSpeedMode.Value = 0;
+            }
             base.Open();
         }
 
@@ -76,8 +95,12 @@ namespace WaveTracker.UI {
                 moveSongUp.enabled = songsList.SelectedIndex > 0;
                 moveSongDown.enabled = songsList.SelectedIndex < App.CurrentModule.Songs.Count - 1;
 
-                if (ExitButton.Clicked || ok.Clicked) {
+                if (ExitButton.Clicked || cancel.Clicked) {
                     Close();
+                    return;
+                }
+                if (ok.Clicked) {
+                    ApplyClose();
                     return;
                 }
 
@@ -125,14 +148,17 @@ namespace WaveTracker.UI {
                 }
 
                 numberOfChannels.Update();
+                tickSpeedMode.Update();
+                tickRateSlider.enabled = tickSpeedMode.Value == 1;
                 tickRateSlider.Update();
+
             }
         }
 
         public new void Draw() {
             if (windowIsOpen) {
                 base.Draw();
-                DrawHorizontalLabel("Songs", 9, 17, width - 18);
+                DrawHorizontalLabel("Songs", 8, 17, width - 16);
                 songsList.Draw();
                 songTitle.Draw();
                 addSong.Draw();
@@ -142,13 +168,18 @@ namespace WaveTracker.UI {
                 moveSongUp.Draw();
                 moveSongDown.Draw();
 
-                DrawHorizontalLabel("Module", 9, 160, width - 18);
+                DrawHorizontalLabel("Module", 8, 161, width - 16);
                 numberOfChannels.Draw();
                 if (numberOfChannels.Value < App.CurrentModule.ChannelCount) {
                     WriteMultiline("WARNING: This will permanently delete all data in the removed channels.", numberOfChannels.x, numberOfChannels.y + 16, 200, Color.Red, lineSpacing: 8);
                 }
-                tickRateSlider.Draw();
-
+                Write("Tick speed", 8, tickSpeedMode.y + 3, UIColors.label);
+                if (tickRateSlider.enabled) {
+                    tickRateSlider.Draw();
+                    Write("Custom speed: " + tickRateSlider.Value + " Hz", 8, tickRateSlider.y + 2, UIColors.label);
+                    Write("(" + 44100 / tickRateSlider.Value + " samples/tick)", 8, tickRateSlider.y + 12, UIColors.labelLight);
+                }
+                tickSpeedMode.Draw();
             }
         }
     }

@@ -9,7 +9,7 @@ namespace WaveTracker.Audio {
         public static List<Channel> channels;
         public static WaveBank waveBank;
 
-
+        
         public static void Initialize(int numChannels, WaveBank waveBank) {
             ChannelManager.waveBank = waveBank;
             previewChannel = new Channel(-1);
@@ -20,12 +20,20 @@ namespace WaveTracker.Audio {
         }
 
 
+        /// <summary>
+        /// Reset all channels to their default state
+        /// </summary>
         public static void Reset() {
             foreach (Channel channel in channels) {
                 channel.Reset();
             }
         }
 
+        /// <summary>
+        /// Plays the contents of a row
+        /// </summary>
+        /// <param name="frame"></param>
+        /// <param name="row"></param>
         public static void PlayRow(int frame, int row) {
             int channelNum = 0;
             for (int channelIndex = 0; channelIndex < App.CurrentModule.ChannelCount; channelIndex++) {
@@ -62,6 +70,7 @@ namespace WaveTracker.Audio {
                         channels[channelIndex].QueueEvent(TickEventType.Effect, effectType, effectParam, delayTicks);
                     }
                 }
+
                 // process volume
                 if (App.CurrentSong[frame][row, channelIndex, CellType.Volume] != WTPattern.EVENT_EMPTY)
                     channels[channelIndex].QueueEvent(TickEventType.Volume, App.CurrentSong[frame][row, channelIndex, CellType.Volume], 0, delayTicks);
@@ -84,11 +93,16 @@ namespace WaveTracker.Audio {
                         channels[channelIndex].QueueEvent(TickEventType.Effect, effectType, effectParam, delayTicks);
                     }
                 }
-
+                
                 channelNum++;
             }
         }
 
+        /// <summary>
+        /// Sets the channel states from the events in a row
+        /// </summary>
+        /// <param name="frame"></param>
+        /// <param name="row"></param>
         public static void RestoreRow(int frame, int row) {
             for (int channelNum = 0; channelNum < App.CurrentModule.ChannelCount; ++channelNum) {
                 int instrument = App.CurrentSong[frame][row, channelNum, CellType.Instrument];

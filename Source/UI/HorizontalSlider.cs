@@ -34,7 +34,7 @@ namespace WaveTracker.UI {
             handle = new Clickable();
             handle.width = 5;
             handle.parent = this;
-            handle.height = height - 2;
+            handle.height = height - 0;
             FineAdjustAmount = 1;
             CoarseAdjustAmount = 1;
             TickSpacing = width / (float)numTicks;
@@ -56,7 +56,7 @@ namespace WaveTracker.UI {
                 handle.x = (int)(ValueAsPercentage * width) - handle.width / 2;
             }
             else {
-                if (Clicked) {
+                if (ClickedDown) {
                     if (MouseX < handle.x + handle.width / 2) {
                         Value -= CoarseAdjustAmount;
                         if (Value < mouseValue)
@@ -89,7 +89,7 @@ namespace WaveTracker.UI {
 
 
         public void Draw() {
-            DrawRect(-1, height / 2 - 1, width + 3, 3, UIColors.labelLight);
+            DrawRect(-2, height / 2 - 1, width + 1 + 4, 3, UIColors.labelLight);
             int tickHeight = (height - 7) / 2;
             DrawTick(0, tickHeight);
             for (float i = TickSpacing; i <= width; i += TickSpacing) {
@@ -105,7 +105,7 @@ namespace WaveTracker.UI {
             else {
                 DrawRect(handle.x, handle.y, handle.width, handle.height, UIColors.selection);
             }
-            Write(Value + "", handle.x, handle.y - 10, Color.Red);
+            //Write(Value + "", handle.x, handle.y - 10, Color.Red);
         }
     }
 }

@@ -12,12 +12,11 @@ using WaveTracker.Rendering;
 
 namespace WaveTracker.UI {
     public class FrameButton : Clickable {
-        PatternEditor patternEditor;
         public int offset { get; private set; }
         /// <summary>
         /// The index of this button's frame in the song's frame sequence
         /// </summary>
-        int ThisFrameIndex => patternEditor.cursorPosition.Frame + offset;
+        int ThisFrameIndex => App.PatternEditor.cursorPosition.Frame + offset;
         int valueSaved;
         bool isDragging;
         /// <summary>
@@ -26,16 +25,15 @@ namespace WaveTracker.UI {
         WTFrame ThisFrame => App.CurrentSong.FrameSequence[ThisFrameIndex];
         List<WTFrame> FrameSequence => App.CurrentSong.FrameSequence;
 
-        public FrameButton(int offset, PatternEditor patternEditor, Element parent) {
+        public FrameButton(int offset, Element parent) {
             height = 15;
             width = 17;
-            this.patternEditor = patternEditor;
             this.offset = offset;
             SetParent(parent);
         }
 
         public void Update() {
-            if (patternEditor.cursorPosition.Frame + offset == FrameSequence.Count && FrameSequence.Count < 100) {
+            if (App.PatternEditor.cursorPosition.Frame + offset == FrameSequence.Count && FrameSequence.Count < 100) {
                 SetTooltip("Add frame", "Add a new frame at the end of the song");
                 if (Clicked && offset < 12) {
                     App.CurrentSong.AddNewFrame();
@@ -50,8 +48,8 @@ namespace WaveTracker.UI {
                         Playback.GotoPreviousFrame();
                     }
                     else {
-                        patternEditor.MoveToFrame(App.PatternEditor.cursorPosition.Frame + offset);
-                        patternEditor.GoToTopOfFrame();
+                        App.PatternEditor.MoveToFrame(App.PatternEditor.cursorPosition.Frame + offset);
+                        App.PatternEditor.GoToTopOfFrame();
                     }
                 }
                 if (ThisFrameIndex < FrameSequence.Count && ThisFrameIndex >= 0) {
@@ -113,7 +111,7 @@ namespace WaveTracker.UI {
                 Color buttonColor;
                 if (offset == 0)
                     buttonColor = new Color(8, 124, 232);
-                else if (!patternEditor.FollowMode && Playback.isPlaying && Playback.position.Frame - patternEditor.cursorPosition.Frame == offset)
+                else if (!App.PatternEditor.FollowMode && Playback.isPlaying && Playback.position.Frame - App.PatternEditor.cursorPosition.Frame == offset)
                     buttonColor = Colors.theme.rowPlaybackColor.AddTo(new Color(40, 20, 40));
                 else if (IsPressed && offset > -12 && offset < 12 && !isDragging)
                     buttonColor = new Color(89, 96, 138);

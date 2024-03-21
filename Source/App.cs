@@ -122,7 +122,7 @@ namespace WaveTracker {
             InstrumentBank.editor = new InstrumentEditor(Content.Load<Texture2D>("instrumentwindow"));
             InstrumentBank.editor.browser = new SampleBrowser(Content.Load<Texture2D>("window_edit"));
             songSettings.Initialize(Content.Load<Texture2D>("window_edit"));
-            frameView.Initialize(Content.Load<Texture2D>("toolbar"), GraphicsDevice, PatternEditor);
+            frameView.Initialize(Content.Load<Texture2D>("toolbar"), GraphicsDevice);
             Graphics.pixel = new Texture2D(GraphicsDevice, 1, 1);
             Graphics.pixel.SetData(new[] { Color.White });
             // TODO: use this.Content to load your game content here
