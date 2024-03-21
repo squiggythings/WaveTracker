@@ -13,6 +13,8 @@ namespace WaveTracker.UI {
         public static Texture2D textureSheet;
         public bool Value { get; set; }
 
+        public bool ValueWasChangedInternally;
+
         public Checkbox(int x, int y, Element parent) {
             this.x = x;
             this.y = y;
@@ -24,6 +26,10 @@ namespace WaveTracker.UI {
         public void Update() {
             if (Clicked) {
                 Value = !Value;
+                ValueWasChangedInternally = true;
+            }
+            else {
+                ValueWasChangedInternally = false;
             }
         }
 

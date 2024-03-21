@@ -136,7 +136,7 @@ namespace WaveTracker {
 
         protected override void Update(GameTime gameTime) {
 
-            Window.Title = SaveLoad.FileName + (SaveLoad.IsSaved ? "" : "*") + " - WaveTracker";
+            Window.Title = SaveLoad.FileName + (SaveLoad.IsSaved ? "" : "*") + " - WaveTracker v" + VERSION;
             WindowHeight = Window.ClientBounds.Height / ScreenScale;
             WindowWidth = Window.ClientBounds.Width / ScreenScale;
 

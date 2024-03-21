@@ -145,21 +145,35 @@ namespace WaveTracker.UI {
                                     browser.Open(this);
                                 }
 
-                                if (sample_normalize.Clicked)
+                                if (sample_normalize.Clicked) {
                                     instrument.sample.Normalize();
+                                    App.CurrentModule.SetDirty();
+                                }
 
-                                if (sample_reverse.Clicked)
+                                if (sample_reverse.Clicked) {
                                     instrument.sample.Reverse();
-                                if (sample_invert.Clicked)
+                                    App.CurrentModule.SetDirty();
+                                }
+                                if (sample_invert.Clicked) {
                                     instrument.sample.Invert();
-                                if (sample_fadeIn.Clicked)
+                                    App.CurrentModule.SetDirty();
+                                }
+                                if (sample_fadeIn.Clicked) {
                                     instrument.sample.FadeIn();
-                                if (sample_fadeOut.Clicked)
+                                    App.CurrentModule.SetDirty();
+                                }
+                                if (sample_fadeOut.Clicked) {
                                     instrument.sample.FadeOut();
-                                if (sample_amplifyUp.Clicked)
+                                    App.CurrentModule.SetDirty();
+                                }
+                                if (sample_amplifyUp.Clicked) {
                                     instrument.sample.Amplify(1.1f);
-                                if (sample_amplifyDown.Clicked)
+                                    App.CurrentModule.SetDirty();
+                                }
+                                if (sample_amplifyDown.Clicked) {
                                     instrument.sample.Amplify(0.9f);
+                                    App.CurrentModule.SetDirty();
+                                }
                                 if (instrument.sample.sampleLoopType != SampleLoopType.OneShot) {
                                     sample_loopPoint.SetValueLimits(0, instrument.sample.sampleDataAccessL.Length < 1 ? 0 : instrument.sample.sampleDataAccessL.Length - 2);
                                     sample_loopPoint.Value = instrument.sample.sampleLoopIndex;
@@ -169,34 +183,52 @@ namespace WaveTracker.UI {
                                 #region resampling modes
                                 sample_resampleDropdown.Value = (int)instrument.sample.resampleMode;
                                 sample_resampleDropdown.Update();
-                                instrument.sample.resampleMode = (Audio.ResamplingMode)sample_resampleDropdown.Value;
+                                if (sample_resampleDropdown.ValueWasChangedInternally) {
+                                    App.CurrentModule.SetDirty();
+                                    instrument.sample.resampleMode = (Audio.ResamplingMode)sample_resampleDropdown.Value;
+                                }
                                 #endregion
 
                                 #region loop modes
                                 sample_loopOneshot.Value = instrument.sample.sampleLoopType == SampleLoopType.OneShot;
                                 sample_loopForward.Value = instrument.sample.sampleLoopType == SampleLoopType.Forward;
                                 sample_loopPingpong.Value = instrument.sample.sampleLoopType == SampleLoopType.PingPong;
-                                if (sample_loopOneshot.Clicked)
+                                if (sample_loopOneshot.Clicked) {
                                     instrument.sample.sampleLoopType = SampleLoopType.OneShot;
-                                if (sample_loopForward.Clicked)
+                                    App.CurrentModule.SetDirty();
+                                }
+                                if (sample_loopForward.Clicked) {
                                     instrument.sample.sampleLoopType = SampleLoopType.Forward;
-                                if (sample_loopPingpong.Clicked)
+                                    App.CurrentModule.SetDirty();
+                                }
+                                if (sample_loopPingpong.Clicked) {
                                     instrument.sample.sampleLoopType = SampleLoopType.PingPong;
+                                    App.CurrentModule.SetDirty();
+                                }
                                 sample_loopOneshot.Value = instrument.sample.sampleLoopType == SampleLoopType.OneShot;
                                 sample_loopForward.Value = instrument.sample.sampleLoopType == SampleLoopType.Forward;
                                 sample_loopPingpong.Value = instrument.sample.sampleLoopType == SampleLoopType.PingPong;
 
                                 sample_baseKey.Value = instrument.sample.BaseKey;
                                 sample_baseKey.Update();
-                                instrument.sample.SetBaseKey(sample_baseKey.Value);
+                                if (sample_baseKey.ValueWasChangedInternally) {
+                                    instrument.sample.SetBaseKey(sample_baseKey.Value);
+                                    App.CurrentModule.SetDirty();
+                                }
                                 sample_detune.Value = instrument.sample.Detune;
                                 sample_detune.Update();
-                                instrument.sample.SetDetune(sample_detune.Value);
+                                if (sample_detune.ValueWasChangedInternally) {
+                                    instrument.sample.SetDetune(sample_detune.Value);
+                                    App.CurrentModule.SetDirty();
+                                }
                                 #endregion
 
                                 visualize_toggle.Value = instrument.sample.useInVisualization;
                                 visualize_toggle.Update();
-                                instrument.sample.useInVisualization = visualize_toggle.Value;
+                                if (visualize_toggle.Value != instrument.sample.useInVisualization) {
+                                    App.CurrentModule.SetDirty();
+                                    instrument.sample.useInVisualization = visualize_toggle.Value;
+                                }
                             }
                             #endregion
                         }
@@ -211,9 +243,11 @@ namespace WaveTracker.UI {
                             wave_modTypeDropdown.Value = instrument.waveModType;
                             wave_modTypeDropdown.Update();
                             if (wave_modTypeDropdown.Value != instrument.waveModType) {
+                                App.CurrentModule.SetDirty();
                                 ChannelManager.previewChannel.ResetModulations();
+                                instrument.waveModType = wave_modTypeDropdown.Value;
                             }
-                            instrument.waveModType = wave_modTypeDropdown.Value;
+                            
                         }
                         else {
                             wave_modTypeDropdown.enabled = false;
@@ -284,21 +318,45 @@ namespace WaveTracker.UI {
 
         public void ReadFromTabTogglesIntoInstrument() {
             if (instrument.instrumentType == InstrumentType.Wave) {
-                instrument.volumeEnvelope.isActive = tabGroup.tabs[0].toggle.Value;
-                instrument.arpEnvelope.isActive = tabGroup.tabs[1].toggle.Value;
-                instrument.pitchEnvelope.isActive = tabGroup.tabs[2].toggle.Value;
-                instrument.waveEnvelope.isActive = tabGroup.tabs[3].toggle.Value;
-                instrument.waveModEnvelope.isActive = tabGroup.tabs[4].toggle.Value;
+                if (tabGroup.tabs[0].toggle.ValueWasChangedInternally) {
+                    instrument.volumeEnvelope.isActive = tabGroup.tabs[0].toggle.Value;
+                    App.CurrentModule.SetDirty();
+                }
+                if (tabGroup.tabs[1].toggle.ValueWasChangedInternally) {
+                    instrument.arpEnvelope.isActive = tabGroup.tabs[1].toggle.Value;
+                    App.CurrentModule.SetDirty();
+                }
+                if (tabGroup.tabs[2].toggle.ValueWasChangedInternally) {
+                    instrument.pitchEnvelope.isActive = tabGroup.tabs[2].toggle.Value;
+                    App.CurrentModule.SetDirty();
+                }
+                if (tabGroup.tabs[3].toggle.ValueWasChangedInternally) {
+                    instrument.waveEnvelope.isActive = tabGroup.tabs[3].toggle.Value;
+                    App.CurrentModule.SetDirty();
+                }
+                if (tabGroup.tabs[4].toggle.ValueWasChangedInternally) {
+                    instrument.waveModEnvelope.isActive = tabGroup.tabs[4].toggle.Value;
+                    App.CurrentModule.SetDirty();
+                }
             }
             if (instrument.instrumentType == InstrumentType.Sample) {
-                instrument.volumeEnvelope.isActive = tabGroup.tabs[1].toggle.Value;
-                instrument.arpEnvelope.isActive = tabGroup.tabs[2].toggle.Value;
-                instrument.pitchEnvelope.isActive = tabGroup.tabs[3].toggle.Value;
+                if (tabGroup.tabs[1].toggle.ValueWasChangedInternally) {
+                    instrument.volumeEnvelope.isActive = tabGroup.tabs[1].toggle.Value;
+                    App.CurrentModule.SetDirty();
+                }
+                if (tabGroup.tabs[2].toggle.ValueWasChangedInternally) {
+                    instrument.arpEnvelope.isActive = tabGroup.tabs[2].toggle.Value;
+                    App.CurrentModule.SetDirty();
+                }
+                if (tabGroup.tabs[3].toggle.ValueWasChangedInternally) {
+                    instrument.pitchEnvelope.isActive = tabGroup.tabs[3].toggle.Value;
+                    App.CurrentModule.SetDirty();
+                }
             }
         }
 
         public int pianoInput() {
-            if (!enabled || !inFocus)
+            if (!enabled || !InFocus)
                 return -1;
 
             if (LastClickPos.X < 44 || LastClickPos.X > 523 || LastClickPos.Y > 330 || LastClickPos.Y < 307)
@@ -463,10 +521,12 @@ namespace WaveTracker.UI {
                     macro.sample.Normalize();
 
                 macro.sample.resampleMode = (Audio.ResamplingMode)Preferences.profile.defaultResampleSample;
+                App.CurrentModule.SetDirty();
             }
             else {
                 macro.sample.sampleDataAccessL = Array.Empty<float>();
                 macro.sample.sampleDataAccessR = Array.Empty<float>();
+                App.CurrentModule.SetDirty();
             }
         }
     }

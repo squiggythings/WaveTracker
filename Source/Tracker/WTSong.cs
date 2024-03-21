@@ -162,6 +162,7 @@ namespace WaveTracker.Tracker {
             if (FrameSequence.Count < 100) {
                 FrameSequence.Add(new WTFrame(GetNextFreePattern(), this));
             }
+            App.CurrentModule.SetDirty();
         }
 
         /// <summary>
@@ -171,6 +172,7 @@ namespace WaveTracker.Tracker {
             if (FrameSequence.Count < 100) {
                 FrameSequence.Insert(index, new WTFrame(GetNextFreePattern(), this));
             }
+            App.CurrentModule.SetDirty();
         }
 
         /// <summary>
@@ -181,6 +183,7 @@ namespace WaveTracker.Tracker {
             if (FrameSequence.Count < 100) {
                 FrameSequence.Insert(index, new WTFrame(FrameSequence[index].PatternIndex, this));
             }
+            App.CurrentModule.SetDirty();
         }
 
         /// <summary>
@@ -191,6 +194,7 @@ namespace WaveTracker.Tracker {
             if (FrameSequence.Count > 1) {
                 FrameSequence.RemoveAt(index);
             }
+            App.CurrentModule.SetDirty();
         }
 
         /// <summary>
@@ -202,6 +206,7 @@ namespace WaveTracker.Tracker {
             if (index1 >= 0 && index2 >= 0 && index1 < FrameSequence.Count && index2 < FrameSequence.Count) {
                 (FrameSequence[index1], FrameSequence[index2]) = (FrameSequence[index2], FrameSequence[index1]);
             }
+            App.CurrentModule.SetDirty();
         }
 
         /// <summary>

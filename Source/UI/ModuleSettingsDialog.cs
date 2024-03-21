@@ -23,10 +23,10 @@ namespace WaveTracker.UI {
             numberOfChannels.SetValueLimits(1, 24);
             numberOfChannels.SetTooltip("", "Change the number of channels in this module (1-24)");
 
-            tickRateSlider = new HorizontalSlider(8, 225, 192, 0, this);
+            tickRateSlider = new HorizontalSlider(8, 225, 96, 0, this);
             tickRateSlider.SetValueLimits(16, 400);
-            tickRateSlider.CoarseAdjustAmount = 76;
-            tickRateSlider.FineAdjustAmount = 7;
+            tickRateSlider.CoarseAdjustAmount = 16;
+            tickRateSlider.FineAdjustAmount = 4;
 
 
             songsList = new ListBox<WTSong>(9, 25, 149, 10, this);
@@ -54,7 +54,10 @@ namespace WaveTracker.UI {
         }
 
         public new void Close() {
-            App.CurrentModule.ResizeChannelCount(numberOfChannels.Value);
+            if (numberOfChannels.Value != App.CurrentModule.ChannelCount) {
+                App.CurrentModule.ResizeChannelCount(numberOfChannels.Value);
+                App.CurrentModule.SetDirty();
+            }
             base.Close();
         }
 
@@ -80,28 +83,34 @@ namespace WaveTracker.UI {
 
                 if (addSong.Clicked) {
                     App.CurrentModule.Songs.Add(new WTSong(App.CurrentModule));
+                    App.CurrentModule.SetDirty();
                     songsList.SelectedIndex = App.CurrentModule.Songs.Count;
                     songsList.MoveBounds();
                 }
                 if (insertSong.Clicked) {
                     App.CurrentModule.Songs.Insert(songsList.SelectedIndex, new WTSong(App.CurrentModule));
+                    App.CurrentModule.SetDirty();
                 }
                 if (duplicateSong.Clicked) {
                     App.CurrentModule.Songs.Insert(songsList.SelectedIndex + 1, songsList.SelectedItem.Clone());
+                    App.CurrentModule.SetDirty();
                     songsList.SelectedIndex++;
                 }
                 if (removeSong.Clicked) {
                     App.CurrentModule.Songs.RemoveAt(songsList.SelectedIndex);
+                    App.CurrentModule.SetDirty();
                     songsList.SelectedIndex--;
                     songsList.MoveBounds();
                 }
                 if (moveSongUp.Clicked) {
                     App.CurrentModule.Songs.Reverse(songsList.SelectedIndex - 1, 2);
+                    App.CurrentModule.SetDirty();
                     songsList.SelectedIndex--;
                     songsList.MoveBounds();
                 }
                 if (moveSongDown.Clicked) {
                     App.CurrentModule.Songs.Reverse(songsList.SelectedIndex, 2);
+                    App.CurrentModule.SetDirty();
                     songsList.SelectedIndex++;
                     songsList.MoveBounds();
                 }
@@ -112,6 +121,7 @@ namespace WaveTracker.UI {
                 songTitle.Update();
                 if (songTitle.ValueWasChangedInternally) {
                     songsList.SelectedItem.Name = songTitle.Text;
+                    App.CurrentModule.SetDirty();
                 }
 
                 numberOfChannels.Update();

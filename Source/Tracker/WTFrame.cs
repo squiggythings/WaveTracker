@@ -12,15 +12,21 @@ namespace WaveTracker.Tracker {
     /// <summary>
     ///  Object in a song's frame sequence which determines what patterns to play.
     /// </summary>
-    [ProtoContract(SkipConstructor = true)]
     public class WTFrame {
 
         /// <summary>
         /// The index of the pattern this frame should reference
         /// </summary>
-        [ProtoMember(1)]
         int patternIndex;
-        public int PatternIndex { get { return patternIndex; } set { patternIndex = Math.Clamp(value, 0, 99); } }
+        public int PatternIndex {
+            get { return patternIndex; }
+            set {
+                if (patternIndex != value) {
+                    patternIndex = Math.Clamp(value, 0, 99);
+                    App.CurrentModule.SetDirty();
+                }
+            }
+        }
 
         /// <summary>
         /// The song that owns this frame

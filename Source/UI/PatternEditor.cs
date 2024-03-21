@@ -70,6 +70,11 @@ namespace WaveTracker.UI {
         public int LastVisibleChannel { get; private set; }
 
         /// <summary>
+        /// The maximum channel scroll amount
+        /// </summary>
+        public int MaxChannelScroll { get; private set; }
+
+        /// <summary>
         /// The position of the right-bound of the last channel<br></br>
         /// Where the pattern editor ends.
         /// </summary>
@@ -110,10 +115,11 @@ namespace WaveTracker.UI {
         WTFrame CurrentFrame => App.CurrentSong.FrameSequence[cursorPosition.Frame];
         WTPattern CurrentPattern => CurrentFrame.GetPattern();
 
+        ScrollbarHorizontal channelScrollbar;
+
         int playbackFrame;
         int playbackRow;
         CursorPos renderCursorPos;
-
 
         public PatternEditor(int x, int y) {
             Playback.patternEditor = this;
@@ -130,6 +136,7 @@ namespace WaveTracker.UI {
             selection = new PatternSelection();
             lastSelection = new PatternSelection();
             history = new List<PatternEditorState>();
+            channelScrollbar = new ScrollbarHorizontal(ROW_COLUMN_WIDTH, 0, width, 6, this);
         }
 
         public void Update() {
@@ -138,8 +145,11 @@ namespace WaveTracker.UI {
                 ClearHistory();
             }
             // responsive height
-            int bottomMargin = 3;
-            height = App.WindowHeight - y - bottomMargin;
+            int bottomMargin = 8;
+            if (channelScrollbar.IsVisible)
+                height = App.WindowHeight - y - bottomMargin - channelScrollbar.height;
+            else
+                height = App.WindowHeight - y - bottomMargin;
 
             // responsive width
             int rightMargin = 156;
@@ -148,7 +158,18 @@ namespace WaveTracker.UI {
             FirstVisibleChannel -= Input.MouseScrollWheel(KeyModifier.Alt);
             FirstVisibleChannel = Math.Clamp(FirstVisibleChannel, 0, App.CurrentModule.ChannelCount - 1);
 
-            CalculateChannelPositioning();
+            CalculateChannelPositioning(false);
+            channelScrollbar.width = width - ROW_COLUMN_WIDTH + 1;
+            channelScrollbar.y = height;
+            channelScrollbar.SetSize(App.CurrentModule.ChannelCount, App.CurrentModule.ChannelCount - MaxChannelScroll);
+            channelScrollbar.ScrollValue = FirstVisibleChannel;
+            channelScrollbar.Update();
+            FirstVisibleChannel = channelScrollbar.ScrollValue;
+            if (FirstVisibleChannel > MaxChannelScroll) {
+                FirstVisibleChannel = MaxChannelScroll;
+            }
+            CalculateChannelPositioning(true);
+
 
             #region change octave
             if (Input.GetKeyRepeat(Keys.OemOpenBrackets, KeyModifier.None) || Input.GetKeyRepeat(Keys.Divide, KeyModifier.None))
@@ -327,7 +348,7 @@ namespace WaveTracker.UI {
                 if (GetMouseLineNumber() == 0) {
                     MoveToRow(cursorPosition.Row - 1);
                 }
-                if (GetMouseLineNumber() > NumVisibleLines - 2) {
+                if (GetMouseLineNumber() >= NumVisibleLines - 2) {
                     MoveToRow(cursorPosition.Row + 1);
                 }
                 SetSelectionEnd(GetCursorPositionFromPointClampedToFrame(MouseX, MouseY, selectionStart.Frame, MouseY > LastClickPos.Y));
@@ -747,10 +768,13 @@ namespace WaveTracker.UI {
                 }
             }
             #endregion
-            #region copy/paste
+            #region copy/paste/cut
             if (SelectionIsActive) {
                 if (KeyPress(Keys.C, KeyModifier.Ctrl)) {
                     CopyToClipboard();
+                }
+                if (KeyPress(Keys.X, KeyModifier.Ctrl)) {
+                    Cut();
                 }
             }
             if (clipboard != null) {
@@ -778,6 +802,7 @@ namespace WaveTracker.UI {
                             }
                         }
                     }
+                    AddToUndoHistory();
                 }
             }
             #endregion
@@ -891,6 +916,8 @@ namespace WaveTracker.UI {
             DrawRect(width, -32, 1, height + 32, Colors.theme.rowSeparator);
             DrawRect(width + 1, -32, 1, 1, Colors.theme.rowSeparator);
             DrawRect(LastChannelEndPos + 1, 0, width - LastChannelEndPos - 1, height, Colors.theme.background);
+            DrawRect(0, channelScrollbar.y, ROW_COLUMN_WIDTH, channelScrollbar.height, UIColors.panel);
+            channelScrollbar.Draw();
         }
         void DrawRow(int line, int frame, int row, int frameWrap) {
             // get the row color
@@ -914,7 +941,6 @@ namespace WaveTracker.UI {
 
         void DrawPatternEvent(int frame, int row, int channel, int frameWrap, int x, int y, int effectColumns, Color rowTextColor) {
 
-            //PatternEvent thisEvent = App.CurrentSong[frame][row][channel];
             int noteValue = App.CurrentSong[frame][row, channel, CellType.Note];
             int instrumentValue = App.CurrentSong[frame][row, channel, CellType.Instrument];
             int volumeValue = App.CurrentSong[frame][row, channel, CellType.Volume];
@@ -1092,7 +1118,7 @@ namespace WaveTracker.UI {
         /// Resets the cursor position and view to the beginning of the song, and clears undo history
         /// </summary>
         public void OnSwitchSong() {
-            Debug.WriteLine("switch song");
+            //Debug.WriteLine("switch song");
             if (Playback.isPlaying) {
                 Playback.Stop();
                 Playback.PlayFromBeginning();
@@ -1106,12 +1132,17 @@ namespace WaveTracker.UI {
             FirstVisibleChannel = 0;
         }
 
+        /// <summary>
+        /// Called when the module channel size is changed
+        /// </summary>
         public void OnResizeChannels() {
             cursorPosition.Normalize(App.CurrentSong);
             lastCursorPosition.Normalize(App.CurrentSong);
             CancelSelection();
             selection.Set(App.CurrentSong, cursorPosition, cursorPosition);
             lastSelection.Set(App.CurrentSong, cursorPosition, cursorPosition);
+            FirstVisibleChannel = 0;
+            App.PatternEditor.CalculateChannelPositioning(false);
         }
 
         /// <summary>
@@ -1227,7 +1258,6 @@ namespace WaveTracker.UI {
             }
             if (!EditMode)
                 return;
-
             while (history.Count - 1 > historyIndex) {
                 history.RemoveAt(history.Count - 1);
             }
@@ -1237,6 +1267,7 @@ namespace WaveTracker.UI {
                 history.RemoveAt(0);
                 historyIndex--;
             }
+            App.CurrentModule.SetDirty();
         }
 
         /// <summary>
@@ -1252,6 +1283,7 @@ namespace WaveTracker.UI {
             if (historyIndex < 0)
                 historyIndex = 0;
             history[historyIndex].RestoreIntoSong(App.CurrentSong);
+            App.CurrentModule.SetDirty();
         }
         public void Redo() {
             historyIndex++;
@@ -1263,7 +1295,7 @@ namespace WaveTracker.UI {
             SetSelectionEnd(history[historyIndex].PostPosition.SelectionEnd);
             selection.Set(App.CurrentSong, selectionStart, selectionEnd);
             selection.IsActive = history[historyIndex].PostPosition.SelectionIsActive;
-
+            App.CurrentModule.SetDirty();
         }
 
         public PatternEditorPosition GetCurrentEditorPosition() {
@@ -1305,8 +1337,11 @@ namespace WaveTracker.UI {
         /// Removes all data in the selection and copies it to the clipboard
         /// </summary>
         public void Cut() {
-            CopyToClipboard();
-            Delete();
+            if (SelectionIsActive) {
+                CopyToClipboard();
+                Delete();
+                AddToUndoHistory();
+            }
         }
 
         /// <summary>
@@ -1499,6 +1534,7 @@ namespace WaveTracker.UI {
                     }
                 }
             }
+            AddToUndoHistory();
         }
 
         #region frame methods
@@ -1544,6 +1580,7 @@ namespace WaveTracker.UI {
         public void DuplicateFrame() {
             App.CurrentSong.DuplicateFrame(cursorPosition.Frame);
             MoveToFrame(cursorPosition.Frame + 1);
+            App.CurrentModule.SetDirty();
         }
 
         public void RemoveFrame() {
@@ -1613,13 +1650,12 @@ namespace WaveTracker.UI {
         /// <summary>
         /// Calculates where channels are positioned based on the horziontal scroll and their expansions
         /// </summary>
-        public void CalculateChannelPositioning() {
+        public void CalculateChannelPositioning(bool doUpdate) {
             // get the total width of channels that are not visible on the left side
             int prevWidth = 0;
             for (int i = 0; i < FirstVisibleChannel; ++i) {
                 prevWidth += GetWidthOfChannel(i);
             }
-
             // figure out which channel headers are visible, and enable/position/update them
             int px = ROW_COLUMN_WIDTH - prevWidth;
             for (int channel = 0; channel < App.CurrentModule.ChannelCount; ++channel) {
@@ -1634,17 +1670,31 @@ namespace WaveTracker.UI {
                 channelHeaders[channel].x = px;
                 channelHeaders[channel].width = GetWidthOfChannel(channel) - 1;
                 channelHeaders[channel].NumEffectColumns = App.CurrentSong.NumEffectColumns[channel];
-                channelHeaders[channel].Update();
+                if (doUpdate) {
+                    channelHeaders[channel].Update();
 
-                // if the user changed the number of effect columns
-                if (channelHeaders[channel].NumEffectColumns != App.CurrentSong.NumEffectColumns[channel]) {
-                    App.CurrentSong.NumEffectColumns[channel] = channelHeaders[channel].NumEffectColumns;
-                    channelHeaders[channel].width = GetWidthOfChannel(channel) - 1;
-                    cursorPosition.Normalize(App.CurrentSong);
+                    // if the user changed the number of effect columns
+                    if (channelHeaders[channel].NumEffectColumns != App.CurrentSong.NumEffectColumns[channel]) {
+                        App.CurrentSong.NumEffectColumns[channel] = channelHeaders[channel].NumEffectColumns;
+                        channelHeaders[channel].width = GetWidthOfChannel(channel) - 1;
+                        cursorPosition.Normalize(App.CurrentSong);
+                    }
                 }
                 px += GetWidthOfChannel(channel);
             }
             LastChannelEndPos = channelHeaders[App.CurrentModule.ChannelCount - 1].x + channelHeaders[App.CurrentModule.ChannelCount - 1].width;
+            MaxChannelScroll = GetMaximumChannelScroll();
+        }
+
+        int GetMaximumChannelScroll() {
+            int w = width - ROW_COLUMN_WIDTH;
+            for (int channel = App.CurrentModule.ChannelCount - 1; channel >= 0; --channel) {
+                w -= channelHeaders[channel].width + 1;
+                if (w <= 0) {
+                    return channel + 1;
+                }
+            }
+            return 0;
         }
 
 
@@ -1664,7 +1714,7 @@ namespace WaveTracker.UI {
         /// <returns></returns>
         int NumVisibleLines {
             get {
-                return height / ROW_HEIGHT;
+                return height / ROW_HEIGHT + 1;
             }
         }
 

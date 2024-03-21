@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -14,18 +15,18 @@ namespace WaveTracker.UI {
         public int viewportSize;
         public Rectangle bar;
         bool lastClickWasOnScrollbar;
-        public int minimumSize;
-        public int scrollValue { get; set; }
-        public int coarseStepAmount { get; set; }
+        public int ScrollValue { get; set; }
+        public int CoarseStepAmount { get; set; }
         int barClickOffset;
+
+        public bool IsVisible { get { return viewportSize < totalSize; } }
         public int barWasPressed;
         public ScrollbarHorizontal(int x, int y, int width, int height, Element parent) {
             this.x = x;
             this.y = y;
             this.width = width;
             this.height = height;
-            minimumSize = 8;
-            coarseStepAmount = 1;
+            CoarseStepAmount = 1;
             if (parent != null)
                 SetParent(parent);
         }
@@ -34,88 +35,99 @@ namespace WaveTracker.UI {
             this.viewportSize = viewportSize;
             this.totalSize = totalSize;
             bar.Height = 6;
-            bar.X = width - bar.Width;
+            bar.Y = height - bar.Height;
             bar.Width = (int)(width * (viewportSize / (float)totalSize));
-            if (bar.Width < minimumSize)
-                bar.Width = minimumSize;
         }
 
 
 
         public void Update() {
-            if (inFocus) {
-                if (viewportSize < totalSize) {
-                    if (Input.GetClickDown(KeyModifier._Any)) {
-                        lastClickWasOnScrollbar = bar.Contains(lastClickPosition);
-                        if (MouseY >= bar.Y && MouseY <= bar.Y + bar.Height) {
-                            if (lastClickWasOnScrollbar) {
-                                barClickOffset = bar.X - MouseX;
-                            } else {
-                                // step bar towards mouse
-                                if (MouseX > bar.X) {
-                                    scrollValue += coarseStepAmount;
-                                } else {
-                                    scrollValue -= coarseStepAmount;
+            if (InFocus) {
+                if (enabled) {
+                    if (IsVisible) {
+                        if (Input.GetClickDown(KeyModifier._Any)) {
+                            lastClickWasOnScrollbar = bar.Contains(LastClickPos);
+                            if (MouseY >= bar.Y && MouseY <= bar.Y + bar.Height) {
+                                if (lastClickWasOnScrollbar) {
+                                    barClickOffset = bar.X - MouseX;
+                                }
+                                else {
+                                    // step bar towards mouse
+                                    if (MouseX > bar.X) {
+                                        ScrollValue += CoarseStepAmount;
+                                    }
+                                    else {
+                                        ScrollValue -= CoarseStepAmount;
+                                    }
                                 }
                             }
                         }
+                        if (BarisPressed) {
+                            bar.X = MouseX + barClickOffset;
+                            ScrollValue = (int)Math.Round(BarValFromPos() * (totalSize - viewportSize));
+                        }
+                        else {
+                            if (IsHovered)
+                                ScrollValue -= Input.MouseScrollWheel(KeyModifier._Any) * CoarseStepAmount;
+                        }
+                        UpdateScrollValue();
                     }
-                    if (barisPressed) {
-                        bar.X = MouseX + barClickOffset;
-
-                        scrollValue = (int)Math.Round(barValFromPos() * (float)(totalSize - viewportSize));
-                    } else {
-                        if (IsHovered)
-                            scrollValue -= Input.MouseScrollWheel(KeyModifier._Any) * coarseStepAmount;
+                    if (BarisPressed) {
+                        barWasPressed = 2;
                     }
-                    scrollValue = Math.Clamp(scrollValue, 0, totalSize - viewportSize);
-                    bar.X = (int)Math.Round(barValFromVal() * (width - 2) + 1);
-                }
-                if (barisPressed) {
-                    barWasPressed = 2;
-                } else {
-                    if (barWasPressed > 0)
-                        barWasPressed--;
+                    else {
+                        if (barWasPressed > 0)
+                            barWasPressed--;
+                    }
                 }
             }
         }
 
         public void Draw() {
-            if (viewportSize < totalSize) {
+            if (enabled) {
+                if (IsVisible) {
 
-                Color background = UIColors.panel;
-                Color barSpace = UIColors.labelLight;
-                Color barDefault = ButtonColors.Round.backgroundColor;
-                Color barHover = UIColors.labelDark;
-                Color barPressed = UIColors.black;
-                //DrawRect(0, 0, width, height, new Color(255, 0, 0, 40));
+                    Color background = UIColors.panel;
+                    Color barSpace = UIColors.labelLight;
+                    Color barDefault = ButtonColors.Round.backgroundColor;
+                    Color barHover = UIColors.labelDark;
+                    Color barPressed = UIColors.black;
+                    //DrawRect(0, 0, width, height, new Color(255, 0, 0, 40));
 
-                DrawRect(0, bar.Y, width, bar.Height, background);
-                DrawRoundedRect(1, bar.Y + 1, width - 2, bar.Height - 2, barSpace);
-                if (barisPressed && (!Input.internalDialogIsOpen))
-                    DrawRoundedRect(bar.X, bar.Y + 1, bar.Width, bar.Height - 2, barPressed);
-                else if (barisHovered && (!Input.internalDialogIsOpen))
-                    DrawRoundedRect(bar.X, bar.Y + 1, bar.Width, bar.Height - 2, barHover);
-                else
-                    DrawRoundedRect(bar.X, bar.Y + 1, bar.Width, bar.Height - 2, barDefault);
+                    DrawRect(0, bar.Y, width, bar.Height, background);
+                    DrawRoundedRect(1, bar.Y + 1, width - 2, bar.Height - 2, barSpace);
+                    if (BarisPressed && (!Input.internalDialogIsOpen))
+                        DrawRoundedRect(bar.X, bar.Y + 1, bar.Width, bar.Height - 2, barPressed);
+                    else if (BarisHovered && (!Input.internalDialogIsOpen))
+                        DrawRoundedRect(bar.X, bar.Y + 1, bar.Width, bar.Height - 2, barHover);
+                    else
+                        DrawRoundedRect(bar.X, bar.Y + 1, bar.Width, bar.Height - 2, barDefault);
+                }
             }
         }
 
-        float barValFromPos() {
+
+        /// <summary>
+        /// Clamps the scroll value if the scroll value is out of range
+        /// </summary>
+        public void UpdateScrollValue() {
+            if (IsVisible) {
+                ScrollValue = Math.Clamp(ScrollValue, 0, totalSize - viewportSize);
+                bar.X = (int)Math.Round(BarPosFromVal() * (width - 2) + 1);
+            }
+        }
+
+        float BarValFromPos() {
             return (bar.X - 1) / (float)(width - 2 - bar.Width);
         }
 
-        float barValFromVal() {
-            return scrollValue / (float)totalSize;
+        float BarPosFromVal() {
+            return ScrollValue / (float)totalSize;
         }
 
 
 
-        bool barisHovered => inFocus && bar.Contains(MouseX, MouseY);
-        public bool barisPressed => inFocus && Input.GetClick(KeyModifier._Any) && lastClickWasOnScrollbar;
-
-        Point lastClickPosition {
-            get { return new Point(Input.lastClickLocation.X - (x + offX), Input.lastClickLocation.Y - (y + offY)); }
-        }
+        bool BarisHovered => InFocus && bar.Contains(MouseX, MouseY);
+        bool BarisPressed => InFocus && Input.GetClick(KeyModifier._Any) && lastClickWasOnScrollbar;
     }
 }

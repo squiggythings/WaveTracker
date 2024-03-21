@@ -15,14 +15,14 @@ namespace WaveTracker.UI {
         public Rectangle bar;
         bool lastClickWasOnScrollbar;
         public int ScrollValue { get; set; }
-        public int coarseStepAmount { get; set; }
+        public int CoarseStepAmount { get; set; }
         int barClickOffset;
         public Scrollbar(int x, int y, int width, int height, Element parent) {
             this.x = x;
             this.y = y;
             this.width = width;
             this.height = height;
-            coarseStepAmount = 1;
+            CoarseStepAmount = 1;
             SetParent(parent);
         }
 
@@ -40,37 +40,43 @@ namespace WaveTracker.UI {
             if (!Input.internalDialogIsOpen) {
                 if (viewportSize < totalSize) {
                     if (Input.GetClickDown(KeyModifier._Any)) {
-                        lastClickWasOnScrollbar = bar.Contains(lastClickPosition);
+                        lastClickWasOnScrollbar = bar.Contains(LastClickPos);
                         if (MouseX >= bar.X && MouseX <= bar.X + bar.Width) {
                             if (lastClickWasOnScrollbar) {
                                 barClickOffset = bar.Y - MouseY;
-                            } else {
+                            }
+                            else {
                                 // step bar towards mouse
                                 if (MouseY > bar.Y) {
-                                    ScrollValue += coarseStepAmount;
-                                } else {
-                                    ScrollValue -= coarseStepAmount;
+                                    ScrollValue += CoarseStepAmount;
+                                }
+                                else {
+                                    ScrollValue -= CoarseStepAmount;
                                 }
                             }
                         }
                     }
-                    if (barisPressed) {
+                    if (BarIsPressed) {
                         bar.Y = MouseY + barClickOffset;
 
-                        ScrollValue = (int)Math.Round(barValFromPos() * (float)(totalSize - viewportSize));
-                    } else {
+                        ScrollValue = (int)Math.Round(barValFromPos() * (totalSize - viewportSize));
+                    }
+                    else {
                         if (IsHovered)
-                            ScrollValue -= Input.MouseScrollWheel(KeyModifier._Any) * coarseStepAmount;
+                            ScrollValue -= Input.MouseScrollWheel(KeyModifier._Any) * CoarseStepAmount;
                     }
                     UpdateScrollValue();
                 }
             }
         }
 
+        /// <summary>
+        /// Clamps the scroll value if the scroll value is out of range
+        /// </summary>
         public void UpdateScrollValue() {
             if (viewportSize < totalSize) {
                 ScrollValue = Math.Clamp(ScrollValue, 0, totalSize - viewportSize);
-                bar.Y = (int)Math.Round(barValFromVal() * (height - 2) + 1);
+                bar.Y = (int)Math.Round(barPosFromVal() * (height - 2) + 1);
             }
         }
 
@@ -85,9 +91,9 @@ namespace WaveTracker.UI {
 
                 DrawRect(bar.X, 0, bar.Width, height, background);
                 DrawRoundedRect(bar.X + 1, 1, bar.Width - 2, height - 2, barSpace);
-                if (barisPressed)
+                if (BarIsPressed)
                     DrawRoundedRect(bar.X + 1, bar.Y, bar.Width - 2, bar.Height, barPressed);
-                else if (barisHovered)
+                else if (BarIsHovered)
                     DrawRoundedRect(bar.X + 1, bar.Y, bar.Width - 2, bar.Height, barHover);
                 else
                     DrawRoundedRect(bar.X + 1, bar.Y, bar.Width - 2, bar.Height, barDefault);
@@ -98,17 +104,15 @@ namespace WaveTracker.UI {
             return (bar.Y - 1) / (float)(height - 2 - bar.Height);
         }
 
-        float barValFromVal() {
+        float barPosFromVal() {
             return ScrollValue / (float)(totalSize);
+
         }
 
 
 
-        bool barisHovered => inFocus && bar.Contains(MouseX, MouseY);
-        bool barisPressed => inFocus && Input.GetClick(KeyModifier._Any) && lastClickWasOnScrollbar;
+        bool BarIsHovered => InFocus && bar.Contains(MouseX, MouseY);
+        bool BarIsPressed => InFocus && Input.GetClick(KeyModifier._Any) && lastClickWasOnScrollbar;
 
-        Point lastClickPosition {
-            get { return new Point(Input.lastClickLocation.X - (x + offX), Input.lastClickLocation.Y - (y + offY)); }
-        }
     }
 }

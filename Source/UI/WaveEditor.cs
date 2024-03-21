@@ -126,7 +126,7 @@ namespace WaveTracker.UI {
         }
 
         public int pianoInput() {
-            if (!enabled || !inFocus)
+            if (!enabled || !InFocus)
                 return -1;
             if (MouseX < 10 || MouseX > 488 || MouseY > 258 || MouseY < 235)
                 return -1;
@@ -138,7 +138,7 @@ namespace WaveTracker.UI {
         }
 
         bool mouseInBounds() {
-            return inFocus && canvasMouseX > 0 && canvasMouseY > 0 && canvasMouseX < 384 && canvasMouseY < 160;
+            return InFocus && canvasMouseX > 0 && canvasMouseY > 0 && canvasMouseX < 384 && canvasMouseY < 160;
         }
         int canvasMouseX => MouseX - 17;
         int canvasMouseY => MouseY - 23;
@@ -180,6 +180,9 @@ namespace WaveTracker.UI {
                         Close();
                     }
                     waveText.Update();
+                    if (waveText.ValueWasChangedInternally) {
+                        App.CurrentModule.SetDirty();
+                    }
                     if (waveText.ValueWasChanged) {
                         App.CurrentModule.WaveBank[WaveBank.currentWave].SetWaveformFromNumber(waveText.Text);
                     }
@@ -188,6 +191,9 @@ namespace WaveTracker.UI {
                     }
 
                     ResampleDropdown.Update();
+                    if (ResampleDropdown.ValueWasChangedInternally) {
+                        App.CurrentModule.SetDirty();
+                    }
                     App.CurrentModule.WaveBank[WaveBank.currentWave].resamplingMode = (Audio.ResamplingMode)ResampleDropdown.Value;
                     //if (filterNone.Clicked)
                     //    App.CurrentModule.WaveBank[WaveBank.currentWave].resamplingMode = Audio.ResamplingModes.None;
@@ -196,24 +202,38 @@ namespace WaveTracker.UI {
                     //if (filterMix.Clicked)
                     //    App.CurrentModule.WaveBank[WaveBank.currentWave].resamplingMode = Audio.ResamplingModes.Mix;
 
-                    if (presetSine.Clicked)
+                    if (presetSine.Clicked) {
                         App.CurrentModule.WaveBank[WaveBank.currentWave].SetWaveformFromString("HJKMNOQRSTUUVVVVVVVUUTSRQONMKJHGECB9875432110000000112345789BCEF");
-                    if (presetTria.Clicked)
+                        App.CurrentModule.SetDirty();
+                    }
+                    if (presetTria.Clicked) {
                         App.CurrentModule.WaveBank[WaveBank.currentWave].SetWaveformFromString("GHIJKLMNOPQRSTUVVUTSRQPONMLKJIHGFEDCBA98765432100123456789ABCDEF");
-                    if (presetSaw.Clicked)
+                        App.CurrentModule.SetDirty();
+                    }
+                    if (presetSaw.Clicked) {
                         App.CurrentModule.WaveBank[WaveBank.currentWave].SetWaveformFromString("GGHHIIJJKKLLMMNNOOPPQQRRSSTTUUVV00112233445566778899AABBCCDDEEFF");
-                    if (presetRect50.Clicked)
+                        App.CurrentModule.SetDirty();
+                    }
+                    if (presetRect50.Clicked) {
                         App.CurrentModule.WaveBank[WaveBank.currentWave].SetWaveformFromString("VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV00000000000000000000000000000000");
-                    if (presetRect25.Clicked)
+                        App.CurrentModule.SetDirty();
+                    }
+                    if (presetRect25.Clicked) {
                         App.CurrentModule.WaveBank[WaveBank.currentWave].SetWaveformFromString("VVVVVVVVVVVVVVVV000000000000000000000000000000000000000000000000");
-                    if (presetRect12.Clicked)
+                        App.CurrentModule.SetDirty();
+                    }
+                    if (presetRect12.Clicked) {
                         App.CurrentModule.WaveBank[WaveBank.currentWave].SetWaveformFromString("VVVVVVVV00000000000000000000000000000000000000000000000000000000");
-
-                    if (presetRand.Clicked)
+                        App.CurrentModule.SetDirty();
+                    }
+                    if (presetRand.Clicked) {
                         App.CurrentModule.WaveBank[WaveBank.currentWave].Randomize();
-                    if (presetClear.Clicked)
+                        App.CurrentModule.SetDirty();
+                    }
+                    if (presetClear.Clicked) {
                         App.CurrentModule.WaveBank[WaveBank.currentWave].SetWaveformFromString("GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG");
-
+                        App.CurrentModule.SetDirty();
+                    }
                     if (bCopy.Clicked) {
                         clipboardWave = App.CurrentModule.WaveBank[WaveBank.currentWave].ToString();
                         clipboardSampleMode = App.CurrentModule.WaveBank[WaveBank.currentWave].resamplingMode;
@@ -222,27 +242,42 @@ namespace WaveTracker.UI {
                         if (clipboardWave.Length == 64) {
                             App.CurrentModule.WaveBank[WaveBank.currentWave].SetWaveformFromString(clipboardWave);
                             App.CurrentModule.WaveBank[WaveBank.currentWave].resamplingMode = clipboardSampleMode;
+                            App.CurrentModule.SetDirty();
                         }
                     }
 
-                    if (bPhaseL.Clicked)
+                    if (bPhaseL.Clicked) {
                         App.CurrentModule.WaveBank[WaveBank.currentWave].ShiftPhase(1);
-
-                    if (bPhaseR.Clicked)
+                        App.CurrentModule.SetDirty();
+                    }
+                    if (bPhaseR.Clicked) {
                         App.CurrentModule.WaveBank[WaveBank.currentWave].ShiftPhase(-1);
-                    if (bMoveUp.Clicked)
+                        App.CurrentModule.SetDirty();
+                    }
+                    if (bMoveUp.Clicked) {
                         App.CurrentModule.WaveBank[WaveBank.currentWave].Move(1);
-                    if (bMoveDown.Clicked)
+                        App.CurrentModule.SetDirty();
+                    }
+                    if (bMoveDown.Clicked) {
                         App.CurrentModule.WaveBank[WaveBank.currentWave].Move(-1);
-                    if (bInvert.Clicked)
+                        App.CurrentModule.SetDirty();
+                    }
+                    if (bInvert.Clicked) {
                         App.CurrentModule.WaveBank[WaveBank.currentWave].Invert();
-                    if (bSmooth.Clicked)
+                        App.CurrentModule.SetDirty();
+                    }
+                    if (bSmooth.Clicked) {
                         App.CurrentModule.WaveBank[WaveBank.currentWave].Smooth(2);
-                    if (bMutate.Clicked)
+                        App.CurrentModule.SetDirty();
+                    }
+                    if (bMutate.Clicked) {
                         App.CurrentModule.WaveBank[WaveBank.currentWave].Mutate();
-                    if (bNormalize.Clicked)
+                        App.CurrentModule.SetDirty();
+                    }
+                    if (bNormalize.Clicked) {
                         App.CurrentModule.WaveBank[WaveBank.currentWave].Normalize();
-
+                        App.CurrentModule.SetDirty();
+                    }
                     if (mouseInBounds()) {
                         if (Input.GetClickDown(KeyModifier._Any)) {
                             holdPosX = canvasPosX;
@@ -252,6 +287,7 @@ namespace WaveTracker.UI {
 
                         if (Input.GetClick(KeyModifier.None)) {
                             App.CurrentModule.WaveBank[WaveBank.currentWave].samples[canvasPosX] = (byte)canvasPosY;
+                            App.CurrentModule.SetDirty();
                         }
                         if (Input.GetClickUp(KeyModifier.Shift)) {
                             int diff = Math.Abs(holdPosX - canvasPosX);
@@ -266,9 +302,11 @@ namespace WaveTracker.UI {
                                         App.CurrentModule.WaveBank[WaveBank.currentWave].samples[i] = (byte)Math.Round(Lerp(canvasPosY, holdPosY, (float)(i - canvasPosX) / diff));
                                     }
                                 }
+                                App.CurrentModule.SetDirty();
                             }
                             else {
                                 App.CurrentModule.WaveBank[WaveBank.currentWave].samples[canvasPosX] = (byte)canvasPosY;
+                                App.CurrentModule.SetDirty();
                             }
                         }
                     }
@@ -319,7 +357,7 @@ namespace WaveTracker.UI {
                     DrawRect(419 + i, 183, 1, 16 - samp2, new Color(190, 192, 211));
                     DrawRect(419 + i, 199 - samp2, 1, 1, new Color(118, 124, 163));
                 }
-                if (mouseInBounds() && inFocus) {
+                if (mouseInBounds() && InFocus) {
                     DrawRect(17 + (canvasMouseX / 6 * 6), 183 - ((31 - canvasMouseY / 5) * 5), 6, -5, Helpers.Alpha(Color.White, 80));
                     if (Input.GetClick(KeyModifier.Shift)) {
                         int diff = Math.Abs(holdPosX - canvasPosX);

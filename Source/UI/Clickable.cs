@@ -21,7 +21,7 @@ namespace WaveTracker.UI {
 
         public bool IsHovered {
             get {
-                if (!inFocus)
+                if (!InFocus)
                     return false;
                 bool h = MouseX < width && MouseY < height && MouseX >= 0 && MouseY >= 0;
                 if (h) {
@@ -51,13 +51,13 @@ namespace WaveTracker.UI {
         }
 
         public bool ClickedM(KeyModifier modifier) {
-            if (!inFocus)
+            if (!InFocus)
                 return false;
             return enabled && IsHovered && Input.GetClickUp(modifier) && GlobalPointIsInBounds(Input.lastClickLocation) && GlobalPointIsInBounds(Input.lastClickReleaseLocation);
         }
 
         public bool SingleClickedM(KeyModifier modifier) {
-            if (!inFocus)
+            if (!InFocus)
                 return false;
             return enabled && IsHovered && Input.GetSingleClickUp(modifier) && GlobalPointIsInBounds(Input.lastClickLocation) && GlobalPointIsInBounds(Input.lastClickReleaseLocation);
         }
@@ -73,7 +73,7 @@ namespace WaveTracker.UI {
         }
 
         public bool GlobalPointIsInBounds(Point p) {
-            return p.X >= this.globalX && p.Y >= this.globalY && p.X < this.globalX + this.width && p.Y < this.globalY + this.height;
+            return p.X >= this.GlobalX && p.Y >= this.GlobalY && p.X < this.GlobalX + this.width && p.Y < this.GlobalY + this.height;
         }
     }
 }

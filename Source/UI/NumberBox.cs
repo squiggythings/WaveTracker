@@ -66,7 +66,7 @@ namespace WaveTracker.UI {
         }
 
         public void Update() {
-            if (enabled && inFocus) {
+            if (enabled && InFocus) {
                 int valueBeforeUpdate = Value;
                 if (DoubleClicked && MouseX < width - 10) {
                     if (!dialogOpen) {

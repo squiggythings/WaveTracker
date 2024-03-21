@@ -11,20 +11,20 @@ namespace WaveTracker.UI {
     public abstract class Element {
         public int x, y;
         public Element parent;
-        protected int MouseX { get { return Input.MousePositionX - (x + offX); } }
-        protected int MouseY { get { return Input.MousePositionY - (y + offY); } }
+        protected int MouseX { get { return Input.MousePositionX - (x + OffX); } }
+        protected int MouseY { get { return Input.MousePositionY - (y + OffY); } }
 
-        protected int offX { get { if (parent == null) return 0; return parent.x + parent.offX; } }
-        protected int offY { get { if (parent == null) return 0; return parent.y + parent.offY; } }
+        protected int OffX { get { if (parent == null) return 0; return parent.x + parent.OffX; } }
+        protected int OffY { get { if (parent == null) return 0; return parent.y + parent.OffY; } }
 
-        protected int globalX { get { return x + offX; } }
-        protected int globalY { get { return y + offY; } }
+        protected int GlobalX { get { return x + OffX; } }
+        protected int GlobalY { get { return y + OffY; } }
 
-        public bool inFocus {
+        public bool InFocus {
             get {
                 if (Input.focus == null) return true;
                 if (parent == null) return Input.focus == this;
-                if (parent.inFocus)
+                if (parent.InFocus)
                     return true;
                 return Input.focus == this;
             }
@@ -34,7 +34,7 @@ namespace WaveTracker.UI {
             this.parent = parent;
         }
         protected void Write(string text, int x, int y, Color color) {
-            Graphics.Write(text, this.x + x + offX, this.y + y + offY, color);
+            Graphics.Write(text, this.x + x + OffX, this.y + y + OffY, color);
         }
 
         protected void WriteMultiline(string text, int x, int y, int width, Color color, int lineSpacing = 10) {
@@ -57,51 +57,44 @@ namespace WaveTracker.UI {
             }
         }
         protected void WriteTwiceAsBig(string text, int x, int y, Color c) {
-            Graphics.WriteTwiceAsBig(text, this.x + x + offX, this.y + y + offY, c);
+            Graphics.WriteTwiceAsBig(text, this.x + x + OffX, this.y + y + OffY, c);
         }
 
         protected void WriteRightAlign(string text, int x, int y, Color color) {
-            Graphics.WriteRightJustified(text, this.x + x + offX, this.y + y + offY, color);
+            Graphics.WriteRightJustified(text, this.x + x + OffX, this.y + y + OffY, color);
         }
 
         protected void WriteCenter(string text, int x, int y, Color color) {
             Write(text, x - Helpers.GetWidthOfText(text) / 2, y, color);
         }
 
-        protected void WriteMonospaced(string text, int x, int y, Color color, int width) {
-            Graphics.WriteMonospaced(text, this.x + x + offX, this.y + y + offY, color, width);
-        }
-        protected void WriteMonospaced(string text, int x, int y, Color color) {
-            Graphics.WriteMonospaced(text, this.x + x + offX, this.y + y + offY, color, 5);
+        protected void WriteMonospaced(string text, int x, int y, Color color, int width = 4) {
+            Graphics.WriteMonospaced(text, this.x + x + OffX, this.y + y + OffY, color, width);
         }
 
         protected void DrawRect(int x, int y, int width, int height, Color color) {
-            Graphics.DrawRect(this.x + x + offX, this.y + y + offY, width, height, color);
-        }
-
-        protected void DrawRect(Rectangle rect, Color color) {
-            Graphics.DrawRect(this.x + rect.X + offX, this.y + rect.Y + offY, rect.Width, rect.Height, color);
+            Graphics.DrawRect(this.x + x + OffX, this.y + y + OffY, width, height, color);
         }
 
         protected void DrawRoundedRect(int x, int y, int width, int height, Color color) {
-            Graphics.DrawRect(this.x + x + offX, this.y + y + offY + 1, width, height - 2, color);
-            Graphics.DrawRect(this.x + x + offX + 1, this.y + y + offY, width - 2, height, color);
+            Graphics.DrawRect(this.x + x + OffX, this.y + y + OffY + 1, width, height - 2, color);
+            Graphics.DrawRect(this.x + x + OffX + 1, this.y + y + OffY, width - 2, height, color);
         }
 
         protected void DrawSprite(Texture2D sprite, int x, int y, Rectangle bounds) {
-            Graphics.DrawSprite(sprite, this.x + x + offX, this.y + y + offY, bounds);
+            Graphics.DrawSprite(sprite, this.x + x + OffX, this.y + y + OffY, bounds);
         }
         protected void DrawSprite(Texture2D sprite, int x, int y, int width, int height, Rectangle spriteBounds) {
-            Graphics.DrawSprite(sprite, this.x + x + offX, this.y + y + offY, width, height, spriteBounds);
+            Graphics.DrawSprite(sprite, this.x + x + OffX, this.y + y + OffY, width, height, spriteBounds);
         }
         protected void DrawSprite(Texture2D sprite, int x, int y, int width, int height, Rectangle spriteBounds, Color col) {
-            Graphics.DrawSprite(sprite, this.x + x + offX, this.y + y + offY, width, height, spriteBounds, col);
+            Graphics.DrawSprite(sprite, this.x + x + OffX, this.y + y + OffY, width, height, spriteBounds, col);
         }
 
-        public Point globalPointToLocalPoint(Point p) {
-            return new Point(p.X - globalX, p.Y - globalY);
+        public Point GlobalPointToLocalPoint(Point p) {
+            return new Point(p.X - GlobalX, p.Y - GlobalY);
         }
 
-        public Point LastClickPos => globalPointToLocalPoint(Input.lastClickLocation);
+        public Point LastClickPos => GlobalPointToLocalPoint(Input.lastClickLocation);
     }
 }

@@ -342,7 +342,7 @@ namespace WaveTracker.UI {
         public int optionHeight = 16;
         public int optionWidth;
         public int origX, origY;
-        public bool IsHovered => inFocus && MouseX >= 0 && MouseY >= 0 && MouseX < optionWidth && MouseY < optionHeight;
+        public bool IsHovered => InFocus && MouseX >= 0 && MouseY >= 0 && MouseX < optionWidth && MouseY < optionHeight;
 
         public abstract void SetValue(int val);
         public abstract void SetValue(bool val);

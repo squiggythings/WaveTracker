@@ -41,7 +41,7 @@ namespace WaveTracker.UI {
             icons = tex;
             backButton = new SpriteButton(2, 11, 15, 15, Toolbar.sprite, 20, this);
             scrollbar = new Scrollbar(2, 29, width - 111, listLength * 11, this);
-            scrollbar.coarseStepAmount = 3;
+            scrollbar.CoarseStepAmount = 3;
             ok = new Button("OK", width - 108, height - 16, this);
             ok.width = 51;
             cancel = new Button("Cancel", width - 54, height - 16, this);

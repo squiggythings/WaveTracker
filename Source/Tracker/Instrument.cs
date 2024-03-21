@@ -236,7 +236,7 @@ namespace WaveTracker.Tracker {
             return s;
         }
 
-        public void loadFromString(string input) {
+        public void loadFromString(string input, int envelopeType) {
             string[] parts = input.Split(' ');
             int i = 0;
             releaseIndex = -1;
@@ -248,8 +248,18 @@ namespace WaveTracker.Tracker {
                 if (part.Contains('|'))
                     loopIndex = i--;
                 short val = 0;
-                if (short.TryParse(part, out val))
-                    values.Add(val);
+                if (short.TryParse(part, out val)) {
+                    if (envelopeType == 0 || envelopeType == 4 || envelopeType == 3) {
+                        val = Math.Clamp(val, (short)0, (short)99);
+                    }
+                    if (envelopeType == 1) {
+                        val = Math.Clamp(val, (short)-118, (short)120);
+                    }
+                    if (envelopeType == 2) {
+                        val = Math.Clamp(val, (short)-100, (short)99);
+                    }
+                }
+                values.Add(val);
                 i++;
             }
         }

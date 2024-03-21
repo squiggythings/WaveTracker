@@ -118,8 +118,8 @@ namespace WaveTracker.Tracker {
             foreach (WTSong song in Songs) {
                 song.ResizeChannelCount();
             }
-            App.PatternEditor.CalculateChannelPositioning();
             App.PatternEditor.OnResizeChannels();
+
         }
 
         public static WTModule FromOldSongFormat(Song song) {

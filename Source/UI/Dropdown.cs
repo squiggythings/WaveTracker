@@ -46,7 +46,7 @@ namespace WaveTracker.UI {
         }
 
         public void Update() {
-            if (!inFocus)
+            if (!InFocus)
                 cooldown = 2;
             int previousValue = Value;
             if (IsHovered && Input.MouseScrollWheel(KeyModifier.None) != 0) {

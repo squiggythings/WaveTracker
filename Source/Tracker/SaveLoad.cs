@@ -23,7 +23,7 @@ using WaveTracker.Audio;
 
 namespace WaveTracker {
     public static class SaveLoad {
-        public static bool IsSaved { get { return App.CurrentModule.IsDirty; } }
+        public static bool IsSaved { get { return !App.CurrentModule.IsDirty; } }
         public static string filePath = "";
 
         public static string FileName { get { if (filePath == "") return "Untitled.wtm"; return Path.GetFileName(filePath); } }
@@ -53,6 +53,7 @@ namespace WaveTracker {
             //    formatter.Serialize(fs, savedSong);
             //}
             stopwatch.Stop();
+            App.CurrentModule.OnSaveModule();
             Debug.WriteLine("saved in " + stopwatch.ElapsedMilliseconds + " ms");
             return;
 
@@ -101,6 +102,7 @@ namespace WaveTracker {
                 Debug.WriteLine("Saving as: " + filePath);
                 SaveTo(filePath);
                 Debug.WriteLine("Saved as: " + filePath);
+                App.CurrentModule.OnSaveModule();
             }
 
         }
@@ -123,6 +125,7 @@ namespace WaveTracker {
                         Visualization.GetWaveColors();
                         ChannelManager.Reset();
                         ChannelManager.UnmuteAllChannels();
+                        App.CurrentModule.OnSaveModule();
                         App.CurrentSongIndex = 0;
                         App.PatternEditor.OnSwitchSong();
                         Playback.Goto(0, 0);
