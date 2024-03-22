@@ -30,30 +30,30 @@ namespace WaveTracker.UI {
         public InstrumentBank() : base("Instrument Bank", 790, 152, 156, 488) {
 
         }
-        public void Initialize(Texture2D sprite) {
-            bNewWave = new SpriteButton(1, 10, 15, 15, sprite, 15, this);
+        public void Initialize() {
+            bNewWave = new SpriteButton(1, 10, 15, 15, Rendering.Graphics.img, 225, 0, this);
             bNewWave.SetTooltip("New Wave Instrument", "Add a new wave instrument to the track");
-            bNewSample = new SpriteButton(16, 10, 15, 15, sprite, 16, this);
+            bNewSample = new SpriteButton(16, 10, 15, 15, Rendering.Graphics.img, 240, 0, this);
             bNewSample.SetTooltip("New Sample Instrument", "Add a new sample instrument to the track");
 
-            bRemove = new SpriteButton(31, 10, 15, 15, sprite, 24, this);
+            bRemove = new SpriteButton(31, 10, 15, 15, Rendering.Graphics.img, 360, 0, this);
             bRemove.SetTooltip("Remove Instrument", "Delete this instrument from the track");
 
-            bDuplicate = new SpriteButton(46, 10, 15, 15, sprite, 17, this);
+            bDuplicate = new SpriteButton(46, 10, 15, 15, Rendering.Graphics.img, 255, 0, this);
             bDuplicate.SetTooltip("Duplicate Instrument", "Create a copy of this instrument and add it to the track");
 
 
-            bMoveDown = new SpriteButton(70, 10, 15, 15, sprite, 23, this);
+            bMoveDown = new SpriteButton(70, 10, 15, 15, Rendering.Graphics.img, 345, 0, this);
             bMoveDown.SetTooltip("Move Down", "Move this instrument to be lower down the list");
 
-            bMoveUp = new SpriteButton(85, 10, 15, 15, sprite, 22, this);
+            bMoveUp = new SpriteButton(85, 10, 15, 15, Rendering.Graphics.img, 330, 0, this);
             bMoveUp.SetTooltip("Move Up", "Move this instrument to be higher up the list");
 
 
-            bEdit = new SpriteButton(109, 10, 15, 15, sprite, 18, this);
+            bEdit = new SpriteButton(109, 10, 15, 15, Rendering.Graphics.img, 270, 0, this);
             bEdit.SetTooltip("Edit Instrument", "Open the instrument editor");
 
-            bRename = new SpriteButton(124, 10, 15, 15, sprite, 25, this);
+            bRename = new SpriteButton(124, 10, 15, 15, Rendering.Graphics.img, 375, 0, this);
             bRename.SetTooltip("Rename Instrument", "Rename this instrument");
 
             scrollbar = new Scrollbar(1, 28, width - 1, 367, this);
@@ -83,7 +83,7 @@ namespace WaveTracker.UI {
                     if (Input.GetDoubleClick(KeyModifier.None)) {
                         int ix = (MouseY - 28) / 11 + scrollbar.ScrollValue;
                         if (ix < App.CurrentModule.Instruments.Count && ix >= 0)
-                            editor.EditMacro(GetCurrentInstrument, CurrentInstrumentIndex);
+                            editor.Open(GetCurrentInstrument, CurrentInstrumentIndex);
                     }
                 }
             }
@@ -143,7 +143,7 @@ namespace WaveTracker.UI {
             }
 
             if (bEdit.Clicked) {
-                editor.EditMacro(GetCurrentInstrument, CurrentInstrumentIndex);
+                editor.Open(GetCurrentInstrument, CurrentInstrumentIndex);
             }
 
             if (bRename.Clicked) {
@@ -195,9 +195,9 @@ namespace WaveTracker.UI {
                     WriteMonospaced(i.ToString("D2"), 15, 30 + y * 11, Color.White, 4);
                     Write(App.CurrentModule.Instruments[i].name, 29, 30 + y * 11, Color.White);
                     if (App.CurrentModule.Instruments[i].instrumentType == InstrumentType.Wave)
-                        DrawSprite(NumberBox.buttons, 2, 29 + y * 11, new Rectangle(30, 0, 10, 9));
+                        DrawSprite( 3, 30 + y * 11, new Rectangle(88, 80, 8, 7));
                     else
-                        DrawSprite(NumberBox.buttons, 2, 29 + y * 11, new Rectangle(30, 9, 10, 9));
+                        DrawSprite( 3, 30 + y * 11, new Rectangle(88, 87, 10, 9));
                 }
                 ++y;
             }

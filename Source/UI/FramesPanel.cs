@@ -11,17 +11,17 @@ namespace WaveTracker.UI {
         public FramesPanel(int x, int y, int width, int height) : base("Frames", x, y, width, height) {
         }
 
-        public void Initialize(Texture2D sprite, GraphicsDevice device) {
-            bNewFrame = new SpriteButton(4, 10, 15, 15, sprite, 19, this);
+        public void Initialize() {
+            bNewFrame = new SpriteButton(4, 10, 15, 15, Rendering.Graphics.img, 285, 0, this);
             bNewFrame.SetTooltip("Insert Frame", "Insert a new frame after this one");
-            bDeleteFrame = new SpriteButton(19, 10, 15, 15, sprite, 24, this);
+            bDeleteFrame = new SpriteButton(19, 10, 15, 15, Rendering.Graphics.img, 360, 0, this);
             bDeleteFrame.SetTooltip("Delete Frame", "Delete this frame from the track");
-            bDuplicateFrame = new SpriteButton(34, 10, 15, 15, sprite, 17, this);
+            bDuplicateFrame = new SpriteButton(34, 10, 15, 15, Rendering.Graphics.img, 255, 0, this);
             bDuplicateFrame.SetTooltip("Duplicate Frame", "Create a copy of this frame and insert it after");
 
-            bMoveLeft = new SpriteButton(4, 25, 15, 15, sprite, 20, this);
+            bMoveLeft = new SpriteButton(4, 25, 15, 15, Rendering.Graphics.img, 300, 0, this);
             bMoveLeft.SetTooltip("Move Left", "Move this frame to be earlier in the song");
-            bMoveRight = new SpriteButton(19, 25, 15, 15, sprite, 21, this);
+            bMoveRight = new SpriteButton(19, 25, 15, 15, Rendering.Graphics.img, 315, 0, this);
             bMoveRight.SetTooltip("Move Right", "Move this frame to be later in the song");
 
             //increasePattern = new Button("+", 484, 12, this);
@@ -31,7 +31,7 @@ namespace WaveTracker.UI {
             //decreasePattern.width = 18;
             //increasePattern.SetTooltip("Decrease Pattern", "Decrease this frame's pattern");
 
-            
+
             frames = new FrameButton[25];
             for (int i = 0; i < frames.Length; ++i) {
                 frames[i] = new FrameButton(i - frames.Length / 2, this);

@@ -46,7 +46,8 @@ namespace WaveTracker.UI {
                 if (w > width) {
                     str += "\n" + word + " ";
                     w = Helpers.GetWidthOfText(word + " ");
-                } else {
+                }
+                else {
                     str += word + " ";
                 }
             }
@@ -81,14 +82,14 @@ namespace WaveTracker.UI {
             Graphics.DrawRect(this.x + x + OffX + 1, this.y + y + OffY, width - 2, height, color);
         }
 
-        protected void DrawSprite(Texture2D sprite, int x, int y, Rectangle bounds) {
-            Graphics.DrawSprite(sprite, this.x + x + OffX, this.y + y + OffY, bounds);
+        protected void DrawSprite(int x, int y, Rectangle bounds) {
+            Graphics.DrawSprite(this.x + x + OffX, this.y + y + OffY, bounds);
         }
-        protected void DrawSprite(Texture2D sprite, int x, int y, int width, int height, Rectangle spriteBounds) {
-            Graphics.DrawSprite(sprite, this.x + x + OffX, this.y + y + OffY, width, height, spriteBounds);
+        protected void DrawSprite(int x, int y, int width, int height, Rectangle spriteBounds) {
+            Graphics.DrawSprite(this.x + x + OffX, this.y + y + OffY, width, height, spriteBounds);
         }
-        protected void DrawSprite(Texture2D sprite, int x, int y, int width, int height, Rectangle spriteBounds, Color col) {
-            Graphics.DrawSprite(sprite, this.x + x + OffX, this.y + y + OffY, width, height, spriteBounds, col);
+        protected void DrawSprite(int x, int y, int width, int height, Rectangle spriteBounds, Color col) {
+            Graphics.DrawSprite(this.x + x + OffX, this.y + y + OffY, width, height, spriteBounds, col);
         }
 
         public Point GlobalPointToLocalPoint(Point p) {

@@ -8,10 +8,11 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
 namespace WaveTracker.Rendering {
-    public class Graphics {
+    public static class Graphics {
         public static SpriteBatch batch;
         public static SpriteFont font;
         public static Texture2D pixel;
+        public static Texture2D img;
 
         public static void DrawRect(int x, int y, int width, int height, Color color) {
             batch.Draw(pixel, new Rectangle(x, y, width, height), color);
@@ -36,15 +37,17 @@ namespace WaveTracker.Rendering {
             }
         }
 
-        public static void DrawSprite(Texture2D sprite, int x, int y, Rectangle bounds) {
-            batch.Draw(sprite, new Rectangle(x, y, bounds.Width, bounds.Height), bounds, Color.White);
+
+
+        public static void DrawSprite(int x, int y, Rectangle bounds) {
+            batch.Draw(img, new Rectangle(x, y, bounds.Width, bounds.Height), bounds, Color.White);
         }
 
-        public static void DrawSprite(Texture2D sprite, int x, int y, int width, int height, Rectangle bounds) {
-            batch.Draw(sprite, new Rectangle(x, y, width, height), bounds, Color.White);
+        public static void DrawSprite(int x, int y, int width, int height, Rectangle bounds) {
+            batch.Draw(img, new Rectangle(x, y, width, height), bounds, Color.White);
         }
-        public static void DrawSprite(Texture2D sprite, int x, int y, int width, int height, Rectangle bounds, Color col) {
-            batch.Draw(sprite, new Rectangle(x, y, width, height), bounds, col);
+        public static void DrawSprite(int x, int y, int width, int height, Rectangle bounds, Color col) {
+            batch.Draw(img, new Rectangle(x, y, width, height), bounds, col);
         }
     }
 }

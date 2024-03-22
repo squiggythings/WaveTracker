@@ -8,8 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using WaveTracker.Rendering;
 
-namespace WaveTracker.UI
-{
+namespace WaveTracker.UI {
     public class CheckboxLabeled : Clickable {
         public bool Value { get; set; }
         string label;
@@ -30,7 +29,7 @@ namespace WaveTracker.UI
         }
 
         Rectangle GetBounds(int num) {
-            return new Rectangle(0, 0 + num * 9, 9, 9);
+            return new Rectangle(440, num * 9, 9, 9);
         }
 
         public void Draw() {
@@ -38,28 +37,32 @@ namespace WaveTracker.UI
                 if (Value) {
                     if (IsHovered) {
                         if (IsPressed)
-                            DrawSprite(Checkbox.textureSheet, 0, (height - 9) / 2, GetBounds(5));
+                            DrawSprite(0, (height - 9) / 2, GetBounds(5));
                         else
-                            DrawSprite(Checkbox.textureSheet, 0, (height - 9) / 2, GetBounds(4));
-                    } else {
-                        DrawSprite(Checkbox.textureSheet, 0, (height - 9) / 2, GetBounds(3));
+                            DrawSprite(0, (height - 9) / 2, GetBounds(4));
                     }
-                } else {
+                    else {
+                        DrawSprite(0, (height - 9) / 2, GetBounds(3));
+                    }
+                }
+                else {
                     if (IsHovered) {
                         if (IsPressed)
-                            DrawSprite(Checkbox.textureSheet, 0, (height - 9) / 2, GetBounds(2));
+                            DrawSprite(0, (height - 9) / 2, GetBounds(2));
                         else
-                            DrawSprite(Checkbox.textureSheet, 0, (height - 9) / 2, GetBounds(1));
-                    } else {
-                        DrawSprite(Checkbox.textureSheet, 0, (height - 9) / 2, GetBounds(0));
+                            DrawSprite(0, (height - 9) / 2, GetBounds(1));
+                    }
+                    else {
+                        DrawSprite(0, (height - 9) / 2, GetBounds(0));
                     }
                 }
 
-            } else {
+            }
+            else {
                 if (Value)
-                    DrawSprite(Checkbox.textureSheet, 0, (height - 9) / 2, GetBounds(7));
+                    DrawSprite(0, (height - 9) / 2, GetBounds(7));
                 else
-                    DrawSprite(Checkbox.textureSheet, 0, (height - 9) / 2, GetBounds(6));
+                    DrawSprite(0, (height - 9) / 2, GetBounds(6));
             }
             Color labelCol = UIColors.labelDark;
             if (IsHovered)

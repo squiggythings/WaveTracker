@@ -10,38 +10,46 @@ using Microsoft.Xna.Framework.Input;
 
 namespace WaveTracker.UI {
     public class SpriteButton : Clickable {
-        int texNum;
-        Texture2D source;
-        public SpriteButton(int x, int y, int w, int h, Texture2D source, int texNum, Element parent) {
+        int sourceX;
+        int sourceY;
+        public SpriteButton(int x, int y, int width, int height, Texture2D source, int sourceX, int sourceY, Element parent) {
             enabled = true;
             this.x = x;
             this.y = y;
-            width = w;
-            height = h;
-            this.source = source;
-            this.texNum = texNum;
+            this.width = width;
+            this.height = height;
+            this.sourceX = sourceX;
+            this.sourceY = sourceY;
             SetParent(parent);
         }
 
+        // sprite cheatsheet
+        // 0. default
+        // 1. hovered
+        // 2. pressed
+        // 3. toggled
+        // 4. disabled
 
         Rectangle GetBounds(int num) {
-            return new Rectangle(0 + texNum * width, 0 + num * height, width, height);
+            return new Rectangle(sourceX, sourceY + num * height, width, height);
         }
+
         public void Draw() {
-            if (source == null) return;
             if (enabled) {
                 if (IsHovered) {
                     if (IsPressed) {
-                        DrawSprite(source, 0, 0, GetBounds(2));
-                    } else {
-                        DrawSprite(source, 0, 0, GetBounds(1));
+                        DrawSprite(0, 0, GetBounds(2));
                     }
-                } else {
-                    DrawSprite(source, 0, 0, GetBounds(0));
+                    else {
+                        DrawSprite(0, 0, GetBounds(1));
+                    }
                 }
-            } else {
-                if (IsHovered) { };
-                DrawSprite(source, 0, 0, GetBounds(4));
+                else {
+                    DrawSprite(0, 0, GetBounds(0));
+                }
+            }
+            else {
+                DrawSprite(0, 0, GetBounds(4));
             }
         }
 

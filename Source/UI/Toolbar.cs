@@ -11,7 +11,6 @@ using System.Diagnostics;
 
 namespace WaveTracker.UI {
     public class Toolbar : Element {
-        public static Texture2D sprite;
         public SpriteButton file_new;
         public SpriteButton file_open;
         public SpriteButton file_save;
@@ -38,66 +37,65 @@ namespace WaveTracker.UI {
         public Toggle visualizerModeToggle;
         public bool saveDialogOpen, loadDialogOpen;
 
-        public Toolbar(Texture2D sprite) {
-            Toolbar.sprite = sprite;
+        public Toolbar() {
             x = 2;
             int px = 0;
-            file_new = new SpriteButton(px, 0, 15, 15, sprite, 0, this);
+            file_new = new SpriteButton(px, 0, 15, 15, Rendering.Graphics.img, 0, 0, this);
             file_new.SetTooltip("New", "Create a new song");
             px += 15;
-            file_open = new SpriteButton(px, 0, 15, 15, sprite, 1, this);
+            file_open = new SpriteButton(px, 0, 15, 15, Rendering.Graphics.img, 15, 0, this);
             file_open.SetTooltip("Open", "Open an existing song");
             px += 15;
-            file_save = new SpriteButton(px, 0, 15, 15, sprite, 2, this);
+            file_save = new SpriteButton(px, 0, 15, 15, Rendering.Graphics.img, 30, 0, this);
             file_save.SetTooltip("Save", "Save this song");
             px += 15;
-            file_saveAs = new SpriteButton(px, 0, 15, 15, sprite, 3, this);
+            file_saveAs = new SpriteButton(px, 0, 15, 15, Rendering.Graphics.img, 45, 0, this);
             file_saveAs.SetTooltip("Save As", "Save this song as a new one");
             px += 15;
-            file_export = new SpriteButton(px, 0, 15, 15, sprite, 4, this);
+            file_export = new SpriteButton(px, 0, 15, 15, Rendering.Graphics.img, 60, 0, this);
             file_export.SetTooltip("Export", "Export the song as a .wav");
             px += 20;
 
 
-            edit_undo = new SpriteButton(px, 0, 15, 15, sprite, 26, this);
+            edit_undo = new SpriteButton(px, 0, 15, 15, Rendering.Graphics.img, 390, 0, this);
             edit_undo.SetTooltip("Undo", "Undo the last action");
             px += 15;
-            edit_redo = new SpriteButton(px, 0, 15, 15, sprite, 27, this);
+            edit_redo = new SpriteButton(px, 0, 15, 15, Rendering.Graphics.img, 405, 0, this);
             edit_redo.SetTooltip("Redo", "Redo the previously undone action");
             px += 20;
 
 
-            edit_cut = new SpriteButton(px, 0, 15, 15, sprite, 5, this);
+            edit_cut = new SpriteButton(px, 0, 15, 15, Rendering.Graphics.img, 75, 0, this);
             edit_cut.SetTooltip("Cut", "Cut this selection");
             px += 15;
-            edit_copy = new SpriteButton(px, 0, 15, 15, sprite, 6, this);
+            edit_copy = new SpriteButton(px, 0, 15, 15, Rendering.Graphics.img, 90, 0, this);
             edit_copy.SetTooltip("Copy", "Copy this selection to the clipboard");
             px += 15;
-            edit_paste = new SpriteButton(px, 0, 15, 15, sprite, 7, this);
+            edit_paste = new SpriteButton(px, 0, 15, 15, Rendering.Graphics.img, 105, 0, this);
             edit_paste.SetTooltip("Paste", "Insert clipboard contents");
             px += 20;
 
-            playback_play = new SpriteButton(px, 0, 15, 15, sprite, 8, this);
+            playback_play = new SpriteButton(px, 0, 15, 15, Rendering.Graphics.img, 120, 0, this);
             playback_play.SetTooltip("Play", "Play the song from the current frame");
             px += 15;
-            playback_playFromBeginning = new SpriteButton(px, 0, 15, 15, sprite, 9, this);
+            playback_playFromBeginning = new SpriteButton(px, 0, 15, 15, Rendering.Graphics.img, 135, 0, this);
             playback_playFromBeginning.SetTooltip("Play From Beginning", "Play the song from the first frame");
             px += 15;
-            playback_stop = new SpriteButton(px, 0, 15, 15, sprite, 10, this);
+            playback_stop = new SpriteButton(px, 0, 15, 15, Rendering.Graphics.img, 150, 0, this);
             playback_stop.SetTooltip("Stop", "Stop playing");
             px += 15;
-            playback_record = new SpriteToggle(px, 0, 15, 15, sprite, 11, this);
+            playback_record = new SpriteToggle(px, 0, 15, 15, Rendering.Graphics.img, 165, 0, this);
             playback_record.SetTooltip("Toggle Edit Mode", "Enable/disable edit mode");
             px += 20;
 
-            frame_prev = new SpriteButton(px, 0, 15, 15, sprite, 12, this);
+            frame_prev = new SpriteButton(px, 0, 15, 15, Rendering.Graphics.img, 180, 0, this);
             frame_prev.SetTooltip("Previous Frame", "Go to the previous frame");
             px += 15;
-            frame_next = new SpriteButton(px, 0, 15, 15, sprite, 13, this);
+            frame_next = new SpriteButton(px, 0, 15, 15, Rendering.Graphics.img, 195, 0, this);
             frame_next.SetTooltip("Next Frame", "Go to the next frame");
             px += 20;
 
-            preferences = new SpriteButton(px, 0, 15, 15, sprite, 14, this);
+            preferences = new SpriteButton(px, 0, 15, 15, Rendering.Graphics.img, 210, 0, this);
             preferences.SetTooltip("Preferences", "Open WaveTracker preferences");
             px += 20;
 
@@ -157,11 +155,12 @@ namespace WaveTracker.UI {
             if (frame_prev.Clicked) { App.PatternEditor.PreviousFrame(); }
 
             if (preferences.Clicked) { Dialogs.preferences.Open(); }
-
+            
             followModeToggle.Value = App.PatternEditor.FollowMode;
             followModeToggle.Update();
             App.PatternEditor.FollowMode = followModeToggle.Value;
 
+            visualizerModeToggle.x = App.WindowWidth - visualizerModeToggle.width - 3;
             visualizerModeToggle.Value = App.VisualizerMode;
             visualizerModeToggle.Update();
             if (visualizerModeToggle.Value != App.VisualizerMode) {

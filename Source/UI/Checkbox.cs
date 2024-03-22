@@ -10,7 +10,6 @@ using System.Threading.Tasks;
 
 namespace WaveTracker.UI {
     public class Checkbox : Clickable {
-        public static Texture2D textureSheet;
         public bool Value { get; set; }
 
         public bool ValueWasChangedInternally;
@@ -34,14 +33,15 @@ namespace WaveTracker.UI {
         }
 
         Rectangle GetBounds(int num) {
-            return new Rectangle(0, 0 + num * 9, 9, 9);
+            return new Rectangle(440, num * 9, 9, 9);
         }
 
         public void DrawAsTabToggle() {
             if (Value) {
-                DrawSprite(textureSheet, 0, 0, GetBounds(3));
-            } else {
-                DrawSprite(textureSheet, 0, 0, GetBounds(6));
+                DrawSprite(0, 0, GetBounds(3));
+            }
+            else {
+                DrawSprite(0, 0, GetBounds(6));
             }
         }
         public void Draw() {
@@ -49,28 +49,32 @@ namespace WaveTracker.UI {
                 if (Value) {
                     if (IsHovered) {
                         if (IsPressed)
-                            DrawSprite(textureSheet, 0, 0, GetBounds(5));
+                            DrawSprite(0, 0, GetBounds(5));
                         else
-                            DrawSprite(textureSheet, 0, 0, GetBounds(4));
-                    } else {
-                        DrawSprite(textureSheet, 0, 0, GetBounds(3));
+                            DrawSprite(0, 0, GetBounds(4));
                     }
-                } else {
+                    else {
+                        DrawSprite(0, 0, GetBounds(3));
+                    }
+                }
+                else {
                     if (IsHovered) {
                         if (IsPressed)
-                            DrawSprite(textureSheet, 0, 0, GetBounds(2));
+                            DrawSprite(0, 0, GetBounds(2));
                         else
-                            DrawSprite(textureSheet, 0, 0, GetBounds(1));
-                    } else {
-                        DrawSprite(textureSheet, 0, 0, GetBounds(0));
+                            DrawSprite(0, 0, GetBounds(1));
+                    }
+                    else {
+                        DrawSprite(0, 0, GetBounds(0));
                     }
                 }
 
-            } else {
+            }
+            else {
                 if (Value)
-                    DrawSprite(textureSheet, 0, 0, GetBounds(7));
+                    DrawSprite(0, 0, GetBounds(7));
                 else
-                    DrawSprite(textureSheet, 0, 0, GetBounds(6));
+                    DrawSprite(0, 0, GetBounds(6));
             }
 
         }

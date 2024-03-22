@@ -13,10 +13,6 @@ using WaveTracker.Tracker;
 
 namespace WaveTracker.UI {
     public class SongSettings : Panel {
-        Forms.EditSongSettings dialog;
-        bool dialogOpen;
-
-        ModuleSettingsDialog moduleSettingsDialog;
         Textbox title, author, copyright, speed;
         Dropdown selectedSong;
         NumberBox rows;
@@ -25,9 +21,6 @@ namespace WaveTracker.UI {
         int ampL, ampR;
 
         public SongSettings() : base("Song", 2, 18, 306, 84) {
-            moduleSettingsDialog = new ModuleSettingsDialog();
-        }
-        public void Initialize(Texture2D editButtonsource) {
             title = new Textbox("Title", 4, 12, 155, 110, this);
 
             //title.canEdit = false;
@@ -44,8 +37,8 @@ namespace WaveTracker.UI {
             rows.SetValueLimits(1, 256);
             //rows.canEdit = false;
 
-            editButton = new SpriteButton(296, 0, 10, 9, editButtonsource, 0, this);
-            editButton.SetTooltip("Edit module settings", "Open the module settings editing window");
+            editButton = new SpriteButton(296, 0, 10, 9, Rendering.Graphics.img, 488, 0, this);
+            editButton.SetTooltip("Edit module settings", "Open the module settings window");
         }
 
         public void Update() {
@@ -83,9 +76,6 @@ namespace WaveTracker.UI {
             }
             if (editButton.Clicked) {
                 Dialogs.moduleSettings.Open();
-            }
-            else {
-                dialogOpen = false;
             }
 
             selectedSong.SetMenuItems(App.CurrentModule.GetSongNames());

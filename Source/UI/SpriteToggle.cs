@@ -12,18 +12,19 @@ using Microsoft.Xna.Framework.Input;
 namespace WaveTracker.UI {
     public class SpriteToggle : Clickable {
         int texNum;
-        Texture2D source;
+        int sourceX;
+        int sourceY;
 
         public bool Value { get; set; }
 
-        public SpriteToggle(int x, int y, int w, int h, Texture2D source, int texNum, Element parent) {
+        public SpriteToggle(int x, int y, int width, int height, Texture2D source, int sourceX, int sourceY, Element parent) {
             enabled = true;
             this.x = x;
             this.y = y;
-            width = w;
-            height = h;
-            this.source = source;
-            this.texNum = texNum;
+            this.width = width;
+            this.height = height;
+            this.sourceX = sourceX;
+            this.sourceY = sourceY;
             SetParent(parent);
         }
 
@@ -35,31 +36,34 @@ namespace WaveTracker.UI {
         }
 
         Rectangle GetBounds(int num) {
-            return new Rectangle(0 + texNum * width, 0 + num * height, width, height);
+            return new Rectangle(sourceX, sourceY + num * height, width, height);
         }
         public void Draw() {
-            if (source == null) return;
 
             if (enabled) {
                 if (Value) {
                     if (IsPressed) {
-                        DrawSprite(source, 0, 0, GetBounds(2));
-                    } else {
-                        DrawSprite(source, 0, 0, GetBounds(3));
+                        DrawSprite(0, 0, GetBounds(2));
+                    }
+                    else {
+                        DrawSprite(0, 0, GetBounds(3));
                     }
                     return;
                 }
                 if (IsHovered) {
                     if (IsPressed) {
-                        DrawSprite(source, 0, 0, GetBounds(2));
-                    } else {
-                        DrawSprite(source, 0, 0, GetBounds(1));
+                        DrawSprite(0, 0, GetBounds(2));
                     }
-                } else {
-                    DrawSprite(source, 0, 0, GetBounds(0));
+                    else {
+                        DrawSprite(0, 0, GetBounds(1));
+                    }
                 }
-            } else {
-                DrawSprite(source, 0, 0, GetBounds(4));
+                else {
+                    DrawSprite(0, 0, GetBounds(0));
+                }
+            }
+            else {
+                DrawSprite(0, 0, GetBounds(4));
             }
 
         }

@@ -46,7 +46,7 @@ namespace WaveTracker.UI {
                 if (e.Clicked) {
                     currentWave = i;
                     lastSelectedWave = i;
-                    editor.EditWave(App.CurrentModule.WaveBank[i], i);
+                    editor.Open(i);
                     if (!ChannelManager.previewChannel.waveEnv.toPlay.isActive)
                         ChannelManager.previewChannel.SetWave(i);
                 }

@@ -312,14 +312,13 @@ namespace WaveTracker.Audio {
             waveBendAmt = 0;
         }
 
-        public void SetWave(int w) {
-            waveIndex = w;
-            currentWave = ChannelManager.waveBank.GetWave(w);
+        public void SetWave(int waveIndex) {
+            this.waveIndex = waveIndex;
+            currentWave = ChannelManager.waveBank.GetWave(waveIndex);
         }
 
 
         public void TriggerNote(int midiNum) {
-
             pitchFallOffset = 0;
             if (!noteOn) {
                 _fadeMultiplier = 1f;

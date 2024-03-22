@@ -163,6 +163,7 @@ namespace WaveTracker.UI {
 
         public void Update() {
             if (windowIsOpen) {
+                DoDragging();
                 if (ExitButton.Clicked || cancel.Clicked) {
                     Close();
                 }
@@ -174,13 +175,13 @@ namespace WaveTracker.UI {
                     ApplyChanges();
                 }
                 tabGroup.Update();
-                if (tabGroup.selected == 0)
+                if (tabGroup.SelectedTabIndex == 0)
                     pageGeneral.Update();
-                if (tabGroup.selected == 1)
+                if (tabGroup.SelectedTabIndex == 1)
                     pageSample.Update();
                 //if (tabGroup.selected == 2)
                 //    pageAppearance.Update();
-                if (tabGroup.selected == 2)
+                if (tabGroup.SelectedTabIndex == 2)
                     pageVisualizer.Update();
             }
         }
@@ -197,10 +198,10 @@ namespace WaveTracker.UI {
                 int rectstartY = pageGeneral.y + pageGeneral.getListHeight() + 10;
 
                 OptionList activePage;
-                if (tabGroup.selected == 0) {
+                if (tabGroup.SelectedTabIndex == 0) {
                     pageGeneral.Draw();
                     activePage = pageGeneral;
-                } else if (tabGroup.selected == 1) {
+                } else if (tabGroup.SelectedTabIndex == 1) {
                     pageSample.Draw();
                     activePage = pageSample;
                 }

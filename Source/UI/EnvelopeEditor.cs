@@ -13,7 +13,6 @@ namespace WaveTracker.UI {
         int playbackStep;
         bool isPlaying;
         Textbox envText;
-        Texture2D tex;
         int arpRange = 120;
         int arpHeight = 6;
         int waveRange = 101;
@@ -22,8 +21,7 @@ namespace WaveTracker.UI {
         public int lastEnvType;
         int holdPosX, holdPosY;
         int ColumnWidth => (envelope.values.Count == 0 ? 0 : Math.Clamp(445 / envelope.values.Count, 1, 48));
-        public EnvelopeEditor(int x, int y, Texture2D tex, Element parent) {
-            this.tex = tex;
+        public EnvelopeEditor(int x, int y, Element parent) {
             this.x = x;
             this.y = y;
             envText = new("", -1, 239, 535, 535, this);
@@ -49,19 +47,22 @@ namespace WaveTracker.UI {
             if (envelopeType == 0 || envelopeType == 4) // vol + wave mod
             {
                 return 21 + (99 - value) * 2;
-            } else if (envelopeType == 1) // arp
+            }
+            else if (envelopeType == 1) // arp
               {
                 return 21 + (arpRange - value - scrollbar.ScrollValue) * arpHeight;
-            } else if (envelopeType == 3) // wave
+            }
+            else if (envelopeType == 3) // wave
               {
                 return 21 + (waveRange - value - scrollbar.ScrollValue - 2) * waveHeight;
-            } else  // pitch
+            }
+            else  // pitch
               {
                 return 20 + (99 - value);
             }
         }
 
-        public void Update(bool cooldownDone) {
+        public void Update() {
 
 
             envLength.Value = envelope.values.Count;
@@ -92,7 +93,7 @@ namespace WaveTracker.UI {
             envText.Text = envelope.ToString();
             envText.Update();
             if (envText.ValueWasChangedInternally) {
-                envelope.loadFromString(envText.Text, envelopeType);
+                envelope.LoadFromString(envText.Text, envelopeType);
                 App.CurrentModule.SetDirty();
             }
             envText.Text = envelope.ToString();
@@ -116,12 +117,14 @@ namespace WaveTracker.UI {
                             for (int i = holdPosX; i <= canvasPosX; ++i) {
                                 envelope.values[i] = (short)Math.Round(Lerp(holdPosY, canvasPosY, (float)(i - holdPosX) / diff));
                             }
-                        } else {
+                        }
+                        else {
                             for (int i = canvasPosX; i <= holdPosX; ++i) {
                                 envelope.values[i] = (short)Math.Round(Lerp(canvasPosY, holdPosY, (float)(i - canvasPosX) / diff));
                             }
                         }
-                    } else {
+                    }
+                    else {
                         envelope.values[Math.Clamp(canvasPosX, 0, envelope.values.Count - 1)] = (short)canvasPosY;
                     }
                     App.CurrentModule.SetDirty();
@@ -160,13 +163,16 @@ namespace WaveTracker.UI {
             if (envelopeType == 0 || envelopeType == 4) // vol + wave mod
             {
                 y = 99 - (MouseY - 21) / 2;
-            } else if (envelopeType == 1) // arp
+            }
+            else if (envelopeType == 1) // arp
               {
                 y = arpRange - ((MouseY - 21) / arpHeight) - scrollbar.ScrollValue;
-            } else if (envelopeType == 3) // wave
+            }
+            else if (envelopeType == 3) // wave
               {
                 y = waveRange - ((MouseY - 21) / waveHeight) - scrollbar.ScrollValue - 2;
-            } else // pitch
+            }
+            else // pitch
               {
                 y = 98 - (MouseY - 21);
             }
@@ -181,17 +187,20 @@ namespace WaveTracker.UI {
             if (envelopeType == 0 || envelopeType == 4) // vol + wave mod
             {
                 y = 99 - (mY - 21) / 2;
-            } else if (envelopeType == 1) // arp
+            }
+            else if (envelopeType == 1) // arp
               {
                 if (mY > 218)
                     mY = 218;
                 y = arpRange - ((mY - 21) / arpHeight) - scrollbar.ScrollValue;
-            } else if (envelopeType == 3) // wave
+            }
+            else if (envelopeType == 3) // wave
               {
                 if (mY > 218)
                     mY = 218;
                 y = waveRange - ((mY - 21) / waveHeight) - scrollbar.ScrollValue - 2;
-            } else // pitch
+            }
+            else // pitch
               {
                 y = 98 - (mY - 21);
             }
@@ -217,9 +226,9 @@ namespace WaveTracker.UI {
                     {
                         for (int i = 0; i < envelope.values.Count; ++i) {
                             if (i % 2 == 0)
-                                DrawSprite(tex, xPositionOfColumn(i), 21, ColumnWidth, 199, new Rectangle(623, 0, 1, 199));
+                                DrawSprite(xPositionOfColumn(i), 21, ColumnWidth, 199, new Rectangle(392, 80, 1, 199));
                             else
-                                DrawSprite(tex, xPositionOfColumn(i), 21, ColumnWidth, 199, new Rectangle(624, 0, 1, 199));
+                                DrawSprite(xPositionOfColumn(i), 21, ColumnWidth, 199, new Rectangle(393, 80, 1, 199));
 
                             if (CanvasMouseBlock().X == i && CanvasMouseBlock().Y > envelope.values[i] && PointIsInCanvas(new Point(MouseX, MouseY)))
                                 DrawMouseBlock(new Color(64, 73, 115));
@@ -227,7 +236,8 @@ namespace WaveTracker.UI {
 
                             if (CanvasMouseBlock().X == i && CanvasMouseBlock().Y <= envelope.values[i] && PointIsInCanvas(new Point(MouseX, MouseY))) {
                                 DrawBlock(i, envelope.values[i], new Color(193, 222, 235), true);
-                            } else if (playbackStep == i && isPlaying)
+                            }
+                            else if (playbackStep == i && isPlaying)
                                 DrawBlock(i, envelope.values[i], new Color(209, 244, 205), true);
 
                             else
@@ -236,17 +246,19 @@ namespace WaveTracker.UI {
                         }
 
 
-                    } else if (envelopeType == 1) // arp
+                    }
+                    else if (envelopeType == 1) // arp
                       {
                         for (int i = 0; i < envelope.values.Count; ++i) {
                             if (i % 2 == 0) {
-                                DrawSprite(tex, xPositionOfColumn(i), 21, ColumnWidth, 199, new Rectangle(625, 0, 1, 199));
+                                DrawSprite(xPositionOfColumn(i), 21, ColumnWidth, 199, new Rectangle(394, 80, 1, 199));
                                 for (int j = arpRange; j > -arpRange; j--) {
                                     if (j % 12 == 0)
                                         DrawBlock(i, j, new Color(31, 36, 63), false);
                                 }
-                            } else {
-                                DrawSprite(tex, xPositionOfColumn(i), 21, ColumnWidth, 199, new Rectangle(626, 0, 1, 199));
+                            }
+                            else {
+                                DrawSprite(xPositionOfColumn(i), 21, ColumnWidth, 199, new Rectangle(395, 80, 1, 199));
                                 for (int j = arpRange; j > -arpRange; j--) {
                                     if (j % 12 == 0)
                                         DrawBlock(i, j, new Color(42, 51, 83), false);
@@ -257,22 +269,25 @@ namespace WaveTracker.UI {
 
                             if (CanvasMouseBlock().X == i && CanvasMouseBlock().Y == envelope.values[i]) {
                                 DrawBlock(i, envelope.values[i], new Color(193, 222, 235), true);
-                            } else if (playbackStep == i && isPlaying)
+                            }
+                            else if (playbackStep == i && isPlaying)
                                 DrawBlock(i, envelope.values[i], new Color(209, 244, 205), true);
                             else
                                 DrawBlock(i, envelope.values[i], Color.White, true);
                         }
-                    } else if (envelopeType == 3) // wave
+                    }
+                    else if (envelopeType == 3) // wave
                       {
                         for (int i = 0; i < envelope.values.Count; ++i) {
                             if (i % 2 == 0) {
-                                DrawSprite(tex, xPositionOfColumn(i), 21, ColumnWidth, 199, new Rectangle(625, 0, 1, 199));
+                                DrawSprite(xPositionOfColumn(i), 21, ColumnWidth, 199, new Rectangle(394, 80, 1, 199));
                                 for (int j = waveRange; j > -waveRange; j--) {
                                     if (j % 10 == 0)
                                         DrawBlock(i, j, new Color(31, 36, 63), false);
                                 }
-                            } else {
-                                DrawSprite(tex, xPositionOfColumn(i), 21, ColumnWidth, 199, new Rectangle(626, 0, 1, 199));
+                            }
+                            else {
+                                DrawSprite(xPositionOfColumn(i), 21, ColumnWidth, 199, new Rectangle(395, 80, 1, 199));
                                 for (int j = waveRange; j > -waveRange; j--) {
                                     if (j % 10 == 0)
                                         DrawBlock(i, j, new Color(42, 51, 83), false);
@@ -283,19 +298,22 @@ namespace WaveTracker.UI {
 
                             if (CanvasMouseBlock().X == i && CanvasMouseBlock().Y == envelope.values[i]) {
                                 DrawBlock(i, envelope.values[i], new Color(193, 222, 235), true);
-                            } else if (playbackStep == i && isPlaying)
+                            }
+                            else if (playbackStep == i && isPlaying)
                                 DrawBlock(i, envelope.values[i], new Color(209, 244, 205), true);
                             else
                                 DrawBlock(i, envelope.values[i], Color.White, true);
                         }
-                    } else if (envelopeType == 2) // pitch
+                    }
+                    else if (envelopeType == 2) // pitch
                       {
                         for (int i = 0; i < envelope.values.Count; ++i) {
                             if (i % 2 == 0) {
-                                DrawSprite(tex, xPositionOfColumn(i), 20, ColumnWidth, 199, new Rectangle(627, 0, 1, 199));
+                                DrawSprite(xPositionOfColumn(i), 20, ColumnWidth, 199, new Rectangle(396, 80, 1, 199));
 
-                            } else
-                                DrawSprite(tex, xPositionOfColumn(i), 20, ColumnWidth, 199, new Rectangle(628, 0, 1, 199));
+                            }
+                            else
+                                DrawSprite(xPositionOfColumn(i), 20, ColumnWidth, 199, new Rectangle(397, 80, 1, 199));
 
                             Point mouse = CanvasMouseBlock();
                             if (mouse.X == i && PointIsInCanvas(new Point(MouseX, MouseY)))
@@ -305,9 +323,11 @@ namespace WaveTracker.UI {
 
                             if (envelope.values[i] >= 0 && CanvasMouseBlock().X == i && CanvasMouseBlock().Y <= envelope.values[i] && PointIsInCanvas(new Point(MouseX, MouseY)) && CanvasMouseBlock().Y >= 0) {
                                 DrawBlock(i, envelope.values[i], new Color(193, 222, 235), true);
-                            } else if (envelope.values[i] < 0 && CanvasMouseBlock().X == i && CanvasMouseBlock().Y > envelope.values[i] && PointIsInCanvas(new Point(MouseX, MouseY)) && CanvasMouseBlock().Y <= 0) {
+                            }
+                            else if (envelope.values[i] < 0 && CanvasMouseBlock().X == i && CanvasMouseBlock().Y > envelope.values[i] && PointIsInCanvas(new Point(MouseX, MouseY)) && CanvasMouseBlock().Y <= 0) {
                                 DrawBlock(i, envelope.values[i], new Color(193, 222, 235), true);
-                            } else if (playbackStep == i && isPlaying)
+                            }
+                            else if (playbackStep == i && isPlaying)
                                 DrawBlock(i, envelope.values[i], new Color(209, 244, 205), true);
                             else
                                 DrawBlock(i, envelope.values[i], Color.White, true);
@@ -323,21 +343,30 @@ namespace WaveTracker.UI {
                     }
                     Write(s, 90, 226, UIColors.label);
                     #region draw loop/release
+                    // draw release
                     if (MouseEnvelopeY == 1 && MouseEnvelopeX >= 1 && MouseEnvelopeX < envelope.values.Count && envelope.isActive) {
-                        DrawSprite(tex, xPositionOfColumn(MouseEnvelopeX) - 1, 10, new Rectangle(578, 51, 40, 9));
+                        DrawSprite(xPositionOfColumn(MouseEnvelopeX) - 1, 10, new Rectangle(400, 107, 40, 9));
                     }
                     if (envelope.HasRelease) {
-                        if (MouseEnvelopeY == 1 && MouseEnvelopeX - 1 == envelope.releaseIndex) { DrawSprite(tex, xPositionOfColumn(MouseEnvelopeX) - 1, 10, new Rectangle(578, 69, 40, 9)); } else { DrawSprite(tex, xPositionOfColumn(envelope.releaseIndex + 1) - 1, 10, new Rectangle(578, 60, 40, 9)); }
+                        if (MouseEnvelopeY == 1 && MouseEnvelopeX - 1 == envelope.releaseIndex) {
+                            DrawSprite(xPositionOfColumn(MouseEnvelopeX) - 1, 10, new Rectangle(400, 125, 40, 9));
+                        }
+                        else {
+                            DrawSprite(xPositionOfColumn(envelope.releaseIndex + 1) - 1, 10, new Rectangle(400, 116, 40, 9));
+                        }
                         DrawRect(xPositionOfColumn(envelope.releaseIndex + 1), 19, 1, 201, new Color(255, 137, 51));
                     }
+                    // draw loop
                     if (MouseEnvelopeY == 0 && MouseEnvelopeX >= 0 && MouseEnvelopeX < envelope.values.Count && envelope.isActive) {
-                        DrawSprite(tex, xPositionOfColumn(MouseEnvelopeX) - 2, 0, new Rectangle(578, 24, 40, 9));
+                        DrawSprite(xPositionOfColumn(MouseEnvelopeX) - 2, 0, new Rectangle(400, 80, 40, 9));
                     }
                     if (envelope.HasLoop) {
-                        if (MouseEnvelopeY == 0 && MouseEnvelopeX == envelope.loopIndex)
-                            DrawSprite(tex, xPositionOfColumn(envelope.loopIndex) - 2, 0, new Rectangle(578, 42, 40, 9));
-                        else
-                            DrawSprite(tex, xPositionOfColumn(envelope.loopIndex) - 2, 0, new Rectangle(578, 33, 40, 9));
+                        if (MouseEnvelopeY == 0 && MouseEnvelopeX == envelope.loopIndex) {
+                            DrawSprite(xPositionOfColumn(envelope.loopIndex) - 2, 0, new Rectangle(400, 98, 40, 9));
+                        }
+                        else {
+                            DrawSprite(xPositionOfColumn(envelope.loopIndex) - 2, 0, new Rectangle(400, 89, 40, 9));
+                        }
                         DrawRect(xPositionOfColumn(envelope.loopIndex) - 1, 9, 1, 211, new Color(99, 171, 63));
                     }
                     #endregion
@@ -398,7 +427,8 @@ namespace WaveTracker.UI {
                                 int y = (int)Math.Round(Lerp(holdPosY, canvasPosY, (float)(i - holdPosX) / diff));
                                 DrawBlock(i, y, new Color(100, 90, 135, 90), false);
                             }
-                        } else {
+                        }
+                        else {
                             for (int i = canvasPosX; i <= holdPosX; ++i) {
                                 int y = (int)Math.Round(Lerp(canvasPosY, holdPosY, (float)(i - canvasPosX) / diff));
                                 DrawBlock(i, y, new Color(100, 90, 135, 90), false);
@@ -465,11 +495,11 @@ namespace WaveTracker.UI {
             }
         }
 
-        public void EditEnvelope(Envelope envelope, int envelopeType, EnvelopePlayer playback, bool cooldownDone) {
+        public void EditEnvelope(Envelope envelope, int envelopeType, EnvelopePlayer playback) {
             SetEnvelope(envelope, envelopeType);
             playbackStep = playback.step;
             isPlaying = !playback.EnvelopeEnded;
-            Update(cooldownDone);
+            Update();
         }
     }
 }

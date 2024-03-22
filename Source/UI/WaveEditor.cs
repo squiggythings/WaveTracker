@@ -12,13 +12,12 @@ using WaveTracker.Tracker;
 using System.Windows.Forms;
 
 namespace WaveTracker.UI {
-    public class WaveEditor : Element {
-        public Texture2D tex;
+    public class WaveEditor : Window {
         public static bool enabled;
         public SpriteButton presetSine, presetTria, presetSaw, presetRect50, presetRect25, presetRect12, presetRand, presetClear;
         public Toggle filterNone, filterLinear, filterMix;
         public int startcooldown;
-        public SpriteButton closeButton;
+        //public SpriteButton closeButton;
         public UI.Button bCopy, bPaste, bPhaseL, bPhaseR, bMoveUp, bMoveDown, bInvert, bMutate, bSmooth, bNormalize;
         public UI.Textbox waveText;
         public Dropdown ResampleDropdown;
@@ -27,8 +26,7 @@ namespace WaveTracker.UI {
         static string clipboardWave = "";
         static Audio.ResamplingMode clipboardSampleMode = Audio.ResamplingMode.Mix;
         int phase;
-        public WaveEditor(Texture2D tex) {
-            this.tex = tex;
+        public WaveEditor() : base("Wave Editor", 500, 270) {
             x = 220;
             y = 130;
 
@@ -80,29 +78,27 @@ namespace WaveTracker.UI {
             bNormalize.SetTooltip("", "Make the wave maximum amplitude");
 
 
-            presetSine = new SpriteButton(17, 215, 18, 12, tex, 0, this);
+            presetSine = new SpriteButton(17, 215, 18, 12, Rendering.Graphics.img, 104, 80, this);
             presetSine.SetTooltip("Sine", "Sine wave preset");
-
-            presetTria = new SpriteButton(36, 215, 18, 12, tex, 1, this);
+            presetTria = new SpriteButton(36, 215, 18, 12, Rendering.Graphics.img, 122, 80, this);
             presetTria.SetTooltip("Triangle", "Triangle wave preset");
-            presetSaw = new SpriteButton(55, 215, 18, 12, tex, 2, this);
+            presetSaw = new SpriteButton(55, 215, 18, 12, Rendering.Graphics.img, 140, 80, this);
             presetSaw.SetTooltip("Sawtooth", "Sawtooth wave preset");
 
-            presetRect50 = new SpriteButton(74, 215, 18, 12, tex, 3, this);
+            presetRect50 = new SpriteButton(74, 215, 18, 12, Rendering.Graphics.img, 158, 80, this);
             presetRect50.SetTooltip("Pulse 50%", "Pulse wave preset with 50% duty cycle");
-
-            presetRect25 = new SpriteButton(93, 215, 18, 12, tex, 4, this);
+            presetRect25 = new SpriteButton(93, 215, 18, 12, Rendering.Graphics.img, 176, 80, this);
             presetRect25.SetTooltip("Pulse 25%", "Pulse wave preset with 25% duty cycle");
-
-            presetRect12 = new SpriteButton(112, 215, 18, 12, tex, 5, this);
+            presetRect12 = new SpriteButton(112, 215, 18, 12, Rendering.Graphics.img, 194, 80, this);
             presetRect12.SetTooltip("Pulse 12.5%", "Pulse wave preset with 12.5% duty cycle");
-            presetRand = new SpriteButton(131, 215, 18, 12, tex, 6, this);
+
+            presetRand = new SpriteButton(131, 215, 18, 12, Rendering.Graphics.img, 212, 80, this);
             presetRand.SetTooltip("Random", "Create random noise");
-            presetClear = new SpriteButton(150, 215, 18, 12, tex, 7, this);
+            presetClear = new SpriteButton(150, 215, 18, 12, Rendering.Graphics.img, 230, 80, this);
             presetClear.SetTooltip("Clear", "Clear wave");
 
-            closeButton = new SpriteButton(490, 0, 10, 9, UI.NumberBox.buttons, 4, this);
-            closeButton.SetTooltip("Close", "Close wave editor");
+            //closeButton = new SpriteButton(490, 0, 10, 9, UI.NumberBox.buttons, 4, this);
+            ExitButton.SetTooltip("Close", "Close wave editor");
 
             waveText = new UI.Textbox("", 17, 188, 384, 384, this);
             waveText.canEdit = true;
@@ -111,21 +107,23 @@ namespace WaveTracker.UI {
             ResampleDropdown = new Dropdown(385, 215, this);
             ResampleDropdown.SetMenuItems(new string[] { "Harsh (None)", "Smooth (Linear)", "Mix (None + Linear)" });
         }
-        public void EditWave(Wave wave, int num) {
+        public void Open(int waveIndex) {
+            base.Open();
             //Input.internalDialogIsOpen = true;
             startcooldown = 10;
-            id = num;
+            id = waveIndex;
             enabled = true;
-            Input.focus = this;
+            //Input.focus = this;
         }
 
-        public void Close() {
+        public new void Close() {
             enabled = false;
+            base.Close();
             //Input.internalDialogIsOpen = false;
-            Input.focus = null;
+            //Input.focus = null;
         }
 
-        public int pianoInput() {
+        public int GetPianoMouseInput() {
             if (!enabled || !InFocus)
                 return -1;
             if (MouseX < 10 || MouseX > 488 || MouseY > 258 || MouseY < 235)
@@ -137,16 +135,16 @@ namespace WaveTracker.UI {
             }
         }
 
-        bool mouseInBounds() {
-            return InFocus && canvasMouseX > 0 && canvasMouseY > 0 && canvasMouseX < 384 && canvasMouseY < 160;
+        bool IsMouseInCanvasBounds() {
+            return InFocus && CanvasMouseX > 0 && CanvasMouseY > 0 && CanvasMouseX < 384 && CanvasMouseY < 160;
         }
-        int canvasMouseX => MouseX - 17;
-        int canvasMouseY => MouseY - 23;
-        int canvasPosX => canvasMouseX / 6;
-        int canvasPosY => 31 - (canvasMouseY / 5);
+        int CanvasMouseX => MouseX - 17;
+        int CanvasMouseY => MouseY - 23;
+        int CanvasPosX => CanvasMouseX / 6;
+        int CanvasPosY => 31 - (CanvasMouseY / 5);
 
         public void Update() {
-            if (enabled) {
+            if (windowIsOpen) {
                 if (WaveBank.currentWave < 0) return;
                 if (WaveBank.currentWave > 99) return;
                 if (Input.GetKeyRepeat(Microsoft.Xna.Framework.Input.Keys.Left, KeyModifier.None)) {
@@ -176,7 +174,7 @@ namespace WaveTracker.UI {
                 }
                 else {
 
-                    if (closeButton.Clicked || Input.GetKeyDown(Microsoft.Xna.Framework.Input.Keys.Escape, KeyModifier.None)) {
+                    if (ExitButton.Clicked || Input.GetKeyDown(Microsoft.Xna.Framework.Input.Keys.Escape, KeyModifier.None)) {
                         Close();
                     }
                     waveText.Update();
@@ -278,34 +276,34 @@ namespace WaveTracker.UI {
                         App.CurrentModule.WaveBank[WaveBank.currentWave].Normalize();
                         App.CurrentModule.SetDirty();
                     }
-                    if (mouseInBounds()) {
+                    if (IsMouseInCanvasBounds()) {
                         if (Input.GetClickDown(KeyModifier._Any)) {
-                            holdPosX = canvasPosX;
-                            holdPosY = canvasPosY;
+                            holdPosX = CanvasPosX;
+                            holdPosY = CanvasPosY;
                         }
 
 
                         if (Input.GetClick(KeyModifier.None)) {
-                            App.CurrentModule.WaveBank[WaveBank.currentWave].samples[canvasPosX] = (byte)canvasPosY;
+                            App.CurrentModule.WaveBank[WaveBank.currentWave].samples[CanvasPosX] = (byte)CanvasPosY;
                             App.CurrentModule.SetDirty();
                         }
                         if (Input.GetClickUp(KeyModifier.Shift)) {
-                            int diff = Math.Abs(holdPosX - canvasPosX);
+                            int diff = Math.Abs(holdPosX - CanvasPosX);
                             if (diff > 0) {
-                                if (holdPosX < canvasPosX) {
-                                    for (int i = holdPosX; i <= canvasPosX; ++i) {
-                                        App.CurrentModule.WaveBank[WaveBank.currentWave].samples[i] = (byte)Math.Round(Lerp(holdPosY, canvasPosY, (float)(i - holdPosX) / diff));
+                                if (holdPosX < CanvasPosX) {
+                                    for (int i = holdPosX; i <= CanvasPosX; ++i) {
+                                        App.CurrentModule.WaveBank[WaveBank.currentWave].samples[i] = (byte)Math.Round(MathHelper.Lerp(holdPosY, CanvasPosY, (float)(i - holdPosX) / diff));
                                     }
                                 }
                                 else {
-                                    for (int i = canvasPosX; i <= holdPosX; ++i) {
-                                        App.CurrentModule.WaveBank[WaveBank.currentWave].samples[i] = (byte)Math.Round(Lerp(canvasPosY, holdPosY, (float)(i - canvasPosX) / diff));
+                                    for (int i = CanvasPosX; i <= holdPosX; ++i) {
+                                        App.CurrentModule.WaveBank[WaveBank.currentWave].samples[i] = (byte)Math.Round(MathHelper.Lerp(CanvasPosY, holdPosY, (float)(i - CanvasPosX) / diff));
                                     }
                                 }
                                 App.CurrentModule.SetDirty();
                             }
                             else {
-                                App.CurrentModule.WaveBank[WaveBank.currentWave].samples[canvasPosX] = (byte)canvasPosY;
+                                App.CurrentModule.WaveBank[WaveBank.currentWave].samples[CanvasPosX] = (byte)CanvasPosY;
                                 App.CurrentModule.SetDirty();
                             }
                         }
@@ -313,15 +311,26 @@ namespace WaveTracker.UI {
                 }
             }
         }
-        float Lerp(float firstFloat, float secondFloat, float by) {
-            return firstFloat * (1 - by) + secondFloat * by;
+
+        void DrawPiano(int x, int y) {
+            DrawRect(x, y, 482, 26, UIColors.black);
+            for (int i = 0; i < 10; ++i) {
+                // draw 1 octave of the piano sprite
+                DrawSprite(x + i * 48 + 1, y + 1, new Rectangle(0, 80, 48, 24));
+            }
         }
-        public void Draw() {
-            if (enabled) {
-                DrawRect(-x, -y, 960, 600, Helpers.Alpha(Color.Black, 90));
-                DrawSprite(tex, 0, 0, new Rectangle(0, 60, 500, 270));
-                Write("Edit Wave " + id.ToString("D2"), 4, 1, new Color(64, 72, 115));
-                closeButton.Draw();
+
+        public new void Draw() {
+            if (windowIsOpen) {
+                name = "Edit Wave " + id.ToString("D2");
+                base.Draw();
+                Write("Draw Wave", 17, 14, UIColors.label);
+                DrawSprite(16, 22, new Rectangle(0, 144, 386, 162));
+                //DrawRect(-x, -y, 960, 600, Helpers.Alpha(Color.Black, 90));
+                //DrawSprite( 0, 0, new Rectangle(0, 60, 500, 270));
+                //Write("Edit Wave " + id.ToString("D2"), 4, 1, new Color(64, 72, 115));
+
+                Write("Presets", 17, 205, UIColors.label);
                 presetSine.Draw();
                 presetTria.Draw();
                 presetRect50.Draw();
@@ -335,6 +344,7 @@ namespace WaveTracker.UI {
                 //filterMix.Draw();
                 waveText.Draw();
 
+                Write("Tools", 441, 14, UIColors.label);
                 bCopy.Draw();
                 bPaste.Draw();
                 bPhaseL.Draw();
@@ -345,7 +355,7 @@ namespace WaveTracker.UI {
                 bSmooth.Draw();
                 bMutate.Draw();
                 bNormalize.Draw();
-                ResampleDropdown.Draw();
+
                 Color waveColor = new Color(200, 212, 93);
                 Color waveBG = new Color(59, 125, 79, 150);
                 for (int i = 0; i < 64; ++i) {
@@ -357,36 +367,37 @@ namespace WaveTracker.UI {
                     DrawRect(419 + i, 183, 1, 16 - samp2, new Color(190, 192, 211));
                     DrawRect(419 + i, 199 - samp2, 1, 1, new Color(118, 124, 163));
                 }
-                if (mouseInBounds() && InFocus) {
-                    DrawRect(17 + (canvasMouseX / 6 * 6), 183 - ((31 - canvasMouseY / 5) * 5), 6, -5, Helpers.Alpha(Color.White, 80));
+                if (IsMouseInCanvasBounds() && InFocus) {
+                    DrawRect(17 + (CanvasMouseX / 6 * 6), 183 - ((31 - CanvasMouseY / 5) * 5), 6, -5, Helpers.Alpha(Color.White, 80));
                     if (Input.GetClick(KeyModifier.Shift)) {
-                        int diff = Math.Abs(holdPosX - canvasPosX);
+                        int diff = Math.Abs(holdPosX - CanvasPosX);
                         if (diff > 0) {
-                            if (holdPosX < canvasPosX) {
-                                for (int i = holdPosX; i <= canvasPosX; ++i) {
-                                    int y = (int)Math.Round(Lerp(holdPosY, canvasPosY, (float)(i - holdPosX) / diff));
+                            if (holdPosX < CanvasPosX) {
+                                for (int i = holdPosX; i <= CanvasPosX; ++i) {
+                                    int y = (int)Math.Round(MathHelper.Lerp(holdPosY, CanvasPosY, (float)(i - holdPosX) / diff));
                                     DrawRect(17 + i * 6, 183 - y * 5, 6, -5, Helpers.Alpha(Color.White, 80));
                                 }
                             }
                             else {
-                                for (int i = canvasPosX; i <= holdPosX; ++i) {
-                                    int y = (int)Math.Round(Lerp(canvasPosY, holdPosY, (float)(i - canvasPosX) / diff));
+                                for (int i = CanvasPosX; i <= holdPosX; ++i) {
+                                    int y = (int)Math.Round(MathHelper.Lerp(CanvasPosY, holdPosY, (float)(i - CanvasPosX) / diff));
                                     DrawRect(17 + i * 6, 183 - y * 5, 6, -5, Helpers.Alpha(Color.White, 80));
                                 }
                             }
                         }
                     }
                 }
-
+                DrawPiano(9, 234);
                 if (App.pianoInput > -1) {
-                    int note = App.pianoInput;
-                    if (note >= 12 && note < 132) {
+                    if (App.pianoInput >= 12 && App.pianoInput < 132) {
                         if (Helpers.IsNoteBlackKey(App.pianoInput))
-                            DrawSprite(tex, App.pianoInput * 4 - 38, 235, new Rectangle(504, 61, 4, 24));
+                            DrawSprite(App.pianoInput * 4 - 38, 235, new Rectangle(52, 80, 4, 24));
                         else
-                            DrawSprite(tex, App.pianoInput * 4 - 38, 235, new Rectangle(500, 61, 4, 24));
+                            DrawSprite(App.pianoInput * 4 - 38, 235, new Rectangle(48, 80, 4, 24));
                     }
                 }
+                Write("Resampling Filter", 413, 205, UIColors.label);
+                ResampleDropdown.Draw();
             }
         }
     }

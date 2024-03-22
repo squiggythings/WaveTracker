@@ -18,7 +18,6 @@ namespace WaveTracker.UI {
         public SpriteButton bDown;
         int boxWidth;
         string label;
-        public static Texture2D buttons;
         int min = int.MinValue;
         int max = int.MaxValue;
         int valueSaved;
@@ -40,8 +39,8 @@ namespace WaveTracker.UI {
             height = 13;
             canScroll = true;
             SetParent(parent);
-            bUp = new SpriteButton(width - 10, 0, 10, 6, buttons, 1, this);
-            bDown = new SpriteButton(width - 10, 7, 10, 6, buttons, 2, this);
+            bUp = new SpriteButton(width - 10, 0, 10, 6, Rendering.Graphics.img, 456, 0, this);
+            bDown = new SpriteButton(width - 10, 7, 10, 6, Rendering.Graphics.img, 456, 32, this);
         }
 
         public NumberBox(string label, int x, int y, Element parent) {
@@ -53,8 +52,8 @@ namespace WaveTracker.UI {
             height = 13;
             canScroll = true;
             SetParent(parent);
-            bUp = new SpriteButton(width - 10, 0, 10, 6, buttons, 1, this);
-            bDown = new SpriteButton(width - 10, 7, 10, 6, buttons, 2, this);
+            bUp = new SpriteButton(width - 10, 0, 10, 6, Rendering.Graphics.img, 456, 0, this);
+            bDown = new SpriteButton(width - 10, 7, 10, 6, Rendering.Graphics.img, 456, 32, this);
         }
 
         public void EnableScrolling() { canScroll = true; }

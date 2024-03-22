@@ -16,13 +16,12 @@ using System.Threading;
 namespace WaveTracker.UI {
     public class SampleBrowser : Element {
         public bool enabled;
-        public Texture2D icons;
         int selectedFileIndex = -1;
         public string selectedFilePath;
-        public Toggle sortName, sortType;
-        public SpriteButton backButton;
-        public Scrollbar scrollbar;
-        public Button ok, cancel;
+        Toggle sortName, sortType;
+        SpriteButton backButton;
+        Scrollbar scrollbar;
+        Button ok, cancel;
         string currentPath = @"C:\";
         string lastPath;
         int listLength = 24;
@@ -35,11 +34,10 @@ namespace WaveTracker.UI {
         enum SortingMethod { ByName, ByType };
         SortingMethod sortMethod;
         bool selectedAnAudioFile => reader != null && (selectedFileIndex < 0 || selectedFileIndex >= entriesInDirectory.Length ? false : File.Exists(entriesInDirectory[selectedFileIndex]));
-        public SampleBrowser(Texture2D tex) {
+        public SampleBrowser() {
             this.x = (960 - width) / 2;
             this.y = (500 - height) / 2;
-            icons = tex;
-            backButton = new SpriteButton(2, 11, 15, 15, Toolbar.sprite, 20, this);
+            backButton = new SpriteButton(2, 11, 15, 15, Rendering.Graphics.img, 300, 0, this);
             scrollbar = new Scrollbar(2, 29, width - 111, listLength * 11, this);
             scrollbar.CoarseStepAmount = 3;
             ok = new Button("OK", width - 108, height - 16, this);
@@ -52,7 +50,8 @@ namespace WaveTracker.UI {
             previewOut = new WaveOutEvent();
             if (Directory.Exists(Preferences.profile.lastBrowseDirectory)) {
                 currentPath = Preferences.profile.lastBrowseDirectory;
-            } else {
+            }
+            else {
                 currentPath = Directory.GetCurrentDirectory();
             }
         }
@@ -122,7 +121,8 @@ namespace WaveTracker.UI {
                                     scrollbar.ScrollValue = 0;
                                     GetFileEntries(false);
                                     break;
-                                } else {
+                                }
+                                else {
                                     // double clicked on a file
                                     selectedFilePath = entriesInDirectory[selectedFileIndex];
                                     Close();
@@ -176,7 +176,8 @@ namespace WaveTracker.UI {
                 if ((reader.TotalTime.TotalSeconds * reader.WaveFormat.SampleRate) / reader.WaveFormat.Channels <= 400) {
                     LoopStream loop = new LoopStream(reader);
                     previewOut.Init(loop);
-                } else {
+                }
+                else {
                     previewOut.Init(reader);
                 }
                 if (Preferences.profile.previewSamples)
@@ -208,7 +209,8 @@ namespace WaveTracker.UI {
                     }
                     if (Directory.Exists(entries[i])) {
                         continue;
-                    } else {
+                    }
+                    else {
                         if (File.Exists(entries[i])) {
                             string ext = Path.GetExtension(entries[i]);
                             if (ext == ".wav" || ext == ".mp3" || ext == ".flac" || ext == ".aiff") {
@@ -221,17 +223,18 @@ namespace WaveTracker.UI {
                 if (sortMethod == SortingMethod.ByName)
                     entries.Sort();
                 if (sortMethod == SortingMethod.ByType)
-                    entries.Sort((a, b) => sortByType(a, b));
+                    entries.Sort((a, b) => SortByType(a, b));
                 entriesInDirectory = entries.ToArray();
             }
         }
 
 
-        int sortByType(string a, string b) {
+        int SortByType(string a, string b) {
             int val = Path.GetExtension(a).CompareTo(Path.GetExtension(b));
             if (val == 0) {
                 return a.CompareTo(b);
-            } else {
+            }
+            else {
                 return val;
             }
         }
@@ -274,17 +277,18 @@ namespace WaveTracker.UI {
                         Write(entriesInDirectory[i], 20, 31 + y * 11, Color.White);
                     else
                         Write(Helpers.FlushString(Path.GetFileName(entriesInDirectory[i])), 20, 31 + y * 11, Color.White);
-                    if (Directory.Exists(entriesInDirectory[i]))
-                        DrawSprite(NumberBox.buttons, 5, 29 + y * 11, new Rectangle(10, 34, 12, 11));
-                    else if (File.Exists(entriesInDirectory[i]))
-                        DrawSprite(NumberBox.buttons, 5, 29 + y * 11, new Rectangle(22, 34, 12, 11));
+
+                    if (Directory.Exists(entriesInDirectory[i])) // draw folder icon
+                        DrawSprite(5, 29 + y * 11, new Rectangle(72, 80, 12, 11));
+                    else if (File.Exists(entriesInDirectory[i])) // draw audio file icon
+                        DrawSprite(5, 29 + y * 11, new Rectangle(72, 91, 12, 11));
                 }
                 ++y;
             }
             scrollbar.Draw();
         }
 
-        string getNicePathString(string path) {
+        string GetNicePathString(string path) {
 
             string ret = "";
             for (int i = path.Length - 1; i >= 0; i--) {
@@ -293,7 +297,8 @@ namespace WaveTracker.UI {
                     if (Helpers.GetWidthOfText(ret) > width - 200)
                         return "... > " + ret;
                     ret = " > " + ret;
-                } else
+                }
+                else
                     ret = c + ret;
             }
             return ret;
@@ -312,7 +317,7 @@ namespace WaveTracker.UI {
                 backButton.Draw();
                 ok.Draw();
                 cancel.Draw();
-                Write(Helpers.FlushString(getNicePathString(currentPath)), 20, 15, UIColors.label);
+                Write(Helpers.FlushString(GetNicePathString(currentPath)), 20, 15, UIColors.label);
                 Write("Sort by:", width - 104, 31, UIColors.labelDark);
                 sortName.Draw();
                 sortType.Draw();

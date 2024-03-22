@@ -236,7 +236,7 @@ namespace WaveTracker.Tracker {
             return s;
         }
 
-        public void loadFromString(string input, int envelopeType) {
+        public void LoadFromString(string input, int envelopeType) {
             string[] parts = input.Split(' ');
             int i = 0;
             releaseIndex = -1;

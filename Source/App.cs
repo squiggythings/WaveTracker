@@ -23,7 +23,7 @@ namespace WaveTracker {
 
         private GraphicsDeviceManager graphics;
         private SpriteBatch targetBatch;
-        public static Texture2D channelHeaderSprite;
+        //public static Texture2D channelHeaderSprite;
 
         public int ScreenWidth = 1920;
         public int ScreenHeight = 1080;
@@ -93,10 +93,20 @@ namespace WaveTracker {
 
             CurrentModule = new WTModule();
             //PatternEditor.OnSwitchSong();
-
+            
             waveBank = new WaveBank();
             InstrumentBank = new InstrumentBank();
-
+            InstrumentBank.Initialize();
+            InstrumentBank.editor = new InstrumentEditor();
+            InstrumentBank.editor.browser = new SampleBrowser();
+            Dialogs.Initialize();
+            editSettings = new EditSettings();
+            toolbar = new Toolbar();
+            waveBank.editor = new WaveEditor();
+            songSettings = new SongSettings();
+            frameView.Initialize();
+            audioEngine = new AudioEngine();
+            audioEngine.Initialize();
             ChannelManager.Initialize(WTModule.MAX_CHANNEL_COUNT, waveBank);
             //frameRenderer.Initialize();
             //FrameEditor.channelScrollbar = new UI.ScrollbarHorizontal(22, 323, 768, 7, null);
@@ -108,28 +118,18 @@ namespace WaveTracker {
         }
 
         protected override void LoadContent() {
-            Checkbox.textureSheet = Content.Load<Texture2D>("instrumentwindow");
-            NumberBox.buttons = Content.Load<Texture2D>("window_edit");
-            Dialogs.Initialize();
-            editSettings = new EditSettings();
-            Dialogs.humanizeDialog = new HumanizeDialog();
+            
+            //Checkbox.textureSheet = Content.Load<Texture2D>("instrumentwindow");
+            //NumberBox.buttons = Content.Load<Texture2D>("window_edit");
+            
             Graphics.font = Content.Load<SpriteFont>("custom_font");
-            channelHeaderSprite = Content.Load<Texture2D>("trackerchannelheader");
-            toolbar = new Toolbar(Content.Load<Texture2D>("toolbar"));
-            waveBank.editor = new WaveEditor(Content.Load<Texture2D>("wave_window"));
-
-            InstrumentBank.Initialize(Content.Load<Texture2D>("toolbar"));
-            InstrumentBank.editor = new InstrumentEditor(Content.Load<Texture2D>("instrumentwindow"));
-            InstrumentBank.editor.browser = new SampleBrowser(Content.Load<Texture2D>("window_edit"));
-            songSettings.Initialize(Content.Load<Texture2D>("window_edit"));
-            frameView.Initialize(Content.Load<Texture2D>("toolbar"), GraphicsDevice);
+            Graphics.img = Content.Load<Texture2D>("img");
+            
             Graphics.pixel = new Texture2D(GraphicsDevice, 1, 1);
             Graphics.pixel.SetData(new[] { Color.White });
             // TODO: use this.Content to load your game content here
             targetBatch = new SpriteBatch(GraphicsDevice);
             target = new RenderTarget2D(GraphicsDevice, ScreenWidth, ScreenHeight);
-            audioEngine = new AudioEngine();
-            audioEngine.Initialize();
             SaveLoad.NewFile();
             SaveLoad.LoadFrom(filename);
         }
@@ -180,10 +180,10 @@ namespace WaveTracker {
             }
             waveBank.editor.Update();
 
-            if (waveBank.editor.pianoInput() > -1)
-                pianoInput = waveBank.editor.pianoInput();
-            if (InstrumentBank.editor.pianoInput() > -1)
-                pianoInput = InstrumentBank.editor.pianoInput();
+            if (waveBank.editor.GetPianoMouseInput() > -1)
+                pianoInput = waveBank.editor.GetPianoMouseInput();
+            if (InstrumentBank.editor.GetPianoMouseInput() > -1)
+                pianoInput = InstrumentBank.editor.GetPianoMouseInput();
             if (PatternEditor.cursorPosition.Column == CursorColumnType.Note || WaveEditor.enabled || InstrumentEditor.enabled) {
                 if (pianoInput != -1 && lastPianoKey != pianoInput) {
                     if (!Playback.isPlaying)

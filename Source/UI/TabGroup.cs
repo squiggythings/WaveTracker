@@ -13,7 +13,7 @@ using System.Diagnostics;
 namespace WaveTracker.UI {
     public class TabGroup : Element {
         public List<Tab> tabs;
-        public int selected { get; set; }
+        public int SelectedTabIndex { get; set; }
         public TabGroup(int x, int y, Element parent) {
             this.x = x;
             this.y = y;
@@ -21,7 +21,7 @@ namespace WaveTracker.UI {
             SetParent(parent);
         }
 
-        public Tab GetSelectedTab => tabs[selected];
+        public Tab GetSelectedTab => tabs[SelectedTabIndex];
 
         public void ClearTabs() {
             tabs.Clear();
@@ -40,7 +40,7 @@ namespace WaveTracker.UI {
             foreach (Tab tab in tabs) {
                 tab.Update();
                 if (tab.IsPressed)
-                    selected = i;
+                    SelectedTabIndex = i;
                 ++i;
             }
         }
@@ -48,8 +48,8 @@ namespace WaveTracker.UI {
         public void Draw() {
             int i = 0;
             foreach (Tab tab in tabs) {
-                tab.toggle.y = selected == i ? 2 : 3;
-                tab.Draw(selected == i);
+                tab.toggle.y = SelectedTabIndex == i ? 2 : 3;
+                tab.Draw(SelectedTabIndex == i);
                 ++i;
             }
         }
