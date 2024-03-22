@@ -71,7 +71,7 @@ namespace WaveTracker {
             Window.AllowAltF4 = true;
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
-            Preferences.profile = PreferenceProfile.defaultProfile;
+            Preferences.profile = PreferenceProfile.DefaultProfile;
             Preferences.ReadFromFile();
             //frameRenderer = new FrameRenderer();
             frameView = new FramesPanel(2, 106, 504, 42);

@@ -19,7 +19,8 @@ namespace WaveTracker.Rendering {
         //FrameRenderer frameRenderer;
         Color currRowEmptyText = new Color(20, 24, 46);
         Color rowEmptyText = new Color(56, 64, 102);
-        int oscilloscopeHeight = 48;
+        //int oscilloscopeHeight = 48;
+        int oscilloscopePanelHeight;
         public static void GetWaveColors() {
             waveColors = new Color[100];
             int i = 0;
@@ -121,22 +122,23 @@ namespace WaveTracker.Rendering {
             Fillstates(statesPrev);
             for (int i = 0; i < 10; ++i) {
                 if (Preferences.profile.visualizerHighlightKeys) {
-                    DrawSprite(20, 20, 60, 24, new Rectangle(0, 104, 60, 24), new Color(128, 128, 128, 128));
+                    DrawSprite(20 + i * 60, 20, 60, 24, new Rectangle(0, 104, 60, 24), new Color(128, 128, 128, 128));
                 }
                 else {
-                    DrawSprite(20, 20, 60, 24, new Rectangle(0, 104, 60, 24));
+                    DrawSprite(20 + i * 60, 20, 60, 24, new Rectangle(0, 104, 60, 24));
                 }
             }
-            oscilloscopeHeight = 5;
-            int py = oscilloscopeHeight * 8 + 40;
-            int dist = App.WindowHeight - py - 18 - 15;
-            int numVisibleRows = dist / 7;
+            oscilloscopePanelHeight = 40;
+            //oscilloscopeHeight = 5;
+            int py;// = oscilloscopeHeight * 8 + 40;
+            int distFromBottomOfScreen = App.WindowHeight - oscilloscopePanelHeight - 40 - 18 - 15;
+            int numVisibleRows = distFromBottomOfScreen / 7;
             while (numVisibleRows > 11) {
-                oscilloscopeHeight++;
-                py = oscilloscopeHeight * 8 + 40;
-                dist = App.WindowHeight - py - 18 - 15;
-                numVisibleRows = dist / 7;
+                oscilloscopePanelHeight++;
+                distFromBottomOfScreen = App.WindowHeight - oscilloscopePanelHeight - 40 - 18 - 15;
+                numVisibleRows = distFromBottomOfScreen / 7;
             }
+            py = oscilloscopePanelHeight + 40;
 
             int px = 2;
 
@@ -339,25 +341,35 @@ namespace WaveTracker.Rendering {
         }
 
         public void DrawOscilloscopes() {
-            int numOscsX = 3, numOscsY = 8;
+            int numOscsX = 3;
+            if (App.CurrentModule.ChannelCount < 8)
+                numOscsX = 2;
+            if (App.CurrentModule.ChannelCount < 6)
+                numOscsX = 1;
+            int numOscsY = (int)Math.Ceiling(App.CurrentModule.ChannelCount / (float)numOscsX);
             int oscsX = 628 * 2;
             int oscsY = 20 * 2;
-            int oscsW = 106 * 2;
-            int oscsH = oscilloscopeHeight * 2;
-            
+            int oscsW = 636 / numOscsX;
+            int oscsH = 2 * oscilloscopePanelHeight / numOscsY;
 
 
 
-            DrawRect(oscsX, oscsY, (oscsW + 2) * numOscsX + 2, (oscsH + 2) * numOscsY + 2, Color.White);
+
+            //DrawRect(oscsX, oscsY, (oscsW + 2) * numOscsX + 2, (oscsH + 2) * numOscsY + 2, Color.White);
             for (int y = 0; y < numOscsY; ++y) {
                 for (int x = 0; x < numOscsX; ++x) {
-                    DrawOscilloscope(x + y * numOscsX + 1, oscsX + x * (oscsW + 2) + 2, oscsY + y * (oscsH + 2) + 2, oscsW, oscsH);
+                    int channelNum = x + y * numOscsX + 1;
+                    if (channelNum > App.CurrentModule.ChannelCount)
+                        break;
+                    DrawOscilloscope(channelNum, oscsX + x * (oscsW + 2) + 2, oscsY + y * (oscsH + 2) + 2, oscsW, oscsH);
                 }
             }
         }
 
         public void DrawOscilloscope(int channelNum, int px, int py, int w, int h) {
 
+            if (Preferences.profile.visualizerScopeBorders)
+                DrawRect(px - 2, py - 2, w + 4, h + 4, Color.White);
             Color crossColor = new Color(44, 53, 77);
             DrawRect(px, py, w, h, new Color(20, 24, 46));
 
@@ -366,7 +378,8 @@ namespace WaveTracker.Rendering {
                 if (Preferences.profile.visualizerScopeCrosshairs > 1)
                     DrawRect(px + w / 2, py, 1, h, crossColor);
             }
-            WriteTwiceAsBig("" + channelNum, px + 2, py - 4, new Color(126, 133, 168));
+            if (Preferences.profile.visualizerScopeBorders)
+                WriteTwiceAsBig("" + channelNum, px + 2, py - 4, new Color(126, 133, 168));
 
             Channel channel = ChannelManager.channels[channelNum - 1];
             float samp1 = 0;

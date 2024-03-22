@@ -23,11 +23,11 @@ namespace WaveTracker {
                         profile = (PreferenceProfile)serializer.Deserialize(reader);
                     }
                 } catch {
-                    profile = PreferenceProfile.defaultProfile;
+                    profile = PreferenceProfile.DefaultProfile;
                     SaveToFile();
                 }
             } else {
-                profile = PreferenceProfile.defaultProfile;
+                profile = PreferenceProfile.DefaultProfile;
                 SaveToFile();
             }
         }
@@ -148,13 +148,15 @@ volume              25%
         public int visualizerScopeThickness = 1;
         [XmlElement(ElementName = "visScopeCrosshair")]
         public int visualizerScopeCrosshairs = 0;
+        [XmlElement(ElementName = "visScopeBorder")]
+        public bool visualizerScopeBorders = true;
 
 
         [XmlElement(ElementName = "masVol")]
         public float master_volume = 1f;
         [XmlElement(ElementName = "smpDir")]
         public string lastBrowseDirectory = @"";
-        public static PreferenceProfile defaultProfile {
+        public static PreferenceProfile DefaultProfile {
             get {
                 PreferenceProfile profile = new PreferenceProfile();
                 return profile;

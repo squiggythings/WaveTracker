@@ -123,6 +123,8 @@ namespace WaveTracker.UI {
             pageVisualizer.getLastOption.description = "Determines the thickness at which the waves are drawn in the oscilloscope";
             pageVisualizer.AddDropdown("Crosshairs", new string[] { "None", "Horizontal", "Horizontal + Vertical" });
             pageVisualizer.getLastOption.description = "Determines the thickness at which the waves are drawn in the oscilloscope";
+            pageVisualizer.AddCheckbox("Oscilloscope borders");
+            pageVisualizer.getLastOption.description = "Draws white borders around each oscilloscope channel";
 
 
         }
@@ -157,6 +159,7 @@ namespace WaveTracker.UI {
             pageVisualizer.GetOption(8).SetValue(Preferences.profile.visualizerScopeColors);
             pageVisualizer.GetOption(9).SetValue(Preferences.profile.visualizerScopeThickness);
             pageVisualizer.GetOption(10).SetValue(Preferences.profile.visualizerScopeCrosshairs);
+            pageVisualizer.GetOption(11).SetValue(Preferences.profile.visualizerScopeBorders);
 
             base.Open();
         }
@@ -191,8 +194,7 @@ namespace WaveTracker.UI {
                 base.Draw();
                 tabGroup.Draw();
                 DrawRoundedRect(tabGroup.x, tabGroup.y + 13, width - 8, height - 20 - 24, Color.White);
-                int rectStart = pageGeneral.width + 6 + pageGeneral.x;
-                rectStart = pageGeneral.x - 2;
+                int rectStart = pageGeneral.x - 2;
 
                 int rectWidth = width - rectStart - 8;
                 int rectstartY = pageGeneral.y + pageGeneral.getListHeight() + 10;
@@ -201,16 +203,17 @@ namespace WaveTracker.UI {
                 if (tabGroup.SelectedTabIndex == 0) {
                     pageGeneral.Draw();
                     activePage = pageGeneral;
-                } else if (tabGroup.SelectedTabIndex == 1) {
+                }
+                else if (tabGroup.SelectedTabIndex == 1) {
                     pageSample.Draw();
                     activePage = pageSample;
                 }
-                  //else if (tabGroup.selected == 2)
-                  //{
-                  //    pageAppearance.Draw();
-                  //    activePage = pageAppearance;
-                  //}
-                  else {
+                //else if (tabGroup.selected == 2)
+                //{
+                //    pageAppearance.Draw();
+                //    activePage = pageAppearance;
+                //}
+                else {
                     pageVisualizer.Draw();
                     activePage = pageVisualizer;
                 }
@@ -253,6 +256,7 @@ namespace WaveTracker.UI {
             Preferences.profile.visualizerScopeColors = pageVisualizer.GetOption(8).GetValueBool();
             Preferences.profile.visualizerScopeThickness = pageVisualizer.GetOption(9).GetValueInt();
             Preferences.profile.visualizerScopeCrosshairs = pageVisualizer.GetOption(10).GetValueInt();
+            Preferences.profile.visualizerScopeBorders = pageVisualizer.GetOption(11).GetValueBool();
             Preferences.SaveToFile();
         }
     }
@@ -424,7 +428,8 @@ namespace WaveTracker.UI {
 
             if (customMargin > 0) {
                 colorButton.x = customMargin;
-            } else {
+            }
+            else {
                 if (nextToLabel)
                     colorButton.x = Helpers.GetWidthOfText(label) + 8;
                 else
@@ -526,7 +531,8 @@ namespace WaveTracker.UI {
                 dropdown.width = customWidth;
             if (customMargin > 0) {
                 dropdown.x = customMargin;
-            } else {
+            }
+            else {
                 if (nextToLabel)
                     dropdown.x = Helpers.GetWidthOfText(label) + 8;
                 else
@@ -611,7 +617,8 @@ namespace WaveTracker.UI {
                 return;
             if (label == "--") {
                 DrawRect(-padding, optionHeight / 2 - 1, padding + optionWidth, 1, UIColors.labelLight);
-            } else {
+            }
+            else {
                 int textWidth = Helpers.GetWidthOfText(label);
                 DrawRect(-padding, optionHeight / 2 - 1, padding + labelInset - barpadding, 1, UIColors.labelLight);
                 DrawRect(textWidth + barpadding + labelInset, optionHeight / 2 - 1, optionWidth - textWidth - barpadding - labelInset, 1, UIColors.labelLight);
