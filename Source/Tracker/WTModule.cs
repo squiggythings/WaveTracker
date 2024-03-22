@@ -105,7 +105,7 @@ namespace WaveTracker.Tracker {
         [ProtoAfterDeserialization]
         internal void AfterDeserialization() {
             foreach (WTSong song in Songs) {
-                song.ParentModule = this;
+                song.AfterDeserialized(this);
             }
         }
 

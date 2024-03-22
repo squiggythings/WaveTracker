@@ -147,9 +147,9 @@ namespace WaveTracker.Tracker {
             return;
 
         }
-        [ProtoAfterDeserialization]
-        internal void AfterDeserialized() {
-            ParentModule = App.CurrentModule;
+        public void AfterDeserialized(WTModule parent) {
+            ParentModule = parent;
+            Debug.WriteLine("read cell data: chancount: " + ParentModule.ChannelCount);
             UnpackFrameSequence(frameSequence);
             UnpackPatternsFromStrings(patternsAsStrings);
         }

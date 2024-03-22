@@ -18,42 +18,42 @@ namespace WaveTracker.UI {
         NumberBox numberOfChannels;
         Dropdown tickSpeedMode;
         HorizontalSlider tickRateSlider;
-        public ModuleSettingsDialog() : base("Module Settings", 224, 264) {
+        public ModuleSettingsDialog() : base("Module Settings", 232, 264) {
             cancel = AddNewBottomButton("Cancel", this);
             ok = AddNewBottomButton("OK", this);
 
             songsList = new ListBox<WTSong>(8, 25, 149, 10, this);
             songsList.ShowItemNumbers = true;
-            addSong = new Button("Add", 166, 25, this);
-            addSong.width = 51;
+            addSong = new Button("Add", songsList.width + 16, 25, this);
+            addSong.width = 59;
             addSong.SetTooltip("", "Add a song to the end of this module");
-            insertSong = new Button("Insert", 165, 39, this);
-            insertSong.width = 51;
+            insertSong = new Button("Insert", songsList.width + 16, 39, this);
+            insertSong.width = 59;
             insertSong.SetTooltip("", "Insert a song after the currently selected song");
-            duplicateSong = new Button("Duplicate", 165, 53, this);
-            duplicateSong.width = 51;
+            duplicateSong = new Button("Duplicate", songsList.width + 16, 53, this);
+            duplicateSong.width = 59;
             duplicateSong.SetTooltip("", "Create a copy of the currently selected song");
-            removeSong = new Button("Remove", 165, 67, this);
-            removeSong.width = 51;
+            removeSong = new Button("Remove", songsList.width + 16, 67, this);
+            removeSong.width = 59;
             removeSong.SetTooltip("", "Remove the currently selected song from this module");
-            moveSongUp = new Button("Move up", 165, 81, this);
-            moveSongUp.width = 51;
+            moveSongUp = new Button("Move up", songsList.width + 16, 81, this);
+            moveSongUp.width = 59;
             moveSongUp.SetTooltip("", "Move the currently selected song up one space in the list");
-            moveSongDown = new Button("Move down", 165, 95, this);
-            moveSongDown.width = 51;
+            moveSongDown = new Button("Move down", songsList.width + 16, 95, this);
+            moveSongDown.width = 59;
             moveSongDown.SetTooltip("", "Move the currently selected song down one space in the list");
 
             songTitle = new Textbox("Title", 8, songsList.y + songsList.height + 4, songsList.width, this);
 
-            numberOfChannels = new NumberBox("Number of channels: ", 8, 170, this);
+            numberOfChannels = new NumberBox("Channels", 8, 170, this);
             numberOfChannels.SetValueLimits(1, 24);
             numberOfChannels.SetTooltip("", "Change the number of channels in this module (1-24)");
 
-            tickRateSlider = new HorizontalSlider(width - 8 - 112, 225, 112, 14, this);
+            tickRateSlider = new HorizontalSlider(width - 10 - 112, 214, 112, 14, this);
             tickRateSlider.SetValueLimits(16, 240);
             tickRateSlider.CoarseAdjustAmount = 16;
             tickRateSlider.FineAdjustAmount = 4;
-            tickSpeedMode = new Dropdown(58, 206, this);
+            tickSpeedMode = new Dropdown(58, 198, this, scrollWrap: false);
             tickSpeedMode.SetMenuItems(new string[] { "Default (60 Hz)", "Custom" });
         }
 
@@ -171,7 +171,7 @@ namespace WaveTracker.UI {
                 DrawHorizontalLabel("Module", 8, 161, width - 16);
                 numberOfChannels.Draw();
                 if (numberOfChannels.Value < App.CurrentModule.ChannelCount) {
-                    WriteMultiline("WARNING: This will permanently delete all data in the removed channels.", numberOfChannels.x, numberOfChannels.y + 16, 200, Color.Red, lineSpacing: 8);
+                    WriteMultiline("WARNING: This will delete all data in the removed channels, there is no undo!", numberOfChannels.x + numberOfChannels.width + 8, numberOfChannels.y, width - (numberOfChannels.x + numberOfChannels.width + 8), Color.Red, lineSpacing: 8);
                 }
                 Write("Tick speed", 8, tickSpeedMode.y + 3, UIColors.label);
                 if (tickRateSlider.enabled) {

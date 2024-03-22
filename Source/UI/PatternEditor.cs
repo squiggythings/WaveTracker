@@ -1130,6 +1130,7 @@ namespace WaveTracker.UI {
             lastSelection.Set(App.CurrentSong, cursorPosition, cursorPosition);
             ClearHistory();
             FirstVisibleChannel = 0;
+            CalculateChannelPositioning(false);
         }
 
         /// <summary>

@@ -164,7 +164,6 @@ namespace WaveTracker {
             }
 
             Tooltip.Update(gameTime);
-
             if (Input.GetKeyDown(Keys.F12, KeyModifier.None)) {
                 ChannelManager.Reset();
                 audioEngine.Reset();
@@ -215,8 +214,8 @@ namespace WaveTracker {
             else {
                 //sframeRenderer.UpdateChannelHeaders();
             }
-            Dialogs.Update();
             toolbar.Update();
+            Dialogs.Update();
             base.Update(gameTime);
             lastPianoKey = pianoInput;
         }

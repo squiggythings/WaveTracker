@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using ProtoBuf;
+using System.Diagnostics;
 
 namespace WaveTracker.Tracker {
     public class WTPattern {
@@ -147,7 +148,8 @@ namespace WaveTracker.Tracker {
             else {
                 byte[] data = Encoding.Unicode.GetBytes(cellData);
                 int i = 0;
-                for (int column = 0; column < cells[0].Length; ++column) {
+                cells = new byte[256][];
+                for (int column = 0; column < ParentSong.ParentModule.ChannelCount * 11; ++column) {
                     for (int row = 0; row < 256; ++row) {
                         if (cells[row] == null)
                             cells[row] = new byte[ParentSong.ParentModule.ChannelCount * 11];
