@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using WaveTracker.Audio;
+using WaveTracker.Tracker;
 using WaveTracker.UI;
 
 namespace WaveTracker.UI {
@@ -61,6 +62,9 @@ namespace WaveTracker.UI {
         /// </summary>
         int amplitude;
 
+        public float Amplitude { get { return amplitude / 50f; } }
+        Channel channelToDisplay;
+
         public WChannelHeader(int x, int y, int width, int channelNum, PatternEditor parentEditor) {
             this.x = x;
             this.y = y;
@@ -74,7 +78,12 @@ namespace WaveTracker.UI {
         }
 
         public void Update() {
-
+            // if the user is editing this header's channel, render the preview channel instead
+            if (parentEditor.cursorPosition.Channel == channelNum && !ChannelManager.channels[channelNum].isPlaying && !Playback.isPlaying)
+                channelToDisplay = ChannelManager.previewChannel;
+            else
+                channelToDisplay = ChannelManager.channels[channelNum];
+            UpdateAmplitude(channelToDisplay);
             if (enabled) {
                 if (Input.focusTimer > 1) {
                     if (MouseIsValid) {
@@ -150,15 +159,6 @@ namespace WaveTracker.UI {
                 // draw volume meter bg
                 DrawRect(5, 25, VOLUME_METER_WIDTH, 1, new Color(104, 111, 153));
                 DrawRect(5, 26, VOLUME_METER_WIDTH, 2, new Color(163, 167, 194));
-
-                // if the user is editing this header's channel, render the preview channel instead
-                Channel channelToDisplay;
-                if (parentEditor.cursorPosition.Channel == channelNum && !ChannelManager.channels[channelNum].isPlaying)
-                    channelToDisplay = ChannelManager.previewChannel;
-                else
-                    channelToDisplay = ChannelManager.channels[channelNum];
-
-                UpdateAmplitude(channelToDisplay);
 
                 // write "fx" under each extra effect column
                 for (int i = 2; i <= NumEffectColumns; ++i) {

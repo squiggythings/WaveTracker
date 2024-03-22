@@ -92,10 +92,10 @@ namespace WaveTracker.Rendering {
         }
 
         public void Update() {
-            fillstates(states);
+            Fillstates(states);
         }
 
-        void fillstates(List<List<ChannelState>> states) {
+        void Fillstates(List<List<ChannelState>> states) {
             List<ChannelState> rowOfStates = new List<ChannelState>();
             for (int c = 0; c < ChannelManager.channels.Count; c++) {
                 Channel chan = ChannelManager.channels[c];
@@ -117,21 +117,24 @@ namespace WaveTracker.Rendering {
 
 
         public void Draw() {
-            return;
-            /*
-            fillstates(statesPrev);
-            if (Preferences.profile.visualizerHighlightKeys)
-                DrawSprite(InstrumentEditor.tex, 20, 20, 600, 24, new Rectangle(16, 688, 600, 24), new Color(128, 128, 128, 128));
-            else
-                DrawSprite(InstrumentEditor.tex, 20, 20, 600, 24, new Rectangle(16, 688, 600, 24));
+
+            Fillstates(statesPrev);
+            for (int i = 0; i < 10; ++i) {
+                if (Preferences.profile.visualizerHighlightKeys) {
+                    DrawSprite(20, 20, 60, 24, new Rectangle(0, 104, 60, 24), new Color(128, 128, 128, 128));
+                }
+                else {
+                    DrawSprite(20, 20, 60, 24, new Rectangle(0, 104, 60, 24));
+                }
+            }
             oscilloscopeHeight = 5;
             int py = oscilloscopeHeight * 8 + 40;
-            int dist = Game1.WindowHeight - py - 18 - 15;
+            int dist = App.WindowHeight - py - 18 - 15;
             int numVisibleRows = dist / 7;
             while (numVisibleRows > 11) {
                 oscilloscopeHeight++;
                 py = oscilloscopeHeight * 8 + 40;
-                dist = Game1.WindowHeight - py - 18 - 15;
+                dist = App.WindowHeight - py - 18 - 15;
                 numVisibleRows = dist / 7;
             }
 
@@ -159,11 +162,11 @@ namespace WaveTracker.Rendering {
                 DrawBubbleRect(tx, py, 34, 18, Color.White);
 
                 string str = "Ch " + (id + 1).ToString("D2");
-                Write(str, tx + 16 - Helpers.getWidthOfText(str) / 2, py + 3, UIColors.label);
+                Write(str, tx + 16 - Helpers.GetWidthOfText(str) / 2, py + 3, UIColors.label);
                 DrawRect(tx + 2, py + 12, 30, 3, UIColors.panel);
 
                 // draw volume amp
-                int amp = (int)Math.Round(frameRenderer.GetChannelHeaderAmp(id) * 15);
+                int amp = (int)Math.Round(App.PatternEditor.ChannelHeaders[id].Amplitude * 14);
                 DrawRect(tx + 17 - amp, py + 12, amp * 2, 3, new Color(63, 215, 52));
 
                 id++;
@@ -176,6 +179,8 @@ namespace WaveTracker.Rendering {
             //DrawRect(tx + 2, py + 12, 80, 3, UIColors.panel);
             px += 58;
             py += 19;
+
+            // draw rows
             for (int i = 0; i < numVisibleRows; ++i) {
                 int rowY = py + i * 7;
                 int thisRow = Playback.position.Row + i - numVisibleRows / 2;
@@ -186,23 +191,25 @@ namespace WaveTracker.Rendering {
 
                 if (thisRow >= 0 && thisRow <= Playback.frame.GetLength())
                     for (int channel = 0; channel < Song.CHANNEL_COUNT * 5; channel += 5) {
-
+                        /*
                         int rowX = px + (channel / 5) * 35;
                         bool hasNote = Playback.frame.GetPattern()[thisRow][channel].Note != PatternEvent.EMPTY;
                         bool hasInstrument = Playback.frame.GetPattern()[thisRow][channel].Instrument != PatternEvent.EMPTY;
                         if (hasNote) {
                             WriteNote(Playback.frame.pattern[thisRow][channel + 0], rowX + 3, rowY, thisRow == Playback.position.Row);
-                        } else {
+                        }
+                        else {
                             WriteEffect(Playback.frame.pattern[thisRow][channel + 3], Playback.frame.pattern[thisRow][channel + 4], rowX + 3, rowY, thisRow == Playback.position.Row);
                         }
                         if (hasInstrument) {
                             WriteInstrument(Playback.frame.pattern[thisRow][channel + 1], rowX + 22, rowY, thisRow == Playback.position.Row);
-                        } else {
-                            WriteVolume(Playback.frame.pattern[thisRow][channel + 2], rowX + 22, rowY, thisRow == Playback.position.Row);
                         }
+                        else {
+                            WriteVolume(Playback.frame.pattern[thisRow][channel + 2], rowX + 22, rowY, thisRow == Playback.position.Row);
+                        }*/
                     }
             }
-            */
+
         }
 
 
@@ -223,7 +230,7 @@ namespace WaveTracker.Rendering {
         void WriteNote(int value, int x, int y, bool currRow) {
             int alpha = currRow ? 255 : 120;
             Color c = Helpers.Alpha(Colors.theme.patternText, alpha);
-            if (value == Frame.NOTE_CUT_VALUE) // off
+            if (value == WTPattern.EVENT_NOTE_CUT) // off
             {
                 if (Preferences.profile.showNoteCutAndReleaseAsText)
                     Write("OFF", x, y, c);
@@ -231,7 +238,7 @@ namespace WaveTracker.Rendering {
                     DrawRect(x + 1, y + 2, 13, 2, c);
                 }
             }
-            else if (value == Frame.NOTE_RELEASE_VALUE) // release 
+            else if (value == WTPattern.EVENT_NOTE_RELEASE) // release 
               {
                 if (Preferences.profile.showNoteCutAndReleaseAsText)
                     Write("REL", x, y, c);
@@ -240,7 +247,7 @@ namespace WaveTracker.Rendering {
                     DrawRect(x + 1, y + 4, 13, 1, c);
                 }
             }
-            else if (value == Frame.NOTE_EMPTY_VALUE) // empty
+            else if (value == WTPattern.EVENT_EMPTY) // empty
               {
                 WriteMonospaced("···", x + 1, y, currRow ? currRowEmptyText : Helpers.Alpha(Colors.theme.patternText, Colors.theme.patternEmptyTextAlpha), 4);
             }
@@ -332,11 +339,15 @@ namespace WaveTracker.Rendering {
         }
 
         public void DrawOscilloscopes() {
+            int numOscsX = 3, numOscsY = 8;
             int oscsX = 628 * 2;
             int oscsY = 20 * 2;
             int oscsW = 106 * 2;
             int oscsH = oscilloscopeHeight * 2;
-            int numOscsX = 3, numOscsY = 8;
+            
+
+
+
             DrawRect(oscsX, oscsY, (oscsW + 2) * numOscsX + 2, (oscsH + 2) * numOscsY + 2, Color.White);
             for (int y = 0; y < numOscsY; ++y) {
                 for (int x = 0; x < numOscsX; ++x) {
