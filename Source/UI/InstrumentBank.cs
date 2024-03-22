@@ -197,7 +197,7 @@ namespace WaveTracker.UI {
                     if (App.CurrentModule.Instruments[i].instrumentType == InstrumentType.Wave)
                         DrawSprite( 3, 30 + y * 11, new Rectangle(88, 80, 8, 7));
                     else
-                        DrawSprite( 3, 30 + y * 11, new Rectangle(88, 87, 10, 9));
+                        DrawSprite( 3, 30 + y * 11, new Rectangle(88, 87, 8, 7));
                 }
                 ++y;
             }
