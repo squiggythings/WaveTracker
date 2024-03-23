@@ -145,6 +145,7 @@ namespace WaveTracker.UI {
 
         public void Update() {
             if (windowIsOpen) {
+                DoDragging();
                 if (WaveBank.currentWave < 0) return;
                 if (WaveBank.currentWave > 99) return;
                 if (Input.GetKeyRepeat(Microsoft.Xna.Framework.Input.Keys.Left, KeyModifier.None)) {

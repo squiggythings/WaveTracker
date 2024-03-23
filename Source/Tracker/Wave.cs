@@ -69,7 +69,7 @@ namespace WaveTracker.Tracker {
                 for (int j = -amt; j <= amt; j++) {
                     sum += getSample(j + i);
                 }
-                ret[i] = (byte)Math.Round((float)sum / (amt * 2 + 1f));
+                ret[i] = (byte)Math.Round(sum / (amt * 2 + 1f));
             }
             for (int i = 0; i < ret.Length; i++) {
                 samples[i] = ret[i];
@@ -79,7 +79,7 @@ namespace WaveTracker.Tracker {
         public void ShiftPhase(int amt) {
             byte[] ret = new byte[64];
             for (int i = 0; i < 64; ++i) {
-                ret[i] = (byte)getSample(i + amt);
+                ret[i] = getSample(i + amt);
             }
             for (int i = 0; i < ret.Length; i++) {
                 samples[i] = ret[i];
@@ -150,35 +150,6 @@ namespace WaveTracker.Tracker {
                 s += convertDecimalToChar(samples[i]);
             }
             return s;
-        }
-
-        public string Pack() {
-            if (ToString() == "GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG") {
-
-                return "" + (int)resamplingMode;
-            }
-            string s = "";
-            for (int i = 0; i < samples.Length; i += 2) {
-                s += (char)(samples[i] * 32 + samples[i + 1] + 33);
-            }
-            return s + "" + (int)resamplingMode;
-        }
-
-        public void Unpack(string s) {
-            if (s.Length == 1) {
-                for (int i = 0; i < 64; i++) {
-                    samples[i] = 16;
-                }
-                resamplingMode = (ResamplingMode)int.Parse(s[0] + "");
-
-                return;
-            }
-            for (int i = 0; i < 32; ++i) {
-                int c = s[i] - 33;
-                samples[i * 2] = (byte)(c / 32);
-                samples[i * 2 + 1] = (byte)(c % 32);
-            }
-            resamplingMode = (ResamplingMode)int.Parse(s[32] + "");
         }
 
         public bool isEqualTo(Wave other) {

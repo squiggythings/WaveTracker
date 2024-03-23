@@ -192,6 +192,7 @@ namespace WaveTracker.UI {
         public new void Draw() {
             if (windowIsOpen) {
                 base.Draw();
+                DoDragging();
                 tabGroup.Draw();
                 DrawRoundedRect(tabGroup.x, tabGroup.y + 13, width - 8, height - 20 - 24, Color.White);
                 int rectStart = pageGeneral.x - 2;

@@ -134,6 +134,25 @@ namespace WaveTracker {
             return ret - 1;
         }
 
+        public static int GetHeightOfMultilineText(string text, int width, int lineSpacing = 10) {
+            string str = "";
+            string[] words = text.Split(' ');
+            int w = 0;
+            int y = 0;
+            foreach (string word in words) {
+                w += Helpers.GetWidthOfText(word + " ");
+                if (w > width) {
+                    str += "\n" + word + " ";
+                    w = Helpers.GetWidthOfText(word + " ");
+                }
+                else {
+                    str += word + " ";
+                }
+            }
+            string[] lines = str.Split('\n');
+            return lineSpacing * lines.Length;
+        }
+
         /// <summary>
         /// Truncates a string if it would go beyond a certain width in pixels, adding ellipses at the end.
         /// </summary>
@@ -192,8 +211,8 @@ namespace WaveTracker {
             };
         }
 
-        public static float NoteToFrequency(float noteNum) {
-            return (float)Math.Pow(2, (noteNum - 69) / 12.0) * 440;
+        public static float NoteToFrequency(float midiNoteNum) {
+            return (float)Math.Pow(2, (midiNoteNum - 69) / 12.0) * 440;
         }
 
         public static float Mod(float a, float b) {
@@ -203,10 +222,16 @@ namespace WaveTracker {
             return (a - b * Math.Floor(a / b));
         }
 
-        public static double PowerA(double a, double b) {
+        public static double FastPower(double a, double b) {
             int tmp = (int)(BitConverter.DoubleToInt64Bits(a) >> 32);
             int tmp2 = (int)(b * (tmp - 1072632447) + 1072632447);
             return BitConverter.Int64BitsToDouble(((long)tmp2) << 32);
+        }
+
+        public static float FastPower(float a, float b) {
+            int tmp = (int)(BitConverter.DoubleToInt64Bits(a) >> 32);
+            int tmp2 = (int)(b * (tmp - 1072632447) + 1072632447);
+            return (float)BitConverter.Int64BitsToDouble(((long)tmp2) << 32);
         }
         /// <summary>
         /// Sets alpha of color. from 0-255

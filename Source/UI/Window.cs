@@ -52,12 +52,21 @@ namespace WaveTracker.UI {
         }
 
         protected void DoDragging() {
-            if (windowIsOpen) {
+            if (windowIsOpen && InFocus) {
                 if (Input.GetClickDown(KeyModifier._Any)) {
-                    if (LastClickPos.X >= 0 && LastClickPos.X <= width && LastClickPos.Y >= 0 && LastClickPos.Y <= 9) {
-                        isDragging = true;
-                        dragOffset = new Point(Input.MousePositionX - x, Input.MousePositionY - y);
+                    if (ExitButton != null) {
+                        if (LastClickPos.X >= 0 && LastClickPos.X < width - ExitButton.width && LastClickPos.Y >= 0 && LastClickPos.Y <= 9) {
+                            isDragging = true;
+                            dragOffset = new Point(Input.MousePositionX - x, Input.MousePositionY - y);
+                        }
                     }
+                    else {
+                        if (LastClickPos.X >= 0 && LastClickPos.X < width && LastClickPos.Y >= 0 && LastClickPos.Y <= 9) {
+                            isDragging = true;
+                            dragOffset = new Point(Input.MousePositionX - x, Input.MousePositionY - y);
+                        }
+                    }
+
                 }
                 if (Input.GetClick(KeyModifier._Any)) {
                     if (isDragging) {

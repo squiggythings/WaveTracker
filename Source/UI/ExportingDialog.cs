@@ -19,7 +19,7 @@ namespace WaveTracker.UI {
         public ExportingDialog() : base("Exporting .wav", 300, 88, hasExitButton: false) {
             Cancel = new Button("Cancel", width / 2 - 25, 72, this);
             Cancel.width = 51;
-            Cancel.centerLabel = true;
+            Cancel.LabelIsCentered = true;
 
         }
 

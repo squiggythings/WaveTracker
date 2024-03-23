@@ -10,6 +10,8 @@ using WaveTracker.Tracker;
 
 namespace WaveTracker.Audio {
     public class Channel {
+
+        const int OVERSAMPLE = 2;
         int id;
         public bool IsMuted { get; set; }
         public Wave currentWave;
@@ -71,7 +73,7 @@ namespace WaveTracker.Audio {
         float lastPitch;
 
         private float _frequency;
-        private decimal _time;
+        private double _time;
         private float _leftAmp;
         private float _rightAmp;
         float _fadeMultiplier = 1;
@@ -275,7 +277,7 @@ namespace WaveTracker.Audio {
             pitchFallOffset = 0;
             vibratoOffset = 0;
             volumeSlideSpeed = 0;
-            _time = 0.0M;
+            _time = 0.0;
             arpEnvelopeResult = 0;
             arpCounter = 0;
             arpeggionote2 = 0;
@@ -324,10 +326,10 @@ namespace WaveTracker.Audio {
                 _fadeMultiplier = 1f;
             }
             if (_state == VoiceState.Off) {
-                _time = 0.0M;
+                _time = 0.0;
             }
             if (_state == VoiceState.Release && volumeEnv.Evaluate() == 0)
-                _time = 0.0M;
+                _time = 0.0;
             targetBendAmt = 0;
             bendOffset = 0;
             if (channelNote != midiNum || _state != VoiceState.On) {
@@ -355,6 +357,9 @@ namespace WaveTracker.Audio {
             _rightAmp = (float)Math.Sqrt(val);
             _leftAmp = (float)Math.Sqrt(1.0f - val);
         }
+        /// <summary>
+        /// The amplitude of this channel from 0.0 - 1.0
+        /// </summary>
         public float CurrentAmplitude {
             get {
                 if (currentMacro.instrumentType == InstrumentType.Wave)
@@ -375,11 +380,20 @@ namespace WaveTracker.Audio {
         /// </summary>
         public float CurrentPan { get { return panValue; } }
 
+        /// <summary>
+        /// This channel's current MIDI pitch
+        /// </summary>
         public float CurrentPitch { get { return totalPitch; } }
+        /// <summary>
+        /// This channel's current frequency in hertz
+        /// </summary>
         public float CurrentFrequency { get { return _frequency; } }
 
         public float EvaluateWave(float time) {
-            return currentWave.GetSampleMorphed(time + App.CurrentModule.WaveBank[(waveIndex + 1) % 100].GetSampleAtPosition((float)time) * (_fmSmooth * _fmSmooth) / 2f, App.CurrentModule.WaveBank[(waveIndex + 1) % 100], waveMorphAmt / 99f, waveBendAmt / 100f);
+            if (_fmSmooth > 0.001f)
+                return currentWave.GetSampleMorphed(time + App.CurrentModule.WaveBank[(waveIndex + 1) % 100].GetSampleAtPosition(time) * (_fmSmooth * _fmSmooth) / 2f, App.CurrentModule.WaveBank[(waveIndex + 1) % 100], waveMorphAmt / 99f, waveBendAmt / 100f);
+            else
+                return currentWave.GetSampleMorphed(time, App.CurrentModule.WaveBank[(waveIndex + 1) % 100], waveMorphAmt / 99f, waveBendAmt / 100f);
         }
 
 
@@ -537,7 +551,6 @@ namespace WaveTracker.Audio {
         }
 
         public void ProcessSingleSample(out float left, out float right, bool continuousTick, float continuousDelta) {
-            int oversample = 2;
             left = right = 0;
 
             float freqCut = 1;
@@ -547,7 +560,7 @@ namespace WaveTracker.Audio {
                 _frequency = 30000;
                 _state = VoiceState.Off;
             }
-            decimal delta = 1.0M / (oversample * AudioEngine.sampleRate) * (Decimal)_frequency;
+            float delta = 1f / (OVERSAMPLE * AudioEngine.sampleRate) * _frequency;
             if (continuousTick)
                 ContinuousTick(continuousDelta);
             if (noteOn) {
@@ -556,7 +569,7 @@ namespace WaveTracker.Audio {
                 float sampleL;
                 float sampleR;
                 float bassBoost = 1;
-                for (int i = 0; i < oversample; ++i) {
+                for (int i = 0; i < 2; ++i) {
                     if (_state == VoiceState.Off) {
                         _fadeMultiplier /= 1.002f;
                         if (_fadeMultiplier < 0.001f) {
@@ -565,14 +578,14 @@ namespace WaveTracker.Audio {
                     }
                     else {
                         _fadeMultiplier = 1;
-                        _time += delta;
+                        _time += (double)delta;
 
                     }
                     sampleL = 0;
                     sampleR = 0;
                     if (currentMacro != null) {
                         if (currentMacro.instrumentType == InstrumentType.Wave) {
-                            bassBoost = 0.6f * (float)Math.Pow(1.025, -totalPitch) + 0.975f;
+                            bassBoost = 0.6f * (float)Helpers.FastPower(1.025, -totalPitch) + 0.975f;
                             if (stereoPhaseOffset != 0) {
                                 sampleL = EvaluateWave((float)_time - stereoPhaseOffset);
                                 sampleR = EvaluateWave((float)_time + stereoPhaseOffset);
@@ -597,8 +610,8 @@ namespace WaveTracker.Audio {
                     sampleSumL += sampleL;
                     sampleSumR += sampleR;
                 }
-                sampleL = sampleSumL / oversample;
-                sampleR = sampleSumR / oversample;
+                sampleL = sampleSumL / OVERSAMPLE;
+                sampleR = sampleSumR / OVERSAMPLE;
                 _volumeSmooth += (totalAmplitude - _volumeSmooth) * 0.02f;
                 _fmSmooth += (fmAmt - _fmSmooth) * 0.05f;
 

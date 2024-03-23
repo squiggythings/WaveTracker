@@ -29,6 +29,10 @@ namespace WaveTracker.UI {
             bottomButtons = new List<Button>();
         }
 
+        protected void ClearBottomButtons() {
+            bottomButtons.Clear();
+        }
+
         protected Button AddNewBottomButton(string name, Element parent) {
 
             Button ret = new Button(name, width - 54 * (bottomButtons.Count + 1), height - 16, parent);

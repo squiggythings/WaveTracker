@@ -8,8 +8,8 @@ using Microsoft.Xna.Framework;
 
 namespace WaveTracker.UI {
     public class Button : Clickable {
-        string label;
-        public bool centerLabel = true;
+        public string Label { get; private set; }
+        public bool LabelIsCentered { get; set; }
         ButtonColors colors;
         int labelWidth;
         ButtonType type;
@@ -18,8 +18,9 @@ namespace WaveTracker.UI {
             enabled = true;
             this.x = x;
             this.y = y;
-            this.label = label;
+            this.Label = label;
             colors = ButtonColors.Round;
+            LabelIsCentered = true;
             type = ButtonType.Rounded;
             width = Helpers.GetWidthOfText(label) + 8;
             //if (width < 30)
@@ -30,7 +31,7 @@ namespace WaveTracker.UI {
         }
 
         public void SetLabel(string label) {
-            this.label = label;
+            this.Label = label;
             labelWidth = Helpers.GetWidthOfText(label);
         }
         Color getBackgroundColor() {
@@ -64,21 +65,22 @@ namespace WaveTracker.UI {
                 }
                 int textOffset = type == ButtonType.Rounded && IsPressed ? 1 : 0;
 
-                if (centerLabel)
-                    Write(label, (width - labelWidth) / 2, (height + 1) / 2 - 4 + textOffset, getTextColor());
+                if (LabelIsCentered)
+                    Write(Label, (width - labelWidth) / 2, (height + 1) / 2 - 4 + textOffset, getTextColor());
                 else
-                    Write(label, 4, (height + 1) / 2 - 4 + textOffset, getTextColor());
-            } else {
+                    Write(Label, 4, (height + 1) / 2 - 4 + textOffset, getTextColor());
+            }
+            else {
                 if (type == ButtonType.Square) {
                     DrawRect(0, 0, width, height, colors.backgroundColorDisabled);
                 }
                 if (type == ButtonType.Rounded) {
                     DrawRoundedRect(0, 0, width, height, colors.backgroundColorDisabled);
                 }
-                if (centerLabel)
-                    Write(label, (width - labelWidth) / 2, (height + 1) / 2 - 4, colors.textColorDisabled);
+                if (LabelIsCentered)
+                    Write(Label, (width - labelWidth) / 2, (height + 1) / 2 - 4, colors.textColorDisabled);
                 else
-                    Write(label, 4, (height + 1) / 2 - 4, colors.textColorDisabled);
+                    Write(Label, 4, (height + 1) / 2 - 4, colors.textColorDisabled);
             }
 
         }

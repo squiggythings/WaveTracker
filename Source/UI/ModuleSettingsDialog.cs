@@ -18,7 +18,7 @@ namespace WaveTracker.UI {
         NumberBox numberOfChannels;
         Dropdown tickSpeedMode;
         HorizontalSlider tickRateSlider;
-        public ModuleSettingsDialog() : base("Module Settings", 232, 264) {
+        public ModuleSettingsDialog() : base("Module Settings", 232, 256) {
             cancel = AddNewBottomButton("Cancel", this);
             ok = AddNewBottomButton("OK", this);
 
@@ -45,16 +45,18 @@ namespace WaveTracker.UI {
 
             songTitle = new Textbox("Title", 8, songsList.y + songsList.height + 4, songsList.width, this);
 
-            numberOfChannels = new NumberBox("Channels", 8, 170, this);
+            numberOfChannels = new NumberBox("Channels", 8, 174, this);
             numberOfChannels.SetValueLimits(1, 24);
             numberOfChannels.SetTooltip("", "Change the number of channels in this module (1-24)");
 
-            tickRateSlider = new HorizontalSlider(width - 10 - 112, 214, 112, 14, this);
+            tickSpeedMode = new Dropdown(58, 192, this, scrollWrap: false);
+            tickSpeedMode.SetMenuItems(new string[] { "Default (60 Hz)", "Custom" });
+
+            tickRateSlider = new HorizontalSlider(width - 10 - 112, 212, 112, 14, this);
             tickRateSlider.SetValueLimits(16, 240);
             tickRateSlider.CoarseAdjustAmount = 16;
             tickRateSlider.FineAdjustAmount = 4;
-            tickSpeedMode = new Dropdown(58, 198, this, scrollWrap: false);
-            tickSpeedMode.SetMenuItems(new string[] { "Default (60 Hz)", "Custom" });
+
         }
 
         public new void Close() {
@@ -95,12 +97,21 @@ namespace WaveTracker.UI {
                 moveSongUp.enabled = songsList.SelectedIndex > 0;
                 moveSongDown.enabled = songsList.SelectedIndex < App.CurrentModule.Songs.Count - 1;
 
-                if (ExitButton.Clicked || cancel.Clicked) {
+                if (ExitButton.Clicked || cancel.Clicked || Input.GetKeyDown(Keys.Escape, KeyModifier.None)) {
                     Close();
                     return;
                 }
                 if (ok.Clicked) {
-                    ApplyClose();
+                    if (numberOfChannels.Value < App.CurrentModule.ChannelCount) {
+                        Dialogs.messageDialog.Open(
+                        "Remove " + (App.CurrentModule.ChannelCount - numberOfChannels.Value) + " channels? There is no undo.",
+                        MessageDialog.MessageDialogIcon.Warning,
+                        new string[] { "Yes", "No" },
+                        OnExitMessageChoice);
+                    }
+                    else {
+                        ApplyClose();
+                    }
                     return;
                 }
 
@@ -120,10 +131,11 @@ namespace WaveTracker.UI {
                     songsList.SelectedIndex++;
                 }
                 if (removeSong.Clicked) {
-                    App.CurrentModule.Songs.RemoveAt(songsList.SelectedIndex);
-                    App.CurrentModule.SetDirty();
-                    songsList.SelectedIndex--;
-                    songsList.MoveBounds();
+                    Dialogs.messageDialog.Open(
+                        "Do you want to remove this song from the module? There is no undo.",
+                        MessageDialog.MessageDialogIcon.Warning,
+                        new string[] { "Yes", "No" },
+                        OnRemoveSongMessageChoice);
                 }
                 if (moveSongUp.Clicked) {
                     App.CurrentModule.Songs.Reverse(songsList.SelectedIndex - 1, 2);
@@ -154,6 +166,19 @@ namespace WaveTracker.UI {
 
             }
         }
+        void OnExitMessageChoice(string result) {
+            if (result == "Yes") {
+                ApplyClose();
+            }
+        }
+        void OnRemoveSongMessageChoice(string result) {
+            if (result == "Yes") {
+                App.CurrentModule.Songs.RemoveAt(songsList.SelectedIndex);
+                App.CurrentModule.SetDirty();
+                songsList.SelectedIndex--;
+                songsList.MoveBounds();
+            }
+        }
 
         public new void Draw() {
             if (windowIsOpen) {
@@ -168,11 +193,8 @@ namespace WaveTracker.UI {
                 moveSongUp.Draw();
                 moveSongDown.Draw();
 
-                DrawHorizontalLabel("Module", 8, 161, width - 16);
+                DrawHorizontalLabel("Module", 8, 165, width - 16);
                 numberOfChannels.Draw();
-                if (numberOfChannels.Value < App.CurrentModule.ChannelCount) {
-                    WriteMultiline("WARNING: This will delete all data in the removed channels, there is no undo!", numberOfChannels.x + numberOfChannels.width + 8, numberOfChannels.y, width - (numberOfChannels.x + numberOfChannels.width + 8), Color.Red, lineSpacing: 8);
-                }
                 Write("Tick speed", 8, tickSpeedMode.y + 3, UIColors.label);
                 if (tickRateSlider.enabled) {
                     tickRateSlider.Draw();

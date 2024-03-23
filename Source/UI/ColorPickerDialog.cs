@@ -67,6 +67,7 @@ namespace WaveTracker.UI {
 
         public void Update() {
             if (windowIsOpen) {
+                DoDragging();
                 if (canStart) {
                     if (cancel.Clicked || ExitButton.Clicked)
                         Close();

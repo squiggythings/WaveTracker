@@ -106,6 +106,7 @@ namespace WaveTracker.UI {
 
         public void Update() {
             if (windowIsOpen) {
+                DoDragging();
                 if (startcooldown > 0) {
 
                     //SetTabToggles();
