@@ -78,6 +78,7 @@ namespace WaveTracker {
             songSettings = new SongSettings();
             var form = (System.Windows.Forms.Form)System.Windows.Forms.Control.FromHandle(Window.Handle);
             form.WindowState = System.Windows.Forms.FormWindowState.Maximized;
+            form.FormClosing += ClosingForm;
 
             PatternEditor = new PatternEditor(0, 184);
 
@@ -312,6 +313,23 @@ namespace WaveTracker {
             targetBatch.End();
 
             base.Draw(gameTime);
+        }
+
+        public void ClosingForm(object sender, System.ComponentModel.CancelEventArgs e) {
+
+            //Dialogs.messageDialog.
+            if (!SaveLoad.IsSaved) {
+                e.Cancel = true;
+                Dialogs.messageDialog.Open("Save changes to " + SaveLoad.FileName + "?", MessageDialog.MessageDialogIcon.Question, new string[] { "Yes", "No" }, OnExitCallback);
+            }
+
+        }
+
+        void OnExitCallback(string result) {
+            if (result == "Yes") {
+                SaveLoad.SaveFile();
+            }
+            Exit();
         }
 
         protected override void OnExiting(object sender, EventArgs args) {
