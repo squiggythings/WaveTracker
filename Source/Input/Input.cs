@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -59,7 +60,7 @@ namespace WaveTracker {
         }
 
         public static void DialogStarted() {
-            dialogOpenCooldown = 5;
+            dialogOpenCooldown = 3;
         }
 
         public static void GetState(GameTime gameTime) {
@@ -76,8 +77,10 @@ namespace WaveTracker {
             }
             if (dialogOpenCooldown > 0) {
                 dialogOpenCooldown--;
-                if (dialogOpenCooldown > 2)
+                if (dialogOpenCooldown > 0) {
+                    cancelClick = true;
                     return;
+                }
             }
             lastTimeSinceLastClick = timeSinceLastClick;
             lastTimeSinceLastClickUp = timeSinceLastClickUp;
@@ -140,6 +143,7 @@ namespace WaveTracker {
         public static void CancelClick() {
             cancelClick = true;
         }
+
         public static bool GetKey(Keys key, KeyModifier modifier) {
             if (modifierMatches(modifier))
                 return currentKeyState.IsKeyDown(key);

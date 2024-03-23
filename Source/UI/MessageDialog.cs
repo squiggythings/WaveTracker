@@ -11,8 +11,8 @@ using System.Threading.Tasks;
 namespace WaveTracker.UI {
     public class MessageDialog : Dialog {
         protected Action<string> OnDialogExit;
-        public enum MessageDialogIcon { Information, Error, Warning, Question, None }
-        MessageDialogIcon icon;
+        public enum Icon { Information, Error, Warning, Question, None }
+        Icon icon;
         public string Message { get; protected set; }
         protected Button[] buttons;
         int textHeight;
@@ -28,7 +28,7 @@ namespace WaveTracker.UI {
         /// <param name="icon">The icon to display alongside the message</param>
         /// <param name="buttonNames">A list of buttons to add to close the message</param>
         /// <param name="onExitCallback">Callback where the name of the pressed button is passed in as a parameter</param>
-        public void Open(string message, MessageDialogIcon icon, string[] buttonNames, Action<string> onExitCallback) {
+        public void Open(string message, Icon icon, string[] buttonNames, Action<string> onExitCallback) {
             Message = message;
             this.icon = icon;
             ClearBottomButtons();
@@ -37,15 +37,43 @@ namespace WaveTracker.UI {
                 buttons[i] = AddNewBottomButton(buttonNames[i], this);
             }
             OnDialogExit = onExitCallback;
-            if (icon == MessageDialogIcon.Information)
+            if (icon == Icon.Information)
                 System.Media.SystemSounds.Asterisk.Play();
-            if (icon == MessageDialogIcon.Error)
+            if (icon == Icon.Error)
                 System.Media.SystemSounds.Hand.Play();
-            if (icon == MessageDialogIcon.Warning)
+            if (icon == Icon.Warning)
                 System.Media.SystemSounds.Exclamation.Play();
-            if (icon == MessageDialogIcon.Question)
+            if (icon == Icon.Question)
                 System.Media.SystemSounds.Asterisk.Play();
-            textWidth = width - (icon == MessageDialogIcon.None ? 16 : 64);
+            textWidth = width - (icon == Icon.None ? 16 : 64);
+            textHeight = Helpers.GetHeightOfMultilineText(Message, textWidth);
+            Open();
+        }
+
+        /// <summary>
+        /// Displays a message to the user
+        /// </summary>
+        /// <param name="message">The message to display to the user</param>
+        /// <param name="icon">The icon to display alongside the message</param>
+        /// <param name="buttonNames">A list of buttons to add to close the message</param>
+        public void Open(string message, Icon icon, string[] buttonNames) {
+            Message = message;
+            this.icon = icon;
+            ClearBottomButtons();
+            buttons = new Button[buttonNames.Length];
+            for (int i = buttonNames.Length - 1; i >= 0; --i) {
+                buttons[i] = AddNewBottomButton(buttonNames[i], this);
+            }
+            OnDialogExit = null;
+            if (icon == Icon.Information)
+                System.Media.SystemSounds.Asterisk.Play();
+            if (icon == Icon.Error)
+                System.Media.SystemSounds.Hand.Play();
+            if (icon == Icon.Warning)
+                System.Media.SystemSounds.Exclamation.Play();
+            if (icon == Icon.Question)
+                System.Media.SystemSounds.Asterisk.Play();
+            textWidth = width - (icon == Icon.None ? 16 : 64);
             textHeight = Helpers.GetHeightOfMultilineText(Message, textWidth);
             Open();
         }
@@ -62,8 +90,11 @@ namespace WaveTracker.UI {
         }
 
         public void Close(string result) {
+            Input.CancelClick();
             base.Close();
-            OnDialogExit.Invoke(result);
+            if (OnDialogExit != null) {
+                OnDialogExit.Invoke(result);
+            }
         }
 
         public new void Draw() {
@@ -72,17 +103,17 @@ namespace WaveTracker.UI {
                 // 220
                 DrawRect(0, 9, width, height - 28, Color.White);
 
-                
+
                 int textY = 10 + (height - 25 - textHeight) / 2;
-                if (icon == MessageDialogIcon.Information)
+                if (icon == Icon.Information)
                     DrawSprite(8, 19, new Rectangle(256, 80, 32, 32));
-                if (icon == MessageDialogIcon.Error)
+                if (icon == Icon.Error)
                     DrawSprite(8, 19, new Rectangle(288, 80, 32, 32));
-                if (icon == MessageDialogIcon.Warning)
+                if (icon == Icon.Warning)
                     DrawSprite(8, 19, new Rectangle(320, 80, 32, 32));
-                if (icon == MessageDialogIcon.Question)
+                if (icon == Icon.Question)
                     DrawSprite(8, 19, new Rectangle(352, 80, 32, 32));
-                WriteMultiline(Message, icon == MessageDialogIcon.None ? 8 : 48, textY, textWidth, UIColors.labelDark);
+                WriteMultiline(Message, icon == Icon.None ? 8 : 48, textY, textWidth, UIColors.labelDark);
             }
         }
 

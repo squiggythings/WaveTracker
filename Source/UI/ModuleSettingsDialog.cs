@@ -105,7 +105,7 @@ namespace WaveTracker.UI {
                     if (numberOfChannels.Value < App.CurrentModule.ChannelCount) {
                         Dialogs.messageDialog.Open(
                         "Remove " + (App.CurrentModule.ChannelCount - numberOfChannels.Value) + " channels? There is no undo.",
-                        MessageDialog.MessageDialogIcon.Warning,
+                        MessageDialog.Icon.Warning,
                         new string[] { "Yes", "No" },
                         OnExitMessageChoice);
                     }
@@ -133,7 +133,7 @@ namespace WaveTracker.UI {
                 if (removeSong.Clicked) {
                     Dialogs.messageDialog.Open(
                         "Do you want to remove this song from the module? There is no undo.",
-                        MessageDialog.MessageDialogIcon.Warning,
+                        MessageDialog.Icon.Warning,
                         new string[] { "Yes", "No" },
                         OnRemoveSongMessageChoice);
                 }

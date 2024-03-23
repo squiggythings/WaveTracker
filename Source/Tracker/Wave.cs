@@ -182,12 +182,19 @@ namespace WaveTracker.Tracker {
         public float GetSampleMorphed(float t, Wave other, float interpolationAmt, float bendAmt) {
             while (t < 0)
                 t += 1;
-            t = Helpers.Mod(t, 1f);
+            t %= 1;
+            //t = Helpers.Mod(t, 1f);
             if (bendAmt > 0) {
-                bendAmt = (bendAmt + 1) * (bendAmt + 1);
+                bendAmt = (bendAmt + 1) * (bendAmt + 1) * (bendAmt + 1);
                 float tPow = MathF.Pow(t, bendAmt);
                 float oneMinusTPow = MathF.Pow(1 - t, bendAmt);
                 t = tPow / (tPow + oneMinusTPow);
+                //float s1 = s(1, bendAmt + 1);
+                //float s1 = s(1, bendAmt + 1);
+                //float s2 = s(2 * t - 1, bendAmt + 1);
+                //float s2 = s(2 * t - 1, bendAmt + 1);
+                //t = (0.5f / s1) * s2 + 0.5f;
+                //t = Math.Clamp(MathF.Sin((t - 0.5f) * MathF.PI / 2) * (bendAmt + 0.707f) + 0.5f, 0, 1f);
             }
             if (interpolationAmt > 0) {
                 return MathHelper.Lerp(GetSampleAtPosition(t), other.GetSampleAtPosition(t), interpolationAmt);
@@ -197,6 +204,9 @@ namespace WaveTracker.Tracker {
             }
         }
 
+        float s(float x, float a) {
+            return 1 / (1 + MathF.Exp(-a * x)) - 0.5f;
+        }
 
         /// <summary>
         /// Gets sample at the position from 0.0-1.0
@@ -210,22 +220,26 @@ namespace WaveTracker.Tracker {
         public float GetSampleAtPosition(float t) {
             while (t < 0)
                 t += 1;
-            if (resamplingMode == ResamplingMode.None) {
-                return getSample((int)(t * samples.Length)) / 16f - 1f;
-            }
+            t %= 1;
             int index1 = (int)(t * samples.Length);
-            int index2 = index1 + 1;
-            float sample1 = getSample(index1) / 16f - 1f;
-            float sample2 = getSample(index2) / 16f - 1f;
-            float lerpt = (float)(Helpers.Mod(t, 0.015625)) * 64;
+            float sample1 = samples[index1] / 16f - 1f;
+
+            if (resamplingMode == ResamplingMode.None) {
+                return sample1;
+            }
+
+            int index2 = (index1 + 1) % 64;
+            float sample2 = samples[index2] / 16f - 1f;
+            float lerpt = (t * samples.Length) % 1;
+            float lerpedSample = MathHelper.Lerp(sample1, sample2, lerpt);
             if (resamplingMode == ResamplingMode.Linear) {
-                return MathHelper.Lerp(sample1, sample2, lerpt);
+                return lerpedSample;
             }
 
 
             float nearestSample = lerpt > 0.5f ? sample2 : sample1;
-            float lerpedSample = MathHelper.Lerp(sample1, sample2, lerpt);
-            float sampDifference = MathF.Abs(getSample(index1) - getSample(index2));
+
+            float sampDifference = MathF.Abs(samples[index1] - samples[index2]);
 
             return MathHelper.Lerp(lerpedSample, nearestSample, sampDifference / 31f);
         }

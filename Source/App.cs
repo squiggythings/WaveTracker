@@ -132,7 +132,7 @@ namespace WaveTracker {
             targetBatch = new SpriteBatch(GraphicsDevice);
             target = new RenderTarget2D(GraphicsDevice, ScreenWidth, ScreenHeight);
             SaveLoad.NewFile();
-            SaveLoad.LoadFrom(filename);
+            SaveLoad.ReadFrom(filename);
         }
 
         protected override void Update(GameTime gameTime) {
@@ -315,26 +315,34 @@ namespace WaveTracker {
             base.Draw(gameTime);
         }
 
+        /// <summary>
+        /// Called before the app closes
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         public void ClosingForm(object sender, System.ComponentModel.CancelEventArgs e) {
-
-            //Dialogs.messageDialog.
             if (!SaveLoad.IsSaved) {
                 e.Cancel = true;
-                Dialogs.messageDialog.Open("Save changes to " + SaveLoad.FileName + "?", MessageDialog.MessageDialogIcon.Question, new string[] { "Yes", "No" }, OnExitCallback);
+                SaveLoad.DoSaveChangesDialog(UnsavedChangesCallback);
             }
 
         }
 
-        void OnExitCallback(string result) {
+        /// <summary>
+        /// Called
+        /// </summary>
+        /// <param name="result"></param>
+        void UnsavedChangesCallback(string result) {
             if (result == "Yes") {
                 SaveLoad.SaveFile();
+            }
+            else if (result == "Cancel") {
+                return;
             }
             Exit();
         }
 
         protected override void OnExiting(object sender, EventArgs args) {
-            // Do stuff here
-            //SaveLoad.DoUnsavedCheck();
             Debug.WriteLine("Closing WaveTracker...");
             AudioEngine.instance.Stop();
             base.OnExiting(sender, args);

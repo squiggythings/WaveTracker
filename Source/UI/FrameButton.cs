@@ -33,50 +33,51 @@ namespace WaveTracker.UI {
         }
 
         public void Update() {
-            if (App.PatternEditor.cursorPosition.Frame + offset == FrameSequence.Count && FrameSequence.Count < 100) {
-                SetTooltip("Add frame", "Add a new frame at the end of the song");
-                if (Clicked && offset < 12) {
-                    App.CurrentSong.AddNewFrame();
-                }
-            }
-            else if (offset < 12 && offset > -12) {
-                SetTooltip("Frame " + ThisFrameIndex.ToString("D2"), "Click+Drag or Shift+Scroll to change pattern number");
-                if (Clicked && !isDragging) {
-                    if (Playback.isPlaying && App.PatternEditor.FollowMode) {
-                        Playback.position.Frame += offset;
-                        Playback.GotoNextFrame();
-                        Playback.GotoPreviousFrame();
-                    }
-                    else {
-                        App.PatternEditor.MoveToFrame(App.PatternEditor.cursorPosition.Frame + offset);
-                        App.PatternEditor.GoToTopOfFrame();
+            if (Input.focus == null) {
+                if (App.PatternEditor.cursorPosition.Frame + offset == FrameSequence.Count && FrameSequence.Count < 100) {
+                    SetTooltip("Add frame", "Add a new frame at the end of the song");
+                    if (Clicked && offset < 12) {
+                        App.CurrentSong.AddNewFrame();
                     }
                 }
-                if (ThisFrameIndex < FrameSequence.Count && ThisFrameIndex >= 0) {
-                    if (IsHovered)
-                        ThisFrame.PatternIndex += Input.MouseScrollWheel(KeyModifier.Shift);
-                    if (LastClickPos.X >= 0 && LastClickPos.Y >= 0) {
-                        if (LastClickPos.X <= width && LastClickPos.Y <= height) {
-                            if (Input.GetClickDown(KeyModifier.None))
-                                valueSaved = ThisFrame.PatternIndex;
-                            if (Input.GetClick(KeyModifier.None)) {
-                                if ((MouseY - LastClickPos.Y) / 4 != 0) {
-                                    isDragging = true;
-                                    App.mouseCursorArrow = 2;
-                                }
-                                if (isDragging) {
-                                    ThisFrame.PatternIndex = valueSaved - (MouseY - LastClickPos.Y) / 4;
-                                }
-                            }
-                            else {
-                                isDragging = false;
-                            }
+                else if (offset < 12 && offset > -12) {
+                    SetTooltip("Frame " + ThisFrameIndex.ToString("D2"), "Click+Drag or Shift+Scroll to change pattern number");
+                    if (Clicked && !isDragging) {
+                        if (Playback.isPlaying && App.PatternEditor.FollowMode) {
+                            Playback.position.Frame += offset;
+                            Playback.GotoNextFrame();
+                            Playback.GotoPreviousFrame();
+                        }
+                        else {
+                            App.PatternEditor.MoveToFrame(App.PatternEditor.cursorPosition.Frame + offset);
+                            App.PatternEditor.GoToTopOfFrame();
                         }
                     }
+                    if (ThisFrameIndex < FrameSequence.Count && ThisFrameIndex >= 0) {
+                        if (IsHovered)
+                            ThisFrame.PatternIndex += Input.MouseScrollWheel(KeyModifier.Shift);
+                        if (LastClickPos.X >= 0 && LastClickPos.Y >= 0) {
+                            if (LastClickPos.X <= width && LastClickPos.Y <= height) {
+                                if (Input.GetClickDown(KeyModifier.None))
+                                    valueSaved = ThisFrame.PatternIndex;
+                                if (Input.GetClick(KeyModifier.None)) {
+                                    if ((MouseY - LastClickPos.Y) / 4 != 0) {
+                                        isDragging = true;
+                                        App.mouseCursorArrow = 2;
+                                    }
+                                    if (isDragging) {
+                                        ThisFrame.PatternIndex = valueSaved - (MouseY - LastClickPos.Y) / 4;
+                                    }
+                                }
+                                else {
+                                    isDragging = false;
+                                }
+                            }
+                        }
 
+                    }
                 }
             }
-
             //if (LastClickPos.X >= 0 && LastClickPos.Y >= 0) {
             //    if (LastClickPos.X <= width - 10 && LastClickPos.Y <= height) {
             //        if (Input.GetClickDown(KeyModifier.None))
@@ -119,7 +120,7 @@ namespace WaveTracker.UI {
                     buttonColor = new Color(64, 73, 115);
                 DrawRoundedRect(0, 0, width, height, buttonColor);
                 if (IsHovered && Input.CurrentModifier == KeyModifier.Shift) {
-                    DrawRect(1, 0, width - 2, 1, Helpers.Alpha(Color.White,70));
+                    DrawRect(1, 0, width - 2, 1, Helpers.Alpha(Color.White, 70));
                     DrawRect(0, 1, 1, height - 2, Helpers.Alpha(Color.White, 70));
                     DrawRect(1, height - 1, width - 2, 1, Helpers.Alpha(Color.White, 70));
                     DrawRect(width - 1, 1, 1, height - 2, Helpers.Alpha(Color.White, 70));

@@ -138,12 +138,11 @@ namespace WaveTracker {
             string str = "";
             string[] words = text.Split(' ');
             int w = 0;
-            int y = 0;
             foreach (string word in words) {
-                w += Helpers.GetWidthOfText(word + " ");
+                w += GetWidthOfText(word + " ");
                 if (w > width) {
                     str += "\n" + word + " ";
-                    w = Helpers.GetWidthOfText(word + " ");
+                    w = GetWidthOfText(word + " ");
                 }
                 else {
                     str += word + " ";
@@ -221,6 +220,16 @@ namespace WaveTracker {
         public static double Mod(double a, double b) {
             return (a - b * Math.Floor(a / b));
         }
+
+        /// <summary>
+        /// Quick and dirty approximation of e^x
+        /// </summary>
+        /// <param name="x"></param>
+        /// <returns></returns>
+        public static float Exp(float x) {
+            return (6 + x * (6 + x * (3 + x))) * 0.16666666f;
+        }
+
 
         public static double FastPower(double a, double b) {
             int tmp = (int)(BitConverter.DoubleToInt64Bits(a) >> 32);

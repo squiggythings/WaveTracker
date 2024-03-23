@@ -31,17 +31,17 @@ namespace WaveTracker {
         public static int savecooldown = 0;
 
 
-        static void SaveTo(string path) {
+        static void WriteTo(string path) {
             Debug.WriteLine("Saving to: " + path);
             Stopwatch stopwatch = Stopwatch.StartNew();
             //BinaryFormatter formatter = new BinaryFormatter();
 
-            try {
-                //savedModule = App.CurrentModule.Clone();
-            } catch {
-                Debug.WriteLine("failed to save");
-                return;
-            }
+            //try {
+            //    //savedModule = App.CurrentModule.Clone();
+            //} catch {
+            //    Debug.WriteLine("failed to save");
+            //    return;
+            //}
 
             //savedSong.InitializeForSerialization();
             //path = Path.ChangeExtension(path, ".wtm");
@@ -59,32 +59,64 @@ namespace WaveTracker {
 
         }
 
-        public static void SaveFile() {
-            if (savecooldown == 0)
+        public static bool SaveFile() {
+            if (savecooldown == 0) {
+                savecooldown = 4;
+                if (!File.Exists(filePath)) {
+                    return SaveFileAs();
+                }
+                else {
+                    WriteTo(filePath);
+                    return true;
+                }
+            }
+            savecooldown = 4;
+            return false;
+        }
+
+
+        public static void NewFile() {
+            if (Input.focus != null) {
+                return;
+            }
+            Playback.Stop();
+            if (!IsSaved) {
+                DoSaveChangesDialog(NewFileUnsavedChangesCallback);
+            }
+            else {
+                OpenANewFile();
+            }
+
+        }
+
+        /// <summary>
+        /// Handles results to "Save changes to [file]?" when opening a new file
+        /// </summary>
+        /// <param name="ret"></param>
+        static void NewFileUnsavedChangesCallback(string ret) {
+            if (ret == "Yes") {
                 if (!File.Exists(filePath)) {
                     SaveFileAs();
                 }
                 else {
-                    SaveTo(filePath);
+                    WriteTo(filePath);
                 }
-            savecooldown = 4;
-
-        }
-
-        public static void DoUnsavedCheck() {
-            if (!IsSaved) {
-                if (PromptUnsaved() == DialogResult.Cancel) return;
+                SaveFile();
+                OpenANewFile();
             }
-        }
-
-        public static void NewFile() {
-            if (Input.focus != null)
+            if (ret == "No") {
+                OpenANewFile();
+            }
+            if (ret == "Cancel") {
                 return;
-
-            if (!IsSaved) {
-                if (PromptUnsaved() == DialogResult.Cancel) return;
             }
-            Playback.Stop();
+
+        }
+
+        /// <summary>
+        /// Discards the current file and opens a new one
+        /// </summary>
+        static void OpenANewFile() {
             filePath = "";
             //FrameEditor.ClearHistory();
             //FrameEditor.Goto(0, 0);
@@ -99,51 +131,68 @@ namespace WaveTracker {
             App.PatternEditor.OnSwitchSong();
         }
 
-        public static void SaveFileAs() {
-            if (Input.focus != null)
-                return;
+
+        public static bool SaveFileAs() {
+            if (Input.focus != null) {
+                return false;
+            }
             Playback.Stop();
             // set filepath to dialogresult
             if (SetFilePathThroughSaveAsDialog(out filePath)) {
                 Debug.WriteLine("Saving as: " + filePath);
-                SaveTo(filePath);
+                WriteTo(filePath);
                 Debug.WriteLine("Saved as: " + filePath);
                 App.CurrentModule.OnSaveModule();
+                return true;
             }
+            return false;
 
         }
 
         public static void OpenFile() {
-            if (Input.internalDialogIsOpen)
+            if (Input.internalDialogIsOpen) {
                 return;
+            }
             Playback.Stop();
             if (savecooldown == 0) {
                 // set filepath to dialog result
-                string currentPath = filePath;
                 if (!IsSaved) {
-                    if (PromptUnsaved() == DialogResult.Cancel) {
-                        return;
-                    }
-                    Input.dialogOpenCooldown = 0;
+                    DoSaveChangesDialog(OpenUnsavedCallback);
                 }
-                if (SetFilePathThroughOpenDialog())
-                    if (LoadFrom(filePath)) {
-                        Visualization.GetWaveColors();
-                        ChannelManager.Reset();
-                        ChannelManager.UnmuteAllChannels();
-                        App.CurrentModule.OnSaveModule();
-                        App.CurrentSongIndex = 0;
-                        App.PatternEditor.OnSwitchSong();
-                        Playback.Goto(0, 0);
-                    }
-                    else {
-                        LoadError();
-                        filePath = currentPath;
-
-                    }
-
+                else {
+                    ChooseFileToOpenAndLoad();
+                }
             }
             savecooldown = 4;
+        }
+
+        /// <summary>
+        /// Opens the open dialog and tries to load the chosen file<br></br>
+        /// Opens the error dialog if failed
+        /// </summary>
+        static void ChooseFileToOpenAndLoad() {
+            string currentPath = filePath;
+            if (SetFilePathThroughOpenDialog(out filePath)) {
+                if (ReadFrom(filePath)) {
+                    Visualization.GetWaveColors();
+                    ChannelManager.Reset();
+                    ChannelManager.UnmuteAllChannels();
+                    App.CurrentModule.OnSaveModule();
+                    App.CurrentSongIndex = 0;
+                    App.PatternEditor.OnSwitchSong();
+                    Debug.WriteLine("cursorPos" + App.PatternEditor.cursorPosition.ToString());
+                    Playback.Goto(0, 0);
+                }
+                else {
+                    Dialogs.messageDialog.Open(
+                        "Could not open " + FileName,
+                        MessageDialog.Icon.Error,
+                        new string[] { "OK" }
+                        );
+                    filePath = currentPath;
+
+                }
+            }
         }
 
         /// <summary>
@@ -152,7 +201,7 @@ namespace WaveTracker {
         /// <param name="path"></param>
         /// <returns><c>true</c> if successfully loaded<br></br>
         /// <c>false</c> if loading failed</returns>
-        public static bool LoadFrom(string path) {
+        public static bool ReadFrom(string path) {
             if (!File.Exists(path))
                 return false;
             Stopwatch stopwatch = new Stopwatch();
@@ -193,21 +242,58 @@ namespace WaveTracker {
         }
 
 
+        /// <summary>
+        /// Opens a "Save changes to current file?" question box
+        /// </summary>
+        /// <param name="callback"></param>
+        public static void DoSaveChangesDialog(Action<string> callback) {
+            Dialogs.messageDialog.Open(
+                    "Save changes to " + FileName + "?",
+                    MessageDialog.Icon.Question,
+                    new string[] { "Yes", "No", "Cancel" },
+                    callback
+                    );
+        }
 
-        public static bool SetFilePathThroughOpenDialog() {
+        /// <summary>
+        /// If the user tried to open a file while changes were present on the current file.
+        /// This handles the results from the dialog that pops up
+        /// </summary>
+        /// <param name="result"></param>
+        static void OpenUnsavedCallback(string result) {
+            if (result == "Yes") {
+                if (SaveFile())
+                    ChooseFileToOpenAndLoad();
+            }
+            if (result == "No") {
+                ChooseFileToOpenAndLoad();
+            }
+            if (result == "Cancel") {
+                return;
+            }
+        }
+
+
+        /// <summary>
+        /// Opens a file browser and asks the user to choose a wtm file. (Open)
+        /// </summary>
+        /// <returns>true if they choose a file and accept, false otherwise.</returns>
+        static bool SetFilePathThroughOpenDialog(out string filepath) {
             bool didIt = false;
+            string ret = "";
+            filepath = filePath;
             if (Input.dialogOpenCooldown == 0) {
                 Thread t = new Thread((ThreadStart)(() => {
-
                     Input.DialogStarted();
+                    Input.CancelClick();
                     OpenFileDialog openFileDialog = new OpenFileDialog();
                     openFileDialog.Filter = "WaveTracker modules (*wtm)|*.wtm";
                     openFileDialog.Multiselect = false;
                     openFileDialog.Title = "Open";
                     openFileDialog.ValidateNames = true;
-                    if (openFileDialog.ShowDialog() == DialogResult.OK) {
-                        filePath = openFileDialog.FileName;
 
+                    if (openFileDialog.ShowDialog() == DialogResult.OK) {
+                        ret = openFileDialog.FileName;
                         didIt = true;
                     }
 
@@ -216,40 +302,23 @@ namespace WaveTracker {
                 t.SetApartmentState(ApartmentState.STA);
                 t.Start();
                 t.Join();
+                filepath = ret;
 
             }
             return didIt;
         }
-
-        public static DialogResult PromptUnsaved() {
-            DialogResult ret = DialogResult.Cancel;
-            if (Input.dialogOpenCooldown == 0) {
-                Input.DialogStarted();
-                ret = MessageBox.Show("Save changes to " + FileName + "?", "WaveTracker", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1);
-            }
-            if (ret == DialogResult.Yes) {
-                SaveFile();
-            }
-            return ret;
-        }
-
-        public static void LoadError() {
-            if (Input.dialogOpenCooldown == 0) {
-                Input.DialogStarted();
-
-                MessageBox.Show("Could not open " + FileName, "WaveTracker", MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1);
-            }
-        }
-
-        public static bool SetFilePathThroughSaveAsDialog(out string filepath) {
+        /// <summary>
+        /// Opens a file browser and asks the user to choose a path to save a wtm file. (Save As)
+        /// </summary>
+        /// <returns>Returns true if they choose a file and accept, false otherwise.</returns>
+        static bool SetFilePathThroughSaveAsDialog(out string filepath) {
             string ret = "";
             bool didIt = false;
             filepath = filePath;
             if (Input.dialogOpenCooldown == 0) {
-                Input.DialogStarted();
                 Thread t = new Thread((ThreadStart)(() => {
-
                     Input.DialogStarted();
+                    Input.CancelClick();
                     SaveFileDialog saveFileDialog = new SaveFileDialog();
                     saveFileDialog.DefaultExt = "wtm";
                     saveFileDialog.Filter = "WaveTracker modules (*.wtm)|*.wtm|All files (*.*)|*.*";
@@ -275,14 +344,17 @@ namespace WaveTracker {
             }
             return didIt;
         }
-
+        /// <summary>
+        /// Opens a file browser and asks the user to choose a path to export to. (Export .wav)
+        /// </summary>
+        /// <returns>Returns true if they choose a file and accept, false otherwise.</returns>
         public static bool ChooseExportPath(out string filepath) {
             string ret = "";
             bool didIt = false;
             if (Input.dialogOpenCooldown == 0) {
                 Thread t = new Thread((ThreadStart)(() => {
-
                     Input.DialogStarted();
+                    Input.CancelClick();
                     SaveFileDialog saveFileDialog = new SaveFileDialog();
                     saveFileDialog.DefaultExt = "wav";
                     saveFileDialog.OverwritePrompt = true;
