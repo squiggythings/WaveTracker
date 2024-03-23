@@ -93,7 +93,7 @@ namespace WaveTracker {
 
             CurrentModule = new WTModule();
             //PatternEditor.OnSwitchSong();
-            
+
             waveBank = new WaveBank();
             InstrumentBank = new InstrumentBank();
             InstrumentBank.Initialize();
@@ -118,13 +118,13 @@ namespace WaveTracker {
         }
 
         protected override void LoadContent() {
-            
+
             //Checkbox.textureSheet = Content.Load<Texture2D>("instrumentwindow");
             //NumberBox.buttons = Content.Load<Texture2D>("window_edit");
-            
+
             Graphics.font = Content.Load<SpriteFont>("custom_font");
             Graphics.img = Content.Load<Texture2D>("img");
-            
+
             Graphics.pixel = new Texture2D(GraphicsDevice, 1, 1);
             Graphics.pixel.SetData(new[] { Color.White });
             // TODO: use this.Content to load your game content here
@@ -136,7 +136,7 @@ namespace WaveTracker {
 
         protected override void Update(GameTime gameTime) {
 
-            Window.Title = SaveLoad.FileName + (SaveLoad.IsSaved ? "" : "*") + " - WaveTracker v" + VERSION;
+            Window.Title = SaveLoad.FileNameWithoutExtension + (SaveLoad.IsSaved ? "" : "*") + " [#" + (CurrentSongIndex + 1) + " " + CurrentSong.ToString() + "] - WaveTracker " + VERSION;
             WindowHeight = Window.ClientBounds.Height / ScreenScale;
             WindowWidth = Window.ClientBounds.Width / ScreenScale;
 
@@ -273,7 +273,7 @@ namespace WaveTracker {
             }
             toolbar.Draw();
             Dialogs.Draw();
-         
+
             if (!VisualizerMode) {
                 waveBank.editor.Draw();
                 InstrumentBank.editor.Draw();

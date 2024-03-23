@@ -161,6 +161,7 @@ namespace WaveTracker.Tracker {
         public void AddNewFrame() {
             if (FrameSequence.Count < 100) {
                 FrameSequence.Add(new WTFrame(GetNextFreePattern(), this));
+                App.PatternEditor.AddToUndoHistory();
             }
             App.CurrentModule.SetDirty();
         }
@@ -171,6 +172,7 @@ namespace WaveTracker.Tracker {
         public void InsertNewFrame(int index) {
             if (FrameSequence.Count < 100) {
                 FrameSequence.Insert(index, new WTFrame(GetNextFreePattern(), this));
+                App.PatternEditor.AddToUndoHistory();
             }
             App.CurrentModule.SetDirty();
         }
@@ -182,6 +184,7 @@ namespace WaveTracker.Tracker {
         public void DuplicateFrame(int index) {
             if (FrameSequence.Count < 100) {
                 FrameSequence.Insert(index, new WTFrame(FrameSequence[index].PatternIndex, this));
+                App.PatternEditor.AddToUndoHistory();
             }
             App.CurrentModule.SetDirty();
         }
@@ -193,6 +196,7 @@ namespace WaveTracker.Tracker {
         public void RemoveFrame(int index) {
             if (FrameSequence.Count > 1) {
                 FrameSequence.RemoveAt(index);
+                App.PatternEditor.AddToUndoHistory();
             }
             App.CurrentModule.SetDirty();
         }
@@ -205,6 +209,7 @@ namespace WaveTracker.Tracker {
         public void SwapFrames(int index1, int index2) {
             if (index1 >= 0 && index2 >= 0 && index1 < FrameSequence.Count && index2 < FrameSequence.Count) {
                 (FrameSequence[index1], FrameSequence[index2]) = (FrameSequence[index2], FrameSequence[index1]);
+                App.PatternEditor.AddToUndoHistory();
             }
             App.CurrentModule.SetDirty();
         }

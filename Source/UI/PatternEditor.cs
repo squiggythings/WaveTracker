@@ -1295,6 +1295,7 @@ namespace WaveTracker.UI {
             if (historyIndex < 0)
                 historyIndex = 0;
             history[historyIndex].RestoreIntoSong(App.CurrentSong);
+            cursorPosition.Normalize(App.CurrentSong);
             App.CurrentModule.SetDirty();
         }
         public void Redo() {
@@ -1303,6 +1304,7 @@ namespace WaveTracker.UI {
                 historyIndex = history.Count - 1;
             history[historyIndex].RestoreIntoSong(App.CurrentSong);
             cursorPosition = history[historyIndex].PostPosition.CursorPosition;
+            cursorPosition.Normalize(App.CurrentSong);
             SetSelectionStart(history[historyIndex].PostPosition.SelectionStart);
             SetSelectionEnd(history[historyIndex].PostPosition.SelectionEnd);
             selection.Set(App.CurrentSong, selectionStart, selectionEnd);
