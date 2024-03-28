@@ -51,20 +51,20 @@ namespace WaveTracker.UI {
             if (new Rectangle(80, 12, 397, 28).Contains(MouseX, MouseY) && Input.focus == null) {
                 if (!Input.GetClick(KeyModifier._Any)) {
                     if (Input.MouseScrollWheel(KeyModifier.None) < 0) {
-                        if (Playback.isPlaying && App.PatternEditor.FollowMode)
+                        if (Playback.IsPlaying && App.PatternEditor.FollowMode)
                             Playback.GotoNextFrame();
                         else
                             App.PatternEditor.NextFrame();
                     }
                     if (Input.MouseScrollWheel(KeyModifier.None) > 0) {
-                        if (Playback.isPlaying && App.PatternEditor.FollowMode)
+                        if (Playback.IsPlaying && App.PatternEditor.FollowMode)
                             Playback.GotoPreviousFrame();
                         else
                             App.PatternEditor.PreviousFrame();
                     }
                 }
             }
-            if (!Playback.isPlaying) {
+            if (!Playback.IsPlaying) {
                 if (bNewFrame.Clicked) {
                     App.PatternEditor.InsertNewFrame();
                     //FrameEditor.thisSong.frames.Insert(++FrameEditor.currentFrame, new Frame());

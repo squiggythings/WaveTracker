@@ -187,14 +187,14 @@ namespace WaveTracker {
                 pianoInput = InstrumentBank.editor.GetPianoMouseInput();
             if (PatternEditor.cursorPosition.Column == CursorColumnType.Note || WaveEditor.enabled || InstrumentEditor.enabled) {
                 if (pianoInput != -1 && lastPianoKey != pianoInput) {
-                    if (!Playback.isPlaying)
+                    if (!Playback.IsPlaying)
                         AudioEngine.ResetTicks();
                     ChannelManager.previewChannel.SetMacro(InstrumentBank.CurrentInstrumentIndex);
                     ChannelManager.previewChannel.TriggerNote(pianoInput);
                 }
             }
             if (pianoInput == -1 && lastPianoKey != -1) {
-                if (!Playback.isPlaying)
+                if (!Playback.IsPlaying)
                     AudioEngine.ResetTicks();
                 ChannelManager.previewChannel.PreviewCut();
             }

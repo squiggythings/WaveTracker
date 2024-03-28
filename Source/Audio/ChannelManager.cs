@@ -64,7 +64,7 @@ namespace WaveTracker.Audio {
                         Playback.GotoNext(Playback.position.Frame + 1, effectParam);
                     }
                     else if (effectType == 'F') {
-                        Playback.ticksPerRowOverride = effectParam;
+                        Playback.TicksPerRowOverride = effectParam;
                     }
                     else if (effectType != WTPattern.EVENT_EMPTY && effectType != 'L' && effectType != 'S' && effectType != 'G' && effectType != 'Q' && effectType != 'R') {
                         channels[channelIndex].QueueEvent(TickEventType.Effect, effectType, effectParam, delayTicks);
@@ -115,7 +115,7 @@ namespace WaveTracker.Audio {
                     if (effectType != WTPattern.EVENT_EMPTY && !"BCDQRSL".Contains(effectType))
                         channels[channelNum].ApplyEffect(effectType, effectParam);
                     if (effectType == 'F') // FXX
-                        Playback.ticksPerRowOverride = effectParam;
+                        Playback.TicksPerRowOverride = effectParam;
                 }
                 if (volume != WTPattern.EVENT_EMPTY)
                     channels[channelNum].SetVolume(volume);

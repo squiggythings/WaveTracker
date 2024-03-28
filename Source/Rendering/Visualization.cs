@@ -191,7 +191,7 @@ namespace WaveTracker.Rendering {
                     DrawRect(px, rowY, 35 * Song.CHANNEL_COUNT, 7, Helpers.Alpha(Colors.theme.cursor, 90));
                 }
 
-                if (thisRow >= 0 && thisRow <= Playback.frame.GetLength())
+                if (thisRow >= 0 && thisRow <= Playback.Frame.GetLength())
                     for (int channel = 0; channel < Song.CHANNEL_COUNT * 5; channel += 5) {
                         /*
                         int rowX = px + (channel / 5) * 35;

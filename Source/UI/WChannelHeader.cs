@@ -79,7 +79,7 @@ namespace WaveTracker.UI {
 
         public void Update() {
             // if the user is editing this header's channel, render the preview channel instead
-            if (parentEditor.cursorPosition.Channel == channelNum && !ChannelManager.channels[channelNum].isPlaying && !Playback.isPlaying)
+            if (parentEditor.cursorPosition.Channel == channelNum && !ChannelManager.channels[channelNum].isPlaying && !Playback.IsPlaying)
                 channelToDisplay = ChannelManager.previewChannel;
             else
                 channelToDisplay = ChannelManager.channels[channelNum];

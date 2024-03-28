@@ -130,7 +130,6 @@ namespace WaveTracker.UI {
         CursorPos renderCursorPos;
 
         public PatternEditor(int x, int y) {
-            Playback.patternEditor = this;
             this.x = x;
             this.y = y;
             channelHeaders = new WChannelHeader[WTModule.DEFAULT_CHANNEL_COUNT];
@@ -856,7 +855,7 @@ namespace WaveTracker.UI {
         public void Draw() {
             playbackFrame = Playback.position.Frame;
             playbackRow = Playback.position.Row;
-            if (Playback.isPlaying) {
+            if (Playback.IsPlaying) {
                 SnapToPlaybackPosition();
             }
             renderCursorPos = cursorPosition;
@@ -1102,7 +1101,7 @@ namespace WaveTracker.UI {
             if (frame == renderCursorPos.Frame && row == renderCursorPos.Row && frameWrap == 0) {
                 rowBGcolor = EditMode ? Colors.theme.rowEditColor : Colors.theme.rowCurrentColor;
             }
-            else if (Playback.isPlaying && playbackFrame == frame && playbackRow == row) {
+            else if (Playback.IsPlaying && playbackFrame == frame && playbackRow == row) {
                 rowBGcolor = Colors.theme.rowPlaybackColor;
             }
             else if (row % App.CurrentSong.RowHighlightPrimary == 0) {
@@ -1156,7 +1155,7 @@ namespace WaveTracker.UI {
         /// </summary>
         public void OnSwitchSong() {
             //Debug.WriteLine("switch song");
-            if (Playback.isPlaying) {
+            if (Playback.IsPlaying) {
                 Playback.Stop();
                 Playback.PlayFromBeginning();
             }
@@ -1720,7 +1719,7 @@ namespace WaveTracker.UI {
         /// Moves to the next frame in the song
         /// </summary>
         public void NextFrame() {
-            if (Playback.isPlaying) {
+            if (Playback.IsPlaying) {
                 Playback.GotoNextFrame();
             }
             else {
@@ -1733,7 +1732,7 @@ namespace WaveTracker.UI {
         /// Moves to the previous frame in the song
         /// </summary>
         public void PreviousFrame() {
-            if (Playback.isPlaying) {
+            if (Playback.IsPlaying) {
                 Playback.GotoPreviousFrame();
             }
             else {

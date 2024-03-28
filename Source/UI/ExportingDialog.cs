@@ -25,7 +25,7 @@ namespace WaveTracker.UI {
 
         public void Update() {
             if (windowIsOpen) {
-                if (Tracker.Playback.isPlaying) {
+                if (Tracker.Playback.IsPlaying) {
                     Cancel.SetLabel("Cancel");
                     if (Cancel.Clicked) {
                         Audio.AudioEngine.cancelRender = true;

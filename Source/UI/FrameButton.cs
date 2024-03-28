@@ -43,7 +43,7 @@ namespace WaveTracker.UI {
                 else if (offset < 12 && offset > -12) {
                     SetTooltip("Frame " + ThisFrameIndex.ToString("D2"), "Click+Drag or Shift+Scroll to change pattern number");
                     if (Clicked && !isDragging) {
-                        if (Playback.isPlaying && App.PatternEditor.FollowMode) {
+                        if (Playback.IsPlaying && App.PatternEditor.FollowMode) {
                             Playback.position.Frame += offset;
                             Playback.GotoNextFrame();
                             Playback.GotoPreviousFrame();
@@ -112,7 +112,7 @@ namespace WaveTracker.UI {
                 Color buttonColor;
                 if (offset == 0)
                     buttonColor = new Color(8, 124, 232);
-                else if (!App.PatternEditor.FollowMode && Playback.isPlaying && Playback.position.Frame - App.PatternEditor.cursorPosition.Frame == offset)
+                else if (!App.PatternEditor.FollowMode && Playback.IsPlaying && Playback.position.Frame - App.PatternEditor.cursorPosition.Frame == offset)
                     buttonColor = Colors.theme.rowPlaybackColor.AddTo(new Color(40, 20, 40));
                 else if (IsPressed && offset > -12 && offset < 12 && !isDragging)
                     buttonColor = new Color(89, 96, 138);
