@@ -77,6 +77,12 @@ namespace WaveTracker.UI {
                     envelope.values.RemoveAt(envelope.values.Count - 1);
                 while (envLength.Value > envelope.values.Count)
                     envelope.values.Add(0);
+                if (envelope.loopIndex > envelope.values.Count - 1) {
+                    envelope.loopIndex = Envelope.EMPTY_LOOP_RELEASE_INDEX;
+                }
+                if (envelope.releaseIndex > envelope.values.Count - 2) {
+                    envelope.releaseIndex = Envelope.EMPTY_LOOP_RELEASE_INDEX;
+                }
             }
             if (envelope.isActive)
                 scrollbar.Update();
@@ -139,14 +145,14 @@ namespace WaveTracker.UI {
                     if (envelope.releaseIndex != MouseEnvelopeX - 1)
                         envelope.releaseIndex = MouseEnvelopeX - 1;
                     else
-                        envelope.releaseIndex = Envelope.emptyEnvValue;
+                        envelope.releaseIndex = Envelope.EMPTY_LOOP_RELEASE_INDEX;
                     App.CurrentModule.SetDirty();
                 }
                 if (MouseEnvelopeY == 0 && MouseEnvelopeX >= 0 && MouseEnvelopeX < envelope.values.Count) {
                     if (envelope.loopIndex != MouseEnvelopeX)
                         envelope.loopIndex = MouseEnvelopeX;
                     else
-                        envelope.loopIndex = Envelope.emptyEnvValue;
+                        envelope.loopIndex = Envelope.EMPTY_LOOP_RELEASE_INDEX;
                     App.CurrentModule.SetDirty();
                 }
             }

@@ -28,7 +28,7 @@ namespace WaveTracker.UI {
         /// <param name="icon">The icon to display alongside the message</param>
         /// <param name="buttonNames">A list of buttons to add to close the message</param>
         /// <param name="onExitCallback">Callback where the name of the pressed button is passed in as a parameter</param>
-        public void Open(string message, Icon icon, string[] buttonNames, Action<string> onExitCallback) {
+        public void Open(string message, Icon icon, string[] buttonNames, Action<string> onExitCallback, bool playSound = true) {
             Message = message;
             this.icon = icon;
             ClearBottomButtons();
@@ -39,12 +39,12 @@ namespace WaveTracker.UI {
             OnDialogExit = onExitCallback;
             if (icon == Icon.Information)
                 System.Media.SystemSounds.Asterisk.Play();
-            if (icon == Icon.Error)
+            else if (icon == Icon.Error)
                 System.Media.SystemSounds.Hand.Play();
-            if (icon == Icon.Warning)
+            else if (icon == Icon.Warning)
                 System.Media.SystemSounds.Exclamation.Play();
-            if (icon == Icon.Question)
-                System.Media.SystemSounds.Asterisk.Play();
+            else if (icon == Icon.Question)
+                System.Media.SystemSounds.Question.Play();
             textWidth = width - (icon == Icon.None ? 16 : 64);
             textHeight = Helpers.GetHeightOfMultilineText(Message, textWidth);
             Open();
@@ -56,23 +56,24 @@ namespace WaveTracker.UI {
         /// <param name="message">The message to display to the user</param>
         /// <param name="icon">The icon to display alongside the message</param>
         /// <param name="buttonNames">A list of buttons to add to close the message</param>
-        public void Open(string message, Icon icon, string[] buttonNames) {
+        public void Open(string message, Icon icon, string buttonName, bool playSound = true) {
             Message = message;
             this.icon = icon;
             ClearBottomButtons();
-            buttons = new Button[buttonNames.Length];
-            for (int i = buttonNames.Length - 1; i >= 0; --i) {
-                buttons[i] = AddNewBottomButton(buttonNames[i], this);
-            }
+            buttons = new Button[1];
+            buttons[0] = AddNewBottomButton(buttonName, this);
+
             OnDialogExit = null;
-            if (icon == Icon.Information)
-                System.Media.SystemSounds.Asterisk.Play();
-            if (icon == Icon.Error)
-                System.Media.SystemSounds.Hand.Play();
-            if (icon == Icon.Warning)
-                System.Media.SystemSounds.Exclamation.Play();
-            if (icon == Icon.Question)
-                System.Media.SystemSounds.Asterisk.Play();
+            if (playSound) {
+                if (icon == Icon.Information)
+                    System.Media.SystemSounds.Asterisk.Play();
+                else if (icon == Icon.Error)
+                    System.Media.SystemSounds.Hand.Play();
+                else if(icon == Icon.Warning)
+                    System.Media.SystemSounds.Exclamation.Play();
+                else if(icon == Icon.Question)
+                    System.Media.SystemSounds.Question.Play();
+            }
             textWidth = width - (icon == Icon.None ? 16 : 64);
             textHeight = Helpers.GetHeightOfMultilineText(Message, textWidth);
             Open();
@@ -92,9 +93,7 @@ namespace WaveTracker.UI {
         public void Close(string result) {
             Input.CancelClick();
             base.Close();
-            if (OnDialogExit != null) {
-                OnDialogExit.Invoke(result);
-            }
+            OnDialogExit?.Invoke(result);
         }
 
         public new void Draw() {

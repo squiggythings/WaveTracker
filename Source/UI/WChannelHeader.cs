@@ -174,8 +174,6 @@ namespace WaveTracker.UI {
                     DrawRect(panMeterStartPos + (int)(channelToDisplay.CurrentPan * (PAN_METER_WIDTH - 2)), 22, 3, 2, Color.White);
                     DrawRect(5, 25, amplitude, 3, new Color(0, 219, 39));
                 }
-
-                Write(channelToDisplay.CurrentPitch + "", 0, 0, Color.Red);
             }
         }
 

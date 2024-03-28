@@ -187,7 +187,7 @@ namespace WaveTracker {
                     Dialogs.messageDialog.Open(
                         "Could not open " + FileName,
                         MessageDialog.Icon.Error,
-                        new string[] { "OK" }
+                        "OK"
                         );
                     filePath = currentPath;
 

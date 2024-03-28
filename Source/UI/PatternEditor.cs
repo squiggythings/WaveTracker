@@ -104,6 +104,9 @@ namespace WaveTracker.UI {
         CellType clipboardStartCellType;
 
 
+        float[,] scaleClipboard;
+
+
         List<PatternEditorState> history;
         int historyIndex;
 
@@ -416,6 +419,14 @@ namespace WaveTracker.UI {
             selection.Set(App.CurrentSong, selectionStart, selectionEnd);
             //CreateSelectionBounds();
 
+            #region copying selection
+            if (SelectionIsActive) {
+                if (KeyPress(Keys.C, KeyModifier.Ctrl)) {
+                    CopyToClipboard();
+                }
+            }
+            #endregion
+
             if (Input.GetKeyDown(Keys.Space, KeyModifier.None)) {
                 EditMode = !EditMode;
             }
@@ -450,6 +461,11 @@ namespace WaveTracker.UI {
                         if (val == WTPattern.EVENT_EMPTY)
                             val = 0;
                         App.CurrentSong[cursorPosition] = (byte)(KeyInputs_Decimal[k] * 10 + val % 10);
+                        if (cursorPosition.Column == CursorColumnType.Instrument1) {
+                            if (App.CurrentSong[cursorPosition] < App.CurrentModule.Instruments.Count) {
+                                App.InstrumentBank.CurrentInstrumentIndex = App.CurrentSong[cursorPosition];
+                            }
+                        }
                         MoveToRow(cursorPosition.Row + InputStep);
                         AddToUndoHistory();
                         break;
@@ -464,6 +480,11 @@ namespace WaveTracker.UI {
                         if (val == WTPattern.EVENT_EMPTY)
                             val = 0;
                         App.CurrentSong[cursorPosition] = (byte)((val / 10 * 10) + KeyInputs_Decimal[k]);
+                        if (cursorPosition.Column == CursorColumnType.Instrument2) {
+                            if (App.CurrentSong[cursorPosition] < App.CurrentModule.Instruments.Count) {
+                                App.InstrumentBank.CurrentInstrumentIndex = App.CurrentSong[cursorPosition];
+                            }
+                        }
                         MoveToRow(cursorPosition.Row + InputStep);
                         AddToUndoHistory();
                         break;
@@ -652,6 +673,14 @@ namespace WaveTracker.UI {
                             }
                         }
                     }
+                    if (Input.MouseScrollWheel(KeyModifier.ShiftAlt) != 0) {
+                        if (scaleClipboard == null)
+                            RecordOriginalSelectionContents();
+                        ScaleSelection(Input.MouseScrollWheel(KeyModifier.ShiftAlt));
+                        performedTask = true;
+
+                    }
+
                     if (performedTask) {
                         AddToUndoHistory();
                     }
@@ -781,9 +810,6 @@ namespace WaveTracker.UI {
             #endregion
             #region copy/paste/cut
             if (SelectionIsActive) {
-                if (KeyPress(Keys.C, KeyModifier.Ctrl)) {
-                    CopyToClipboard();
-                }
                 if (KeyPress(Keys.X, KeyModifier.Ctrl)) {
                     Cut();
                 }
@@ -1221,9 +1247,20 @@ namespace WaveTracker.UI {
         void CancelSelection() {
             selection = new PatternSelection(App.CurrentSong, cursorPosition, cursorPosition);
             selection.IsActive = false;
+            scaleClipboard = null;
             //currentSelection.minPosition = cursorPosition;
             //currentSelection.maxPosition = cursorPosition;
             //CreateSelectionBounds();
+        }
+
+        void RecordOriginalSelectionContents() {
+            scaleClipboard = new float[selection.Height, selection.Width];
+            //clipboardStartCellType = selection.min.Column.ToCellType();
+            for (int row = 0; row < selection.Height; row++) {
+                for (int column = 0; column < selection.Width; column++) {
+                    scaleClipboard[row, column] = (byte)CurrentPattern[selection.min.Row + row, selection.min.CellColumn + column];
+                }
+            }
         }
 
         #endregion
@@ -1249,6 +1286,90 @@ namespace WaveTracker.UI {
                 CurrentPattern[i, cellColumn] = CurrentPattern[i - 1, cellColumn];
             }
             CurrentPattern[row, cellColumn] = WTPattern.EVENT_EMPTY;
+        }
+
+        /// <summary>
+        /// Scales the volumes and effect parameters in a direction relative to the maximum value in the selection
+        /// </summary>
+        /// <param name="direction"></param>
+        void ScaleSelection(int direction) {
+            int selX = 0;
+            int selY;
+            float max = 0;
+            for (int c = selection.min.CellColumn; c <= selection.max.CellColumn; ++c) {
+                CellType cellType = WTPattern.GetCellTypeFromCellColumn(c);
+                if (cellType == CellType.Volume ||
+                    cellType == CellType.Effect1Parameter ||
+                    cellType == CellType.Effect2Parameter ||
+                    cellType == CellType.Effect3Parameter ||
+                    cellType == CellType.Effect4Parameter) {
+
+                    selY = 0;
+                    for (int r = selection.min.Row; r <= selection.max.Row; ++r) {
+                        if (cellType != CellType.Volume) {
+                            if (Helpers.IsEffectHex((char)CurrentPattern[r, c - 1]))
+                                continue;
+                        }
+                        if (scaleClipboard[selY, selX] != WTPattern.EVENT_EMPTY) {
+                            if (scaleClipboard[selY, selX] > max) {
+                                max = scaleClipboard[selY, selX];
+                            }
+                        }
+                        selY++;
+                    }
+                }
+                selX++;
+            }
+            float factor = (max + direction) / (float)max;
+
+            selX = 0;
+            for (int c = selection.min.CellColumn; c <= selection.max.CellColumn; ++c) {
+                CellType cellType = WTPattern.GetCellTypeFromCellColumn(c);
+                if (cellType == CellType.Volume ||
+                    cellType == CellType.Effect1Parameter ||
+                    cellType == CellType.Effect2Parameter ||
+                    cellType == CellType.Effect3Parameter ||
+                    cellType == CellType.Effect4Parameter) {
+                    selY = 0;
+                    for (int r = selection.min.Row; r <= selection.max.Row; ++r) {
+                        if (cellType != CellType.Volume) {
+                            if (Helpers.IsEffectHex((char)CurrentPattern[r, c - 1]))
+                                continue;
+                        }
+                        if (CurrentPattern[r, c] != WTPattern.EVENT_EMPTY) {
+                            scaleClipboard[selY, selX] *= factor;
+                            CurrentPattern[r, c] = (int)scaleClipboard[selY, selX];
+                        }
+                        selY++;
+                    }
+                }
+                selX++;
+            }
+        }
+
+        /// <summary>
+        /// Multiplies all volumes and effect parameters in the selection by <c>factor</c>
+        /// </summary>
+        /// <param name="factor"></param>
+        void ScaleSelection(float factor) {
+            for (int r = selection.min.Row; r <= selection.max.Row; ++r) {
+                for (int c = selection.min.CellColumn; c <= selection.max.CellColumn; ++c) {
+                    if (CurrentPattern[r, c] != WTPattern.EVENT_EMPTY) {
+                        CellType cellType = WTPattern.GetCellTypeFromCellColumn(c);
+                        if (cellType == CellType.Volume ||
+                            cellType == CellType.Effect1Parameter ||
+                            cellType == CellType.Effect2Parameter ||
+                            cellType == CellType.Effect3Parameter ||
+                            cellType == CellType.Effect4Parameter) {
+                            if (cellType != CellType.Volume) {
+                                if (Helpers.IsEffectHex((char)CurrentPattern[r, c - 1]))
+                                    continue;
+                            }
+                            CurrentPattern[r, c] = (int)(CurrentPattern[r, c] * factor + 0.5f);
+                        }
+                    }
+                }
+            }
         }
 
         public void ClearHistory() {
