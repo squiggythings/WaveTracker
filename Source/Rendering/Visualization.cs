@@ -102,7 +102,7 @@ namespace WaveTracker.Rendering {
                 Channel chan = ChannelManager.channels[c];
 
                 if ((chan.currentMacro.instrumentType == InstrumentType.Wave || chan.currentMacro.sample.useInVisualization) && chan.CurrentAmplitude > 0.01f && chan.CurrentPitch >= 12 && chan.CurrentPitch < 132 && ChannelManager.IsChannelOn(c)) {
-                    ChannelState state = new ChannelState(chan.CurrentPitch, chan.CurrentAmplitude, chan.currentMacro.instrumentType == InstrumentType.Wave ? GetColorOfWaveFromTable(chan.waveIndex, chan.waveMorphPosition) : Color.White, chan.isPlaying);
+                    ChannelState state = new ChannelState(chan.CurrentPitch, chan.CurrentAmplitude, chan.currentMacro.instrumentType == InstrumentType.Wave ? GetColorOfWaveFromTable(chan.waveIndex, chan.waveMorphPosition) : Color.White, chan.IsPlaying);
                     rowOfStates.Add(state);
                 }
             }
@@ -409,7 +409,7 @@ namespace WaveTracker.Rendering {
                         // quantized 
 
 
-                        samp1 = -samp.GetMonoSample((i / (float)w * channel.CurrentFrequency / scopezoom) + (int)channel.sampleTime) * (h / 2f) * channel.CurrentAmplitudeAsWave / 1.5f + (h / 2f);
+                        samp1 = -samp.GetMonoSample((i / (float)w * channel.CurrentFrequency / scopezoom) + (int)channel.sampleTime, channel.sampleStartOffset / 100f) * (h / 2f) * channel.CurrentAmplitudeAsWave / 1.5f + (h / 2f);
                         if (i > -w / 2)
                             DrawOscCol(px + i + w / 2, py - 2, samp1, lastSamp, Color.White, Preferences.profile.visualizerScopeThickness + 1);
                     }

@@ -524,7 +524,7 @@ namespace WaveTracker.UI {
                 }
                 if (CurrentInstrument.sample.sampleLoopType != SampleLoopType.OneShot)
                     DrawRect(x + (int)((float)CurrentInstrument.sample.sampleLoopIndex / data.Length * boxLength), y, 1, boxHeight, Color.Yellow);
-                if (CurrentInstrument.sample.currentPlaybackPosition < data.Length && Audio.ChannelManager.previewChannel.isPlaying)
+                if (CurrentInstrument.sample.currentPlaybackPosition < data.Length && Audio.ChannelManager.previewChannel.IsPlaying)
                     DrawRect(x + (int)((float)CurrentInstrument.sample.currentPlaybackPosition / data.Length * boxLength), y, 1, boxHeight, Color.Aqua);
             }
         }

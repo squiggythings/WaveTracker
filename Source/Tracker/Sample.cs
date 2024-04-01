@@ -181,14 +181,15 @@ namespace WaveTracker.Tracker {
             sampleDataAccessR = sampleDataRight.ToArray();
         }
 
-        public float GetMonoSample(float time) {
-            SampleTick(time, 0, out float l, out float r);
+        public float GetMonoSample(float time, float startPercentage) {
+            SampleTick(time, 0, startPercentage, out float l, out float r);
             return (l + r) / 2f;
         }
 
-        public void SampleTick(float time, float stereoPhase, out float outputL, out float outputR) {
+        public void SampleTick(float time, float stereoPhase, float startPercentage, out float outputL, out float outputR) {
             float sampleIndex = 0;
             float x = (time * (AudioEngine.sampleRate / _baseFrequency));
+            x += startPercentage * sampleDataAccessL.Length;
             long l = sampleDataAccessL.Length;
             long p = sampleLoopIndex;
             if (sampleLoopType == SampleLoopType.OneShot || x <= l) {

@@ -60,6 +60,8 @@ namespace WaveTracker.Audio {
         int waveMorphAmt; // Ixx command
         float fmAmt; // Mxx command
         int waveBendAmt; // Jxx command
+        int syncAmt; // Kxx command
+        public int sampleStartOffset { get; private set; } // Yxx command
         int channelVolume; // volume column
         int channelNote; // notes column
         float lastNote;
@@ -84,7 +86,7 @@ namespace WaveTracker.Audio {
         int macroID;
         private enum VoiceState { On, Off, Release }
         private VoiceState _state;
-        public bool isPlaying => _state == VoiceState.On;
+        public bool IsPlaying => _state == VoiceState.On;
 
         public Channel(int id) {
             this.id = id;
@@ -181,7 +183,12 @@ namespace WaveTracker.Audio {
             {
                 waveBendAmt = parameter;
             }
-
+            if (command == 'Y') {
+                sampleStartOffset = parameter;
+            }
+            if (command == 'K') {
+                syncAmt = parameter;
+            }
         }
 
         public void SetVolume(int vol) {
@@ -300,7 +307,8 @@ namespace WaveTracker.Audio {
             channelNotePorta = channelNote;
             portaSpeed = 0;
             portaTime = 0;
-
+            sampleStartOffset = 0;
+            syncAmt = 0;
             bendSpeed = 0;
             targetBendAmt = 0;
             bendOffset = 0;
@@ -390,6 +398,9 @@ namespace WaveTracker.Audio {
         public float CurrentFrequency { get { return _frequency; } }
 
         public float EvaluateWave(float time) {
+            // float t = time;
+            float s = (syncAmt / 100f * 8) + 1;
+            time = (s * (time % 1)) % 1;
             if (_fmSmooth > 0.001f)
                 return currentWave.GetSampleMorphed(time + App.CurrentModule.WaveBank[(waveIndex + 1) % 100].GetSampleAtPosition(time) * (_fmSmooth * _fmSmooth) / 2f, App.CurrentModule.WaveBank[(waveIndex + 1) % 100], waveMorphAmt / 99f, waveBendAmt / 100f);
             else
@@ -595,7 +606,7 @@ namespace WaveTracker.Audio {
                             }
                         }
                         else {
-                            currentMacro.sample.SampleTick((float)_time, (int)(stereoPhaseOffset * 100), out sampleL, out sampleR);
+                            currentMacro.sample.SampleTick((float)_time, (int)(stereoPhaseOffset * 100), sampleStartOffset / 100f, out sampleL, out sampleR);
                             sampleL *= 1.25f;
                             sampleR *= 1.25f;
                             samplePlaybackPosition = currentMacro.sample.currentPlaybackPosition;

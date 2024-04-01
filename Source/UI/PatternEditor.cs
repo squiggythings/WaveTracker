@@ -1271,9 +1271,9 @@ namespace WaveTracker.UI {
         /// <param name="pos"></param>
         void PullCellsUp(int row, int cellColumn) {
             for (int i = row; i < 255; i++) {
-                CurrentPattern[i, cellColumn] = CurrentPattern[i + 1, cellColumn];
+                CurrentPattern.SetCellRaw(i, cellColumn, (byte)CurrentPattern[i + 1, cellColumn]);
             }
-            CurrentPattern[255, cellColumn] = WTPattern.EVENT_EMPTY;
+            CurrentPattern.SetCellRaw(255, cellColumn, WTPattern.EVENT_EMPTY);
         }
 
         /// <summary>
@@ -1282,9 +1282,9 @@ namespace WaveTracker.UI {
         /// <param name="pos"></param>
         void PushCellsDown(int row, int cellColumn) {
             for (int i = 255; i > row; i--) {
-                CurrentPattern[i, cellColumn] = CurrentPattern[i - 1, cellColumn];
+                CurrentPattern.SetCellRaw(i, cellColumn, (byte)CurrentPattern[i - 1, cellColumn]);
             }
-            CurrentPattern[row, cellColumn] = WTPattern.EVENT_EMPTY;
+            CurrentPattern.SetCellRaw(row, cellColumn, WTPattern.EVENT_EMPTY);
         }
 
         /// <summary>
@@ -1511,7 +1511,7 @@ namespace WaveTracker.UI {
                 }
             }
             else {
-                for (int c = 0; c < App.CurrentSong.GetNumCursorColumns(cursorPosition.Channel); ++c) {
+                for (int c = 0; c < App.CurrentSong.GetNumColumns(cursorPosition.Channel); ++c) {
                     PushCellsDown(cursorPosition.Row, c + cursorPosition.Channel * 11);
                 }
             }
@@ -2160,6 +2160,8 @@ namespace WaveTracker.UI {
             {Keys.I, 'I'},
             {Keys.J, 'J'},
             {Keys.M, 'M'},
+            {Keys.Y, 'Y'},
+            {Keys.K, 'K'},
 
         };
 
