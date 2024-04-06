@@ -17,7 +17,7 @@ namespace WaveTracker.UI {
         public bool ValueWasChangedInternally { get; set; }
         public string Text { get; set; }
         string lastText;
-        public int maxLength = 32;
+        public int MaxLength { get; set; }
         public Textbox(string label, int x, int y, int width, int textBoxWidth, Element parent) {
             this.width = width;
             this.textboxWidth = textBoxWidth;
@@ -25,16 +25,21 @@ namespace WaveTracker.UI {
             this.y = y;
             this.label = label;
             this.height = 13;
+            MaxLength = 32;
             SetParent(parent);
         }
 
         public Textbox(string label, int x, int y, int width, Element parent) {
             this.width = width;
-            this.textboxWidth = width - Helpers.GetWidthOfText(label) - 4;
+            if (label == "")
+                this.textboxWidth = width;
+            else
+                this.textboxWidth = width - Helpers.GetWidthOfText(label) - 4;
             this.x = x;
             this.y = y;
             this.label = label;
             this.height = 13;
+            MaxLength = 32;
             SetParent(parent);
         }
 
@@ -65,7 +70,7 @@ namespace WaveTracker.UI {
         public void Draw() {
             Color dark = new Color(104, 111, 153);
             Color text = new Color(20, 24, 46);
-            if (IsHovered && canEdit) {
+            if (IsHovered && canEdit && enabled) {
                 dark = text;
             }
             Write(label + "", 0, height / 2 - 3, dark);
@@ -86,7 +91,7 @@ namespace WaveTracker.UI {
             dialog = new Forms.EnterText();
             dialog.textBox.Text = Text;
             dialog.label.Text = label;
-            dialog.textBox.MaxLength = maxLength;
+            dialog.textBox.MaxLength = MaxLength;
             if (dialog.ShowDialog() == DialogResult.OK) {
                 Text = Helpers.FlushString(dialog.textBox.Text);
                 ValueWasChangedInternally = true;

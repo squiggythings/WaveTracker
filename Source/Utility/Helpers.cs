@@ -427,12 +427,12 @@ namespace WaveTracker {
                 long sampleLength = (long)(Nreader.Length * (44100.0 / Nreader.WaveFormat.SampleRate));
                 float[] buffer = new float[sampleLength / 4];
                 isp.Read(buffer, 0, buffer.Length);
-                for (int s = 0, v = 0; v < buffer.Length; s++) {
-                    if (s > 44100 * 120)
+                for (int sampleIndex = 0, bufferIndex = 0; bufferIndex < buffer.Length; sampleIndex++) {
+                    if (sampleIndex > 16777216)
                         break;
-                    LChannel.Add(buffer[v++]);
+                    LChannel.Add(buffer[bufferIndex++]);
                     if (!mono)
-                        RChannel.Add(buffer[v++]);
+                        RChannel.Add(buffer[bufferIndex++]);
                 }
                 if (mono)
                     RChannel.Clear();
@@ -442,6 +442,46 @@ namespace WaveTracker {
             } catch {
                 LChannel.Add(0f);
                 RChannel.Add(0f);
+                L = LChannel.ToArray();
+                R = RChannel.ToArray();
+                return false;
+            }
+        }
+
+        public static bool ReadWav(string filepath, out short[] L, out short[] R) {
+            List<short> LChannel = new List<short>();
+            List<short> RChannel = new List<short>();
+            try {
+                AudioFileReader Nreader = new AudioFileReader(filepath);
+                ISampleProvider isp;
+                bool mono = Nreader.WaveFormat.Channels == 1;
+
+                var outFormat = new WaveFormat(44100, Nreader.WaveFormat.Channels);
+                IWaveProvider waveProvider = Nreader.ToWaveProvider();
+                if (Preferences.profile.automaticallyResampleSamples)
+                    using (var resampler = new MediaFoundationResampler(Nreader, outFormat)) {
+                        isp = resampler.ToSampleProvider();
+                    }
+                else
+                    isp = Nreader.ToSampleProvider();
+                long sampleLength = (long)(Nreader.Length * (44100.0 / Nreader.WaveFormat.SampleRate));
+                float[] buffer = new float[sampleLength / 4];
+                isp.Read(buffer, 0, buffer.Length);
+                for (int s = 0, v = 0; v < buffer.Length; s++) {
+                    if (s > 16777216)
+                        break;
+                    LChannel.Add((short)(buffer[v++] * short.MaxValue));
+                    if (!mono)
+                        RChannel.Add((short)(buffer[v++] * short.MaxValue));
+                }
+                if (mono)
+                    RChannel.Clear();
+                L = LChannel.ToArray();
+                R = RChannel.ToArray();
+                return true;
+            } catch {
+                LChannel.Add(0);
+                RChannel.Add(0);
                 L = LChannel.ToArray();
                 R = RChannel.ToArray();
                 return false;

@@ -11,9 +11,8 @@ using Microsoft.Xna.Framework.Input;
 
 namespace WaveTracker.UI {
     public class SpriteToggle : Clickable {
-        int texNum;
-        int sourceX;
-        int sourceY;
+        readonly int sourceX;
+        readonly int sourceY;
 
         public bool Value { get; set; }
 

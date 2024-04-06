@@ -22,8 +22,8 @@ namespace WaveTracker.UI {
         int max = int.MaxValue;
         int valueSaved;
         bool canScroll = true;
-        public enum DisplayMode { Number, Note, NoteOnly, PlusMinus }
-        public DisplayMode displayMode = DisplayMode.Number;
+        public enum NumberDisplayMode { Number, Note, NoteOnly, PlusMinus }
+        public NumberDisplayMode DisplayMode { get; set; }
         public bool ValueWasChanged { get; private set; }
         public bool ValueWasChangedInternally { get; private set; }
         int lastValue;
@@ -32,6 +32,7 @@ namespace WaveTracker.UI {
 
         public NumberBox(string label, int x, int y, int width, int boxWidth, Element parent) {
             this.label = label;
+            DisplayMode = NumberDisplayMode.Number;
             this.x = x;
             this.y = y;
             this.width = width;
@@ -48,6 +49,7 @@ namespace WaveTracker.UI {
             this.x = x;
             this.y = y;
             this.width = Helpers.GetWidthOfText(label) + 46;
+            DisplayMode = NumberDisplayMode.Number;
             this.boxWidth = 38;
             height = 13;
             canScroll = true;
@@ -112,7 +114,7 @@ namespace WaveTracker.UI {
             Color dark = UIColors.label;
             Color text = UIColors.black;
             Color labelCol = UIColors.labelDark;
-            if (IsHovered) {
+            if (IsHovered && enabled) {
                 labelCol = Color.Black;
                 dark = UIColors.label;
             }
@@ -125,13 +127,13 @@ namespace WaveTracker.UI {
             DrawRect(boxStart + 1, boxStartY + 1, bWidth - 2, boxHeight - 2, Color.White);
             DrawRect(boxStart + 1, boxStartY + 1, bWidth - 2, 1, new Color(193, 196, 213));
             DrawRect(width, boxStartY + 6, -10, 1, ButtonColors.Round.backgroundColor);
-            if (displayMode == DisplayMode.Number)
+            if (DisplayMode == NumberDisplayMode.Number)
                 Write(Value + "", boxStart + 4, height / 2 - 3, text);
-            if (displayMode == DisplayMode.Note)
+            if (DisplayMode == NumberDisplayMode.Note)
                 Write(Value + " (" + Helpers.MIDINoteToText(Value) + ")", boxStart + 4, height / 2 - 3, text);
-            if (displayMode == DisplayMode.NoteOnly)
+            if (DisplayMode == NumberDisplayMode.NoteOnly)
                 Write(Helpers.MIDINoteToText(Value), boxStart + 4, height / 2 - 3, text);
-            if (displayMode == DisplayMode.PlusMinus)
+            if (DisplayMode == NumberDisplayMode.PlusMinus)
                 Write((Value <= 0 ? Value : "+" + Value) + "", boxStart + 4, height / 2 - 3, text);
             bUp.Draw();
             bDown.Draw();

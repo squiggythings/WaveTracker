@@ -144,6 +144,7 @@ namespace WaveTracker {
 
             if (IsActive) {
                 Input.GetState(gameTime);
+                MidiInput.GetInput();
             }
             else {
                 Input.windowFocusTimer = 5;
@@ -167,6 +168,7 @@ namespace WaveTracker {
             Tooltip.Update(gameTime);
             if (Input.GetKeyDown(Keys.F12, KeyModifier.None)) {
                 ChannelManager.Reset();
+                MidiInput.ReadMidiDevices();
                 audioEngine.Reset();
             }
             PatternEditor.Update();
@@ -185,6 +187,9 @@ namespace WaveTracker {
                 pianoInput = waveBank.editor.GetPianoMouseInput();
             if (InstrumentBank.editor.GetPianoMouseInput() > -1)
                 pianoInput = InstrumentBank.editor.GetPianoMouseInput();
+            //if (MidiInput.GetMidiNote > -1) {
+            //    pianoInput = MidiInput.GetMidiNote;
+            //}
             if (PatternEditor.cursorPosition.Column == CursorColumnType.Note || WaveEditor.enabled || InstrumentEditor.enabled) {
                 if (pianoInput != -1 && lastPianoKey != pianoInput) {
                     if (!Playback.IsPlaying)
@@ -199,8 +204,8 @@ namespace WaveTracker {
                 ChannelManager.previewChannel.PreviewCut();
             }
 
-            if (!ChannelManager.previewChannel.waveEnv.toPlay.isActive)
-                ChannelManager.previewChannel.SetWave(WaveBank.lastSelectedWave);
+            //if (!ChannelManager.previewChannel.waveEnv.toPlay.IsActive)
+            //    ChannelManager.previewChannel.SetWave(WaveBank.lastSelectedWave);
 
             Playback.Update(gameTime);
 
@@ -273,14 +278,19 @@ namespace WaveTracker {
                 visualization.Draw();
             }
             toolbar.Draw();
-            Dialogs.Draw();
 
             if (!VisualizerMode) {
                 waveBank.editor.Draw();
                 InstrumentBank.editor.Draw();
 
             }
+            Dialogs.Draw();
             Tooltip.Draw();
+            //if (MidiInput.currentlyHeldDownNotes != null) {
+            //    for (int i = 0; i < MidiInput.currentlyHeldDownNotes.Count; ++i) {
+            //        Graphics.Write("note: " + Helpers.MIDINoteToText(MidiInput.currentlyHeldDownNotes[i]) + " " + (int)(99 * (MidiInput.GetVelocity / 127f)), 20, 20 + i * 10, Color.Red);
+            //    }
+            //}
             //int y = 10;
             //foreach (MMDevice k in audioEngine.devices)
             //{

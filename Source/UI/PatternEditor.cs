@@ -1027,7 +1027,7 @@ namespace WaveTracker.UI {
             else {
                 Color instrumentColor;
                 if (instrumentValue < App.CurrentModule.Instruments.Count) {
-                    if (App.CurrentModule.Instruments[instrumentValue].instrumentType == InstrumentType.Wave)
+                    if (App.CurrentModule.Instruments[instrumentValue] is WaveInstrument)
                         instrumentColor = Colors.theme.instrumentColumnWave;
                     else
                         instrumentColor = Colors.theme.instrumentColumnSample;

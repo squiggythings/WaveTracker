@@ -103,13 +103,13 @@ namespace WaveTracker.UI {
             bMoveDown.enabled = CurrentInstrumentIndex < App.CurrentModule.Instruments.Count - 1;
             bMoveUp.enabled = CurrentInstrumentIndex > 0;
             if (bNewWave.Clicked) {
-                App.CurrentModule.Instruments.Add(new Instrument(InstrumentType.Wave));
+                App.CurrentModule.Instruments.Add(new WaveInstrument());
                 App.CurrentModule.SetDirty();
                 CurrentInstrumentIndex = App.CurrentModule.Instruments.Count - 1;
                 Goto(App.CurrentModule.Instruments.Count - 1);
             }
             if (bNewSample.Clicked) {
-                App.CurrentModule.Instruments.Add(new Instrument(InstrumentType.Sample));
+                App.CurrentModule.Instruments.Add(new SampleInstrument());
                 App.CurrentModule.SetDirty();
                 CurrentInstrumentIndex = App.CurrentModule.Instruments.Count - 1;
                 Goto(App.CurrentModule.Instruments.Count - 1);
@@ -194,7 +194,7 @@ namespace WaveTracker.UI {
                 if (App.CurrentModule.Instruments.Count > i && i >= 0) {
                     WriteMonospaced(i.ToString("D2"), 15, 30 + y * 11, Color.White, 4);
                     Write(App.CurrentModule.Instruments[i].name, 29, 30 + y * 11, Color.White);
-                    if (App.CurrentModule.Instruments[i].instrumentType == InstrumentType.Wave)
+                    if (App.CurrentModule.Instruments[i] is WaveInstrument)
                         DrawSprite( 3, 30 + y * 11, new Rectangle(88, 80, 8, 7));
                     else
                         DrawSprite( 3, 30 + y * 11, new Rectangle(88, 87, 8, 7));

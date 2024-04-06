@@ -1,13 +1,14 @@
 ﻿using Microsoft.Xna.Framework;
 
 namespace WaveTracker.UI {
-    public class Clickable : Element {
+    public abstract class Clickable : Element {
         public int width;
         public int height;
         public bool enabled = true;
         public string TooltipText {
             get; private set;
         }
+
         public string TooltipTextLong { get; private set; }
 
         public void SetTooltip(string ttshort, string ttlong) {

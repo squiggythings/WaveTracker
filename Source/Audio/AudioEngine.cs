@@ -12,8 +12,8 @@ using WaveTracker.UI;
 namespace WaveTracker.Audio {
     public class AudioEngine {
         public const ResamplingMode RESAMPLING_MODE = ResamplingMode.None;
-        public const int sampleRate = 44100;
-        public static int samplesPerTick => (sampleRate / tickSpeed);
+        public const int SAMPLE_RATE = 44100;
+        public static int samplesPerTick => (SAMPLE_RATE / tickSpeed);
         public static int SamplesPerBuffer => 1000;
 
         public const bool quantizeAmplitude = false;
@@ -49,7 +49,7 @@ namespace WaveTracker.Audio {
             Dialogs.exportingDialog = new ExportingDialog();
             currentBuffer = new float[2, SamplesPerBuffer];
             audioProvider = new Provider();
-            audioProvider.SetWaveFormat(AudioEngine.sampleRate, 2); // 44.1khz stereo
+            audioProvider.SetWaveFormat(AudioEngine.SAMPLE_RATE, 2); // 44.1khz stereo
             wasapiOut = new WasapiOut();
             wasapiOut.Init(audioProvider);
             wasapiOut.Play();

@@ -13,13 +13,13 @@ namespace WaveTracker.Audio {
     public class EnvelopePlayer {
         public int step;
         public bool released;
-        public Envelope toPlay;
+        public Envelope envelopeToPlay;
         public bool EnvelopeEnded { get; private set; }
 
         public EnvelopePlayer() {
             step = 0;
             released = false;
-            toPlay = new Envelope(0);
+            envelopeToPlay = new Envelope(0);
             EnvelopeEnded = true;
         }
 
@@ -31,44 +31,51 @@ namespace WaveTracker.Audio {
 
         public void Release() {
             released = true;
-            if (toPlay.HasRelease)
-                step = toPlay.releaseIndex + 1;
+            if (envelopeToPlay.HasRelease)
+                step = envelopeToPlay.ReleaseIndex + 1;
         }
 
         public int Evaluate() {
-            if (!toPlay.isActive)
-                return toPlay.defaultValue;
-            if (toPlay.values.Count > 0) {
-                if (step > toPlay.values.Count) step = toPlay.values.Count - 1;
+            if (!envelopeToPlay.IsActive)
+                return GetDefaultValue();
+            if (envelopeToPlay.Length > 0) {
+                if (step > envelopeToPlay.Length) step = envelopeToPlay.Length - 1;
                 if (step < 0)
                     step = 0;
             }
-            if (toPlay.values.Count <= 0 || step < 0)
-                return toPlay.defaultValue;
+            if (envelopeToPlay.Length <= 0 || step < 0)
+                return GetDefaultValue();
             try {
-                return toPlay.values[step];
+                return envelopeToPlay.values[step];
             } catch {
-                return toPlay.defaultValue;
+                return GetDefaultValue();
             }
         }
 
+        int GetDefaultValue() {
+            return envelopeToPlay.Type switch {
+                Envelope.EnvelopeType.Volume => 99,
+                _ => 0,
+            };
+        }
+
         public void Step() {
-            if (toPlay.isActive) {
+            if (envelopeToPlay.IsActive) {
                 step++;
-                if (toPlay.HasRelease) {
-                    if (step > toPlay.releaseIndex && !released) {
-                        if (toPlay.releaseIndex <= toPlay.loopIndex || !toPlay.HasLoop)
-                            step = toPlay.releaseIndex;
+                if (envelopeToPlay.HasRelease) {
+                    if (step > envelopeToPlay.ReleaseIndex && !released) {
+                        if (envelopeToPlay.ReleaseIndex <= envelopeToPlay.LoopIndex || !envelopeToPlay.HasLoop)
+                            step = envelopeToPlay.ReleaseIndex;
 
                     }
-                    if (toPlay.HasLoop) {
-                        if (toPlay.releaseIndex >= toPlay.loopIndex) {
-                            if (step > toPlay.releaseIndex && !released)
-                                step = toPlay.loopIndex;
+                    if (envelopeToPlay.HasLoop) {
+                        if (envelopeToPlay.ReleaseIndex >= envelopeToPlay.LoopIndex) {
+                            if (step > envelopeToPlay.ReleaseIndex && !released)
+                                step = envelopeToPlay.LoopIndex;
                         }
                         else {
-                            if (step >= toPlay.values.Count) {
-                                step = toPlay.loopIndex;
+                            if (step >= envelopeToPlay.Length) {
+                                step = envelopeToPlay.LoopIndex;
                             }
                         }
                     }
@@ -76,15 +83,15 @@ namespace WaveTracker.Audio {
                 }
                 else // no release
                   {
-                    if (toPlay.HasLoop) {
-                        if (step >= toPlay.values.Count) {
-                            step = toPlay.loopIndex;
+                    if (envelopeToPlay.HasLoop) {
+                        if (step >= envelopeToPlay.Length) {
+                            step = envelopeToPlay.LoopIndex;
                         }
                     }
                 }
-                if (step >= toPlay.values.Count) {
+                if (step >= envelopeToPlay.Length) {
                     EnvelopeEnded = true;
-                    step = toPlay.values.Count - 1;
+                    step = envelopeToPlay.Length - 1;
                 }
                 else {
                     EnvelopeEnded = false;

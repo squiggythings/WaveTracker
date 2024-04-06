@@ -18,11 +18,11 @@ namespace WaveTracker.Audio {
         public int waveIndex { get; private set; }
         public List<TickEvent> tickEvents;
         float totalAmplitude {
-            get { return tremoloMultiplier * (channelVolume / 99f) * (volumeEnv.Evaluate() / 99f); }
+            get { return tremoloMultiplier * (channelVolume / 99f) * (envelopePlayers[0].Evaluate() / 99f); }
         } // * currentMacro.GetState().volumeMultiplier;
         float totalPitch => Math.Clamp(channelNotePorta + bendOffset + vibratoOffset + pitchFallOffset + arpeggioOffset + detuneOffset + arpEnvelopeResult, -12, 131);
 
-        public float waveMorphPosition => waveMorphAmt / 99f;
+        public float waveMorphPosition => waveBlendAmt / 99f;
         float bassBoost;
 
         int arpEnvelopeResult;
@@ -57,20 +57,22 @@ namespace WaveTracker.Audio {
         int targetBendAmt;
         float channelNotePorta;
         float detuneOffset; // Pxx command
-        int waveMorphAmt; // Ixx command
+        int waveBlendAmt; // Ixx command
         float fmAmt; // Mxx command
-        int waveBendAmt; // Jxx command
+        int waveStretchAmt; // Jxx command
         int syncAmt; // Kxx command
-        public int sampleStartOffset { get; private set; } // Yxx command
+        public int SampleStartOffset { get; private set; } // Yxx command
         int channelVolume; // volume column
         int channelNote; // notes column
         float lastNote;
-        public Instrument currentMacro; // instrument column
-        public EnvelopePlayer volumeEnv;
-        public EnvelopePlayer arpEnv;
-        public EnvelopePlayer pitchEnv;
-        public EnvelopePlayer waveEnv;
-        public EnvelopePlayer waveModEnv;
+        public Instrument currentInstrument; // instrument column
+        SampleInstrument instrumentAsSample;
+        //public EnvelopePlayer volumeEnv;
+        //public EnvelopePlayer arpEnv;
+        //public EnvelopePlayer pitchEnv;
+        //public EnvelopePlayer waveEnv;
+        //public EnvelopePlayer waveModEnv;
+        public EnvelopePlayer[] envelopePlayers;
         public float _sampleVolume;
         float lastPitch;
 
@@ -91,11 +93,15 @@ namespace WaveTracker.Audio {
         public Channel(int id) {
             this.id = id;
             tickEvents = new List<TickEvent>();
+            envelopePlayers = new EnvelopePlayer[8];
+            for (int i = 0; i < envelopePlayers.Length; i++) {
+                envelopePlayers[i] = new EnvelopePlayer();
+            }
             Reset();
         }
 
-        public float sampleTime => (float)_time;
-        public int samplePlaybackPosition { get; private set; }
+        public float SampleTime => (float)_time;
+        public int SamplePlaybackPosition { get; private set; }
 
         public void QueueEvent(TickEventType eventType, int val1, int val2, int delay) {
             if (delay < 0) {
@@ -107,87 +113,73 @@ namespace WaveTracker.Audio {
         }
 
         public void ApplyEffect(char command, int parameter) {
-            if (command == '4') // 4XY
+            switch (command) // 4XY
             {
-                if (parameter == 0)
-                    vibratoTime = 0;
-                vibratoSpeed = (parameter + 1) / 16;
-                vibratoIntensity = parameter % 16;
-            }
-            if (command == '7') // 7XY
-            {
-                tremoloSpeed = (parameter + 1) / 16;
-                tremoloIntensity = parameter % 16;
-            }
-            if (command == '8') // 8XX
-            {
-                SetPanning(parameter / 100f);
-            }
-            if (command == '1') // 1XX
-            {
-                pitchFallSpeed = parameter / 1f;
-            }
-            if (command == '2') // 2XX
-            {
-                pitchFallSpeed = -parameter / 1f;
-            }
-            if (command == '3') // 3XX
-            {
-                portaSpeed = parameter * 1.15f;
-            }
-            if (command == 'Q') // QXY
-            {
-                bendSpeed = (parameter / 16) * 11 + 1;
-                targetBendAmt += parameter % 16;
-            }
-            if (command == 'R') // RXY
-            {
-                bendSpeed = (parameter / 16) * 11 + 1;
-                targetBendAmt -= parameter % 16;
-            }
-            if (command == '0') //0XY
-            {
-                arpCounter = 0;
-                arpeggionote2 = parameter / 16;
-                arpeggionote3 = parameter % 16;
-            }
-            if (command == '9') //9XY
-            {
-                stereoPhaseOffset = parameter / 200f;
-            }
-            if (command == 'P') // PXX
-            {
-                detuneOffset = (parameter - 50) / 37.5f;
-            }
-            if (command == 'V') // VXX
-            {
-                SetWave(parameter);
-            }
-            if (command == 'A') // AXX
-            {
-                volumeSlideSpeed = -parameter;
-            }
-            if (command == 'W') // WXX
-            {
-                volumeSlideSpeed = parameter;
-            }
-            if (command == 'I') // IXX
-            {
-                waveMorphAmt = parameter;
-            }
-            if (command == 'M') // MXX
-            {
-                fmAmt = parameter / 20f;
-            }
-            if (command == 'J') // Jxx
-            {
-                waveBendAmt = parameter;
-            }
-            if (command == 'Y') {
-                sampleStartOffset = parameter;
-            }
-            if (command == 'K') {
-                syncAmt = parameter;
+                case '4':
+                    if (parameter == 0)
+                        vibratoTime = 0;
+                    vibratoSpeed = (parameter + 1) / 16;
+                    vibratoIntensity = parameter % 16;
+                    break;
+                case '7':
+                    tremoloSpeed = (parameter + 1) / 16;
+                    tremoloIntensity = parameter % 16;
+                    break;
+                case '8':
+                    SetPanning(parameter / 100f);
+                    break;
+                case '1':
+                    pitchFallSpeed = parameter / 1f;
+                    break;
+                case '2':
+                    pitchFallSpeed = -parameter / 1f;
+                    break;
+                case '3':
+                    portaSpeed = parameter * 1.15f;
+                    break;
+                case 'Q':
+                    bendSpeed = parameter / 16 * 11 + 1;
+                    targetBendAmt += parameter % 16;
+                    break;
+                case 'R':
+                    bendSpeed = parameter / 16 * 11 + 1;
+                    targetBendAmt -= parameter % 16;
+                    break;
+                case '0':
+                    arpCounter = 0;
+                    arpeggionote2 = parameter / 16;
+                    arpeggionote3 = parameter % 16;
+                    break;
+                case '9':
+                    stereoPhaseOffset = parameter / 200f;
+                    break;
+                case 'P':
+                    detuneOffset = (parameter - 50) / 37.5f;
+                    break;
+                case 'V':
+                    SetWave(parameter);
+                    break;
+                case 'A':
+                    volumeSlideSpeed = -parameter;
+                    break;
+                case 'W':
+                    volumeSlideSpeed = parameter;
+                    break;
+                case 'I':
+                    waveBlendAmt = parameter;
+                    break;
+                case 'M':
+                    fmAmt = parameter / 20f;
+                    break;
+                case 'J':
+                    waveStretchAmt = parameter;
+                    break;
+                case 'Y':
+                    SampleStartOffset = parameter;
+                    break;
+                case 'K':
+                    syncAmt = parameter;
+                    break;
             }
         }
 
@@ -198,60 +190,68 @@ namespace WaveTracker.Audio {
         public void SetMacro(int id) {
 
             if (id < App.CurrentModule.Instruments.Count) {
-                Instrument m = App.CurrentModule.Instruments[id];
-                currentMacro = m;
-                volumeEnv.toPlay = m.volumeEnvelope;
-                arpEnv.toPlay = m.arpEnvelope;
-                pitchEnv.toPlay = m.pitchEnvelope;
-                waveEnv.toPlay = m.waveEnvelope;
-                waveModEnv.toPlay = m.waveModEnvelope;
+                Instrument instrument = App.CurrentModule.Instruments[id];
+                currentInstrument = instrument;
+
+                for (int i = 0; i < instrument.envelopes.Count; i++) {
+                    envelopePlayers[i].envelopeToPlay = instrument.envelopes[i];
+                }
+                //volumeEnv.toPlay = instrument.volumeEnvelope;
+                //arpEnv.toPlay = instrument.arpEnvelope;
+                //pitchEnv.toPlay = instrument.pitchEnvelope;
+                //waveEnv.toPlay = instrument.waveEnvelope;
+                //waveModEnv.toPlay = instrument.waveModEnvelope;
                 if (macroID != id) {
                     macroID = id;
                     if (this.id < 0)
                         ResetModulations();
-                    if (m.instrumentType == InstrumentType.Sample)
+                    if (instrument is SampleInstrument)
                         _time = 0;
                 }
-                volumeEnv.Start();
-                pitchEnv.Start();
-                arpEnv.Start();
-                waveEnv.Start();
-                waveModEnv.Start();
-                if (currentMacro.instrumentType == InstrumentType.Wave) {
-                    if (waveEnv.toPlay.isActive)
-                        if (!waveEnv.EnvelopeEnded)
-                            SetWave(waveEnv.Evaluate());
-                    if (waveModEnv.toPlay.isActive)
-                        if (!waveModEnv.EnvelopeEnded) {
-                            if (currentMacro.waveModType == 0) {
-                                waveMorphAmt = waveModEnv.Evaluate();
-                            }
-                            else if (currentMacro.waveModType == 1) {
-                                waveBendAmt = waveModEnv.Evaluate();
-                            }
-                            else if (currentMacro.waveModType == 2) {
-                                fmAmt = waveModEnv.Evaluate() / 20f;
-                                _fmSmooth = fmAmt;
-                            }
-                        }
+                for (int i = 0; i < instrument.envelopes.Count; i++) {
+                    envelopePlayers[i].Start();
                 }
+                if (currentInstrument is SampleInstrument) {
+                    instrumentAsSample = currentInstrument as SampleInstrument;
+                }
+                //if (currentInstrument is WaveInstrument) {
+                //    if (waveEnv.toPlay.IsActive)
+                //        if (!waveEnv.EnvelopeEnded)
+                //            SetWave(waveEnv.Evaluate());
+                //    if (waveModEnv.toPlay.IsActive)
+                //        if (!waveModEnv.EnvelopeEnded) {
+                //            if (currentInstrument.waveModType == 0) {
+                //                waveBlendAmt = waveModEnv.Evaluate();
+                //            }
+                //            else if (currentInstrument.waveModType == 1) {
+                //                waveStretchAmt = waveModEnv.Evaluate();
+                //            }
+                //            else if (currentInstrument.waveModType == 2) {
+                //                fmAmt = waveModEnv.Evaluate() / 20f;
+                //                _fmSmooth = fmAmt;
+                //            }
+                //        }
+                //}
             }
 
         }
 
         public void Release() {
             if (_state == VoiceState.On) {
-                volumeEnv.Release();
-                pitchEnv.Release();
-                arpEnv.Release();
-                waveEnv.Release();
-                waveModEnv.Release();
+                for (int i = 0; i < currentInstrument.envelopes.Count; i++) {
+                    envelopePlayers[i].Release();
+                }
+                //volumeEnv.Release();
+                //pitchEnv.Release();
+                //arpEnv.Release();
+                //waveEnv.Release();
+                //waveModEnv.Release();
                 _state = VoiceState.Release;
             }
         }
 
         public void PreviewCut() {
-            if (volumeEnv.toPlay.isActive && volumeEnv.toPlay.HasRelease)
+            if (currentInstrument.envelopes[0].IsActive && currentInstrument.envelopes[0].HasRelease)
                 Release();
             else
                 Cut();
@@ -268,13 +268,13 @@ namespace WaveTracker.Audio {
         }
 
         public void Reset() {
-            currentMacro = new Instrument(InstrumentType.Wave);
+            currentInstrument = new WaveInstrument();
             macroID = 0;
-            volumeEnv = new EnvelopePlayer();
-            arpEnv = new EnvelopePlayer();
-            pitchEnv = new EnvelopePlayer();
-            waveEnv = new EnvelopePlayer();
-            waveModEnv = new EnvelopePlayer();
+            //volumeEnv = new EnvelopePlayer();
+            //arpEnv = new EnvelopePlayer();
+            //pitchEnv = new EnvelopePlayer();
+            //waveEnv = new EnvelopePlayer();
+            //waveModEnv = new EnvelopePlayer();
             tickEvents.Clear();
             noteOn = false;
             _state = VoiceState.Off;
@@ -298,16 +298,16 @@ namespace WaveTracker.Audio {
             tremoloSpeed = 0;
             tremoloTime = 0;
             stereoPhaseOffset = 0;
-            waveMorphAmt = 0;
+            waveBlendAmt = 0;
             fmAmt = 0;
             _fmSmooth = 0;
-            waveBendAmt = 0;
+            waveStretchAmt = 0;
             SetWave(0);
             lastNote = channelNote;
             channelNotePorta = channelNote;
             portaSpeed = 0;
             portaTime = 0;
-            sampleStartOffset = 0;
+            SampleStartOffset = 0;
             syncAmt = 0;
             bendSpeed = 0;
             targetBendAmt = 0;
@@ -316,10 +316,10 @@ namespace WaveTracker.Audio {
         }
 
         public void ResetModulations() {
-            waveMorphAmt = 0;
+            waveBlendAmt = 0;
             _fmSmooth = 0;
             fmAmt = 0;
-            waveBendAmt = 0;
+            waveStretchAmt = 0;
         }
 
         public void SetWave(int waveIndex) {
@@ -336,7 +336,7 @@ namespace WaveTracker.Audio {
             if (_state == VoiceState.Off) {
                 _time = 0.0;
             }
-            if (_state == VoiceState.Release && volumeEnv.Evaluate() == 0)
+            if (_state == VoiceState.Release && envelopePlayers[0].Evaluate() == 0)
                 _time = 0.0;
             targetBendAmt = 0;
             bendOffset = 0;
@@ -349,9 +349,9 @@ namespace WaveTracker.Audio {
                 noteOn = true;
                 _state = VoiceState.On;
             }
-            arpEnv.Start();
-            arpEnvelopeResult = arpEnv.Evaluate();
-            if (currentMacro.instrumentType == InstrumentType.Sample)
+            envelopePlayers[1].Start();
+            arpEnvelopeResult = envelopePlayers[1].Evaluate();
+            if (currentInstrument is SampleInstrument)
                 _time = 0;
             _frequency = Helpers.NoteToFrequency(totalPitch);
 
@@ -370,7 +370,7 @@ namespace WaveTracker.Audio {
         /// </summary>
         public float CurrentAmplitude {
             get {
-                if (currentMacro.instrumentType == InstrumentType.Wave)
+                if (currentInstrument is WaveInstrument)
                     return totalAmplitude * (_state == VoiceState.Off ? 0 : 1);
                 else
                     return totalAmplitude * (_sampleVolume / 1.5f + 0.01f) * (_state == VoiceState.Off ? 0 : 1);
@@ -402,9 +402,9 @@ namespace WaveTracker.Audio {
             float s = (syncAmt / 100f * 8) + 1;
             time = (s * (time % 1)) % 1;
             if (_fmSmooth > 0.001f)
-                return currentWave.GetSampleMorphed(time + App.CurrentModule.WaveBank[(waveIndex + 1) % 100].GetSampleAtPosition(time) * (_fmSmooth * _fmSmooth) / 2f, App.CurrentModule.WaveBank[(waveIndex + 1) % 100], waveMorphAmt / 99f, waveBendAmt / 100f);
+                return currentWave.GetSampleMorphed(time + App.CurrentModule.WaveBank[(waveIndex + 1) % 100].GetSampleAtPosition(time) * (_fmSmooth * _fmSmooth) / 2f, App.CurrentModule.WaveBank[(waveIndex + 1) % 100], waveBlendAmt / 99f, waveStretchAmt / 100f);
             else
-                return currentWave.GetSampleMorphed(time, App.CurrentModule.WaveBank[(waveIndex + 1) % 100], waveMorphAmt / 99f, waveBendAmt / 100f);
+                return currentWave.GetSampleMorphed(time, App.CurrentModule.WaveBank[(waveIndex + 1) % 100], waveBlendAmt / 99f, waveStretchAmt / 100f);
         }
 
 
@@ -426,7 +426,7 @@ namespace WaveTracker.Audio {
             if (pitchFallSpeed != 0)
                 pitchFallOffset += pitchFallSpeed * deltaTime * 2;
             if (portaTime < 2)
-                portaTime += deltaTime * (portaSpeed == 0 ? AudioEngine.sampleRate : portaSpeed);
+                portaTime += deltaTime * (portaSpeed == 0 ? AudioEngine.SAMPLE_RATE : portaSpeed);
 
             if (channelNotePorta > channelNote) {
                 channelNotePorta += (channelNote - lastNote) * deltaTime * portaSpeed;
@@ -449,8 +449,8 @@ namespace WaveTracker.Audio {
                 if (bendOffset > targetBendAmt)
                     bendOffset = targetBendAmt;
             }
-            if (pitchEnv.toPlay.isActive && !pitchEnv.EnvelopeEnded)
-                pitchFallOffset += pitchEnv.Evaluate() * deltaTime * 4;
+            if (envelopePlayers[2].envelopeToPlay.IsActive && !envelopePlayers[2].EnvelopeEnded)
+                pitchFallOffset += envelopePlayers[2].Evaluate() * deltaTime * 4;
             if (lastPitch != totalPitch) {
                 lastPitch = totalPitch;
                 _frequency = Helpers.NoteToFrequency(lastPitch);
@@ -461,35 +461,57 @@ namespace WaveTracker.Audio {
         public void NextTick() {
 
             tickNum++;
-            if (currentMacro.instrumentType == InstrumentType.Wave) {
-                waveEnv.Step();
-                if (waveEnv.toPlay.isActive)
-                    if (!waveEnv.EnvelopeEnded && _state != VoiceState.Off)
-                        SetWave(waveEnv.Evaluate());
-
-            }
-            if (currentMacro.instrumentType == InstrumentType.Wave) {
-                waveModEnv.Step();
-                if (waveModEnv.toPlay.isActive)
-                    if (!waveModEnv.EnvelopeEnded && _state != VoiceState.Off) {
-                        if (currentMacro.waveModType == 0) {
-                            waveMorphAmt = waveModEnv.Evaluate();
+            foreach (EnvelopePlayer envelopePlayer in envelopePlayers) {
+                if (envelopePlayer.envelopeToPlay.IsActive) {
+                    envelopePlayer.Step();
+                    if (!envelopePlayer.EnvelopeEnded && _state != VoiceState.Off) {
+                        if (envelopePlayer.envelopeToPlay.Type == Envelope.EnvelopeType.Wave) {
+                            SetWave(envelopePlayer.Evaluate());
                         }
-                        else if (currentMacro.waveModType == 1) {
-                            waveBendAmt = waveModEnv.Evaluate();
+                        else if (envelopePlayer.envelopeToPlay.Type == Envelope.EnvelopeType.WaveBlend) {
+                            waveBlendAmt = envelopePlayer.Evaluate();
                         }
-                        else if (currentMacro.waveModType == 2) {
-                            fmAmt = waveModEnv.Evaluate() / 20f;
+                        else if (envelopePlayer.envelopeToPlay.Type == Envelope.EnvelopeType.WaveStretch) {
+                            waveStretchAmt = envelopePlayer.Evaluate();
+                        }
+                        else if (envelopePlayer.envelopeToPlay.Type == Envelope.EnvelopeType.WaveSync) {
+                            syncAmt = envelopePlayer.Evaluate();
+                        }
+                        else if (envelopePlayer.envelopeToPlay.Type == Envelope.EnvelopeType.WaveFM) {
+                            fmAmt = envelopePlayer.Evaluate() / 20f;
                         }
                     }
-
+                }
             }
-            if (volumeEnv.toPlay.isActive)
-                volumeEnv.Step();
-            if (arpEnv.toPlay.isActive)
-                arpEnv.Step();
-            if (pitchEnv.toPlay.isActive)
-                pitchEnv.Step();
+            //if (currentInstrument is WaveInstrument) {
+            //    waveEnv.Step();
+            //    if (waveEnv.toPlay.IsActive)
+            //        if (!waveEnv.EnvelopeEnded && _state != VoiceState.Off)
+            //            SetWave(waveEnv.Evaluate());
+
+            //}
+            //if (currentInstrument is WaveInstrument) {
+            //    waveModEnv.Step();
+            //    if (waveModEnv.toPlay.IsActive)
+            //        if (!waveModEnv.EnvelopeEnded && _state != VoiceState.Off) {
+            //            if (currentInstrument.waveModType == 0) {
+            //                waveMorphAmt = waveModEnv.Evaluate();
+            //            }
+            //            else if (currentInstrument.waveModType == 1) {
+            //                waveBendAmt = waveModEnv.Evaluate();
+            //            }
+            //            else if (currentInstrument.waveModType == 2) {
+            //                fmAmt = waveModEnv.Evaluate() / 20f;
+            //            }
+            //        }
+
+            //}
+            //if (volumeEnv.toPlay.IsActive)
+            //    volumeEnv.Step();
+            //if (arpEnv.toPlay.IsActive)
+            //    arpEnv.Step();
+            //if (pitchEnv.toPlay.IsActive)
+            //    pitchEnv.Step();
 
             channelVolume += volumeSlideSpeed;
             if (channelVolume > 99)
@@ -530,14 +552,14 @@ namespace WaveTracker.Audio {
             }
 
 
-            if (volumeEnv.toPlay.values.Count > 0 && volumeEnv.toPlay.isActive)
+            if (envelopePlayers[0].envelopeToPlay.Length > 0 && envelopePlayers[0].envelopeToPlay.IsActive)
                 try {
-                    if (volumeEnv.EnvelopeEnded && volumeEnv.toPlay.values[volumeEnv.toPlay.values.Count - 1] == 0)
+                    if (envelopePlayers[0].EnvelopeEnded && envelopePlayers[0].envelopeToPlay.values[envelopePlayers[0].envelopeToPlay.Length - 1] == 0)
                         Cut();
                 } catch {
                     // Cut();
                 }
-            arpEnvelopeResult = arpEnv.Evaluate();
+            arpEnvelopeResult = envelopePlayers[1].Evaluate();
             bassBoost = 0.6f * MathF.Pow(1.025f, -totalPitch) + 0.975f;
             //bassBoost = 1;
 
@@ -572,7 +594,7 @@ namespace WaveTracker.Audio {
             //    _frequency = 15804;
             //    //_state = VoiceState.Off;
             //}
-            float delta = 1f / (OVERSAMPLE * AudioEngine.sampleRate) * _frequency;
+            float delta = 1f / (OVERSAMPLE * AudioEngine.SAMPLE_RATE) * _frequency;
             if (continuousTick)
                 ContinuousTick(continuousDelta);
             if (noteOn) {
@@ -593,8 +615,8 @@ namespace WaveTracker.Audio {
                     }
                     sampleL = 0;
                     sampleR = 0;
-                    if (currentMacro != null) {
-                        if (currentMacro.instrumentType == InstrumentType.Wave) {
+                    if (currentInstrument != null) {
+                        if (currentInstrument is WaveInstrument) {
                             if (_time > 1)
                                 _time -= 1;
                             if (stereoPhaseOffset != 0) {
@@ -606,10 +628,10 @@ namespace WaveTracker.Audio {
                             }
                         }
                         else {
-                            currentMacro.sample.SampleTick((float)_time, (int)(stereoPhaseOffset * 100), sampleStartOffset / 100f, out sampleL, out sampleR);
+                            instrumentAsSample.sample.SampleTick((float)_time, (int)(stereoPhaseOffset * 100), SampleStartOffset / 100f, out sampleL, out sampleR);
                             sampleL *= 1.25f;
                             sampleR *= 1.25f;
-                            samplePlaybackPosition = currentMacro.sample.currentPlaybackPosition;
+                            SamplePlaybackPosition = instrumentAsSample.sample.currentPlaybackPosition;
                             if (Math.Abs(sampleL) > _sampleVolume) {
                                 _sampleVolume = Math.Abs(sampleL);
                             }

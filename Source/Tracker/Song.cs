@@ -74,14 +74,15 @@ namespace WaveTracker.Tracker {
             //waves[10].Randomize();
 
             instruments = new List<Instrument>();
-            instruments.Add(new Instrument(InstrumentType.Wave));
+            instruments.Add(new WaveInstrument());
             tickRate = 60;
             rowHighlight1 = 16;
             rowHighlight2 = 4;
             quantizeChannelAmplitude = false;
         }
 
-        public bool Equals(Song other) {
+        /*public bool Equals(Song other) {
+            
             if (other.name != name)
                 return false;
             if (other.author != author)
@@ -106,9 +107,9 @@ namespace WaveTracker.Tracker {
                 if (!instruments[i].IsEqualTo(other.instruments[i]))
                     return false;
             }
-
+            
             return true;
-        }
+        }*/
 
         public void InitializeForSerialization() {
             foreach (Frame f in frames) {

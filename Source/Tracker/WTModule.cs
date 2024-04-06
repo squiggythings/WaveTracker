@@ -79,7 +79,7 @@ namespace WaveTracker.Tracker {
             Songs = new List<WTSong>();
             Songs.Add(new WTSong(this));
             Instruments = new List<Instrument> {
-                new Instrument(InstrumentType.Wave)
+                new WaveInstrument ()
             };
             WaveBank = new Wave[100];
             WaveBank[0] = Wave.Sine;

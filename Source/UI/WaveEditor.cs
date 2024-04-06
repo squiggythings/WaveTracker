@@ -102,7 +102,7 @@ namespace WaveTracker.UI {
 
             waveText = new UI.Textbox("", 17, 188, 384, 384, this);
             waveText.canEdit = true;
-            waveText.maxLength = 192;
+            waveText.MaxLength = 192;
 
             ResampleDropdown = new Dropdown(385, 215, this);
             ResampleDropdown.SetMenuItems(new string[] { "Harsh (None)", "Smooth (Linear)", "Mix (None + Linear)" });

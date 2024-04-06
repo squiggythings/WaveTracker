@@ -85,6 +85,9 @@ namespace WaveTracker.UI {
         protected void DrawSprite(int x, int y, Rectangle bounds) {
             Graphics.DrawSprite(this.x + x + OffX, this.y + y + OffY, bounds);
         }
+        protected void DrawSprite(int x, int y, Rectangle bounds, Color color) {
+            Graphics.DrawSprite(this.x + x + OffX, this.y + y + OffY, bounds.Width, bounds.Height, bounds, color);
+        }
         protected void DrawSprite(int x, int y, int width, int height, Rectangle spriteBounds) {
             Graphics.DrawSprite(this.x + x + OffX, this.y + y + OffY, width, height, spriteBounds);
         }

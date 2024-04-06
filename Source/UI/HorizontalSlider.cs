@@ -31,10 +31,8 @@ namespace WaveTracker.UI {
             this.y = y;
             this.width = width;
             this.height = 11;
-            handle = new Clickable();
-            handle.width = 5;
-            handle.parent = this;
-            handle.height = height - 0;
+            handle = new MouseRegion(0, 0, 5, height, this);
+            
             FineAdjustAmount = 1;
             CoarseAdjustAmount = 1;
             TickSpacing = width / (float)numTicks;
