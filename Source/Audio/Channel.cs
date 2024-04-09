@@ -226,7 +226,7 @@ namespace WaveTracker.Audio {
                         waveBlendAmt = envelopePlayers[Envelope.EnvelopeType.WaveBlend].Value;
                     }
                     if (envelopePlayers[Envelope.EnvelopeType.WaveStretch].HasActiveEnvelopeData) {
-                        waveStretchAmt = envelopePlayers[Envelope.EnvelopeType.WaveFM].Value;
+                        waveStretchAmt = envelopePlayers[Envelope.EnvelopeType.WaveStretch].Value;
                     }
                     if (envelopePlayers[Envelope.EnvelopeType.WaveSync].HasActiveEnvelopeData) {
                         waveSyncAmt = envelopePlayers[Envelope.EnvelopeType.WaveSync].Value;

@@ -221,17 +221,21 @@ namespace WaveTracker.Tracker {
                 t += 1;
             t %= 1;
             //t = Helpers.Mod(t, 1f);
-            if (bendAmt > 0) {
-                bendAmt = (bendAmt + 1) * (bendAmt + 1) * (bendAmt + 1);
-                float tPow = MathF.Pow(t, bendAmt);
-                float oneMinusTPow = MathF.Pow(1 - t, bendAmt);
-                t = tPow / (tPow + oneMinusTPow);
-                //float s1 = s(1, bendAmt + 1);
-                //float s1 = s(1, bendAmt + 1);
-                //float s2 = s(2 * t - 1, bendAmt + 1);
-                //float s2 = s(2 * t - 1, bendAmt + 1);
-                //t = (0.5f / s1) * s2 + 0.5f;
-                //t = Math.Clamp(MathF.Sin((t - 0.5f) * MathF.PI / 2) * (bendAmt + 0.707f) + 0.5f, 0, 1f);
+            //if (bendAmt > 0) { // old bend code
+
+            //    bendAmt = (bendAmt + 1) * (bendAmt + 1) * (bendAmt + 1);
+            //    float tPow = MathF.Pow(t, bendAmt);
+            //    float oneMinusTPow = MathF.Pow(1 - t, bendAmt);
+            //    t = tPow / (tPow + oneMinusTPow);
+            //    /*//float s1 = s(1, bendAmt + 1);
+            //    //float s1 = s(1, bendAmt + 1);
+            //    //float s2 = s(2 * t - 1, bendAmt + 1);
+            //    //float s2 = s(2 * t - 1, bendAmt + 1);
+            //    //t = (0.5f / s1) * s2 + 0.5f;
+            //    //t = Math.Clamp(MathF.Sin((t - 0.5f) * MathF.PI / 2) * (bendAmt + 0.707f) + 0.5f, 0, 1f);*/
+            //}
+            if (bendAmt > 0) { // faster bend
+                t = GetBentTime(t, bendAmt) + 0.5f;
             }
             if (interpolationAmt > 0) {
                 return MathHelper.Lerp(GetSampleAtPosition(t), other.GetSampleAtPosition(t), interpolationAmt);
@@ -241,9 +245,17 @@ namespace WaveTracker.Tracker {
             }
         }
 
-        float s(float x, float a) {
-            return 1 / (1 + MathF.Exp(-a * x)) - 0.5f;
+        float GetBentTime(float t, float bendAmt) {
+            if (t > 0.5f) {
+                return MathF.Pow(2 * t % 1, 1 - 0.8f * (-50 * bendAmt * bendAmt)) / 2f;
+            }
+            else {
+                return 1 - MathF.Pow(2 * (1 - t) % 1, 1 - 0.8f * (-50 * bendAmt * bendAmt)) / 2f;
+
+            }
+            //return MathF.Pow((t + 0.5f) % 1, 1 - 0.75f * bendAmt) + 0.5f;
         }
+
 
         /// <summary>
         /// Gets sample at the position from 0.0-1.0

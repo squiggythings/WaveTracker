@@ -120,7 +120,25 @@ namespace WaveTracker.Tracker {
         }
         [ProtoAfterDeserialization]
         internal void AfterDeserialization() {
+            for(int i = 0; i < values.Length; i++) {
+                switch (Type) {
+                    case EnvelopeType.Volume:
+                    case EnvelopeType.Wave:
+                    case EnvelopeType.WaveBlend:
+                    case EnvelopeType.WaveStretch:
+                    case EnvelopeType.WaveSync:
+                    case EnvelopeType.WaveFM:
+                        values[i] = Math.Clamp(values[i], (sbyte)0, (sbyte)99);
+                        break;
+                    case EnvelopeType.Arpeggio:
+                        values[i] = Math.Clamp(values[i], (sbyte)-118, (sbyte)120);
+                        break;
+                    case EnvelopeType.Pitch:
+                        values[i] = Math.Clamp(values[i], (sbyte)-100, (sbyte)99);
+                        break;
 
+                }
+            }
         }
 
         //public string ToEncodedString() {
