@@ -15,6 +15,7 @@ namespace WaveTracker.UI {
         public Rectangle bar;
         bool lastClickWasOnScrollbar;
         public int ScrollValue { get; set; }
+        public int MaxScrollValue { get { return totalSize - viewportSize; } }
         public int CoarseStepAmount { get; set; }
         int barClickOffset;
         public Scrollbar(int x, int y, int width, int height, Element parent) {
@@ -32,6 +33,7 @@ namespace WaveTracker.UI {
             bar.Width = 6;
             bar.X = width - bar.Width;
             bar.Height = (int)(height * (viewportSize / (float)totalSize));
+            UpdateScrollValue();
         }
 
 

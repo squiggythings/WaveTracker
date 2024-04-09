@@ -39,7 +39,7 @@ namespace WaveTracker.UI {
         /// <param name="hasExitButton"></param>
         public Window(string name, int width, int height, bool hasExitButton = true) : base(name, (App.WindowWidth - width) / 2, (App.WindowHeight - height) / 2, width, height) {
             if (hasExitButton)
-                ExitButton = new SpriteButton(width - 10, 0, 10, 9, Rendering.Graphics.img, 472, 0, this);
+                ExitButton = new SpriteButton(width - 10, 0, 10, 9, 472, 0, this);
         }
 
 

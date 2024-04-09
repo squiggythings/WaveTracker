@@ -15,8 +15,9 @@ namespace WaveTracker.UI {
         readonly int sourceY;
 
         public bool Value { get; set; }
+        public bool ValueWasChangedInternally { get; private set; }
 
-        public SpriteToggle(int x, int y, int width, int height, Texture2D source, int sourceX, int sourceY, Element parent) {
+        public SpriteToggle(int x, int y, int width, int height, int sourceX, int sourceY, Element parent) {
             enabled = true;
             this.x = x;
             this.y = y;
@@ -28,8 +29,14 @@ namespace WaveTracker.UI {
         }
 
         public void Update() {
-            if (Clicked) {
-                Value = !Value;
+            if (enabled) {
+                if (Clicked) {
+                    Value = !Value;
+                    ValueWasChangedInternally = true;
+                }
+                else {
+                    ValueWasChangedInternally = false;
+                }
             }
 
         }

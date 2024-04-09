@@ -109,7 +109,7 @@ namespace WaveTracker.Audio {
             processedRows = 0;
 
             ChannelManager.Reset();
-            Tracker.Playback.PlayFromBeginning();
+            Playback.PlayFromBeginning();
             WaveFileWriter.CreateWaveFile(path, source);
             wasapiOut.Play();
             return !cancelRender;

@@ -50,11 +50,11 @@ namespace WaveTracker.Rendering {
             int difference, lastdifference;
             float sampAmp;
             float h, l;
-            difference = w.getSample(1) - w.getSample(0);
+            difference = w.GetSample(1) - w.GetSample(0);
             for (int i = 0; i < 64; ++i) {
-                sampAmp = w.getSample(i) - 15.5f;
+                sampAmp = w.GetSample(i) - 15.5f;
                 lastdifference = difference;
-                difference = w.getSample(i + 1) - w.getSample(i);
+                difference = w.GetSample(i + 1) - w.GetSample(i);
                 brightness += difference * difference;
                 amp += Math.Abs(sampAmp);
                 dcOffset += sampAmp;
@@ -102,7 +102,7 @@ namespace WaveTracker.Rendering {
                 Channel chan = ChannelManager.channels[c];
 
                 if ((chan.currentInstrument is WaveInstrument /*|| chan.currentInstrument.sample.useInVisualization*/) && chan.CurrentAmplitude > 0.01f && chan.CurrentPitch >= 12 && chan.CurrentPitch < 132 && ChannelManager.IsChannelOn(c)) {
-                    ChannelState state = new ChannelState(chan.CurrentPitch, chan.CurrentAmplitude, chan.currentInstrument is WaveInstrument ? GetColorOfWaveFromTable(chan.waveIndex, chan.waveMorphPosition) : Color.White, chan.IsPlaying);
+                    ChannelState state = new ChannelState(chan.CurrentPitch, chan.CurrentAmplitude, chan.currentInstrument is WaveInstrument ? GetColorOfWaveFromTable(chan.WaveIndex, chan.WaveMorphPosition) : Color.White, chan.IsPlaying);
                     rowOfStates.Add(state);
                 }
             }
@@ -393,9 +393,9 @@ namespace WaveTracker.Rendering {
                         lastSamp = samp1;
                         float position = (i / (float)w * channel.CurrentFrequency / scopezoom);
 
-                        samp1 = -channel.EvaluateWave(position) * (h / 2f) * channel.CurrentAmplitude + (h / 2f);
+                        samp1 = -channel.EvaluateWave(position + 5) * (h / 2f) * channel.CurrentAmplitude + (h / 2f);
                         if (i > -w / 2)
-                            DrawOscCol(px + i + w / 2, py - 2, samp1, lastSamp, Preferences.profile.visualizerScopeColors ? GetColorOfWaveFromTable(channel.waveIndex, channel.waveMorphPosition) : Color.White, Preferences.profile.visualizerScopeThickness + 1);
+                            DrawOscCol(px + i + w / 2, py - 2, samp1, lastSamp, Preferences.profile.visualizerScopeColors ? GetColorOfWaveFromTable(channel.WaveIndex, channel.WaveMorphPosition) : Color.White, Preferences.profile.visualizerScopeThickness + 1);
                     }
                 }
                 else // SAMPLE

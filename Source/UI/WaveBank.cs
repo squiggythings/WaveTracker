@@ -13,7 +13,6 @@ using WaveTracker.Audio;
 namespace WaveTracker.UI {
     public class WaveBank : Panel {
         WaveBankElement[] waveBankElements;
-        public WaveEditor editor;
         public static int currentWave;
         public static int lastSelectedWave;
         public WaveBank() : base("Wave Bank", 510, 18, 448, 130) {
@@ -46,13 +45,10 @@ namespace WaveTracker.UI {
                 if (e.Clicked) {
                     currentWave = i;
                     lastSelectedWave = i;
-                    editor.Open(i);
-                    if (ChannelManager.previewChannel.currentInstrument is WaveInstrument) {
-                        if (!ChannelManager.previewChannel.envelopePlayers[3].envelopeToPlay.IsActive)
-                            ChannelManager.previewChannel.SetWave(i);
-                    }
+                    App.WaveEditor.Open(i);
+                    if (!ChannelManager.previewChannel.envelopePlayers[Envelope.EnvelopeType.Wave].HasActiveEnvelopeData)
+                        ChannelManager.previewChannel.SetWave(i);
                 }
-
                 ++i;
             }
         }

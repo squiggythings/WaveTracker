@@ -60,7 +60,7 @@ namespace WaveTracker.Tracker {
         /// The list of instruments in this module
         /// </summary>
         [ProtoMember(8)]
-        public List<Instrument> Instruments { get; set; }
+        public List<OldInstrument> OldInstruments { get; set; }
 
         /// <summary>
         /// The number of channels in this module
@@ -73,6 +73,8 @@ namespace WaveTracker.Tracker {
         /// </summary>
         [ProtoMember(10)]
         public List<WTSong> Songs { get; set; }
+        [ProtoMember(11)]
+        public List<Instrument> Instruments { get; set; }
 
         public WTModule() {
             ChannelCount = DEFAULT_CHANNEL_COUNT;
@@ -104,6 +106,10 @@ namespace WaveTracker.Tracker {
         }
         [ProtoAfterDeserialization]
         internal void AfterDeserialization() {
+            Instruments = new List<Instrument>();
+            foreach (OldInstrument oldInstrument in OldInstruments) {
+                Instruments.Add(oldInstrument.ToNewInstrument());
+            }
             foreach (WTSong song in Songs) {
                 song.AfterDeserialized(this);
             }

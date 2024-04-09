@@ -33,7 +33,7 @@ namespace WaveTracker.Tracker {
         public Envelope(EnvelopeType type) {
             Type = type;
             //this.defaultValue = defaultValue;
-            IsActive = false;
+            IsActive = true;
             values = new sbyte[0];
             ReleaseIndex = EMPTY_LOOP_RELEASE_INDEX;
             LoopIndex = EMPTY_LOOP_RELEASE_INDEX;
@@ -53,6 +53,28 @@ namespace WaveTracker.Tracker {
 
         public string GetName() {
             switch (Type) {
+                case EnvelopeType.Volume:
+                    return "Volume";
+                case EnvelopeType.Arpeggio:
+                    return "Arpeggio";
+                case EnvelopeType.Pitch:
+                    return "Pitch";
+                case EnvelopeType.Wave:
+                    return "Wave";
+                case EnvelopeType.WaveBlend:
+                    return "Wave Blend";
+                case EnvelopeType.WaveStretch:
+                    return "Wave Stretch";
+                case EnvelopeType.WaveSync:
+                    return "Wave Sync";
+                case EnvelopeType.WaveFM:
+                    return "Wave FM";
+            }
+            return "--";
+        }
+
+        public static string GetName(EnvelopeType type) {
+            switch (type) {
                 case EnvelopeType.Volume:
                     return "Volume";
                 case EnvelopeType.Arpeggio:

@@ -14,6 +14,7 @@ namespace WaveTracker.UI {
     public class TabGroup : Element {
         public List<Tab> tabs;
         public int SelectedTabIndex { get; set; }
+        public bool SelecetedTabIndexWasChangedInternally { get; private set; }
         public TabGroup(int x, int y, Element parent) {
             this.x = x;
             this.y = y;
@@ -37,10 +38,13 @@ namespace WaveTracker.UI {
 
         public void Update() {
             int i = 0;
+            SelecetedTabIndexWasChangedInternally = false;
             foreach (Tab tab in tabs) {
                 tab.Update();
-                if (tab.IsPressed)
+                if (tab.ClickedDown && SelectedTabIndex != i) {
+                    SelecetedTabIndexWasChangedInternally = true;
                     SelectedTabIndex = i;
+                }
                 ++i;
             }
         }

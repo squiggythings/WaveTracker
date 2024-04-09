@@ -12,7 +12,7 @@ namespace WaveTracker.UI {
     public class SpriteButton : Clickable {
         int sourceX;
         int sourceY;
-        public SpriteButton(int x, int y, int width, int height, Texture2D source, int sourceX, int sourceY, Element parent) {
+        public SpriteButton(int x, int y, int width, int height, int sourceX, int sourceY, Element parent) {
             enabled = true;
             this.x = x;
             this.y = y;

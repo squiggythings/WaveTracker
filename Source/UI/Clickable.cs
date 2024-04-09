@@ -26,8 +26,10 @@ namespace WaveTracker.UI {
                     return false;
                 bool h = MouseX < width && MouseY < height && MouseX >= 0 && MouseY >= 0;
                 if (h) {
-                    Tooltip.TooltipTextLong = TooltipTextLong;
-                    Tooltip.TooltipText = TooltipText;
+                    if (TooltipTextLong != "")
+                        Tooltip.TooltipTextLong = TooltipTextLong;
+                    if (TooltipText != "")
+                        Tooltip.TooltipText = TooltipText;
                 }
                 return h;
             }

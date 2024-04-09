@@ -62,12 +62,16 @@ namespace WaveTracker.Tracker {
             get { return new Wave("VVVVVVVV00000000000000000000000000000000000000000000000000000000"); }
         }
 
+        /// <summary>
+        /// Smooth the wave shape
+        /// </summary>
+        /// <param name="amt"></param>
         public void Smooth(int amt) {
             byte[] ret = new byte[64];
             for (int i = 0; i < 64; ++i) {
                 int sum = 0;
                 for (int j = -amt; j <= amt; j++) {
-                    sum += getSample(j + i);
+                    sum += GetSample(j + i);
                 }
                 ret[i] = (byte)Math.Round(sum / (amt * 2 + 1f));
             }
@@ -76,28 +80,55 @@ namespace WaveTracker.Tracker {
             }
         }
 
+        /// <summary>
+        /// Offset the phase <c>amt</c> steps left or right
+        /// </summary>
+        /// <param name="amt"></param>
         public void ShiftPhase(int amt) {
             byte[] ret = new byte[64];
             for (int i = 0; i < 64; ++i) {
-                ret[i] = getSample(i + amt);
+                ret[i] = GetSample(i + amt);
             }
             for (int i = 0; i < ret.Length; i++) {
                 samples[i] = ret[i];
             }
         }
 
+        /// <summary>
+        /// Move the wave up or down by <c>amt</c> steps
+        /// </summary>
+        /// <param name="amt"></param>
         public void Move(int amt) {
             for (int i = 0; i < 64; ++i) {
                 samples[i] = (byte)Math.Clamp(samples[i] + amt, 0, 31);
             }
         }
 
+        /// <summary>
+        /// Reverse the polarity of the wave
+        /// </summary>
         public void Invert() {
             for (int i = 0; i < 64; ++i) {
                 samples[i] = (byte)Math.Clamp(31 - samples[i], 0, 31);
             }
         }
 
+        /// <summary>
+        /// Make the wave repeat itself <c>factor</c> times
+        /// </summary>
+        /// <param name="factor"></param>
+        public void Sync(float factor) {
+            byte[] newWave = new byte[64];
+
+            for (int i = 0; i < newWave.Length; i++) {
+                newWave[i] = samples[(int)(i * factor) % 64];
+            }
+            samples = newWave;
+        }
+
+        /// <summary>
+        /// Randomize the wave slightly
+        /// </summary>
         public void Mutate() {
             Random r = new Random();
             for (int i = 0; i < 64; ++i) {
@@ -105,6 +136,19 @@ namespace WaveTracker.Tracker {
             }
         }
 
+        /// <summary>
+        /// Hold the wave's position every <c>amt</c> samples
+        /// </summary>
+        /// <param name="amt"></param>
+        public void Downsample(int amt) {
+            for (int i = 0; i < samples.Length; i++) {
+                samples[i] = samples[(i / amt) * amt];
+            }
+        }
+
+        /// <summary>
+        /// Make the wave fill the whole vertical range
+        /// </summary>
         public void Normalize() {
             float max = 0;
             float min = 31;
@@ -121,6 +165,9 @@ namespace WaveTracker.Tracker {
             }
         }
 
+        /// <summary>
+        /// Fill the wave with random values
+        /// </summary>
         public void Randomize() {
             Random r = new Random();
             for (int i = 0; i < 64; i++) {
@@ -152,16 +199,6 @@ namespace WaveTracker.Tracker {
             return s;
         }
 
-        public bool isEqualTo(Wave other) {
-            for (int i = 0; i < samples.Length; i++) {
-                if (other.samples[i] != samples[i])
-                    return false;
-            }
-            if (other.resamplingMode != resamplingMode)
-                return false;
-            return true;
-        }
-
         public string ToNumberString() {
             string s = "";
             for (int i = 0; i < samples.Length - 1; i++) {
@@ -171,7 +208,7 @@ namespace WaveTracker.Tracker {
             return s;
         }
 
-        public byte getSample(int index) {
+        public byte GetSample(int index) {
             if (index < 0) {
                 return samples[(int)Helpers.Mod(index, 64)];
             }

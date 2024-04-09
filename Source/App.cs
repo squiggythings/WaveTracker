@@ -38,7 +38,7 @@ namespace WaveTracker {
         public static int WindowWidth { get; private set; }
         RenderTarget2D target;
 
-        WaveBank waveBank;
+        
         SongSettings songSettings;
         EditSettings editSettings;
         FramesPanel frameView;
@@ -53,6 +53,12 @@ namespace WaveTracker {
         string filename;
         public static PatternEditor PatternEditor { get; private set; }
         public static InstrumentBank InstrumentBank { get; private set; }
+
+        public static InstrumentEditor InstrumentEditor { get; private set; }
+        public static WaveBank WaveBank { get; set; }
+        public static WaveEditor WaveEditor { get; private set; }
+        
+
         public static WTModule CurrentModule { get; set; }
         public static int CurrentSongIndex { get; set; }
         public static WTSong CurrentSong { get { return CurrentModule.Songs[CurrentSongIndex]; } }
@@ -95,20 +101,19 @@ namespace WaveTracker {
             CurrentModule = new WTModule();
             //PatternEditor.OnSwitchSong();
 
-            waveBank = new WaveBank();
+            WaveBank = new WaveBank();
             InstrumentBank = new InstrumentBank();
             InstrumentBank.Initialize();
-            InstrumentBank.editor = new InstrumentEditor();
-            InstrumentBank.editor.browser = new SampleBrowser();
+            InstrumentEditor = new InstrumentEditor();
             Dialogs.Initialize();
             editSettings = new EditSettings();
             toolbar = new Toolbar();
-            waveBank.editor = new WaveEditor();
+            WaveEditor = new WaveEditor();
             songSettings = new SongSettings();
             frameView.Initialize();
             audioEngine = new AudioEngine();
+            ChannelManager.Initialize(WTModule.MAX_CHANNEL_COUNT, WaveBank);
             audioEngine.Initialize();
-            ChannelManager.Initialize(WTModule.MAX_CHANNEL_COUNT, waveBank);
             //frameRenderer.Initialize();
             //FrameEditor.channelScrollbar = new UI.ScrollbarHorizontal(22, 323, 768, 7, null);
             //FrameEditor.channelScrollbar.SetSize(Tracker.Song.CHANNEL_COUNT, 12);
@@ -173,24 +178,25 @@ namespace WaveTracker {
             }
             PatternEditor.Update();
             if (!VisualizerMode) {
-                waveBank.Update();
+                WaveBank.Update();
+                WaveEditor.Update();
                 InstrumentBank.Update();
+                InstrumentEditor.Update();
             }
-            if (Input.focus == null || Input.focus == waveBank.editor || Input.focus == InstrumentBank.editor)
+            if (Input.focus == null || Input.focus == WaveEditor || Input.focus == InstrumentEditor)
                 pianoInput = Helpers.GetPianoInput(PatternEditor.CurrentOctave);
             else {
                 pianoInput = -1;
             }
-            waveBank.editor.Update();
 
-            if (waveBank.editor.GetPianoMouseInput() > -1)
-                pianoInput = waveBank.editor.GetPianoMouseInput();
-            if (InstrumentBank.editor.GetPianoMouseInput() > -1)
-                pianoInput = InstrumentBank.editor.GetPianoMouseInput();
+            if (WaveEditor.GetPianoMouseInput() > -1)
+                pianoInput = WaveEditor.GetPianoMouseInput();
+            if (InstrumentEditor.GetPianoMouseInput() > -1)
+                pianoInput = InstrumentEditor.GetPianoMouseInput();
             //if (MidiInput.GetMidiNote > -1) {
             //    pianoInput = MidiInput.GetMidiNote;
             //}
-            if (PatternEditor.cursorPosition.Column == CursorColumnType.Note || WaveEditor.enabled || InstrumentEditor.enabled) {
+            if (PatternEditor.cursorPosition.Column == CursorColumnType.Note || WaveEditor.IsOpen || InstrumentEditor.IsOpen) {
                 if (pianoInput != -1 && lastPianoKey != pianoInput) {
                     if (!Playback.IsPlaying)
                         AudioEngine.ResetTicks();
@@ -255,7 +261,7 @@ namespace WaveTracker {
                 InstrumentBank.Draw();
 
                 // draw wave bank
-                waveBank.Draw();
+                WaveBank.Draw();
 
                 // draw edit settings
                 editSettings.Draw();
@@ -280,11 +286,13 @@ namespace WaveTracker {
             toolbar.Draw();
 
             if (!VisualizerMode) {
-                waveBank.editor.Draw();
-                InstrumentBank.editor.Draw();
+                WaveEditor.Draw();
+                InstrumentEditor.Draw();
 
             }
             Dialogs.Draw();
+            Dropdown.DrawCurrentMenu();
+            DropdownButton.DrawCurrentMenu();
             Tooltip.Draw();
             //if (MidiInput.currentlyHeldDownNotes != null) {
             //    for (int i = 0; i < MidiInput.currentlyHeldDownNotes.Count; ++i) {

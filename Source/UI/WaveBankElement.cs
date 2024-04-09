@@ -54,7 +54,7 @@ namespace WaveTracker.UI {
                 int wx = 3;
                 int wy;
                 for (int i = 0; i < wave.samples.Length; i += 4) {
-                    int sum = wave.getSample((int)(i + phase + 0));
+                    int sum = wave.GetSample((int)(i + phase + 0));
 
                     wy = ((31 - sum) / 4);
 

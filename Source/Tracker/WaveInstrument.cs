@@ -16,7 +16,7 @@ namespace WaveTracker.Tracker {
 
         public WaveInstrument() : base() {
             name = "New Wave Instrument";
-            envelopes.Add(new Envelope(Envelope.EnvelopeType.Wave));
+            //envelopes.Add(new Envelope(Envelope.EnvelopeType.Wave));
         }
 
         /// <summary>

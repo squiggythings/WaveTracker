@@ -21,15 +21,19 @@ namespace WaveTracker.UI {
         public bool WasClickedOnToSelect { get; private set; }
         public bool WasClickedOnToDelete { get; private set; }
 
-        Clickable exitButton;
+        Clickable deleteButton;
         SwitchToggle bypassToggle;
 
         public EnvelopeListItem(int x, int y, Element parent) {
             this.x = x;
             this.y = y;
-            bypassToggle = new SwitchToggle(1, 2, this);
+            width = 92;
+            height = 15;
+            bypassToggle = new SwitchToggle(2, 3, this);
             bypassToggle.HasContrastOutline = true;
-            exitButton = new MouseRegion(79, 2, 11, 11, this);
+            bypassToggle.SetTooltip("Toggle envelope", "Enable or disable the envelope");
+            deleteButton = new MouseRegion(77, 0, 15, 15, this);
+            deleteButton.SetTooltip("Remove", "Remove the envelope from the instrument");
             SetParent(parent);
         }
 
@@ -39,17 +43,17 @@ namespace WaveTracker.UI {
             WasClickedOnToSelect = false;
             WasClickedOnToDelete = false;
             if (ClickedDown && !bypassToggle.IsHovered) {
-                if (!exitButton.IsHovered) {
+                if (!deleteButton.IsHovered) {
                     WasClickedOnToSelect = true;
                 }
             }
-            if (exitButton.Clicked) {
+            if (deleteButton.Clicked) {
                 WasClickedOnToDelete = true;
             }
-            bypassToggle.Value = !Envelope.IsActive;
+            bypassToggle.Value = Envelope.IsActive;
             bypassToggle.Update();
             if (bypassToggle.ValueWasChangedInternally) {
-                Envelope.IsActive = !bypassToggle.Value;
+                Envelope.IsActive = bypassToggle.Value;
             }
         }
 
@@ -58,18 +62,18 @@ namespace WaveTracker.UI {
                 if (isSelected) {
                     DrawRoundedRect(0, 0, width, height, UIColors.selection);
                     bypassToggle.Draw();
-                    Write(Envelope.GetName(), 15, 4, Helpers.Alpha(Color.White, Envelope.IsActive ? 255 : 64));
-                    if (exitButton.IsHovered) {
-                        DrawRoundedRect(79, 2, 11, 11, UIColors.selectionLight);
+                    Write(Envelope.GetName(), 18, 4, Helpers.Alpha(Color.White, Envelope.IsActive ? 255 : 64));
+                    if (deleteButton.IsHovered) {
+                        DrawRoundedRect(78, 1, 13, 13, new Color(122,167,255));
                     }
                     DrawSprite(82, 5, new Rectangle(472, 48, 5, 5), Color.White);
                 }
                 else {
                     DrawRoundedRect(0, 0, width, height, Color.White);
                     bypassToggle.Draw();
-                    Write(Envelope.GetName(), 15, 4, Helpers.Alpha(UIColors.label, Envelope.IsActive ? 255 : 64));
-                    if (exitButton.IsHovered) {
-                        DrawRoundedRect(79, 2, 11, 11, UIColors.labelLight);
+                    Write(Envelope.GetName(), 18, 4, Helpers.Alpha(UIColors.label, Envelope.IsActive ? 255 : 64));
+                    if (deleteButton.IsHovered) {
+                        DrawRoundedRect(78, 1, 13, 13, UIColors.panel);
                     }
                     if (IsHovered) {
                         DrawSprite(82, 5, new Rectangle(472, 48, 5, 5), UIColors.label);

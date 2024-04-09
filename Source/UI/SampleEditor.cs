@@ -11,6 +11,9 @@ using WaveTracker.Audio;
 
 namespace WaveTracker.UI {
     public class SampleEditor : Element {
+        /// <summary>
+        /// The sample to edit
+        /// </summary>
         public Sample Sample { get; set; }
 
         MouseRegion waveformRegion;
@@ -19,15 +22,40 @@ namespace WaveTracker.UI {
         NumberBox fineTune;
         Button importSample;
         Dropdown resamplingMode;
-        public SampleEditor() {
-            waveformRegion = new MouseRegion(0, 10, 562, 175, this);
-            baseKey = new NumberBox("Base Key", 0, 220, this);
-            baseKey.SetTooltip("", "The note where the sample is played at its original pitch");
 
-            fineTune = new NumberBox("Fine tune", 0, 237, this);
+        Dropdown loopMode;
+        NumberBox loopPoint;
+        SampleBrowser browser;
+
+        public SampleEditor(int x, int y, Element parent) {
+            this.x = x;
+            this.y = y;
+            SetParent(parent);
+            waveformRegion = new MouseRegion(0, 10, 562, 175, this);
+
+            importSample = new Button("Import Sample    ", 0, 188, this);
+            importSample.SetTooltip("", "Import an audio file into the instrument");
+
+            resamplingMode = new Dropdown(238, 237, this);
+            resamplingMode.SetMenuItems(new string[] { "Harsh (None)", "Smooth (Linear)", "Mix (None + Linear)" });
+
+            baseKey = new NumberBox("Base Key", 0, 220, 100, 56, this);
+            baseKey.SetValueLimits(12, 131);
+            baseKey.DisplayMode = NumberBox.NumberDisplayMode.Note;
+            baseKey.SetTooltip("", "The note where the sample is played at its original speed");
+
+            fineTune = new NumberBox("Fine tune", 0, 237, 100, 56, this);
             fineTune.SetValueLimits(-199, 199);
             fineTune.DisplayMode = NumberBox.NumberDisplayMode.PlusMinus;
             fineTune.SetTooltip("", "Slightly adjust the pitch of the sample, in cents");
+
+            loopPoint = new NumberBox("Loop position (samples)", 154, 203, 183, 80, this);
+            loopPoint.SetTooltip("", "Set the position in audio samples where the sound loops back to");
+
+            loopMode = new Dropdown(247, 188, this, false);
+            loopMode.SetMenuItems(new string[] { "One-shot", "Forward", "Ping-pong" });
+
+            browser = new SampleBrowser();
         }
 
         public void Update() {
@@ -37,6 +65,30 @@ namespace WaveTracker.UI {
             else {
                 mouseSampleIndex = -1;
             }
+            if (importSample.Clicked) {
+                browser.Open(this);
+            }
+            baseKey.Value = Sample.BaseKey;
+            baseKey.Update();
+            if (baseKey.ValueWasChangedInternally) {
+                Sample.SetBaseKey(baseKey.Value);
+            }
+            fineTune.Value = Sample.Detune;
+            fineTune.Update();
+            if (fineTune.ValueWasChangedInternally) {
+                Sample.SetDetune(fineTune.Value);
+            }
+            resamplingMode.Value = (int)Sample.resampleMode;
+            resamplingMode.Update();
+            if (resamplingMode.ValueWasChangedInternally) {
+                Sample.resampleMode = (ResamplingMode)resamplingMode.Value;
+            }
+            loopMode.Value = (int)Sample.loopType;
+            loopMode.Update();
+            if (loopMode.ValueWasChangedInternally) {
+                Sample.loopType = (Sample.LoopType)loopMode.Value;
+            }
+            browser.Update();
         }
 
         public void Draw() {
@@ -55,6 +107,13 @@ namespace WaveTracker.UI {
                 DrawRect(waveformRegion.x, waveformRegion.y, waveformRegion.width, waveformRegion.height, UIColors.black);
                 DrawWaveform(waveformRegion.x, waveformRegion.y, Sample.sampleDataAccessL, waveformRegion.width, waveformRegion.height);
             }
+            loopMode.Draw();
+            loopPoint.Draw();
+            baseKey.Draw();
+            fineTune.Draw();
+            resamplingMode.Draw();
+            loopMode.Draw();
+            browser.Draw();
         }
 
         void DrawWaveform(int x, int y, short[] data, int width, int height) {

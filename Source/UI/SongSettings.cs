@@ -37,7 +37,7 @@ namespace WaveTracker.UI {
             rows.SetValueLimits(1, 256);
             //rows.canEdit = false;
 
-            editButton = new SpriteButton(296, 0, 10, 9, Rendering.Graphics.img, 488, 0, this);
+            editButton = new SpriteButton(296, 0, 10, 9, 488, 0, this);
             editButton.SetTooltip("Edit module settings", "Open the module settings window");
         }
 

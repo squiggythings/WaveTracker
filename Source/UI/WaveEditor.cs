@@ -9,10 +9,12 @@ using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Input;
 using WaveTracker.UI;
 using WaveTracker.Tracker;
+using WaveTracker.Audio;
 using System.Windows.Forms;
 
 namespace WaveTracker.UI {
     public class WaveEditor : Window {
+        public bool IsOpen { get { return windowIsOpen; } }
         public static bool enabled;
         public SpriteButton presetSine, presetTria, presetSaw, presetRect50, presetRect25, presetRect12, presetRand, presetClear;
         public Toggle filterNone, filterLinear, filterMix;
@@ -78,23 +80,23 @@ namespace WaveTracker.UI {
             bNormalize.SetTooltip("", "Make the wave maximum amplitude");
 
 
-            presetSine = new SpriteButton(17, 215, 18, 12, Rendering.Graphics.img, 104, 80, this);
+            presetSine = new SpriteButton(17, 215, 18, 12, 104, 80, this);
             presetSine.SetTooltip("Sine", "Sine wave preset");
-            presetTria = new SpriteButton(36, 215, 18, 12, Rendering.Graphics.img, 122, 80, this);
+            presetTria = new SpriteButton(36, 215, 18, 12, 122, 80, this);
             presetTria.SetTooltip("Triangle", "Triangle wave preset");
-            presetSaw = new SpriteButton(55, 215, 18, 12, Rendering.Graphics.img, 140, 80, this);
+            presetSaw = new SpriteButton(55, 215, 18, 12, 140, 80, this);
             presetSaw.SetTooltip("Sawtooth", "Sawtooth wave preset");
 
-            presetRect50 = new SpriteButton(74, 215, 18, 12, Rendering.Graphics.img, 158, 80, this);
+            presetRect50 = new SpriteButton(74, 215, 18, 12, 158, 80, this);
             presetRect50.SetTooltip("Pulse 50%", "Pulse wave preset with 50% duty cycle");
-            presetRect25 = new SpriteButton(93, 215, 18, 12, Rendering.Graphics.img, 176, 80, this);
+            presetRect25 = new SpriteButton(93, 215, 18, 12, 176, 80, this);
             presetRect25.SetTooltip("Pulse 25%", "Pulse wave preset with 25% duty cycle");
-            presetRect12 = new SpriteButton(112, 215, 18, 12, Rendering.Graphics.img, 194, 80, this);
+            presetRect12 = new SpriteButton(112, 215, 18, 12, 194, 80, this);
             presetRect12.SetTooltip("Pulse 12.5%", "Pulse wave preset with 12.5% duty cycle");
 
-            presetRand = new SpriteButton(131, 215, 18, 12, Rendering.Graphics.img, 212, 80, this);
+            presetRand = new SpriteButton(131, 215, 18, 12, 212, 80, this);
             presetRand.SetTooltip("Random", "Create random noise");
-            presetClear = new SpriteButton(150, 215, 18, 12, Rendering.Graphics.img, 230, 80, this);
+            presetClear = new SpriteButton(150, 215, 18, 12, 230, 80, this);
             presetClear.SetTooltip("Clear", "Clear wave");
 
             //closeButton = new SpriteButton(490, 0, 10, 9, UI.NumberBox.buttons, 4, this);
@@ -163,8 +165,10 @@ namespace WaveTracker.UI {
                     id = WaveBank.currentWave;
 
                 }
-                WaveBank.lastSelectedWave = id;
-
+                if (WaveBank.lastSelectedWave != id) {
+                    WaveBank.lastSelectedWave = id;
+                    ChannelManager.previewChannel.SetWave(WaveBank.currentWave);
+                }
 
                 phase++;
 
@@ -360,8 +364,8 @@ namespace WaveTracker.UI {
                 Color waveColor = new Color(200, 212, 93);
                 Color waveBG = new Color(59, 125, 79, 150);
                 for (int i = 0; i < 64; ++i) {
-                    int samp = App.CurrentModule.WaveBank[WaveBank.currentWave].getSample(i);
-                    int samp2 = App.CurrentModule.WaveBank[WaveBank.currentWave].getSample(i + phase);
+                    int samp = App.CurrentModule.WaveBank[WaveBank.currentWave].GetSample(i);
+                    int samp2 = App.CurrentModule.WaveBank[WaveBank.currentWave].GetSample(i + phase);
 
                     DrawRect(17 + i * 6, 102, 6, -5 * (samp - 16), waveBG);
                     DrawRect(17 + i * 6, 183 - samp * 5, 6, -5, waveColor);

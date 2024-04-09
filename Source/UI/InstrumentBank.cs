@@ -15,7 +15,6 @@ using System.Windows.Forms;
 namespace WaveTracker.UI {
     public class InstrumentBank : Panel {
         private Forms.EnterText renameDialog;
-        public InstrumentEditor editor;
         bool dialogOpen;
         int lastIndex;
         int listLength = 32;
@@ -28,32 +27,31 @@ namespace WaveTracker.UI {
         public SpriteButton bEdit;
 
         public InstrumentBank() : base("Instrument Bank", 790, 152, 156, 488) {
-
         }
         public void Initialize() {
-            bNewWave = new SpriteButton(1, 10, 15, 15, Rendering.Graphics.img, 225, 0, this);
+            bNewWave = new SpriteButton(1, 10, 15, 15, 225, 0, this);
             bNewWave.SetTooltip("New Wave Instrument", "Add a new wave instrument to the track");
-            bNewSample = new SpriteButton(16, 10, 15, 15, Rendering.Graphics.img, 240, 0, this);
+            bNewSample = new SpriteButton(16, 10, 15, 15, 240, 0, this);
             bNewSample.SetTooltip("New Sample Instrument", "Add a new sample instrument to the track");
 
-            bRemove = new SpriteButton(31, 10, 15, 15, Rendering.Graphics.img, 360, 0, this);
+            bRemove = new SpriteButton(31, 10, 15, 15, 360, 0, this);
             bRemove.SetTooltip("Remove Instrument", "Delete this instrument from the track");
 
-            bDuplicate = new SpriteButton(46, 10, 15, 15, Rendering.Graphics.img, 255, 0, this);
+            bDuplicate = new SpriteButton(46, 10, 15, 15, 255, 0, this);
             bDuplicate.SetTooltip("Duplicate Instrument", "Create a copy of this instrument and add it to the track");
 
 
-            bMoveDown = new SpriteButton(70, 10, 15, 15, Rendering.Graphics.img, 345, 0, this);
+            bMoveDown = new SpriteButton(70, 10, 15, 15, 345, 0, this);
             bMoveDown.SetTooltip("Move Down", "Move this instrument to be lower down the list");
 
-            bMoveUp = new SpriteButton(85, 10, 15, 15, Rendering.Graphics.img, 330, 0, this);
+            bMoveUp = new SpriteButton(85, 10, 15, 15, 330, 0, this);
             bMoveUp.SetTooltip("Move Up", "Move this instrument to be higher up the list");
 
 
-            bEdit = new SpriteButton(109, 10, 15, 15, Rendering.Graphics.img, 270, 0, this);
+            bEdit = new SpriteButton(109, 10, 15, 15, 270, 0, this);
             bEdit.SetTooltip("Edit Instrument", "Open the instrument editor");
 
-            bRename = new SpriteButton(124, 10, 15, 15, Rendering.Graphics.img, 375, 0, this);
+            bRename = new SpriteButton(124, 10, 15, 15, 375, 0, this);
             bRename.SetTooltip("Rename Instrument", "Rename this instrument");
 
             scrollbar = new Scrollbar(1, 28, width - 1, 367, this);
@@ -63,7 +61,7 @@ namespace WaveTracker.UI {
         public void Update() {
             x = App.WindowWidth - width;
 
-            editor.Update();
+            
             if (Input.focus != null)
                 return;
             scrollbar.Update();
@@ -83,7 +81,7 @@ namespace WaveTracker.UI {
                     if (Input.GetDoubleClick(KeyModifier.None)) {
                         int ix = (MouseY - 28) / 11 + scrollbar.ScrollValue;
                         if (ix < App.CurrentModule.Instruments.Count && ix >= 0)
-                            editor.Open(GetCurrentInstrument, CurrentInstrumentIndex);
+                            App.InstrumentEditor.Open(GetCurrentInstrument, CurrentInstrumentIndex);
                     }
                 }
             }
@@ -143,7 +141,7 @@ namespace WaveTracker.UI {
             }
 
             if (bEdit.Clicked) {
-                editor.Open(GetCurrentInstrument, CurrentInstrumentIndex);
+                App.InstrumentEditor.Open(GetCurrentInstrument, CurrentInstrumentIndex);
             }
 
             if (bRename.Clicked) {

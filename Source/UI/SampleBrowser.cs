@@ -26,7 +26,9 @@ namespace WaveTracker.UI {
         string lastPath;
         int listLength = 24;
         public string[] entriesInDirectory;
-        InstrumentEditor launched;
+        Element opened;
+        SampleEditor launched;
+        //InstrumentEditor launched;
         int width = 500;
         int height = 320;
         WaveOutEvent previewOut;
@@ -37,7 +39,7 @@ namespace WaveTracker.UI {
         public SampleBrowser() {
             this.x = (960 - width) / 2;
             this.y = (500 - height) / 2;
-            backButton = new SpriteButton(2, 11, 15, 15, Rendering.Graphics.img, 300, 0, this);
+            backButton = new SpriteButton(2, 11, 15, 15, 300, 0, this);
             scrollbar = new Scrollbar(2, 29, width - 111, listLength * 11, this);
             scrollbar.CoarseStepAmount = 3;
             ok = new Button("OK", width - 108, height - 16, this);
@@ -238,9 +240,10 @@ namespace WaveTracker.UI {
                 return val;
             }
         }
-        public void Open(InstrumentEditor launch) {
+        public void Open(SampleEditor launched) {
             previewOut.Stop();
-            launched = launch;
+            opened = Input.focus;
+            this.launched = launched;
             selectedFileIndex = -1;
             scrollbar.ScrollValue = 0;
             enabled = true;
@@ -249,13 +252,35 @@ namespace WaveTracker.UI {
 
         public void Close() {
             enabled = false;
-            Input.focus = launched;
+            Input.focus = opened;
             if (File.Exists(selectedFilePath))
-                launched.LoadSampleFromFile(selectedFilePath);
-            launched.startcooldown = 14;
+                LoadSampleFromFile(selectedFilePath, launched.Sample);
             Preferences.profile.lastBrowseDirectory = currentPath;
             Preferences.SaveToFile();
             previewOut.Stop();
+        }
+
+        public void LoadSampleFromFile(string path, Sample sample) {
+            bool successfulReadWAV = (Helpers.ReadWav(path, out sample.sampleDataAccessL, out sample.sampleDataAccessR));
+            sample.SetBaseKey(Preferences.profile.defaultBaseKey);
+            sample.SetDetune(0);
+            sample.sampleLoopIndex = 0;
+            sample.loopType = sample.Length < 1000 ? Sample.LoopType.Forward : Sample.LoopType.OneShot;
+            sample.resampleMode = (Audio.ResamplingMode)Preferences.profile.defaultResampleSample;
+            if (successfulReadWAV) {
+                if (Preferences.profile.automaticallyTrimSamples)
+                    sample.TrimSilence();
+                if (Preferences.profile.automaticallyNormalizeSamples)
+                    sample.Normalize();
+
+                sample.resampleMode = (Audio.ResamplingMode)Preferences.profile.defaultResampleSample;
+                App.CurrentModule.SetDirty();
+            }
+            else {
+                sample.sampleDataAccessL = Array.Empty<short>();
+                sample.sampleDataAccessR = Array.Empty<short>();
+                App.CurrentModule.SetDirty();
+            }
         }
 
         public void DrawList() {

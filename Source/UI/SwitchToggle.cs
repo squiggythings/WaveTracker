@@ -13,13 +13,15 @@ namespace WaveTracker.UI {
         public bool Value { get; set; }
         public bool ValueWasChangedInternally { get; private set; }
         public SwitchToggle(int x, int y, Element parent) {
+            this.x = x;
+            this.y = y;
             width = 12;
             height = 9;
             SetParent(parent);
         }
 
         Rectangle GetSpriteBounds(int index) {
-            return new Rectangle(HasContrastOutline ? 472 : 456, 64 + index * 9, 12, 9);
+            return new Rectangle(HasContrastOutline ? 473 : 456, 64 + index * 9, 12, 9);
         }
 
         public void Update() {

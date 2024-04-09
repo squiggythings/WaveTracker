@@ -40,8 +40,8 @@ namespace WaveTracker.UI {
             height = 13;
             canScroll = true;
             SetParent(parent);
-            bUp = new SpriteButton(width - 10, 0, 10, 6, Rendering.Graphics.img, 456, 0, this);
-            bDown = new SpriteButton(width - 10, 7, 10, 6, Rendering.Graphics.img, 456, 32, this);
+            bUp = new SpriteButton(width - 10, 0, 10, 6, 456, 0, this);
+            bDown = new SpriteButton(width - 10, 7, 10, 6, 456, 32, this);
         }
 
         public NumberBox(string label, int x, int y, Element parent) {
@@ -54,8 +54,8 @@ namespace WaveTracker.UI {
             height = 13;
             canScroll = true;
             SetParent(parent);
-            bUp = new SpriteButton(width - 10, 0, 10, 6, Rendering.Graphics.img, 456, 0, this);
-            bDown = new SpriteButton(width - 10, 7, 10, 6, Rendering.Graphics.img, 456, 32, this);
+            bUp = new SpriteButton(width - 10, 0, 10, 6, 456, 0, this);
+            bDown = new SpriteButton(width - 10, 7, 10, 6, 456, 32, this);
         }
 
         public void EnableScrolling() { canScroll = true; }

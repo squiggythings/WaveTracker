@@ -15,299 +15,80 @@ using System.Xml.Schema;
 
 namespace WaveTracker.UI {
     public class InstrumentEditor : Window {
-        public static bool enabled;
-        public Instrument currentMacro;
-        public int startcooldown;
-        int id;
-        public Button sample_importSample, sample_normalize, sample_reverse, sample_fadeIn, sample_fadeOut, sample_amplifyUp, sample_amplifyDown, sample_invert;
-        public NumberBox sample_loopPoint;
-        public NumberBox sample_baseKey, sample_detune;
-        public Toggle sample_loopOneshot, sample_loopForward, sample_loopPingpong;
+        public bool IsOpen { get { return windowIsOpen; } }
+
+        int currentInstrumentID;
+        Instrument CurrentInstrument => App.CurrentModule.Instruments[currentInstrumentID];
+
+        //public Button sample_importSample, sample_normalize, sample_reverse, sample_fadeIn, sample_fadeOut, sample_amplifyUp, sample_amplifyDown, sample_invert;
+        //public NumberBox sample_loopPoint;
+        //public NumberBox sample_baseKey, sample_detune;
+        //public Toggle sample_loopOneshot, sample_loopForward, sample_loopPingpong;
         public EnvelopeEditor envelopeEditor;
-        public Checkbox visualize_toggle;
-        public SampleBrowser browser;
-        public Dropdown sample_resampleDropdown;
+        public SampleEditor sampleEditor;
+        public EnvelopeListBox envelopeList;
+        //public Checkbox visualize_toggle;
+
+        //public Dropdown sample_resampleDropdown;
         // public Dropdown wave_modTypeDropdown;
-        Instrument CurrentInstrument => App.CurrentModule.Instruments[id];
         TabGroup tabGroup;
 
-        public InstrumentEditor() : base("Instrument Editor", 568, 340) {
+        public InstrumentEditor() : base("Instrument Editor", 600, 340) {
             ExitButton.SetTooltip("Close", "Close instrument editor");
-            sample_importSample = new Button("Import Sample    ", 20, 224, this);
-            sample_importSample.SetTooltip("", "Import an audio file into the instrument");
-
-            //wave_modTypeDropdown = new Dropdown(478, 260, this);
-            //wave_modTypeDropdown.SetMenuItems(new string[] { "Wave Blend", "Wave Stretch", "FM" });
-            //wave_modTypeDropdown.Value = 0;
-            //wave_modTypeDropdown.SetTooltip("", "Wave Blend: crossfade the current wave with the next one in the bank - Wave stretch: bends the wave shape - FM: modulate the frequency of this wave by the next one in the bank");
-
-            envelopeEditor = new EnvelopeEditor(17, 37, 464, this);
-            #region sample editor buttons
-            sample_loopOneshot = new Toggle("One shot", 187, 224, this);
-            sample_loopOneshot.SetTooltip("", "Set the sample so that it plays only once, without looping");
-
-            sample_loopForward = new Toggle("Forward", 233, 224, this);
-            sample_loopForward.SetTooltip("", "Set the sample so that it continuously loops forward");
-
-            sample_loopPingpong = new Toggle("Ping-pong", 275, 224, this);
-            sample_loopPingpong.SetTooltip("", "Set the sample so that it loops continuously forward and backward");
-
-            sample_resampleDropdown = new Dropdown(224, 273, this);
-            sample_resampleDropdown.SetMenuItems(new string[] { "Harsh (None)", "Smooth (Linear)", "Mix (None + Linear)" });
-
-            sample_normalize = new Button("Normalize", 337, 224, this);
-            sample_normalize.width = 50;
-            sample_normalize.SetTooltip("", "Maximize the amplitude of the sample");
-
-            sample_amplifyUp = new Button("Amplify+", 439, 224, this);
-            sample_amplifyUp.width = 50;
-            sample_amplifyUp.SetTooltip("", "Increase the volume of the sample");
-
-            sample_amplifyDown = new Button("Amplify-", 439, 238, this);
-            sample_amplifyDown.width = 50;
-            sample_amplifyDown.SetTooltip("", "Decrease the volume of the sample");
-
-            sample_fadeIn = new Button("Fade In", 388, 224, this);
-            sample_fadeIn.width = 50;
-            sample_fadeIn.SetTooltip("", "Fade the sample from silence to full volume");
-
-            sample_fadeOut = new Button("Fade Out", 388, 238, this);
-            sample_fadeOut.width = 50;
-            sample_fadeOut.SetTooltip("", "Fade the sample from full volume to silence");
-
-            sample_reverse = new Button("Reverse", 337, 238, this);
-            sample_reverse.width = 50;
-            sample_reverse.SetTooltip("", "Reverse the sample");
-
-            sample_invert = new Button("Invert", 490, 224, this);
-            sample_invert.width = 50;
-            sample_invert.SetTooltip("", "Reverse the polarity of the sample");
-
-            sample_baseKey = new NumberBox("Base Key", 20, 256, 100, 56, this);
-            sample_baseKey.SetTooltip("", "The note where the sample is played at its original pitch");
-            sample_baseKey.SetValueLimits(12, 131);
-            sample_baseKey.DisplayMode = NumberBox.NumberDisplayMode.Note;
-
-            sample_detune = new NumberBox("Fine tune", 20, 273, 100, 56, this);
-            sample_detune.SetTooltip("", "The note where the sample is played at its original pitch");
-            sample_detune.SetValueLimits(-199, 199);
-            sample_detune.DisplayMode = NumberBox.NumberDisplayMode.PlusMinus;
-
-            sample_loopPoint = new NumberBox("Loop position (samples)", 140, 239, 183, 80, this);
-            sample_loopPoint.SetTooltip("", "Set the position in audio samples where the sound loops back to");
-
-
-            visualize_toggle = new Checkbox(547, 286, this);
-            visualize_toggle.SetTooltip("", "Make the sample visible in visualizer mode. It is a good idea to turn this off for samples such as drums and percussion");
-            #endregion
-
+            sampleEditor = new SampleEditor(16, 36, this);
+            envelopeEditor = new EnvelopeEditor(118, 36, 464, this);
+            envelopeList = new EnvelopeListBox(16, 48, 132, this);
 
         }
 
         public void Update() {
             if (windowIsOpen) {
+                if (ExitButton.Clicked)
+                    Close();
                 DoDragging();
-                SampleInstrument inst = CurrentInstrument as SampleInstrument;
-                if (startcooldown > 0) {
-
-                    //SetTabToggles();
-                    startcooldown--;
-                    if (CurrentInstrument is SampleInstrument) {
-                        if (tabGroup.SelectedTabIndex == 0) {
-                            sample_resampleDropdown.Value = (int)inst.sample.resampleMode;
-                            sample_baseKey.Value = inst.sample.BaseKey;
-                            sample_detune.Value = inst.sample.Detune;
-                            sample_loopOneshot.Value = inst.sample.loopType == Sample.LoopType.OneShot;
-                            sample_loopForward.Value = inst.sample.loopType == Sample.LoopType.Forward;
-                            sample_loopPingpong.Value = inst.sample.loopType == Sample.LoopType.PingPong;
-                            visualize_toggle.Value = inst.sample.useInVisualization;
-                        }
+                tabGroup.Update();
+                if (CurrentInstrument is SampleInstrument) {
+                    if (tabGroup.SelectedTabIndex == 0) {
+                        sampleEditor.Update();
                     }
                     else {
-                        //wave_modTypeDropdown.Value = CurrentInstrument.waveModType;
-                        envelopeEditor.SetEnvelope(CurrentInstrument.envelopes[0]);
+                        envelopeList.Update();
+                        if (envelopeList.SelectedIndex >= 0) {
+                            envelopeEditor.SetEnvelope(CurrentInstrument.envelopes[envelopeList.SelectedIndex], ChannelManager.previewChannel.envelopePlayers[CurrentInstrument.envelopes[envelopeList.SelectedIndex].Type]);
+                            envelopeEditor.Update();
+                        }
+                        else {
+                            envelopeEditor.SetEnvelope(null, null);
+                        }
                     }
                 }
                 else {
-                    if (ExitButton.Clicked || Input.GetKeyDown(Keys.Escape, KeyModifier.None)) {
-                        Close();
-                    }
-                    if (CurrentInstrument is SampleInstrument) {
-                        if (tabGroup.SelectedTabIndex == 0) {
-                            #region sample editor
-                            if (sample_importSample.Clicked) {
-                                browser.Open(this);
-                            }
-
-                            if (sample_normalize.Clicked) {
-                                inst.sample.Normalize();
-                                App.CurrentModule.SetDirty();
-                            }
-
-                            if (sample_reverse.Clicked) {
-                                inst.sample.Reverse();
-                                App.CurrentModule.SetDirty();
-                            }
-                            if (sample_invert.Clicked) {
-                                inst.sample.Invert();
-                                App.CurrentModule.SetDirty();
-                            }
-                            if (sample_fadeIn.Clicked) {
-                                inst.sample.FadeIn();
-                                App.CurrentModule.SetDirty();
-                            }
-                            if (sample_fadeOut.Clicked) {
-                                inst.sample.FadeOut();
-                                App.CurrentModule.SetDirty();
-                            }
-                            if (sample_amplifyUp.Clicked) {
-                                inst.sample.Amplify(1.1f);
-                                App.CurrentModule.SetDirty();
-                            }
-                            if (sample_amplifyDown.Clicked) {
-                                inst.sample.Amplify(0.9f);
-                                App.CurrentModule.SetDirty();
-                            }
-                            if (inst.sample.loopType != Sample.LoopType.OneShot) {
-                                sample_loopPoint.SetValueLimits(0, inst.sample.sampleDataAccessL.Length < 1 ? 0 : inst.sample.sampleDataAccessL.Length - 2);
-                                sample_loopPoint.Value = inst.sample.sampleLoopIndex;
-                                sample_loopPoint.Update();
-                                inst.sample.sampleLoopIndex = sample_loopPoint.Value;
-                            }
-                            #region resampling modes
-                            sample_resampleDropdown.Value = (int)inst.sample.resampleMode;
-                            sample_resampleDropdown.Update();
-                            if (sample_resampleDropdown.ValueWasChangedInternally) {
-                                App.CurrentModule.SetDirty();
-                                inst.sample.resampleMode = (Audio.ResamplingMode)sample_resampleDropdown.Value;
-                            }
-                            #endregion
-
-                            #region loop modes
-                            sample_loopOneshot.Value = inst.sample.loopType == Sample.LoopType.OneShot;
-                            sample_loopForward.Value = inst.sample.loopType == Sample.LoopType.Forward;
-                            sample_loopPingpong.Value = inst.sample.loopType == Sample.LoopType.PingPong;
-                            if (sample_loopOneshot.Clicked) {
-                                inst.sample.loopType = Sample.LoopType.OneShot;
-                                App.CurrentModule.SetDirty();
-                            }
-                            if (sample_loopForward.Clicked) {
-                                inst.sample.loopType = Sample.LoopType.Forward;
-                                App.CurrentModule.SetDirty();
-                            }
-                            if (sample_loopPingpong.Clicked) {
-                                inst.sample.loopType = Sample.LoopType.PingPong;
-                                App.CurrentModule.SetDirty();
-                            }
-                            sample_loopOneshot.Value = inst.sample.loopType == Sample.LoopType.OneShot;
-                            sample_loopForward.Value = inst.sample.loopType == Sample.LoopType.Forward;
-                            sample_loopPingpong.Value = inst.sample.loopType == Sample.LoopType.PingPong;
-
-                            sample_baseKey.Value = inst.sample.BaseKey;
-                            sample_baseKey.Update();
-                            if (sample_baseKey.ValueWasChangedInternally) {
-                                inst.sample.SetBaseKey(sample_baseKey.Value);
-                                App.CurrentModule.SetDirty();
-                            }
-                            sample_detune.Value = inst.sample.Detune;
-                            sample_detune.Update();
-                            if (sample_detune.ValueWasChangedInternally) {
-                                inst.sample.SetDetune(sample_detune.Value);
-                                App.CurrentModule.SetDirty();
-                            }
-                            #endregion
-
-                            visualize_toggle.Value = inst.sample.useInVisualization;
-                            visualize_toggle.Update();
-                            if (visualize_toggle.Value != inst.sample.useInVisualization) {
-                                App.CurrentModule.SetDirty();
-                                inst.sample.useInVisualization = visualize_toggle.Value;
-                            }
-                            #endregion
-                        }
-                        else {
-                            ShowEnvelope(tabGroup.SelectedTabIndex - 1);
-                        }
-
+                    envelopeList.Update();
+                    if (envelopeList.SelectedIndex >= 0) {
+                        envelopeEditor.SetEnvelope(CurrentInstrument.envelopes[envelopeList.SelectedIndex], ChannelManager.previewChannel.envelopePlayers[CurrentInstrument.envelopes[envelopeList.SelectedIndex].Type]);
+                        envelopeEditor.Update();
                     }
                     else {
-                        if (tabGroup.SelectedTabIndex == 4 && tabGroup.tabs[4].toggle.Value) {
-                            //wave_modTypeDropdown.enabled = true;
-                            //wave_modTypeDropdown.Value = CurrentInstrument.waveModType;
-                            //wave_modTypeDropdown.Update();
-                            //if (wave_modTypeDropdown.Value != CurrentInstrument.waveModType) {
-                            //    App.CurrentModule.SetDirty();
-                            //    ChannelManager.previewChannel.ResetModulations();
-                            //    CurrentInstrument.waveModType = wave_modTypeDropdown.Value;
-                            //}
-
-                        }
-                        else {
-                            //wave_modTypeDropdown.enabled = false;
-                        }
-                        ShowEnvelope(tabGroup.SelectedTabIndex);
+                        envelopeEditor.SetEnvelope(null, null);
                     }
                 }
-                SetTabTogglesFromInstrument();
-                tabGroup.Update();
-                ReadFromTabTogglesIntoInstrument();
-                browser.Update();
             }
         }
 
-        public void ShowEnvelope(int id) {
-            envelopeEditor.EditEnvelope(CurrentInstrument.envelopes[id], ChannelManager.previewChannel.envelopePlayers[0]);
-        }
 
         public void Open(Instrument instrumentToEdit, int instrumentIndex) {
-            if (Input.focus == null) {
-                enabled = true;
-                Open();
-                startcooldown = 4;
-                id = instrumentIndex;
-                tabGroup = new TabGroup(8, 15, this);
-                if (instrumentToEdit is SampleInstrument) {
-                    tabGroup.AddTab("Sample", false);
-                }
-                foreach (Envelope envelope in instrumentToEdit.envelopes) {
-                    tabGroup.AddTab(envelope.GetName(), true);
-                }
-                ShowEnvelope(id);
-                SetTabTogglesFromInstrument();
-            }
-        }
-
-        public void SetTabTogglesFromInstrument() {
-            if (CurrentInstrument is WaveInstrument) {
-                for (int i = 0; i < CurrentInstrument.envelopes.Count; ++i) {
-                    tabGroup.tabs[i].toggle.Value = CurrentInstrument.envelopes[i].IsActive;
-                }
+            Open();
+            currentInstrumentID = instrumentIndex;
+            tabGroup = new TabGroup(8, 15, this);
+            if (instrumentToEdit is SampleInstrument) {
+                tabGroup.AddTab("Sample", false);
+                tabGroup.AddTab("Envelopes", false);
+                sampleEditor.Sample = ((SampleInstrument)CurrentInstrument).sample;
             }
             else {
-                for (int i = 0; i < CurrentInstrument.envelopes.Count; ++i) {
-                    tabGroup.tabs[i + 1].toggle.Value = CurrentInstrument.envelopes[i].IsActive;
-                }
+                tabGroup.AddTab("Envelopes", false);
             }
-        }
-
-        public void ReadFromTabTogglesIntoInstrument() {
-            if (CurrentInstrument is WaveInstrument) {
-                for (int i = 0; i < CurrentInstrument.envelopes.Count; ++i) {
-                    if (tabGroup.tabs[i].toggle.ValueWasChangedInternally) {
-                        CurrentInstrument.envelopes[i].IsActive = tabGroup.tabs[i].toggle.Value;
-                        App.CurrentModule.SetDirty();
-                    }
-                }
-
-            }
-            else {
-                for (int i = 0; i < CurrentInstrument.envelopes.Count; ++i) {
-                    if (tabGroup.tabs[i + 1].toggle.ValueWasChangedInternally) {
-                        CurrentInstrument.envelopes[i].IsActive = tabGroup.tabs[i + 1].toggle.Value;
-                        App.CurrentModule.SetDirty();
-                    }
-                }
-            }
+            envelopeList.Intialize(CurrentInstrument.envelopes);
         }
 
         public int GetPianoMouseInput() {
@@ -327,7 +108,6 @@ namespace WaveTracker.UI {
 
         public new void Close() {
             envelopeEditor.ResetScrollbar();
-            enabled = false;
             base.Close();
         }
 
@@ -341,7 +121,7 @@ namespace WaveTracker.UI {
 
         public new void Draw() {
             if (windowIsOpen) {
-                name = "Edit Instrument " + id.ToString("D2");
+                name = "Edit Instrument " + currentInstrumentID.ToString("D2");
                 base.Draw();
                 // black box across screen behind window
                 //DrawRect(-x, -y, 960, 600, Helpers.Alpha(Color.Black, 90));
@@ -350,45 +130,32 @@ namespace WaveTracker.UI {
                 DrawRoundedRect(8, 28, 552, 270, Color.White);
                 DrawPiano(43, 306);
 
-                if (CurrentInstrument is SampleInstrument && tabGroup.SelectedTabIndex == 0) {
-                    Write("L", 14, 86, UIColors.labelLight);
-                    DrawRect(20, 46, 528, 87, UIColors.black);
-                    Write("R", 14, 174, UIColors.labelLight);
-                    DrawRect(20, 134, 528, 87, UIColors.black);
-
-                    Write("Loop Mode", 140, 227, UIColors.labelDark);
-                    Write("Resampling Filter", 150, 276, UIColors.labelDark);
-                    DrawRect(330, 224, 1, 66, UIColors.label);
-                    Write("Show in visualizer", 469, 287, UIColors.labelDark);
-                    //DrawSprite(tex, 0, 0, new Rectangle(10, 0, 568, 340));
-                }
-                else {
-                    //// draw envelope editor background
-                    //DrawRect(16, 36, 535, 222, UIColors.black);
-                    //DrawRect(17, 57, 44, 200, new Color(31, 36, 63));
-                    //// draw loop ribbon
-                    //DrawRect(17, 37, 44, 9, new Color(172, 202, 162));
-                    //DrawRect(61, 37, 489, 9, new Color(14, 72, 55));
-                    //Write("Loop", 39, 38, UIColors.black);
-                    //// draw release ribbon
-                    //DrawRect(17, 47, 44, 9, new Color(234, 192, 165));
-                    //DrawRect(61, 47, 489, 9, new Color(125, 56, 51));
-                    //Write("Release", 27, 48, UIColors.black);
-
-                    // DrawSprite(tex, 0, 0, new Rectangle(10, 341, 568, 340));
-                }
-
                 tabGroup.Draw();
                 DrawRect(9, 28, 280, 1, Color.White);
-                // draw sample base key
-                if (CurrentInstrument is SampleInstrument && tabGroup.SelectedTabIndex == 0)
-                    if (Helpers.IsNoteBlackKey(sample_baseKey.Value))
-                        DrawSprite(sample_baseKey.Value * 4 - 4, 307, new Rectangle(60, 80, 4, 24));
-                    else
-                        DrawSprite(sample_baseKey.Value * 4 - 4, 307, new Rectangle(56, 80, 4, 24));
+
+
+
+                if (CurrentInstrument is SampleInstrument) {
+                    if (tabGroup.SelectedTabIndex == 0) {
+                        sampleEditor.Draw();
+                        if (Helpers.IsNoteBlackKey(((SampleInstrument)CurrentInstrument).sample.BaseKey))
+                            DrawSprite((((SampleInstrument)CurrentInstrument).sample.BaseKey) * 4 - 4, 307, new Rectangle(60, 80, 4, 24));
+                        else
+                            DrawSprite((((SampleInstrument)CurrentInstrument).sample.BaseKey) * 4 - 4, 307, new Rectangle(56, 80, 4, 24));
+                    }
+                    else {
+                        envelopeEditor.Draw();
+                        envelopeList.Draw();
+                    }
+                }
+                else {
+                    envelopeEditor.Draw();
+                    envelopeList.Draw();
+                }
+
                 // draw currently played key
                 if (App.pianoInput > -1) {
-                    int note = App.pianoInput + ChannelManager.previewChannel.envelopePlayers[1].Evaluate();
+                    int note = App.pianoInput + ChannelManager.previewChannel.envelopePlayers[Envelope.EnvelopeType.Arpeggio].Value;
                     if (note >= 12 && note < 132) {
                         if (Helpers.IsNoteBlackKey(note))
                             DrawSprite(note * 4 - 4, 307, new Rectangle(52, 80, 4, 24));
@@ -396,66 +163,10 @@ namespace WaveTracker.UI {
                             DrawSprite(note * 4 - 4, 307, new Rectangle(48, 80, 4, 24));
                     }
                 }
-
-
-                if (CurrentInstrument is SampleInstrument) {
-                    SampleInstrument inst = CurrentInstrument as SampleInstrument;
-                    if (tabGroup.SelectedTabIndex == 0) {
-                        // sample length information
-                        Write(inst.sample.sampleDataAccessL.Length + " samples", 20, 37, UIColors.label);
-                        WriteRightAlign((inst.sample.sampleDataAccessL.Length / (float)AudioEngine.SAMPLE_RATE).ToString("F5") + " seconds", 547, 37, UIColors.label);
-
-                        // draw import button
-                        sample_importSample.Draw();
-                        DrawSprite(sample_importSample.x + 68, sample_importSample.y + (sample_importSample.IsPressed ? 3 : 2), new Rectangle(72, 81, 12, 9));
-
-                        // waveforms
-                        if (inst.sample.sampleDataAccessR.Length > 0) {
-                            DrawWaveform(20, 46, inst.sample.sampleDataAccessL);
-                            DrawWaveform(20, 134, inst.sample.sampleDataAccessR);
-                        }
-                        else {
-                            DrawRect(20, 133, 528, 1, UIColors.black);
-                            DrawRect(11, 46, 8, 175, Color.White);
-                            DrawWaveform(20, 46, inst.sample.sampleDataAccessL, 175);
-                        }
-                        sample_loopPingpong.Draw();
-                        sample_loopForward.Draw();
-                        sample_loopOneshot.Draw();
-
-                        if (inst.sample.loopType != Sample.LoopType.OneShot) {
-                            sample_loopPoint.Value = inst.sample.sampleLoopIndex;
-                            sample_loopPoint.Draw();
-                        }
-
-                        sample_resampleDropdown.Draw();
-
-                        sample_normalize.Draw();
-                        sample_reverse.Draw();
-                        sample_fadeIn.Draw();
-                        sample_fadeOut.Draw();
-                        sample_invert.Draw();
-                        sample_amplifyUp.Draw();
-                        sample_amplifyDown.Draw();
-                        sample_detune.Draw();
-                        sample_baseKey.Draw();
-                        visualize_toggle.Draw();
-                    }
-                    else {
-                        envelopeEditor.Draw();
-                    }
-                }
-                else {
-                    envelopeEditor.Draw();
-                    //if (tabGroup.SelectedTabIndex == 4) {
-                    //    WriteRightAlign("Mode", wave_modTypeDropdown.x - 4, wave_modTypeDropdown.y + 3, UIColors.label);
-                    //    wave_modTypeDropdown.Draw();
-                    //}
-                }
-                if (!tabGroup.GetSelectedTab.toggle.Value && tabGroup.GetSelectedTab.hasToggle) {
-                    DrawRect(16, 36, 535, 253, new Color(255, 255, 255, 100));
-                }
-                browser.Draw();
+                //if (!tabGroup.GetSelectedTab.toggle.Value && tabGroup.GetSelectedTab.hasToggle) {
+                //    DrawRect(16, 36, 535, 253, new Color(255, 255, 255, 100));
+                //}
+                //browser.Draw();
             }
         }
 
@@ -494,28 +205,6 @@ namespace WaveTracker.UI {
             }
         }
 
-        public void LoadSampleFromFile(string path) {
-            SampleInstrument macro = CurrentInstrument as SampleInstrument;
-            bool successfulReadWAV = (Helpers.ReadWav(path, out macro.sample.sampleDataAccessL, out macro.sample.sampleDataAccessR));
-            macro.sample.SetBaseKey(Preferences.profile.defaultBaseKey);
-            macro.sample.SetDetune(0);
-            macro.sample.sampleLoopIndex = 0;
-            macro.sample.loopType = macro.sample.sampleDataAccessL.Length < 1000 ? Sample.LoopType.Forward : Sample.LoopType.OneShot;
-            macro.sample.resampleMode = (Audio.ResamplingMode)Preferences.profile.defaultResampleSample;
-            if (successfulReadWAV) {
-                if (Preferences.profile.automaticallyTrimSamples)
-                    macro.sample.TrimSilence();
-                if (Preferences.profile.automaticallyNormalizeSamples)
-                    macro.sample.Normalize();
 
-                macro.sample.resampleMode = (Audio.ResamplingMode)Preferences.profile.defaultResampleSample;
-                App.CurrentModule.SetDirty();
-            }
-            else {
-                macro.sample.sampleDataAccessL = Array.Empty<short>();
-                macro.sample.sampleDataAccessR = Array.Empty<short>();
-                App.CurrentModule.SetDirty();
-            }
-        }
     }
 }
