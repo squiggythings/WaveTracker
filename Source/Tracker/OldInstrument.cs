@@ -99,18 +99,18 @@ namespace WaveTracker.Tracker {
                     ret.envelopes.Add(pitchEnvelope.ToNewEnvelope(Envelope.EnvelopeType.Pitch));
                 }
                 if (waveEnvelope.isActive) {
-                    ret.envelopes.Add(pitchEnvelope.ToNewEnvelope(Envelope.EnvelopeType.Wave));
+                    ret.envelopes.Add(waveEnvelope.ToNewEnvelope(Envelope.EnvelopeType.Wave));
                 }
                 if (waveModEnvelope.isActive) {
                     switch (waveModType) {
                         case 0:
-                            ret.envelopes.Add(pitchEnvelope.ToNewEnvelope(Envelope.EnvelopeType.WaveBlend));
+                            ret.envelopes.Add(waveModEnvelope.ToNewEnvelope(Envelope.EnvelopeType.WaveBlend));
                             break;
                         case 1:
-                            ret.envelopes.Add(pitchEnvelope.ToNewEnvelope(Envelope.EnvelopeType.WaveStretch));
+                            ret.envelopes.Add(waveModEnvelope.ToNewEnvelope(Envelope.EnvelopeType.WaveStretch));
                             break;
                         case 2:
-                            ret.envelopes.Add(pitchEnvelope.ToNewEnvelope(Envelope.EnvelopeType.WaveSync));
+                            ret.envelopes.Add(waveModEnvelope.ToNewEnvelope(Envelope.EnvelopeType.WaveFM));
                             break;
                     }
                 }

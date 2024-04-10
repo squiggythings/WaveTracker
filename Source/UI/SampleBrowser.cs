@@ -264,7 +264,7 @@ namespace WaveTracker.UI {
             bool successfulReadWAV = (Helpers.ReadWav(path, out sample.sampleDataAccessL, out sample.sampleDataAccessR));
             sample.SetBaseKey(Preferences.profile.defaultBaseKey);
             sample.SetDetune(0);
-            sample.sampleLoopIndex = 0;
+            sample.loopPoint = 0;
             sample.loopType = sample.Length < 1000 ? Sample.LoopType.Forward : Sample.LoopType.OneShot;
             sample.resampleMode = (Audio.ResamplingMode)Preferences.profile.defaultResampleSample;
             if (successfulReadWAV) {

@@ -214,6 +214,11 @@ namespace WaveTracker.UI {
                 return new Point(0, y);
         }
         public void SetEnvelope(Envelope envelope, EnvelopePlayer playback) {
+            if (envelope == null) {
+                currentEnvelope = null;
+                playbackEnvelopePlayer = null;
+                return;
+            }
             if (envelope != currentEnvelope) {
                 ResetScrollbar();
                 currentEnvelope = envelope;
@@ -387,7 +392,7 @@ namespace WaveTracker.UI {
                     }
                     // draw loop
                     if (MouseIsInLoopRibbon && MouseEnvelopeX >= 0 && MouseEnvelopeX < currentEnvelope.Length && currentEnvelope.IsActive) {
-                        DrawSprite(GetXPositionOfColumn(MouseEnvelopeX) - 2, 1, new Rectangle(400, 80, 40, 9));
+                        DrawFlagSprite(GetXPositionOfColumn(MouseEnvelopeX) - 2, 1, new Rectangle(400, 80, 40, 9));
                     }
                     if (currentEnvelope.HasLoop) {
                         if (MouseIsInLoopRibbon && MouseEnvelopeX == currentEnvelope.LoopIndex) {
@@ -433,9 +438,8 @@ namespace WaveTracker.UI {
                     scrollbar.Draw();
                 }
                 if (!currentEnvelope.IsActive) {
-                    DrawRect(0, 0, width, height, new Color(255, 255, 255, 100));
+                    DrawRect(0, 0, width, envText.height + envText.y, new Color(255, 255, 255, 150));
                 }
-                Write("" + scrollbar.ScrollValue, 0, 0, Color.Red);
             }
             else {
                 DrawRect(0, 0, width, envText.height + envText.y, UIColors.panel);

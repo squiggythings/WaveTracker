@@ -386,21 +386,8 @@ namespace WaveTracker.Rendering {
             float lastSamp = 0;
             float scopezoom = 40f / (Preferences.profile.visualizerScopeZoom / 100f);
             if (ChannelManager.IsChannelOn(channelNum - 1)) {
-                if (channel.currentInstrument is WaveInstrument) {
-                    // WAVE
-                    Wave wave = channel.currentWave;
-                    for (int i = -w / 2; i < w / 2 - 1; ++i) {
-                        lastSamp = samp1;
-                        float position = (i / (float)w * channel.CurrentFrequency / scopezoom);
-
-                        samp1 = -channel.EvaluateWave(position + 5) * (h / 2f) * channel.CurrentAmplitude + (h / 2f);
-                        if (i > -w / 2)
-                            DrawOscCol(px + i + w / 2, py - 2, samp1, lastSamp, Preferences.profile.visualizerScopeColors ? GetColorOfWaveFromTable(channel.WaveIndex, channel.WaveMorphPosition) : Color.White, Preferences.profile.visualizerScopeThickness + 1);
-                    }
-                }
-                else // SAMPLE
-                  {
-                    Sample samp = ((SampleInstrument)channel.currentInstrument).sample;
+                if (channel.currentInstrument is SampleInstrument instrument) {
+                    Sample samp = instrument.sample;
 
                     for (int i = -w / 2; i < w / 2 - 1; ++i) {
                         lastSamp = samp1;
@@ -408,10 +395,20 @@ namespace WaveTracker.Rendering {
                         // time per base note cycle
                         // quantized 
 
-
                         samp1 = -samp.GetMonoSample((i / (float)w * channel.CurrentFrequency / scopezoom) + (int)channel.SampleTime, channel.SampleStartOffset / 100f) * (h / 2f) * channel.CurrentAmplitudeAsWave / 1.5f + (h / 2f);
                         if (i > -w / 2)
                             DrawOscCol(px + i + w / 2, py - 2, samp1, lastSamp, Color.White, Preferences.profile.visualizerScopeThickness + 1);
+                    }
+                }
+                else {
+                    // WAVE
+                    for (int i = -w / 2; i < w / 2 - 1; ++i) {
+                        lastSamp = samp1;
+                        float position = (i / (float)w * channel.CurrentFrequency / scopezoom);
+
+                        samp1 = -channel.EvaluateWave(position + 5) * (h / 2f) * channel.CurrentAmplitude + (h / 2f);
+                        if (i > -w / 2)
+                            DrawOscCol(px + i + w / 2, py - 2, samp1, lastSamp, Preferences.profile.visualizerScopeColors ? GetColorOfWaveFromTable(channel.WaveIndex, channel.WaveMorphPosition) : Color.White, Preferences.profile.visualizerScopeThickness + 1);
                     }
                 }
             }

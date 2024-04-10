@@ -11,6 +11,7 @@ using WaveTracker.Tracker;
 
 namespace WaveTracker.Audio {
     public class EnvelopePlayer {
+        public bool Enabled { get; set; }
         public int step;
         public bool released;
         public int Value { get; private set; }

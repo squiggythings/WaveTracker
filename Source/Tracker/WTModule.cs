@@ -212,10 +212,10 @@ namespace WaveTracker.Tracker {
                             // all instruments that are 01 are set to 128
                             // all instruments that are 00 are set to 01
                             if (pattern[row, channel, CellType.Instrument] == inst2) {
-                                pattern[row, channel, CellType.Instrument] = 128;
+                                pattern.SetCellRaw(row, channel, CellType.Instrument, 128);
                             }
                             if (pattern[row, channel, CellType.Instrument] == inst1) {
-                                pattern[row, channel, CellType.Instrument] = inst2;
+                                pattern.SetCellRaw(row, channel, CellType.Instrument, (byte)inst2);
                             }
                         }
                     }
@@ -225,7 +225,7 @@ namespace WaveTracker.Tracker {
                             // all instruments that are 01 are set to 128
                             // all instruments that are 00 are set to 01
                             if (pattern[row, channel, CellType.Instrument] == 128) {
-                                pattern[row, channel, CellType.Instrument] = inst1;
+                                pattern.SetCellRaw(row, channel, CellType.Instrument, (byte)inst1);
                             }
 
                         }

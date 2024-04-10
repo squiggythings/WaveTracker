@@ -191,8 +191,8 @@ namespace WaveTracker {
 
             if (WaveEditor.GetPianoMouseInput() > -1)
                 pianoInput = WaveEditor.GetPianoMouseInput();
-            if (InstrumentEditor.GetPianoMouseInput() > -1)
-                pianoInput = InstrumentEditor.GetPianoMouseInput();
+            if (InstrumentEditor.GetPianoInput() > -1)
+                pianoInput = InstrumentEditor.GetPianoInput();
             //if (MidiInput.GetMidiNote > -1) {
             //    pianoInput = MidiInput.GetMidiNote;
             //}

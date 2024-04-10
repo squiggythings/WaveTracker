@@ -26,6 +26,8 @@ namespace WaveTracker.UI {
         Dropdown loopMode;
         NumberBox loopPoint;
         SampleBrowser browser;
+        Button normalize, reverse, fadeIn, fadeOut, amplifyUp, amplifyDown, invert;
+        DropdownButton operations;
 
         public SampleEditor(int x, int y, Element parent) {
             this.x = x;
@@ -55,6 +57,8 @@ namespace WaveTracker.UI {
             loopMode = new Dropdown(247, 188, this, false);
             loopMode.SetMenuItems(new string[] { "One-shot", "Forward", "Ping-pong" });
 
+            operations = new DropdownButton("Tools", 351, 188, this);
+            operations.SetMenuItems(new string[] { "Normalize", "Reverse", "Amplify", "Fade In", "Fade Out", "Invert", "Downsample", "Bitcrush" });
             browser = new SampleBrowser();
         }
 
@@ -88,6 +92,13 @@ namespace WaveTracker.UI {
             if (loopMode.ValueWasChangedInternally) {
                 Sample.loopType = (Sample.LoopType)loopMode.Value;
             }
+            loopPoint.enabled = Sample.loopType != Sample.LoopType.OneShot;
+            loopPoint.Value = Sample.loopPoint;
+            loopPoint.Update();
+            if (loopPoint.ValueWasChangedInternally) {
+                Sample.loopPoint = loopPoint.Value;
+            }
+            operations.Update();
             browser.Update();
         }
 
@@ -107,12 +118,15 @@ namespace WaveTracker.UI {
                 DrawRect(waveformRegion.x, waveformRegion.y, waveformRegion.width, waveformRegion.height, UIColors.black);
                 DrawWaveform(waveformRegion.x, waveformRegion.y, Sample.sampleDataAccessL, waveformRegion.width, waveformRegion.height);
             }
+            importSample.Draw();
+            DrawSprite(importSample.x + importSample.width - 14, importSample.y + (importSample.IsPressed ? 3 : 2), new Rectangle(72, 81, 12, 9));
             loopMode.Draw();
             loopPoint.Draw();
             baseKey.Draw();
             fineTune.Draw();
             resamplingMode.Draw();
             loopMode.Draw();
+            operations.Draw();
             browser.Draw();
         }
 
@@ -147,9 +161,9 @@ namespace WaveTracker.UI {
                 }
 
                 if (Sample.loopType != Sample.LoopType.OneShot) {
-                    int loopPosition = (int)((float)Sample.sampleLoopIndex / data.Length * width);
+                    int loopPosition = (int)((float)Sample.loopPoint / data.Length * width);
                     DrawRect(x + loopPosition, y, 1, height, Color.Yellow);
-                    DrawRect(x + loopPosition, y, height - loopPosition, height, Helpers.Alpha(Color.Yellow, 50));
+                    DrawRect(x + loopPosition, y, width - loopPosition, height, Helpers.Alpha(Color.Yellow, 50));
                 }
                 if (Sample.currentPlaybackPosition < data.Length && Audio.ChannelManager.previewChannel.IsPlaying) {
                     DrawRect(x + (int)((float)Sample.currentPlaybackPosition / data.Length * width), y, 1, height, Color.Aqua);

@@ -27,6 +27,7 @@ namespace WaveTracker.UI {
         public EnvelopeEditor envelopeEditor;
         public SampleEditor sampleEditor;
         public EnvelopeListBox envelopeList;
+        PreviewPiano piano;
         //public Checkbox visualize_toggle;
 
         //public Dropdown sample_resampleDropdown;
@@ -38,7 +39,7 @@ namespace WaveTracker.UI {
             sampleEditor = new SampleEditor(16, 36, this);
             envelopeEditor = new EnvelopeEditor(118, 36, 464, this);
             envelopeList = new EnvelopeListBox(16, 48, 132, this);
-
+            piano = new PreviewPiano(44, 306, this);
         }
 
         public void Update() {
@@ -80,10 +81,10 @@ namespace WaveTracker.UI {
             Open();
             currentInstrumentID = instrumentIndex;
             tabGroup = new TabGroup(8, 15, this);
-            if (instrumentToEdit is SampleInstrument) {
+            if (instrumentToEdit is SampleInstrument instrument) {
                 tabGroup.AddTab("Sample", false);
                 tabGroup.AddTab("Envelopes", false);
-                sampleEditor.Sample = ((SampleInstrument)CurrentInstrument).sample;
+                sampleEditor.Sample = instrument.sample;
             }
             else {
                 tabGroup.AddTab("Envelopes", false);
@@ -91,19 +92,10 @@ namespace WaveTracker.UI {
             envelopeList.Intialize(CurrentInstrument.envelopes);
         }
 
-        public int GetPianoMouseInput() {
+        public int GetPianoInput() {
             if (!windowIsOpen || !InFocus)
                 return -1;
-
-            if (LastClickPos.X < 44 || LastClickPos.X > 523 || LastClickPos.Y > 330 || LastClickPos.Y < 307)
-                return -1;
-            if (MouseX < 44 || MouseX > 523 || MouseY > 330 || MouseY < 307)
-                return -1;
-            if (!Input.GetClick(KeyModifier.None))
-                return -1;
-            else {
-                return (MouseX + 4) / 4;
-            }
+            return piano.CurrentClickedNote;
         }
 
         public new void Close() {
@@ -127,84 +119,32 @@ namespace WaveTracker.UI {
                 //DrawRect(-x, -y, 960, 600, Helpers.Alpha(Color.Black, 90));
 
                 // draw window
-                DrawRoundedRect(8, 28, 552, 270, Color.White);
-                DrawPiano(43, 306);
-
+                DrawRoundedRect(8, 28, width - 16, 270, Color.White);
+                
+                
                 tabGroup.Draw();
                 DrawRect(9, 28, 280, 1, Color.White);
 
 
 
-                if (CurrentInstrument is SampleInstrument) {
-                    if (tabGroup.SelectedTabIndex == 0) {
-                        sampleEditor.Draw();
-                        if (Helpers.IsNoteBlackKey(((SampleInstrument)CurrentInstrument).sample.BaseKey))
-                            DrawSprite((((SampleInstrument)CurrentInstrument).sample.BaseKey) * 4 - 4, 307, new Rectangle(60, 80, 4, 24));
-                        else
-                            DrawSprite((((SampleInstrument)CurrentInstrument).sample.BaseKey) * 4 - 4, 307, new Rectangle(56, 80, 4, 24));
-                    }
-                    else {
-                        envelopeEditor.Draw();
-                        envelopeList.Draw();
-                    }
+                if (CurrentInstrument is SampleInstrument instrument && tabGroup.SelectedTabIndex == 0) {
+                    sampleEditor.Draw();
+                    piano.ShowBaseKey = true;
+                    piano.BaseKeyIndex = instrument.sample.BaseKey;
                 }
                 else {
+                    piano.ShowBaseKey = false;
                     envelopeEditor.Draw();
                     envelopeList.Draw();
                 }
 
-                // draw currently played key
                 if (App.pianoInput > -1) {
-                    int note = App.pianoInput + ChannelManager.previewChannel.envelopePlayers[Envelope.EnvelopeType.Arpeggio].Value;
-                    if (note >= 12 && note < 132) {
-                        if (Helpers.IsNoteBlackKey(note))
-                            DrawSprite(note * 4 - 4, 307, new Rectangle(52, 80, 4, 24));
-                        else
-                            DrawSprite(note * 4 - 4, 307, new Rectangle(48, 80, 4, 24));
-                    }
+                    piano.Draw(App.pianoInput + ChannelManager.previewChannel.envelopePlayers[Envelope.EnvelopeType.Arpeggio].Value);
                 }
-                //if (!tabGroup.GetSelectedTab.toggle.Value && tabGroup.GetSelectedTab.hasToggle) {
-                //    DrawRect(16, 36, 535, 253, new Color(255, 255, 255, 100));
-                //}
-                //browser.Draw();
+                else {
+                    piano.Draw();
+                }
             }
         }
-
-        public void DrawWaveform(int x, int y, short[] data, int height = 87) {
-            int boxLength = 528;
-            int boxHeight = height;
-            int startY = y + boxHeight / 2;
-            int lastSampleNum;
-            int sampleNum = 0;
-            if (data.Length > 0) {
-                for (int i = 0; i < boxLength; i++) {
-                    float percentage = (float)i / boxLength;
-                    lastSampleNum = sampleNum;
-                    sampleNum = (int)(percentage * data.Length - 1);
-                    sampleNum = Math.Clamp(sampleNum, 0, data.Length - 1);
-                    float min = 1;
-                    float max = -1;
-                    for (int j = lastSampleNum; j <= sampleNum; j++) {
-                        float val = data[j] / (float)(short.MaxValue);
-                        if (val < min)
-                            min = val;
-                        if (val > max)
-                            max = val;
-                    }
-                    min *= boxHeight / 2;
-                    max *= boxHeight / 2;
-                    if (i > 0)
-                        DrawRect(x + i - 1, startY - (int)(max), 1, (int)(max - min) + 1, new Color(207, 117, 43));
-
-                }
-                SampleInstrument inst = CurrentInstrument as SampleInstrument;
-                if (inst.sample.loopType != Sample.LoopType.OneShot)
-                    DrawRect(x + (int)((float)inst.sample.sampleLoopIndex / data.Length * boxLength), y, 1, boxHeight, Color.Yellow);
-                if (inst.sample.currentPlaybackPosition < data.Length && Audio.ChannelManager.previewChannel.IsPlaying)
-                    DrawRect(x + (int)((float)inst.sample.currentPlaybackPosition / data.Length * boxLength), y, 1, boxHeight, Color.Aqua);
-            }
-        }
-
-
     }
 }

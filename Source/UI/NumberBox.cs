@@ -67,6 +67,8 @@ namespace WaveTracker.UI {
         }
 
         public void Update() {
+            bUp.enabled = enabled && Value < max;
+            bDown.enabled = enabled && Value > min;
             if (enabled && InFocus) {
                 int valueBeforeUpdate = Value;
                 if (DoubleClicked && MouseX < width - 10) {
@@ -88,8 +90,6 @@ namespace WaveTracker.UI {
                         }
                     }
                 }
-                bUp.enabled = Value < max;
-                bDown.enabled = Value > min;
                 if (IsHovered && canScroll)
                     Value += Input.MouseScrollWheel(KeyModifier.None);
 

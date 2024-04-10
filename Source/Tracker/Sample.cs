@@ -21,7 +21,7 @@ namespace WaveTracker.Tracker {
         [ProtoMember(2)]
         public LoopType loopType;
         [ProtoMember(3)]
-        public int sampleLoopIndex;
+        public int loopPoint;
         [ProtoMember(4)]
         public int Detune { get; private set; }
         [ProtoMember(5)]
@@ -38,7 +38,7 @@ namespace WaveTracker.Tracker {
         public int Length { get { return sampleDataAccessL.Length; } }
         public bool IsStereo { get { return sampleDataAccessR.Length > 0; } }
         public Sample() {
-            sampleLoopIndex = 0;
+            loopPoint = 0;
 
             useInVisualization = false;
             sampleDataAccessL = new short[0];
@@ -184,7 +184,7 @@ namespace WaveTracker.Tracker {
             float x = (time * (AudioEngine.SAMPLE_RATE / _baseFrequency));
             x += startPercentage * Length;
             long l = Length;
-            long p = sampleLoopIndex;
+            long p = loopPoint;
             if (loopType == LoopType.OneShot || x <= l) {
                 sampleIndex = x;
             }

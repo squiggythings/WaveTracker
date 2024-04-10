@@ -187,7 +187,16 @@ namespace WaveTracker.Tracker {
         public void SetCellRaw(int row, int column, byte value) {
             cells[row][column] = value;
         }
-
+        /// <summary>
+        /// Sets cell at <c>[row, channel, cellType]</c> to <c>value</c> without updating any dependent cells
+        /// </summary>
+        /// <param name="row"></param>
+        /// <param name="channel"></param>
+        /// <param name="cellType"></param>
+        /// <param name="value"></param>
+        public void SetCellRaw(int row, int channel, CellType cellType, byte value) {
+            cells[row][channel * 11 + (int)cellType] = value;
+        }
 
         /// <summary>
         /// Accesses a cell in this pattern, setting will automatically clamp/update dependent cells if needed

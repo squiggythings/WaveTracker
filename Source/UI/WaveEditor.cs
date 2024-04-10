@@ -27,6 +27,8 @@ namespace WaveTracker.UI {
         int holdPosY, holdPosX;
         static string clipboardWave = "";
         static Audio.ResamplingMode clipboardSampleMode = Audio.ResamplingMode.Mix;
+        PreviewPiano piano;
+        MouseRegion drawingRegion;
         int phase;
         public WaveEditor() : base("Wave Editor", 500, 270) {
             x = 220;
@@ -108,6 +110,7 @@ namespace WaveTracker.UI {
 
             ResampleDropdown = new Dropdown(385, 215, this);
             ResampleDropdown.SetMenuItems(new string[] { "Harsh (None)", "Smooth (Linear)", "Mix (None + Linear)" });
+            piano = new PreviewPiano(10, 240, this);
         }
         public void Open(int waveIndex) {
             base.Open();
@@ -128,22 +131,14 @@ namespace WaveTracker.UI {
         public int GetPianoMouseInput() {
             if (!enabled || !InFocus)
                 return -1;
-            if (MouseX < 10 || MouseX > 488 || MouseY > 258 || MouseY < 235)
-                return -1;
-            if (!Input.GetClick(KeyModifier.None))
-                return -1;
-            else {
-                return ((MouseX + 38) / 4);
-            }
+            return piano.CurrentClickedNote;
         }
 
         bool IsMouseInCanvasBounds() {
-            return InFocus && CanvasMouseX > 0 && CanvasMouseY > 0 && CanvasMouseX < 384 && CanvasMouseY < 160;
+            return InFocus && drawingRegion.IsHovered;
         }
-        int CanvasMouseX => MouseX - 17;
-        int CanvasMouseY => MouseY - 23;
-        int CanvasPosX => CanvasMouseX / 6;
-        int CanvasPosY => 31 - (CanvasMouseY / 5);
+        int CanvasPosX => drawingRegion.MouseX / 6;
+        int CanvasPosY => 31 - (drawingRegion.MouseY / 5);
 
         public void Update() {
             if (windowIsOpen) {
@@ -317,14 +312,6 @@ namespace WaveTracker.UI {
             }
         }
 
-        void DrawPiano(int x, int y) {
-            DrawRect(x, y, 482, 26, UIColors.black);
-            for (int i = 0; i < 10; ++i) {
-                // draw 1 octave of the piano sprite
-                DrawSprite(x + i * 48 + 1, y + 1, new Rectangle(0, 80, 48, 24));
-            }
-        }
-
         public new void Draw() {
             if (windowIsOpen) {
                 name = "Edit Wave " + id.ToString("D2");
@@ -373,7 +360,7 @@ namespace WaveTracker.UI {
                     DrawRect(419 + i, 199 - samp2, 1, 1, new Color(118, 124, 163));
                 }
                 if (IsMouseInCanvasBounds() && InFocus) {
-                    DrawRect(17 + (CanvasMouseX / 6 * 6), 183 - ((31 - CanvasMouseY / 5) * 5), 6, -5, Helpers.Alpha(Color.White, 80));
+                    DrawRect(17 + (drawingRegion.MouseX / 6 * 6), 183 - ((31 - drawingRegion.MouseY / 5) * 5), 6, -5, Helpers.Alpha(Color.White, 80));
                     if (Input.GetClick(KeyModifier.Shift)) {
                         int diff = Math.Abs(holdPosX - CanvasPosX);
                         if (diff > 0) {
@@ -392,15 +379,7 @@ namespace WaveTracker.UI {
                         }
                     }
                 }
-                DrawPiano(9, 234);
-                if (App.pianoInput > -1) {
-                    if (App.pianoInput >= 12 && App.pianoInput < 132) {
-                        if (Helpers.IsNoteBlackKey(App.pianoInput))
-                            DrawSprite(App.pianoInput * 4 - 38, 235, new Rectangle(52, 80, 4, 24));
-                        else
-                            DrawSprite(App.pianoInput * 4 - 38, 235, new Rectangle(48, 80, 4, 24));
-                    }
-                }
+                piano.Draw(App.pianoInput);
                 Write("Resampling Filter", 413, 205, UIColors.label);
                 ResampleDropdown.Draw();
             }
