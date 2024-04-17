@@ -16,6 +16,7 @@ namespace WaveTracker.UI {
         public static HumanizeDialog humanizeDialog;
         public static ExportDialog exportDialog;
         public static ExportingDialog exportingDialog;
+        public static SetFramePatternDialog setFramePatternDialog;
 
         public static MessageDialog messageDialog;
 
@@ -26,6 +27,8 @@ namespace WaveTracker.UI {
             humanizeDialog = new HumanizeDialog();
             exportDialog = new ExportDialog();
             exportingDialog = new ExportingDialog();
+            setFramePatternDialog = new SetFramePatternDialog();
+
             messageDialog = new MessageDialog();
         }
 
@@ -36,6 +39,7 @@ namespace WaveTracker.UI {
             humanizeDialog.Update();
             exportDialog.Update();
             exportingDialog.Update();
+            setFramePatternDialog.Update();
 
             messageDialog.Update();
         }
@@ -47,6 +51,7 @@ namespace WaveTracker.UI {
             humanizeDialog.Draw();
             exportDialog.Draw();
             exportingDialog.Draw();
+            setFramePatternDialog.Draw();
 
             messageDialog.Draw();
         }

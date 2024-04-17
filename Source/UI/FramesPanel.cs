@@ -7,7 +7,8 @@ namespace WaveTracker.UI {
         FrameButton[] frames;
         public SpriteButton bNewFrame, bDeleteFrame, bDuplicateFrame, bMoveLeft, bMoveRight;
         //public Button increasePattern, decreasePattern;
-
+        MouseRegion scrollRegion;
+        Menu contextMenu;
         public FramesPanel(int x, int y, int width, int height) : base("Frames", x, y, width, height) {
         }
 
@@ -23,14 +24,25 @@ namespace WaveTracker.UI {
             bMoveLeft.SetTooltip("Move Left", "Move this frame to be earlier in the song");
             bMoveRight = new SpriteButton(19, 25, 15, 15, 315, 0, this);
             bMoveRight.SetTooltip("Move Right", "Move this frame to be later in the song");
-
+            scrollRegion = new MouseRegion(80, 12, 397, 28, this);
             //increasePattern = new Button("+", 484, 12, this);
             //increasePattern.width = 18;
             //increasePattern.SetTooltip("Increase Pattern", "Increase this frame's pattern");
             //decreasePattern = new Button("-", 484, 26, this);
             //decreasePattern.width = 18;
             //increasePattern.SetTooltip("Decrease Pattern", "Decrease this frame's pattern");
-
+            contextMenu = new Menu(new MenuItemBase[] {
+                new MenuOption("Insert Frame",App.PatternEditor.InsertNewFrame),
+                new MenuOption("Remove Frame",App.PatternEditor.MoveFrameRight),
+                new MenuOption("Duplicate Frame",App.PatternEditor.DuplicateFrame),
+                null,
+                new MenuOption("Move Left", App.PatternEditor.MoveFrameLeft),
+                new MenuOption("Move Right", App.PatternEditor.MoveFrameRight),
+                null,
+                new MenuOption("Increase Pattern",App.PatternEditor.IncreaseFramePatternIndex),
+                new MenuOption("Decrease Pattern",App.PatternEditor.DecreaseFramePatternIndex),
+                new MenuOption("Set pattern...",SetPatternIndex)
+            });
 
             frames = new FrameButton[25];
             for (int i = 0; i < frames.Length; ++i) {
@@ -48,7 +60,10 @@ namespace WaveTracker.UI {
             bNewFrame.enabled = bDuplicateFrame.enabled = App.CurrentSong.FrameSequence.Count < 100;
             bMoveRight.enabled = App.PatternEditor.cursorPosition.Frame < App.CurrentSong.FrameSequence.Count - 1;
             bMoveLeft.enabled = App.PatternEditor.cursorPosition.Frame > 0;
-            if (new Rectangle(80, 12, 397, 28).Contains(MouseX, MouseY) && Input.focus == null) {
+            if (scrollRegion.IsHovered && Input.focus == null) {
+                if (scrollRegion.RightClicked) {
+                    ContextMenu.Open(contextMenu);
+                }
                 if (!Input.GetClick(KeyModifier._Any)) {
                     if (Input.MouseScrollWheel(KeyModifier.None) < 0) {
                         if (Playback.IsPlaying && App.PatternEditor.FollowMode)
@@ -105,6 +120,12 @@ namespace WaveTracker.UI {
                 //}
             }
         }
+
+        void SetPatternIndex() {
+            Dialogs.setFramePatternDialog.Open(App.CurrentSong.FrameSequence[App.PatternEditor.cursorPosition.Frame]);
+        }
+
+
 
         public new void Draw() {
             base.Draw();

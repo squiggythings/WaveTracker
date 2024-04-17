@@ -23,7 +23,7 @@ namespace WaveTracker.UI {
         }
 
         public void Update() {
-            if (IsHovered || WaveBank.currentWave == id) {
+            if (IsHovered || WaveBank.currentWaveID == id) {
                 phase += 4;
             } else {
                 phase = 1;
@@ -36,7 +36,7 @@ namespace WaveTracker.UI {
             if (WaveBank.lastSelectedWave == id) {
                 DrawRoundedRect(0, 0, 22, 22, new Color(68, 75, 120));
             }
-            if (IsHovered || (WaveEditor.enabled && WaveBank.currentWave == id)) {
+            if (IsHovered || (WaveEditor.enabled && WaveBank.currentWaveID == id)) {
                 if (WaveEditor.enabled) {
                     phase -= 2;
                 }

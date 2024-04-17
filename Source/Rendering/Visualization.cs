@@ -145,41 +145,47 @@ namespace WaveTracker.Rendering {
             if (numVisibleRows < 3) numVisibleRows = 3;
             int currRow = numVisibleRows / 2;
             // draw channelheaders
-            int id = 0;
-            int tx = px + 58;
+            int channelWidth = App.CurrentModule.ChannelCount <= 13 ? 65 : 35;
+            int trackerWidth = App.CurrentModule.ChannelCount * channelWidth;
+            px = (App.WindowWidth - trackerWidth) / 2;
 
 
             // draw background
             //DrawRect(tx - 1, py, 841, numVisibleRows * 7 + 22, Colors.theme.background);
             DrawRect(0, py, 960, numVisibleRows * 7 + 90, Colors.theme.background);
 
-            int rowSeparatorHeight = numVisibleRows * 7 + 90;
+            int rowSeparatorHeight = numVisibleRows * 7 + 19;
 
             // draw first row separator
-            DrawRect(tx - 1, py, 1, rowSeparatorHeight, Colors.theme.rowSeparator);
+            DrawRect(px - 1, py, 1, rowSeparatorHeight, Colors.theme.rowSeparator);
 
-            DrawBubbleRect(tx - 81, py, 80, 18, Color.White);
+            DrawBubbleRect(-1, py, px, 18, Color.White);
             DrawRect(0, py + 18, 960, 1, Colors.theme.rowSeparator);
-            foreach (Channel ch in ChannelManager.channels) {
-                DrawBubbleRect(tx, py, 34, 18, Color.White);
+            for (int i = 0; i < App.CurrentModule.ChannelCount; ++i) {
+                DrawBubbleRect(px + i * channelWidth, py, channelWidth - 1, 18, Color.White);
 
-                string str = "Ch " + (id + 1).ToString("D2");
-                Write(str, tx + 16 - Helpers.GetWidthOfText(str) / 2, py + 3, UIColors.label);
-                DrawRect(tx + 2, py + 12, 30, 3, UIColors.panel);
+                string str;
+                if (channelWidth == 35) {
+                    str = "Ch " + (i + 1).ToString("D2");
+                }
+                else {
+                    str = "Channel " + (i + 1).ToString("D2");
+                }
+                Write(str, px + i * channelWidth + channelWidth / 2 - Helpers.GetWidthOfText(str) / 2 - 1, py + 3, UIColors.label);
+                int volumeStartX = px + i * channelWidth + 2;
+                int maxVolumeWidth = channelWidth - 1 - 4;
+                DrawRect(volumeStartX, py + 12, maxVolumeWidth, 3, UIColors.panel);
 
                 // draw volume amp
-                int amp = (int)Math.Round(App.PatternEditor.ChannelHeaders[id].Amplitude * 14);
-                DrawRect(tx + 17 - amp, py + 12, amp * 2, 3, new Color(63, 215, 52));
+                int amp = (int)(maxVolumeWidth / 2 * App.PatternEditor.ChannelHeaders[i].Amplitude);
+                DrawRect(volumeStartX + maxVolumeWidth / 2 - amp, py + 12, amp * 2, 3, new Color(63, 215, 52));
 
-                id++;
-                tx += 35;
 
                 // draw row separator
-                DrawRect(tx - 1, py, 1, rowSeparatorHeight, Colors.theme.rowSeparator);
+                DrawRect(px + (i + 1) * channelWidth - 1, py, 1, rowSeparatorHeight, Colors.theme.rowSeparator);
             }
-            DrawBubbleRect(tx, py, 150, 18, Color.White);
+            DrawBubbleRect(px + trackerWidth, py, App.WindowWidth - (px + trackerWidth) + 1, 18, Color.White);
             //DrawRect(tx + 2, py + 12, 80, 3, UIColors.panel);
-            px += 58;
             py += 19;
 
             // draw rows
@@ -187,29 +193,12 @@ namespace WaveTracker.Rendering {
                 int rowY = py + i * 7;
                 int thisRow = Playback.position.Row + i - numVisibleRows / 2;
                 if (thisRow == Playback.position.Row) {
-                    DrawRect(px, rowY, 35 * Song.CHANNEL_COUNT, 7, Colors.theme.rowSeparator);
-                    DrawRect(px, rowY, 35 * Song.CHANNEL_COUNT, 7, Helpers.Alpha(Colors.theme.cursor, 90));
+                    DrawRect(px - 1, rowY, trackerWidth + 1, 7, Colors.theme.rowSeparator);
+                    DrawRect(px - 1, rowY, trackerWidth + 1, 7, Helpers.Alpha(Colors.theme.cursor, 90));
                 }
 
-                if (thisRow >= 0 && thisRow <= Playback.Frame.GetLength())
-                    for (int channel = 0; channel < Song.CHANNEL_COUNT * 5; channel += 5) {
-                        /*
-                        int rowX = px + (channel / 5) * 35;
-                        bool hasNote = Playback.frame.GetPattern()[thisRow][channel].Note != PatternEvent.EMPTY;
-                        bool hasInstrument = Playback.frame.GetPattern()[thisRow][channel].Instrument != PatternEvent.EMPTY;
-                        if (hasNote) {
-                            WriteNote(Playback.frame.pattern[thisRow][channel + 0], rowX + 3, rowY, thisRow == Playback.position.Row);
-                        }
-                        else {
-                            WriteEffect(Playback.frame.pattern[thisRow][channel + 3], Playback.frame.pattern[thisRow][channel + 4], rowX + 3, rowY, thisRow == Playback.position.Row);
-                        }
-                        if (hasInstrument) {
-                            WriteInstrument(Playback.frame.pattern[thisRow][channel + 1], rowX + 22, rowY, thisRow == Playback.position.Row);
-                        }
-                        else {
-                            WriteVolume(Playback.frame.pattern[thisRow][channel + 2], rowX + 22, rowY, thisRow == Playback.position.Row);
-                        }*/
-                    }
+                if (thisRow >= 0 && thisRow < Playback.Frame.GetLength())
+                    DrawRow(px, rowY, i, Playback.position.Frame, thisRow, 0, thisRow == Playback.position.Row, channelWidth);
             }
 
         }
@@ -221,8 +210,187 @@ namespace WaveTracker.Rendering {
 
 
 
+        void DrawRow(int x, int y, int line, int frame, int row, int frameWrap, bool currRow, int channelWidth) {
+            // get the row color
+            Color rowTextColor = Colors.theme.patternText;
+            if (row % App.CurrentSong.RowHighlightPrimary == 0)
+                rowTextColor = Colors.theme.patternTextHighlighted;
+            else if (row % App.CurrentSong.RowHighlightSecondary == 0)
+                rowTextColor = Colors.theme.patternTextSubHighlight;
+            Color c = Helpers.Alpha(Colors.theme.patternText, currRow ? 255 : 120);
+
+            // draw pattern events
+            for (int channel = 0; channel < App.CurrentModule.ChannelCount; ++channel) {
+                if (channelWidth == 35) {
+                    DrawPatternEventCompact(frame, row, channel, frameWrap, x + channel * channelWidth + 1, y, App.CurrentSong.NumEffectColumns[channel], currRow ? 255 : 120);
+                }
+                else {
+                    DrawPatternEventExpanded(frame, row, channel, frameWrap, x + channel * channelWidth + 1, y, App.CurrentSong.NumEffectColumns[channel], currRow ? 255 : 120);
+                }
+            }
+        }
+
+        void DrawPatternEventCompact(int frame, int row, int channel, int frameWrap, int x, int y, int effectColumns, int alpha) {
+
+            int noteValue = App.CurrentSong[frame][row, channel, CellType.Note];
+            int instrumentValue = App.CurrentSong[frame][row, channel, CellType.Instrument];
+            int volumeValue = App.CurrentSong[frame][row, channel, CellType.Volume];
+
+            Color emptyColor = Helpers.Alpha(Colors.theme.patternText, Colors.theme.patternEmptyTextAlpha);
+            Color noteColor = Helpers.Alpha(Colors.theme.patternText, alpha);
+            // draw note
+
+            if (noteValue == WTPattern.EVENT_NOTE_CUT) {
+                if (Preferences.profile.showNoteCutAndReleaseAsText)
+                    Write("OFF", x + 2, y, noteColor);
+                else {
+                    DrawRect(x + 3, y + 2, 13, 2, noteColor);
+                }
+            }
+            else if (noteValue == WTPattern.EVENT_NOTE_RELEASE) {
+                if (Preferences.profile.showNoteCutAndReleaseAsText)
+                    Write("REL", x + 2, y, noteColor);
+                else {
+                    DrawRect(x + 3, y + 2, 13, 1, noteColor);
+                    DrawRect(x + 3, y + 4, 13, 1, noteColor);
+                }
+            }
+            else if (noteValue == WTPattern.EVENT_EMPTY) {
+                bool wroteAnEffect = false;
+                for (int i = 0; i < effectColumns; ++i) {
+                    int thisEffectType = App.CurrentSong[frame][row, channel, CellType.Effect1 + i * 2];
+                    int thisEffectParameter = App.CurrentSong[frame][row, channel, CellType.Effect1Parameter + i * 2];
+
+                    if (thisEffectType != WTPattern.EVENT_EMPTY) {
+                        wroteAnEffect = true;
+                        Write(Helpers.FlushString((char)thisEffectType + ""), x + 2, y, Helpers.Alpha(Colors.theme.effectColumn, alpha));
+                        if (Helpers.IsEffectHex((char)thisEffectType))
+                            WriteMonospaced(thisEffectParameter.ToString("X2"), x + 7, y, Helpers.Alpha(Colors.theme.effectColumnParameter, alpha), 4);
+                        else
+                            WriteMonospaced(thisEffectParameter.ToString("D2"), x + 7, y, Helpers.Alpha(Colors.theme.effectColumnParameter, alpha), 4);
+                        break;
+                    }
+                }
+                if (!wroteAnEffect)
+                    WriteMonospaced("···", x + 3, y, emptyColor, 4);
+            }
+            else {
+                string noteName = Helpers.MIDINoteToText(noteValue);
+                if (noteName.Contains('#')) {
+                    Write(noteName, x + 2, y, noteColor);
+                }
+                else {
+                    WriteMonospaced(noteName[0] + "-", x + 2, y, noteColor, 5);
+                    Write(noteName[2] + "", x + 13, y, noteColor);
+                }
+            }
+
+            // draw instrument column
+            if (instrumentValue == WTPattern.EVENT_EMPTY) {
+                if (volumeValue == WTPattern.EVENT_EMPTY) {
+                    WriteMonospaced("··", x + 22, y, emptyColor, 4);
+                }
+                else {
+                    WriteMonospaced(volumeValue.ToString("D2"), x + 21, y, Helpers.Alpha(Colors.theme.volumeColumn, alpha), 4);
+                }
+            }
+            else {
+                Color instrumentColor;
+                if (instrumentValue < App.CurrentModule.Instruments.Count) {
+                    if (App.CurrentModule.Instruments[instrumentValue] is WaveInstrument)
+                        instrumentColor = Colors.theme.instrumentColumnWave;
+                    else
+                        instrumentColor = Colors.theme.instrumentColumnSample;
+                }
+                else {
+                    instrumentColor = Color.Red;
+                }
+                WriteMonospaced(instrumentValue.ToString("D2"), x + 21, y, Helpers.Alpha(instrumentColor, alpha), 4);
+            }
+        }
+
+        void DrawPatternEventExpanded(int frame, int row, int channel, int frameWrap, int x, int y, int effectColumns, int alpha) {
+
+            int noteValue = App.CurrentSong[frame][row, channel, CellType.Note];
+            int instrumentValue = App.CurrentSong[frame][row, channel, CellType.Instrument];
+            int volumeValue = App.CurrentSong[frame][row, channel, CellType.Volume];
+
+            Color emptyColor = Helpers.Alpha(Colors.theme.patternText, Colors.theme.patternEmptyTextAlpha);
+            Color noteColor = Helpers.Alpha(Colors.theme.patternText, alpha);
+            // draw note
+
+            if (noteValue == WTPattern.EVENT_NOTE_CUT) {
+                if (Preferences.profile.showNoteCutAndReleaseAsText)
+                    Write("OFF", x + 2, y, noteColor);
+                else {
+                    DrawRect(x + 3, y + 2, 13, 2, noteColor);
+                }
+            }
+            else if (noteValue == WTPattern.EVENT_NOTE_RELEASE) {
+                if (Preferences.profile.showNoteCutAndReleaseAsText)
+                    Write("REL", x + 2, y, noteColor);
+                else {
+                    DrawRect(x + 3, y + 2, 13, 1, noteColor);
+                    DrawRect(x + 3, y + 4, 13, 1, noteColor);
+                }
+            }
+            else if (noteValue == WTPattern.EVENT_EMPTY) {
+                WriteMonospaced("···", x + 3, y, emptyColor, 4);
+            }
+            else {
+                string noteName = Helpers.MIDINoteToText(noteValue);
+                if (noteName.Contains('#')) {
+                    Write(noteName, x + 2, y, noteColor);
+                }
+                else {
+                    WriteMonospaced(noteName[0] + "-", x + 2, y, noteColor, 5);
+                    Write(noteName[2] + "", x + 13, y, noteColor);
+                }
+            }
+
+            // draw instrument column
+            if (instrumentValue == WTPattern.EVENT_EMPTY) {
+                WriteMonospaced("··", x + 22, y, emptyColor, 4);
+            }
+            else {
+                Color instrumentColor;
+                if (instrumentValue < App.CurrentModule.Instruments.Count) {
+                    if (App.CurrentModule.Instruments[instrumentValue] is WaveInstrument)
+                        instrumentColor = Colors.theme.instrumentColumnWave;
+                    else
+                        instrumentColor = Colors.theme.instrumentColumnSample;
+                }
+                else {
+                    instrumentColor = Color.Red;
+                }
+                WriteMonospaced(instrumentValue.ToString("D2"), x + 21, y, Helpers.Alpha(instrumentColor, alpha), 4);
+            }
+
+            if (volumeValue == WTPattern.EVENT_EMPTY) {
+                WriteMonospaced("··", x + 35, y, emptyColor, 4);
+            }
+            else {
+                WriteMonospaced(volumeValue.ToString("D2"), x + 34, y, Helpers.Alpha(Colors.theme.volumeColumn, alpha), 4);
+            }
+
+            for (int i = 0; i < effectColumns; ++i) {
+                int thisEffectType = App.CurrentSong[frame][row, channel, CellType.Effect1 + i * 2];
+                int thisEffectParameter = App.CurrentSong[frame][row, channel, CellType.Effect1Parameter + i * 2];
 
 
+                if (thisEffectType != WTPattern.EVENT_EMPTY) {
+                    Write(Helpers.FlushString((char)thisEffectType + ""), x + 47, y, Helpers.Alpha(Colors.theme.effectColumn, alpha));
+                    if (Helpers.IsEffectHex((char)thisEffectType))
+                        WriteMonospaced(thisEffectParameter.ToString("X2"), x + 52, y, Helpers.Alpha(Colors.theme.effectColumnParameter, alpha), 4);
+                    else
+                        WriteMonospaced(thisEffectParameter.ToString("D2"), x + 52, y, Helpers.Alpha(Colors.theme.effectColumnParameter, alpha), 4);
+                    break;
+                }
+                else if (i == effectColumns - 1) {
+                    WriteMonospaced("···", x + 48, y, emptyColor, 4);
+                }
+            }
+        }
 
 
 
@@ -231,7 +399,7 @@ namespace WaveTracker.Rendering {
 
         void WriteNote(int value, int x, int y, bool currRow) {
             int alpha = currRow ? 255 : 120;
-            Color c = Helpers.Alpha(Colors.theme.patternText, alpha);
+            Color c = Helpers.Alpha(Colors.theme.patternText, currRow ? 255 : 120);
             if (value == WTPattern.EVENT_NOTE_CUT) // off
             {
                 if (Preferences.profile.showNoteCutAndReleaseAsText)

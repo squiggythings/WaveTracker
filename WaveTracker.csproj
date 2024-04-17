@@ -18,6 +18,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Remove="Content\TrackerFont.ttf" />
+    <None Remove="Source\UI\WaveEditor.cs~RFd26000b.TMP" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="MonoGame.Framework.WindowsDX" Version="3.8.1.303" />

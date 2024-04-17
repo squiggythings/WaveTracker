@@ -30,6 +30,12 @@ namespace WaveTracker.UI {
             }
         }
 
+        public bool IsInHierarchy(Element element) {
+            if (element == this) return true;
+            if (parent == null) return element == null;
+            return parent.IsInHierarchy(element);
+        }
+
         public void SetParent(Element parent) {
             this.parent = parent;
         }

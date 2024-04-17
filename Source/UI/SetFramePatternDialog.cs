@@ -3,28 +3,28 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using WaveTracker.Tracker;
 
 namespace WaveTracker.UI {
-    public class HumanizeDialog : Dialog {
-        PatternEditor parentEditor;
+    public class SetFramePatternDialog : Dialog {
         Button cancel, ok;
-        NumberBox volumeRange;
-        public HumanizeDialog() : base("Humanize Volumes", 146, 58) {
+        NumberBox patternIndex;
+        WTFrame parentFrame;
+        public SetFramePatternDialog() : base("Set Pattern...", 146, 58) {
             PositionInCenterOfScreen();
             cancel = AddNewBottomButton("Cancel", this);
             ok = AddNewBottomButton("OK", this);
-            volumeRange = new NumberBox("Randomization Range", 8, 19, 132, 36, this);
-            volumeRange.SetValueLimits(0, 99);
-            volumeRange.SetTooltip("How much to randomize volumes in this selection");
-            volumeRange.Value = 5;
+            patternIndex = new NumberBox("Pattern Index", 8, 19, 132, 36, this);
+            patternIndex.SetValueLimits(0, 99);
+            patternIndex.Value = 5;
         }
 
-        public void Open(PatternEditor parentEditor) {
-            this.parentEditor = parentEditor;
+        public void Open(WTFrame frame) {
+            parentFrame = frame;
+            patternIndex.Value = parentFrame.PatternIndex;
             Open();
         }
 
@@ -34,17 +34,17 @@ namespace WaveTracker.UI {
                 if (cancel.Clicked || ExitButton.Clicked)
                     Close();
                 if (ok.Clicked) {
-                    parentEditor.RandomizeSelectedVolumes(volumeRange.Value);
+                    parentFrame.PatternIndex = patternIndex.Value;
                     Close();
                 }
-                volumeRange.Update();
+                patternIndex.Update();
             }
         }
 
         public new void Draw() {
             if (windowIsOpen) {
                 base.Draw();
-                volumeRange.Draw();
+                patternIndex.Draw();
             }
         }
     }

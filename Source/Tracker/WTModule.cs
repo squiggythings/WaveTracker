@@ -13,7 +13,7 @@ namespace WaveTracker.Tracker {
     [ProtoContract(SkipConstructor = true)]
     public class WTModule {
         public const int MAX_CHANNEL_COUNT = 24;
-        public const int DEFAULT_CHANNEL_COUNT = 24;
+        public const int DEFAULT_CHANNEL_COUNT = 3;
         public const int MAX_SONG_COUNT = 32;
 
         public bool IsDirty { get; private set; }
@@ -134,11 +134,15 @@ namespace WaveTracker.Tracker {
                 Title = song.name,
                 Author = song.author,
                 Year = song.year,
-                Instruments = song.instruments,
+                OldInstruments = song.instruments,
                 WaveBank = song.waves,
                 TickRate = song.tickRate,
                 ChannelCount = 24
             };
+            module.Instruments = new List<Instrument>();
+            foreach (OldInstrument oldInstrument in module.OldInstruments) {
+                module.Instruments.Add(oldInstrument.ToNewInstrument());
+            }
             WTSong wtsong = new WTSong(module) {
                 RowHighlightPrimary = song.rowHighlight1,
                 RowHighlightSecondary = song.rowHighlight2,

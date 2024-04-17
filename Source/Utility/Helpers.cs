@@ -259,22 +259,34 @@ namespace WaveTracker {
             c.B = (byte)(a.B + (b.B - a.B) * amt);
             return c;
         }
+        /// <summary>
+        /// Map a float from one range to another
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="from1"></param>
+        /// <param name="to1"></param>
+        /// <param name="from2"></param>
+        /// <param name="to2"></param>
+        /// <returns></returns>
         public static float Map(float value, float from1, float to1, float from2, float to2) {
             return (value - from1) / (to1 - from1) * (to2 - from2) + from2;
         }
+        /// <summary>
+        /// Map a float from one range to another, without exceeding the bounds
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="from1"></param>
+        /// <param name="to1"></param>
+        /// <param name="from2"></param>
+        /// <param name="to2"></param>
+        /// <returns></returns>
         public static float MapClamped(float value, float from1, float to1, float from2, float to2) {
             if (from2 < to2)
                 return Math.Clamp((value - from1) / (to1 - from1) * (to2 - from2) + from2, from2, to2);
             else
                 return Math.Clamp((value - from1) / (to1 - from1) * (to2 - from2) + from2, to2, from2);
         }
-        //public static float MapClamped(float s, float a1, float a2, float b1, float b2)
-        //{
-        //    if (b1 > b2)
-        //        return Math.Clamp(b1 + (s - a1) * (b2 - b1) / (a2 - a1), b2, b1);
-        //    else
-        //        return Math.Clamp(b1 + (s - a1) * (b2 - b1) / (a2 - a1), b1, b2);
-        //}
+
 
         /// <summary>
         /// Returns the midi note number of the current piano key held down, -1 if none are pressed
@@ -408,73 +420,78 @@ namespace WaveTracker {
             };
         }
 
-        public static bool readWav(string filepath, out float[] L, out float[] R) {
-            List<float> LChannel = new List<float>();
-            List<float> RChannel = new List<float>();
-            try {
-                AudioFileReader Nreader = new AudioFileReader(filepath);
-                ISampleProvider isp;
-                bool mono = Nreader.WaveFormat.Channels == 1;
+        //public static bool readWav(string filepath, out float[] L, out float[] R) {
+        //    List<float> LChannel = new List<float>();
+        //    List<float> RChannel = new List<float>();
+        //    try {
+        //        AudioFileReader Nreader = new AudioFileReader(filepath);
+        //        ISampleProvider isp;
+        //        bool mono = Nreader.WaveFormat.Channels == 1;
 
-                var outFormat = new WaveFormat(44100, Nreader.WaveFormat.Channels);
-                IWaveProvider waveProvider = Nreader.ToWaveProvider();
-                if (Preferences.profile.automaticallyResampleSamples)
-                    using (var resampler = new MediaFoundationResampler(Nreader, outFormat)) {
-                        isp = resampler.ToSampleProvider();
-                    }
-                else
-                    isp = Nreader.ToSampleProvider();
-                long sampleLength = (long)(Nreader.Length * (44100.0 / Nreader.WaveFormat.SampleRate));
-                float[] buffer = new float[sampleLength / 4];
-                isp.Read(buffer, 0, buffer.Length);
-                for (int sampleIndex = 0, bufferIndex = 0; bufferIndex < buffer.Length; sampleIndex++) {
-                    if (sampleIndex > 16777216)
-                        break;
-                    LChannel.Add(buffer[bufferIndex++]);
-                    if (!mono)
-                        RChannel.Add(buffer[bufferIndex++]);
-                }
-                if (mono)
-                    RChannel.Clear();
-                L = LChannel.ToArray();
-                R = RChannel.ToArray();
-                return true;
-            } catch {
-                LChannel.Add(0f);
-                RChannel.Add(0f);
-                L = LChannel.ToArray();
-                R = RChannel.ToArray();
-                return false;
-            }
-        }
+        //        var outFormat = new WaveFormat(44100, Nreader.WaveFormat.Channels);
+        //        IWaveProvider waveProvider = Nreader.ToWaveProvider();
+        //        if (Preferences.profile.automaticallyResampleSamples)
+        //            using (var resampler = new MediaFoundationResampler(Nreader, outFormat)) {
+        //                isp = resampler.ToSampleProvider();
+        //            }
+        //        else
+        //            isp = Nreader.ToSampleProvider();
+        //        long sampleLength = (long)(Nreader.Length * (44100.0 / Nreader.WaveFormat.SampleRate));
+        //        float[] buffer = new float[sampleLength / 4];
+        //        isp.Read(buffer, 0, buffer.Length);
+        //        for (int sampleIndex = 0, bufferIndex = 0; bufferIndex < buffer.Length; sampleIndex++) {
+        //            if (sampleIndex > 16777216)
+        //                break;
+        //            LChannel.Add(buffer[bufferIndex++]);
+        //            if (!mono)
+        //                RChannel.Add(buffer[bufferIndex++]);
+        //        }
+        //        if (mono)
+        //            RChannel.Clear();
+        //        L = LChannel.ToArray();
+        //        R = RChannel.ToArray();
+        //        return true;
+        //    } catch {
+        //        LChannel.Add(0f);
+        //        RChannel.Add(0f);
+        //        L = LChannel.ToArray();
+        //        R = RChannel.ToArray();
+        //        return false;
+        //    }
+        //}
 
+        /// <summary>
+        /// Read an audio file into 2 arrays of shorts
+        /// </summary>
+        /// <param name="filepath"></param>
+        /// <param name="L"></param>
+        /// <param name="R"></param>
+        /// <returns></returns>
         public static bool ReadWav(string filepath, out short[] L, out short[] R) {
             List<short> LChannel = new List<short>();
             List<short> RChannel = new List<short>();
             try {
                 AudioFileReader Nreader = new AudioFileReader(filepath);
-                ISampleProvider isp;
-                bool mono = Nreader.WaveFormat.Channels == 1;
+                int bytesPerSample = Nreader.WaveFormat.BitsPerSample / 8;
+                bool isMono = Nreader.WaveFormat.Channels == 1;
+                int sampleRate = Preferences.profile.automaticallyResampleSamples ? 44100 : Nreader.WaveFormat.SampleRate;
 
-                var outFormat = new WaveFormat(44100, Nreader.WaveFormat.Channels);
+                ISampleProvider isp;
+                WaveFormat desiredFormat = new WaveFormat(sampleRate, 16, Nreader.WaveFormat.Channels);
                 IWaveProvider waveProvider = Nreader.ToWaveProvider();
-                if (Preferences.profile.automaticallyResampleSamples)
-                    using (var resampler = new MediaFoundationResampler(Nreader, outFormat)) {
-                        isp = resampler.ToSampleProvider();
-                    }
-                else
-                    isp = Nreader.ToSampleProvider();
-                long sampleLength = (long)(Nreader.Length * (44100.0 / Nreader.WaveFormat.SampleRate));
-                float[] buffer = new float[sampleLength / 4];
+                using (var resampler = new MediaFoundationResampler(Nreader, desiredFormat)) {
+                    isp = resampler.ToSampleProvider();
+                }
+                float[] buffer = new float[Nreader.Length / bytesPerSample];
                 isp.Read(buffer, 0, buffer.Length);
                 for (int s = 0, v = 0; v < buffer.Length; s++) {
                     if (s > 16777216)
                         break;
                     LChannel.Add((short)(buffer[v++] * short.MaxValue));
-                    if (!mono)
+                    if (!isMono)
                         RChannel.Add((short)(buffer[v++] * short.MaxValue));
                 }
-                if (mono)
+                if (isMono)
                     RChannel.Clear();
                 L = LChannel.ToArray();
                 R = RChannel.ToArray();

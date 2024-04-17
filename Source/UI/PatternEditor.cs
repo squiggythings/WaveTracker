@@ -12,6 +12,7 @@ using WaveTracker.Tracker;
 using WaveTracker;
 using WaveTracker.Audio;
 using System.Threading;
+using SharpDX.MediaFoundation;
 
 namespace WaveTracker.UI {
 
@@ -129,6 +130,8 @@ namespace WaveTracker.UI {
         int playbackRow;
         CursorPos renderCursorPos;
 
+        Menu contextMenu;
+
         public PatternEditor(int x, int y) {
             this.x = x;
             this.y = y;
@@ -144,6 +147,34 @@ namespace WaveTracker.UI {
             lastSelection = new PatternSelection();
             history = new List<PatternEditorState>();
             channelScrollbar = new ScrollbarHorizontal(ROW_COLUMN_WIDTH, 0, width, 6, this);
+            contextMenu = new Menu(new MenuItemBase[] {
+                new MenuOption("Undo",Undo),
+                new MenuOption("Redo",Redo),
+                null,
+                new MenuOption("Cut",Cut),
+                new MenuOption("Copy",CopyToClipboard),
+                new MenuOption("Paste",PasteFromClipboard),
+                new MenuOption("Delete",Delete),
+                new MenuOption("Select All",SelectAll),
+                null,
+                new SubMenu("Pattern", new MenuItemBase[] {
+                    new MenuOption("Interpolate", InterpolateSelection),
+                    new MenuOption("Reverse", ReverseSelection),
+                    new MenuOption("Replace Instrument", ReplaceInstrument),
+                    null,
+                    new MenuOption("Expand", null),
+                    new MenuOption("Shrink", null),
+                    new MenuOption("Stretch...", null),
+                    null,
+                    new SubMenu("Transpose", new MenuItemBase[] {
+                        new MenuOption("Increase note", null),
+                        new MenuOption("Decrease note", null),
+                        new MenuOption("Increase Octave", null),
+                        new MenuOption("Decrease Octave", null),
+                    })
+
+                }),
+            });
         }
 
         public void Update() {
@@ -186,9 +217,40 @@ namespace WaveTracker.UI {
             CurrentOctave = Math.Clamp(CurrentOctave, 0, 9);
             #endregion
 
-            if (Input.focus != null || Input.focusTimer < 1)
+            if (Input.focus != null || Input.focusTimer < 1 || App.VisualizerMode)
                 return;
+            if (RightClicked) {
+                ContextMenu.Open(new Menu(
+                    new MenuItemBase[] {
+                        new MenuOption("Undo", Undo, CanUndo),
+                        new MenuOption("Redo", Redo, CanRedo),
+                        null,
+                        new MenuOption("Cut", Cut, SelectionIsActive),
+                        new MenuOption("Copy", CopyToClipboard, SelectionIsActive),
+                        new MenuOption("Paste", PasteFromClipboard, clipboard != null),
+                        new MenuOption("Delete", Delete, SelectionIsActive),
+                        new MenuOption("Select All", SelectAll, SelectionIsActive),
+                        null,
+                        new SubMenu("Pattern", new MenuItemBase[] {
+                            new MenuOption("Interpolate", InterpolateSelection, SelectionIsActive),
+                            new MenuOption("Reverse", ReverseSelection, SelectionIsActive),
+                            new MenuOption("Replace Instrument", ReplaceInstrument, SelectionIsActive),
+                            null,
+                            new MenuOption("Expand", null, SelectionIsActive),
+                            new MenuOption("Shrink", null, SelectionIsActive),
+                            new MenuOption("Stretch...", null, SelectionIsActive),
+                            null,
+                            new SubMenu("Transpose", new MenuItemBase[] {
+                                new MenuOption("Increase note", null),
+                                new MenuOption("Decrease note", null),
+                                new MenuOption("Increase octave", null),
+                                new MenuOption("Decrease octave", null),
+                            })
 
+                        }),
+                    }
+                ));
+            }
             if (MouseY < 0 && MouseY >= -32) {
                 if (MouseX < ROW_COLUMN_WIDTH || MouseX > LastChannelEndPos) {
                     if (MouseX < width) {
@@ -385,26 +447,7 @@ namespace WaveTracker.UI {
             #endregion
             #region selection with CTRL-A and ESC
             if (Input.GetKeyRepeat(Keys.A, KeyModifier.Ctrl)) {
-                if (selection.max.Channel == cursorPosition.Channel && selection.max.Row == CurrentPattern.GetModifiedLength() - 1 && selection.max.Frame == cursorPosition.Frame && selection.max.Column == App.CurrentSong.GetLastCursorColumnOfChannel(cursorPosition.Channel) &&
-                    selection.min.Channel == cursorPosition.Channel && selection.min.Row == 0 && selection.min.Frame == cursorPosition.Frame && selection.min.Column == CursorColumnType.Note) {
-                    SetSelectionStart(cursorPosition);
-                    selectionStart.Channel = 0;
-                    selectionStart.Row = 0;
-                    selectionStart.Column = 0;
-                    SetSelectionEnd(cursorPosition);
-                    selectionEnd.Channel = App.CurrentModule.ChannelCount - 1;
-                    selectionEnd.Row = CurrentPattern.GetModifiedLength() - 1;
-                    selectionEnd.Column = App.CurrentSong.GetLastCursorColumnOfChannel(selectionEnd.Channel);
-                }
-                else {
-                    selection.IsActive = true;
-                    SetSelectionStart(cursorPosition);
-                    selectionStart.Row = 0;
-                    selectionStart.Column = 0;
-                    SetSelectionEnd(cursorPosition);
-                    selectionEnd.Row = CurrentPattern.GetModifiedLength() - 1;
-                    selectionEnd.Column = App.CurrentSong.GetLastCursorColumnOfChannel(selectionEnd.Channel);
-                }
+                SelectAll();
             }
             if (Input.GetKeyRepeat(Keys.Escape, KeyModifier.None)) {
                 CancelSelection();
@@ -831,13 +874,7 @@ namespace WaveTracker.UI {
             #region alt+s replace instrument
             if (SelectionIsActive) {
                 if (Input.GetKeyDown(Keys.S, KeyModifier.Alt)) {
-                    for (int row = selection.min.Row; row <= selection.max.Row; ++row) {
-                        for (int column = selection.min.CellColumn; column <= selection.max.CellColumn; ++column) {
-                            if (WTPattern.GetCellTypeFromCellColumn(column) == CellType.Instrument && !CurrentPattern.CellIsEmpty(row, column)) {
-                                CurrentPattern[row, column] = (byte)App.InstrumentBank.CurrentInstrumentIndex;
-                            }
-                        }
-                    }
+                    ReplaceInstrument();
                     AddToUndoHistory();
                 }
             }
@@ -1252,6 +1289,32 @@ namespace WaveTracker.UI {
             //CreateSelectionBounds();
         }
 
+        /// <summary>
+        /// Selects the current channel, then the whole pattern
+        /// </summary>
+        public void SelectAll() {
+            if (selection.max.Channel == cursorPosition.Channel && selection.max.Row == CurrentPattern.GetModifiedLength() - 1 && selection.max.Frame == cursorPosition.Frame && selection.max.Column == App.CurrentSong.GetLastCursorColumnOfChannel(cursorPosition.Channel) &&
+                    selection.min.Channel == cursorPosition.Channel && selection.min.Row == 0 && selection.min.Frame == cursorPosition.Frame && selection.min.Column == CursorColumnType.Note) {
+                SetSelectionStart(cursorPosition);
+                selectionStart.Channel = 0;
+                selectionStart.Row = 0;
+                selectionStart.Column = 0;
+                SetSelectionEnd(cursorPosition);
+                selectionEnd.Channel = App.CurrentModule.ChannelCount - 1;
+                selectionEnd.Row = CurrentPattern.GetModifiedLength() - 1;
+                selectionEnd.Column = App.CurrentSong.GetLastCursorColumnOfChannel(selectionEnd.Channel);
+            }
+            else {
+                selection.IsActive = true;
+                SetSelectionStart(cursorPosition);
+                selectionStart.Row = 0;
+                selectionStart.Column = 0;
+                SetSelectionEnd(cursorPosition);
+                selectionEnd.Row = CurrentPattern.GetModifiedLength() - 1;
+                selectionEnd.Column = App.CurrentSong.GetLastCursorColumnOfChannel(selectionEnd.Channel);
+            }
+        }
+
         void RecordOriginalSelectionContents() {
             scaleClipboard = new float[selection.Height, selection.Width];
             //clipboardStartCellType = selection.min.Column.ToCellType();
@@ -1474,7 +1537,6 @@ namespace WaveTracker.UI {
             if (SelectionIsActive) {
                 CopyToClipboard();
                 Delete();
-                AddToUndoHistory();
             }
         }
 
@@ -1583,13 +1645,13 @@ namespace WaveTracker.UI {
             int patternHeight = 256;
             int patternWidth = CurrentPattern.Width;
             for (int row = 0; row < clipboard.GetLength(0); row++) {
+                if (cursorPosition.Row + row >= patternHeight)
+                    break;
                 for (int column = 0; column < clipboardWidth; column++) {
                     if (columnStart + column >= patternWidth)
                         break;
                     CurrentPattern[p.Row + row, columnStart + column] = clipboard[row, column];
                 }
-                if (cursorPosition.Row + row >= patternHeight)
-                    break;
             }
             selection.IsActive = true;
             SetSelectionStart(p);
@@ -1695,6 +1757,16 @@ namespace WaveTracker.UI {
             AddToUndoHistory();
         }
 
+        public void ReplaceInstrument() {
+            for (int row = selection.min.Row; row <= selection.max.Row; ++row) {
+                for (int column = selection.min.CellColumn; column <= selection.max.CellColumn; ++column) {
+                    if (WTPattern.GetCellTypeFromCellColumn(column) == CellType.Instrument && !CurrentPattern.CellIsEmpty(row, column)) {
+                        CurrentPattern[row, column] = (byte)App.InstrumentBank.CurrentInstrumentIndex;
+                    }
+                }
+            }
+        }
+
         /// <summary>
         /// Randomizes volumes in the selection by +/-<c>randomOffset</c>
         /// </summary>
@@ -1747,7 +1819,7 @@ namespace WaveTracker.UI {
         /// </summary>
         public void InsertNewFrame() {
             App.CurrentSong.InsertNewFrame(cursorPosition.Frame + 1);
-            MoveToFrame(cursorPosition.Frame + 1);
+            //MoveToFrame(cursorPosition.Frame + 1);
         }
 
         /// <summary>
@@ -1755,7 +1827,7 @@ namespace WaveTracker.UI {
         /// </summary>
         public void DuplicateFrame() {
             App.CurrentSong.DuplicateFrame(cursorPosition.Frame);
-            MoveToFrame(cursorPosition.Frame + 1);
+            //MoveToFrame(cursorPosition.Frame + 1);
             App.CurrentModule.SetDirty();
         }
 

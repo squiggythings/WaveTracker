@@ -180,8 +180,11 @@ namespace WaveTracker.Tracker {
                 samples[i] = convertCharToDecimal(s[i]);
             }
         }
-
-        public void SetWaveformFromNumber(string s) {
+        /// <summary>
+        /// Converts a string with each number separated by a space into this wave's samples
+        /// </summary>
+        /// <returns></returns>
+        public void SetFromNumberString(string s) {
             string[] nums = s.Split(' ');
             byte num;
             for (int i = 0; i < nums.Length && i < 64; i++) {
@@ -199,6 +202,10 @@ namespace WaveTracker.Tracker {
             return s;
         }
 
+        /// <summary>
+        /// Converts the samples of this wave to a string with each number separated by a space
+        /// </summary>
+        /// <returns></returns>
         public string ToNumberString() {
             string s = "";
             for (int i = 0; i < samples.Length - 1; i++) {
@@ -207,6 +214,8 @@ namespace WaveTracker.Tracker {
             s += samples[samples.Length - 1];
             return s;
         }
+
+
 
         public byte GetSample(int index) {
             if (index < 0) {

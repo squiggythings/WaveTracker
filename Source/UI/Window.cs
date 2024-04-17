@@ -105,6 +105,7 @@ namespace WaveTracker.UI {
 
                 // draw a transparent black rectangle behind the window
                 DrawRect(-x, -y, App.WindowWidth, App.WindowHeight, Helpers.Alpha(Color.Black, 90));
+                //DrawRoundedRect(-1, -1, width + 2, height + 2, Helpers.Alpha(UIColors.black, 40));
 
                 // draw the panel
                 base.Draw();
@@ -114,16 +115,20 @@ namespace WaveTracker.UI {
             }
         }
         protected void Open() {
-            opened = Input.focus;
-            Input.focus = this;
-            windowIsOpen = true;
-            PositionInCenterOfScreen();
+            if (windowIsOpen == false) {
+                opened = Input.focus;
+                Input.focus = this;
+                windowIsOpen = true;
+                PositionInCenterOfScreen();
+            }
         }
         protected void Open(Element opened) {
-            Input.focus = this;
-            windowIsOpen = true;
-            PositionInCenterOfScreen();
-            this.opened = opened;
+            if (windowIsOpen == false) {
+                Input.focus = this;
+                windowIsOpen = true;
+                PositionInCenterOfScreen();
+                this.opened = opened;
+            }
         }
         protected void Close() {
             Input.focus = opened;

@@ -279,7 +279,7 @@ namespace WaveTracker.Audio {
         }
 
         public void PreviewCut() {
-            if (envelopePlayers[Envelope.EnvelopeType.Volume].HasActiveEnvelopeData && currentInstrument.envelopes[0].HasRelease) {
+            if (envelopePlayers[Envelope.EnvelopeType.Volume].HasActiveEnvelopeData && envelopePlayers[Envelope.EnvelopeType.Volume].EnvelopeToPlay.HasRelease) {
                 Release();
             }
             else {

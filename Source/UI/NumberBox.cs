@@ -80,13 +80,15 @@ namespace WaveTracker.UI {
                 else {
                     dialogOpen = false;
                 }
-                if (LastClickPos.X >= 0 && LastClickPos.Y >= 0) {
-                    if (LastClickPos.X <= width - 10 && LastClickPos.Y <= height) {
-                        if (Input.GetClickDown(KeyModifier.None))
-                            valueSaved = Value;
-                        if (Input.GetClick(KeyModifier.None)) {
-                            Value = valueSaved - (MouseY - LastClickPos.Y) / 2;
-                            App.mouseCursorArrow = 2;
+                if (IsInHierarchy(Input.lastClickFocus)) {
+                    if (LastClickPos.X >= 0 && LastClickPos.Y >= 0) {
+                        if (LastClickPos.X <= width - 10 && LastClickPos.Y <= height) {
+                            if (Input.GetClickDown(KeyModifier.None))
+                                valueSaved = Value;
+                            if (Input.GetClick(KeyModifier.None)) {
+                                Value = valueSaved - (MouseY - LastClickPos.Y) / 2;
+                                App.mouseCursorArrow = 2;
+                            }
                         }
                     }
                 }

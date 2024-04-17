@@ -12,6 +12,11 @@ using WaveTracker.UI;
 namespace WaveTracker {
     public class Input {
 
+        /// <summary>
+        /// The amount of time since the last frame in milliseconds
+        /// </summary>
+        public static int deltaTime;
+
         static KeyboardState currentKeyState;
         static KeyboardState previousKeyState;
 
@@ -35,6 +40,7 @@ namespace WaveTracker {
         public static MouseState Mouse { get { return currentMouseState; } }
 
         public static Point lastClickLocation;
+        public static Point lastRightClickLocation;
         public static Point lastClickReleaseLocation;
         static bool cancelClick;
 
@@ -45,6 +51,10 @@ namespace WaveTracker {
         public static bool internalDialogIsOpen;
         public static Element focus = null;
         public static Element lastFocus = null;
+        /// <summary>
+        /// What element was in focus during the last click
+        /// </summary>
+        public static Element lastClickFocus;
         /// <summary>
         /// How many frames since we last switched focus
         /// </summary>
@@ -64,6 +74,7 @@ namespace WaveTracker {
         }
 
         public static void GetState(GameTime gameTime) {
+            deltaTime = gameTime.ElapsedGameTime.Milliseconds;
             cancelClick = false;
             if (windowFocusTimer > 0) {
                 windowFocusTimer--;
@@ -103,10 +114,13 @@ namespace WaveTracker {
             timeSinceLastClickUp += gameTime.ElapsedGameTime.Milliseconds;
             timeSinceDoubleClick += gameTime.ElapsedGameTime.Milliseconds;
 
-
+            if (GetRightClickDown(KeyModifier._Any)) {
+                lastRightClickLocation = new Point(MousePositionX, MousePositionY);
+            }
 
             if (GetClickDown(KeyModifier._Any)) {
                 lastClickLocation = new Point(MousePositionX, MousePositionY);
+                lastClickFocus = focus;
                 if (!doubleClick && timeSinceLastClick < DOUBLE_CLICK_TIME && Vector2.Distance(lastClickReleaseLocation.ToVector2(), MousePos) < MOUSE_DRAG_DISTANCE) {
                     //this is a double click
                     doubleClick = true;
@@ -138,7 +152,7 @@ namespace WaveTracker {
             }
         }
 
-        public static Vector2 MousePos { get { return new Vector2(MousePositionX, MousePositionY); } }
+        static Vector2 MousePos { get { return new Vector2(MousePositionX, MousePositionY); } }
 
         public static void CancelClick() {
             cancelClick = true;
@@ -205,6 +219,29 @@ namespace WaveTracker {
 
             if (modifierMatches(modifier) && !cancelClick)
                 return currentMouseState.LeftButton == ButtonState.Pressed;
+            else
+                return false;
+        }
+
+        public static bool GetRightClick(KeyModifier modifier) {
+
+            if (modifierMatches(modifier) && !cancelClick)
+                return currentMouseState.RightButton == ButtonState.Pressed;
+            else
+                return false;
+        }
+
+        public static bool GetRightClickUp(KeyModifier modifier) {
+
+            if (modifierMatches(modifier) && !cancelClick)
+                return currentMouseState.RightButton == ButtonState.Released && previousMouseState.RightButton == ButtonState.Pressed;
+            else
+                return false;
+        }
+        public static bool GetRightClickDown(KeyModifier modifier) {
+
+            if (modifierMatches(modifier) && !cancelClick)
+                return currentMouseState.RightButton == ButtonState.Pressed && previousMouseState.RightButton == ButtonState.Released;
             else
                 return false;
         }

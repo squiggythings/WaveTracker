@@ -62,9 +62,9 @@ namespace WaveTracker.UI {
         /// </summary>
         int amplitude;
 
-        public float Amplitude { get { return amplitude / 50f; } }
+        public float Amplitude { get { return Math.Clamp(amplitude / 50f, 0f, 1f); } }
         Channel channelToDisplay;
-
+        Menu contextMenu;
         public WChannelHeader(int x, int y, int width, int channelNum, PatternEditor parentEditor) {
             this.x = x;
             this.y = y;
@@ -74,7 +74,19 @@ namespace WaveTracker.UI {
             this.parentEditor = parentEditor;
             expandEffectButton = new MouseRegion(56, 7, 6, 13, this);
             collapseEffectButton = new MouseRegion(50, 7, 6, 13, this);
+            contextMenu = new Menu(new MenuItemBase[] {
+                new MenuOption("Toggle channel",ToggleChannel),
+                new MenuOption("Solo channel",SoloChannel),
+                new MenuOption("Unmute all channels",ChannelManager.UnmuteAllChannels)
+            });
             SetParent(parentEditor);
+        }
+
+        void ToggleChannel() {
+            ChannelManager.ToggleChannel(channelNum);
+        }
+        void SoloChannel() {
+            ChannelManager.SoloChannel(channelNum);
         }
 
         public void Update() {
@@ -87,15 +99,18 @@ namespace WaveTracker.UI {
             if (enabled) {
                 if (Input.focusTimer > 1) {
                     if (MouseIsValid) {
+                        if (RightClicked) {
+                            ContextMenu.Open(contextMenu);
+                        }
                         if (!collapseEffectButton.IsHovered && !expandEffectButton.IsHovered) {
                             if (SingleClickedM(KeyModifier.None)) {
-                                ChannelManager.ToggleChannel(channelNum);
+                                ToggleChannel();
                             }
                             if (DoubleClickedM(KeyModifier.None) || ClickedM(KeyModifier.Ctrl)) {
                                 if (ChannelManager.IsEveryChannelMuted() || ChannelManager.IsChannelSoloed(channelNum))
                                     ChannelManager.UnmuteAllChannels();
                                 else
-                                    ChannelManager.SoloChannel(channelNum);
+                                    SoloChannel();
                             }
                         }
 

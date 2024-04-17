@@ -125,7 +125,12 @@ namespace WaveTracker.UI {
                 tabGroup.Draw();
                 DrawRect(9, 28, 280, 1, Color.White);
 
-
+                if (App.pianoInput > -1) {
+                    piano.Draw(App.pianoInput + ChannelManager.previewChannel.envelopePlayers[Envelope.EnvelopeType.Arpeggio].Value);
+                }
+                else {
+                    piano.Draw();
+                }
 
                 if (CurrentInstrument is SampleInstrument instrument && tabGroup.SelectedTabIndex == 0) {
                     sampleEditor.Draw();
@@ -138,12 +143,6 @@ namespace WaveTracker.UI {
                     envelopeList.Draw();
                 }
 
-                if (App.pianoInput > -1) {
-                    piano.Draw(App.pianoInput + ChannelManager.previewChannel.envelopePlayers[Envelope.EnvelopeType.Arpeggio].Value);
-                }
-                else {
-                    piano.Draw();
-                }
             }
         }
     }

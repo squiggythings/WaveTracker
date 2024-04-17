@@ -30,7 +30,7 @@ namespace WaveTracker.Tracker {
         [ProtoMember(7)]
         public string comment;
         [ProtoMember(8)]
-        public List<Instrument> instruments;
+        public List<OldInstrument> instruments;
         [ProtoMember(9)]
         public Wave[] waves = new Wave[100];
         [ProtoMember(10)]
@@ -73,8 +73,8 @@ namespace WaveTracker.Tracker {
             //waves[9].Randomize();
             //waves[10].Randomize();
 
-            instruments = new List<Instrument>();
-            instruments.Add(new WaveInstrument());
+            instruments = new List<OldInstrument>();
+            instruments.Add(new OldInstrument(InstrumentType.Wave));
             tickRate = 60;
             rowHighlight1 = 16;
             rowHighlight2 = 4;
@@ -150,7 +150,7 @@ namespace WaveTracker.Tracker {
             for (int i = 0; i < 100; i++) {
                 s.waves[i] = waves[i].Clone();
             }
-            s.instruments = new List<Instrument>();
+            s.instruments = new List<OldInstrument>();
             for (int i = 0; i < instruments.Count; i++) {
                 s.instruments.Add(instruments[i].Clone());
             }

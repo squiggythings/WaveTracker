@@ -240,7 +240,7 @@ namespace WaveTracker {
         /// </summary>
         public static readonly Color selection = new(8, 124, 232);
         /// <summary>
-        /// (8, 124, 232)
+        /// (180, 215, 248)
         /// </summary>
         public static readonly Color selectionLight = new(180, 215, 248);
 

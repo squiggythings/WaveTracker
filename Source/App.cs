@@ -38,7 +38,7 @@ namespace WaveTracker {
         public static int WindowWidth { get; private set; }
         RenderTarget2D target;
 
-        
+
         SongSettings songSettings;
         EditSettings editSettings;
         FramesPanel frameView;
@@ -57,12 +57,11 @@ namespace WaveTracker {
         public static InstrumentEditor InstrumentEditor { get; private set; }
         public static WaveBank WaveBank { get; set; }
         public static WaveEditor WaveEditor { get; private set; }
-        
+
 
         public static WTModule CurrentModule { get; set; }
         public static int CurrentSongIndex { get; set; }
         public static WTSong CurrentSong { get { return CurrentModule.Songs[CurrentSongIndex]; } }
-
 
 
         public App(string[] args) {
@@ -119,6 +118,7 @@ namespace WaveTracker {
             //FrameEditor.channelScrollbar.SetSize(Tracker.Song.CHANNEL_COUNT, 12);
             visualization = new Visualization();
             IsFixedTimeStep = false;
+
             base.Initialize();
 
         }
@@ -228,6 +228,8 @@ namespace WaveTracker {
             }
             toolbar.Update();
             Dialogs.Update();
+
+            ContextMenu.Update();
             base.Update(gameTime);
             lastPianoKey = pianoInput;
         }
@@ -293,6 +295,7 @@ namespace WaveTracker {
             Dialogs.Draw();
             Dropdown.DrawCurrentMenu();
             DropdownButton.DrawCurrentMenu();
+            ContextMenu.Draw();
             Tooltip.Draw();
             //if (MidiInput.currentlyHeldDownNotes != null) {
             //    for (int i = 0; i < MidiInput.currentlyHeldDownNotes.Count; ++i) {

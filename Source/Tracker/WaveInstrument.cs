@@ -46,7 +46,7 @@ namespace WaveTracker.Tracker {
 
         public override WaveInstrument Clone() {
             WaveInstrument m = new WaveInstrument();
-            m.name = name + " Copy";
+            m.name = name;
             m.envelopes = new List<Envelope>();
             foreach (Envelope envelope in envelopes) {
                 m.envelopes.Add(envelope.Clone());

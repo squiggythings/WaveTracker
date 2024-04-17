@@ -64,15 +64,17 @@ namespace WaveTracker.UI {
                     items[i].Envelope = null;
                 }
             }
-            if (Input.GetKeyRepeat(Keys.Up, KeyModifier.None)) {
-                SelectedIndex--;
-                if (SelectedIndex < 0)
-                    SelectedIndex = 0;
-            }
-            if (Input.GetKeyRepeat(Keys.Down, KeyModifier.None)) {
-                SelectedIndex++;
-                if (SelectedIndex > List.Count - 1)
-                    SelectedIndex = List.Count - 1;
+            if (List.Count > 1) {
+                if (Input.GetKeyRepeat(Keys.Up, KeyModifier.None)) {
+                    SelectedIndex--;
+                    if (SelectedIndex < 0)
+                        SelectedIndex = 0;
+                }
+                if (Input.GetKeyRepeat(Keys.Down, KeyModifier.None)) {
+                    SelectedIndex++;
+                    if (SelectedIndex > List.Count - 1)
+                        SelectedIndex = List.Count - 1;
+                }
             }
             //addEnvelopeButton.width = width - 2;
             //addEnvelopeButton.y = (List.Count - 1) * 16 + 17;

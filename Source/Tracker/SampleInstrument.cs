@@ -15,7 +15,6 @@ namespace WaveTracker.Tracker {
     public class SampleInstrument : Instrument {
         [ProtoMember(21)]
         public Sample sample;
-        public const char delimiter = '%';
 
         public SampleInstrument() : base() {
             name = "New Sample Instrument";
@@ -24,7 +23,7 @@ namespace WaveTracker.Tracker {
 
         public override SampleInstrument Clone() {
             SampleInstrument m = new SampleInstrument();
-            m.name = name + " Copy";
+            m.name = name;
             m.envelopes = new List<Envelope>();
             foreach (Envelope envelope in envelopes) {
                 m.envelopes.Add(envelope.Clone());
