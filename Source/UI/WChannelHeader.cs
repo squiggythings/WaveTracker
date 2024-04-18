@@ -96,7 +96,6 @@ namespace WaveTracker.UI {
                 channelToDisplay = ChannelManager.previewChannel;
             else
                 channelToDisplay = ChannelManager.channels[channelNum];
-            if (channelToDisplay == null) throw new Exception();
             UpdateAmplitude(channelToDisplay);
             if (enabled && !App.VisualizerMode) {
                 if (Input.focusTimer > 1) {

@@ -93,10 +93,6 @@ namespace WaveTracker {
         protected override void Initialize() {
 
             Input.Intialize();
-            //frameRenderer.x = 0;
-            //frameRenderer.y = 151;
-            //Song.currentSong = new Song();
-            //newSong = Song.currentSong.Clone();
 
             CurrentModule = new WTModule();
             WaveBank = new WaveBank(510, 18 + MENUSTRIP_HEIGHT);
@@ -114,9 +110,7 @@ namespace WaveTracker {
             SongSettings = new SongSettings(2, 18 + MENUSTRIP_HEIGHT);
             audioEngine = new AudioEngine();
             audioEngine.Initialize();
-            //frameRenderer.Initialize();
-            //FrameEditor.channelScrollbar = new UI.ScrollbarHorizontal(22, 323, 768, 7, null);
-            //FrameEditor.channelScrollbar.SetSize(Tracker.Song.CHANNEL_COUNT, 12);
+            
             visualization = new Visualization();
             IsFixedTimeStep = false;
 
@@ -125,9 +119,6 @@ namespace WaveTracker {
         }
 
         protected override void LoadContent() {
-
-            //Checkbox.textureSheet = Content.Load<Texture2D>("instrumentwindow");
-            //NumberBox.buttons = Content.Load<Texture2D>("window_edit");
 
             Graphics.font = Content.Load<SpriteFont>("custom_font");
             Graphics.img = Content.Load<Texture2D>("img");
@@ -276,10 +267,6 @@ namespace WaveTracker {
                 // draw song settings
                 SongSettings.Draw();
 
-                //FrameEditor.channelScrollbar.Draw();
-                //Rendering.Graphics.DrawRect(0, FrameEditor.channelScrollbar.y, FrameEditor.channelScrollbar.x, FrameEditor.channelScrollbar.height, new Color(223, 224, 232));
-
-
                 // draw click position
                 //Rendering.Graphics.DrawRect(Input.lastClickLocation.X, Input.lastClickLocation.Y, 1, 1, Color.Red);
                 //Rendering.Graphics.DrawRect(Input.lastClickReleaseLocation.X, Input.lastClickReleaseLocation.Y, 1, 1, Color.DarkRed);
@@ -324,8 +311,6 @@ namespace WaveTracker {
             GraphicsDevice.SetRenderTarget(null);
             //render target to back buffer
             targetBatch.Begin(SpriteSortMode.Deferred, BlendState.NonPremultiplied, SamplerState.PointWrap, DepthStencilState.Default, RasterizerState.CullNone);
-            //targetBatch.Draw(pixel, new Rectangle(0, 0, 1920, scrOffsetY), Color.White);
-            //targetBatch.Draw(pixel, new Rectangle(0, 1080 + scrOffsetY, 1920, 90), Color.White);
             targetBatch.Draw(target, new Rectangle(0, 0, ScreenWidth * ScreenScale, ScreenHeight * ScreenScale), Color.White);
             if (VisualizerMode && Input.focus == null) {
                 try {
