@@ -10,9 +10,6 @@ namespace WaveTracker.UI {
         MouseRegion scrollRegion;
         Menu contextMenu;
         public FramesPanel(int x, int y, int width, int height) : base("Frames", x, y, width, height) {
-        }
-
-        public void Initialize() {
             bNewFrame = new SpriteButton(4, 10, 15, 15, 285, 0, this);
             bNewFrame.SetTooltip("Insert Frame", "Insert a new frame after this one");
             bDeleteFrame = new SpriteButton(19, 10, 15, 15, 360, 0, this);
@@ -51,6 +48,7 @@ namespace WaveTracker.UI {
                 frames[i].y = 21;
             }
         }
+
 
         public void Update() {
             foreach (FrameButton button in frames) {

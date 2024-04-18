@@ -30,4 +30,7 @@
     <Message Text="Restoring dotnet tools" Importance="High" />
     <Exec Command="dotnet tool restore" />
   </Target>
+  <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
+    <Exec Command="(if exist &quot;$(TargetDir)*old.pdb&quot; del &quot;$(TargetDir)*old.pdb&quot;) &amp; (if exist &quot;$(TargetDir)*.pdb&quot; ren &quot;$(TargetDir)*.pdb&quot; *.old.pdb)&#xD;&#xA;" />
+  </Target>
 </Project>

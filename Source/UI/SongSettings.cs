@@ -20,7 +20,7 @@ namespace WaveTracker.UI {
         float ampLeft, ampRight;
         int ampL, ampR;
 
-        public SongSettings() : base("Module", 2, 18, 306, 84) {
+        public SongSettings(int x, int y) : base("Module", x, y, 306, 84) {
             title = new Textbox("Title", 4, 12, 155, 110, this);
 
             //title.canEdit = false;

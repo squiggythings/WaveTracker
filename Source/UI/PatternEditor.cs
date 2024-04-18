@@ -135,7 +135,7 @@ namespace WaveTracker.UI {
         public PatternEditor(int x, int y) {
             this.x = x;
             this.y = y;
-            channelHeaders = new WChannelHeader[WTModule.DEFAULT_CHANNEL_COUNT];
+            channelHeaders = new WChannelHeader[WTModule.MAX_CHANNEL_COUNT];
             for (int i = 0; i < channelHeaders.Length; ++i) {
                 channelHeaders[i] = new WChannelHeader(0, -32, 63, i, this);
             }
@@ -192,6 +192,13 @@ namespace WaveTracker.UI {
             // responsive width
             int rightMargin = 156;
             width = App.WindowWidth - x - rightMargin - 1;
+            #region change octave
+            if (Input.GetKeyRepeat(Keys.OemOpenBrackets, KeyModifier.None) || Input.GetKeyRepeat(Keys.Divide, KeyModifier.None))
+                CurrentOctave--;
+            if (Input.GetKeyRepeat(Keys.OemCloseBrackets, KeyModifier.None) || Input.GetKeyRepeat(Keys.Multiply, KeyModifier.None))
+                CurrentOctave++;
+            CurrentOctave = Math.Clamp(CurrentOctave, 0, 9);
+            #endregion
 
             FirstVisibleChannel -= Input.MouseScrollWheel(KeyModifier.Alt);
             FirstVisibleChannel = Math.Clamp(FirstVisibleChannel, 0, App.CurrentModule.ChannelCount - 1);
@@ -209,13 +216,7 @@ namespace WaveTracker.UI {
             CalculateChannelPositioning(true);
 
 
-            #region change octave
-            if (Input.GetKeyRepeat(Keys.OemOpenBrackets, KeyModifier.None) || Input.GetKeyRepeat(Keys.Divide, KeyModifier.None))
-                CurrentOctave--;
-            if (Input.GetKeyRepeat(Keys.OemCloseBrackets, KeyModifier.None) || Input.GetKeyRepeat(Keys.Multiply, KeyModifier.None))
-                CurrentOctave++;
-            CurrentOctave = Math.Clamp(CurrentOctave, 0, 9);
-            #endregion
+
 
             if (Input.focus != null || Input.focusTimer < 1 || App.VisualizerMode)
                 return;
@@ -1216,7 +1217,7 @@ namespace WaveTracker.UI {
             selection.Set(App.CurrentSong, cursorPosition, cursorPosition);
             lastSelection.Set(App.CurrentSong, cursorPosition, cursorPosition);
             FirstVisibleChannel = 0;
-            App.PatternEditor.CalculateChannelPositioning(false);
+            CalculateChannelPositioning(false);
         }
 
         /// <summary>
@@ -1895,7 +1896,7 @@ namespace WaveTracker.UI {
         /// <summary>
         /// Calculates where channels are positioned based on the horziontal scroll and their expansions
         /// </summary>
-        public void CalculateChannelPositioning(bool doUpdate) {
+        public void CalculateChannelPositioning(bool updateChannelHeaders) {
             // get the total width of channels that are not visible on the left side
             int prevWidth = 0;
             for (int i = 0; i < FirstVisibleChannel; ++i) {
@@ -1915,7 +1916,7 @@ namespace WaveTracker.UI {
                 channelHeaders[channel].x = px;
                 channelHeaders[channel].width = GetWidthOfChannel(channel) - 1;
                 channelHeaders[channel].NumEffectColumns = App.CurrentSong.NumEffectColumns[channel];
-                if (doUpdate) {
+                if (updateChannelHeaders) {
                     channelHeaders[channel].Update();
 
                     // if the user changed the number of effect columns

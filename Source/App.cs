@@ -19,6 +19,7 @@ using WaveTracker.Audio;
 
 namespace WaveTracker {
     public class App : Game {
+        static App instance;
         public const string VERSION = "0.2.1";
 
         private GraphicsDeviceManager graphics;
@@ -39,8 +40,8 @@ namespace WaveTracker {
         RenderTarget2D target;
 
 
-        SongSettings songSettings;
-        EditSettings editSettings;
+        public static SongSettings SongSettings { get; private set; }
+        public static EditSettings EditSettings { get; private set; }
         FramesPanel frameView;
         public Toolbar toolbar;
         AudioEngine audioEngine;
@@ -63,8 +64,12 @@ namespace WaveTracker {
         public static int CurrentSongIndex { get; set; }
         public static WTSong CurrentSong { get { return CurrentModule.Songs[CurrentSongIndex]; } }
 
+        public const int MENUSTRIP_HEIGHT = 10;
+
+        public MenuStrip MenuStrip { get; set; }
 
         public App(string[] args) {
+            instance = this;
             if (args.Length > 0)
                 filename = args[0];
             graphics = new GraphicsDeviceManager(this);
@@ -79,13 +84,9 @@ namespace WaveTracker {
             Preferences.profile = PreferenceProfile.DefaultProfile;
             Preferences.ReadFromFile();
             //frameRenderer = new FrameRenderer();
-            frameView = new FramesPanel(2, 106, 504, 42);
-            songSettings = new SongSettings();
             var form = (System.Windows.Forms.Form)System.Windows.Forms.Control.FromHandle(Window.Handle);
             form.WindowState = System.Windows.Forms.FormWindowState.Maximized;
             form.FormClosing += ClosingForm;
-
-            PatternEditor = new PatternEditor(0, 184);
 
         }
 
@@ -98,20 +99,20 @@ namespace WaveTracker {
             //newSong = Song.currentSong.Clone();
 
             CurrentModule = new WTModule();
-            //PatternEditor.OnSwitchSong();
-
-            WaveBank = new WaveBank();
-            InstrumentBank = new InstrumentBank();
+            WaveBank = new WaveBank(510, 18 + MENUSTRIP_HEIGHT);
+            ChannelManager.Initialize(WTModule.MAX_CHANNEL_COUNT, WaveBank);
+            PatternEditor = new PatternEditor(0, 184 + MENUSTRIP_HEIGHT);
+            MenuStrip = new MenuStrip(0, 0, 960, null);
+            InstrumentBank = new InstrumentBank(790, 152 + MENUSTRIP_HEIGHT);
             InstrumentBank.Initialize();
             InstrumentEditor = new InstrumentEditor();
             Dialogs.Initialize();
-            editSettings = new EditSettings();
-            toolbar = new Toolbar();
+            EditSettings = new EditSettings(312, 18 + MENUSTRIP_HEIGHT);
+            toolbar = new Toolbar(2, 0 + MENUSTRIP_HEIGHT);
             WaveEditor = new WaveEditor();
-            songSettings = new SongSettings();
-            frameView.Initialize();
+            frameView = new FramesPanel(2, 106 + MENUSTRIP_HEIGHT, 504, 42);
+            SongSettings = new SongSettings(2, 18 + MENUSTRIP_HEIGHT);
             audioEngine = new AudioEngine();
-            ChannelManager.Initialize(WTModule.MAX_CHANNEL_COUNT, WaveBank);
             audioEngine.Initialize();
             //frameRenderer.Initialize();
             //FrameEditor.channelScrollbar = new UI.ScrollbarHorizontal(22, 323, 768, 7, null);
@@ -217,16 +218,17 @@ namespace WaveTracker {
 
 
             if (!VisualizerMode) {
-                songSettings.Update();
+                SongSettings.Update();
                 frameView.Update();
                 //frameRenderer.Update(gameTime);
                 //FrameEditor.Update();
-                editSettings.Update();
+                EditSettings.Update();
             }
             else {
                 //sframeRenderer.UpdateChannelHeaders();
             }
             toolbar.Update();
+            MenuStrip.Update();
             Dialogs.Update();
 
             ContextMenu.Update();
@@ -266,13 +268,13 @@ namespace WaveTracker {
                 WaveBank.Draw();
 
                 // draw edit settings
-                editSettings.Draw();
+                EditSettings.Draw();
 
                 // draw frame view
                 frameView.Draw();
 
                 // draw song settings
-                songSettings.Draw();
+                SongSettings.Draw();
 
                 //FrameEditor.channelScrollbar.Draw();
                 //Rendering.Graphics.DrawRect(0, FrameEditor.channelScrollbar.y, FrameEditor.channelScrollbar.x, FrameEditor.channelScrollbar.height, new Color(223, 224, 232));
@@ -286,12 +288,14 @@ namespace WaveTracker {
                 visualization.Draw();
             }
             toolbar.Draw();
+            MenuStrip.Draw();
 
             if (!VisualizerMode) {
                 WaveEditor.Draw();
                 InstrumentEditor.Draw();
 
             }
+
             Dialogs.Draw();
             Dropdown.DrawCurrentMenu();
             DropdownButton.DrawCurrentMenu();
@@ -334,6 +338,14 @@ namespace WaveTracker {
             targetBatch.End();
 
             base.Draw(gameTime);
+        }
+
+        /// <summary>
+        /// Closes WaveTracker
+        /// </summary>
+        public static void ExitApplication() {
+            System.Windows.Forms.Form form = (System.Windows.Forms.Form)System.Windows.Forms.Control.FromHandle(instance.Window.Handle);
+            form.Close();
         }
 
         /// <summary>

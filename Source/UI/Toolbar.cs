@@ -37,8 +37,9 @@ namespace WaveTracker.UI {
         public Toggle visualizerModeToggle;
         public bool saveDialogOpen, loadDialogOpen;
 
-        public Toolbar() {
-            x = 2;
+        public Toolbar(int x, int y) {
+            this.x = x;
+            this.y = y;
             int px = 0;
             file_new = new SpriteButton(px, 0, 15, 15, 0, 0, this);
             file_new.SetTooltip("New", "Create a new song");

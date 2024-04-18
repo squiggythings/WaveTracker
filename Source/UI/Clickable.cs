@@ -24,14 +24,23 @@ namespace WaveTracker.UI {
             get {
                 if (!InFocus)
                     return false;
-                bool h = MouseX < width && MouseY < height && MouseX >= 0 && MouseY >= 0;
-                if (h) {
+                if (MouseX < width && MouseY < height && MouseX >= 0 && MouseY >= 0) {
                     if (TooltipTextLong != "")
                         Tooltip.TooltipTextLong = TooltipTextLong;
                     if (TooltipText != "")
                         Tooltip.TooltipText = TooltipText;
+                    return true;
                 }
-                return h;
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Returns true if this element is hovered, regardless of if it is in focus or not
+        /// </summary>
+        public bool IsMouseOverRegion {
+            get {
+                return MouseX < width && MouseY < height && MouseX >= 0 && MouseY >= 0;
             }
         }
         public bool IsPressed { get { return IsHovered && Input.GetClick(KeyModifier._Any) && GlobalPointIsInBounds(Input.lastClickLocation) && IsInHierarchy(Input.lastClickFocus); } }

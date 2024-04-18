@@ -25,8 +25,8 @@ namespace WaveTracker.UI {
 
         public SpriteButton bNewWave, bNewSample, bRemove, bDuplicate, bMoveUp, bMoveDown, bRename;
         public SpriteButton bEdit;
-        Menu contextMenu;
-        public InstrumentBank() : base("Instrument Bank", 790, 152, 156, 488) {
+        // 790, 152
+        public InstrumentBank(int x, int y) : base("Instrument Bank", x, y, 156, 488) {
             bNewWave = new SpriteButton(1, 10, 15, 15, 225, 0, this);
             bNewWave.SetTooltip("New Wave Instrument", "Add a new wave instrument to the track");
             bNewSample = new SpriteButton(16, 10, 15, 15, 240, 0, this);

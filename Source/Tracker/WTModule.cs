@@ -13,7 +13,7 @@ namespace WaveTracker.Tracker {
     [ProtoContract(SkipConstructor = true)]
     public class WTModule {
         public const int MAX_CHANNEL_COUNT = 24;
-        public const int DEFAULT_CHANNEL_COUNT = 3;
+        public const int DEFAULT_CHANNEL_COUNT = 24;
         public const int MAX_SONG_COUNT = 32;
 
         public bool IsDirty { get; private set; }

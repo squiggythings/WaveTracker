@@ -81,7 +81,8 @@ namespace WaveTracker.Rendering {
         }
         public Visualization() {
             //frameRenderer = fr;
-            x = 0; y = 0;
+            x = 0;
+            y = 10;
             states = new List<List<ChannelState>>();
             states.Add(new List<ChannelState> { new ChannelState(0, 0, Color.Red, false) });
             statesPrev = new List<List<ChannelState>>();

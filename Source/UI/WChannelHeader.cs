@@ -80,6 +80,7 @@ namespace WaveTracker.UI {
                 new MenuOption("Unmute all channels",ChannelManager.UnmuteAllChannels)
             });
             SetParent(parentEditor);
+            channelToDisplay = ChannelManager.channels[channelNum];
         }
 
         void ToggleChannel() {
@@ -95,8 +96,9 @@ namespace WaveTracker.UI {
                 channelToDisplay = ChannelManager.previewChannel;
             else
                 channelToDisplay = ChannelManager.channels[channelNum];
+            if (channelToDisplay == null) throw new Exception();
             UpdateAmplitude(channelToDisplay);
-            if (enabled) {
+            if (enabled && !App.VisualizerMode) {
                 if (Input.focusTimer > 1) {
                     if (MouseIsValid) {
                         if (RightClicked) {

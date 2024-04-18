@@ -17,7 +17,7 @@ namespace WaveTracker.UI {
 
         public const int MAX_WIDTH = 400;
         public const int PADDING_LEFT = 2;
-        public const int MARGIN_LEFT = 8;
+        public const int MARGIN_LEFT = 12;
 
         public const int PADDING_RIGHT = 6;
         public const int MARGIN_RIGHT = 0;
@@ -239,7 +239,7 @@ namespace WaveTracker.UI {
         List<MenuItemBase> Items { get; set; }
         List<int> breakIndexes;
 
-        bool IsRootMenu => parentSubMenu == null;
+        bool IsRootMenu => parent == null;
 
         public Menu() {
             enabled = false;
@@ -318,8 +318,8 @@ namespace WaveTracker.UI {
         }
 
         public bool IsHoveredOrAChildMenuHovered() {
-            if (IsHovered) return true;
             if (enabled) {
+                if (IsHovered) return true;
                 foreach (MenuItemBase item in Items) {
                     if (item is SubMenu sub) {
                         if (sub.menu.enabled && sub.menu.IsHoveredOrAChildMenuHovered())
@@ -389,7 +389,12 @@ namespace WaveTracker.UI {
         /// </summary>
         public void CloseParent() {
             if (!IsRootMenu) {
-                parentSubMenu.parentMenu.CloseParent();
+                if (parentSubMenu != null) {
+                    parentSubMenu.parentMenu.CloseParent();
+                }
+                else {
+                    Close();
+                }
             }
             else {
                 Close();

@@ -11,7 +11,7 @@ namespace WaveTracker.UI {
         Toggle instrumentMask;
         NumberBox highlightPrimary;
         NumberBox highlightSecondary;
-        public EditSettings() : base("Edit Settings", 312, 18, 194, 84) {
+        public EditSettings(int x, int y) : base("Edit Settings", x, y, 194, 84) {
             octave = new NumberBox("Octave", 5, 24, 80, 40, this);
             octave.bUp.SetTooltip("", "Increase current octave - ]");
             octave.bDown.SetTooltip("", "Decrease current octave - [");

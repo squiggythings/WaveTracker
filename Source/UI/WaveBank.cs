@@ -15,15 +15,15 @@ namespace WaveTracker.UI {
         WaveBankElement[] waveBankElements;
         public static int currentWaveID;
         public static int lastSelectedWave;
-        public WaveBank() : base("Wave Bank", 510, 18, 448, 130) {
+        public WaveBank(int x, int y) : base("Wave Bank", x, y, 448, 130) {
             waveBankElements = new WaveBankElement[100];
             lastSelectedWave = 0;
             int index = 0;
-            for (int y = 0; y < 5; y++) {
-                for (int x = 0; x < 20; x++) {
+            for (int iy = 0; iy < 5; iy++) {
+                for (int ix = 0; ix < 20; ix++) {
                     waveBankElements[index] = new WaveBankElement(this, index);
-                    waveBankElements[index].x = x * 22 + 4;
-                    waveBankElements[index].y = y * 22 + 13;
+                    waveBankElements[index].x = ix * 22 + 4;
+                    waveBankElements[index].y = iy * 22 + 13;
                     waveBankElements[index].SetTooltip("", "Wave " + index.ToString("D2"));
                     index++;
                 }
