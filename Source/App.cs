@@ -99,6 +99,49 @@ namespace WaveTracker {
             ChannelManager.Initialize(WTModule.MAX_CHANNEL_COUNT, WaveBank);
             PatternEditor = new PatternEditor(0, 184 + MENUSTRIP_HEIGHT);
             MenuStrip = new MenuStrip(0, 0, 960, null);
+            MenuStrip.AddButton("File", new Menu(new MenuItemBase[] {
+                new MenuOption("New",null),
+                new MenuOption("Open...",null),
+                new MenuOption("Save",null),
+                new MenuOption("Save As...",null),
+                null,
+                new MenuOption("Export as WAV...",null),
+                null,
+                new MenuOption("Configuration...",null),
+                null,
+                new SubMenu("Recent files",new MenuItemBase[] {
+                    new MenuOption("Clear",null),
+                    null,
+                    new MenuOption("1. C:\\Users\\Elias\\Music\\wavetracker\\moon2.0.wtm",null),
+                    new MenuOption("2. C:\\Users\\Elias\\Music\\wavetracker\\wtdemo2.wtm",null),
+                    new MenuOption("3. C:\\Users\\Elias\\Music\\wavetracker\\freezedraft.wtm",null),
+                    new MenuOption("4. C:\\Users\\Elias\\Music\\wavetracker\\fmcomplextro.wtm",null),
+                    new MenuOption("5. C:\\Users\\Elias\\Music\\wavetracker\\modtesting.wtm",null),
+                    new MenuOption("6. C:\\Users\\Elias\\Music\\wavetracker\\largetest2.0.wtm",null),
+                    new MenuOption("7. C:\\Users\\Elias\\Music\\wavetracker\\katamarisolo7.wtm",null),
+                    new MenuOption("8. C:\\Users\\Elias\\Music\\wavetracker\\itsmyblaster2.0.wtm",null),
+                }),
+                null,
+                new MenuOption("Exit", App.ExitApplication),
+            }));
+            MenuStrip.AddButton("Edit", new Menu(new MenuItemBase[] {
+                new MenuOption("Undo",null),
+                new MenuOption("Redo",null),
+                null,
+                new MenuOption("Cut",null),
+                new MenuOption("Copy",null),
+                new MenuOption("Paste",null),
+                new MenuOption("Paste and mix",null),
+            }));
+            MenuStrip.AddButton("Song", new Menu(new MenuItemBase[] {
+                new MenuOption("Insert frame",null),
+                new MenuOption("Remove frame",null),
+                new MenuOption("Duplicate frame",null),
+                new MenuOption("Duplicate frame",null),
+                null,
+                new MenuOption("Move frame up",null),
+                new MenuOption("Move frame down",null),
+            }));
             InstrumentBank = new InstrumentBank(790, 152 + MENUSTRIP_HEIGHT);
             InstrumentBank.Initialize();
             InstrumentEditor = new InstrumentEditor();

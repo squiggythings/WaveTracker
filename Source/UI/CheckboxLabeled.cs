@@ -12,6 +12,7 @@ namespace WaveTracker.UI {
     public class CheckboxLabeled : Clickable {
         public bool Value { get; set; }
         string label;
+        public bool ShowCheckboxOnRight { get; set; }
 
         public CheckboxLabeled(string label, int x, int y, int width, Element parent) {
             this.x = x;
@@ -33,41 +34,42 @@ namespace WaveTracker.UI {
         }
 
         public void Draw() {
+            int checkX = ShowCheckboxOnRight ? width - 9 : 0;
             if (enabled) {
                 if (Value) {
                     if (IsHovered) {
                         if (IsPressed)
-                            DrawSprite(0, (height - 9) / 2, GetBounds(5));
+                            DrawSprite(checkX, (height - 9) / 2, GetBounds(5));
                         else
-                            DrawSprite(0, (height - 9) / 2, GetBounds(4));
+                            DrawSprite(checkX, (height - 9) / 2, GetBounds(4));
                     }
                     else {
-                        DrawSprite(0, (height - 9) / 2, GetBounds(3));
+                        DrawSprite(checkX, (height - 9) / 2, GetBounds(3));
                     }
                 }
                 else {
                     if (IsHovered) {
                         if (IsPressed)
-                            DrawSprite(0, (height - 9) / 2, GetBounds(2));
+                            DrawSprite(checkX, (height - 9) / 2, GetBounds(2));
                         else
-                            DrawSprite(0, (height - 9) / 2, GetBounds(1));
+                            DrawSprite(checkX, (height - 9) / 2, GetBounds(1));
                     }
                     else {
-                        DrawSprite(0, (height - 9) / 2, GetBounds(0));
+                        DrawSprite(checkX, (height - 9) / 2, GetBounds(0));
                     }
                 }
 
             }
             else {
                 if (Value)
-                    DrawSprite(0, (height - 9) / 2, GetBounds(7));
+                    DrawSprite(checkX, (height - 9) / 2, GetBounds(7));
                 else
-                    DrawSprite(0, (height - 9) / 2, GetBounds(6));
+                    DrawSprite(checkX, (height - 9) / 2, GetBounds(6));
             }
             Color labelCol = UIColors.labelDark;
             if (IsHovered)
                 labelCol = Color.Black;
-            Write(label + "", 13, (height - 7) / 2, labelCol);
+            Write(label + "", ShowCheckboxOnRight ? 0 : 13, (height - 7) / 2, labelCol);
         }
 
     }

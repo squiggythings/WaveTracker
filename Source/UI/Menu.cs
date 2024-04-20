@@ -12,7 +12,7 @@ namespace WaveTracker.UI {
         List<MenuItemBase> Items { get; set; }
         List<int> breakIndexes;
 
-        bool IsRootMenu => parent == null;
+        bool IsRootMenu => parentSubMenu == null;
 
         public Menu() {
             enabled = false;

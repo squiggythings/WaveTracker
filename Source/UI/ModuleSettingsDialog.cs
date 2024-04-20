@@ -89,7 +89,7 @@ namespace WaveTracker.UI {
             base.Open();
         }
 
-        public void Update() {
+        public override void Update() {
             if (windowIsOpen) {
                 DoDragging();
                 duplicateSong.enabled = insertSong.enabled = addSong.enabled = App.CurrentModule.Songs.Count < WTModule.MAX_SONG_COUNT;

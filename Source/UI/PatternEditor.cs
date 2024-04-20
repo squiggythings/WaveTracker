@@ -230,7 +230,7 @@ namespace WaveTracker.UI {
                         new MenuOption("Copy", CopyToClipboard, SelectionIsActive),
                         new MenuOption("Paste", PasteFromClipboard, clipboard != null),
                         new MenuOption("Delete", Delete, SelectionIsActive),
-                        new MenuOption("Select All", SelectAll, SelectionIsActive),
+                        new MenuOption("Select All", SelectAll),
                         null,
                         new SubMenu("Pattern", new MenuItemBase[] {
                             new MenuOption("Interpolate", InterpolateSelection, SelectionIsActive),

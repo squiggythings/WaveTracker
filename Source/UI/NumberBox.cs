@@ -22,7 +22,7 @@ namespace WaveTracker.UI {
         int max = int.MaxValue;
         int valueSaved;
         bool canScroll = true;
-        public enum NumberDisplayMode { Number, Note, NoteOnly, PlusMinus }
+        public enum NumberDisplayMode { Number, Note, NoteOnly, PlusMinus, Percent }
         public NumberDisplayMode DisplayMode { get; set; }
         public bool ValueWasChanged { get; private set; }
         public bool ValueWasChangedInternally { get; private set; }
@@ -131,12 +131,14 @@ namespace WaveTracker.UI {
             DrawRect(width, boxStartY + 6, -10, 1, ButtonColors.Round.backgroundColor);
             if (DisplayMode == NumberDisplayMode.Number)
                 Write(Value + "", boxStart + 4, height / 2 - 3, text);
-            if (DisplayMode == NumberDisplayMode.Note)
+            else if (DisplayMode == NumberDisplayMode.Note)
                 Write(Value + " (" + Helpers.MIDINoteToText(Value) + ")", boxStart + 4, height / 2 - 3, text);
-            if (DisplayMode == NumberDisplayMode.NoteOnly)
+            else if (DisplayMode == NumberDisplayMode.NoteOnly)
                 Write(Helpers.MIDINoteToText(Value), boxStart + 4, height / 2 - 3, text);
-            if (DisplayMode == NumberDisplayMode.PlusMinus)
+            else if (DisplayMode == NumberDisplayMode.PlusMinus)
                 Write((Value <= 0 ? Value : "+" + Value) + "", boxStart + 4, height / 2 - 3, text);
+            else if (DisplayMode == NumberDisplayMode.Percent)
+                Write(Value + "%", boxStart + 4, height / 2 - 3, text);
             bUp.Draw();
             bDown.Draw();
         }

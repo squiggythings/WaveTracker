@@ -17,6 +17,12 @@ namespace WaveTracker.UI {
         public static ExportDialog exportDialog;
         public static ExportingDialog exportingDialog;
         public static SetFramePatternDialog setFramePatternDialog;
+        public static WaveAddFuzzDialog waveAddFuzzDialog;
+        public static WaveSampleAndHoldDialog waveSampleAndHoldDialog;
+        public static WaveSmoothDialog waveSmoothDialog;
+        public static WaveSyncDialog waveSyncDialog;
+
+
 
         public static MessageDialog messageDialog;
 
@@ -28,10 +34,15 @@ namespace WaveTracker.UI {
             exportDialog = new ExportDialog();
             exportingDialog = new ExportingDialog();
             setFramePatternDialog = new SetFramePatternDialog();
+            waveAddFuzzDialog = new WaveAddFuzzDialog();
+            waveSampleAndHoldDialog = new WaveSampleAndHoldDialog();
+            waveSmoothDialog = new WaveSmoothDialog();
+            waveSyncDialog = new WaveSyncDialog();
 
             messageDialog = new MessageDialog();
         }
 
+        
         public static void Update() {
             moduleSettings.Update();
             preferences.Update();
@@ -40,6 +51,10 @@ namespace WaveTracker.UI {
             exportDialog.Update();
             exportingDialog.Update();
             setFramePatternDialog.Update();
+            waveAddFuzzDialog.Update();
+            waveSampleAndHoldDialog.Update();
+            waveSmoothDialog.Update();
+            waveSyncDialog.Update();
 
             messageDialog.Update();
         }
@@ -52,6 +67,10 @@ namespace WaveTracker.UI {
             exportDialog.Draw();
             exportingDialog.Draw();
             setFramePatternDialog.Draw();
+            waveAddFuzzDialog.Draw();
+            waveSampleAndHoldDialog.Draw();
+            waveSmoothDialog.Draw();
+            waveSyncDialog.Draw();
 
             messageDialog.Draw();
         }

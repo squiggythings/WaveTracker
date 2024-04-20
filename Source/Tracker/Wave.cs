@@ -7,6 +7,7 @@ using WaveTracker.Rendering;
 using Microsoft.Xna.Framework;
 using ProtoBuf;
 using WaveTracker.Audio;
+using System.Diagnostics;
 
 namespace WaveTracker.Tracker {
     [ProtoContract(SkipConstructor = true)]
@@ -65,18 +66,21 @@ namespace WaveTracker.Tracker {
         /// <summary>
         /// Smooth the wave shape
         /// </summary>
-        /// <param name="amt"></param>
-        public void Smooth(int amt) {
-            byte[] ret = new byte[64];
-            for (int i = 0; i < 64; ++i) {
-                int sum = 0;
-                for (int j = -amt; j <= amt; j++) {
-                    sum += GetSample(j + i);
+        /// <param name="window"></param>
+        public void Smooth(int window, int amt) {
+            while (amt > 0) {
+                byte[] ret = new byte[64];
+                for (int i = 0; i < 64; ++i) {
+                    int sum = 0;
+                    for (int j = -window; j <= window; j++) {
+                        sum += GetSample(j + i);
+                    }
+                    ret[i] = (byte)Math.Round(sum / (window * 2 + 1f));
                 }
-                ret[i] = (byte)Math.Round(sum / (amt * 2 + 1f));
-            }
-            for (int i = 0; i < ret.Length; i++) {
-                samples[i] = ret[i];
+                for (int i = 0; i < ret.Length; i++) {
+                    samples[i] = ret[i];
+                }
+                amt--;
             }
         }
 
@@ -129,18 +133,32 @@ namespace WaveTracker.Tracker {
         /// <summary>
         /// Randomize the wave slightly
         /// </summary>
-        public void Mutate() {
+        public void MutateHarmonics() {
             Random r = new Random();
-            for (int i = 0; i < 64; ++i) {
-                samples[i] = (byte)Math.Clamp(samples[i] + r.Next(3) - 1, 0, 31);
+            float[] mod = new float[64];
+
+            for (int harmonic = 1; harmonic <= 16; ++harmonic) {
+                float intensity = 1f / harmonic * (float)r.NextDouble();
+                float phase = (float)r.NextDouble();
+                for (int i = 0; i < 64; ++i) {
+                    float t = i / 64f + phase;
+                    mod[i] += MathF.Sin(t * MathF.PI * 2 * harmonic) * intensity * 2;
+                    //AddHarmonic(harmonic, 1 / (harmonic + 1f) * (float)r.NextDouble());
+                }
             }
+
+            for (int i = 0; i < 64; ++i) {
+                samples[i] = (byte)Math.Clamp(samples[i] + mod[i] + 0.5f, 0, 31);
+            }
+
         }
+
 
         /// <summary>
         /// Hold the wave's position every <c>amt</c> samples
         /// </summary>
         /// <param name="amt"></param>
-        public void Downsample(int amt) {
+        public void SampleAndHold(int amt) {
             for (int i = 0; i < samples.Length; i++) {
                 samples[i] = samples[(i / amt) * amt];
             }
@@ -243,7 +261,7 @@ namespace WaveTracker.Tracker {
             //    //t = (0.5f / s1) * s2 + 0.5f;
             //    //t = Math.Clamp(MathF.Sin((t - 0.5f) * MathF.PI / 2) * (bendAmt + 0.707f) + 0.5f, 0, 1f);*/
             //}
-            if (bendAmt > 0.001f) { 
+            if (bendAmt > 0.001f) {
                 t = GetBentTime(t, bendAmt) + 0.5f; // faster bend algorithm
             }
             if (interpolationAmt > 0) {

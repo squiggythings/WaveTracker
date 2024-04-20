@@ -55,8 +55,6 @@ namespace WaveTracker.UI {
                     maxlength = Helpers.GetWidthOfText(options[i]);
             }
             menuWidth = maxlength + 18;
-            menuX = width;
-            menuY = 0;
         }
 
         public void Update() {
@@ -97,6 +95,8 @@ namespace WaveTracker.UI {
             Input.focus = this;
             hoveredValue = -1;
             currentlyOpen = this;
+            menuX = width;
+            menuY = 0;
             showMenu = true;
         }
 

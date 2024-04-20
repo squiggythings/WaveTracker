@@ -79,7 +79,7 @@ namespace WaveTracker.UI {
             Open();
         }
 
-        public void Update() {
+        public override void Update() {
             if (windowIsOpen) {
                 DoDragging();
                 foreach (Button b in buttons) {

@@ -65,7 +65,7 @@ namespace WaveTracker.UI {
             canStart = false;
         }
 
-        public void Update() {
+        public override void Update() {
             if (windowIsOpen) {
                 DoDragging();
                 if (canStart) {

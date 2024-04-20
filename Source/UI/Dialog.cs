@@ -41,6 +41,8 @@ namespace WaveTracker.UI {
             return ret;
         }
 
+        public abstract void Update();
+
         /// <summary>
         /// Draws the window and the buttons at the bottom
         /// </summary>

@@ -164,7 +164,7 @@ namespace WaveTracker.UI {
             base.Open();
         }
 
-        public void Update() {
+        public override void Update() {
             if (windowIsOpen) {
                 DoDragging();
                 if (ExitButton.Clicked || cancel.Clicked) {

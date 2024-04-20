@@ -50,7 +50,7 @@ namespace WaveTracker.UI {
             base.Close();
         }
 
-        public void Update() {
+        public override void Update() {
             if (windowIsOpen) {
                 DoDragging();
                 loops.Update();
