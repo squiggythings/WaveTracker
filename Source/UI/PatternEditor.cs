@@ -13,6 +13,7 @@ using WaveTracker;
 using WaveTracker.Audio;
 using System.Threading;
 using SharpDX.MediaFoundation;
+using SharpDX.Direct3D11;
 
 namespace WaveTracker.UI {
 
@@ -130,8 +131,6 @@ namespace WaveTracker.UI {
         int playbackRow;
         CursorPos renderCursorPos;
 
-        Menu contextMenu;
-
         public PatternEditor(int x, int y) {
             this.x = x;
             this.y = y;
@@ -147,34 +146,6 @@ namespace WaveTracker.UI {
             lastSelection = new PatternSelection();
             history = new List<PatternEditorState>();
             channelScrollbar = new ScrollbarHorizontal(ROW_COLUMN_WIDTH, 0, width, 6, this);
-            contextMenu = new Menu(new MenuItemBase[] {
-                new MenuOption("Undo",Undo),
-                new MenuOption("Redo",Redo),
-                null,
-                new MenuOption("Cut",Cut),
-                new MenuOption("Copy",CopyToClipboard),
-                new MenuOption("Paste",PasteFromClipboard),
-                new MenuOption("Delete",Delete),
-                new MenuOption("Select All",SelectAll),
-                null,
-                new SubMenu("Pattern", new MenuItemBase[] {
-                    new MenuOption("Interpolate", InterpolateSelection),
-                    new MenuOption("Reverse", ReverseSelection),
-                    new MenuOption("Replace Instrument", ReplaceInstrument),
-                    null,
-                    new MenuOption("Expand", null),
-                    new MenuOption("Shrink", null),
-                    new MenuOption("Stretch...", null),
-                    null,
-                    new SubMenu("Transpose", new MenuItemBase[] {
-                        new MenuOption("Increase note", null),
-                        new MenuOption("Decrease note", null),
-                        new MenuOption("Increase Octave", null),
-                        new MenuOption("Decrease Octave", null),
-                    })
-
-                }),
-            });
         }
 
         public void Update() {
@@ -228,7 +199,7 @@ namespace WaveTracker.UI {
                         null,
                         new MenuOption("Cut", Cut, SelectionIsActive),
                         new MenuOption("Copy", CopyToClipboard, SelectionIsActive),
-                        new MenuOption("Paste", PasteFromClipboard, clipboard != null),
+                        new MenuOption("Paste", PasteFromClipboard, HasClipboard),
                         new MenuOption("Delete", Delete, SelectionIsActive),
                         new MenuOption("Select All", SelectAll),
                         null,
@@ -236,16 +207,17 @@ namespace WaveTracker.UI {
                             new MenuOption("Interpolate", InterpolateSelection, SelectionIsActive),
                             new MenuOption("Reverse", ReverseSelection, SelectionIsActive),
                             new MenuOption("Replace Instrument", ReplaceInstrument, SelectionIsActive),
+                            new MenuOption("Humanize Volumes", Humanize, SelectionIsActive),
                             null,
                             new MenuOption("Expand", null, SelectionIsActive),
                             new MenuOption("Shrink", null, SelectionIsActive),
                             new MenuOption("Stretch...", null, SelectionIsActive),
                             null,
                             new SubMenu("Transpose", new MenuItemBase[] {
-                                new MenuOption("Increase note", null),
-                                new MenuOption("Decrease note", null),
-                                new MenuOption("Increase octave", null),
-                                new MenuOption("Decrease octave", null),
+                                new MenuOption("Increase note", IncreaseNote),
+                                new MenuOption("Decrease note", DecreaseNote),
+                                new MenuOption("Increase octave", IncreaseOctave),
+                                new MenuOption("Decrease octave", DecreaseOctave),
                             })
 
                         }),
@@ -745,66 +717,51 @@ namespace WaveTracker.UI {
             #endregion
             #region value increment and transposing
             if (KeyPress(Keys.F1, KeyModifier.Ctrl)) {
-                for (int r = selection.min.Row; r <= selection.max.Row; ++r) {
-                    for (int c = selection.min.CellColumn; c <= selection.max.CellColumn; ++c) {
-                        if (WTPattern.GetCellTypeFromCellColumn(c) == CellType.Note) {
-                            if (!CurrentPattern.CellIsEmptyOrNoteCutRelease(r, c))
-                                CurrentPattern[r, c] -= 1;
-                        }
-                    }
-                }
+                DecreaseNote();
             }
             if (KeyPress(Keys.F2, KeyModifier.Ctrl)) {
-                for (int r = selection.min.Row; r <= selection.max.Row; ++r) {
-                    for (int c = selection.min.CellColumn; c <= selection.max.CellColumn; ++c) {
-                        if (WTPattern.GetCellTypeFromCellColumn(c) == CellType.Note) {
-                            if (!CurrentPattern.CellIsEmptyOrNoteCutRelease(r, c))
-                                CurrentPattern[r, c] += 1;
-                        }
-                    }
-                }
+                IncreaseNote();
             }
             if (KeyPress(Keys.F3, KeyModifier.Ctrl)) {
-                for (int r = selection.min.Row; r <= selection.max.Row; ++r) {
-                    for (int c = selection.min.CellColumn; c <= selection.max.CellColumn; ++c) {
-                        if (WTPattern.GetCellTypeFromCellColumn(c) == CellType.Note) {
-                            if (!CurrentPattern.CellIsEmptyOrNoteCutRelease(r, c))
-                                CurrentPattern[r, c] -= 12;
-                        }
-                    }
-                }
+                DecreaseOctave();
             }
             if (KeyPress(Keys.F4, KeyModifier.Ctrl)) {
-                for (int r = selection.min.Row; r <= selection.max.Row; ++r) {
-                    for (int c = selection.min.CellColumn; c <= selection.max.CellColumn; ++c) {
-                        if (WTPattern.GetCellTypeFromCellColumn(c) == CellType.Note) {
-                            if (!CurrentPattern.CellIsEmptyOrNoteCutRelease(r, c))
-                                CurrentPattern[r, c] += 12;
-                        }
-                    }
-                }
+                IncreaseOctave();
             }
             if (KeyPress(Keys.F1, KeyModifier.Shift)) {
+                bool didSomething = false;
                 for (int r = selection.min.Row; r <= selection.max.Row; ++r) {
                     for (int c = selection.min.CellColumn; c <= selection.max.CellColumn; ++c) {
                         if (WTPattern.GetCellTypeFromCellColumn(c) != CellType.Note) {
-                            if (!CurrentPattern.CellIsEmptyOrNoteCutRelease(r, c))
+                            if (!CurrentPattern.CellIsEmptyOrNoteCutRelease(r, c)) {
                                 CurrentPattern[r, c] -= 1;
+                                didSomething = true;
+                            }
                         }
                     }
+                }
+                if (didSomething) {
+                    AddToUndoHistory();
                 }
             }
             if (KeyPress(Keys.F2, KeyModifier.Shift)) {
+                bool didSomething = false;
                 for (int r = selection.min.Row; r <= selection.max.Row; ++r) {
                     for (int c = selection.min.CellColumn; c <= selection.max.CellColumn; ++c) {
                         if (WTPattern.GetCellTypeFromCellColumn(c) != CellType.Note) {
-                            if (!CurrentPattern.CellIsEmptyOrNoteCutRelease(r, c))
+                            if (!CurrentPattern.CellIsEmptyOrNoteCutRelease(r, c)) {
                                 CurrentPattern[r, c] += 1;
+                                didSomething = true;
+                            }
                         }
                     }
                 }
+                if (didSomething) {
+                    AddToUndoHistory();
+                }
             }
             if (KeyPress(Keys.F3, KeyModifier.Shift)) {
+                bool didSomething = false;
                 for (int r = selection.min.Row; r <= selection.max.Row; ++r) {
                     for (int c = selection.min.CellColumn; c <= selection.max.CellColumn; ++c) {
                         if (WTPattern.GetCellTypeFromCellColumn(c) != CellType.Note) {
@@ -817,12 +774,17 @@ namespace WaveTracker.UI {
                                     CurrentPattern[r, c] -= 16;
                                 else
                                     CurrentPattern[r, c] -= 10;
+                                didSomething = true;
                             }
                         }
                     }
                 }
+                if (didSomething) {
+                    AddToUndoHistory();
+                }
             }
             if (KeyPress(Keys.F4, KeyModifier.Shift)) {
+                bool didSomething = false;
                 for (int r = selection.min.Row; r <= selection.max.Row; ++r) {
                     for (int c = selection.min.CellColumn; c <= selection.max.CellColumn; ++c) {
                         if (WTPattern.GetCellTypeFromCellColumn(c) != CellType.Note) {
@@ -835,9 +797,13 @@ namespace WaveTracker.UI {
                                     CurrentPattern[r, c] += 16;
                                 else
                                     CurrentPattern[r, c] += 10;
+                                didSomething = true;
                             }
                         }
                     }
+                }
+                if (didSomething) {
+                    AddToUndoHistory();
                 }
             }
             #endregion
@@ -876,15 +842,12 @@ namespace WaveTracker.UI {
             if (SelectionIsActive) {
                 if (Input.GetKeyDown(Keys.S, KeyModifier.Alt)) {
                     ReplaceInstrument();
-                    AddToUndoHistory();
                 }
             }
             #endregion
             #region alt+h humanize
-            if (SelectionIsActive) {
-                if (Input.GetKeyDown(Keys.H, KeyModifier.Alt)) {
-                    Dialogs.humanizeDialog.Open(this);
-                }
+            if (Input.GetKeyDown(Keys.H, KeyModifier.Alt)) {
+                Humanize();
             }
             #endregion
         }
@@ -893,7 +856,7 @@ namespace WaveTracker.UI {
         public void Draw() {
             playbackFrame = Playback.position.Frame;
             playbackRow = Playback.position.Row;
-            if (Playback.IsPlaying) {
+            if (Playback.IsPlaying && !AudioEngine.rendering) {
                 SnapToPlaybackPosition();
             }
             renderCursorPos = cursorPosition;
@@ -1758,6 +1721,9 @@ namespace WaveTracker.UI {
             AddToUndoHistory();
         }
 
+        /// <summary>
+        /// Replaces all instrument columns in the selection with the currently selected instrument in the instrument bank
+        /// </summary>
         public void ReplaceInstrument() {
             for (int row = selection.min.Row; row <= selection.max.Row; ++row) {
                 for (int column = selection.min.CellColumn; column <= selection.max.CellColumn; ++column) {
@@ -1766,6 +1732,8 @@ namespace WaveTracker.UI {
                     }
                 }
             }
+            AddToUndoHistory();
+
         }
 
         /// <summary>
@@ -1784,6 +1752,80 @@ namespace WaveTracker.UI {
                 }
             }
             AddToUndoHistory();
+        }
+
+        public void IncreaseNote() {
+            bool didSomething = false;
+            for (int r = selection.min.Row; r <= selection.max.Row; ++r) {
+                for (int c = selection.min.CellColumn; c <= selection.max.CellColumn; ++c) {
+                    if (WTPattern.GetCellTypeFromCellColumn(c) == CellType.Note) {
+                        if (!CurrentPattern.CellIsEmptyOrNoteCutRelease(r, c)) {
+                            CurrentPattern[r, c] += 1;
+                            didSomething = true;
+                        }
+                    }
+                }
+            }
+            if (didSomething) {
+                AddToUndoHistory();
+            }
+        }
+
+        public void DecreaseNote() {
+            bool didSomething = false;
+            for (int r = selection.min.Row; r <= selection.max.Row; ++r) {
+                for (int c = selection.min.CellColumn; c <= selection.max.CellColumn; ++c) {
+                    if (WTPattern.GetCellTypeFromCellColumn(c) == CellType.Note) {
+                        if (!CurrentPattern.CellIsEmptyOrNoteCutRelease(r, c)) {
+                            CurrentPattern[r, c] -= 1;
+                            didSomething = true;
+                        }
+                    }
+                }
+            }
+            if (didSomething) {
+                AddToUndoHistory();
+            }
+        }
+
+        public void IncreaseOctave() {
+            bool didSomething = false;
+            for (int r = selection.min.Row; r <= selection.max.Row; ++r) {
+                for (int c = selection.min.CellColumn; c <= selection.max.CellColumn; ++c) {
+                    if (WTPattern.GetCellTypeFromCellColumn(c) == CellType.Note) {
+                        if (!CurrentPattern.CellIsEmptyOrNoteCutRelease(r, c)) {
+                            CurrentPattern[r, c] += 12;
+                            didSomething = true;
+                        }
+                    }
+                }
+            }
+            if (didSomething) {
+                AddToUndoHistory();
+            }
+        }
+
+        public void DecreaseOctave() {
+            bool didSomething = false;
+            for (int r = selection.min.Row; r <= selection.max.Row; ++r) {
+                for (int c = selection.min.CellColumn; c <= selection.max.CellColumn; ++c) {
+                    if (WTPattern.GetCellTypeFromCellColumn(c) == CellType.Note) {
+                        if (!CurrentPattern.CellIsEmptyOrNoteCutRelease(r, c)) {
+                            CurrentPattern[r, c] -= 12;
+                            didSomething = true;
+                        }
+                    }
+                }
+            }
+            if (didSomething) {
+                AddToUndoHistory();
+            }
+        }
+
+        public void Humanize() {
+            if (SelectionIsActive) {
+                Dialogs.humanizeDialog.Open(this);
+            }
         }
 
         #region frame methods

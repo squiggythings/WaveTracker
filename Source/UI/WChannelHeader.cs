@@ -182,13 +182,15 @@ namespace WaveTracker.UI {
                 }
 
                 // draw pan/volume meter
-                if (ChannelManager.IsChannelMuted(channelNum)) {
-                    DrawRect(panMeterStartPos + (int)(channelToDisplay.CurrentPan * (PAN_METER_WIDTH - 2)), 22, 3, 2, new Color(104, 111, 153));
-                    DrawRect(5, 25, amplitude, 3, new Color(104, 111, 153));
-                }
-                else {
-                    DrawRect(panMeterStartPos + (int)(channelToDisplay.CurrentPan * (PAN_METER_WIDTH - 2)), 22, 3, 2, Color.White);
-                    DrawRect(5, 25, amplitude, 3, new Color(0, 219, 39));
+                if (!AudioEngine.rendering) {
+                    if (ChannelManager.IsChannelMuted(channelNum)) {
+                        DrawRect(panMeterStartPos + (int)(channelToDisplay.CurrentPan * (PAN_METER_WIDTH - 2)), 22, 3, 2, new Color(104, 111, 153));
+                        DrawRect(5, 25, amplitude, 3, new Color(104, 111, 153));
+                    }
+                    else {
+                        DrawRect(panMeterStartPos + (int)(channelToDisplay.CurrentPan * (PAN_METER_WIDTH - 2)), 22, 3, 2, Color.White);
+                        DrawRect(5, 25, amplitude, 3, new Color(0, 219, 39));
+                    }
                 }
             }
         }

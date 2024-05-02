@@ -104,31 +104,35 @@ namespace WaveTracker.UI {
                 int y = 29;
                 bool newFile = false;
                 for (int i = scrollbar.ScrollValue; i < listLength + scrollbar.ScrollValue; i++) {
-                    if (MouseX > 2 && MouseX < width - 117) {
-                        if (MouseY > y && MouseY <= y + 11) {
-                            if (Input.GetClickDown(KeyModifier.None)) {
-                                if (selectedFileIndex != i)
-                                    newFile = true;
-                                selectedFileIndex = i;
-                                if (newFile) {
-                                    SelectedANewEntry();
-                                    break;
+                    if (i < entriesInDirectory.Length) {
+                        if (MouseX > 2 && MouseX < width - 117) {
+                            if (MouseY > y && MouseY <= y + 11) {
+                                if (Input.GetClickDown(KeyModifier.None)) {
+
+                                    if (selectedFileIndex != i)
+                                        newFile = true;
+                                    selectedFileIndex = i;
+                                    if (newFile) {
+                                        SelectedANewEntry();
+                                        break;
+                                    }
+
                                 }
-                            }
-                            if (Input.GetDoubleClick(KeyModifier.None)) {
-                                if (Directory.Exists(entriesInDirectory[i])) {
-                                    // double clicked on a folder
-                                    currentPath = entriesInDirectory[i];
-                                    selectedFileIndex = -1;
-                                    scrollbar.ScrollValue = 0;
-                                    GetFileEntries(false);
-                                    break;
-                                }
-                                else {
-                                    // double clicked on a file
-                                    selectedFilePath = entriesInDirectory[selectedFileIndex];
-                                    Close();
-                                    return;
+                                if (Input.GetDoubleClick(KeyModifier.None)) {
+                                    if (Directory.Exists(entriesInDirectory[i])) {
+                                        // double clicked on a folder
+                                        currentPath = entriesInDirectory[i];
+                                        selectedFileIndex = -1;
+                                        scrollbar.ScrollValue = 0;
+                                        GetFileEntries(false);
+                                        break;
+                                    }
+                                    else {
+                                        // double clicked on a file
+                                        selectedFilePath = entriesInDirectory[selectedFileIndex];
+                                        Close();
+                                        return;
+                                    }
                                 }
                             }
                         }

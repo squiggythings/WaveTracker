@@ -98,16 +98,31 @@ namespace WaveTracker {
             WaveBank = new WaveBank(510, 18 + MENUSTRIP_HEIGHT);
             ChannelManager.Initialize(WTModule.MAX_CHANNEL_COUNT, WaveBank);
             PatternEditor = new PatternEditor(0, 184 + MENUSTRIP_HEIGHT);
+            InstrumentBank = new InstrumentBank(790, 152 + MENUSTRIP_HEIGHT);
+            InstrumentBank.Initialize();
+            InstrumentEditor = new InstrumentEditor();
+            Dialogs.Initialize();
+            EditSettings = new EditSettings(312, 18 + MENUSTRIP_HEIGHT);
+            toolbar = new Toolbar(2, 0 + MENUSTRIP_HEIGHT);
+            WaveEditor = new WaveEditor();
+            frameView = new FramesPanel(2, 106 + MENUSTRIP_HEIGHT, 504, 42);
+            SongSettings = new SongSettings(2, 18 + MENUSTRIP_HEIGHT);
+            audioEngine = new AudioEngine();
+            audioEngine.Initialize();
+
+            visualization = new Visualization();
+            IsFixedTimeStep = false;
+
             MenuStrip = new MenuStrip(0, 0, 960, null);
             MenuStrip.AddButton("File", new Menu(new MenuItemBase[] {
-                new MenuOption("New",null),
-                new MenuOption("Open...",null),
-                new MenuOption("Save",null),
-                new MenuOption("Save As...",null),
+                new MenuOption("New", SaveLoad.NewFile),
+                new MenuOption("Open...", SaveLoad.OpenFile),
+                new MenuOption("Save", SaveLoad.SaveFileVoid),
+                new MenuOption("Save As...", SaveLoad.SaveFileAsVoid),
                 null,
-                new MenuOption("Export as WAV...",null),
+                new MenuOption("Export as WAV...", Dialogs.exportDialog.Open),
                 null,
-                new MenuOption("Configuration...",null),
+                new MenuOption("Configuration...", Dialogs.preferences.Open),
                 null,
                 new SubMenu("Recent files",new MenuItemBase[] {
                     new MenuOption("Clear",null),
@@ -122,40 +137,46 @@ namespace WaveTracker {
                     new MenuOption("8. C:\\Users\\Elias\\Music\\wavetracker\\itsmyblaster2.0.wtm",null),
                 }),
                 null,
-                new MenuOption("Exit", App.ExitApplication),
+                new MenuOption("Exit", ExitApplication),
             }));
-            MenuStrip.AddButton("Edit", new Menu(new MenuItemBase[] {
-                new MenuOption("Undo",null),
-                new MenuOption("Redo",null),
-                null,
-                new MenuOption("Cut",null),
-                new MenuOption("Copy",null),
-                new MenuOption("Paste",null),
-                new MenuOption("Paste and mix",null),
-            }));
+            MenuStrip.AddButton("Edit", new Menu(
+                    new MenuItemBase[] {
+                        new MenuOption("Undo", PatternEditor.Undo, PatternEditor.CanUndo),
+                        new MenuOption("Redo", PatternEditor.Redo, PatternEditor.CanRedo),
+                        null,
+                        new MenuOption("Cut", PatternEditor.Cut, PatternEditor.SelectionIsActive),
+                        new MenuOption("Copy", PatternEditor.CopyToClipboard, PatternEditor.SelectionIsActive),
+                        new MenuOption("Paste", PatternEditor.PasteFromClipboard, PatternEditor.HasClipboard),
+                        new MenuOption("Delete", PatternEditor.Delete, PatternEditor.SelectionIsActive),
+                        new MenuOption("Select All", PatternEditor.SelectAll),
+                        null,
+                        new SubMenu("Pattern", new MenuItemBase[] {
+                            new MenuOption("Interpolate", PatternEditor.InterpolateSelection, PatternEditor.SelectionIsActive),
+                            new MenuOption("Reverse", PatternEditor.ReverseSelection, PatternEditor.SelectionIsActive),
+                            new MenuOption("Replace Instrument", PatternEditor.ReplaceInstrument, PatternEditor.SelectionIsActive),
+                            new MenuOption("Humanize Volumes", PatternEditor.Humanize, PatternEditor.SelectionIsActive),
+                            null,
+                            new MenuOption("Expand", null, PatternEditor.SelectionIsActive),
+                            new MenuOption("Shrink", null, PatternEditor.SelectionIsActive),
+                            new MenuOption("Stretch...", null, PatternEditor.SelectionIsActive),
+                            null,
+                            new SubMenu("Transpose", new MenuItemBase[] {
+                                new MenuOption("Increase note", PatternEditor.IncreaseNote),
+                                new MenuOption("Decrease note", PatternEditor.DecreaseNote),
+                                new MenuOption("Increase octave", PatternEditor.IncreaseOctave),
+                                new MenuOption("Decrease octave", PatternEditor.DecreaseOctave),
+                            })
+                        }),
+                    }
+                ));
             MenuStrip.AddButton("Song", new Menu(new MenuItemBase[] {
-                new MenuOption("Insert frame",null),
-                new MenuOption("Remove frame",null),
-                new MenuOption("Duplicate frame",null),
-                new MenuOption("Duplicate frame",null),
+                new MenuOption("Insert frame", PatternEditor.InsertNewFrame),
+                new MenuOption("Remove frame", PatternEditor.RemoveFrame),
+                new MenuOption("Duplicate frame", PatternEditor.DuplicateFrame),
                 null,
-                new MenuOption("Move frame up",null),
-                new MenuOption("Move frame down",null),
+                new MenuOption("Move frame left", PatternEditor.MoveFrameLeft),
+                new MenuOption("Move frame right", PatternEditor.MoveFrameRight),
             }));
-            InstrumentBank = new InstrumentBank(790, 152 + MENUSTRIP_HEIGHT);
-            InstrumentBank.Initialize();
-            InstrumentEditor = new InstrumentEditor();
-            Dialogs.Initialize();
-            EditSettings = new EditSettings(312, 18 + MENUSTRIP_HEIGHT);
-            toolbar = new Toolbar(2, 0 + MENUSTRIP_HEIGHT);
-            WaveEditor = new WaveEditor();
-            frameView = new FramesPanel(2, 106 + MENUSTRIP_HEIGHT, 504, 42);
-            SongSettings = new SongSettings(2, 18 + MENUSTRIP_HEIGHT);
-            audioEngine = new AudioEngine();
-            audioEngine.Initialize();
-            
-            visualization = new Visualization();
-            IsFixedTimeStep = false;
 
             base.Initialize();
 

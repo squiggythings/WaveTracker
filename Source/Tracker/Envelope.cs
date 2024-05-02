@@ -10,7 +10,7 @@ using ProtoBuf;
 
 
 namespace WaveTracker.Tracker {
-    [ProtoContract]
+    [ProtoContract(SkipConstructor = true)]
     public class Envelope {
         public const int MAX_ENVELOPE_LENGTH = 255;
         public enum EnvelopeType { Volume, Arpeggio, Pitch, Wave, WaveBlend, WaveStretch, WaveFM, WaveSync };
@@ -120,7 +120,7 @@ namespace WaveTracker.Tracker {
         }
         [ProtoAfterDeserialization]
         internal void AfterDeserialization() {
-            for(int i = 0; i < values.Length; i++) {
+            for (int i = 0; i < values.Length; i++) {
                 switch (Type) {
                     case EnvelopeType.Volume:
                     case EnvelopeType.Wave:

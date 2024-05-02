@@ -12,6 +12,7 @@ using ProtoBuf;
 
 namespace WaveTracker.Tracker {
 
+    [ProtoContract]
     public class SampleInstrument : Instrument {
         [ProtoMember(21)]
         public Sample sample;

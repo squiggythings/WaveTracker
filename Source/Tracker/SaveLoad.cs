@@ -59,6 +59,10 @@ namespace WaveTracker {
 
         }
 
+        public static void SaveFileVoid() {
+            SaveFile();
+        }
+
         public static bool SaveFile() {
             if (savecooldown == 0) {
                 savecooldown = 4;
@@ -131,7 +135,9 @@ namespace WaveTracker {
             App.PatternEditor.OnSwitchSong();
         }
 
-
+        public static void SaveFileAsVoid() {
+            SaveFileAs();
+        }
         public static bool SaveFileAs() {
             if (Input.focus != null) {
                 return false;
@@ -212,7 +218,10 @@ namespace WaveTracker {
             //MemoryStream ms = new MemoryStream();
             //savedSong = new Song();
 
-
+            using (FileStream fs = new FileStream(path, FileMode.Open)) {
+                fs.Position = 0;
+                App.CurrentModule = Serializer.Deserialize<WTModule>(fs);
+            }
             try {
                 // try loading the module regularly
                 using (FileStream fs = new FileStream(path, FileMode.Open)) {

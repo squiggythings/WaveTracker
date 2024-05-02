@@ -106,9 +106,11 @@ namespace WaveTracker.Tracker {
         }
         [ProtoAfterDeserialization]
         internal void AfterDeserialization() {
-            Instruments = new List<Instrument>();
-            foreach (OldInstrument oldInstrument in OldInstruments) {
-                Instruments.Add(oldInstrument.ToNewInstrument());
+            if (Instruments == null) {
+                Instruments = new List<Instrument>();
+                foreach (OldInstrument oldInstrument in OldInstruments) {
+                    Instruments.Add(oldInstrument.ToNewInstrument());
+                }
             }
             foreach (WTSong song in Songs) {
                 song.AfterDeserialized(this);
