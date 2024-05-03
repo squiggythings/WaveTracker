@@ -44,8 +44,10 @@ namespace WaveTracker.UI {
         }
 
         public void Apply() {
-            for (int i = 0; i < 64; ++i) {
-                waveToEdit.samples[i] = GetSampleValue(i);
+            if (waveToEdit != null) {
+                for (int i = 0; i < 64; ++i) {
+                    waveToEdit.samples[i] = GetSampleValue(i);
+                }
             }
         }
 

@@ -30,7 +30,7 @@ namespace WaveTracker.UI {
         PreviewPiano piano;
         MouseRegion drawingRegion;
         bool displayAsLines;
-        Dialog currentDialog;
+        WaveModifyDialog currentDialog;
         //MenuStrip MenuStrip { get; set; }
 
         Wave CurrentWave => App.CurrentModule.WaveBank[WaveBank.currentWaveID];
@@ -202,7 +202,7 @@ namespace WaveTracker.UI {
         }
 
         public void Update() {
-            if (windowIsOpen) {
+            if (windowIsOpen && !(currentDialog != null && currentDialog.InFocus)) {
                 DoDragging();
                 //MenuStrip.Update();
                 if (WaveBank.currentWaveID < 0) return;

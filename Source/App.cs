@@ -239,16 +239,17 @@ namespace WaveTracker {
                 InstrumentBank.Update();
                 InstrumentEditor.Update();
             }
-            if (Input.focus == null || Input.focus == WaveEditor || Input.focus == InstrumentEditor)
+            if (Input.focus == null || WaveEditor.IsOpen || InstrumentEditor.IsOpen) {
                 pianoInput = Helpers.GetPianoInput(PatternEditor.CurrentOctave);
+            }
             else {
                 pianoInput = -1;
             }
 
             if (WaveEditor.GetPianoMouseInput() > -1)
                 pianoInput = WaveEditor.GetPianoMouseInput();
-            if (InstrumentEditor.GetPianoInput() > -1)
-                pianoInput = InstrumentEditor.GetPianoInput();
+            if (InstrumentEditor.GetPianoMouseInput() > -1)
+                pianoInput = InstrumentEditor.GetPianoMouseInput();
             //if (MidiInput.GetMidiNote > -1) {
             //    pianoInput = MidiInput.GetMidiNote;
             //}

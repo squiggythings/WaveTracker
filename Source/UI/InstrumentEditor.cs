@@ -92,7 +92,7 @@ namespace WaveTracker.UI {
             envelopeList.Intialize(CurrentInstrument.envelopes);
         }
 
-        public int GetPianoInput() {
+        public int GetPianoMouseInput() {
             if (!windowIsOpen || !InFocus)
                 return -1;
             return piano.CurrentClickedNote;

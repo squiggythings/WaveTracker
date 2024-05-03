@@ -24,10 +24,12 @@ namespace WaveTracker.UI {
         }
 
         public override void Update() {
-            base.Update();
-            holdLength.Update();
-            if (holdLength.ValueWasChangedInternally)
-                Apply();
+            if (windowIsOpen) {
+                base.Update();
+                holdLength.Update();
+                if (holdLength.ValueWasChangedInternally)
+                    Apply();
+            }
         }
 
         protected override byte GetSampleValue(int index) {
