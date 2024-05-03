@@ -123,10 +123,10 @@ namespace WaveTracker.Rendering {
             Fillstates(statesPrev);
             for (int i = 0; i < 10; ++i) {
                 if (Preferences.profile.visualizerHighlightKeys) {
-                    DrawSprite(20 + i * 60, 20, 60, 24, new Rectangle(0, 104, 60, 24), new Color(128, 128, 128, 128));
+                    DrawSprite(20 + i * 60, 24, 60, 24, new Rectangle(0, 104, 60, 24), new Color(128, 128, 128, 128));
                 }
                 else {
-                    DrawSprite(20 + i * 60, 20, 60, 24, new Rectangle(0, 104, 60, 24));
+                    DrawSprite(20 + i * 60, 24, 60, 24, new Rectangle(0, 104, 60, 24));
                 }
             }
             oscilloscopePanelHeight = 40;
@@ -517,7 +517,7 @@ namespace WaveTracker.Rendering {
                 numOscsX = 1;
             int numOscsY = (int)Math.Ceiling(App.CurrentModule.ChannelCount / (float)numOscsX);
             int oscsX = 628 * 2;
-            int oscsY = 20 * 2;
+            int oscsY = 20 * 2 + 16;
             int oscsW = 636 / numOscsX;
             int oscsH = 2 * oscilloscopePanelHeight / numOscsY;
 
@@ -593,7 +593,7 @@ namespace WaveTracker.Rendering {
 
         public void DrawPiano(List<List<ChannelState>> states) {
             int px = -80;
-            int py = 20 * 2;
+            int py = 24 * 2;
 
             if (Preferences.profile.visualizerHighlightKeys && states.Count > 0) {
                 for (int i = states[0].Count - 1; i >= 0; i--) {

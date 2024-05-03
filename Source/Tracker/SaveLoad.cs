@@ -218,10 +218,6 @@ namespace WaveTracker {
             //MemoryStream ms = new MemoryStream();
             //savedSong = new Song();
 
-            using (FileStream fs = new FileStream(path, FileMode.Open)) {
-                fs.Position = 0;
-                App.CurrentModule = Serializer.Deserialize<WTModule>(fs);
-            }
             try {
                 // try loading the module regularly
                 using (FileStream fs = new FileStream(path, FileMode.Open)) {
