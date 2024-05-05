@@ -43,53 +43,44 @@ namespace WaveTracker.UI {
             int buttonWidth = 64;
 
 
-            bCopy = new UI.Button("Copy", buttonX, buttonY, this);
-            bCopy.width = buttonWidth / 2 - 1;
+            bCopy = new Button("Copy", buttonX, buttonY, buttonWidth / 2 - 1, this);
             bCopy.SetTooltip("", "Copy wave settings");
             buttonY += 0;
-            bPaste = new UI.Button("Paste", buttonX + 32, buttonY, this);
-            bPaste.width = buttonWidth / 2 - 1;
+            bPaste = new Button("Paste", buttonX + 32, buttonY, buttonWidth / 2 - 1, this);
             bPaste.SetTooltip("", "Paste wave settings");
             buttonY += 18;
 
-            bPhaseR = new UI.Button("Phase »", buttonX, buttonY, this);
-            bPhaseR.width = buttonWidth;
+            bPhaseR = new Button("Phase »", buttonX, buttonY, buttonWidth, this);
             bPhaseR.SetTooltip("", "Shift phase once to the right");
             buttonY += 14;
-            bPhaseL = new UI.Button("Phase «", buttonX, buttonY, this);
-            bPhaseL.width = buttonWidth;
+            bPhaseL = new Button("Phase «", buttonX, buttonY, buttonWidth, this);
             bPhaseL.SetTooltip("", "Shift phase once to the left");
             buttonY += 14;
-            bMoveUp = new UI.Button("Shift Up", buttonX, buttonY, this);
-            bMoveUp.width = buttonWidth;
+            bMoveUp = new Button("Shift Up", buttonX, buttonY, buttonWidth, this);
             bMoveUp.SetTooltip("", "Raise the wave 1 step up");
             buttonY += 14;
-            bMoveDown = new UI.Button("Shift Down", buttonX, buttonY, this);
-            bMoveDown.width = buttonWidth;
+            bMoveDown = new Button("Shift Down", buttonX, buttonY, buttonWidth, this);
             bMoveDown.SetTooltip("", "Lower the wave 1 step down");
             buttonY += 18;
 
-            bInvert = new UI.Button("Invert", buttonX, buttonY, this);
-            bInvert.width = buttonWidth;
+            bInvert = new Button("Invert", buttonX, buttonY, buttonWidth, this);
             bInvert.SetTooltip("", "Invert the wave vertically");
             buttonY += 14;
-            //bSmooth = new UI.Button("Smooth", buttonX, buttonY, this);
+            //bSmooth = new Button("Smooth", buttonX, buttonY, this);
             //bSmooth.width = buttonWidth;
             //bSmooth.SetTooltip("", "Smooth out rough corners in the wave");
             //buttonY += 14;
-            bMutate = new UI.Button("Mutate", buttonX, buttonY, this);
-            bMutate.width = buttonWidth;
+            bMutate = new Button("Mutate", buttonX, buttonY, buttonWidth, this);
             bMutate.SetTooltip("", "Slightly randomize the wave");
             buttonY += 14;
-            bNormalize = new UI.Button("Normalize", buttonX, buttonY, this);
-            bNormalize.width = buttonWidth;
+            bNormalize = new Button("Normalize", buttonX, buttonY, buttonWidth, this);
             bNormalize.SetTooltip("", "Make the wave maximum amplitude");
             buttonY += 18;
 
 
-            bModify = new DropdownButton("Modify...", buttonX, buttonY, this);
-            bModify.SetMenuItems(new string[] { "Smooth...", "Add Fuzz...", "Set Harmonic...", "Sample and hold..." });
-            bModify.width = buttonWidth;
+            bModify = new DropdownButton("Modify...", buttonX, buttonY, buttonWidth, this);
+            bModify.LabelIsCentered = true;
+            bModify.SetMenuItems(new string[] { "Smooth...", "Add Fuzz...", "Sync...", "Sample and hold..." });
 
 
             presetSine = new SpriteButton(17, 215, 18, 12, 104, 80, this);
@@ -460,8 +451,8 @@ namespace WaveTracker.UI {
                 }
                 // draw mini wave
                 for (int i = 0; i < 64; ++i) {
-                    DrawRect(419 + i, 183, 1, 16 - CurrentWave.GetSample(i + phase), new Color(190, 192, 211));
-                    DrawRect(419 + i, 199 - CurrentWave.GetSample(i + phase), 1, 1, new Color(118, 124, 163));
+                    DrawRect(419 + i, 185, 1, 16 - CurrentWave.GetSample(i + phase), new Color(190, 192, 211));
+                    DrawRect(419 + i, 201 - CurrentWave.GetSample(i + phase), 1, 1, new Color(118, 124, 163));
                 }
 
 

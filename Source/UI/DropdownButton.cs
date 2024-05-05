@@ -17,12 +17,15 @@ namespace WaveTracker.UI {
         public int SelectedIndex { get; set; }
         public bool SelectedAnItem { get; set; }
 
+        public bool LabelIsCentered { get; set; }
+
         int menuWidth;
         int menuX;
         int menuY;
 
 
         string label;
+        int labelWidth;
         int hoveredValue;
         string[] options;
         int cooldown;
@@ -30,15 +33,17 @@ namespace WaveTracker.UI {
         public DropdownButton(string label, int x, int y, Element parent) {
             enabled = true;
             this.label = label;
+            labelWidth = Helpers.GetWidthOfText(label);
             this.x = x;
             this.y = y;
             height = 13;
-            width = Helpers.GetWidthOfText(label) + 18;
+            width = labelWidth + 18;
             SetParent(parent);
         }
         public DropdownButton(string label, int x, int y, int width, Element parent) {
             enabled = true;
             this.label = label;
+            labelWidth = Helpers.GetWidthOfText(label);
             this.x = x;
             this.y = y;
             height = 13;
@@ -129,13 +134,13 @@ namespace WaveTracker.UI {
             int textOffset = IsPressed && enabled ? 1 : 0;
 
             DrawRoundedRect(0, 0, width, height, getBackgroundColor());
-            Write(label, 4, (height + 1) / 2 - 4 + textOffset, getTextColor());
+            if (LabelIsCentered)
+                Write(label, (width - labelWidth) / 2, (height + 1) / 2 - 4 + textOffset, ButtonColors.Round.textColor);
+            else
+                Write(label, 4, (height + 1) / 2 - 4 + textOffset, ButtonColors.Round.textColor);
             DrawRect(width - 9, 5 + textOffset, 5, 1, getTextColor());
             DrawRect(width - 8, 6 + textOffset, 3, 1, getTextColor());
             DrawRect(width - 7, 7 + textOffset, 1, 1, getTextColor());
-            //if (showMenu) {
-            //    DrawMenu();
-            //}
         }
 
         public static void DrawCurrentMenu() {

@@ -29,6 +29,21 @@ namespace WaveTracker.UI {
             height = 13;
             SetParent(parent);
         }
+        public Button(string label, int x, int y, int width, Element parent) {
+            enabled = true;
+            this.x = x;
+            this.y = y;
+            this.Label = label;
+            colors = ButtonColors.Round;
+            LabelIsCentered = true;
+            type = ButtonType.Rounded;
+            this.width = width;
+            //if (width < 30)
+            //    width = 30;
+            labelWidth = Helpers.GetWidthOfText(label);
+            height = 13;
+            SetParent(parent);
+        }
 
         public void SetLabel(string label) {
             this.Label = label;

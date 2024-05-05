@@ -165,6 +165,10 @@ namespace WaveTracker.Tracker {
             }
             sampleDataAccessL = sampleDataLeft.ToArray();
             sampleDataAccessR = sampleDataRight.ToArray();
+            if (loopPoint >= Length) {
+                loopPoint = 0;
+                loopType = LoopType.OneShot;
+            }
         }
 
         public void TrimSilence() {
