@@ -189,6 +189,15 @@ namespace WaveTracker.Audio {
                 channels[i].IsMuted = channel != i;
             }
         }
+
+        /// <summary>
+        /// Mutes all channels except for the selected one
+        /// </summary>
+        public static void SoloCurrentChannel() {
+            for (int i = 0; i < channels.Count; i++) {
+                channels[i].IsMuted = App.PatternEditor.cursorPosition.Channel != i;
+            }
+        }
         /// <summary>
         /// Returns true if all channels are muted
         /// </summary>

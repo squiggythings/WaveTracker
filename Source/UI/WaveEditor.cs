@@ -445,7 +445,7 @@ namespace WaveTracker.UI {
                     for (int i = 0; i < 64; ++i) {
                         byte samp = CurrentWave.GetSample(i);
 
-                        DrawRect(drawingRegion.x + i * 6, drawingRegion.y + drawingRegion.height / 2 + 1, 6, -5 * (samp - 16), waveBG);
+                        DrawRect(drawingRegion.x + i * 6, drawingRegion.y + drawingRegion.height / 2, 6, -5 * (samp - 16), waveBG);
                         DrawRect(drawingRegion.x + i * 6, drawingRegion.y + drawingRegion.height - samp * 5, 6, -5, waveColor);
                     }
                 }
