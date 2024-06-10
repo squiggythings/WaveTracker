@@ -205,16 +205,15 @@ namespace WaveTracker {
 				new MenuOption("Edit...", InstrumentBank.Edit)
 			}));
 			MenuStrip.AddButton("Tracker", new Menu(new MenuItemBase[] {
-				new MenuOption("Play", InstrumentBank.AddWave, CurrentModule.Instruments.Count < 100),
-				new MenuOption("Play from beginning", InstrumentBank.AddSample, CurrentModule.Instruments.Count < 100),
-				new MenuOption("Play from cursor", InstrumentBank.DuplicateInstrument, CurrentModule.Instruments.Count < 100),
-				new MenuOption("Stop", InstrumentBank.RemoveInstrument, CurrentModule.Instruments.Count > 1),
+				new MenuOption("Play", Playback.Play),
+				new MenuOption("Play from beginning", Playback.PlayFromBeginning),
+				new MenuOption("Play from cursor", Playback.PlayFromCursor),
+				new MenuOption("Stop", Playback.Stop),
 				null,
-				new MenuOption("Toggle channel", null),
+				new MenuOption("Toggle edit mode", PatternEditor.ToggleEditMode),
+                null,
+                new MenuOption("Toggle channel", ChannelManager.ToggleCurrentChannel),
 				new MenuOption("Solo channel", ChannelManager.SoloCurrentChannel),
-				null,
-				new MenuOption("Rename...", InstrumentBank.Rename),
-				new MenuOption("Edit...", InstrumentBank.Edit)
 			}));
 
 			base.Initialize();
