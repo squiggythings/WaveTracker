@@ -2007,6 +2007,8 @@ namespace WaveTracker.UI {
         }
 
 
+
+
         /// <summary>
         /// Returns the channel under an x position
         /// </summary>

@@ -305,6 +305,7 @@ namespace WaveTracker {
                 }));
 
                 t.SetApartmentState(ApartmentState.STA);
+                App.ForceUpdate();
                 t.Start();
                 t.Join();
                 filepath = ret;
@@ -312,6 +313,7 @@ namespace WaveTracker {
             }
             return didIt;
         }
+
         /// <summary>
         /// Opens a file browser and asks the user to choose a path to save a wtm file. (Save As)
         /// </summary>
@@ -343,6 +345,7 @@ namespace WaveTracker {
                 }));
 
                 t.SetApartmentState(ApartmentState.STA);
+                App.ForceUpdate();
                 t.Start();
                 t.Join();
                 filepath = ret;
@@ -379,6 +382,7 @@ namespace WaveTracker {
                 }));
 
                 t.SetApartmentState(ApartmentState.STA);
+                App.ForceUpdate();
                 t.Start();
                 t.Join();
             }

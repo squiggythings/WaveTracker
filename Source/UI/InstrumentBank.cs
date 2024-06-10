@@ -25,6 +25,7 @@ namespace WaveTracker.UI {
 
         public SpriteButton bNewWave, bNewSample, bRemove, bDuplicate, bMoveUp, bMoveDown, bRename;
         public SpriteButton bEdit;
+        public Menu menu;
         // 790, 152
         public InstrumentBank(int x, int y) : base("Instrument Bank", x, y, 156, 488) {
             bNewWave = new SpriteButton(1, 10, 15, 15, 225, 0, this);
@@ -109,7 +110,7 @@ namespace WaveTracker.UI {
                                 new MenuOption("Save to file...", null),
                                 null,
                                 new MenuOption("Rename...", Rename),
-                                new MenuOption("Edit", Edit)
+                                new MenuOption("Edit...", Edit)
                             }));
                         }
                         // click on item
@@ -164,34 +165,34 @@ namespace WaveTracker.UI {
             }
         }
 
-        void AddWave() {
+        public void AddWave() {
             App.CurrentModule.Instruments.Add(new WaveInstrument());
             App.CurrentModule.SetDirty();
             CurrentInstrumentIndex = App.CurrentModule.Instruments.Count - 1;
             Goto(App.CurrentModule.Instruments.Count - 1);
         }
 
-        void AddSample() {
+        public void AddSample() {
             App.CurrentModule.Instruments.Add(new SampleInstrument());
             App.CurrentModule.SetDirty();
             CurrentInstrumentIndex = App.CurrentModule.Instruments.Count - 1;
             Goto(App.CurrentModule.Instruments.Count - 1);
         }
 
-        void DuplicateInstrument() {
+        public void DuplicateInstrument() {
             App.CurrentModule.Instruments.Add(GetCurrentInstrument.Clone());
             App.CurrentModule.SetDirty();
             Goto(App.CurrentModule.Instruments.Count - 1);
         }
 
-        void MoveUp() {
+        public void MoveUp() {
             App.CurrentModule.SwapInstrumentsInSongs(CurrentInstrumentIndex, CurrentInstrumentIndex - 1);
             App.CurrentModule.Instruments.Reverse(CurrentInstrumentIndex - 1, 2);
             App.CurrentModule.SetDirty();
             CurrentInstrumentIndex--;
             moveBounds();
         }
-        void MoveDown() {
+        public void MoveDown() {
             App.CurrentModule.SwapInstrumentsInSongs(CurrentInstrumentIndex, CurrentInstrumentIndex + 1);
             App.CurrentModule.Instruments.Reverse(CurrentInstrumentIndex, 2);
             App.CurrentModule.SetDirty();
@@ -199,7 +200,7 @@ namespace WaveTracker.UI {
             moveBounds();
         }
 
-        void RemoveInstrument() {
+        public void RemoveInstrument() {
             App.CurrentModule.AdjustForDeletedInstrument(CurrentInstrumentIndex);
             App.CurrentModule.Instruments.RemoveAt(CurrentInstrumentIndex);
             App.CurrentModule.SetDirty();
@@ -208,14 +209,14 @@ namespace WaveTracker.UI {
             }
         }
 
-        void Rename() {
+        public void Rename() {
             if (!dialogOpen) {
                 dialogOpen = true;
                 StartRenameDialog();
             }
         }
 
-        void Edit() {
+        public void Edit() {
             App.InstrumentEditor.Open(GetCurrentInstrument, CurrentInstrumentIndex);
         }
 
@@ -275,8 +276,8 @@ namespace WaveTracker.UI {
             bRename.Draw();
             DrawList();
             scrollbar.Draw();
-
         }
+
 
         public void StartRenameDialog() {
             Input.DialogStarted();
