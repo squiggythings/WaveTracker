@@ -173,6 +173,14 @@ namespace WaveTracker.Audio {
         }
 
         /// <summary>
+        /// Toggles the current channel
+        /// </summary>
+        /// <param name="channel"></param>
+        public static void ToggleCurrentChannel() {
+            ToggleChannel(App.PatternEditor.cursorPosition.Channel);
+        }
+
+        /// <summary>
         /// Mutes all playback channels
         /// </summary>
         public static void MuteAllChannels() {
@@ -194,9 +202,7 @@ namespace WaveTracker.Audio {
         /// Mutes all channels except for the selected one
         /// </summary>
         public static void SoloCurrentChannel() {
-            for (int i = 0; i < channels.Count; i++) {
-                channels[i].IsMuted = App.PatternEditor.cursorPosition.Channel != i;
-            }
+            SoloChannel(App.PatternEditor.cursorPosition.Channel);
         }
         /// <summary>
         /// Returns true if all channels are muted

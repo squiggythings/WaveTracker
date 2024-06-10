@@ -443,7 +443,7 @@ namespace WaveTracker.UI {
             #endregion
 
             if (Input.GetKeyDown(Keys.Space, KeyModifier.None)) {
-                EditMode = !EditMode;
+                ToggleEditMode();
             }
             if (!EditMode)
                 return;
@@ -1291,6 +1291,10 @@ namespace WaveTracker.UI {
 
         #endregion
 
+
+        public void ToggleEditMode() {
+            EditMode = !EditMode;
+        }
 
         /// <summary>
         /// Pulls all cells below the given position up one, leaving a blank cell at the end.
