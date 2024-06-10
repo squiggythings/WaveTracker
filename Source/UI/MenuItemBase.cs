@@ -20,6 +20,8 @@ namespace WaveTracker.UI {
         public const int PADDING_RIGHT = 6;
         public const int MARGIN_RIGHT = 0;
         public const int OPTION_HEIGHT = 10;
+        public bool IsHoveredExclusive => IsHovered && !parentMenu.IsChildMenuHovered();
+        public new bool Clicked => base.Clicked && !parentMenu.IsChildMenuHovered();
 
 
         public abstract void Update();

@@ -11,6 +11,7 @@ namespace WaveTracker.UI {
         public string Name { get; set; }
         public Action OnClick { get; set; }
 
+
         public MenuOption(string name, Action onClick) {
             Name = name;
             OnClick = onClick;
@@ -56,7 +57,7 @@ namespace WaveTracker.UI {
         }
         public override void Draw() {
             if (enabled) {
-                if (IsHovered) {
+                if (IsHoveredExclusive) {
                     DrawRect(0, 0, width, height, UIColors.selectionLight);
                 }
                 if (OnClick != null)

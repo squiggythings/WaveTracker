@@ -32,7 +32,7 @@ namespace WaveTracker.UI {
         Dropdown loopMode;
         NumberBox loopPoint;
         SampleBrowser browser;
-        Button normalize, reverse, fadeIn, fadeOut, amplifyUp, amplifyDown, invert, mixToMono;
+        Button normalize, reverse, fadeIn, fadeOut, amplifyUp, amplifyDown, invert, cut;
         CheckboxLabeled showInVisualizer;
         int lastMouseHoverSample;
 
@@ -58,7 +58,7 @@ namespace WaveTracker.UI {
             fineTune.DisplayMode = NumberBox.NumberDisplayMode.PlusMinus;
             fineTune.SetTooltip("", "Slightly adjust the pitch of the sample, in cents");
 
-            loopPoint = new NumberBox("Loop position (samples)", 154, 203, 183, 80, this);
+            loopPoint = new NumberBox("Loop position (samples)", 154, 203, 186, 83, this);
             loopPoint.SetTooltip("", "Set the position in audio samples where the sound loops back to");
 
             loopMode = new Dropdown(282, 188, this, false);
@@ -82,7 +82,7 @@ namespace WaveTracker.UI {
             buttonsX += buttonsWidth + 1;
             amplifyDown = new Button("Amplify-", buttonsX, buttonsY, buttonsWidth, this);
             buttonsX += buttonsWidth + 1;
-            mixToMono = new Button("To mono", buttonsX, buttonsY, buttonsWidth, this);
+            cut = new Button("Cut", buttonsX, buttonsY, buttonsWidth, this);
 
             showInVisualizer = new CheckboxLabeled("Show in visualizer", 480, 245, 88, this);
             showInVisualizer.ShowCheckboxOnRight = true;
@@ -116,9 +116,12 @@ namespace WaveTracker.UI {
                     }
                     if (waveformRegion.RightClicked) {
                         ContextMenu.Open(new Menu(new MenuItemBase[] {
-                            new MenuOption("Set loop point", SetLoopPoint),
+                            new MenuOption("Select all", SelectAll),
+                            new MenuOption("Deselect", Deselect, SelectionIsActive),
                             null,
                             new MenuOption("Cut", Cut, SelectionIsActive),
+                            null,
+                            new MenuOption("Set loop point", SetLoopPoint),
                             null,
                             new SubMenu("Tools", new MenuItemBase[] {
                                 new MenuOption("Reverse", Reverse),
@@ -128,7 +131,6 @@ namespace WaveTracker.UI {
                                 new MenuOption("Fade Out", FadeOut),
                                 new MenuOption("Amplify+", AmplifyUp),
                                 new MenuOption("Amplify-", AmplifyDown),
-                                new MenuOption("Mix to mono", Sample.MixToMono, Sample.IsStereo),
                             }),
                             null,
                             new MenuOption("Save as...", Sample.SaveToDisk),
@@ -194,15 +196,13 @@ namespace WaveTracker.UI {
                 if (reverse.Clicked) {
                     Invert();
                 }
-                if (mixToMono.Clicked) {
-                    Sample.MixToMono();
+                cut.enabled = SelectionIsActive;
+                if (cut.Clicked) {
+                    Cut();
                 }
                 showInVisualizer.Value = Sample.useInVisualization;
                 showInVisualizer.Update();
                 Sample.useInVisualization = showInVisualizer.Value;
-
-
-
             }
             browser.Update();
         }
@@ -257,6 +257,16 @@ namespace WaveTracker.UI {
                 Sample.Reverse();
         }
 
+        void Deselect() {
+            SelectionIsActive = false;
+        }
+
+        void SelectAll() {
+            SelectionIsActive = true;
+            selectionStartIndex= 0;
+            selectionEndIndex = Sample.Length - 1;
+        }
+
         void SetLoopPoint() {
             Sample.loopPoint = lastMouseHoverSample;
             if (Sample.loopType == Sample.LoopType.OneShot) Sample.loopType = Sample.LoopType.Forward;
@@ -296,14 +306,14 @@ namespace WaveTracker.UI {
             DrawRect(348, 188, 1, 66, UIColors.label);
             normalize.Draw();
             invert.Draw();
-            mixToMono.Draw();
+            cut.Draw();
             fadeIn.Draw();
             fadeOut.Draw();
             amplifyDown.Draw();
             amplifyUp.Draw();
             reverse.Draw();
-            browser.Draw();
             showInVisualizer.Draw();
+            browser.Draw();
         }
 
         void DrawWaveform(int x, int y, short[] data, int width, int height) {

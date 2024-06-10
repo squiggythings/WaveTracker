@@ -103,6 +103,18 @@ namespace WaveTracker.UI {
             return false;
         }
 
+        public bool IsChildMenuHovered() {
+            if (enabled) {
+                foreach (MenuItemBase item in Items) {
+                    if (item is SubMenu sub) {
+                        if (sub.menu.enabled && sub.menu.IsHoveredOrAChildMenuHovered())
+                            return true;
+                    }
+                }
+            }
+            return false;
+        }
+
         public void Open() {
             if (enabled == false) {
                 enabled = true;
@@ -195,9 +207,16 @@ namespace WaveTracker.UI {
                 DrawRect(0, 0, width, height, UIColors.labelLight);
                 DrawRect(1, 1, width - 2, height - 2, Color.White);
                 for (int i = Items.Count - 1; i >= 0; --i) {
-                    Items[i].Draw();
+                    if (!(Items[i] is SubMenu subMenu && subMenu.menu.enabled)) {
+                        Items[i].Draw();
+                    }
                     if (breakIndexes.Contains(i)) {
                         DrawRect(3 + MenuItemBase.MARGIN_LEFT, Items[i].y + Items[i].height + 2, width - MenuItemBase.MARGIN_RIGHT - MenuItemBase.MARGIN_LEFT - 6, 1, Helpers.Alpha(UIColors.labelLight, 128));
+                    }
+                }
+                for (int i = Items.Count - 1; i >= 0; --i) {
+                    if (Items[i] is SubMenu subMenu && subMenu.menu.enabled) {
+                        Items[i].Draw();
                     }
                 }
             }

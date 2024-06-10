@@ -68,6 +68,7 @@ namespace WaveTracker.UI {
         }
 
         public override void Update() {
+            menu.Update();
             if (IsHovered || (menu.IsHoveredOrAChildMenuHovered())) {
                 if (hoverTime < 0)
                     hoverTime = 0;
@@ -92,7 +93,6 @@ namespace WaveTracker.UI {
                     hoverTime = -TIME_TO_OPEN_MENU;
                 }
             }
-            menu.Update();
         }
 
         void DrawArrow(int x, int y, Color col) {
@@ -101,8 +101,9 @@ namespace WaveTracker.UI {
             DrawRect(x + 2, y + 2, 1, 1, col);
         }
         public override void Draw() {
+            
             if (enabled) {
-                if (IsHovered) {
+                if (IsHoveredExclusive) {
                     DrawRect(0, 0, width, height, UIColors.selectionLight);
                 }
                 Write(Name, MARGIN_LEFT + PADDING_LEFT, 1, UIColors.labelDark);

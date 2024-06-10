@@ -290,9 +290,9 @@ namespace WaveTracker.Tracker {
             WaveFormat format = new WaveFormat(44100, 16, channels);
             using (WaveFileWriter writer = new WaveFileWriter(filepath, format)) {
                 for (int i = 0; i < Length; ++i) {
-                    writer.WriteSample(sampleDataAccessL[i]);
+                    writer.WriteSample(sampleDataAccessL[i] / (float)short.MaxValue);
                     if (IsStereo) {
-                        writer.WriteSample(sampleDataAccessR[i]);
+                        writer.WriteSample(sampleDataAccessR[i] / (float)short.MaxValue);
                     }
                 }
             }
