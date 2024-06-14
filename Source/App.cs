@@ -131,19 +131,6 @@ namespace WaveTracker {
 				null,
 				new MenuOption("Configuration...", Dialogs.preferences.Open),
 				null,
-				//new SubMenu("Recent files",new MenuItemBase[] {
-				//    new MenuOption("Clear",null),
-				//    null,
-				//    new MenuOption("1. C:\\Users\\Elias\\Music\\wavetracker\\moon2.0.wtm",null),
-				//    new MenuOption("2. C:\\Users\\Elias\\Music\\wavetracker\\wtdemo2.wtm",null),
-				//    new MenuOption("3. C:\\Users\\Elias\\Music\\wavetracker\\freezedraft.wtm",null),
-				//    new MenuOption("4. C:\\Users\\Elias\\Music\\wavetracker\\fmcomplextro.wtm",null),
-				//    new MenuOption("5. C:\\Users\\Elias\\Music\\wavetracker\\modtesting.wtm",null),
-				//    new MenuOption("6. C:\\Users\\Elias\\Music\\wavetracker\\largetest2.0.wtm",null),
-				//    new MenuOption("7. C:\\Users\\Elias\\Music\\wavetracker\\katamarisolo7.wtm",null),
-				//    new MenuOption("8. C:\\Users\\Elias\\Music\\wavetracker\\itsmyblaster2.0.wtm",null),
-				//}),
-				//null,
 				new MenuOption("Exit", ExitApplication),
 			}));
 			MenuStrip.AddButton("Edit", new Menu(

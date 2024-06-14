@@ -14,15 +14,15 @@ namespace WaveTracker.Audio {
         const int OVERSAMPLE = 2;
         int id;
         public bool IsMuted { get; set; }
-        public Wave currentWave;
-        public int WaveIndex { get; private set; }
+        public Wave currentWave => App.CurrentModule.WaveBank[WaveIndex];
+        public int WaveIndex { get { return waveIndex.Value; } }
         public List<TickEvent> tickEvents;
         float TotalAmplitude {
             get { return tremoloMultiplier * (channelVolume / 99f) * (envelopePlayers[Envelope.EnvelopeType.Volume].Value / 99f); }
         } // * currentMacro.GetState().volumeMultiplier;
         float TotalPitch => Math.Clamp(channelNotePorta + bendOffset + vibratoOffset + pitchFallOffset + arpeggioOffset + detuneOffset + envelopePlayers[Envelope.EnvelopeType.Arpeggio].Value, -12, 131);
 
-        public float WaveMorphPosition => waveBlendAmt / 99f;
+        public float WaveMorphPosition => waveBlendAmt.Value / 99f;
         float bassBoost;
 
         /// <summary>
@@ -56,11 +56,27 @@ namespace WaveTracker.Audio {
         int targetBendAmt;
         float channelNotePorta;
         float detuneOffset; // Pxx command
-        int waveBlendAmt; // Ixx command
-        float waveFmAmt; // Mxx command
-        int waveStretchAmt; // Jxx command
+        EnvelopeParameter waveIndex;
+        EnvelopeParameter waveBlendAmt;
+        EnvelopeParameter waveFmAmt;
+        EnvelopeParameter waveStretchAmt;
+        EnvelopeParameter waveSyncAmt;
+        struct EnvelopeParameter {
+            public int patternValue;
+            public int envelopeValue;
+            public int Value {
+                get { return envelopeValue == -1 ? patternValue : envelopeValue; }
+            }
+
+            public void Reset(int value) {
+                patternValue = value;
+                envelopeValue = -1;
+            }
+        }
+
         float _waveStretchSmooth;
-        int waveSyncAmt; // Kxx command
+
+
         public int SampleStartOffset { get; private set; } // Yxx command
         int channelVolume; // volume column
         int channelNote; // notes column
@@ -168,19 +184,19 @@ namespace WaveTracker.Audio {
                     volumeSlideSpeed = parameter;
                     break;
                 case 'I':
-                    waveBlendAmt = parameter;
+                    waveBlendAmt.patternValue = parameter;
                     break;
                 case 'M':
-                    waveFmAmt = parameter / 20f;
+                    waveFmAmt.patternValue = parameter;
                     break;
                 case 'J':
-                    waveStretchAmt = parameter;
+                    waveStretchAmt.patternValue = parameter;
                     break;
                 case 'Y':
                     SampleStartOffset = parameter;
                     break;
                 case 'K':
-                    waveSyncAmt = parameter;
+                    waveSyncAmt.patternValue = parameter;
                     break;
             }
         }
@@ -225,22 +241,37 @@ namespace WaveTracker.Audio {
                 }
                 if (currentInstrument is WaveInstrument) {
                     if (envelopePlayers[Envelope.EnvelopeType.Wave].HasActiveEnvelopeData) {
-                        SetWave(envelopePlayers[Envelope.EnvelopeType.Wave].Value);
+                        waveIndex.envelopeValue = envelopePlayers[Envelope.EnvelopeType.Wave].Value;
+                    }
+                    else {
+                        waveIndex.envelopeValue = -1;
                     }
                     if (envelopePlayers[Envelope.EnvelopeType.WaveBlend].HasActiveEnvelopeData) {
-                        waveBlendAmt = envelopePlayers[Envelope.EnvelopeType.WaveBlend].Value;
+                        waveBlendAmt.envelopeValue = envelopePlayers[Envelope.EnvelopeType.WaveBlend].Value;
+                    }
+                    else {
+                        waveBlendAmt.envelopeValue = -1;
                     }
                     if (envelopePlayers[Envelope.EnvelopeType.WaveStretch].HasActiveEnvelopeData) {
-                        waveStretchAmt = envelopePlayers[Envelope.EnvelopeType.WaveStretch].Value;
-                        _waveStretchSmooth = waveStretchAmt;
+                        waveStretchAmt.envelopeValue = envelopePlayers[Envelope.EnvelopeType.WaveStretch].Value;
                     }
+                    else {
+                        waveStretchAmt.envelopeValue = -1;
+                    }
+                    _waveStretchSmooth = waveStretchAmt.Value;
                     if (envelopePlayers[Envelope.EnvelopeType.WaveSync].HasActiveEnvelopeData) {
-                        waveSyncAmt = envelopePlayers[Envelope.EnvelopeType.WaveSync].Value;
+                        waveSyncAmt.envelopeValue = envelopePlayers[Envelope.EnvelopeType.WaveSync].Value;
+                    }
+                    else {
+                        waveSyncAmt.envelopeValue = -1;
                     }
                     if (envelopePlayers[Envelope.EnvelopeType.WaveFM].HasActiveEnvelopeData) {
-                        waveFmAmt = envelopePlayers[Envelope.EnvelopeType.WaveFM].Value / 20f;
-                        _fmSmooth = waveFmAmt;
+                        waveFmAmt.envelopeValue = envelopePlayers[Envelope.EnvelopeType.WaveFM].Value;
                     }
+                    else {
+                        waveFmAmt.envelopeValue = -1;
+                    }
+                    _fmSmooth = waveFmAmt.Value;
                 }
                 //if (currentInstrument is WaveInstrument) {
                 //    if (waveEnv.toPlay.IsActive)
@@ -330,10 +361,10 @@ namespace WaveTracker.Audio {
             tremoloSpeed = 0;
             tremoloTime = 0;
             stereoPhaseOffset = 0;
-            waveBlendAmt = 0;
-            waveFmAmt = 0;
+            waveBlendAmt.Reset(0);
+            waveFmAmt.Reset(0);
             _fmSmooth = 0;
-            waveStretchAmt = 0;
+            waveStretchAmt.Reset(0);
             _waveStretchSmooth = 0;
             SetWave(0);
             lastNote = channelNote;
@@ -341,7 +372,7 @@ namespace WaveTracker.Audio {
             portaSpeed = 0;
             portaTime = 0;
             SampleStartOffset = 0;
-            waveSyncAmt = 0;
+            waveSyncAmt.Reset(0);
             bendSpeed = 0;
             targetBendAmt = 0;
             bendOffset = 0;
@@ -349,17 +380,17 @@ namespace WaveTracker.Audio {
         }
 
         public void ResetModulations() {
-            waveBlendAmt = 0;
+            waveBlendAmt.Reset(0);
             _fmSmooth = 0;
-            waveFmAmt = 0;
-            waveStretchAmt = 0;
+            waveFmAmt.Reset(0);
+            waveStretchAmt.Reset(0);
             _waveStretchSmooth = 0;
-            waveSyncAmt = 0;
+            waveSyncAmt.Reset(0);
         }
 
         public void SetWave(int waveIndex) {
-            WaveIndex = waveIndex;
-            currentWave = ChannelManager.waveBank.GetWave(waveIndex);
+            this.waveIndex.Reset(waveIndex);
+            //currentWave = ChannelManager.waveBank.GetWave(waveIndex);
         }
 
 
@@ -434,12 +465,12 @@ namespace WaveTracker.Audio {
 
         public float EvaluateWave(float time) {
             // float t = time;
-            float s = (waveSyncAmt / 99f * 8) + 1;
+            float s = (waveSyncAmt.Value / 99f * 8) + 1;
             time = (s * (time % 1)) % 1;
             if (_fmSmooth > 0.001f)
-                return currentWave.GetSampleMorphed(time + App.CurrentModule.WaveBank[(WaveIndex + 1) % 100].GetSampleAtPosition(time) * (_fmSmooth * _fmSmooth) / 2f, App.CurrentModule.WaveBank[(WaveIndex + 1) % 100], waveBlendAmt / 99f, _waveStretchSmooth / 100f);
+                return currentWave.GetSampleMorphed(time + App.CurrentModule.WaveBank[(WaveIndex + 1) % 100].GetSampleAtPosition(time) * ((_fmSmooth / 20f) * (_fmSmooth / 20f)) / 2f, App.CurrentModule.WaveBank[(WaveIndex + 1) % 100], WaveMorphPosition, _waveStretchSmooth / 100f);
             else
-                return currentWave.GetSampleMorphed(time, App.CurrentModule.WaveBank[(WaveIndex + 1) % 100], waveBlendAmt / 99f, _waveStretchSmooth / 100f);
+                return currentWave.GetSampleMorphed(time, App.CurrentModule.WaveBank[(WaveIndex + 1) % 100], WaveMorphPosition, _waveStretchSmooth / 100f);
         }
 
         void ContinuousTick(float deltaTime) {
@@ -502,44 +533,41 @@ namespace WaveTracker.Audio {
                     if (!player.EnvelopeEnded && _state != VoiceState.Off && player.Value >= 0) {
                         switch (player.Type) {
                             case Envelope.EnvelopeType.Wave:
-                                SetWave(player.Value);
+                                waveIndex.envelopeValue = player.Value;
                                 break;
                             case Envelope.EnvelopeType.WaveBlend:
-                                waveBlendAmt = player.Value;
+                                waveBlendAmt.envelopeValue = player.Value;
                                 break;
                             case Envelope.EnvelopeType.WaveStretch:
-                                waveStretchAmt = player.Value;
+                                waveStretchAmt.envelopeValue = player.Value;
                                 break;
                             case Envelope.EnvelopeType.WaveSync:
-                                waveSyncAmt = player.Value;
+                                waveSyncAmt.envelopeValue = player.Value;
                                 break;
                             case Envelope.EnvelopeType.WaveFM:
-                                waveFmAmt = player.Value / 20f;
+                                waveFmAmt.envelopeValue = player.Value;
                                 break;
                         }
                     }
-                    //if (envelopePlayer.envelopeToPlay != null) {
-                    //    if (envelopePlayer.envelopeToPlay.IsActive) {
-                    //        envelopePlayer.Step();
-                    //        if (!envelopePlayer.EnvelopeEnded && _state != VoiceState.Off) {
-                    //            if (envelopePlayer.envelopeToPlay.Type == Envelope.EnvelopeType.Wave) {
-                    //                SetWave(envelopePlayer.Evaluate());
-                    //            }
-                    //            else if (envelopePlayer.envelopeToPlay.Type == Envelope.EnvelopeType.WaveBlend) {
-                    //                waveBlendAmt = envelopePlayer.Evaluate();
-                    //            }
-                    //            else if (envelopePlayer.envelopeToPlay.Type == Envelope.EnvelopeType.WaveStretch) {
-                    //                waveStretchAmt = envelopePlayer.Evaluate();
-                    //            }
-                    //            else if (envelopePlayer.envelopeToPlay.Type == Envelope.EnvelopeType.WaveSync) {
-                    //                syncAmt = envelopePlayer.Evaluate();
-                    //            }
-                    //            else if (envelopePlayer.envelopeToPlay.Type == Envelope.EnvelopeType.WaveFM) {
-                    //                fmAmt = envelopePlayer.Evaluate() / 20f;
-                    //            }
-                    //        }
-                    //    }
-                    //}
+                }
+                else {
+                    switch (player.Type) {
+                        case Envelope.EnvelopeType.Wave:
+                            waveIndex.envelopeValue = -1;
+                            break;
+                        case Envelope.EnvelopeType.WaveBlend:
+                            waveBlendAmt.envelopeValue = -1;
+                            break;
+                        case Envelope.EnvelopeType.WaveStretch:
+                            waveStretchAmt.envelopeValue = -1;
+                            break;
+                        case Envelope.EnvelopeType.WaveSync:
+                            waveSyncAmt.envelopeValue = -1;
+                            break;
+                        case Envelope.EnvelopeType.WaveFM:
+                            waveFmAmt.envelopeValue = -1;
+                            break;
+                    }
                 }
             }
             //if (currentInstrument is WaveInstrument) {
@@ -706,8 +734,8 @@ namespace WaveTracker.Audio {
                 sampleL = sampleSumL / OVERSAMPLE;
                 sampleR = sampleSumR / OVERSAMPLE;
                 _volumeSmooth += (TotalAmplitude - _volumeSmooth) * 0.02f;
-                _fmSmooth += (waveFmAmt - _fmSmooth) * 0.035f;
-                _waveStretchSmooth += (waveStretchAmt - _waveStretchSmooth) * 0.02f;
+                _fmSmooth += (waveFmAmt.Value - _fmSmooth) * 0.035f;
+                _waveStretchSmooth += (waveStretchAmt.Value - _waveStretchSmooth) * 0.02f;
 
                 // float f = (float)Math.Pow(_volumeSmooth, 1.25);
                 float f = _volumeSmooth;
