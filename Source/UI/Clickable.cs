@@ -53,13 +53,13 @@ namespace WaveTracker.UI {
 
         public bool RightClicked {
             get {
-                return enabled && IsHovered && Input.GetRightClickUp(KeyModifier._Any) && GlobalPointIsInBounds(Input.lastRightClickLocation) && GlobalPointIsInBounds(Input.lastRightClickReleaseLocation) && IsInHierarchy(Input.lastClickFocus);
+                return enabled && IsHovered && Input.GetRightClickUp(KeyModifier._Any) && GlobalPointIsInBounds(Input.lastRightClickLocation) && GlobalPointIsInBounds(Input.lastRightClickReleaseLocation);
             }
         }
 
         public bool RightClickedDown {
             get {
-                return enabled && IsHovered && Input.GetRightClickDown(KeyModifier._Any) && GlobalPointIsInBounds(Input.lastRightClickLocation) && IsInHierarchy(Input.lastClickFocus);
+                return enabled && IsHovered && Input.GetRightClickDown(KeyModifier._Any) && GlobalPointIsInBounds(Input.lastRightClickLocation);
             }
         }
 

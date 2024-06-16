@@ -401,7 +401,8 @@ namespace WaveTracker {
             //Rendering.Graphics.Write("AudioStatus: " + audioEngine.wasapiOut.PlaybackState.ToString(), 2, 2, Color.Red);
             //Rendering.Graphics.Write("filename: " + filename, 2, 12, Color.Red);
             //Rendering.Graphics.Write("FPS: " + 1 / gameTime.ElapsedGameTime.TotalSeconds, 2, 2, Color.Red);
-            //Graphics.Write(Input.dialogOpenCooldown + "", 2, 2, Color.Red);
+            Graphics.Write(Input.focus + "", 2, 12, Color.Red);
+
             targetBatch.End();
 
 

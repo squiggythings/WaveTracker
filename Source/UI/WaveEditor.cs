@@ -226,7 +226,7 @@ namespace WaveTracker.UI {
                     startcooldown--;
                 }
                 else {
-                    if (ExitButton.Clicked || Input.GetKeyDown(Keys.Escape, KeyModifier.None)) {
+                    if (InFocus && (ExitButton.Clicked || Input.GetKeyDown(Keys.Escape, KeyModifier.None))) {
                         Close();
                     }
                     waveText.Update();

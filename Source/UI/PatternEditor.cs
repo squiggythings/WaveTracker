@@ -192,6 +192,8 @@ namespace WaveTracker.UI {
             if (Input.focus != null || Input.focusTimer < 1 || App.VisualizerMode)
                 return;
             if (RightClicked) {
+                System.Diagnostics.Debug.WriteLine("opened the context menu");
+
                 ContextMenu.Open(new Menu(
                     new MenuItemBase[] {
                         new MenuOption("Undo", Undo, CanUndo),

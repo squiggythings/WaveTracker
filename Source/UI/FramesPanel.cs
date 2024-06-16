@@ -28,19 +28,6 @@ namespace WaveTracker.UI {
             //decreasePattern = new Button("-", 484, 26, this);
             //decreasePattern.width = 18;
             //increasePattern.SetTooltip("Decrease Pattern", "Decrease this frame's pattern");
-            contextMenu = new Menu(new MenuItemBase[] {
-                new MenuOption("Insert Frame",App.PatternEditor.InsertNewFrame),
-                new MenuOption("Remove Frame",App.PatternEditor.MoveFrameRight),
-                new MenuOption("Duplicate Frame",App.PatternEditor.DuplicateFrame),
-                null,
-                new MenuOption("Move Left", App.PatternEditor.MoveFrameLeft),
-                new MenuOption("Move Right", App.PatternEditor.MoveFrameRight),
-                null,
-                new MenuOption("Increase Pattern",App.PatternEditor.IncreaseFramePatternIndex),
-                new MenuOption("Decrease Pattern",App.PatternEditor.DecreaseFramePatternIndex),
-                new MenuOption("Set pattern...",SetPatternIndex)
-            });
-
             frames = new FrameButton[25];
             for (int i = 0; i < frames.Length; ++i) {
                 frames[i] = new FrameButton(i - frames.Length / 2, this);
@@ -60,7 +47,18 @@ namespace WaveTracker.UI {
             bMoveLeft.enabled = App.PatternEditor.cursorPosition.Frame > 0;
             if (scrollRegion.IsHovered && Input.focus == null) {
                 if (scrollRegion.RightClicked) {
-                    ContextMenu.Open(contextMenu);
+                    ContextMenu.Open(new Menu(new MenuItemBase[] {
+                        new MenuOption("Insert Frame",App.PatternEditor.InsertNewFrame, bNewFrame.enabled),
+                        new MenuOption("Remove Frame",App.PatternEditor.RemoveFrame, bDeleteFrame.enabled),
+                        new MenuOption("Duplicate Frame",App.PatternEditor.DuplicateFrame, bDuplicateFrame.enabled),
+                        null,
+                        new MenuOption("Move Left", App.PatternEditor.MoveFrameLeft, bMoveLeft.enabled),
+                        new MenuOption("Move Right", App.PatternEditor.MoveFrameRight, bMoveRight.enabled),
+                        null,
+                        new MenuOption("Increase Pattern",App.PatternEditor.IncreaseFramePatternIndex),
+                        new MenuOption("Decrease Pattern",App.PatternEditor.DecreaseFramePatternIndex),
+                        new MenuOption("Set pattern...",SetPatternIndex)
+                    }));
                 }
                 if (!Input.GetClick(KeyModifier._Any)) {
                     if (Input.MouseScrollWheel(KeyModifier.None) < 0) {

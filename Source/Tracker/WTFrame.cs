@@ -18,6 +18,10 @@ namespace WaveTracker.Tracker {
         /// The index of the pattern this frame should reference
         /// </summary>
         int patternIndex;
+
+        /// <summary>
+        /// The index of the pattern this frame should reference, automatically clamped between 0-99
+        /// </summary>
         public int PatternIndex {
             get { return patternIndex; }
             set {

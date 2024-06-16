@@ -192,6 +192,7 @@ namespace WaveTracker.UI {
                     if (Input.GetClickDown(KeyModifier._Any) || Input.GetRightClickDown(KeyModifier._Any)) {
                         if (!IsHoveredOrAChildMenuHovered()) {
                             Close();
+                            return;
                         }
                     }
                 }
