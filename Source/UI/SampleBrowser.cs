@@ -178,16 +178,20 @@ namespace WaveTracker.UI {
             previewOut.Stop();
             if (File.Exists(entriesInDirectory[selectedFileIndex])) {
                 //Thread.Sleep(1);
-                reader = new AudioFileReader(entriesInDirectory[selectedFileIndex]);
-                if ((reader.TotalTime.TotalSeconds * reader.WaveFormat.SampleRate) / reader.WaveFormat.Channels <= 400) {
-                    LoopStream loop = new LoopStream(reader);
-                    previewOut.Init(loop);
+                try {
+                    reader = new AudioFileReader(entriesInDirectory[selectedFileIndex]);
+                    if ((reader.TotalTime.TotalSeconds * reader.WaveFormat.SampleRate) / reader.WaveFormat.Channels <= 400) {
+                        LoopStream loop = new LoopStream(reader);
+                        previewOut.Init(loop);
+                    }
+                    else {
+                        previewOut.Init(reader);
+                    }
+                    if (Preferences.profile.previewSamples)
+                        previewOut.Play();
+                } catch {
+
                 }
-                else {
-                    previewOut.Init(reader);
-                }
-                if (Preferences.profile.previewSamples)
-                    previewOut.Play();
             }
         }
 
@@ -219,7 +223,10 @@ namespace WaveTracker.UI {
                     else {
                         if (File.Exists(entries[i])) {
                             string ext = Path.GetExtension(entries[i]);
-                            if (ext == ".wav" || ext == ".mp3" || ext == ".flac" || ext == ".aiff") {
+                            if (string.Compare(ext, ".wav", true) == 0 ||
+                                string.Compare(ext, ".mp3", true) == 0 ||
+                                string.Compare(ext, ".flac", true) == 0 ||
+                                string.Compare(ext, ".aiff", true) == 0) {
                                 continue;
                             }
                         }

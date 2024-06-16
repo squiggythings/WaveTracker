@@ -497,10 +497,8 @@ namespace WaveTracker {
                 R = RChannel.ToArray();
                 return true;
             } catch {
-                LChannel.Add(0);
-                RChannel.Add(0);
-                L = LChannel.ToArray();
-                R = RChannel.ToArray();
+                L = new short[] { };
+                R = new short[] { };
                 return false;
             }
         }
@@ -618,6 +616,9 @@ namespace WaveTracker {
                     return false;
             }
             return true;
+        }
+        public static bool ApproximatelyEqualTo(this float value, float other, float tolerance = 0.001f) {
+            return Math.Abs(value - other) < tolerance;
         }
 
         public static float Map(this float value, float fromSource, float toSource, float fromTarget, float toTarget) {

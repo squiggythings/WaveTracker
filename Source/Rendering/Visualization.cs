@@ -102,7 +102,7 @@ namespace WaveTracker.Rendering {
             for (int c = 0; c < ChannelManager.channels.Count; c++) {
                 Channel chan = ChannelManager.channels[c];
 
-                if (chan.currentInstrument is WaveInstrument || chan.currentInstrument is SampleInstrument inst && inst.sample.useInVisualization && chan.CurrentAmplitude > 0.01f && chan.CurrentPitch >= 12 && chan.CurrentPitch < 132 && ChannelManager.IsChannelOn(c)) {
+                if ((chan.currentInstrument is WaveInstrument || (chan.currentInstrument is SampleInstrument inst && inst.sample.useInVisualization)) && chan.CurrentAmplitude > 0.01f && chan.CurrentPitch >= 12 && chan.CurrentPitch < 132 && ChannelManager.IsChannelOn(c)) {
                     ChannelState state = new ChannelState(chan.CurrentPitch, chan.CurrentAmplitude, chan.currentInstrument is WaveInstrument ? GetColorOfWaveFromTable(chan.WaveIndex, chan.WaveMorphPosition) : Color.White, chan.IsPlaying);
                     rowOfStates.Add(state);
                 }

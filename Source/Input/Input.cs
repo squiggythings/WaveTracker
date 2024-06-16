@@ -31,6 +31,8 @@ namespace WaveTracker {
         static float timeSinceDoubleClick;
 
         const int DOUBLE_CLICK_TIME = 350;
+        const int KEY_REPEAT_DELAY = 500;
+        const int KEY_REPEAT_TIME = 33;
         const float MOUSE_DRAG_DISTANCE = 5;
         public static int dialogOpenCooldown;
 
@@ -42,6 +44,8 @@ namespace WaveTracker {
         public static Point lastClickLocation;
         public static Point lastRightClickLocation;
         public static Point lastClickReleaseLocation;
+        public static Point lastRightClickReleaseLocation;
+
         static bool cancelClick;
 
         public static KeyModifier CurrentModifier { get; set; }
@@ -100,7 +104,7 @@ namespace WaveTracker {
             CurrentModifier = getCurrentModifier();
             foreach (Keys k in Enum.GetValues(typeof(Keys))) {
                 if (currentKeyState.IsKeyDown(k)) {
-                    keyTimePairs[k] += 1;
+                    keyTimePairs[k] += gameTime.ElapsedGameTime.Milliseconds;
                 }
                 else
                     keyTimePairs[k] = 0;
@@ -150,6 +154,10 @@ namespace WaveTracker {
                 timeSinceLastClickUp = 0;
                 lastClickReleaseLocation = new Point(MousePositionX, MousePositionY);
             }
+
+            if (GetRightClickUp(KeyModifier._Any)) {
+                lastRightClickReleaseLocation = new Point(MousePositionX, MousePositionY);
+            }
         }
 
         static Vector2 MousePos { get { return new Vector2(MousePositionX, MousePositionY); } }
@@ -178,10 +186,11 @@ namespace WaveTracker {
         public static bool GetKeyRepeat(Keys key, KeyModifier modifier) {
 
             if (modifierMatches(modifier)) {
-                if (keyTimePairs[key] == 1)
+                if (currentKeyState.IsKeyDown(key) && !previousKeyState.IsKeyDown(key))
                     return true;
-                if (keyTimePairs[key] > 30) {
-                    return keyTimePairs[key] % 2 == 0;
+                if (keyTimePairs[key] > KEY_REPEAT_DELAY) {
+                    keyTimePairs[key] -= KEY_REPEAT_TIME;
+                    return true;
                 }
                 return false;
             }
@@ -250,12 +259,12 @@ namespace WaveTracker {
             return GetClickDown(modifier) && doubleClick;
         }
 
-        public static int MousePositionX { get { return (currentMouseState.X) / App.ScreenScale; } }
-        public static int MousePositionY { get { return (currentMouseState.Y) / App.ScreenScale; } }
+        public static int MousePositionX { get { return (int)(currentMouseState.X / App.ScreenScale); } }
+        public static int MousePositionY { get { return (int)(currentMouseState.Y / App.ScreenScale); } }
 
-        public static int MouseDeltaX { get { return (currentMouseState.X / App.ScreenScale) - (previousMouseState.X / App.ScreenScale); } }
+        public static int MouseDeltaX { get { return (int)(currentMouseState.X / App.ScreenScale) - (int)(previousMouseState.X / App.ScreenScale); } }
 
-        public static int MouseDeltaY { get { return (currentMouseState.Y / App.ScreenScale) - (previousMouseState.Y / App.ScreenScale); } }
+        public static int MouseDeltaY { get { return (int)(currentMouseState.Y / App.ScreenScale) - (int)(previousMouseState.Y / App.ScreenScale); } }
 
         public static int MouseScrollWheel(KeyModifier modifier) {
             if (modifierMatches(modifier)) {

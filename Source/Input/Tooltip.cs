@@ -25,7 +25,7 @@ namespace WaveTracker
         }
         public static void Draw() {
             int y = App.WindowHeight - 8;
-            Graphics.DrawRect(0, y, 960, 9, new Color(230, 230, 230, 255));
+            Graphics.DrawRect(0, y, App.WindowWidth, 9, new Color(230, 230, 230, 255));
             if (TooltipText != lasttooltip) {
                 hoverTime = 0;
                 lasttooltip = TooltipText;
@@ -40,8 +40,8 @@ namespace WaveTracker
                     }
                     show = true;
                     int width = Helpers.GetWidthOfText(TooltipText) + 6;
-                    if (px + width + 1 > 960) {
-                        int diff = (px + width + 1) - 960;
+                    if (px + width + 1 > App.WindowWidth) {
+                        int diff = (px + width + 1) - App.WindowWidth;
                         px -= diff;
                     }
                     Graphics.DrawRect(px - 1, py - 1, width, 10, new Color(151, 156, 186));

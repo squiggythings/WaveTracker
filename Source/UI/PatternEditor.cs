@@ -856,7 +856,7 @@ namespace WaveTracker.UI {
         public void Draw() {
             playbackFrame = Playback.position.Frame;
             playbackRow = Playback.position.Row;
-            if (Playback.IsPlaying && !AudioEngine.rendering) {
+            if (Playback.IsPlaying && !AudioEngine.rendering && FollowMode) {
                 SnapToPlaybackPosition();
             }
             renderCursorPos = cursorPosition;
@@ -1906,8 +1906,10 @@ namespace WaveTracker.UI {
         /// Snaps the cursor position to the playback row.
         /// </summary>
         public void SnapToPlaybackPosition() {
-            cursorPosition.Frame = Playback.position.Frame;
-            cursorPosition.Row = Playback.position.Row;
+            if (FollowMode) {
+                cursorPosition.Frame = Playback.position.Frame;
+                cursorPosition.Row = Playback.position.Row;
+            }
         }
 
 

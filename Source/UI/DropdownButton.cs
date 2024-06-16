@@ -134,6 +134,8 @@ namespace WaveTracker.UI {
             int textOffset = IsPressed && enabled ? 1 : 0;
 
             DrawRoundedRect(0, 0, width, height, getBackgroundColor());
+
+
             if (LabelIsCentered)
                 Write(label, (width - labelWidth) / 2, (height + 1) / 2 - 4 + textOffset, ButtonColors.Round.textColor);
             else

@@ -71,13 +71,8 @@ namespace WaveTracker.UI {
 
         public void Draw() {
             if (enabled) {
-                if (type == ButtonType.Square) {
-                    DrawRect(0, 0, width, height, getBorderColor());
-                    DrawRect(1, 1, width - 2, height - 2, getBackgroundColor());
-                }
-                if (type == ButtonType.Rounded) {
-                    DrawRoundedRect(0, 0, width, height, getBackgroundColor());
-                }
+                DrawRoundedRect(0, 0, width, height, getBackgroundColor());
+ 
                 int textOffset = type == ButtonType.Rounded && IsPressed ? 1 : 0;
 
                 if (LabelIsCentered)
@@ -86,9 +81,6 @@ namespace WaveTracker.UI {
                     Write(Label, 4, (height + 1) / 2 - 4 + textOffset, getTextColor());
             }
             else {
-                if (type == ButtonType.Square) {
-                    DrawRect(0, 0, width, height, colors.backgroundColorDisabled);
-                }
                 if (type == ButtonType.Rounded) {
                     DrawRoundedRect(0, 0, width, height, colors.backgroundColorDisabled);
                 }

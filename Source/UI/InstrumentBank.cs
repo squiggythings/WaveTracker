@@ -61,6 +61,7 @@ namespace WaveTracker.UI {
 
         public void Update() {
             x = App.WindowWidth - width;
+            height = App.WindowHeight - y;
             listLength = (App.WindowHeight - y - 28 - 8) / 11;
             scrollbar.height = listLength * 11;
             scrollbar.SetSize(App.CurrentModule.Instruments.Count, listLength);
@@ -106,8 +107,8 @@ namespace WaveTracker.UI {
                                 new MenuOption("Move up", MoveUp, CurrentInstrumentIndex > 0),
                                 new MenuOption("Move down", MoveDown, CurrentInstrumentIndex < App.CurrentModule.Instruments.Count - 1),
                                 null,
-                                new MenuOption("Load from file...", null),
-                                new MenuOption("Save to file...", null),
+                                //new MenuOption("Load from file...", null),
+                                //new MenuOption("Save to file...", null),
                                 null,
                                 new MenuOption("Rename...", Rename),
                                 new MenuOption("Edit...", Edit)

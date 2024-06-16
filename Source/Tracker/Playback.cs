@@ -38,13 +38,14 @@ namespace WaveTracker.Tracker {
                 Stop();
             }
             if (Input.GetKeyDown(Keys.Enter, KeyModifier.None)) {
-                if (Input.dialogOpenCooldown == 0)
+                if (Input.windowFocusTimer == 0) {
                     if (IsPlaying) {
                         Stop();
                     }
                     else {
                         Play();
                     }
+                }
             }
             if (!App.VisualizerMode) {
                 if (Input.GetKeyRepeat(Keys.Enter, KeyModifier.Ctrl)) {

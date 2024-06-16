@@ -75,7 +75,7 @@ namespace WaveTracker.UI {
 
         public void Update() {
 
-            if (enabled) {
+            if (enabled && InFocus) {
                 envLength.enabled = currentEnvelope.IsActive;
                 envText.enabled = currentEnvelope.IsActive;
 

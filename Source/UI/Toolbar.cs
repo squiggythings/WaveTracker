@@ -178,7 +178,7 @@ namespace WaveTracker.UI {
             }
         }
         public void Draw() {
-            DrawRect(-x, 0, 960, 15, Color.White);
+            DrawRect(-x, 0, App.WindowWidth, 15, Color.White);
             file_new.Draw();
             file_open.Draw();
             file_save.Draw();

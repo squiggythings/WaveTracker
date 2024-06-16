@@ -194,7 +194,7 @@ namespace WaveTracker.UI {
                     Invert();
                 }
                 if (reverse.Clicked) {
-                    Invert();
+                    Reverse();
                 }
                 cut.enabled = SelectionIsActive;
                 if (cut.Clicked) {
@@ -263,7 +263,7 @@ namespace WaveTracker.UI {
 
         void SelectAll() {
             SelectionIsActive = true;
-            selectionStartIndex= 0;
+            selectionStartIndex = 0;
             selectionEndIndex = Sample.Length - 1;
         }
 
@@ -318,8 +318,8 @@ namespace WaveTracker.UI {
 
         void DrawWaveform(int x, int y, short[] data, int width, int height) {
             int startY = y + height / 2;
-            int nextSampleIndex;
-            int sampleIndex;
+            uint nextSampleIndex;
+            uint sampleIndex;
             Color sampleColor = new Color(207, 117, 43);
             DrawRect(x, y, width, height, UIColors.black);
 
@@ -334,24 +334,30 @@ namespace WaveTracker.UI {
                 if (Sample.loopType != Sample.LoopType.OneShot) {
                     DrawRect(x + loopPosition, y, width - loopPosition, height, Helpers.Alpha(Color.Yellow, 50));
                 }
-
                 for (int i = 0; i < width - 1; i++) {
-                    sampleIndex = i * data.Length / width;
-                    nextSampleIndex = (i + 1) * data.Length / width;
+
+                    sampleIndex = (uint)(((long)i * data.Length) / width);
+                    nextSampleIndex = (uint)(((long)(i + 1) * data.Length) / width);
+
                     float min = 1;
                     float max = -1;
                     float average = 0;
-                    for (int j = sampleIndex; j <= nextSampleIndex; ++j) {
+                    uint underflowSkip = (uint)((nextSampleIndex - sampleIndex) / (width * 2));
+                    for (uint j = sampleIndex; j <= nextSampleIndex; ++j) {
                         float value = data[j] / (float)short.MaxValue;
                         average += MathF.Abs(value);
                         if (value < min) min = value;
                         if (value > max) max = value;
+                        if (underflowSkip > 0) {
+                            j += underflowSkip;
+                            average += MathF.Abs(value) * underflowSkip;
+                        }
                     }
-                    average /= sampleIndex - nextSampleIndex + 1;
+                    average /= nextSampleIndex - sampleIndex + 1;
                     int rectStart = (int)(max * height / 2);
                     int rectEnd = (int)(min * height / 2);
-                    int avgStart = (int)(average * height / 2);
-                    int avgEnd = (int)(average * height / -2);
+                    int avgStart = (int)(average * height / -2);
+                    int avgEnd = (int)(average * height / 2);
                     if (SelectionIsActive && sampleIndex + 1 >= SelectionMin && nextSampleIndex <= SelectionMax) {
                         DrawRect(x + i, startY - rectStart, 1, rectStart - rectEnd + 1, Color.LightGray);
                     }

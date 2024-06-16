@@ -11,7 +11,6 @@ namespace WaveTracker.UI {
         public string Name { get; set; }
         public Action OnClick { get; set; }
 
-
         public MenuOption(string name, Action onClick) {
             Name = name;
             OnClick = onClick;
@@ -49,7 +48,7 @@ namespace WaveTracker.UI {
 
         public override void Update() {
             if (enabled) {
-                if (Clicked) {
+                if (IsHovered && Input.GetClickUp(KeyModifier._Any)) {
                     parentMenu.CloseParent();
                     OnClick?.Invoke();
                 }

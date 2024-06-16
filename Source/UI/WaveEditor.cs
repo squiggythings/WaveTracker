@@ -353,7 +353,7 @@ namespace WaveTracker.UI {
                                 }
                             ));
                         }
-                        if (drawingRegion.DidClickInRegionM(KeyModifier._Any)) {
+                        if (drawingRegion.ClickedDownM(KeyModifier._Any)) {
                             holdPosX = CanvasPosX;
                             holdPosY = CanvasPosY;
                         }

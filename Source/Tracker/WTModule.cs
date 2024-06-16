@@ -240,6 +240,14 @@ namespace WaveTracker.Tracker {
             }
         }
 
+        public void RemoveUnusedInstruments() {
+            UI.Dialogs.messageDialog.Open("This function has not been implemented yet!", UI.MessageDialog.Icon.Warning, "OK");
+        }
+
+        public void RemoveUnusedWaves() {
+            UI.Dialogs.messageDialog.Open("This function has not been implemented yet!", UI.MessageDialog.Icon.Warning, "OK");
+        }
+
         /// <summary>
         /// Call whenever a change is made to the module that needs to be saved
         /// </summary>

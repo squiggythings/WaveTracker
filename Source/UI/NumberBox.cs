@@ -115,7 +115,7 @@ namespace WaveTracker.UI {
         public void Draw() {
             Color dark = UIColors.label;
             Color text = UIColors.black;
-            Color labelCol = UIColors.labelDark;
+            Color labelCol = UIColors.label;
             if (IsHovered && enabled) {
                 labelCol = Color.Black;
                 dark = UIColors.label;

@@ -50,11 +50,19 @@ namespace WaveTracker.UI {
                 return enabled && IsHovered && Input.GetClickUp(KeyModifier._Any) && GlobalPointIsInBounds(Input.lastClickLocation) && GlobalPointIsInBounds(Input.lastClickReleaseLocation) && IsInHierarchy(Input.lastClickFocus);
             }
         }
+
         public bool RightClicked {
             get {
-                return enabled && IsHovered && Input.GetRightClickUp(KeyModifier._Any) && GlobalPointIsInBounds(Input.lastRightClickLocation) && GlobalPointIsInBounds(Input.lastRightClickLocation);
+                return enabled && IsHovered && Input.GetRightClickUp(KeyModifier._Any) && GlobalPointIsInBounds(Input.lastRightClickLocation) && GlobalPointIsInBounds(Input.lastRightClickReleaseLocation) && IsInHierarchy(Input.lastClickFocus);
             }
         }
+
+        public bool RightClickedDown {
+            get {
+                return enabled && IsHovered && Input.GetRightClickDown(KeyModifier._Any) && GlobalPointIsInBounds(Input.lastRightClickLocation) && IsInHierarchy(Input.lastClickFocus);
+            }
+        }
+
         public bool ClickedDown {
             get {
                 return enabled && IsHovered && Input.GetClickDown(KeyModifier._Any) && GlobalPointIsInBounds(Input.lastClickLocation) && IsInHierarchy(Input.lastClickFocus);

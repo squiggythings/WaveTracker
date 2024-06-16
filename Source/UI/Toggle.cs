@@ -12,7 +12,6 @@ namespace WaveTracker.UI {
         public bool centerLabel = true;
         ButtonColors colors;
         int labelWidth;
-        ButtonType type;
         public bool Value { get; set; }
 
         public Toggle(string label, int x, int y, Element parent) {
@@ -21,7 +20,6 @@ namespace WaveTracker.UI {
             this.y = y;
             this.label = label;
             colors = ButtonColors.Round;
-            type = ButtonType.Rounded;
             width = Helpers.GetWidthOfText(label) + 8;
             //if (width < 30)
             //    width = 30;
@@ -58,34 +56,17 @@ namespace WaveTracker.UI {
             return colors.textColor;
         }
 
-        Color getBorderColor() {
-            if (IsPressed || Value)
-                return colors.borderColorPressed;
-            return colors.borderColor;
-        }
-
         public void Draw() {
             if (enabled) {
-                if (type == ButtonType.Square) {
-                    DrawRect(0, 0, width, height, getBorderColor());
-                    DrawRect(1, 1, width - 2, height - 2, getBackgroundColor());
-                }
-                if (type == ButtonType.Rounded) {
-                    DrawRoundedRect(0, 0, width, height, getBackgroundColor());
-                }
-                int textOffset = type == ButtonType.Rounded && IsPressed ? 1 : 0;
+                DrawRoundedRect(0, 0, width, height, getBackgroundColor());
+                int textOffset = IsPressed ? 1 : 0;
 
                 if (centerLabel)
                     Write(label, (width - labelWidth) / 2, (height + 1) / 2 - 4 + textOffset, getTextColor());
                 else
                     Write(label, 4, (height + 1) / 2 - 4 + textOffset, getTextColor());
             } else {
-                if (type == ButtonType.Square) {
-                    DrawRect(0, 0, width, height, colors.backgroundColorDisabled);
-                }
-                if (type == ButtonType.Rounded) {
-                    DrawRoundedRect(0, 0, width, height, colors.backgroundColorDisabled);
-                }
+                DrawRoundedRect(0, 0, width, height, colors.backgroundColorDisabled);
                 if (centerLabel)
                     Write(label, (width - labelWidth) / 2, (height + 1) / 2 - 4, colors.textColorDisabled);
                 else

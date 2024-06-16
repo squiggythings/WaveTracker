@@ -32,11 +32,14 @@ namespace WaveTracker.UI {
         }
 
         public void Update() {
+            width = App.WindowWidth;
+            currentMenu?.Update();
             foreach (MenuStripButton button in StripButtons) {
-                if (button.Clicked) {
+                if (button.ClickedDown) {
                     currentMenu = button.menu;
                     currentMenu.Open();
                 }
+
                 if (currentMenu != null && currentMenu.enabled && button.enabled) {
                     if (button.IsMouseOverRegion && button.menu != currentMenu) {
                         currentMenu.Close();
@@ -45,7 +48,7 @@ namespace WaveTracker.UI {
                     }
                 }
             }
-            currentMenu?.Update();
+                
         }
 
         public void Draw() {

@@ -122,7 +122,7 @@ namespace WaveTracker.UI {
             pageVisualizer.AddDropdown("Wave thickness", new string[] { "Thin", "Medium", "Thick" });
             pageVisualizer.getLastOption.description = "Determines the thickness at which the waves are drawn in the oscilloscope";
             pageVisualizer.AddDropdown("Crosshairs", new string[] { "None", "Horizontal", "Horizontal + Vertical" });
-            pageVisualizer.getLastOption.description = "Determines the thickness at which the waves are drawn in the oscilloscope";
+            pageVisualizer.getLastOption.description = "How crosshairs are drawn in the center of each oscilloscope window";
             pageVisualizer.AddCheckbox("Oscilloscope borders");
             pageVisualizer.getLastOption.description = "Draws white borders around each oscilloscope channel";
 

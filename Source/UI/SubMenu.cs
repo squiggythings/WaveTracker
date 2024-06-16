@@ -74,6 +74,9 @@ namespace WaveTracker.UI {
                     hoverTime = 0;
                 if (hoverTime < TIME_TO_OPEN_MENU) {
                     hoverTime += Input.deltaTime;
+                    if (RightClickedDown) {
+                        hoverTime = TIME_TO_OPEN_MENU;
+                    }
                 }
                 else {
                     menu.Open();
