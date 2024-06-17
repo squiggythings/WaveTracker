@@ -296,11 +296,11 @@ namespace WaveTracker.UI {
             }
             if (Input.GetKeyRepeat(Keys.Down, KeyModifier.None)) {
                 CancelSelection();
-                MoveToRow(cursorPosition.Row + 1);
+                MoveToRow(cursorPosition.Row + (Preferences.profile.ignoreStepWhenMoving ? 1 : InputStep));
             }
             if (Input.GetKeyRepeat(Keys.Up, KeyModifier.None)) {
                 CancelSelection();
-                MoveToRow(cursorPosition.Row - 1);
+                MoveToRow(cursorPosition.Row - (Preferences.profile.ignoreStepWhenMoving ? 1 : InputStep));
             }
             #endregion
             #region navigate with mouse
