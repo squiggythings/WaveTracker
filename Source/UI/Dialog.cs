@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace WaveTracker.UI {
     /// <summary>
-    /// A window that can have buttons at the bottom of the window
+    /// A window with buttons along the bottom
     /// </summary>
     public abstract class Dialog : Window {
         List<Button> bottomButtons;
