@@ -73,6 +73,7 @@ namespace WaveTracker {
             if (args.Length > 0)
                 filename = args[0];
             graphics = new GraphicsDeviceManager(this);
+            Window.TextInput += Input.ProcessTextInput;
             //graphics.PreferredBackBufferWidth = 1920;  // set this value to the desired width of your window
             //graphics.PreferredBackBufferHeight = 1080 - 72;   // set this value to the desired height of your window
             graphics.ApplyChanges();

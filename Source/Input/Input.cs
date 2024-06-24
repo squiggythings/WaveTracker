@@ -197,6 +197,10 @@ namespace WaveTracker {
             else
                 return false;
         }
+
+        public static void ProcessTextInput(object sender, TextInputEventArgs e) {
+            Debug.WriteLine(e.Key);
+        }
         public static bool GetKeyUp(Keys key, KeyModifier modifier) {
 
             if (modifierMatches(modifier))
