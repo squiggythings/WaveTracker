@@ -65,6 +65,10 @@ namespace WaveTracker {
         public static int focusTimer;
 
         public static int windowFocusTimer;
+
+        public static Keys[] currentPressedKeys;
+        public static Keys CurrentPressedKey { get; private set; }
+        public static KeyboardShortcut CurrentPressedShortcut { get; private set; }
         public static void Intialize() {
             keyTimePairs = new Dictionary<Keys, int>();
             foreach (Keys k in Enum.GetValues(typeof(Keys))) {
@@ -101,7 +105,8 @@ namespace WaveTracker {
             lastTimeSinceLastClickUp = timeSinceLastClickUp;
             previousKeyState = currentKeyState;
             currentKeyState = Microsoft.Xna.Framework.Input.Keyboard.GetState();
-            CurrentModifier = getCurrentModifier();
+            currentPressedKeys = currentKeyState.GetPressedKeys();
+            CurrentModifier = GetCurrentModifier();
             foreach (Keys k in Enum.GetValues(typeof(Keys))) {
                 if (currentKeyState.IsKeyDown(k)) {
                     keyTimePairs[k] += gameTime.ElapsedGameTime.Milliseconds;
@@ -110,6 +115,19 @@ namespace WaveTracker {
                     keyTimePairs[k] = 0;
 
             }
+            CurrentPressedKey = Keys.None;
+            foreach (Keys k in currentPressedKeys) {
+                if (k != Keys.LeftShift &&
+                    k != Keys.RightShift &&
+                    k != Keys.LeftControl &&
+                    k != Keys.RightControl &&
+                    k != Keys.LeftAlt &&
+                    k != Keys.RightAlt) {
+                    CurrentPressedKey = k;
+                }
+            }
+            CurrentPressedShortcut = new KeyboardShortcut(CurrentPressedKey, CurrentModifier);
+
 
 
             previousMouseState = currentMouseState;
@@ -166,6 +184,10 @@ namespace WaveTracker {
             cancelClick = true;
         }
 
+        public static void ProcessTextInput(object sender, TextInputEventArgs e) {
+            Debug.WriteLine(e.Key);
+        }
+
         public static bool GetKey(Keys key, KeyModifier modifier) {
             if (modifierMatches(modifier))
                 return currentKeyState.IsKeyDown(key);
@@ -182,7 +204,6 @@ namespace WaveTracker {
         }
 
 
-        // TODO: FIX THIS METHOD
         public static bool GetKeyRepeat(Keys key, KeyModifier modifier) {
 
             if (modifierMatches(modifier)) {
@@ -198,9 +219,6 @@ namespace WaveTracker {
                 return false;
         }
 
-        public static void ProcessTextInput(object sender, TextInputEventArgs e) {
-            Debug.WriteLine(e.Key);
-        }
         public static bool GetKeyUp(Keys key, KeyModifier modifier) {
 
             if (modifierMatches(modifier))
@@ -286,7 +304,7 @@ namespace WaveTracker {
             return CurrentModifier == mod;
         }
 
-        static KeyModifier getCurrentModifier() {
+        static KeyModifier GetCurrentModifier() {
 
             bool ctrl = (currentKeyState.IsKeyDown(Keys.LeftControl) || currentKeyState.IsKeyDown(Keys.RightControl));
             bool alt = (currentKeyState.IsKeyDown(Keys.LeftAlt) || currentKeyState.IsKeyDown(Keys.RightAlt));

@@ -19,14 +19,17 @@ namespace WaveTracker.Source.UI {
         }
 
         class ConfigurationsGeneralPage : Clickable {
+            int ypos;
             public ConfigurationsGeneralPage(Element parent) {
                 width = 289;
                 height = 258;
+                ypos = 16;
             }
 
 
-            ConfigurationOption.Bool AddBool() {
-
+            ConfigurationOption.Bool AddBool(string label, string description) {
+                ypos += 15;
+                return new ConfigurationOption.Bool(label, description, ypos, this);
             }
         }
     }
@@ -45,7 +48,7 @@ namespace WaveTracker.Source.UI {
         }
 
         public class Bool : ConfigurationOption {
-            public Bool(string label, string description, int y, int height, Clickable parent) : base(y, height, parent) {
+            public Bool(string label, string description, int y, Clickable parent) : base(y, 13, parent) {
 
             }
         }

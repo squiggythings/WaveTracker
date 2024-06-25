@@ -171,6 +171,60 @@ namespace WaveTracker {
             }
             return t;
         }
+
+        /// <summary>
+        /// Converts a Keys enum to a nicer string
+        /// </summary>
+        /// <param name="key"></param>
+        /// <returns></returns>
+        public static string KeyToString(Keys key) {
+            return key switch {
+                Keys.Add => "Num+",
+                Keys.Back => "Backspace",
+                Keys.D0 => "0",
+                Keys.D1 => "1",
+                Keys.D2 => "2",
+                Keys.D3 => "3",
+                Keys.D4 => "4",
+                Keys.D5 => "5",
+                Keys.D6 => "6",
+                Keys.D7 => "7",
+                Keys.D8 => "8",
+                Keys.D9 => "9",
+                Keys.Delete => "Del",
+                Keys.Divide => "Num/",
+                Keys.NumPad0 => "Num0",
+                Keys.NumPad1 => "Num1",
+                Keys.NumPad2 => "Num2",
+                Keys.NumPad3 => "Num3",
+                Keys.NumPad4 => "Num4",
+                Keys.NumPad5 => "Num5",
+                Keys.NumPad6 => "Num6",
+                Keys.NumPad7 => "Num7",
+                Keys.NumPad8 => "Num8",
+                Keys.NumPad9 => "Num9",
+                Keys.Subtract => "Num-",
+                Keys.Oem8 => "Oem8",
+                Keys.OemAuto => "Auto",
+                Keys.OemBackslash => "\\",
+                Keys.OemClear => "Clear",
+                Keys.OemCloseBrackets => "]",
+                Keys.OemComma => ",",
+                Keys.OemSemicolon => ";",
+                Keys.OemCopy => "Copy",
+                Keys.OemEnlW => "EnlW",
+                Keys.OemMinus => "-",
+                Keys.OemOpenBrackets => "[",
+                Keys.OemPeriod => ".",
+                Keys.OemPipe => "|",
+                Keys.OemPlus => "=",
+                Keys.OemQuestion => "?",
+                Keys.OemQuotes => "'",
+                Keys.OemTilde => "`",
+                _ => key.ToString(),
+            };
+        }
+
         /// <summary>
         /// Ensures that a string will not contain any characters that the font does not support
         /// </summary>
