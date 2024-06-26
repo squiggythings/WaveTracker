@@ -64,6 +64,10 @@ namespace WaveTracker {
         public static int CurrentSongIndex { get; set; }
         public static WTSong CurrentSong { get { return CurrentModule.Songs[CurrentSongIndex]; } }
 
+        public static AppSettings CurrentSettings { get; private set; }
+
+        public static Dictionary<string, KeyboardShortcut> Shortcuts => CurrentSettings.keyboard.shortcuts;
+
         public const int MENUSTRIP_HEIGHT = 10;
 
         public MenuStrip MenuStrip { get; set; }
@@ -88,7 +92,7 @@ namespace WaveTracker {
             var form = (System.Windows.Forms.Form)System.Windows.Forms.Control.FromHandle(Window.Handle);
             form.WindowState = System.Windows.Forms.FormWindowState.Maximized;
             form.FormClosing += ClosingForm;
-
+            CurrentSettings = new AppSettings();
         }
 
         /// <summary>

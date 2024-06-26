@@ -44,6 +44,42 @@ namespace WaveTracker.UI {
                 DrawSprite(0, 0, GetBounds(6));
             }
         }
+
+        public void Draw(bool isHovered, bool isPressed) {
+            if (enabled) {
+                if (Value) {
+                    if (isHovered) {
+                        if (isPressed)
+                            DrawSprite(0, 0, GetBounds(5));
+                        else
+                            DrawSprite(0, 0, GetBounds(4));
+                    }
+                    else {
+                        DrawSprite(0, 0, GetBounds(3));
+                    }
+                }
+                else {
+                    if (isHovered) {
+                        if (isPressed)
+                            DrawSprite(0, 0, GetBounds(2));
+                        else
+                            DrawSprite(0, 0, GetBounds(1));
+                    }
+                    else {
+                        DrawSprite(0, 0, GetBounds(0));
+                    }
+                }
+
+            }
+            else {
+                if (Value)
+                    DrawSprite(0, 0, GetBounds(7));
+                else
+                    DrawSprite(0, 0, GetBounds(6));
+            }
+
+        }
+
         public void Draw() {
             if (enabled) {
                 if (Value) {

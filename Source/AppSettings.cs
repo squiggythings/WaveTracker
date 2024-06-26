@@ -12,32 +12,27 @@ using System.Xml;
 
 namespace WaveTracker {
     [Serializable]
-    public struct ConfigurationSettings {
+    public class AppSettings {
         public General general;
-        public struct General {
+        public class General {
             public int screenScale;
             public bool followMode;
             public bool previewNotesOnInput;
+            public bool moveToNextRowAfterMultidigitInput;
         }
 
         public Files files;
-        public struct Files {
+        public class Files {
             public string defaultSpeed;
             public int defaultRowLength;
-
-            public bool previewNotesOnInput;
         }
 
         public PatternEditor patternEditor;
-        public struct PatternEditor {
-            public int screenScale;
-            public bool followMode;
-
-            public bool previewNotesOnInput;
+        public class PatternEditor {
         }
 
         public Keyboard keyboard;
-        public struct Keyboard {
+        public class Keyboard {
             public Dictionary<string, KeyboardShortcut> shortcuts;
             public readonly Dictionary<string, KeyboardShortcut> defaultShortcuts = new Dictionary<string, KeyboardShortcut>() {
                 {"General\\Increase octave", new KeyboardShortcut(Keys.OemOpenBrackets) },
@@ -120,6 +115,15 @@ namespace WaveTracker {
             };
             public Keyboard() {
                 shortcuts = new Dictionary<string, KeyboardShortcut>();
+                for (int i = 0; i < defaultShortcuts.Count; i++) {
+                    shortcuts.Add(defaultShortcuts.ElementAt(i).Key, defaultShortcuts.ElementAt(i).Value);
+                }
+            }
+        }
+
+        public static AppSettings Default {
+            get {
+                return new AppSettings();
             }
         }
     }

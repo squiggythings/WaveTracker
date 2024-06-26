@@ -12,7 +12,7 @@ namespace WaveTracker.Source.UI {
     public static class PreferencesWriter {
         
 
-        public static void WriteSettingsToDisk(ConfigurationSettings settings) {
+        public static void WriteSettingsToDisk(AppSettings settings) {
             
         }
     }
