@@ -134,7 +134,7 @@ namespace WaveTracker {
                 null,
                 new MenuOption("Export as WAV...", Dialogs.exportDialog.Open),
                 null,
-                new MenuOption("Configuration...", Dialogs.preferences.Open),
+                new MenuOption("Configuration...", Dialogs.configurationDialog.Open),
                 null,
                 new MenuOption("Exit", ExitApplication),
             }));

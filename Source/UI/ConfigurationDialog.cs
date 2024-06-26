@@ -11,107 +11,185 @@ namespace WaveTracker.UI {
     public class ConfigurationDialog : Dialog {
         public Button ok, cancel, apply;
         public Button closeButton;
+        VerticalListSelector pageSelector;
+        public Dictionary<string, Page> pages;
 
         public ConfigurationDialog() : base("Preferences...", 376, 290) {
             apply = AddNewBottomButton("Apply", this);
             cancel = AddNewBottomButton("Cancel", this);
             ok = AddNewBottomButton("OK", this);
+            pages = new Dictionary<string, Page>();
+            pageSelector = new VerticalListSelector(5, 12, 75, 258, new string[] { "General", "Pattern Editor", "Appearance", "Samples/Waves", "MIDI", "Audio", "Visualizer", "Keyboard" }, this);
+            pages.Add("General", new Page(this));
+            pages.Add("Pattern Editor", new Page(this));
+            pages.Add("Samples/Waves", new Page(this));
+            pages.Add("MIDI", new Page(this));
+
+            pages["General"].AddLabel("General");
+            pages["General"].AddCheckbox("option1", "");
+            pages["General"].AddCheckbox("option2", "");
+            pages["General"].AddDropdown("Screen scale:", "", new string[] { "100%", "200%", "300%", "400%", "500%" }, false);
+            pages["General"].AddBreak();
+            pages["General"].AddLabel("Metering");
+            pages["General"].AddDropdown("Oscilloscope mode:", "", new string[] { "Mono", "Stereo: split", "Stereo: overlap" });
+            pages["General"].AddDropdown("Meter decay rate:", "", new string[] { "Slow", "Medium", "Fast" });
+            pages["General"].AddDropdown("Meter color mode:", "", new string[] { "Flat", "Gradient" });
+            pages["General"].AddCheckbox("Flash meter red when clipping", "");
+
+
+            pages["Pattern Editor"].AddLabel("Pattern Editor");
+            pages["Pattern Editor"].AddCheckbox("Show row numbers in hex", "");
+            pages["Pattern Editor"].AddCheckbox("Show note off and release as text", "");
+            pages["Pattern Editor"].AddCheckbox("Fade volume column", "");
+            pages["Pattern Editor"].AddCheckbox("Ignore step when moving", "");
+            pages["Pattern Editor"].AddCheckbox("Key repeat", "");
+            pages["Pattern Editor"].AddCheckbox("Restore channel state on playback", "");
+            pages["Pattern Editor"].AddDropdown("Page jump amount", "", new string[] { "2", "4", "8", "16" });
+
+            pages["Samples/Waves"].AddLabel("Sample Import Settings");
+            pages["Samples/Waves"].AddCheckbox("Normalize samples on import", "");
+            pages["Samples/Waves"].AddCheckbox("Trim sample silence on import", "");
+            pages["Samples/Waves"].AddCheckbox("Resample to 44.1kHz on import", "");
+            pages["Samples/Waves"].AddCheckbox("Preview samples in browser", "");
+            pages["Samples/Waves"].AddCheckbox("Include samples in visualizer by default", "");
+            pages["Samples/Waves"].AddNumberBox("Default base key", "", 0, 119, NumberBox.NumberDisplayMode.Note);
+            pages["Samples/Waves"].AddBreak();
+            pages["Samples/Waves"].AddLabel("Resampling");
+            pages["Samples/Waves"].AddDropdown("Default wave resample mode", "", new string[] { "Harsh (None)", "Smooth (Linear)", "Mix (None + Linear)" });
+            pages["Samples/Waves"].AddDropdown("Default sample resample mode", "", new string[] { "Harsh (None)", "Smooth (Linear)", "Mix (None + Linear)" });
+
+
+        }
+
+        public new void Open() {
+            base.Open();
         }
         public override void Update() {
-
+            if (windowIsOpen) {
+                DoDragging();
+                if (ExitButton.Clicked || cancel.Clicked) {
+                    Close();
+                }
+                if (ok.Clicked) {
+                    Close();
+                }
+                if (apply.Clicked) {
+                }
+                pageSelector.Update();
+                if (pages.TryGetValue(pageSelector.SelectedItem, out Page p)) {
+                    p.Update();
+                }
+            }
         }
 
         public new void Draw() {
-            base.Draw();
+            if (windowIsOpen) {
+
+                base.Draw();
+                pageSelector.Draw();
+                if (pages.TryGetValue(pageSelector.SelectedItem, out Page p)) {
+                    p.Draw();
+                }
+            }
         }
 
 
         #region Page definitions
         public class Page : Clickable {
-            protected List<ConfigurationOption> options;
-            protected int ypos = 16;
+            protected Dictionary<string, ConfigurationOption> options;
+            protected int ypos = 2;
             public Page(Element parent) {
+                x = 82;
+                y = 12;
                 width = 289;
                 height = 258;
+                options = new Dictionary<string, ConfigurationOption>();
                 SetParent(parent);
             }
 
-            public virtual void Draw() {
-                foreach(ConfigurationOption option in options) {
-                    option.Draw();
-                }
-            }
-
-            public virtual void Update() {
-                foreach (ConfigurationOption option in options) {
-                    option.Draw();
-                }
-            }
-
-            protected ConfigurationOption.Checkbox AddCheckbox(string label, string description) {
+            public ConfigurationOption.Checkbox AddCheckbox(string label, string description) {
                 ypos += 1;
                 ConfigurationOption.Checkbox ret = new ConfigurationOption.Checkbox(ypos, label, description, this);
                 ypos += ret.height;
                 ypos += 1;
-                options.Add(ret);
+                options.Add(label, ret);
                 return ret;
             }
-            protected ConfigurationOption.Label AddLabel(string label) {
+            public ConfigurationOption.Label AddLabel(string label) {
                 ypos += 1;
                 ConfigurationOption.Label ret = new ConfigurationOption.Label(ypos, label, this);
                 ypos += ret.height;
                 ypos += 1;
-                options.Add(ret);
+                options.Add(label, ret);
                 return ret;
             }
 
-            void AddBreak() {
-                ypos += 5;
+            public ConfigurationOption this[string name] {
+                get {
+                    return options[name];
+                }
             }
 
-            protected ConfigurationOption.Dropdown AddDropdown(string label, string description, string[] dropdownItems, bool scrollWrap = true, int dropdownPosition = -1, int dropdownWidth = -1) {
+            public void AddBreak(int height = 5) {
+                ypos += height;
+            }
+
+            public ConfigurationOption.Dropdown AddDropdown(string label, string description, string[] dropdownItems, bool scrollWrap = true, int dropdownPosition = -1, int dropdownWidth = -1) {
                 ypos += 1;
                 ConfigurationOption.Dropdown ret = new ConfigurationOption.Dropdown(ypos, label, description, dropdownItems, this, scrollWrap, dropdownPosition, dropdownWidth);
                 ypos += ret.height;
                 ypos += 1;
-                options.Add(ret);
+                options.Add(label, ret);
                 return ret;
             }
 
-            protected ConfigurationOption.NumberBox AddNumberBox(string label, string description, int boxPosition = -1, int boxWidth = -1) {
+            public ConfigurationOption.NumberBox AddNumberBox(string label, string description, int min, int max, NumberBox.NumberDisplayMode displayMode = NumberBox.NumberDisplayMode.Number, int boxPosition = -1, int boxWidth = -1) {
                 ypos += 1;
                 ConfigurationOption.NumberBox ret = new ConfigurationOption.NumberBox(ypos, label, description, this, boxPosition, boxWidth);
+                ret.SetDisplayMode(displayMode);
+                ret.SetValueLimits(min, max);
                 ypos += ret.height;
                 ypos += 1;
-                options.Add(ret);
+                options.Add(label, ret);
                 return ret;
             }
 
-            protected ConfigurationOption.TextBox AddTextbox(string label, string description, int boxWidth, int boxPosition = -1) {
+            public ConfigurationOption.TextBox AddTextbox(string label, string description, int boxWidth, int boxPosition = -1) {
                 ypos += 1;
                 ConfigurationOption.TextBox ret = new ConfigurationOption.TextBox(ypos, boxWidth, label, description, this, boxPosition);
                 ypos += ret.height;
                 ypos += 1;
-                options.Add(ret);
+                options.Add(label, ret);
                 return ret;
+            }
+
+            public virtual void Update() {
+                foreach (ConfigurationOption option in options.Values) {
+                    option.Update();
+                }
+            }
+
+            public virtual void Draw() {
+                DrawRoundedRect(0, 0, width, height, Color.White);
+                foreach (ConfigurationOption option in options.Values) {
+                    option.Draw();
+                }
             }
         }
 
         class GeneralPage : Page {
             ConfigurationOption.Dropdown screenScale;
+            ConfigurationOption.Checkbox flashMeterRedWhenClipping;
             public GeneralPage(Element parent) : base(parent) {
+                AddLabel("General");
                 screenScale = AddDropdown(
                     "Screen scale:",
                     "",
                     new string[] { "100%", "200%", "300%", "400%", "500%" },
                     false
                 );
+                flashMeterRedWhenClipping = AddCheckbox("Flash meter red when clipping", "");
             }
-
-            public override void Update() {
-
-            }
-
         }
         #endregion
     }
@@ -132,17 +210,22 @@ namespace WaveTracker.UI {
             SetParent(parent);
         }
 
+        public virtual void Update() { }
+
         public virtual void Draw() { }
 
         public class Label : ConfigurationOption {
-
+            const int textPadding = 3;
+            const int textLocation = 9;
+            int textWidth;
             public Label(int y, string name, ConfigurationDialog.Page parent) : base(y, 9, name, "", parent) {
-
+                textWidth = Helpers.GetWidthOfText(name);
             }
 
             public override void Draw() {
-                Write(Name, 4, 2, UIColors.labelLight);
-
+                Write(Name, textLocation + 1, 1, UIColors.labelLight);
+                DrawRect(0, 4, textLocation - textPadding, 1, UIColors.labelLight);
+                DrawRect(textLocation + textPadding + textWidth + textPadding, 4, width - textWidth - textLocation - textPadding * 2, 1, UIColors.labelLight);
             }
         }
 
@@ -156,12 +239,20 @@ namespace WaveTracker.UI {
                     checkbox.Value = value;
                 }
             }
-            public bool ValueWasChangedInternally => checkbox.ValueWasChangedInternally;
-            public Checkbox(int y, string name, string description, ConfigurationDialog.Page parent) : base(y, 13, name, description, parent) {
-                checkbox = new(2, 2, this);
+            public bool ValueWasChangedInternally { get; private set; }
+            public Checkbox(int y, string name, string description, ConfigurationDialog.Page parent) : base(y, 11, name, description, parent) {
+                checkbox = new(1, 1, this);
             }
-            public void Update() {
-                checkbox.Update();
+            public override void Update() {
+                if (Clicked) {
+                    if (Clicked) {
+                        Value = !Value;
+                        ValueWasChangedInternally = true;
+                    }
+                    else {
+                        ValueWasChangedInternally = false;
+                    }
+                }
             }
             public override void Draw() {
                 if (IsHovered) {
@@ -194,11 +285,11 @@ namespace WaveTracker.UI {
                 dropdown.SetMenuItems(dropdownItems);
             }
 
-            public void Update() {
+            public override void Update() {
                 dropdown.Update();
             }
             public override void Draw() {
-                Write(Name, 0, 2, UIColors.labelDark);
+                Write(Name, 0, 3, UIColors.labelDark);
                 dropdown.Draw();
             }
         }
@@ -222,11 +313,11 @@ namespace WaveTracker.UI {
                 textBox = new("", boxPosition, 0, boxWidth, this);
             }
 
-            public void Update() {
+            public override void Update() {
                 textBox.Update();
             }
             public override void Draw() {
-                Write(Name, 0, 2, UIColors.labelDark);
+                Write(Name, 0, 3, UIColors.labelDark);
                 textBox.Draw();
             }
         }
@@ -254,11 +345,11 @@ namespace WaveTracker.UI {
                 numberBox.DisplayMode = displayMode;
             }
 
-            public void Update() {
+            public override void Update() {
                 numberBox.Update();
             }
             public override void Draw() {
-                Write(Name, 0, 2, UIColors.labelDark);
+                Write(Name, 0, 3, UIColors.labelDark);
                 numberBox.Draw();
             }
         }

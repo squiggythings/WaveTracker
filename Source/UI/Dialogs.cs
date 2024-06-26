@@ -21,6 +21,7 @@ namespace WaveTracker.UI {
         public static WaveSampleAndHoldDialog waveSampleAndHoldDialog;
         public static WaveSmoothDialog waveSmoothDialog;
         public static WaveSyncDialog waveSyncDialog;
+        public static ConfigurationDialog configurationDialog;
 
 
 
@@ -38,6 +39,7 @@ namespace WaveTracker.UI {
             waveSampleAndHoldDialog = new WaveSampleAndHoldDialog();
             waveSmoothDialog = new WaveSmoothDialog();
             waveSyncDialog = new WaveSyncDialog();
+            configurationDialog = new ConfigurationDialog();
 
             messageDialog = new MessageDialog();
         }
@@ -55,6 +57,7 @@ namespace WaveTracker.UI {
             waveSampleAndHoldDialog.Update();
             waveSmoothDialog.Update();
             waveSyncDialog.Update();
+            configurationDialog.Update();
 
             messageDialog.Update();
         }
@@ -71,6 +74,8 @@ namespace WaveTracker.UI {
             waveSampleAndHoldDialog.Draw();
             waveSmoothDialog.Draw();
             waveSyncDialog.Draw();
+            configurationDialog.Draw();
+
 
             messageDialog.Draw();
         }
