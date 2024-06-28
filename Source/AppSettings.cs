@@ -13,6 +13,13 @@ using System.Xml;
 namespace WaveTracker {
     [Serializable]
     public class AppSettings {
+        public AppSettings() {
+            general = new General();
+            files = new Files();
+            patternEditor = new PatternEditor();
+            keyboard = new Keyboard();
+        }
+
         public General general;
         public class General {
             public int screenScale;
@@ -51,6 +58,7 @@ namespace WaveTracker {
                 {"General\\Module settings", new KeyboardShortcut() },
                 {"General\\Edit wave", new KeyboardShortcut() },
                 {"General\\Edit instrument", new KeyboardShortcut() },
+
 
                 {"Frame\\Previous Frame", new KeyboardShortcut(Keys.Left, KeyModifier.Ctrl) },
                 {"Frame\\Next Frame", new KeyboardShortcut(Keys.Right, KeyModifier.Ctrl) },
@@ -126,5 +134,7 @@ namespace WaveTracker {
                 return new AppSettings();
             }
         }
+
+
     }
 }

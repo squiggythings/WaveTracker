@@ -93,6 +93,7 @@ namespace WaveTracker {
             form.WindowState = System.Windows.Forms.FormWindowState.Maximized;
             form.FormClosing += ClosingForm;
             CurrentSettings = new AppSettings();
+            MidiInput.ReadMidiDevices();
         }
 
         /// <summary>
@@ -235,7 +236,7 @@ namespace WaveTracker {
 
             if (IsActive) {
                 Input.GetState(gameTime);
-                //MidiInput.GetInput();
+                MidiInput.GetInput();
             }
             else {
                 Input.windowFocusTimer = 5;
@@ -267,7 +268,7 @@ namespace WaveTracker {
             Tooltip.Update(gameTime);
             if (Input.GetKeyDown(Keys.F12, KeyModifier.None)) {
                 ChannelManager.Reset();
-                //MidiInput.ReadMidiDevices();
+                MidiInput.ReadMidiDevices();
                 audioEngine.Reset();
             }
             PatternEditor.Update();
@@ -288,9 +289,9 @@ namespace WaveTracker {
                 pianoInput = WaveEditor.GetPianoMouseInput();
             if (InstrumentEditor.GetPianoMouseInput() > -1)
                 pianoInput = InstrumentEditor.GetPianoMouseInput();
-            //if (MidiInput.GetMidiNote > -1) {
-            //    pianoInput = MidiInput.GetMidiNote;
-            //}
+            if (MidiInput.GetMidiNote > -1) {
+                pianoInput = MidiInput.GetMidiNote;
+            }
             if (PatternEditor.cursorPosition.Column == CursorColumnType.Note || WaveEditor.IsOpen || InstrumentEditor.IsOpen) {
                 if (pianoInput != -1 && lastPianoKey != pianoInput) {
                     if (!Playback.IsPlaying)
@@ -408,6 +409,8 @@ namespace WaveTracker {
             //Rendering.Graphics.Write("FPS: " + 1 / gameTime.ElapsedGameTime.TotalSeconds, 2, 2, Color.Red);
             int y = 12;
             Graphics.Write(Input.CurrentPressedShortcut.ToString(), 2, 250, Color.Red);
+            Graphics.Write("@" + Input.focus + "", 2, 260, Color.Red);
+
             targetBatch.End();
 
 
@@ -468,6 +471,7 @@ namespace WaveTracker {
         protected override void OnExiting(object sender, EventArgs args) {
             Debug.WriteLine("Closing WaveTracker...");
             AudioEngine.instance.Stop();
+            MidiInput.Stop();
             base.OnExiting(sender, args);
         }
     }

@@ -27,7 +27,7 @@ namespace WaveTracker {
             Key = Keys.None;
             Modifier = KeyModifier.None;
         }
-        
+
         public bool IsPressed() {
             return Input.GetKey(Key, Modifier);
         }
@@ -43,36 +43,9 @@ namespace WaveTracker {
 
         public override string ToString() {
             if (Key == Keys.None) {
-                return "--";
-            }
-            string modifier = "";
-            switch (Modifier) {
-                case KeyModifier.None:
-                    modifier = "";
-                    break;
-                case KeyModifier.Shift:
-                    modifier = "Shift+";
-                    break;
-                case KeyModifier.Alt:
-                    modifier = "Alt+";
-                    break;
-                case KeyModifier.Ctrl:
-                    modifier = "Ctrl+";
-                    break;
-                case KeyModifier.ShiftAlt:
-                    modifier = "Shift+Alt+";
-                    break;
-                case KeyModifier.CtrlShift:
-                    modifier = "Ctrl+Shift+";
-                    break;
-                case KeyModifier.CtrlAlt:
-                    modifier = "Ctrl+Alt+";
-                    break;
-                case KeyModifier.CtrlShiftAlt:
-                    modifier = "Ctrl+Shift+Alt+";
-                    break;
-            };
-            return modifier + Helpers.KeyToString(Key);
+                return "...";
+            }            
+            return Helpers.ModifierToString(Modifier) + Helpers.KeyToString(Key);
         }
 
         public static bool operator ==(KeyboardShortcut one, KeyboardShortcut two) {
@@ -81,6 +54,21 @@ namespace WaveTracker {
         public static bool operator !=(KeyboardShortcut one, KeyboardShortcut two) {
             return one.Key != two.Key || one.Modifier != two.Modifier;
         }
+
+        public override bool Equals(object obj) {
+            if (obj is KeyboardShortcut other) {
+                if (other.Key == Key && other.Modifier == Modifier) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        public override int GetHashCode() {
+            return (Key, Modifier).GetHashCode();
+        }
+
+        public static KeyboardShortcut None { get { return new KeyboardShortcut(Keys.None, KeyModifier.None); } }
     }
 
 

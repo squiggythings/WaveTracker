@@ -129,7 +129,6 @@ namespace WaveTracker {
             CurrentPressedShortcut = new KeyboardShortcut(CurrentPressedKey, CurrentModifier);
 
 
-
             previousMouseState = currentMouseState;
             currentMouseState = Microsoft.Xna.Framework.Input.Mouse.GetState();
             timeSinceLastClick += gameTime.ElapsedGameTime.Milliseconds;

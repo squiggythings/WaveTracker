@@ -179,31 +179,32 @@ namespace WaveTracker {
         /// <returns></returns>
         public static string KeyToString(Keys key) {
             return key switch {
-                Keys.Add => "Num+",
+                Keys.Add => "Numpad +",
                 Keys.Back => "Backspace",
-                Keys.D0 => "0",
-                Keys.D1 => "1",
-                Keys.D2 => "2",
-                Keys.D3 => "3",
-                Keys.D4 => "4",
-                Keys.D5 => "5",
-                Keys.D6 => "6",
-                Keys.D7 => "7",
-                Keys.D8 => "8",
-                Keys.D9 => "9",
+                Keys.D0 => "Alphanumeric 0",
+                Keys.D1 => "Alphanumeric 1",
+                Keys.D2 => "Alphanumeric 2",
+                Keys.D3 => "Alphanumeric 3",
+                Keys.D4 => "Alphanumeric 4",
+                Keys.D5 => "Alphanumeric 5",
+                Keys.D6 => "Alphanumeric 6",
+                Keys.D7 => "Alphanumeric 7",
+                Keys.D8 => "Alphanumeric 8",
+                Keys.D9 => "Alphanumeric 9",
                 Keys.Delete => "Del",
-                Keys.Divide => "Num/",
-                Keys.NumPad0 => "Num0",
-                Keys.NumPad1 => "Num1",
-                Keys.NumPad2 => "Num2",
-                Keys.NumPad3 => "Num3",
-                Keys.NumPad4 => "Num4",
-                Keys.NumPad5 => "Num5",
-                Keys.NumPad6 => "Num6",
-                Keys.NumPad7 => "Num7",
-                Keys.NumPad8 => "Num8",
-                Keys.NumPad9 => "Num9",
-                Keys.Subtract => "Num-",
+                Keys.Divide => "Numpad /",
+                Keys.Multiply => "Numpad *",
+                Keys.NumPad0 => "Numpad 0",
+                Keys.NumPad1 => "Numpad 1",
+                Keys.NumPad2 => "Numpad 2",
+                Keys.NumPad3 => "Numpad 3",
+                Keys.NumPad4 => "Numpad 4",
+                Keys.NumPad5 => "Numpad 5",
+                Keys.NumPad6 => "Numpad 6",
+                Keys.NumPad7 => "Numpad 7",
+                Keys.NumPad8 => "Numpad 8",
+                Keys.NumPad9 => "Numpad 9",
+                Keys.Subtract => "Numpad -",
                 Keys.Oem8 => "Oem8",
                 Keys.OemAuto => "Auto",
                 Keys.OemBackslash => "\\",
@@ -223,6 +224,20 @@ namespace WaveTracker {
                 Keys.OemTilde => "`",
                 _ => key.ToString(),
             };
+        }
+
+        public static string ModifierToString(KeyModifier modifier) {
+            return modifier switch {
+                KeyModifier.Shift => "Shift+",
+                KeyModifier.Alt => "Alt+",
+                KeyModifier.Ctrl => "Ctrl+",
+                KeyModifier.ShiftAlt => "Shift+Alt+",
+                KeyModifier.CtrlShift => "Ctrl+Shift+",
+                KeyModifier.CtrlAlt => "Ctrl+Alt+",
+                KeyModifier.CtrlShiftAlt => "Ctrl+Shift+Alt+",
+                _ => "",
+            };
+            ;
         }
 
         /// <summary>

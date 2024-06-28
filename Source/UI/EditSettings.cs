@@ -33,22 +33,22 @@ namespace WaveTracker.UI {
             step.Update();
             highlightPrimary.Update();
             highlightSecondary.Update();
-            if (octave.ValueWasChanged)
+            if (octave.ValueWasChangedInternally)
                 App.PatternEditor.CurrentOctave = octave.Value;
             else
                 octave.Value = App.PatternEditor.CurrentOctave;
 
-            if (step.ValueWasChanged)
+            if (step.ValueWasChangedInternally)
                 App.PatternEditor.InputStep = step.Value;
             else
                 step.Value = App.PatternEditor.InputStep;
 
-            if (highlightPrimary.ValueWasChanged)
+            if (highlightPrimary.ValueWasChangedInternally)
                 App.CurrentSong.RowHighlightPrimary = highlightPrimary.Value;
             else
                 highlightPrimary.Value = App.CurrentSong.RowHighlightPrimary;
 
-            if (highlightSecondary.ValueWasChanged)
+            if (highlightSecondary.ValueWasChangedInternally)
                 App.CurrentSong.RowHighlightSecondary = highlightSecondary.Value;
             else
                 highlightSecondary.Value = App.CurrentSong.RowHighlightSecondary;

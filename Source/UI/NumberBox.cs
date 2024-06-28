@@ -64,6 +64,8 @@ namespace WaveTracker.UI {
         public void SetValueLimits(int min, int max) {
             this.min = min;
             this.max = max;
+            if (Value < min) Value = min;
+            if (Value > max) Value = max;
         }
 
         public void Update() {
