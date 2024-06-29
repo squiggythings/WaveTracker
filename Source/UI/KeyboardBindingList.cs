@@ -129,11 +129,10 @@ namespace WaveTracker.UI {
                 if (entries.Count > i && i >= 0) {
                     if (rowNum == 0 || entries[i].isLabel) {
                         string categoryName = entries[i].categoryName;
-                        int nameWidth = Helpers.GetWidthOfText(entries[i].categoryName);
+                        int nameWidth = Helpers.GetWidthOfText(categoryName);
                         int labelInset = 12;
                         DrawRect(0, rowNum * ROW_HEIGHT, width, ROW_HEIGHT, odd);
-                        //Write(entries[i].actionName, (width - 7) / 2 - Helpers.GetWidthOfText(entries[i].actionName) / 2, rowNum * ROW_HEIGHT + 2, Color.White);
-                        Write(entries[i].categoryName, labelInset, rowNum * ROW_HEIGHT + 3, UIColors.labelLight);
+                        Write(categoryName, labelInset, rowNum * ROW_HEIGHT + 3, UIColors.labelLight);
                         DrawRect(3, rowNum * ROW_HEIGHT + 6, labelInset - 3 - 3, 1, UIColors.label);
                         DrawRect(labelInset + nameWidth + 3, rowNum * ROW_HEIGHT + 6, width - 7 - 3 - nameWidth - 3 - labelInset, 1, UIColors.label);
                     }
@@ -166,7 +165,7 @@ namespace WaveTracker.UI {
                         if (conflictingActions.Count > 0) {
                             DrawSprite(width - 7 - 12, rowNum * ROW_HEIGHT + 2, new Rectangle(484, 144, 9, 9));
                             if (MouseY > rowNum * ROW_HEIGHT && MouseY <= (rowNum + 1) * ROW_HEIGHT) {
-                                if (MouseX < width - 7 && MouseX > width - 16) {
+                                if (MouseX < width - 7 - 12 && MouseX > width - 7 - 3) {
                                     int ypos = rowNum * ROW_HEIGHT;
                                     foreach (string action in conflictingActions) {
                                         Write(action, width + 4, ypos, Color.Red);
