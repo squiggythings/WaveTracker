@@ -21,6 +21,7 @@ namespace WaveTracker.UI {
             pages = new Dictionary<string, Page>();
             pageSelector = new VerticalListSelector(5, 12, 75, 258, new string[] { "General", "Pattern Editor", "Appearance", "Samples/Waves", "MIDI", "Audio", "Visualizer", "Keyboard" }, this);
             pages.Add("General", new Page(this));
+            pages.Add("Files", new Page(this));
             pages.Add("Appearance", new Page(this));
             pages.Add("Pattern Editor", new Page(this));
             pages.Add("Samples/Waves", new Page(this));
@@ -32,13 +33,15 @@ namespace WaveTracker.UI {
             pages["General"].AddLabel("General");
             pages["General"].AddCheckbox("option1", "");
             pages["General"].AddCheckbox("option2", "");
-            pages["General"].AddDropdown("Screen scale:", "", new string[] { "100%", "200%", "300%", "400%", "500%" }, false);
+            pages["General"].AddDropdown("Screen scale:", "", new string[] { "100%", "200%", "300%", "400%", "500%" });
             pages["General"].AddBreak();
             pages["General"].AddLabel("Metering");
             pages["General"].AddDropdown("Oscilloscope mode:", "", new string[] { "Mono", "Stereo: split", "Stereo: overlap" });
             pages["General"].AddDropdown("Meter decay rate:", "", new string[] { "Slow", "Medium", "Fast" });
             pages["General"].AddDropdown("Meter color mode:", "", new string[] { "Flat", "Gradient" });
             pages["General"].AddCheckbox("Flash meter red when clipping", "");
+
+            //pages["Files"].AddNumberBox("D", "");
 
 
             pages["Pattern Editor"].AddLabel("Pattern Editor");
@@ -64,6 +67,27 @@ namespace WaveTracker.UI {
 
             pages["MIDI"].AddLabel("MIDI");
             pages["MIDI"].AddDropdown("Input device:", "", new string[] { "(none)" }, false, -1, 999);
+            pages["MIDI"].AddCheckbox("Record note velocity", "");
+
+            pages["Audio"].AddLabel("Audio");
+            pages["Audio"].AddDropdown("Output device:", "", new string[] { "(default)" }, false, -1, 999);
+            pages["Audio"].AddNumberBox("Master volume:", "", 0, 200);
+            pages["Audio"].AddBreak();
+            pages["Audio"].AddLabel("Advanced");
+            pages["Audio"].AddDropdown("Oversampling:", "", new string[] { "Off", "2x (recommended)", "4x" }, false, -1, 999);
+
+            pages["Visualizer"].AddLabel("Piano");
+            pages["Visualizer"].AddNumberBox("Note speed:", "", 1, 20);
+            pages["Visualizer"].AddCheckbox("Change note width by volume", "");
+            pages["Visualizer"].AddCheckbox("Change note opacity by volume", "");
+            pages["Visualizer"].AddCheckbox("Highlight pressed keys", "");
+            pages["Visualizer"].AddBreak();
+            pages["Visualizer"].AddLabel("Oscilloscopes");
+            pages["Visualizer"].AddNumberBox("Wave zoom:", "", 50, 200);
+            pages["Visualizer"].AddCheckbox("Colorful waves", "");
+            pages["Visualizer"].AddDropdown("Wave thickness", "", new string[] { "Thin", "Medium", "Thick" });
+            pages["Visualizer"].AddDropdown("Crosshairs", "", new string[] { "None", "Horizontal", "Horizontal + Vertical" });
+            pages["Visualizer"].AddCheckbox("Oscilloscope borders", "");
 
         }
 
@@ -71,11 +95,17 @@ namespace WaveTracker.UI {
             base.Open();
             MidiInput.ReadMidiDevices();
             (pages["MIDI"]["Input device:"] as ConfigurationOption.Dropdown).SetMenuItems(MidiInput.MidiDevicesNames);
+            (pages["Audio"]["Output device:"] as ConfigurationOption.Dropdown).SetMenuItems(Audio.AudioEngine.OutputDeviceNames);
+            ReadSettings();
+        }
+
+        public void ReadSettings() {
+           // (pages["Audio"]["Output device:"] as ConfigurationOption.Dropdown).SetMenuItems(Audio.AudioEngine.dev);
         }
 
         public bool ApplySettings() {
             if (!MidiInput.ChangeMidiDevice((pages["MIDI"]["Input device:"] as ConfigurationOption.Dropdown).Value)) {
-                (pages["MIDI"]["Input device:"] as ConfigurationOption.Dropdown).Value = 0;
+                pages["MIDI"]["Input device:"].ValueInt = 0;
                 return false;
             }
             return true;
@@ -104,7 +134,6 @@ namespace WaveTracker.UI {
 
         public new void Draw() {
             if (windowIsOpen) {
-
                 base.Draw();
                 pageSelector.Draw();
                 if (pages.TryGetValue(pageSelector.SelectedItem, out Page p)) {
@@ -154,7 +183,7 @@ namespace WaveTracker.UI {
                 ypos += height;
             }
 
-            public ConfigurationOption.Dropdown AddDropdown(string label, string description, string[] dropdownItems, bool scrollWrap = true, int dropdownPosition = -1, int dropdownWidth = -1) {
+            public ConfigurationOption.Dropdown AddDropdown(string label, string description, string[] dropdownItems, bool scrollWrap = false, int dropdownPosition = -1, int dropdownWidth = -1) {
                 ypos += 1;
                 ConfigurationOption.Dropdown ret = new ConfigurationOption.Dropdown(ypos, label, description, dropdownItems, this, scrollWrap, dropdownPosition, dropdownWidth);
                 ypos += ret.height;
@@ -238,6 +267,23 @@ namespace WaveTracker.UI {
 
         public virtual void Draw() { }
 
+        public virtual int ValueInt {
+            get { throw new NotImplementedException(); }
+            set { throw new NotImplementedException(); }
+        }
+        public virtual bool ValueBool {
+            get { throw new NotImplementedException(); }
+            set { throw new NotImplementedException(); }
+        }
+        public virtual string ValueString {
+            get { throw new NotImplementedException(); }
+            set { throw new NotImplementedException(); }
+        }
+        public virtual Color ValueColor {
+            get { throw new NotImplementedException(); }
+            set { throw new NotImplementedException(); }
+        }
+
         public class Label : ConfigurationOption {
             const int textPadding = 3;
             const int textLocation = 9;
@@ -285,6 +331,11 @@ namespace WaveTracker.UI {
                 checkbox.Draw(IsHovered, IsPressed);
                 Write(Name, 14, 2, UIColors.labelDark);
             }
+
+            public override bool ValueBool{
+                get { return Value; }
+                set { Value = value; }
+            }
         }
         public class Dropdown : ConfigurationOption {
             UI.Dropdown dropdown;
@@ -323,6 +374,11 @@ namespace WaveTracker.UI {
                 Write(Name, 0, 3, UIColors.labelDark);
                 dropdown.Draw();
             }
+
+            public override int ValueInt {
+                get { return Value; }
+                set { Value = value; }
+            }
         }
 
         public class TextBox : ConfigurationOption {
@@ -350,6 +406,11 @@ namespace WaveTracker.UI {
             public override void Draw() {
                 Write(Name, 0, 3, UIColors.labelDark);
                 textBox.Draw();
+            }
+
+            public override string ValueString {
+                get { return Text; }
+                set { Text = value; }
             }
         }
 
@@ -388,6 +449,10 @@ namespace WaveTracker.UI {
             public override void Draw() {
                 Write(Name, 0, 3, UIColors.labelDark);
                 numberBox.Draw();
+            }
+            public override int ValueInt {
+                get { return Value; }
+                set { numberBox.Value = value; }
             }
         }
 

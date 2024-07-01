@@ -13,7 +13,7 @@ namespace WaveTracker.Audio {
     public class AudioEngine {
         public const ResamplingMode RESAMPLING_MODE = ResamplingMode.None;
         public const int SAMPLE_RATE = 44100;
-        public static int samplesPerTick => (SAMPLE_RATE / tickSpeed);
+        public static int SamplesPerTick => (SAMPLE_RATE / TickSpeed);
         public static int SamplesPerBuffer => 1000;
 
         public const bool quantizeAmplitude = false;
@@ -27,11 +27,15 @@ namespace WaveTracker.Audio {
         public WasapiOut wasapiOut;
         public static bool rendering;
         public static bool cancelRender;
-        public List<MMDevice> devices;
+        public static MMDeviceCollection OutputDevices { get; private set; }
+        public static string[] OutputDeviceNames { get; private set; }
+
+        public static int CurrentOutputDevice { get; set; }
+
         Provider audioProvider;
 
 
-        static int tickSpeed {
+        static int TickSpeed {
             get {
                 if (App.CurrentModule == null)
                     return 60;
@@ -46,15 +50,44 @@ namespace WaveTracker.Audio {
         }
 
         public void Initialize() {
+            //            NAudio.CoreAudioApi.MMDeviceEnumerator device = new();
+            GetAudioOutputDevices();
             Dialogs.exportingDialog = new ExportingDialog();
             currentBuffer = new float[2, SamplesPerBuffer];
             audioProvider = new Provider();
-            audioProvider.SetWaveFormat(AudioEngine.SAMPLE_RATE, 2); // 44.1khz stereo
-            wasapiOut = new WasapiOut();
+            audioProvider.SetWaveFormat(SAMPLE_RATE, 2); // 44.1khz stereo
+            if (CurrentOutputDevice == 0) {
+                wasapiOut = new WasapiOut();
+            }
+            else {
+                wasapiOut = new WasapiOut(OutputDevices[CurrentOutputDevice - 1], AudioClientShareMode.Shared, false, 0);
+            }
             wasapiOut.Init(audioProvider);
             wasapiOut.Play();
             instance = this;
+        }
 
+        public static void GetAudioOutputDevices() {
+            Stopwatch s = new Stopwatch();
+            s.Start();
+            MMDeviceEnumerator enumerator = new MMDeviceEnumerator();
+            OutputDevices = enumerator.EnumerateAudioEndPoints(DataFlow.All, DeviceState.Active);
+            OutputDeviceNames = new string[OutputDevices.Count];
+            List<string> names = new List<string>();
+            Debug.WriteLine("t: " + s.ElapsedMilliseconds);
+            s.Restart();
+            foreach (MMDevice device in OutputDevices) {
+                Debug.WriteLine("device: " + s.ElapsedMilliseconds);
+                s.Restart();
+                names.Add(device.FriendlyName);
+                Debug.WriteLine("get device info: " + s.ElapsedMilliseconds);
+                s.Restart();
+            }
+            Debug.WriteLine("2: " + s.ElapsedMilliseconds);
+            s.Restart();
+            OutputDeviceNames = names.ToArray();
+            Debug.WriteLine("done: " + s.ElapsedMilliseconds);
+            s.Restart();
         }
 
         public void Stop() {
@@ -65,8 +98,13 @@ namespace WaveTracker.Audio {
 
         public void Reset() {
             wasapiOut.Stop();
-            Thread.Sleep(10);
-            wasapiOut = new WasapiOut();
+            Thread.Sleep(3);
+            if (CurrentOutputDevice == 0) {
+                wasapiOut = new WasapiOut();
+            }
+            else {
+                wasapiOut = new WasapiOut(OutputDevices[CurrentOutputDevice - 1], AudioClientShareMode.Shared, false, 0);
+            }
             wasapiOut.Init(audioProvider);
             wasapiOut.Play();
         }
@@ -125,7 +163,7 @@ namespace WaveTracker.Audio {
                     }
                 }
                 int sampleRate = WaveFormat.SampleRate;
-                float delta = (1f / sampleRate) * (tickSpeed / 60f);
+                float delta = (1f / sampleRate) * (TickSpeed / 60f);
 
                 for (int n = 0; n < sampleCount; n += 2) {
                     buffer[n + offset] = buffer[n + offset + 1] = 0;
@@ -155,12 +193,12 @@ namespace WaveTracker.Audio {
                     buffer[n + offset + 1] *= Preferences.profile.master_volume;
 
                     if (App.VisualizerMode && !rendering)
-                        if (_tickCounter % (samplesPerTick / Preferences.profile.visualizerPianoSpeed) == 0) {
+                        if (_tickCounter % (SamplesPerTick / Preferences.profile.visualizerPianoSpeed) == 0) {
                             App.visualization.Update();
                         }
 
                     _tickCounter++;
-                    if (_tickCounter >= samplesPerTick) {
+                    if (_tickCounter >= SamplesPerTick) {
                         _tickCounter = 0;
                         Tracker.Playback.Tick();
                         foreach (Channel c in ChannelManager.channels) {

@@ -278,20 +278,20 @@ namespace WaveTracker {
                 InstrumentBank.Update();
                 InstrumentEditor.Update();
             }
+            pianoInput = -1;
             if (Input.focus == null || WaveEditor.IsOpen || InstrumentEditor.IsOpen) {
+                if (MidiInput.GetMidiNote > -1) {
+                    pianoInput = MidiInput.GetMidiNote;
+                }
+                else {
+                    
+                }
                 pianoInput = Helpers.GetPianoInput(PatternEditor.CurrentOctave);
             }
-            else {
-                pianoInput = -1;
-            }
-
             if (WaveEditor.GetPianoMouseInput() > -1)
                 pianoInput = WaveEditor.GetPianoMouseInput();
             if (InstrumentEditor.GetPianoMouseInput() > -1)
                 pianoInput = InstrumentEditor.GetPianoMouseInput();
-            if (MidiInput.GetMidiNote > -1) {
-                pianoInput = MidiInput.GetMidiNote;
-            }
             if (PatternEditor.cursorPosition.Column == CursorColumnType.Note || WaveEditor.IsOpen || InstrumentEditor.IsOpen) {
                 if (pianoInput != -1 && lastPianoKey != pianoInput) {
                     if (!Playback.IsPlaying)
@@ -408,7 +408,7 @@ namespace WaveTracker {
             //Rendering.Graphics.Write("filename: " + filename, 2, 12, Color.Red);
             //Rendering.Graphics.Write("FPS: " + 1 / gameTime.ElapsedGameTime.TotalSeconds, 2, 2, Color.Red);
             int y = 12;
-            Graphics.Write(Input.CurrentPressedShortcut.ToString(), 2, 250, Color.Red);
+            Graphics.Write(MidiInput.GetMidiNote + ", " + pianoInput, 2, 250, Color.Red);
             Graphics.Write("@" + Input.focus + "", 2, 260, Color.Red);
 
             targetBatch.End();

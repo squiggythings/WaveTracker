@@ -43,7 +43,7 @@ namespace WaveTracker {
 
         public override string ToString() {
             if (Key == Keys.None) {
-                return "...";
+                return "(none)";
             }            
             return Helpers.ModifierToString(Modifier) + Helpers.KeyToString(Key);
         }

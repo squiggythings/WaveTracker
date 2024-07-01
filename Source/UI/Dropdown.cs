@@ -126,8 +126,9 @@ namespace WaveTracker.UI {
         public void Draw() {
             int textOffset = IsPressed && enabled ? 1 : 0;
             DrawRoundedRect(0, 0, width, height, getBackgroundColor());
-
-            Write(options[Value], 4, (height + 1) / 2 - 4 + textOffset, getTextColor());
+            if (Value < options.Length) {
+                Write(options[Value], 4, (height + 1) / 2 - 4 + textOffset, getTextColor());
+            }
             DrawRect(width - 9, 5 + textOffset, 5, 1, getTextColor());
             DrawRect(width - 8, 6 + textOffset, 3, 1, getTextColor());
             DrawRect(width - 7, 7 + textOffset, 1, 1, getTextColor());
