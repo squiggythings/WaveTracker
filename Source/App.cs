@@ -66,11 +66,15 @@ namespace WaveTracker {
 
         public static AppSettings CurrentSettings { get; private set; }
 
-        public static Dictionary<string, KeyboardShortcut> Shortcuts => CurrentSettings.keyboard.shortcuts;
+        public static Dictionary<string, KeyboardShortcut> Shortcuts => CurrentSettings.Keyboard.shortcuts;
 
         public const int MENUSTRIP_HEIGHT = 10;
 
         public MenuStrip MenuStrip { get; set; }
+
+        public static NumberBox a1;
+        public static NumberBox a2;
+        public static NumberBox a3;
 
         public App(string[] args) {
             instance = this;
@@ -120,6 +124,13 @@ namespace WaveTracker {
             WaveEditor = new WaveEditor();
             frameView = new FramesPanel(2, 106 + MENUSTRIP_HEIGHT, 504, 42);
             SongSettings = new SongSettings(2, 18 + MENUSTRIP_HEIGHT);
+            a1 = new NumberBox("a1", 960 - 90, 120, null);
+            a1.SetValueLimits(1, 16);
+            a1.Value = 1;
+            a2 = new NumberBox("a2", 960 - 90, 140, null);
+            a2.SetValueLimits(0, 100);
+            a3 = new NumberBox("a2", 960 - 90, 160, null);
+            a3.SetValueLimits(0, 100);
             audioEngine = new AudioEngine();
             audioEngine.Initialize();
 
@@ -284,7 +295,7 @@ namespace WaveTracker {
                     pianoInput = MidiInput.GetMidiNote;
                 }
                 else {
-                    
+
                 }
                 pianoInput = Helpers.GetPianoInput(PatternEditor.CurrentOctave);
             }
@@ -325,7 +336,9 @@ namespace WaveTracker {
             toolbar.Update();
             MenuStrip.Update();
             Dialogs.Update();
-
+            a1.Update();
+            a2.Update();
+            a3.Update();
             ContextMenu.Update();
             base.Update(gameTime);
             lastPianoKey = pianoInput;
@@ -408,6 +421,9 @@ namespace WaveTracker {
             //Rendering.Graphics.Write("filename: " + filename, 2, 12, Color.Red);
             //Rendering.Graphics.Write("FPS: " + 1 / gameTime.ElapsedGameTime.TotalSeconds, 2, 2, Color.Red);
             int y = 12;
+            a1.Draw();
+            a2.Draw();
+            a3.Draw();
             Graphics.Write(MidiInput.GetMidiNote + ", " + pianoInput, 2, 250, Color.Red);
             Graphics.Write("@" + Input.focus + "", 2, 260, Color.Red);
 

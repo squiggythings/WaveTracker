@@ -22,7 +22,7 @@ namespace WaveTracker.UI {
             pageSelector = new VerticalListSelector(5, 12, 75, 258, new string[] { "General", "Pattern Editor", "Appearance", "Samples/Waves", "MIDI", "Audio", "Visualizer", "Keyboard" }, this);
             pages.Add("General", new Page(this));
             pages.Add("Files", new Page(this));
-            pages.Add("Appearance", new Page(this));
+            pages.Add("Appearance", new AppearancePage(this));
             pages.Add("Pattern Editor", new Page(this));
             pages.Add("Samples/Waves", new Page(this));
             pages.Add("MIDI", new Page(this));
@@ -36,12 +36,14 @@ namespace WaveTracker.UI {
             pages["General"].AddDropdown("Screen scale:", "", new string[] { "100%", "200%", "300%", "400%", "500%" });
             pages["General"].AddBreak();
             pages["General"].AddLabel("Metering");
-            pages["General"].AddDropdown("Oscilloscope mode:", "", new string[] { "Mono", "Stereo: split", "Stereo: overlap" });
-            pages["General"].AddDropdown("Meter decay rate:", "", new string[] { "Slow", "Medium", "Fast" });
-            pages["General"].AddDropdown("Meter color mode:", "", new string[] { "Flat", "Gradient" });
+            pages["General"].AddDropdown("Oscilloscope mode", "", new string[] { "Mono", "Stereo: split", "Stereo: overlap" });
+            pages["General"].AddDropdown("Meter decay rate", "", new string[] { "Slow", "Medium", "Fast" });
+            pages["General"].AddDropdown("Meter color mode", "", new string[] { "Flat", "Gradient" });
             pages["General"].AddCheckbox("Flash meter red when clipping", "");
 
-            //pages["Files"].AddNumberBox("D", "");
+            pages["Files"].AddLabel("Default values");
+            pages["Files"].AddNumberBox("Default rows per frame", "", 1, 256);
+            pages["Files"].AddTextbox("Default ticks per row", "", 90);
 
 
             pages["Pattern Editor"].AddLabel("Pattern Editor");
@@ -51,7 +53,7 @@ namespace WaveTracker.UI {
             pages["Pattern Editor"].AddCheckbox("Ignore step when moving", "");
             pages["Pattern Editor"].AddCheckbox("Key repeat", "");
             pages["Pattern Editor"].AddCheckbox("Restore channel state on playback", "");
-            pages["Pattern Editor"].AddDropdown("Page jump amount:", "", new string[] { "2", "4", "8", "16" });
+            pages["Pattern Editor"].AddDropdown("Page jump amount", "", new string[] { "2", "4", "8", "16" });
 
             pages["Samples/Waves"].AddLabel("Sample Import Settings");
             pages["Samples/Waves"].AddCheckbox("Normalize samples on import", "");
@@ -59,22 +61,22 @@ namespace WaveTracker.UI {
             pages["Samples/Waves"].AddCheckbox("Resample to 44.1kHz on import", "");
             pages["Samples/Waves"].AddCheckbox("Preview samples in browser", "");
             pages["Samples/Waves"].AddCheckbox("Include samples in visualizer by default", "");
-            pages["Samples/Waves"].AddNumberBox("Default base key:", "", 12, 131, NumberBox.NumberDisplayMode.Note, -1, 56);
+            pages["Samples/Waves"].AddNumberBox("Default base key", "", 12, 131, NumberBox.NumberDisplayMode.Note, -1, 56);
             pages["Samples/Waves"].AddBreak();
             pages["Samples/Waves"].AddLabel("Resampling");
-            pages["Samples/Waves"].AddDropdown("Default wave resample mode:", "", new string[] { "Harsh (None)", "Smooth (Linear)", "Mix (None + Linear)" });
-            pages["Samples/Waves"].AddDropdown("Default sample resample mode:", "", new string[] { "Harsh (None)", "Smooth (Linear)", "Mix (None + Linear)" });
+            pages["Samples/Waves"].AddDropdown("Default wave resample mode", "", new string[] { "Harsh (None)", "Smooth (Linear)", "Mix (None + Linear)" });
+            pages["Samples/Waves"].AddDropdown("Default sample resample mode", "", new string[] { "Harsh (None)", "Smooth (Linear)", "Mix (None + Linear)" });
 
             pages["MIDI"].AddLabel("MIDI");
-            pages["MIDI"].AddDropdown("Input device:", "", new string[] { "(none)" }, false, -1, 999);
+            pages["MIDI"].AddDropdown("Input device", "", new string[] { "(none)" }, false, -1, 999);
             pages["MIDI"].AddCheckbox("Record note velocity", "");
 
             pages["Audio"].AddLabel("Audio");
-            pages["Audio"].AddDropdown("Output device:", "", new string[] { "(default)" }, false, -1, 999);
-            pages["Audio"].AddNumberBox("Master volume:", "", 0, 200);
+            pages["Audio"].AddDropdown("Output device", "", new string[] { "(default)" }, false, -1, 999);
+            pages["Audio"].AddNumberBox("Master volume", "", 0, 200);
             pages["Audio"].AddBreak();
             pages["Audio"].AddLabel("Advanced");
-            pages["Audio"].AddDropdown("Oversampling:", "", new string[] { "Off", "2x (recommended)", "4x" }, false, -1, 999);
+            pages["Audio"].AddDropdown("Oversampling", "", new string[] { "Off", "2x (recommended)", "4x", "4x" }, false, -1, 999);
 
             pages["Visualizer"].AddLabel("Piano");
             pages["Visualizer"].AddNumberBox("Note speed:", "", 1, 20);
@@ -83,7 +85,7 @@ namespace WaveTracker.UI {
             pages["Visualizer"].AddCheckbox("Highlight pressed keys", "");
             pages["Visualizer"].AddBreak();
             pages["Visualizer"].AddLabel("Oscilloscopes");
-            pages["Visualizer"].AddNumberBox("Wave zoom:", "", 50, 200);
+            pages["Visualizer"].AddNumberBox("Wave zoom", "", 50, 200);
             pages["Visualizer"].AddCheckbox("Colorful waves", "");
             pages["Visualizer"].AddDropdown("Wave thickness", "", new string[] { "Thin", "Medium", "Thick" });
             pages["Visualizer"].AddDropdown("Crosshairs", "", new string[] { "None", "Horizontal", "Horizontal + Vertical" });
@@ -100,15 +102,15 @@ namespace WaveTracker.UI {
         }
 
         public void ReadSettings() {
-           // (pages["Audio"]["Output device:"] as ConfigurationOption.Dropdown).SetMenuItems(Audio.AudioEngine.dev);
+            // (pages["Audio"]["Output device:"] as ConfigurationOption.Dropdown).SetMenuItems(Audio.AudioEngine.dev);
+            (pages["Keyboard"] as KeyboardPage).LoadBindingsFrom(App.CurrentSettings.Keyboard.shortcuts);
         }
 
-        public bool ApplySettings() {
+        public void ApplySettings() {
             if (!MidiInput.ChangeMidiDevice((pages["MIDI"]["Input device:"] as ConfigurationOption.Dropdown).Value)) {
                 pages["MIDI"]["Input device:"].ValueInt = 0;
-                return false;
             }
-            return true;
+            (pages["Keyboard"] as KeyboardPage).SaveBindingsInto(App.CurrentSettings.Keyboard.shortcuts);
         }
 
         public override void Update() {
@@ -231,7 +233,23 @@ namespace WaveTracker.UI {
             public KeyboardPage(Element parent) : base(parent) {
                 AddLabel("Keyboard Bindings");
                 bindingList = new KeyboardBindingList(4, ypos, width - 8, 16, this);
-                bindingList.SetDictionary(App.CurrentSettings.keyboard.defaultShortcuts);
+                bindingList.SetDictionary(App.CurrentSettings.Keyboard.defaultShortcuts);
+            }
+
+            /// <summary>
+            /// Sets keyboard binding ui's bindings from the given dictionary
+            /// </summary>
+            /// <param name="bindings"></param>
+            public void LoadBindingsFrom(Dictionary<string, KeyboardShortcut> bindings) {
+                bindingList.SetDictionary(bindings);
+            }
+
+            /// <summary>
+            /// Saves the keyboard binding ui's bindings into the given dictionary
+            /// </summary>
+            /// <param name="bindings"></param>
+            public void SaveBindingsInto(Dictionary<string, KeyboardShortcut> bindings) {
+
             }
 
             public override void Update() {
@@ -242,6 +260,20 @@ namespace WaveTracker.UI {
             public override void Draw() {
                 base.Draw();
                 bindingList.Draw();
+            }
+        }
+
+        class AppearancePage : Page {
+            public AppearancePage(Element parent) : base(parent) {
+                AddLabel("Appearance");
+            }
+
+            public override void Update() {
+                base.Update();
+            }
+
+            public override void Draw() {
+                base.Draw();
             }
         }
         #endregion
@@ -266,6 +298,13 @@ namespace WaveTracker.UI {
         public virtual void Update() { }
 
         public virtual void Draw() { }
+
+        public virtual string GetValue() {
+            throw new NotImplementedException();
+        }
+        public virtual void SetValue(string s) {
+
+        }
 
         public virtual int ValueInt {
             get { throw new NotImplementedException(); }
@@ -332,9 +371,23 @@ namespace WaveTracker.UI {
                 Write(Name, 14, 2, UIColors.labelDark);
             }
 
-            public override bool ValueBool{
+            public override bool ValueBool {
                 get { return Value; }
                 set { Value = value; }
+            }
+
+            public override string GetValue() {
+                return Value + "";
+            }
+            public override void SetValue(string s) {
+                bool b = Value;
+                if (bool.TryParse(s, out b)) {
+                    Value = b;
+                }
+            }
+
+            public string GetFullString() {
+                return
             }
         }
         public class Dropdown : ConfigurationOption {
@@ -351,7 +404,7 @@ namespace WaveTracker.UI {
             public bool ValueWasChangedInternally => dropdown.ValueWasChangedInternally;
             public Dropdown(int y, string name, string description, string[] dropdownItems, ConfigurationDialog.Page parent, bool scrollWrap = true, int dropdownPosition = -1, int dropdownWidth = -1) : base(y, 13, name, description, parent) {
                 if (dropdownPosition == -1) {
-                    dropdownPosition = Helpers.GetWidthOfText(name) + 5;
+                    dropdownPosition = Helpers.GetWidthOfText(name) + 8;
                 }
                 dropdown = new(dropdownPosition, 0, this, scrollWrap);
                 if (dropdownWidth != -1) {
@@ -371,7 +424,7 @@ namespace WaveTracker.UI {
                 dropdown.Update();
             }
             public override void Draw() {
-                Write(Name, 0, 3, UIColors.labelDark);
+                Write(Name + ":", 0, 3, UIColors.labelDark);
                 dropdown.Draw();
             }
 
@@ -382,7 +435,7 @@ namespace WaveTracker.UI {
         }
 
         public class TextBox : ConfigurationOption {
-            UI.Textbox textBox;
+            Textbox textBox;
 
             public string Text {
                 get {
@@ -395,7 +448,7 @@ namespace WaveTracker.UI {
             public bool ValueWasChangedInternally => textBox.ValueWasChangedInternally;
             public TextBox(int y, int boxWidth, string name, string description, ConfigurationDialog.Page parent, int boxPosition = -1) : base(y, 13, name, description, parent) {
                 if (boxPosition == -1) {
-                    boxPosition = Helpers.GetWidthOfText(name) + 5;
+                    boxPosition = Helpers.GetWidthOfText(name) + 8;
                 }
                 textBox = new("", boxPosition, 0, boxWidth, this);
             }
@@ -404,7 +457,7 @@ namespace WaveTracker.UI {
                 textBox.Update();
             }
             public override void Draw() {
-                Write(Name, 0, 3, UIColors.labelDark);
+                Write(Name + ":", 0, 3, UIColors.labelDark);
                 textBox.Draw();
             }
 
@@ -421,7 +474,7 @@ namespace WaveTracker.UI {
             public bool ValueWasChangedInternally => numberBox.ValueWasChangedInternally;
             public NumberBox(int y, string name, string description, ConfigurationDialog.Page parent, int numberBoxPosition = -1, int numberBoxWidth = -1) : base(y, 13, name, description, parent) {
                 if (numberBoxPosition == -1) {
-                    numberBoxPosition = Helpers.GetWidthOfText(name) + 5;
+                    numberBoxPosition = Helpers.GetWidthOfText(name) + 8;
                 }
                 if (numberBoxWidth != -1) {
                     int minWidth = 38;
@@ -447,7 +500,7 @@ namespace WaveTracker.UI {
                 numberBox.Update();
             }
             public override void Draw() {
-                Write(Name, 0, 3, UIColors.labelDark);
+                Write(Name + ":", 0, 3, UIColors.labelDark);
                 numberBox.Draw();
             }
             public override int ValueInt {

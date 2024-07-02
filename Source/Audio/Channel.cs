@@ -682,7 +682,7 @@ namespace WaveTracker.Audio {
             //    _frequency = 15804;
             //    //_state = VoiceState.Off;
             //}
-            float delta = 1f / (OVERSAMPLE * AudioEngine.SAMPLE_RATE) * _frequency;
+            float delta = 1f / (App.a1.Value * AudioEngine.SAMPLE_RATE) * _frequency;
             if (continuousTick)
                 ContinuousTick(continuousDelta);
             if (noteOn) {
@@ -690,49 +690,49 @@ namespace WaveTracker.Audio {
                 float sampleSumR = 0;
                 float sampleL;
                 float sampleR;
-                for (int i = 0; i < 2; ++i) {
-                    if (_state == VoiceState.Off) {
-                        _fadeMultiplier /= 1.002f;
-                        if (_fadeMultiplier < 0.001f) {
-                            noteOn = false;
+                //for (int i = 0; i < OVERSAMPLE; ++i) {
+                if (_state == VoiceState.Off) {
+                    _fadeMultiplier /= 1.002f;
+                    if (_fadeMultiplier < 0.001f) {
+                        noteOn = false;
+                    }
+                }
+                else {
+                    _fadeMultiplier = 1;
+                    _time += delta;
+                }
+                sampleL = 0;
+                sampleR = 0;
+                if (currentInstrument != null) {
+                    if (currentInstrument is WaveInstrument) {
+                        if (_time > 1)
+                            _time -= 1;
+                        if (stereoPhaseOffset != 0) {
+                            sampleL = EvaluateWave((float)_time - stereoPhaseOffset);
+                            sampleR = EvaluateWave((float)_time + stereoPhaseOffset);
+                        }
+                        else {
+                            sampleR = sampleL = EvaluateWave((float)_time);
                         }
                     }
                     else {
-                        _fadeMultiplier = 1;
-                        _time += delta;
-                    }
-                    sampleL = 0;
-                    sampleR = 0;
-                    if (currentInstrument != null) {
-                        if (currentInstrument is WaveInstrument) {
-                            if (_time > 1)
-                                _time -= 1;
-                            if (stereoPhaseOffset != 0) {
-                                sampleL = EvaluateWave((float)_time - stereoPhaseOffset);
-                                sampleR = EvaluateWave((float)_time + stereoPhaseOffset);
-                            }
-                            else {
-                                sampleR = sampleL = EvaluateWave((float)_time);
-                            }
+                        instrumentAsSample.sample.SampleTick((float)_time, (int)(stereoPhaseOffset * 100), SampleStartOffset / 100f, out sampleL, out sampleR);
+                        sampleL *= 1.25f;
+                        sampleR *= 1.25f;
+                        SamplePlaybackPosition = instrumentAsSample.sample.currentPlaybackPosition;
+                        if (Math.Abs(sampleL) > _sampleVolume) {
+                            _sampleVolume = Math.Abs(sampleL);
                         }
-                        else {
-                            instrumentAsSample.sample.SampleTick((float)_time, (int)(stereoPhaseOffset * 100), SampleStartOffset / 100f, out sampleL, out sampleR);
-                            sampleL *= 1.25f;
-                            sampleR *= 1.25f;
-                            SamplePlaybackPosition = instrumentAsSample.sample.currentPlaybackPosition;
-                            if (Math.Abs(sampleL) > _sampleVolume) {
-                                _sampleVolume = Math.Abs(sampleL);
-                            }
-                            if (Math.Abs(sampleR) > _sampleVolume) {
-                                _sampleVolume = Math.Abs(sampleR);
-                            }
+                        if (Math.Abs(sampleR) > _sampleVolume) {
+                            _sampleVolume = Math.Abs(sampleR);
                         }
                     }
-                    sampleSumL += sampleL;
-                    sampleSumR += sampleR;
                 }
-                sampleL = sampleSumL / OVERSAMPLE;
-                sampleR = sampleSumR / OVERSAMPLE;
+                //sampleSumL += sampleL;
+                //sampleSumR += sampleR;
+                //}
+                //sampleL = sampleSumL / OVERSAMPLE;
+                //sampleR = sampleSumR / OVERSAMPLE;
                 _volumeSmooth += (TotalAmplitude - _volumeSmooth) * 0.02f;
                 _fmSmooth += (waveFmAmt.Value - _fmSmooth) * 0.035f;
                 _waveStretchSmooth += (waveStretchAmt.Value - _waveStretchSmooth) * 0.02f;

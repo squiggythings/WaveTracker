@@ -192,7 +192,7 @@ namespace WaveTracker.UI {
             float[,] samples = Audio.AudioEngine.currentBuffer;
             int i = 0;
             int drawX = 0;
-            int zoomX = Audio.AudioEngine.SamplesPerBuffer / width;
+            int zoomX = Audio.AudioEngine.PreviewBufferLength / width;
             while (drawX < width - 2) {
                 int[] ys = new int[zoomX];
                 int minValR = 99;
@@ -235,7 +235,7 @@ namespace WaveTracker.UI {
             float[,] samples = Audio.AudioEngine.currentBuffer;
             int i = 0;
             int drawX = 0;
-            int zoomX = Audio.AudioEngine.SamplesPerBuffer / width;
+            int zoomX = Audio.AudioEngine.PreviewBufferLength / width;
             while (drawX < width - 2) {
 
                 int minValL = 99;
@@ -265,7 +265,7 @@ namespace WaveTracker.UI {
             float[,] samples = Audio.AudioEngine.currentBuffer;
             int i = 0;
             int drawX = 0;
-            int zoomX = Audio.AudioEngine.SamplesPerBuffer / width * 2;
+            int zoomX = Audio.AudioEngine.PreviewBufferLength / width * 2;
             while (drawX < width / 2 - 1) {
                 int minVal = 99;
                 int maxVal = -99;

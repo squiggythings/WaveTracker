@@ -14,32 +14,42 @@ namespace WaveTracker {
     [Serializable]
     public class AppSettings {
         public AppSettings() {
-            general = new General();
-            files = new Files();
-            patternEditor = new PatternEditor();
-            keyboard = new Keyboard();
+            General = new _General();
+            Files = new _Files();
+            PatternEditor = new _PatternEditor();
+            Keyboard = new _Keyboard();
         }
 
-        public General general;
-        public class General {
-            public int screenScale;
-            public bool followMode;
-            public bool previewNotesOnInput;
-            public bool moveToNextRowAfterMultidigitInput;
+        public _General General;
+        public class _General {
+            public int screenScale = 1;
+            public bool followMode = true;
+            public bool previewNotesOnInput = true;
+            public bool moveToNextRowAfterMultidigitInput = true;
         }
 
-        public Files files;
-        public class Files {
-            public string defaultSpeed;
-            public int defaultRowLength;
+        public _Files Files;
+        public class _Files {
+            public string defaultTicksPerRow;
+            public int defaultRowsPerFrame;
         }
 
-        public PatternEditor patternEditor;
-        public class PatternEditor {
+        public _Appearance Appearance;
+        public class _Appearance {
+            public Color background = new(20, 24, 46);
         }
 
-        public Keyboard keyboard;
-        public class Keyboard {
+        public _PatternEditor PatternEditor;
+        public class _PatternEditor {
+        }
+
+        public _Audio Audio;
+        public class _Audio {
+            public int oversampling = 1;
+        }
+
+        public _Keyboard Keyboard;
+        public class _Keyboard {
             public Dictionary<string, KeyboardShortcut> shortcuts;
             public readonly Dictionary<string, KeyboardShortcut> defaultShortcuts = new Dictionary<string, KeyboardShortcut>() {
                 {"General\\Increase octave", new KeyboardShortcut(Keys.OemOpenBrackets) },
@@ -121,7 +131,7 @@ namespace WaveTracker {
                 {"Piano\\Upper D#3", new KeyboardShortcut(Keys.D0) },
                 {"Piano\\Upper E-3", new KeyboardShortcut(Keys.P) },
             };
-            public Keyboard() {
+            public _Keyboard() {
                 shortcuts = new Dictionary<string, KeyboardShortcut>();
                 for (int i = 0; i < defaultShortcuts.Count; i++) {
                     shortcuts.Add(defaultShortcuts.ElementAt(i).Key, defaultShortcuts.ElementAt(i).Value);
