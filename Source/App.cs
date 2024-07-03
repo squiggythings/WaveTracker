@@ -301,8 +301,6 @@ namespace WaveTracker {
                     ChannelManager.previewChannel.SetMacro(InstrumentBank.CurrentInstrumentIndex);
                     ChannelManager.previewChannel.TriggerNote(pianoInput);
                 }
-                Debug.WriteLine(PatternEditor.cursorPosition.Column + ", " + WaveEditor.IsOpen + ", " + InstrumentEditor.IsOpen);
-                WaveEditor.DebugLog();
             }
             if (pianoInput < 0 && lastPianoKey != pianoInput) {
                 if (!Playback.IsPlaying)

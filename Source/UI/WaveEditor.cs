@@ -37,9 +37,6 @@ namespace WaveTracker.UI {
 
         int phase;
 
-        public void DebugLog() {
-            System.Diagnostics.Debug.WriteLine(WindowIsOpen + ", " + currentDialog + ", " + currentDialog?.InFocus);
-        }
         public WaveEditor() : base("Wave Editor", 500, 270) {
 
             int buttonY = 23;
