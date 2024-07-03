@@ -24,7 +24,7 @@ namespace WaveTracker.UI {
         }
 
         public void Update() {
-            if (windowIsOpen) {
+            if (WindowIsOpen) {
                 if (Tracker.Playback.IsPlaying) {
                     Cancel.SetLabel("Cancel");
                     if (Cancel.Clicked) {
@@ -47,7 +47,7 @@ namespace WaveTracker.UI {
         }
 
         public new void Draw() {
-            if (windowIsOpen) {
+            if (WindowIsOpen) {
                 base.Draw();
                 int barwidth = width - 20;
                 int maxRow = Audio.AudioEngine.totalRows;

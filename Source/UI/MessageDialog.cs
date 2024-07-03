@@ -80,7 +80,7 @@ namespace WaveTracker.UI {
         }
 
         public override void Update() {
-            if (windowIsOpen) {
+            if (WindowIsOpen) {
                 DoDragging();
                 foreach (Button b in buttons) {
                     if (b.Clicked) {
@@ -97,7 +97,7 @@ namespace WaveTracker.UI {
         }
 
         public new void Draw() {
-            if (windowIsOpen) {
+            if (WindowIsOpen) {
                 base.Draw();
                 // 220
                 DrawRect(0, 9, width, height - 28, Color.White);

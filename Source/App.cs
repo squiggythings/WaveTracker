@@ -64,17 +64,13 @@ namespace WaveTracker {
         public static int CurrentSongIndex { get; set; }
         public static WTSong CurrentSong { get { return CurrentModule.Songs[CurrentSongIndex]; } }
 
-        public static AppSettings CurrentSettings { get; private set; }
+        public static AppSettings Settings { get; private set; }
 
-        public static Dictionary<string, KeyboardShortcut> Shortcuts => CurrentSettings.Keyboard.Shortcuts;
+        public static Dictionary<string, KeyboardShortcut> Shortcuts => Settings.Keyboard.Shortcuts;
 
         public const int MENUSTRIP_HEIGHT = 10;
 
         public MenuStrip MenuStrip { get; set; }
-
-        public static NumberBox a1;
-        public static NumberBox a2;
-        public static NumberBox a3;
 
         public App(string[] args) {
             instance = this;
@@ -96,7 +92,7 @@ namespace WaveTracker {
             var form = (System.Windows.Forms.Form)System.Windows.Forms.Control.FromHandle(Window.Handle);
             form.WindowState = System.Windows.Forms.FormWindowState.Maximized;
             form.FormClosing += ClosingForm;
-            CurrentSettings = new AppSettings();
+            Settings = new AppSettings();
             MidiInput.ReadMidiDevices();
         }
 
@@ -124,13 +120,6 @@ namespace WaveTracker {
             WaveEditor = new WaveEditor();
             frameView = new FramesPanel(2, 106 + MENUSTRIP_HEIGHT, 504, 42);
             SongSettings = new SongSettings(2, 18 + MENUSTRIP_HEIGHT);
-            a1 = new NumberBox("a1", 960 - 90, 120, null);
-            a1.SetValueLimits(1, 16);
-            a1.Value = 1;
-            a2 = new NumberBox("a2", 960 - 90, 140, null);
-            a2.SetValueLimits(0, 100);
-            a3 = new NumberBox("a2", 960 - 90, 160, null);
-            a3.SetValueLimits(0, 100);
             audioEngine = new AudioEngine();
             audioEngine.Initialize();
 
@@ -289,6 +278,7 @@ namespace WaveTracker {
                 InstrumentBank.Update();
                 InstrumentEditor.Update();
             }
+            lastPianoKey = pianoInput;
             pianoInput = -1;
             if (Input.focus == null || WaveEditor.IsOpen || InstrumentEditor.IsOpen) {
                 if (MidiInput.GetMidiNote > -1) {
@@ -303,15 +293,18 @@ namespace WaveTracker {
                 pianoInput = WaveEditor.GetPianoMouseInput();
             if (InstrumentEditor.GetPianoMouseInput() > -1)
                 pianoInput = InstrumentEditor.GetPianoMouseInput();
-            if (PatternEditor.cursorPosition.Column == CursorColumnType.Note || WaveEditor.IsOpen || InstrumentEditor.IsOpen) {
-                if (pianoInput != -1 && lastPianoKey != pianoInput) {
+
+            if (pianoInput >= 0 && lastPianoKey != pianoInput) {
+                if (PatternEditor.cursorPosition.Column == CursorColumnType.Note || WaveEditor.IsOpen || InstrumentEditor.IsOpen) {
                     if (!Playback.IsPlaying)
                         AudioEngine.ResetTicks();
                     ChannelManager.previewChannel.SetMacro(InstrumentBank.CurrentInstrumentIndex);
                     ChannelManager.previewChannel.TriggerNote(pianoInput);
                 }
+                Debug.WriteLine(PatternEditor.cursorPosition.Column + ", " + WaveEditor.IsOpen + ", " + InstrumentEditor.IsOpen);
+                WaveEditor.DebugLog();
             }
-            if (pianoInput == -1 && lastPianoKey != -1) {
+            if (pianoInput < 0 && lastPianoKey != pianoInput) {
                 if (!Playback.IsPlaying)
                     AudioEngine.ResetTicks();
                 ChannelManager.previewChannel.PreviewCut();
@@ -336,12 +329,9 @@ namespace WaveTracker {
             toolbar.Update();
             MenuStrip.Update();
             Dialogs.Update();
-            a1.Update();
-            a2.Update();
-            a3.Update();
+
             ContextMenu.Update();
             base.Update(gameTime);
-            lastPianoKey = pianoInput;
         }
 
         protected override void Draw(GameTime gameTime) {
@@ -420,10 +410,7 @@ namespace WaveTracker {
             //Rendering.Graphics.Write("AudioStatus: " + audioEngine.wasapiOut.PlaybackState.ToString(), 2, 2, Color.Red);
             //Rendering.Graphics.Write("filename: " + filename, 2, 12, Color.Red);
             //Rendering.Graphics.Write("FPS: " + 1 / gameTime.ElapsedGameTime.TotalSeconds, 2, 2, Color.Red);
-            int y = 12;
-            a1.Draw();
-            a2.Draw();
-            a3.Draw();
+
             Graphics.Write(MidiInput.GetMidiNote + ", " + pianoInput, 2, 250, Color.Red);
             Graphics.Write("@" + Input.focus + "", 2, 260, Color.Red);
 

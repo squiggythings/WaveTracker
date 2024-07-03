@@ -15,7 +15,7 @@ using System.Xml.Schema;
 
 namespace WaveTracker.UI {
     public class InstrumentEditor : Window {
-        public bool IsOpen { get { return windowIsOpen; } }
+        public bool IsOpen { get { return WindowIsOpen; } }
 
         int currentInstrumentID;
         Instrument CurrentInstrument => App.CurrentModule.Instruments[currentInstrumentID];
@@ -43,7 +43,7 @@ namespace WaveTracker.UI {
         }
 
         public void Update() {
-            if (windowIsOpen) {
+            if (WindowIsOpen) {
                 if (ExitButton.Clicked)
                     Close();
                 DoDragging();
@@ -93,7 +93,7 @@ namespace WaveTracker.UI {
         }
 
         public int GetPianoMouseInput() {
-            if (!windowIsOpen || !InFocus)
+            if (!WindowIsOpen || !InFocus)
                 return -1;
             return piano.CurrentClickedNote;
         }
@@ -112,7 +112,7 @@ namespace WaveTracker.UI {
         }
 
         public new void Draw() {
-            if (windowIsOpen) {
+            if (WindowIsOpen) {
                 name = "Edit Instrument " + currentInstrumentID.ToString("D2");
                 base.Draw();
                 // black box across screen behind window

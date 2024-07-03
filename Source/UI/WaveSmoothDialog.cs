@@ -19,16 +19,16 @@ namespace WaveTracker.UI {
             smoothAmt = new NumberBox("Amount", 8, 40, 94, 40, this);
             smoothWindow.SetValueLimits(1, 8);
             smoothAmt.SetValueLimits(0, 10);
+            smoothWindow.Value = 1;
+            smoothAmt.Value = 0;
         }
 
         public new void Open(Wave wave) {
-            smoothWindow.Value = 1;
-            smoothAmt.Value = 0;
             base.Open(wave);
         }
 
         public override void Update() {
-            if (windowIsOpen) {
+            if (WindowIsOpen) {
                 base.Update();
                 smoothWindow.Update();
                 smoothAmt.Update();
@@ -61,7 +61,7 @@ namespace WaveTracker.UI {
         }
 
         public new void Draw() {
-            if (windowIsOpen) {
+            if (WindowIsOpen) {
                 base.Draw();
                 smoothWindow.Draw();
                 smoothAmt.Draw();

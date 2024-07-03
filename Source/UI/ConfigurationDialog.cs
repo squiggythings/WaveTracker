@@ -103,18 +103,18 @@ namespace WaveTracker.UI {
 
         public void ReadSettings() {
             // (pages["Audio"]["Output device:"] as ConfigurationOption.Dropdown).SetMenuItems(Audio.AudioEngine.dev);
-            (pages["Keyboard"] as KeyboardPage).LoadBindingsFrom(App.CurrentSettings.Keyboard.Shortcuts);
+            (pages["Keyboard"] as KeyboardPage).LoadBindingsFrom(App.Settings.Keyboard.Shortcuts);
         }
 
         public void ApplySettings() {
             if (!MidiInput.ChangeMidiDevice((pages["MIDI"]["Input device:"] as ConfigurationOption.Dropdown).Value)) {
                 pages["MIDI"]["Input device:"].ValueInt = 0;
             }
-            (pages["Keyboard"] as KeyboardPage).SaveBindingsInto(App.CurrentSettings.Keyboard.Shortcuts);
+            (pages["Keyboard"] as KeyboardPage).SaveBindingsInto(App.Settings.Keyboard.Shortcuts);
         }
 
         public override void Update() {
-            if (windowIsOpen) {
+            if (WindowIsOpen) {
                 DoDragging();
                 if (ExitButton.Clicked || cancel.Clicked) {
                     Close();
@@ -135,7 +135,7 @@ namespace WaveTracker.UI {
         }
 
         public new void Draw() {
-            if (windowIsOpen) {
+            if (WindowIsOpen) {
                 base.Draw();
                 pageSelector.Draw();
                 if (pages.TryGetValue(pageSelector.SelectedItem, out Page p)) {
@@ -233,7 +233,7 @@ namespace WaveTracker.UI {
             public KeyboardPage(Element parent) : base(parent) {
                 AddLabel("Keyboard Bindings");
                 bindingList = new KeyboardBindingList(4, ypos, width - 8, 16, this);
-                bindingList.SetDictionary(App.CurrentSettings.Keyboard.defaultShortcuts);
+                bindingList.SetDictionary(App.Settings.Keyboard.defaultShortcuts);
             }
 
             /// <summary>
@@ -386,9 +386,7 @@ namespace WaveTracker.UI {
                 }
             }
 
-            public string GetFullString() {
-                return
-            }
+           
         }
         public class Dropdown : ConfigurationOption {
             UI.Dropdown dropdown;

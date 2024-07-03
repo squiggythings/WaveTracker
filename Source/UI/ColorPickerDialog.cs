@@ -66,7 +66,7 @@ namespace WaveTracker.UI {
         }
 
         public override void Update() {
-            if (windowIsOpen) {
+            if (WindowIsOpen) {
                 DoDragging();
                 if (canStart) {
                     if (cancel.Clicked || ExitButton.Clicked)
@@ -169,7 +169,7 @@ namespace WaveTracker.UI {
         }
 
         public new void Draw() {
-            if (windowIsOpen) {
+            if (WindowIsOpen) {
                 base.Draw();
 
 

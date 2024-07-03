@@ -26,12 +26,13 @@ namespace WaveTracker.UI {
                 originalData[i] = wave.samples[i];
             }
             Open();
+            Apply();
         }
 
         
 
         public override void Update() {
-            if (windowIsOpen) {
+            if (WindowIsOpen) {
                 if (ok.Clicked) {
                     Apply();
                     Close();
@@ -59,7 +60,7 @@ namespace WaveTracker.UI {
         protected abstract byte GetSampleValue(int index);
 
         public new void Draw() {
-            if (windowIsOpen) {
+            if (WindowIsOpen) {
                 base.Draw();
 
                 Write("Parameters", 8, 15, UIColors.labelLight);

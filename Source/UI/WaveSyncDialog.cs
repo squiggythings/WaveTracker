@@ -16,16 +16,15 @@ namespace WaveTracker.UI {
         public WaveSyncDialog() : base("Set Harmonic...") {
             harmonicNum = new NumberBox("Harmonic", 8, 25, 94, 40, this);
             harmonicNum.SetValueLimits(1, 32);
-
+            harmonicNum.Value = 1;
         }
 
         public new void Open(Wave wave) {
-            harmonicNum.Value = 1;
             base.Open(wave);
         }
 
         public override void Update() {
-            if (windowIsOpen) {
+            if (WindowIsOpen) {
                 base.Update();
                 harmonicNum.Update();
                 if (harmonicNum.ValueWasChangedInternally)
@@ -38,7 +37,7 @@ namespace WaveTracker.UI {
         }
 
         public new void Draw() {
-            if (windowIsOpen) {
+            if (WindowIsOpen) {
                 base.Draw();
                 harmonicNum.Draw();
             }

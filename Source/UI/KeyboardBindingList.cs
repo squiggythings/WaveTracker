@@ -71,14 +71,14 @@ namespace WaveTracker.UI {
                                 KeyboardShortcut shortcut = entries[i].shortcut;
                                 int index = entries[i].dictionaryIndex;
                                 editButton.enabled = true;
-                                resetToDefaultButton.enabled = entries[i].shortcut != App.CurrentSettings.Keyboard.defaultShortcuts.ElementAt(index).Value;
+                                resetToDefaultButton.enabled = entries[i].shortcut != App.Settings.Keyboard.defaultShortcuts.ElementAt(index).Value;
                                 editButton.x = (width - 7) / 2 - editButton.width - 0;
                                 editButton.y = rowPos + 2;
                                 resetToDefaultButton.x = (width - 7) / 2 - editButton.width + Helpers.GetWidthOfText(shortcut.ToString()) + 15;
                                 resetToDefaultButton.y = rowPos + 2;
                                 editButton.Update();
                                 if (resetToDefaultButton.Clicked) {
-                                    entries[i].shortcut = App.CurrentSettings.Keyboard.defaultShortcuts.ElementAt(index).Value;
+                                    entries[i].shortcut = App.Settings.Keyboard.defaultShortcuts.ElementAt(index).Value;
                                 }
                             }
                         }
@@ -163,7 +163,7 @@ namespace WaveTracker.UI {
                         }
                         else {
                             if (entries[i].shortcut == KeyboardShortcut.None) {
-                                if (entries[i].shortcut == App.CurrentSettings.Keyboard.defaultShortcuts.ElementAt(entries[i].dictionaryIndex).Value) {
+                                if (entries[i].shortcut == App.Settings.Keyboard.defaultShortcuts.ElementAt(entries[i].dictionaryIndex).Value) {
                                     Write("(none)", width / 2, rowNum * ROW_HEIGHT + 3, UIColors.label);
                                 }
                                 else {
@@ -171,7 +171,7 @@ namespace WaveTracker.UI {
                                 }
                             }
                             else {
-                                if (entries[i].shortcut == App.CurrentSettings.Keyboard.defaultShortcuts.ElementAt(entries[i].dictionaryIndex).Value) {
+                                if (entries[i].shortcut == App.Settings.Keyboard.defaultShortcuts.ElementAt(entries[i].dictionaryIndex).Value) {
                                     Write(entries[i].shortcut.ToString(), width / 2, rowNum * ROW_HEIGHT + 3, Color.White);
                                 }
                                 else {

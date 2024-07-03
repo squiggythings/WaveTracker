@@ -90,7 +90,7 @@ namespace WaveTracker.UI {
         }
 
         public override void Update() {
-            if (windowIsOpen) {
+            if (WindowIsOpen) {
                 DoDragging();
                 duplicateSong.enabled = insertSong.enabled = addSong.enabled = App.CurrentModule.Songs.Count < WTModule.MAX_SONG_COUNT;
                 removeSong.enabled = App.CurrentModule.Songs.Count > 1;
@@ -181,7 +181,7 @@ namespace WaveTracker.UI {
         }
 
         public new void Draw() {
-            if (windowIsOpen) {
+            if (WindowIsOpen) {
                 base.Draw();
                 DrawHorizontalLabel("Songs", 8, 17, width - 16);
                 songsList.Draw();

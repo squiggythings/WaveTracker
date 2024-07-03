@@ -55,11 +55,21 @@ namespace WaveTracker {
 
         }
 
+        public class _SamplesWaves {
+        }
+
+        public class _MIDI {
+        }
+
+
         public class _Audio {
             public int OutputDevice { get; set; } = 0;
             public int MasterVolume { get; set; } = 100;
             public int Oversampling { get; set; } = 1;
         }
+        public class _Visualizer {
+        }
+
 
         public class _Keyboard {
             public Dictionary<string, KeyboardShortcut> Shortcuts { get; set; }

@@ -15,7 +15,7 @@ namespace WaveTracker.UI {
         CheckboxLabeled wrapAround;
         Button newSeed;
         Random rand;
-        float[] values;
+        float[] randomValues;
 
         public WaveAddFuzzDialog() : base("Add Fuzz...") {
             rand = new Random();
@@ -26,11 +26,14 @@ namespace WaveTracker.UI {
             wrapAround.ShowCheckboxOnRight = true;
 
             newSeed = new Button("New seed", 8, 57, this);
-            values = new float[64];
+            randomValues = new float[64];
+            for (int i = 0; i < 64; ++i) {
+                randomValues[i] = (float)rand.NextDouble() * 2 - 1;
+            }
         }
 
         public override void Update() {
-            if (windowIsOpen) {
+            if (WindowIsOpen) {
                 base.Update();
                 fuzzAmt.Update();
                 wrapAround.Update();
@@ -45,22 +48,20 @@ namespace WaveTracker.UI {
         }
 
         public new void Open(Wave wave) {
-            DoNewSeed();
             base.Open(wave);
-
         }
 
         void DoNewSeed() {
             for (int i = 0; i < 64; ++i) {
-                values[i] = (float)rand.NextDouble() * 2 - 1;
+                randomValues[i] = (float)rand.NextDouble() * 2 - 1;
             }
             Apply();
         }
 
         protected override byte GetSampleValue(int index) {
             int samp = originalData[index];
-            int sign = Math.Sign(values[index]);
-            for (int j = 0; j < Math.Abs((int)(values[index] * fuzzAmt.Value / 100f * 32)); ++j) {
+            int sign = Math.Sign(randomValues[index]);
+            for (int j = 0; j < Math.Abs((int)(randomValues[index] * fuzzAmt.Value / 100f * 32)); ++j) {
                 if (samp + sign > 31 || samp + sign < 0) {
                     if (wrapAround.Value)
                         sign *= -1;
@@ -73,7 +74,7 @@ namespace WaveTracker.UI {
         }
 
         public new void Draw() {
-            if (windowIsOpen) {
+            if (WindowIsOpen) {
                 base.Draw();
                 fuzzAmt.Draw();
                 wrapAround.Draw();

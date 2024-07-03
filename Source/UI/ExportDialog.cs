@@ -51,7 +51,7 @@ namespace WaveTracker.UI {
         }
 
         public override void Update() {
-            if (windowIsOpen) {
+            if (WindowIsOpen) {
                 DoDragging();
                 loops.Update();
                 if (cancel.Clicked || ExitButton.Clicked)
@@ -76,7 +76,7 @@ namespace WaveTracker.UI {
         }
 
         public new void Draw() {
-            if (windowIsOpen) {
+            if (WindowIsOpen) {
                 base.Draw();
                 loops.Draw();
                 Write("Play song", 7, 19, UIColors.label);

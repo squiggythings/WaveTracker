@@ -25,7 +25,7 @@ namespace WaveTracker.UI {
         /// <summary>
         /// Whether the window is visible or not
         /// </summary>
-        protected bool windowIsOpen;
+        public bool WindowIsOpen { get; protected set; }
 
         bool isDragging;
         Point dragOffset;
@@ -52,7 +52,7 @@ namespace WaveTracker.UI {
         }
 
         protected void DoDragging() {
-            if (windowIsOpen && InFocus) {
+            if (WindowIsOpen && InFocus) {
                 if (Input.GetClickDown(KeyModifier._Any)) {
                     if (ExitButton != null) {
                         if (LastClickPos.X >= 0 && LastClickPos.X < width - ExitButton.width && LastClickPos.Y >= 0 && LastClickPos.Y <= 9) {
@@ -100,7 +100,7 @@ namespace WaveTracker.UI {
         }
 
         protected new void Draw() {
-            if (windowIsOpen) {
+            if (WindowIsOpen) {
                 ClampPosition();
 
                 // draw a transparent black rectangle behind the window
@@ -115,24 +115,24 @@ namespace WaveTracker.UI {
             }
         }
         protected void Open() {
-            if (windowIsOpen == false) {
+            if (WindowIsOpen == false) {
                 opened = Input.focus;
                 Input.focus = this;
-                windowIsOpen = true;
+                WindowIsOpen = true;
                 PositionInCenterOfScreen();
             }
         }
         protected void Open(Element opened) {
-            if (windowIsOpen == false) {
+            if (WindowIsOpen == false) {
                 Input.focus = this;
-                windowIsOpen = true;
+                WindowIsOpen = true;
                 PositionInCenterOfScreen();
                 this.opened = opened;
             }
         }
         protected void Close() {
             Input.focus = opened;
-            windowIsOpen = false;
+            WindowIsOpen = false;
         }
     }
 }

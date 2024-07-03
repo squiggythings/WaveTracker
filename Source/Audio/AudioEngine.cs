@@ -33,6 +33,10 @@ namespace WaveTracker.Audio {
 
         public static int CurrentOutputDevice { get; set; }
 
+        static float filterSampleL;
+        static float filterSampleR;
+        static float lastFilterSampleL;
+        static float lastFilterSampleR;
         Provider audioProvider;
 
 
@@ -142,11 +146,6 @@ namespace WaveTracker.Audio {
             return !cancelRender;
         }
 
-        public static float xL;
-        public static float xR;
-        public static float x1L;
-        public static float x1R;
-
 
         public class Provider : WaveProvider32 {
             public override int Read(float[] buffer, int offset, int sampleCount) {
@@ -158,7 +157,7 @@ namespace WaveTracker.Audio {
                     }
                 }
                 int sampleRate = WaveFormat.SampleRate;
-                int OVERSAMPLE = App.CurrentSettings.Audio.Oversampling;
+                int OVERSAMPLE = App.Settings.Audio.Oversampling;
                 float delta = (1f / (sampleRate) * (TickSpeed / 60f));
 
                 for (int n = 0; n < sampleCount; n += 2) {
@@ -178,13 +177,13 @@ namespace WaveTracker.Audio {
                     }
                     buffer[n + offset] /= OVERSAMPLE;
                     buffer[n + offset + 1] /= OVERSAMPLE;
-                    x1L = xL;
-                    x1R = xR;
-                    xL = buffer[n + offset];
-                    xR = buffer[n + offset + 1];
-                    buffer[n + offset] = 0.5f * xL + 0.5f * x1L;
-                    buffer[n + offset + 1] = 0.5f * xR + 0.5f * x1R;
-                    
+                    lastFilterSampleL = filterSampleL;
+                    lastFilterSampleR = filterSampleR;
+                    filterSampleL = buffer[n + offset];
+                    filterSampleR = buffer[n + offset + 1];
+                    buffer[n + offset] = 0.5f * filterSampleL + 0.5f * lastFilterSampleL;
+                    buffer[n + offset + 1] = 0.5f * filterSampleR + 0.5f * lastFilterSampleR;
+
                     if (!rendering) {
                         buffer[n + offset] = Math.Clamp(buffer[n + offset], -1, 1);
                         buffer[n + offset + 1] = Math.Clamp(buffer[n + offset + 1], -1, 1);

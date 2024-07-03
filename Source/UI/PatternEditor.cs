@@ -2295,6 +2295,7 @@ namespace WaveTracker.UI {
             {Keys.M, 'M'},
             {Keys.Y, 'Y'},
             {Keys.K, 'K'},
+            {Keys.X, 'X'},
 
         };
 

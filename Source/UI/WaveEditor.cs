@@ -13,7 +13,7 @@ using WaveTracker.Audio;
 
 namespace WaveTracker.UI {
     public class WaveEditor : Window {
-        public bool IsOpen { get { return windowIsOpen || (currentDialog != null && currentDialog.InFocus); } }
+        public bool IsOpen { get { return WindowIsOpen || (currentDialog != null && currentDialog.WindowIsOpen); } }
         public static bool enabled;
         public SpriteButton presetSine, presetTria, presetSaw, presetRect50, presetRect25, presetRect12, presetRand, presetClear;
         public Toggle filterNone, filterLinear, filterMix;
@@ -36,6 +36,10 @@ namespace WaveTracker.UI {
         Wave CurrentWave => App.CurrentModule.WaveBank[WaveBank.currentWaveID];
 
         int phase;
+
+        public void DebugLog() {
+            System.Diagnostics.Debug.WriteLine(WindowIsOpen + ", " + currentDialog + ", " + currentDialog?.InFocus);
+        }
         public WaveEditor() : base("Wave Editor", 500, 270) {
 
             int buttonY = 23;
@@ -170,6 +174,7 @@ namespace WaveTracker.UI {
         }
 
         public new void Close() {
+            currentDialog = null;
             enabled = false;
             base.Close();
             //Input.internalDialogIsOpen = false;
@@ -193,7 +198,7 @@ namespace WaveTracker.UI {
         }
 
         public void Update() {
-            if (windowIsOpen && !(currentDialog != null && currentDialog.InFocus)) {
+            if (WindowIsOpen && !(currentDialog != null && currentDialog.InFocus)) {
                 DoDragging();
                 //MenuStrip.Update();
                 if (WaveBank.currentWaveID < 0) return;
@@ -389,7 +394,7 @@ namespace WaveTracker.UI {
         }
 
         public new void Draw() {
-            if (windowIsOpen) {
+            if (WindowIsOpen) {
                 name = "Edit Wave " + id.ToString("D2");
                 base.Draw();
 
