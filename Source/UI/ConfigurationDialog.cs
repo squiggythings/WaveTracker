@@ -103,14 +103,14 @@ namespace WaveTracker.UI {
 
         public void ReadSettings() {
             // (pages["Audio"]["Output device:"] as ConfigurationOption.Dropdown).SetMenuItems(Audio.AudioEngine.dev);
-            (pages["Keyboard"] as KeyboardPage).LoadBindingsFrom(App.CurrentSettings.Keyboard.shortcuts);
+            (pages["Keyboard"] as KeyboardPage).LoadBindingsFrom(App.CurrentSettings.Keyboard.Shortcuts);
         }
 
         public void ApplySettings() {
             if (!MidiInput.ChangeMidiDevice((pages["MIDI"]["Input device:"] as ConfigurationOption.Dropdown).Value)) {
                 pages["MIDI"]["Input device:"].ValueInt = 0;
             }
-            (pages["Keyboard"] as KeyboardPage).SaveBindingsInto(App.CurrentSettings.Keyboard.shortcuts);
+            (pages["Keyboard"] as KeyboardPage).SaveBindingsInto(App.CurrentSettings.Keyboard.Shortcuts);
         }
 
         public override void Update() {

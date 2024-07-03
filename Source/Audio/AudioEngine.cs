@@ -158,7 +158,7 @@ namespace WaveTracker.Audio {
                     }
                 }
                 int sampleRate = WaveFormat.SampleRate;
-                int OVERSAMPLE = App.CurrentSettings.Audio.oversampling;
+                int OVERSAMPLE = App.CurrentSettings.Audio.Oversampling;
                 float delta = (1f / (sampleRate) * (TickSpeed / 60f));
 
                 for (int n = 0; n < sampleCount; n += 2) {

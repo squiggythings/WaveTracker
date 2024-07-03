@@ -66,7 +66,7 @@ namespace WaveTracker {
 
         public static AppSettings CurrentSettings { get; private set; }
 
-        public static Dictionary<string, KeyboardShortcut> Shortcuts => CurrentSettings.Keyboard.shortcuts;
+        public static Dictionary<string, KeyboardShortcut> Shortcuts => CurrentSettings.Keyboard.Shortcuts;
 
         public const int MENUSTRIP_HEIGHT = 10;
 

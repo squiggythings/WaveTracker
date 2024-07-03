@@ -8,49 +8,63 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
 using System.IO;
-using System.Xml;
+using System.Text.Json;
 
 namespace WaveTracker {
-    [Serializable]
     public class AppSettings {
+        public _General General { get; set; }
+        public _Files Files { get; set; }
+        public _Appearance Appearance { get; set; }
+        public _PatternEditor PatternEditor { get; set; }
+        public _Audio Audio { get; set; }
+        public _Keyboard Keyboard { get; set; }
+
         public AppSettings() {
             General = new _General();
             Files = new _Files();
+            Appearance = new _Appearance();
             PatternEditor = new _PatternEditor();
+            Audio = new _Audio();
             Keyboard = new _Keyboard();
         }
-
-        public _General General;
         public class _General {
-            public int screenScale = 1;
-            public bool followMode = true;
-            public bool previewNotesOnInput = true;
-            public bool moveToNextRowAfterMultidigitInput = true;
+            public int ScreenScale { get; set; } = 1;
+            public bool FollowMode { get; set; } = true;
+            public bool PreviewNotesOnInput { get; set; } = true;
         }
 
-        public _Files Files;
         public class _Files {
-            public string defaultTicksPerRow;
-            public int defaultRowsPerFrame;
+            public static string DefaultTicksPerRow { get; set; } = "4";
+            public static int DefaultRowsPerFrame { get; set; } = 64;
+            public static int DefaultNumChannels { get; set; } = 12;
+            public static int Default { get; set; } = 64;
+
         }
 
-        public _Appearance Appearance;
         public class _Appearance {
-            public Color background = new(20, 24, 46);
+            public ColorTheme Theme { get; set; } = ColorTheme.Default;
         }
 
-        public _PatternEditor PatternEditor;
         public class _PatternEditor {
+            public MoveToNextRowBehavior StepAfterNumericInput { get; set; } = MoveToNextRowBehavior.Always;
+            
         }
 
-        public _Audio Audio;
         public class _Audio {
-            public int oversampling = 1;
+            public int OutputDevice { get; set; } = 0;
+            public int MasterVolume { get; set; } = 100;
+            public int Oversampling { get; set; } = 1;
         }
 
-        public _Keyboard Keyboard;
         public class _Keyboard {
-            public Dictionary<string, KeyboardShortcut> shortcuts;
+            public Dictionary<string, KeyboardShortcut> Shortcuts { get; set; }
+
+            public KeyboardShortcut this[string section, string name] {
+                get {
+                    return Shortcuts[section + "\\" + name];
+                }
+            }
+
             public readonly Dictionary<string, KeyboardShortcut> defaultShortcuts = new Dictionary<string, KeyboardShortcut>() {
                 {"General\\Increase octave", new KeyboardShortcut(Keys.OemOpenBrackets) },
                 {"General\\Decrease octave", new KeyboardShortcut(Keys.OemCloseBrackets) },
@@ -72,6 +86,11 @@ namespace WaveTracker {
 
                 {"Frame\\Previous Frame", new KeyboardShortcut(Keys.Left, KeyModifier.Ctrl) },
                 {"Frame\\Next Frame", new KeyboardShortcut(Keys.Right, KeyModifier.Ctrl) },
+                {"Frame\\Duplicate Frame", new KeyboardShortcut(Keys.D, KeyModifier.Ctrl) },
+                {"Frame\\Remove Frame", new KeyboardShortcut() },
+                {"Frame\\Increase pattern value", new KeyboardShortcut() },
+                {"Frame\\Decrease pattern value", new KeyboardShortcut() },
+
 
                 {"Edit\\Undo", new KeyboardShortcut(Keys.Z, KeyModifier.Ctrl) },
                 {"Edit\\Redo", new KeyboardShortcut(Keys.Y, KeyModifier.Ctrl) },
@@ -132,9 +151,9 @@ namespace WaveTracker {
                 {"Piano\\Upper E-3", new KeyboardShortcut(Keys.P) },
             };
             public _Keyboard() {
-                shortcuts = new Dictionary<string, KeyboardShortcut>();
+                Shortcuts = new Dictionary<string, KeyboardShortcut>();
                 for (int i = 0; i < defaultShortcuts.Count; i++) {
-                    shortcuts.Add(defaultShortcuts.ElementAt(i).Key, defaultShortcuts.ElementAt(i).Value);
+                    Shortcuts.Add(defaultShortcuts.ElementAt(i).Key, defaultShortcuts.ElementAt(i).Value);
                 }
             }
         }
@@ -145,6 +164,53 @@ namespace WaveTracker {
             }
         }
 
+        /// <summary>
+        /// How the cursor should respond when inputting in a numeric cell
+        /// </summary>
+        public enum MoveToNextRowBehavior {
+            /// <summary>
+            /// Always step after any input
+            /// </summary>
+            Always, 
+            /// <summary>
+            /// Step only when the cursor reaches the end of the cell
+            /// </summary>
+            AfterCell,
+            /// <summary>
+            /// Step when the cursor gets to the end of a cell, but treat effects as one cell
+            /// </summary>
+            AfterCellIncludingEffect,
+            /// <summary>
+            /// Don't step automatically; The user must navigate to the next cell manually.
+            /// </summary>
+            Never
+        }
 
+        /// <summary>
+        /// Writes this AppSettings to a json formatted file at <c>path/fileName</c>
+        /// </summary>
+        /// <param name="path"></param>
+        /// <param name="fileName"></param>
+        public void WriteToDisk(string path, string fileName) {
+            Path.Combine(path, fileName);
+            using (StreamWriter outputFile = new StreamWriter(Path.Combine(path, fileName))) {
+
+                JsonSerializer.Serialize(outputFile, typeof(AppSettings));
+
+            }
+        }
+
+        /// <summary>
+        /// Returns an AppSettings instance read from the given path
+        /// </summary>
+        /// <param name="path"></param>
+        /// <param name="fileName"></param>
+        /// <returns></returns>
+        public static AppSettings ReadFromDisk(string path, string fileName) {
+            Path.Combine(path, fileName);
+            string jsonString = File.ReadAllText(Path.Combine(path, fileName));
+            AppSettings ret = JsonSerializer.Deserialize<AppSettings>(jsonString);
+            return ret;
+        }
     }
 }
