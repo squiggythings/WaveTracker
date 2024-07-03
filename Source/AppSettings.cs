@@ -13,15 +13,16 @@ using System.Text.Json;
 namespace WaveTracker {
     public class AppSettings {
         public _General General { get; set; }
-        public _Files Files { get; set; }
         public _Appearance Appearance { get; set; }
         public _PatternEditor PatternEditor { get; set; }
+        public _SamplesWaves SamplesWaves { get; set; }
+        public _MIDI MIDI { get; set; }
         public _Audio Audio { get; set; }
+        public _Visualizer Visualizer { get; set; }
         public _Keyboard Keyboard { get; set; }
 
         public AppSettings() {
             General = new _General();
-            Files = new _Files();
             Appearance = new _Appearance();
             PatternEditor = new _PatternEditor();
             Audio = new _Audio();
@@ -29,16 +30,14 @@ namespace WaveTracker {
         }
         public class _General {
             public int ScreenScale { get; set; } = 1;
-            public bool FollowMode { get; set; } = true;
-            public bool PreviewNotesOnInput { get; set; } = true;
-        }
-
-        public class _Files {
+            public int OscilloscopeMode { get; set; } = 1;
+            public int MeterDecayRate { get; set; } = 3;
+            public int MeterColorMode { get; set; } = 1;
+            public bool FlashMeterRedWhenClipping { get; set; } = true;
             public static string DefaultTicksPerRow { get; set; } = "4";
             public static int DefaultRowsPerFrame { get; set; } = 64;
-            public static int DefaultNumChannels { get; set; } = 12;
-            public static int Default { get; set; } = 64;
-
+            public static int DefaultNumberOfChannels { get; set; } = 12;
+            public static string DefaultArtistName { get; set; } = "";
         }
 
         public class _Appearance {
@@ -47,7 +46,13 @@ namespace WaveTracker {
 
         public class _PatternEditor {
             public MoveToNextRowBehavior StepAfterNumericInput { get; set; } = MoveToNextRowBehavior.Always;
-            
+            public bool FollowCursorDuringPlayback { get; set; } = true;
+            public bool PreviewNotesOnInput { get; set; } = true;
+            public bool ShowPreviousNextPatterns { get; set; } = true;
+
+            public bool WrapCursor { get; set; } = true;
+            public bool WrapCursorAcrossFrames { get; set; } = true;
+
         }
 
         public class _Audio {
@@ -171,7 +176,7 @@ namespace WaveTracker {
             /// <summary>
             /// Always step after any input
             /// </summary>
-            Always, 
+            Always,
             /// <summary>
             /// Step only when the cursor reaches the end of the cell
             /// </summary>
