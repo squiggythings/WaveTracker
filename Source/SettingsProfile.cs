@@ -11,7 +11,7 @@ using System.IO;
 using System.Text.Json;
 
 namespace WaveTracker {
-    public class AppSettings {
+    public class SettingsProfile {
         public _General General { get; set; }
         public _Appearance Appearance { get; set; }
         public _PatternEditor PatternEditor { get; set; }
@@ -21,7 +21,7 @@ namespace WaveTracker {
         public _Visualizer Visualizer { get; set; }
         public _Keyboard Keyboard { get; set; }
 
-        public AppSettings() {
+        public SettingsProfile() {
             General = new _General();
             Appearance = new _Appearance();
             PatternEditor = new _PatternEditor();
@@ -37,7 +37,9 @@ namespace WaveTracker {
             public static string DefaultTicksPerRow { get; set; } = "4";
             public static int DefaultRowsPerFrame { get; set; } = 64;
             public static int DefaultNumberOfChannels { get; set; } = 12;
-            public static string DefaultArtistName { get; set; } = "";
+            public static string DefaultAuthorName { get; set; } = "";
+            public static int DefaultRowPrimaryHighlight { get; set; } = 16;
+            public static int DefaultRowSecondaryHighlight { get; set; } = 4;
         }
 
         public class _Appearance {
@@ -56,18 +58,54 @@ namespace WaveTracker {
         }
 
         public class _SamplesWaves {
+
+            public bool AutomaticallyNormalizeSamplesOnImport { get; set; } = true;
+            public bool AutomaticallyTrimSamples { get; set; } = true;
+            public bool AutomaticallyResampleSamples { get; set; } = true;
+            public bool PreviewSamplesInBrowser { get; set; } = true;
+            public int DefaultSampleBaseKey { get; set; } = 60;
+            public bool IncludeSamplesInVisualizerByDefault { get; set; } = false;
+            public int DefaultResampleModeWave { get; set; } = 2;
+            public int DefaultResampleModeSample { get; set; } = 1;
+
         }
 
         public class _MIDI {
+            public int InputDevice { get; set; } = 0;
+            public bool RecordVolume { get; set; } = true;
+            public int MIDITranspose { get; set; } = 0;
+            public bool ApplyOctaveTranspose { get; set; } = false;
+            public bool UseProgramChangeToSelectInstrument { get; set; } = false;
+            public bool ReceivePlayStopMessages { get; set; } = false;
+            public bool ReceiveRecordMessages { get; set; } = false;
+
         }
 
 
         public class _Audio {
             public int OutputDevice { get; set; } = 0;
             public int MasterVolume { get; set; } = 100;
+            public int SampleRate { get; set; } = 0;
             public int Oversampling { get; set; } = 1;
         }
         public class _Visualizer {
+            public int visualizerPianoSpeed = 8; // 10 default
+            [XmlElement(ElementName = "visPianFade")]
+            public bool visualizerPianoFade = true;
+            [XmlElement(ElementName = "visPianWidth")]
+            public bool visualizerPianoChangeWidth = true;
+            [XmlElement(ElementName = "visHighlightKeys")]
+            public bool visualizerHighlightKeys = true;
+            [XmlElement(ElementName = "visScopeZoom")]
+            public int visualizerScopeZoom = 100;
+            [XmlElement(ElementName = "visScopeColors")]
+            public bool visualizerScopeColors = true;
+            [XmlElement(ElementName = "visScopeThickness")]
+            public int visualizerScopeThickness = 1;
+            [XmlElement(ElementName = "visScopeCrosshair")]
+            public int visualizerScopeCrosshairs = 0;
+            [XmlElement(ElementName = "visScopeBorder")]
+            public bool visualizerScopeBorders = true;
         }
 
 
@@ -97,6 +135,7 @@ namespace WaveTracker {
                 {"General\\Module settings", new KeyboardShortcut() },
                 {"General\\Edit wave", new KeyboardShortcut() },
                 {"General\\Edit instrument", new KeyboardShortcut() },
+                {"General\\Toggle Visualizer", new KeyboardShortcut() },
 
 
                 {"Frame\\Previous Frame", new KeyboardShortcut(Keys.Left, KeyModifier.Ctrl) },
@@ -173,9 +212,9 @@ namespace WaveTracker {
             }
         }
 
-        public static AppSettings Default {
+        public static SettingsProfile Default {
             get {
-                return new AppSettings();
+                return new SettingsProfile();
             }
         }
 
@@ -210,7 +249,7 @@ namespace WaveTracker {
             Path.Combine(path, fileName);
             using (StreamWriter outputFile = new StreamWriter(Path.Combine(path, fileName))) {
 
-                JsonSerializer.Serialize(outputFile, typeof(AppSettings));
+                JsonSerializer.Serialize(outputFile, typeof(SettingsProfile));
 
             }
         }
@@ -221,10 +260,10 @@ namespace WaveTracker {
         /// <param name="path"></param>
         /// <param name="fileName"></param>
         /// <returns></returns>
-        public static AppSettings ReadFromDisk(string path, string fileName) {
+        public static SettingsProfile ReadFromDisk(string path, string fileName) {
             Path.Combine(path, fileName);
             string jsonString = File.ReadAllText(Path.Combine(path, fileName));
-            AppSettings ret = JsonSerializer.Deserialize<AppSettings>(jsonString);
+            SettingsProfile ret = JsonSerializer.Deserialize<SettingsProfile>(jsonString);
             return ret;
         }
     }
