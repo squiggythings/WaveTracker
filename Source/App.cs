@@ -44,7 +44,6 @@ namespace WaveTracker {
         public static EditSettings EditSettings { get; private set; }
         FramesPanel frameView;
         public Toolbar toolbar;
-        AudioEngine audioEngine;
         int lastPianoKey;
         public static Song newSong;
         public static int pianoInput;
@@ -120,8 +119,7 @@ namespace WaveTracker {
             WaveEditor = new WaveEditor();
             frameView = new FramesPanel(2, 106 + MENUSTRIP_HEIGHT, 504, 42);
             SongSettings = new SongSettings(2, 18 + MENUSTRIP_HEIGHT);
-            audioEngine = new AudioEngine();
-            audioEngine.Initialize();
+            AudioEngine.Initialize();
 
             visualization = new Visualization();
             IsFixedTimeStep = false;
@@ -207,6 +205,9 @@ namespace WaveTracker {
                 null,
                 new MenuOption("Toggle channel", ChannelManager.ToggleCurrentChannel),
                 new MenuOption("Solo channel", ChannelManager.SoloCurrentChannel),
+                null,
+                new MenuOption("Solo channel", ChannelManager.SoloCurrentChannel),
+
             }));
 
             base.Initialize();
@@ -267,9 +268,6 @@ namespace WaveTracker {
 
             Tooltip.Update(gameTime);
             if (Input.GetKeyDown(Keys.F12, KeyModifier.None)) {
-                ChannelManager.Reset();
-                MidiInput.ReadMidiDevices();
-                audioEngine.Reset();
             }
             PatternEditor.Update();
             if (!VisualizerMode) {
@@ -435,6 +433,15 @@ namespace WaveTracker {
         }
 
         /// <summary>
+        /// Resets all channels and audio
+        /// </summary>
+        public static void ResetAudio() {
+            ChannelManager.Reset();
+            MidiInput.ReadMidiDevices();
+            AudioEngine.Reset();
+        }
+
+        /// <summary>
         /// Closes WaveTracker
         /// </summary>
         public static void ExitApplication() {
@@ -471,7 +478,7 @@ namespace WaveTracker {
 
         protected override void OnExiting(object sender, EventArgs args) {
             Debug.WriteLine("Closing WaveTracker...");
-            AudioEngine.instance.Stop();
+            AudioEngine.Stop();
             MidiInput.Stop();
             base.OnExiting(sender, args);
         }

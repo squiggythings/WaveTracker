@@ -284,6 +284,9 @@ namespace WaveTracker.Audio {
                     }
                     _fmSmooth = waveFmAmt.Value;
                 }
+                else {
+                    _time = 0;
+                }
                 //if (currentInstrument is WaveInstrument) {
                 //    if (waveEnv.toPlay.IsActive)
                 //        if (!waveEnv.EnvelopeEnded)
@@ -380,7 +383,6 @@ namespace WaveTracker.Audio {
             _fmSmooth = 0;
             waveStretchAmt.Reset(0);
             _waveStretchSmooth = 0;
-            SetWave(0);
             lastNote = channelNote;
             channelNotePorta = channelNote;
             portaSpeed = 0;
@@ -433,8 +435,6 @@ namespace WaveTracker.Audio {
             }
             //if (envelopePlayersDict[Envelope.EnvelopeType.Arpeggio].HasActiveEnvelopeData)
             //    envelopePlayersDict[Envelope.EnvelopeType.Arpeggio].Start();
-            if (currentInstrument is SampleInstrument)
-                _time = 0;
             _frequency = Helpers.NoteToFrequency(TotalPitch);
 
 
@@ -506,7 +506,7 @@ namespace WaveTracker.Audio {
             if (pitchFallSpeed != 0)
                 pitchFallOffset += pitchFallSpeed * deltaTime * 2;
             if (portaTime < 2)
-                portaTime += deltaTime * (portaSpeed == 0 ? AudioEngine.SAMPLE_RATE : portaSpeed);
+                portaTime += deltaTime * (portaSpeed == 0 ? AudioEngine.SampleRate : portaSpeed);
 
             if (channelNotePorta > channelNote) {
                 channelNotePorta += (channelNote - lastNote) * deltaTime * portaSpeed;
@@ -698,7 +698,7 @@ namespace WaveTracker.Audio {
             //    _frequency = 15804;
             //    //_state = VoiceState.Off;
             //}
-            float delta = 1f / (App.Settings.Audio.Oversampling * AudioEngine.SAMPLE_RATE) * _frequency;
+            float delta = 1f / (App.Settings.Audio.Oversampling * AudioEngine.SampleRate) * _frequency;
             if (continuousTick)
                 ContinuousTick(continuousDelta);
             if (noteOn) {

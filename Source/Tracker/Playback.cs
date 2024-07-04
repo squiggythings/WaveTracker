@@ -148,7 +148,7 @@ namespace WaveTracker.Tracker {
                         hasGotoTriggerFlag = false;
                         if (nextPlaybackFrame < 0) // CXX command
                         {
-                            AudioEngine.processedRows += 2;
+                            AudioEngine.renderProcessedRows += 2;
                             Stop();
                             return;
                         }
@@ -164,7 +164,7 @@ namespace WaveTracker.Tracker {
                         MoveNextRow();
                     }
                     if (AudioEngine.rendering) {
-                        AudioEngine.processedRows++;
+                        AudioEngine.renderProcessedRows++;
                     }
                     PlayRow();
                     SetTicksPerRow();

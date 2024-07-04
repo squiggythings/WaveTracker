@@ -50,8 +50,8 @@ namespace WaveTracker.UI {
             if (WindowIsOpen) {
                 base.Draw();
                 int barwidth = width - 20;
-                int maxRow = Audio.AudioEngine.totalRows;
-                int procRow = Math.Clamp(Audio.AudioEngine.processedRows, 0, maxRow);
+                int maxRow = Audio.AudioEngine.renderTotalRows;
+                int procRow = Math.Clamp(Audio.AudioEngine.renderProcessedRows, 0, maxRow);
 
                 float fraction = (float)procRow / maxRow;
                 WriteCenter(Helpers.TrimTextToWidth(width - 20, "Saving to " + Path), width / 2, 16, UIColors.label); ;

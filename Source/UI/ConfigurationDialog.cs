@@ -21,7 +21,6 @@ namespace WaveTracker.UI {
             pages = new Dictionary<string, Page>();
             pageSelector = new VerticalListSelector(5, 12, 75, 258, new string[] { "General", "Pattern Editor", "Appearance", "Samples/Waves", "MIDI", "Audio", "Visualizer", "Keyboard" }, this);
             pages.Add("General", new Page(this));
-            pages.Add("Files", new Page(this));
             pages.Add("Appearance", new AppearancePage(this));
             pages.Add("Pattern Editor", new Page(this));
             pages.Add("Samples/Waves", new Page(this));
@@ -31,35 +30,40 @@ namespace WaveTracker.UI {
             pages.Add("Keyboard", new KeyboardPage(this));
 
             pages["General"].AddLabel("General");
-            pages["General"].AddCheckbox("option1", "");
-            pages["General"].AddCheckbox("option2", "");
-            pages["General"].AddDropdown("Screen scale:", "", new string[] { "100%", "200%", "300%", "400%", "500%" });
+            pages["General"].AddDropdown("Screen scale", "", new string[] { "100%", "200%", "300%", "400%", "500%" });
             pages["General"].AddBreak();
             pages["General"].AddLabel("Metering");
             pages["General"].AddDropdown("Oscilloscope mode", "", new string[] { "Mono", "Stereo: split", "Stereo: overlap" });
             pages["General"].AddDropdown("Meter decay rate", "", new string[] { "Slow", "Medium", "Fast" });
             pages["General"].AddDropdown("Meter color mode", "", new string[] { "Flat", "Gradient" });
             pages["General"].AddCheckbox("Flash meter red when clipping", "");
-
-            pages["Files"].AddLabel("Default values");
-            pages["Files"].AddNumberBox("Default rows per frame", "", 1, 256);
-            pages["Files"].AddTextbox("Default ticks per row", "", 90);
-
+            pages["General"].AddBreak();
+            pages["General"].AddLabel("Default values");
+            pages["General"].AddTextbox("Default ticks per row", "", 90);
+            pages["General"].AddNumberBox("Default rows per frame", "", 1, 256);
+            pages["General"].AddNumberBox("Default number of channels", "", 1, 24);
+            pages["General"].AddTextbox("Default author name", "", 90);
+            pages["General"].AddNumberBox("Default row highlight primary", "", 1, 256);
+            pages["General"].AddNumberBox("Default row highlight secondary", "", 1, 256);
 
             pages["Pattern Editor"].AddLabel("Pattern Editor");
             pages["Pattern Editor"].AddCheckbox("Show row numbers in hex", "");
-            pages["Pattern Editor"].AddCheckbox("Show note off and release as text", "");
+            pages["Pattern Editor"].AddCheckbox("Show note off/release as text", "");
             pages["Pattern Editor"].AddCheckbox("Fade volume column", "");
+            pages["Pattern Editor"].AddCheckbox("Show previous/next patterns", "");
             pages["Pattern Editor"].AddCheckbox("Ignore step when moving", "");
+            pages["Pattern Editor"].AddDropdown("Step after numeric input", "", new string[] { "Always", "At the end of a cell", "After cell, including effect", "Never" });
+            pages["Pattern Editor"].AddCheckbox("Preview notes on input", "");
+            pages["Pattern Editor"].AddCheckbox("Wrap cursor horizontally", "");
+            pages["Pattern Editor"].AddCheckbox("Wrap cursor across friends", "");
             pages["Pattern Editor"].AddCheckbox("Key repeat", "");
-            pages["Pattern Editor"].AddCheckbox("Restore channel state on playback", "");
-            pages["Pattern Editor"].AddDropdown("Page jump amount", "", new string[] { "2", "4", "8", "16" });
+            pages["Pattern Editor"].AddDropdown("Page jump amount", "", new string[] { "1", "2", "4", "8", "16" });
 
             pages["Samples/Waves"].AddLabel("Sample Import Settings");
-            pages["Samples/Waves"].AddCheckbox("Normalize samples on import", "");
-            pages["Samples/Waves"].AddCheckbox("Trim sample silence on import", "");
-            pages["Samples/Waves"].AddCheckbox("Resample to 44.1kHz on import", "");
-            pages["Samples/Waves"].AddCheckbox("Preview samples in browser", "");
+            pages["Samples/Waves"].AddCheckbox("Automatically normalize samples on import", "");
+            pages["Samples/Waves"].AddCheckbox("Automatically trim sample silence on import", "");
+            pages["Samples/Waves"].AddCheckbox("Automatically resample to 44.1kHz on import", "");
+            pages["Samples/Waves"].AddCheckbox("Automatically preview samples in browser", "");
             pages["Samples/Waves"].AddCheckbox("Include samples in visualizer by default", "");
             pages["Samples/Waves"].AddNumberBox("Default base key", "", 12, 131, NumberBox.NumberDisplayMode.Note, -1, 56);
             pages["Samples/Waves"].AddBreak();
@@ -69,7 +73,17 @@ namespace WaveTracker.UI {
 
             pages["MIDI"].AddLabel("MIDI");
             pages["MIDI"].AddDropdown("Input device", "", new string[] { "(none)" }, false, -1, 999);
+            pages["MIDI"].AddBreak();
+            pages["MIDI"].AddLabel("Transpose");
+            pages["MIDI"].AddNumberBox("MIDI transpose", "", -48, 48);
+            pages["MIDI"].AddCheckbox("Apply octave transpose", "");
+            pages["MIDI"].AddBreak();
+            pages["MIDI"].AddLabel("MIDI messages");
             pages["MIDI"].AddCheckbox("Record note velocity", "");
+            pages["MIDI"].AddCheckbox("Use program change to select instrument", "");
+            pages["MIDI"].AddCheckbox("Receive play/stop messages", "");
+            pages["MIDI"].AddCheckbox("Receive record messages", "");
+
 
             pages["Audio"].AddLabel("Audio");
             pages["Audio"].AddDropdown("Output device", "", new string[] { "(default)" }, false, -1, 999);
@@ -79,7 +93,7 @@ namespace WaveTracker.UI {
             pages["Audio"].AddDropdown("Oversampling", "", new string[] { "Off", "2x (recommended)", "4x", "4x" }, false, -1, 999);
 
             pages["Visualizer"].AddLabel("Piano");
-            pages["Visualizer"].AddNumberBox("Note speed:", "", 1, 20);
+            pages["Visualizer"].AddNumberBox("Note speed", "", 1, 20);
             pages["Visualizer"].AddCheckbox("Change note width by volume", "");
             pages["Visualizer"].AddCheckbox("Change note opacity by volume", "");
             pages["Visualizer"].AddCheckbox("Highlight pressed keys", "");
@@ -97,13 +111,68 @@ namespace WaveTracker.UI {
             base.Open();
             MidiInput.ReadMidiDevices();
             (pages["MIDI"]["Input device:"] as ConfigurationOption.Dropdown).SetMenuItems(MidiInput.MidiDevicesNames);
-            (pages["Audio"]["Output device:"] as ConfigurationOption.Dropdown).SetMenuItems(Audio.AudioEngine.OutputDeviceNames);
+
+            string[] audioDeviceOptions = new string[Audio.AudioEngine.OutputDevices.Count + 1];
+            audioDeviceOptions[0] = "(default)";
+            for (int i = 0; i < Audio.AudioEngine.OutputDevices.Count; i++) {
+                audioDeviceOptions[i + 1] = Audio.AudioEngine.OutputDeviceNames[i];
+            }
+            (pages["Audio"]["Output device:"] as ConfigurationOption.Dropdown).SetMenuItems(audioDeviceOptions);
+            
             ReadSettings();
         }
 
         public void ReadSettings() {
             // (pages["Audio"]["Output device:"] as ConfigurationOption.Dropdown).SetMenuItems(Audio.AudioEngine.dev);
+            pages["General"]["Screen scale"].ValueInt = App.Settings.General.ScreenScale;
+            pages["General"]["Oscilloscope mode"].ValueInt = App.Settings.General.OscilloscopeMode;
+            pages["General"]["Meter decay rate"].ValueInt = App.Settings.General.MeterDecayRate;
+            pages["General"]["Meter color mode"].ValueInt = App.Settings.General.MeterColorMode;
+            pages["General"]["Flash meter red when clipping"].ValueBool = App.Settings.General.FlashMeterRedWhenClipping;
+            pages["General"]["Default ticks per row"].ValueString = App.Settings.General.DefaultTicksPerRow;
+            pages["General"]["Default rows per frame"].ValueInt = App.Settings.General.DefaultRowsPerFrame;
+            pages["General"]["Default number of channels"].ValueInt = App.Settings.General.DefaultNumberOfChannels;
+            pages["General"]["Default author name"].ValueString = App.Settings.General.DefaultAuthorName;
+            pages["General"]["Default row highlight primary"].ValueInt = App.Settings.General.DefaultRowPrimaryHighlight;
+            pages["General"]["Default row highlight secondary"].ValueInt = App.Settings.General.DefaultRowSecondaryHighlight;
+
+            (pages["Appearance"] as AppearancePage).LoadColorsFrom(App.Settings.Appearance.Theme);
+
+            pages["Pattern Editor"]["Show row numbers in hex"].ValueBool = App.Settings.PatternEditor.ShowRowNumbersInHex;
+            pages["Pattern Editor"]["Show note off/release as text"].ValueBool = App.Settings.PatternEditor.ShowNoteOffAndReleaseAsText;
+            pages["Pattern Editor"]["Fade volume column"].ValueBool = App.Settings.PatternEditor.FadeVolumeColumn;
+            pages["Pattern Editor"]["Show previous/next patterns"].ValueBool = App.Settings.PatternEditor.ShowPreviousNextPatterns;
+            pages["Pattern Editor"]["Preview notes on input"].ValueBool = App.Settings.PatternEditor.PreviewNotesOnInput;
+            pages["Pattern Editor"]["Ignore step when moving"].ValueBool = App.Settings.PatternEditor.IgnoreStepWhenMoving;
+            pages["Pattern Editor"]["Step after numeric input"].ValueInt = (int)App.Settings.PatternEditor.StepAfterNumericInput;
+            pages["Pattern Editor"]["Preview notes on input"].ValueBool = App.Settings.PatternEditor.PreviewNotesOnInput;
+            pages["Pattern Editor"]["Wrap cursor horizontally"].ValueBool = App.Settings.PatternEditor.WrapCursorHorizontally;
+            pages["Pattern Editor"]["Wrap cursor across frames"].ValueBool = App.Settings.PatternEditor.WrapCursorAcrossFrames;
+            pages["Pattern Editor"]["Key repeat"].ValueBool = App.Settings.PatternEditor.KeyRepeat;
+            pages["Pattern Editor"]["Page jump amount"].ValueInt = App.Settings.PatternEditor.PageJumpAmount;
+
+            pages["Samples/Waves"]["Automatically normalize samples on import"].ValueBool = App.Settings.SamplesWaves.AutomaticallyNormalizeSamplesOnImport;
+            pages["Samples/Waves"]["Automatically trim sample silence on import"].ValueBool = App.Settings.SamplesWaves.AutomaticallyTrimSamples;
+            pages["Samples/Waves"]["Automatically resample to 44.1kHz on import"].ValueBool = App.Settings.SamplesWaves.AutomaticallyResampleSamples;
+            pages["Samples/Waves"]["Include samples in visualizer by default"].ValueBool = App.Settings.SamplesWaves.IncludeSamplesInVisualizerByDefault;
+            pages["Samples/Waves"]["Default base key"].ValueInt = App.Settings.SamplesWaves.DefaultSampleBaseKey;
+            pages["Samples/Waves"]["Default wave resample mode"].ValueInt = (int)App.Settings.SamplesWaves.DefaultResampleModeWave;
+            pages["Samples/Waves"]["Default sample resample mode"].ValueInt = (int)App.Settings.SamplesWaves.DefaultResampleModeSample;
+
+            pages["MIDI"]["Input device"].ValueInt = App.Settings.MIDI.InputDevice;
+            pages["MIDI"]["MIDI transpose"].ValueInt = App.Settings.MIDI.MIDITranspose;
+            pages["MIDI"]["Apply octave transpose"].ValueBool = App.Settings.MIDI.ApplyOctaveTranspose;
+            pages["MIDI"]["Record note velocity"].ValueBool = App.Settings.MIDI.RecordNoteVelocity;
+            pages["MIDI"]["Use program change to select instrument"].ValueBool = App.Settings.MIDI.UseProgramChangeToSelectInstrument;
+            pages["MIDI"]["Receive play/stop messages"].ValueBool = App.Settings.MIDI.ReceivePlayStopMessages;
+            pages["MIDI"]["Receive record messages"].ValueBool = App.Settings.MIDI.ReceiveRecordMessages;
+            pages["MIDI"]["Receive record messages"].ValueBool = App.Settings.MIDI.ReceiveRecordMessages;
+
+            pages["Audio"]["Output device"].ValueString = App.Settings.Audio.OutputDevice;
+
+
             (pages["Keyboard"] as KeyboardPage).LoadBindingsFrom(App.Settings.Keyboard.Shortcuts);
+
         }
 
         public void ApplySettings() {
@@ -232,7 +301,7 @@ namespace WaveTracker.UI {
             KeyboardBindingList bindingList;
             public KeyboardPage(Element parent) : base(parent) {
                 AddLabel("Keyboard Bindings");
-                bindingList = new KeyboardBindingList(4, ypos, width - 8, 16, this);
+                bindingList = new KeyboardBindingList(4, ypos, width - 8, 20, this);
                 bindingList.SetDictionary(App.Settings.Keyboard.defaultShortcuts);
             }
 
@@ -274,6 +343,10 @@ namespace WaveTracker.UI {
 
             public override void Draw() {
                 base.Draw();
+            }
+
+            public void LoadColorsFrom(ColorTheme theme) {
+
             }
         }
         #endregion
@@ -386,7 +459,7 @@ namespace WaveTracker.UI {
                 }
             }
 
-           
+
         }
         public class Dropdown : ConfigurationOption {
             UI.Dropdown dropdown;
@@ -429,6 +502,11 @@ namespace WaveTracker.UI {
             public override int ValueInt {
                 get { return Value; }
                 set { Value = value; }
+            }
+
+            public override string ValueString {
+                get { return dropdown.ValueName; }
+                set { dropdown.ValueName = value; }
             }
         }
 

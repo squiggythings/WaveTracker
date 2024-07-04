@@ -529,7 +529,7 @@ namespace WaveTracker.Tracker {
 
         public void SampleTick(float time, float stereoPhase, float startPercentage, out float outputL, out float outputR) {
             float sampleIndex = 0;
-            float x = (time * (AudioEngine.SAMPLE_RATE / _baseFrequency));
+            float x = (time * (AudioEngine.SampleRate / _baseFrequency));
             x += startPercentage * sampleDataAccessL.Length;
             long l = sampleDataAccessL.Length;
             long p = sampleLoopIndex;

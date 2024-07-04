@@ -9,55 +9,64 @@ using System.Threading.Tasks;
 using System.Xml.Serialization;
 using System.IO;
 using System.Text.Json;
+using WaveTracker.Audio;
 
 namespace WaveTracker {
     public class SettingsProfile {
-        public _General General { get; set; }
-        public _Appearance Appearance { get; set; }
-        public _PatternEditor PatternEditor { get; set; }
-        public _SamplesWaves SamplesWaves { get; set; }
-        public _MIDI MIDI { get; set; }
-        public _Audio Audio { get; set; }
-        public _Visualizer Visualizer { get; set; }
-        public _Keyboard Keyboard { get; set; }
+        public CategoryGeneral General { get; set; }
+        public CategoryAppearance Appearance { get; set; }
+        public CategoryPatternEditor PatternEditor { get; set; }
+        public CategorySamplesWaves SamplesWaves { get; set; }
+        public CategoryMIDI MIDI { get; set; }
+        public CategoryAudio Audio { get; set; }
+        public CategoryVisualizer Visualizer { get; set; }
+        public CategoryKeyboard Keyboard { get; set; }
 
         public SettingsProfile() {
-            General = new _General();
-            Appearance = new _Appearance();
-            PatternEditor = new _PatternEditor();
-            Audio = new _Audio();
-            Keyboard = new _Keyboard();
+            General = new CategoryGeneral();
+            Appearance = new CategoryAppearance();
+            PatternEditor = new CategoryPatternEditor();
+            SamplesWaves = new CategorySamplesWaves();
+            MIDI = new CategoryMIDI();
+            Audio = new CategoryAudio();
+            Visualizer = new CategoryVisualizer();
+            Keyboard = new CategoryKeyboard();
+
         }
-        public class _General {
+        public class CategoryGeneral {
             public int ScreenScale { get; set; } = 1;
             public int OscilloscopeMode { get; set; } = 1;
             public int MeterDecayRate { get; set; } = 3;
             public int MeterColorMode { get; set; } = 1;
             public bool FlashMeterRedWhenClipping { get; set; } = true;
-            public static string DefaultTicksPerRow { get; set; } = "4";
-            public static int DefaultRowsPerFrame { get; set; } = 64;
-            public static int DefaultNumberOfChannels { get; set; } = 12;
-            public static string DefaultAuthorName { get; set; } = "";
-            public static int DefaultRowPrimaryHighlight { get; set; } = 16;
-            public static int DefaultRowSecondaryHighlight { get; set; } = 4;
+            public string DefaultTicksPerRow { get; set; } = "4";
+            public int DefaultRowsPerFrame { get; set; } = 64;
+            public int DefaultNumberOfChannels { get; set; } = 12;
+            public string DefaultAuthorName { get; set; } = "";
+            public int DefaultRowPrimaryHighlight { get; set; } = 16;
+            public int DefaultRowSecondaryHighlight { get; set; } = 4;
+
         }
 
-        public class _Appearance {
+        public class CategoryAppearance {
             public ColorTheme Theme { get; set; } = ColorTheme.Default;
         }
 
-        public class _PatternEditor {
-            public MoveToNextRowBehavior StepAfterNumericInput { get; set; } = MoveToNextRowBehavior.Always;
-            public bool FollowCursorDuringPlayback { get; set; } = true;
-            public bool PreviewNotesOnInput { get; set; } = true;
+        public class CategoryPatternEditor {
+            public bool ShowRowNumbersInHex { get; set; } = false;
+            public bool ShowNoteOffAndReleaseAsText { get; set; } = true;
+            public bool FadeVolumeColumn { get; set; } = true;
             public bool ShowPreviousNextPatterns { get; set; } = true;
-
-            public bool WrapCursor { get; set; } = true;
+            public bool IgnoreStepWhenMoving { get; set; } = true;
+            public MoveToNextRowBehavior StepAfterNumericInput { get; set; } = MoveToNextRowBehavior.Always;
+            public bool PreviewNotesOnInput { get; set; } = true;
+            public bool WrapCursorHorizontally { get; set; } = true;
             public bool WrapCursorAcrossFrames { get; set; } = true;
-
+            public bool KeyRepeat { get; set;} = true;
+            public int PageJumpAmount { get; set; } = 2;
         }
 
-        public class _SamplesWaves {
+        public class CategorySamplesWaves {
 
             public bool AutomaticallyNormalizeSamplesOnImport { get; set; } = true;
             public bool AutomaticallyTrimSamples { get; set; } = true;
@@ -65,14 +74,14 @@ namespace WaveTracker {
             public bool PreviewSamplesInBrowser { get; set; } = true;
             public int DefaultSampleBaseKey { get; set; } = 60;
             public bool IncludeSamplesInVisualizerByDefault { get; set; } = false;
-            public int DefaultResampleModeWave { get; set; } = 2;
-            public int DefaultResampleModeSample { get; set; } = 1;
+            public ResamplingMode DefaultResampleModeWave { get; set; } = ResamplingMode.Mix;
+            public ResamplingMode DefaultResampleModeSample { get; set; } = ResamplingMode.Linear;
 
         }
 
-        public class _MIDI {
+        public class CategoryMIDI {
             public int InputDevice { get; set; } = 0;
-            public bool RecordVolume { get; set; } = true;
+            public bool RecordNoteVelocity { get; set; } = true;
             public int MIDITranspose { get; set; } = 0;
             public bool ApplyOctaveTranspose { get; set; } = false;
             public bool UseProgramChangeToSelectInstrument { get; set; } = false;
@@ -82,34 +91,27 @@ namespace WaveTracker {
         }
 
 
-        public class _Audio {
-            public int OutputDevice { get; set; } = 0;
+        public class CategoryAudio {
+            public string OutputDevice { get; set; } = "<default>";
+
             public int MasterVolume { get; set; } = 100;
-            public int SampleRate { get; set; } = 0;
+            public SampleRate SampleRate { get; set; } = SampleRate._96000;
             public int Oversampling { get; set; } = 1;
         }
-        public class _Visualizer {
-            public int visualizerPianoSpeed = 8; // 10 default
-            [XmlElement(ElementName = "visPianFade")]
-            public bool visualizerPianoFade = true;
-            [XmlElement(ElementName = "visPianWidth")]
-            public bool visualizerPianoChangeWidth = true;
-            [XmlElement(ElementName = "visHighlightKeys")]
-            public bool visualizerHighlightKeys = true;
-            [XmlElement(ElementName = "visScopeZoom")]
-            public int visualizerScopeZoom = 100;
-            [XmlElement(ElementName = "visScopeColors")]
-            public bool visualizerScopeColors = true;
-            [XmlElement(ElementName = "visScopeThickness")]
-            public int visualizerScopeThickness = 1;
-            [XmlElement(ElementName = "visScopeCrosshair")]
-            public int visualizerScopeCrosshairs = 0;
-            [XmlElement(ElementName = "visScopeBorder")]
-            public bool visualizerScopeBorders = true;
+        public class CategoryVisualizer {
+            public int PianoSpeed { get; set; } = 8;
+            public bool ChangeNoteOpacityByVolume { get; set; } = true;
+            public bool ChangeNoteWidthByVolume { get; set; } = true;
+            public bool HighlightPressedKeys { get; set; } = true;
+            public int OscilloscopeZoom { get; set; } = 100;
+            public bool OscilloscopeColorfulWaves { get; set; } = true;
+            public int OscilloscopeThickness { get; set; } = 1;
+            public int OscilloscopeCrosshairs { get; set; } = 0;
+            public bool OscilloscopeBorders { get; set; } = false;
         }
 
 
-        public class _Keyboard {
+        public class CategoryKeyboard {
             public Dictionary<string, KeyboardShortcut> Shortcuts { get; set; }
 
             public KeyboardShortcut this[string section, string name] {
@@ -204,7 +206,7 @@ namespace WaveTracker {
                 {"Piano\\Upper D#3", new KeyboardShortcut(Keys.D0) },
                 {"Piano\\Upper E-3", new KeyboardShortcut(Keys.P) },
             };
-            public _Keyboard() {
+            public CategoryKeyboard() {
                 Shortcuts = new Dictionary<string, KeyboardShortcut>();
                 for (int i = 0; i < defaultShortcuts.Count; i++) {
                     Shortcuts.Add(defaultShortcuts.ElementAt(i).Key, defaultShortcuts.ElementAt(i).Value);
@@ -241,27 +243,23 @@ namespace WaveTracker {
         }
 
         /// <summary>
-        /// Writes this AppSettings to a json formatted file at <c>path/fileName</c>
+        /// Writes this SettingsProfile to a json formatted file at <c>path\fileName</c>
         /// </summary>
         /// <param name="path"></param>
         /// <param name="fileName"></param>
         public void WriteToDisk(string path, string fileName) {
-            Path.Combine(path, fileName);
             using (StreamWriter outputFile = new StreamWriter(Path.Combine(path, fileName))) {
-
-                JsonSerializer.Serialize(outputFile, typeof(SettingsProfile));
-
+                outputFile.Write(JsonSerializer.Serialize(this, typeof(SettingsProfile)));
             }
         }
 
         /// <summary>
-        /// Returns an AppSettings instance read from the given path
+        /// Returns a SettingsProfile read from the given path
         /// </summary>
         /// <param name="path"></param>
         /// <param name="fileName"></param>
         /// <returns></returns>
         public static SettingsProfile ReadFromDisk(string path, string fileName) {
-            Path.Combine(path, fileName);
             string jsonString = File.ReadAllText(Path.Combine(path, fileName));
             SettingsProfile ret = JsonSerializer.Deserialize<SettingsProfile>(jsonString);
             return ret;

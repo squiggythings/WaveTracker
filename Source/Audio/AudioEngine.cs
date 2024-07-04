@@ -11,33 +11,29 @@ using WaveTracker.Tracker;
 using WaveTracker.UI;
 
 namespace WaveTracker.Audio {
-    public class AudioEngine {
-        public const ResamplingMode RESAMPLING_MODE = ResamplingMode.None;
-        public const int SAMPLE_RATE = 44100;
-        public static int SamplesPerTick => (SAMPLE_RATE / TickSpeed);
+    public static class AudioEngine {
+        public static int SampleRate { get; private set; }
+        public static int SamplesPerTick => (SampleRate / TickSpeed);
         public static int PreviewBufferLength => 1000;
 
         public const bool quantizeAmplitude = false;
         static int currBufferPosition;
-        public static AudioEngine instance;
-        public static int totalRows;
-        public static int processedRows;
+        public static int renderTotalRows;
+        public static int renderProcessedRows;
         public static int _tickCounter;
         public static long samplesRead;
         public static WaveFileWriter waveFileWriter;
-        public WasapiOut wasapiOut;
+        public static WasapiOut wasapiOut;
         public static bool rendering;
         public static bool cancelRender;
         public static MMDeviceCollection OutputDevices { get; private set; }
         public static string[] OutputDeviceNames { get; private set; }
 
-        public static int CurrentOutputDevice { get; set; }
-
         static float filterSampleL;
         static float filterSampleR;
         static float lastFilterSampleL;
         static float lastFilterSampleR;
-        Provider audioProvider;
+        static Provider audioProvider;
 
 
         static int TickSpeed {
@@ -54,24 +50,32 @@ namespace WaveTracker.Audio {
             _tickCounter = 0;
         }
 
-        public void Initialize() {
-            //            NAudio.CoreAudioApi.MMDeviceEnumerator device = new();
-            GetAudioOutputDevices();
+        public static void Initialize() {
             Dialogs.exportingDialog = new ExportingDialog();
             currentBuffer = new float[2, PreviewBufferLength];
             audioProvider = new Provider();
-            audioProvider.SetWaveFormat(SAMPLE_RATE, 2); // 44.1khz stereo
-            if (CurrentOutputDevice == 0) {
+            SetSampleRate(App.Settings.Audio.SampleRate);
+            GetAudioOutputDevices();
+            int index = Array.IndexOf(OutputDeviceNames, App.Settings.Audio.OutputDevice);
+            if (index < 1) {
                 wasapiOut = new WasapiOut();
             }
             else {
-                wasapiOut = new WasapiOut(OutputDevices[CurrentOutputDevice - 1], AudioClientShareMode.Shared, false, 0);
+                wasapiOut = new WasapiOut(OutputDevices[index - 1], AudioClientShareMode.Shared, false, 0);
             }
             wasapiOut.Init(audioProvider);
             wasapiOut.Play();
-            instance = this;
         }
 
+        public static void SetSampleRate(SampleRate rate) {
+            SampleRate = SampleRateToInt(rate);
+            audioProvider.SetWaveFormat(SampleRate, 2);
+        }
+
+        /// <summary>
+        /// Populates OutputDevices and OutputDeviceNames with all the connected audio devices. <br></br>
+        /// This is an expensive operation, only call when needed.
+        /// </summary>
         public static void GetAudioOutputDevices() {
             MMDeviceEnumerator enumerator = new MMDeviceEnumerator();
             OutputDevices = enumerator.EnumerateAudioEndPoints(DataFlow.All, DeviceState.Active);
@@ -83,35 +87,41 @@ namespace WaveTracker.Audio {
             OutputDeviceNames = names.ToArray();
         }
 
-        public void Stop() {
+        /// <summary>
+        /// Stops the audio output connection
+        /// </summary>
+        public static void Stop() {
             if (File.Exists(Dialogs.exportingDialog.Path + ".temp"))
                 File.Delete(Dialogs.exportingDialog.Path + ".temp");
             wasapiOut.Stop();
         }
 
-        public void Reset() {
+        public static void Reset() {
+            SetSampleRate(App.Settings.Audio.SampleRate);
             wasapiOut.Stop();
-            Thread.Sleep(3);
-            if (CurrentOutputDevice == 0) {
+            audioProvider.SetWaveFormat(SampleRate, 2);
+            Thread.Sleep(1);
+            int index = Array.IndexOf(OutputDeviceNames, App.Settings.Audio.OutputDevice);
+            if (index < 1) {
                 wasapiOut = new WasapiOut();
             }
             else {
-                wasapiOut = new WasapiOut(OutputDevices[CurrentOutputDevice - 1], AudioClientShareMode.Shared, false, 0);
+                wasapiOut = new WasapiOut(OutputDevices[index - 1], AudioClientShareMode.Shared, false, 0);
             }
             wasapiOut.Init(audioProvider);
             wasapiOut.Play();
         }
 
 
-        public async void RenderTo(string filepath, int maxloops, bool individualStems) {
+        public static async void RenderTo(string filepath, int maxloops, bool individualStems) {
             //Debug.WriteLine("Total Rows with " + maxloops + " loops: " + Song.currentSong.GetNumberOfRows(maxloops));
-            totalRows = App.CurrentSong.GetNumberOfRows(maxloops);
+            renderTotalRows = App.CurrentSong.GetNumberOfRows(maxloops);
             if (!SaveLoad.ChooseExportPath(out filepath)) {
                 return;
             }
             Dialogs.exportingDialog.Open();
             Dialogs.exportingDialog.Path = filepath;
-            Dialogs.exportingDialog.TotalRows = totalRows;
+            Dialogs.exportingDialog.TotalRows = renderTotalRows;
             bool overwriting = File.Exists(filepath);
 
             bool b = await Task.Run(() => WriteToWaveFile(filepath + ".temp", audioProvider));
@@ -131,13 +141,13 @@ namespace WaveTracker.Audio {
         }
 
 
-        bool WriteToWaveFile(string path, IWaveProvider source) {
+        static bool WriteToWaveFile(string path, IWaveProvider source) {
             wasapiOut.Stop();
             rendering = true;
             cancelRender = false;
             _tickCounter = 0;
             samplesRead = 0;
-            processedRows = 0;
+            renderProcessedRows = 0;
 
             ChannelManager.Reset();
             Playback.PlayFromBeginning();
@@ -150,7 +160,7 @@ namespace WaveTracker.Audio {
         public class Provider : WaveProvider32 {
             public override int Read(float[] buffer, int offset, int sampleCount) {
                 if (rendering) {
-                    if (processedRows >= totalRows || cancelRender) {
+                    if (renderProcessedRows >= renderTotalRows || cancelRender) {
                         Playback.Stop();
                         rendering = false;
                         return 0;
@@ -206,14 +216,14 @@ namespace WaveTracker.Audio {
                     _tickCounter++;
                     if (_tickCounter >= SamplesPerTick) {
                         _tickCounter = 0;
-                        Tracker.Playback.Tick();
+                        Playback.Tick();
                         foreach (Channel c in ChannelManager.channels) {
                             c.NextTick();
                         }
                         ChannelManager.previewChannel.NextTick();
                     }
                     if (rendering) {
-                        if (processedRows >= totalRows || cancelRender) {
+                        if (renderProcessedRows >= renderTotalRows || cancelRender) {
                             return n;
                         }
                     }
@@ -222,12 +232,34 @@ namespace WaveTracker.Audio {
             }
         }
 
-
+        /// <summary>
+        /// Converts a sample rate enum into its actual numerical sample rate in Hz.
+        /// </summary>
+        /// <param name="rate"></param>
+        /// <returns></returns>
+        public static int SampleRateToInt(SampleRate rate) {
+            return rate switch {
+                Audio.SampleRate._11025 => 11025,
+                Audio.SampleRate._22050 => 22050,
+                Audio.SampleRate._44100 => 44100,
+                Audio.SampleRate._48000 => 48000,
+                Audio.SampleRate._96000 => 96000,
+                _ => 0,
+            };
+        }
     }
     public enum ResamplingMode {
         None,
         Linear,
         Mix,
+    }
+
+    public enum SampleRate {
+        _11025,
+        _22050,
+        _44100,
+        _48000,
+        _96000,
     }
 }
 

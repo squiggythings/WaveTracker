@@ -16,6 +16,20 @@ namespace WaveTracker.UI {
         Element previousFocus;
         bool showMenu;
         public int Value { get; set; }
+        public string ValueName {
+            get { return options[Value]; }
+            set {
+                int i = 0;
+                foreach (string option in options) {
+                    if (option == value) {
+                        Value = i;
+                        break;
+                    }
+                    ++i;
+                }
+            }
+        }
+
         public bool ValueWasChangedInternally { get; set; }
 
         /// <summary>
