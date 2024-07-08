@@ -352,6 +352,25 @@ namespace WaveTracker.Tracker {
             }
             return patternData;
         }
+        /// <summary>
+        /// Returns an array of 100 strings containing each pattern's data
+        /// </summary>
+        /// <returns></returns>
+        public string[] ForcePackPatternsToStrings() {
+            string[] patternData = new string[100];
+            int i = 0;
+            foreach (WTPattern pattern in Patterns) {
+                if (pattern.IsEmpty) {
+                    patternData[i] = "";
+                }
+                else {
+                    pattern.ForcePackAnyChanges();
+                    patternData[i] = Helpers.RLECompress(pattern.CellsAsString);
+                }
+                ++i;
+            }
+            return patternData;
+        }
 
         /// <summary>
         /// Returns the title of this song

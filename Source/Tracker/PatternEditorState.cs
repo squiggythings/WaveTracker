@@ -32,7 +32,7 @@ namespace WaveTracker.Tracker {
         byte[] frameSequence;
 
         public PatternEditorState(WTSong song, PatternEditorPosition previous, PatternEditorPosition next) {
-            patternStrings = song.PackPatternsToStrings();
+            patternStrings = song.ForcePackPatternsToStrings();
             frameSequence = song.GetFrameSequenceAsByteArray();
             PrePosition = previous;
             PostPosition = next;

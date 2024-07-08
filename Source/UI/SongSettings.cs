@@ -88,7 +88,7 @@ namespace WaveTracker.UI {
 
 
             float meterDecay = 0;
-            switch (Preferences.profile.meterDecaySpeed) {
+            switch (App.Settings.General.MeterDecayRate) {
                 case 0:
                     meterDecay = 0.5f;
                     break;
@@ -112,11 +112,11 @@ namespace WaveTracker.UI {
             rows.Draw();
             if (Audio.AudioEngine.currentBuffer != null) {
                 if (Audio.AudioEngine.currentBuffer.Length > 0) {
-                    if (Preferences.profile.oscilloscopeMode == 0)
+                    if (App.Settings.General.OscilloscopeMode == 0)
                         DrawMonoOscilloscope(166, 44, 135, 35, new Color(56, 64, 102));
-                    if (Preferences.profile.oscilloscopeMode == 1)
+                    if (App.Settings.General.OscilloscopeMode == 1)
                         DrawStereoOscilloscope(166, 44, 135, 35, new Color(56, 64, 102));
-                    if (Preferences.profile.oscilloscopeMode == 2)
+                    if (App.Settings.General.OscilloscopeMode == 2)
                         DrawOverlappedOscilloscope(166, 44, 135, 35, new Color(56, 64, 102));
                     DrawVolumeMeters(16, 70, 143, 4);
                 }
@@ -162,21 +162,21 @@ namespace WaveTracker.UI {
             DrawRect(px, py + height + 1, width, 1, shadow);
 
             // draw volume bars
-            if (Preferences.profile.meterColorMode == 0) // flat
+            if (App.Settings.General.MeterColorMode == 0) // flat
             {
-                Color barCol = ampLeft >= 1 && Preferences.profile.meterFlashWhenClipping ? Color.Red : bar;
+                Color barCol = ampLeft >= 1 && App.Settings.General.FlashMeterRedWhenClipping ? Color.Red : bar;
                 DrawRect(px, py + 1, ampL, height - 1, barCol);
-                barCol = ampRight >= 1 && Preferences.profile.meterFlashWhenClipping ? Color.Red : bar;
+                barCol = ampRight >= 1 && App.Settings.General.FlashMeterRedWhenClipping ? Color.Red : bar;
                 DrawRect(px, py + height + 2, ampR, height - 1, barCol);
             }
             else // gradient
             {
                 for (int x = 0; x < ampL; x++) {
-                    Color barCol = ampLeft >= 1 && Preferences.profile.meterFlashWhenClipping ? Color.Red : Helpers.HSLtoRGB((int)Helpers.MapClamped(x, width * 0.6667f, width, 130, 10), 1, 0.42f);
+                    Color barCol = ampLeft >= 1 && App.Settings.General.FlashMeterRedWhenClipping ? Color.Red : Helpers.HSLtoRGB((int)Helpers.MapClamped(x, width * 0.6667f, width, 130, 10), 1, 0.42f);
                     DrawRect(px + x, py + 1, 1, height - 1, barCol);
                 }
                 for (int x = 0; x < ampR; x++) {
-                    Color barCol = ampRight >= 1 && Preferences.profile.meterFlashWhenClipping ? Color.Red : Helpers.HSLtoRGB((int)Helpers.MapClamped(x, width * 0.6667f, width, 130, 10), 1, 0.42f);
+                    Color barCol = ampRight >= 1 && App.Settings.General.FlashMeterRedWhenClipping ? Color.Red : Helpers.HSLtoRGB((int)Helpers.MapClamped(x, width * 0.6667f, width, 130, 10), 1, 0.42f);
                     DrawRect(px + x, py + height + 2, 1, height - 1, barCol);
                 }
             }

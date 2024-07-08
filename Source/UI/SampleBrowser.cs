@@ -50,8 +50,8 @@ namespace WaveTracker.UI {
             sortType = new Toggle("Type", width - 36, 30, this);
             entriesInDirectory = new string[0];
             previewOut = new WaveOutEvent();
-            if (Directory.Exists(Preferences.profile.lastBrowseDirectory)) {
-                currentPath = Preferences.profile.lastBrowseDirectory;
+            if (Directory.Exists(App.Settings.Files.LastSampleBrowserDirectory)) {
+                currentPath = App.Settings.Files.LastSampleBrowserDirectory;
             }
             else {
                 currentPath = Directory.GetCurrentDirectory();
@@ -180,14 +180,14 @@ namespace WaveTracker.UI {
                 //Thread.Sleep(1);
                 try {
                     reader = new AudioFileReader(entriesInDirectory[selectedFileIndex]);
-                    if ((reader.TotalTime.TotalSeconds * reader.WaveFormat.SampleRate) / reader.WaveFormat.Channels <= 400) {
+                    if ((reader.TotalTime.TotalSeconds * reader.WaveFormat.SampleRate) <= 400) {
                         LoopStream loop = new LoopStream(reader);
                         previewOut.Init(loop);
                     }
                     else {
                         previewOut.Init(reader);
                     }
-                    if (Preferences.profile.previewSamples)
+                    if (App.Settings.SamplesWaves.PreviewSamplesInBrowser)
                         previewOut.Play();
                 } catch {
 
@@ -266,25 +266,25 @@ namespace WaveTracker.UI {
             Input.focus = opened;
             if (File.Exists(selectedFilePath))
                 LoadSampleFromFile(selectedFilePath, launched.Sample);
-            Preferences.profile.lastBrowseDirectory = currentPath;
+            App.Settings.Files.LastSampleBrowserDirectory = currentPath;
             Preferences.SaveToFile();
             previewOut.Stop();
         }
 
         public void LoadSampleFromFile(string path, Sample sample) {
-            bool successfulReadWAV = (Helpers.ReadWav(path, out sample.sampleDataAccessL, out sample.sampleDataAccessR));
-            sample.SetBaseKey(Preferences.profile.defaultBaseKey);
+            bool successfulReadWAV = (Helpers.ReadAudioFile(path, out sample.sampleDataAccessL, out sample.sampleDataAccessR, out sample.sampleRate));
+            sample.SetBaseKey(App.Settings.SamplesWaves.DefaultSampleBaseKey);
             sample.SetDetune(0);
             sample.loopPoint = 0;
             sample.loopType = sample.Length < 1000 ? Sample.LoopType.Forward : Sample.LoopType.OneShot;
-            sample.resampleMode = (Audio.ResamplingMode)Preferences.profile.defaultResampleSample;
+            sample.resampleMode = App.Settings.SamplesWaves.DefaultResampleModeSample;
             if (successfulReadWAV) {
-                if (Preferences.profile.automaticallyTrimSamples)
+                if (App.Settings.SamplesWaves.AutomaticallyTrimSamples)
                     sample.TrimSilence();
-                if (Preferences.profile.automaticallyNormalizeSamples)
+                if (App.Settings.SamplesWaves.AutomaticallyNormalizeSamplesOnImport)
                     sample.Normalize();
 
-                sample.resampleMode = (Audio.ResamplingMode)Preferences.profile.defaultResampleSample;
+                sample.resampleMode = App.Settings.SamplesWaves.DefaultResampleModeSample;
                 App.CurrentModule.SetDirty();
             }
             else {

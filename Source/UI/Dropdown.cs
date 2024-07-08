@@ -77,9 +77,9 @@ namespace WaveTracker.UI {
             if (showMenu) {
 
                 for (int i = 0; i < options.Length; i++) {
-                    int y = i * 11 + 15;
+                    int y = i * 11 + 14;
                     if (MouseX > 0 && MouseX < width) {
-                        if (MouseY >= y && MouseY <= y + 11) {
+                        if (MouseY >= y && MouseY < y + 11) {
                             hoveredValue = i;
                             if (Input.GetClickUp(KeyModifier.None)) {
                                 Value = i;

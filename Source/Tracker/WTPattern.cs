@@ -115,6 +115,13 @@ namespace WaveTracker.Tracker {
             IsDirty = false;
         }
 
+        /// <summary>
+        /// If this pattern had any changes since the last pack, will update CellsAsString to reflect the current pattern state.
+        /// </summary>
+        public void ForcePackAnyChanges() {
+            CellsAsString = GetCellDataAsString();
+        }
+
 
         /// <summary>
         /// Gets this pattern's data as an encoded string
@@ -161,7 +168,7 @@ namespace WaveTracker.Tracker {
         }
 
         /// <summary>
-        /// Resizes this pattern to hold <c>channelCount</c> channels
+        /// Resizes this pattern to hold the parent module's <c>ChannelCount</c> number of channels
         /// </summary>
         /// <param name="channelCount"></param>
         public void Resize() {

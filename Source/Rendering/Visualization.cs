@@ -122,7 +122,7 @@ namespace WaveTracker.Rendering {
 
             Fillstates(statesPrev);
             for (int i = 0; i < 10; ++i) {
-                if (Preferences.profile.visualizerHighlightKeys) {
+                if (App.Settings.Visualizer.HighlightPressedKeys) {
                     DrawSprite(20 + i * 60, 24, 60, 24, new Rectangle(0, 104, 60, 24), new Color(128, 128, 128, 128));
                 }
                 else {
@@ -242,14 +242,14 @@ namespace WaveTracker.Rendering {
             // draw note
 
             if (noteValue == WTPattern.EVENT_NOTE_CUT) {
-                if (Preferences.profile.showNoteCutAndReleaseAsText)
+                if (App.Settings.PatternEditor.ShowNoteOffAndReleaseAsText)
                     Write("OFF", x + 2, y, noteColor);
                 else {
                     DrawRect(x + 3, y + 2, 13, 2, noteColor);
                 }
             }
             else if (noteValue == WTPattern.EVENT_NOTE_RELEASE) {
-                if (Preferences.profile.showNoteCutAndReleaseAsText)
+                if (App.Settings.PatternEditor.ShowNoteOffAndReleaseAsText)
                     Write("REL", x + 2, y, noteColor);
                 else {
                     DrawRect(x + 3, y + 2, 13, 1, noteColor);
@@ -321,14 +321,14 @@ namespace WaveTracker.Rendering {
             // draw note
 
             if (noteValue == WTPattern.EVENT_NOTE_CUT) {
-                if (Preferences.profile.showNoteCutAndReleaseAsText)
+                if (App.Settings.PatternEditor.ShowNoteOffAndReleaseAsText)
                     Write("OFF", x + 2, y, noteColor);
                 else {
                     DrawRect(x + 3, y + 2, 13, 2, noteColor);
                 }
             }
             else if (noteValue == WTPattern.EVENT_NOTE_RELEASE) {
-                if (Preferences.profile.showNoteCutAndReleaseAsText)
+                if (App.Settings.PatternEditor.ShowNoteOffAndReleaseAsText)
                     Write("REL", x + 2, y, noteColor);
                 else {
                     DrawRect(x + 3, y + 2, 13, 1, noteColor);
@@ -403,7 +403,7 @@ namespace WaveTracker.Rendering {
             Color c = Helpers.Alpha(Colors.theme.patternText, currRow ? 255 : 120);
             if (value == WTPattern.EVENT_NOTE_CUT) // off
             {
-                if (Preferences.profile.showNoteCutAndReleaseAsText)
+                if (App.Settings.PatternEditor.ShowNoteOffAndReleaseAsText)
                     Write("OFF", x, y, c);
                 else {
                     DrawRect(x + 1, y + 2, 13, 2, c);
@@ -411,7 +411,7 @@ namespace WaveTracker.Rendering {
             }
             else if (value == WTPattern.EVENT_NOTE_RELEASE) // release 
               {
-                if (Preferences.profile.showNoteCutAndReleaseAsText)
+                if (App.Settings.PatternEditor.ShowNoteOffAndReleaseAsText)
                     Write("REL", x, y, c);
                 else {
                     DrawRect(x + 1, y + 2, 13, 1, c);
@@ -537,23 +537,23 @@ namespace WaveTracker.Rendering {
 
         public void DrawOscilloscope(int channelNum, int px, int py, int w, int h) {
 
-            if (Preferences.profile.visualizerScopeBorders)
+            if (App.Settings.Visualizer.OscilloscopeBorders)
                 DrawRect(px - 2, py - 2, w + 4, h + 4, Color.White);
             Color crossColor = new Color(44, 53, 77);
             DrawRect(px, py, w, h, new Color(20, 24, 46));
 
-            if (Preferences.profile.visualizerScopeCrosshairs > 0) {
+            if (App.Settings.Visualizer.OscilloscopeCrosshairs > 0) {
                 DrawRect(px, py + h / 2, w, 1, crossColor);
-                if (Preferences.profile.visualizerScopeCrosshairs > 1)
+                if (App.Settings.Visualizer.OscilloscopeCrosshairs > 1)
                     DrawRect(px + w / 2, py, 1, h, crossColor);
             }
-            if (Preferences.profile.visualizerScopeBorders)
+            if (App.Settings.Visualizer.OscilloscopeBorders)
                 WriteTwiceAsBig("" + channelNum, px + 2, py - 4, new Color(126, 133, 168));
 
             Channel channel = ChannelManager.channels[channelNum - 1];
             float samp1 = 0;
             float lastSamp = 0;
-            float scopezoom = 40f / (Preferences.profile.visualizerScopeZoom / 100f);
+            float scopezoom = 40f / (App.Settings.Visualizer.OscilloscopeZoom / 100f);
             if (ChannelManager.IsChannelOn(channelNum - 1)) {
                 if (channel.currentInstrument is SampleInstrument instrument) {
                     Sample samp = instrument.sample;
@@ -566,7 +566,7 @@ namespace WaveTracker.Rendering {
 
                         samp1 = -samp.GetMonoSample((i / (float)w * channel.CurrentFrequency / scopezoom) + (int)channel.SampleTime, channel.SampleStartOffset / 100f) * (h / 2f) * channel.CurrentAmplitudeAsWave / 1.5f + (h / 2f);
                         if (i > -w / 2)
-                            DrawOscCol(px + i + w / 2, py - 2, samp1, lastSamp, Color.White, Preferences.profile.visualizerScopeThickness + 1);
+                            DrawOscCol(px + i + w / 2, py - 2, samp1, lastSamp, Color.White, App.Settings.Visualizer.OscilloscopeThickness + 1);
                     }
                 }
                 else {
@@ -577,7 +577,7 @@ namespace WaveTracker.Rendering {
 
                         samp1 = -channel.EvaluateWave(position + 5) * (h / 2f) * channel.CurrentAmplitude + (h / 2f);
                         if (i > -w / 2)
-                            DrawOscCol(px + i + w / 2, py - 2, samp1, lastSamp, Preferences.profile.visualizerScopeColors ? GetColorOfWaveFromTable(channel.WaveIndex, channel.WaveMorphPosition) : Color.White, Preferences.profile.visualizerScopeThickness + 1);
+                            DrawOscCol(px + i + w / 2, py - 2, samp1, lastSamp, App.Settings.Visualizer.OscilloscopeColorfulWaves ? GetColorOfWaveFromTable(channel.WaveIndex, channel.WaveMorphPosition) : Color.White, App.Settings.Visualizer.OscilloscopeThickness + 1);
                     }
                 }
             }
@@ -595,7 +595,7 @@ namespace WaveTracker.Rendering {
             int px = -80;
             int py = 24 * 2;
 
-            if (Preferences.profile.visualizerHighlightKeys && states.Count > 0) {
+            if (App.Settings.Visualizer.HighlightPressedKeys && states.Count > 0) {
                 for (int i = states[0].Count - 1; i >= 0; i--) {
                     if (states[0][i].isPlaying) {
                         int psy = y + py;
@@ -604,7 +604,7 @@ namespace WaveTracker.Rendering {
                         int pswidth = 8;
                         int wo = 1;
                         int alpha = (int)states[0][i].volume.Map(0, 1, 60, 255);
-                        if (!Preferences.profile.visualizerPianoFade)
+                        if (!App.Settings.Visualizer.ChangeNoteOpacityByVolume)
                             alpha = 255;
                         if (!Helpers.IsNoteBlackKey(pitch)) {
                             wo = 1;
@@ -620,10 +620,10 @@ namespace WaveTracker.Rendering {
                     return;
                 foreach (ChannelState state in states[i]) {
                     int width = (int)state.volume.Map(0, 1, 1, 15);
-                    if (!Preferences.profile.visualizerPianoChangeWidth)
+                    if (!App.Settings.Visualizer.ChangeNoteWidthByVolume)
                         width = 10;
                     int alpha = (int)state.volume.Map(0, 1, 10, 255);
-                    if (!Preferences.profile.visualizerPianoFade)
+                    if (!App.Settings.Visualizer.ChangeNoteOpacityByVolume)
                         alpha = 255;
                     DrawRect((int)(px + state.pitch * 10 + 4) - width / 2 + 1, y + py + 24 * 2, width, 1, Helpers.Alpha(state.color, alpha));
                 }

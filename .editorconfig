@@ -8,3 +8,6 @@ dotnet_diagnostic.CA1416.severity = none
 
 # IDE0090: Use 'new(...)'
 dotnet_diagnostic.IDE0090.severity = silent
+
+# IDE0017: Simplify object initialization
+dotnet_diagnostic.IDE0017.severity = silent

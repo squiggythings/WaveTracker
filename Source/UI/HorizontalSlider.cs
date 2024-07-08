@@ -19,9 +19,9 @@ namespace WaveTracker.UI {
         public int FineAdjustAmount { get; set; }
         public int CoarseAdjustAmount { get; set; }
 
-        public float TickSpacing { get; set; }
+        public int QuantizeValue { get; set; }
 
-        public int TickSpace { get; set; }
+        public float TickSpacing { get; set; }
 
         Clickable handle;
         bool isDraggingHandle;
@@ -32,7 +32,7 @@ namespace WaveTracker.UI {
             this.width = width;
             this.height = 11;
             handle = new MouseRegion(0, 0, 5, height, this);
-            
+            QuantizeValue = 1;
             FineAdjustAmount = 1;
             CoarseAdjustAmount = 1;
             TickSpacing = width / (float)numTicks;

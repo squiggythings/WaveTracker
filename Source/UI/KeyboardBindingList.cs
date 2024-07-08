@@ -53,6 +53,19 @@ namespace WaveTracker.UI {
         }
 
 
+        /// <summary>
+        /// Saves the list in this box to the given dictionary
+        /// </summary>
+        /// <param name="list"></param>
+        public void SaveDictionaryInto(Dictionary<string, KeyboardShortcut> bindings) {
+            foreach (ListEntry entry in entries) {
+                if (!entry.isLabel) {
+                    bindings[entry.categoryName + '\\' + entry.actionName] = entry.shortcut;
+                }
+            }
+        }
+
+
         public void Update() {
             scrollbar.SetSize(entries.Count, numRows);
             scrollbar.UpdateScrollValue();
@@ -94,7 +107,7 @@ namespace WaveTracker.UI {
                 if (editButton.Clicked) {
                     entries[HoveredIndex].shortcut = KeyboardShortcut.None;
                 }
-                else if (Input.CurrentPressedShortcut.IsPressedDown()) {
+                else if (Input.CurrentPressedShortcut.IsPressedDown) {
                     editButton.Value = false;
                     entries[HoveredIndex].shortcut = Input.CurrentPressedShortcut;
                 }

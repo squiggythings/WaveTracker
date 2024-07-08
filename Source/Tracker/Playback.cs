@@ -232,7 +232,7 @@ namespace WaveTracker.Tracker {
         }
 
         static void Restore() {
-            if (Preferences.profile.restoreChannelState) {
+            if (App.Settings.PatternEditor.RestoreChannelState) {
                 RestoreUntil(position.Frame, position.Row);
             }
         }

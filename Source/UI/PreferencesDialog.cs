@@ -130,36 +130,36 @@ namespace WaveTracker.UI {
         }
 
         public new void Open() {
-            pageGeneral.GetOption(1).SetValue(Preferences.profile.showRowNumbersInHex);
-            pageGeneral.GetOption(2).SetValue(Preferences.profile.showNoteCutAndReleaseAsText);
-            pageGeneral.GetOption(3).SetValue(Preferences.profile.fadeVolumeColumn);
-            pageGeneral.GetOption(4).SetValue(Preferences.profile.ignoreStepWhenMoving);
-            pageGeneral.GetOption(5).SetValue(Preferences.profile.keyRepeat);
-            pageGeneral.GetOption(6).SetValue(Preferences.profile.restoreChannelState);
-            pageGeneral.GetOption(7).SetValue((int)Math.Log2(Preferences.profile.pageJumpAmount) - 1);
-            pageGeneral.GetOption(10).SetValue(Preferences.profile.oscilloscopeMode);
-            pageGeneral.GetOption(11).SetValue(Preferences.profile.meterDecaySpeed);
-            pageGeneral.GetOption(12).SetValue(Preferences.profile.meterColorMode);
-            pageGeneral.GetOption(13).SetValue(Preferences.profile.meterFlashWhenClipping);
+            //pageGeneral.GetOption(1).SetValue(Preferences.profile.showRowNumbersInHex);
+            //pageGeneral.GetOption(2).SetValue(Preferences.profile.showNoteCutAndReleaseAsText);
+            //pageGeneral.GetOption(3).SetValue(Preferences.profile.fadeVolumeColumn);
+            //pageGeneral.GetOption(4).SetValue(Preferences.profile.ignoreStepWhenMoving);
+            //pageGeneral.GetOption(5).SetValue(Preferences.profile.keyRepeat);
+            //pageGeneral.GetOption(6).SetValue(Preferences.profile.restoreChannelState);
+            //pageGeneral.GetOption(7).SetValue((int)Math.Log2(Preferences.profile.pageJumpAmount) - 1);
+            //pageGeneral.GetOption(10).SetValue(Preferences.profile.oscilloscopeMode);
+            //pageGeneral.GetOption(11).SetValue(Preferences.profile.meterDecaySpeed);
+            //pageGeneral.GetOption(12).SetValue(Preferences.profile.meterColorMode);
+            //pageGeneral.GetOption(13).SetValue(Preferences.profile.meterFlashWhenClipping);
 
-            pageSample.GetOption(1).SetValue(Preferences.profile.automaticallyNormalizeSamples);
-            pageSample.GetOption(2).SetValue(Preferences.profile.automaticallyTrimSamples);
-            pageSample.GetOption(3).SetValue(Preferences.profile.automaticallyResampleSamples);
-            pageSample.GetOption(4).SetValue(Preferences.profile.previewSamples);
-            pageSample.GetOption(5).SetValue(Preferences.profile.includeSamplesInVisualizer);
-            pageSample.GetOption(6).SetValue(Preferences.profile.defaultBaseKey);
-            pageSample.GetOption(9).SetValue(Preferences.profile.defaultResampleWave);
-            pageSample.GetOption(10).SetValue(Preferences.profile.defaultResampleSample);
+            //pageSample.GetOption(1).SetValue(Preferences.profile.automaticallyNormalizeSamples);
+            //pageSample.GetOption(2).SetValue(Preferences.profile.automaticallyTrimSamples);
+            //pageSample.GetOption(3).SetValue(Preferences.profile.automaticallyResampleSamples);
+            //pageSample.GetOption(4).SetValue(Preferences.profile.previewSamples);
+            //pageSample.GetOption(5).SetValue(Preferences.profile.includeSamplesInVisualizer);
+            //pageSample.GetOption(6).SetValue(Preferences.profile.defaultBaseKey);
+            //pageSample.GetOption(9).SetValue(Preferences.profile.defaultResampleWave);
+            //pageSample.GetOption(10).SetValue(Preferences.profile.defaultResampleSample);
 
-            pageVisualizer.GetOption(1).SetValue(Preferences.profile.visualizerPianoSpeed);
-            pageVisualizer.GetOption(2).SetValue(Preferences.profile.visualizerPianoChangeWidth);
-            pageVisualizer.GetOption(3).SetValue(Preferences.profile.visualizerPianoFade);
-            pageVisualizer.GetOption(4).SetValue(Preferences.profile.visualizerHighlightKeys);
-            pageVisualizer.GetOption(7).SetValue(Preferences.profile.visualizerScopeZoom);
-            pageVisualizer.GetOption(8).SetValue(Preferences.profile.visualizerScopeColors);
-            pageVisualizer.GetOption(9).SetValue(Preferences.profile.visualizerScopeThickness);
-            pageVisualizer.GetOption(10).SetValue(Preferences.profile.visualizerScopeCrosshairs);
-            pageVisualizer.GetOption(11).SetValue(Preferences.profile.visualizerScopeBorders);
+            //pageVisualizer.GetOption(1).SetValue(Preferences.profile.visualizerPianoSpeed);
+            //pageVisualizer.GetOption(2).SetValue(Preferences.profile.visualizerPianoChangeWidth);
+            //pageVisualizer.GetOption(3).SetValue(Preferences.profile.visualizerPianoFade);
+            //pageVisualizer.GetOption(4).SetValue(Preferences.profile.visualizerHighlightKeys);
+            //pageVisualizer.GetOption(7).SetValue(Preferences.profile.visualizerScopeZoom);
+            //pageVisualizer.GetOption(8).SetValue(Preferences.profile.visualizerScopeColors);
+            //pageVisualizer.GetOption(9).SetValue(Preferences.profile.visualizerScopeThickness);
+            //pageVisualizer.GetOption(10).SetValue(Preferences.profile.visualizerScopeCrosshairs);
+            //pageVisualizer.GetOption(11).SetValue(Preferences.profile.visualizerScopeBorders);
 
             base.Open();
         }
@@ -226,38 +226,38 @@ namespace WaveTracker.UI {
         }
 
         public void ApplyChanges() {
-            Preferences.profile.showRowNumbersInHex = pageGeneral.GetOption(1).GetValueBool();
-            Preferences.profile.showNoteCutAndReleaseAsText = pageGeneral.GetOption(2).GetValueBool();
-            Preferences.profile.fadeVolumeColumn = pageGeneral.GetOption(3).GetValueBool();
-            Preferences.profile.ignoreStepWhenMoving = pageGeneral.GetOption(4).GetValueBool();
-            Preferences.profile.keyRepeat = pageGeneral.GetOption(5).GetValueBool();
-            Preferences.profile.restoreChannelState = pageGeneral.GetOption(6).GetValueBool();
-            Preferences.profile.pageJumpAmount = (int)Math.Pow(2, pageGeneral.GetOption(7).GetValueInt() + 1);
-            Preferences.profile.oscilloscopeMode = pageGeneral.GetOption(10).GetValueInt();
-            Preferences.profile.meterDecaySpeed = pageGeneral.GetOption(11).GetValueInt();
-            Preferences.profile.meterColorMode = pageGeneral.GetOption(12).GetValueInt();
-            Preferences.profile.meterFlashWhenClipping = pageGeneral.GetOption(13).GetValueBool();
+            //Preferences.profile.showRowNumbersInHex = pageGeneral.GetOption(1).GetValueBool();
+            //Preferences.profile.showNoteCutAndReleaseAsText = pageGeneral.GetOption(2).GetValueBool();
+            //Preferences.profile.fadeVolumeColumn = pageGeneral.GetOption(3).GetValueBool();
+            //Preferences.profile.ignoreStepWhenMoving = pageGeneral.GetOption(4).GetValueBool();
+            //Preferences.profile.keyRepeat = pageGeneral.GetOption(5).GetValueBool();
+            //Preferences.profile.restoreChannelState = pageGeneral.GetOption(6).GetValueBool();
+            //Preferences.profile.pageJumpAmount = (int)Math.Pow(2, pageGeneral.GetOption(7).GetValueInt() + 1);
+            //Preferences.profile.oscilloscopeMode = pageGeneral.GetOption(10).GetValueInt();
+            //Preferences.profile.meterDecaySpeed = pageGeneral.GetOption(11).GetValueInt();
+            //Preferences.profile.meterColorMode = pageGeneral.GetOption(12).GetValueInt();
+            //Preferences.profile.meterFlashWhenClipping = pageGeneral.GetOption(13).GetValueBool();
 
-            Preferences.profile.automaticallyNormalizeSamples = pageSample.GetOption(1).GetValueBool();
-            Preferences.profile.automaticallyTrimSamples = pageSample.GetOption(2).GetValueBool();
-            Preferences.profile.automaticallyResampleSamples = pageSample.GetOption(3).GetValueBool();
-            Preferences.profile.previewSamples = pageSample.GetOption(4).GetValueBool();
-            Preferences.profile.includeSamplesInVisualizer = pageSample.GetOption(5).GetValueBool();
-            Preferences.profile.defaultBaseKey = pageSample.GetOption(6).GetValueInt();
-            Preferences.profile.defaultResampleWave = pageSample.GetOption(9).GetValueInt();
-            Preferences.profile.defaultResampleSample = pageSample.GetOption(10).GetValueInt();
+            //Preferences.profile.automaticallyNormalizeSamples = pageSample.GetOption(1).GetValueBool();
+            //Preferences.profile.automaticallyTrimSamples = pageSample.GetOption(2).GetValueBool();
+            //Preferences.profile.automaticallyResampleSamples = pageSample.GetOption(3).GetValueBool();
+            //Preferences.profile.previewSamples = pageSample.GetOption(4).GetValueBool();
+            //Preferences.profile.includeSamplesInVisualizer = pageSample.GetOption(5).GetValueBool();
+            //Preferences.profile.defaultBaseKey = pageSample.GetOption(6).GetValueInt();
+            //Preferences.profile.defaultResampleWave = pageSample.GetOption(9).GetValueInt();
+            //Preferences.profile.defaultResampleSample = pageSample.GetOption(10).GetValueInt();
 
             // TODO add color theme
 
-            Preferences.profile.visualizerPianoSpeed = pageVisualizer.GetOption(1).GetValueInt();
-            Preferences.profile.visualizerPianoChangeWidth = pageVisualizer.GetOption(2).GetValueBool();
-            Preferences.profile.visualizerPianoFade = pageVisualizer.GetOption(3).GetValueBool();
-            Preferences.profile.visualizerHighlightKeys = pageVisualizer.GetOption(4).GetValueBool();
-            Preferences.profile.visualizerScopeZoom = pageVisualizer.GetOption(7).GetValueInt();
-            Preferences.profile.visualizerScopeColors = pageVisualizer.GetOption(8).GetValueBool();
-            Preferences.profile.visualizerScopeThickness = pageVisualizer.GetOption(9).GetValueInt();
-            Preferences.profile.visualizerScopeCrosshairs = pageVisualizer.GetOption(10).GetValueInt();
-            Preferences.profile.visualizerScopeBorders = pageVisualizer.GetOption(11).GetValueBool();
+            //Preferences.profile.visualizerPianoSpeed = pageVisualizer.GetOption(1).GetValueInt();
+            //Preferences.profile.visualizerPianoChangeWidth = pageVisualizer.GetOption(2).GetValueBool();
+            //Preferences.profile.visualizerPianoFade = pageVisualizer.GetOption(3).GetValueBool();
+            //Preferences.profile.visualizerHighlightKeys = pageVisualizer.GetOption(4).GetValueBool();
+            //Preferences.profile.visualizerScopeZoom = pageVisualizer.GetOption(7).GetValueInt();
+            //Preferences.profile.visualizerScopeColors = pageVisualizer.GetOption(8).GetValueBool();
+            //Preferences.profile.visualizerScopeThickness = pageVisualizer.GetOption(9).GetValueInt();
+            //Preferences.profile.visualizerScopeCrosshairs = pageVisualizer.GetOption(10).GetValueInt();
+            //Preferences.profile.visualizerScopeBorders = pageVisualizer.GetOption(11).GetValueBool();
             Preferences.SaveToFile();
         }
     }

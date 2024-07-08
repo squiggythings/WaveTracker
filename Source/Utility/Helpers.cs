@@ -536,14 +536,15 @@ namespace WaveTracker {
         /// <param name="L"></param>
         /// <param name="R"></param>
         /// <returns></returns>
-        public static bool ReadWav(string filepath, out short[] L, out short[] R) {
+        public static bool ReadAudioFile(string filepath, out short[] L, out short[] R, out int fileSampleRate) {
             List<short> LChannel = new List<short>();
             List<short> RChannel = new List<short>();
             try {
                 AudioFileReader Nreader = new AudioFileReader(filepath);
                 int bytesPerSample = Nreader.WaveFormat.BitsPerSample / 8;
                 bool isMono = Nreader.WaveFormat.Channels == 1;
-                int sampleRate = Preferences.profile.automaticallyResampleSamples ? 44100 : Nreader.WaveFormat.SampleRate;
+                fileSampleRate = Nreader.WaveFormat.SampleRate;
+                int sampleRate = fileSampleRate;//App.Settings.SamplesWaves.AutomaticallyResampleSamples ? Audio.AudioEngine.SampleRate : Nreader.WaveFormat.SampleRate;
 
                 ISampleProvider isp;
                 WaveFormat desiredFormat = new WaveFormat(sampleRate, 16, Nreader.WaveFormat.Channels);
@@ -568,6 +569,7 @@ namespace WaveTracker {
             } catch {
                 L = new short[] { };
                 R = new short[] { };
+                fileSampleRate = 44100;
                 return false;
             }
         }

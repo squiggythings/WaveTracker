@@ -16,6 +16,7 @@ using WaveTracker.UI;
 using WaveTracker.Rendering;
 using WaveTracker.Tracker;
 using WaveTracker.Audio;
+using System.IO;
 
 namespace WaveTracker {
     public class App : Game {
@@ -28,7 +29,7 @@ namespace WaveTracker {
 
         public int ScreenWidth = 1920;
         public int ScreenHeight = 1080;
-        public static float ScreenScale = 2;
+        // public static float ScreenScale { get; } = 2;
         /// <summary>
         /// The height of the app in scaled pixels
         /// </summary>
@@ -85,13 +86,14 @@ namespace WaveTracker {
             Window.AllowAltF4 = true;
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
-            Preferences.profile = PreferenceProfile.DefaultProfile;
-            Preferences.ReadFromFile();
+            //Preferences.profile = PreferenceProfile.DefaultProfile;
+            //Preferences.ReadFromFile();
             //frameRenderer = new FrameRenderer();
             var form = (System.Windows.Forms.Form)System.Windows.Forms.Control.FromHandle(Window.Handle);
             form.WindowState = System.Windows.Forms.FormWindowState.Maximized;
             form.FormClosing += ClosingForm;
             Settings = new SettingsProfile();
+            SettingsProfile.ReadFromDisk(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData, Environment.SpecialFolderOption.Create), "WaveTracker"), "wtpref");
             MidiInput.ReadMidiDevices();
         }
 
@@ -231,8 +233,8 @@ namespace WaveTracker {
         protected override void Update(GameTime gameTime) {
 
             Window.Title = SaveLoad.FileNameWithoutExtension + (SaveLoad.IsSaved ? "" : "*") + " [#" + (CurrentSongIndex + 1) + " " + CurrentSong.ToString() + "] - WaveTracker " + VERSION;
-            WindowHeight = (int)(Window.ClientBounds.Height / ScreenScale);
-            WindowWidth = (int)(Window.ClientBounds.Width / ScreenScale);
+            WindowHeight = (Window.ClientBounds.Height / Settings.General.ScreenScale);
+            WindowWidth = (Window.ClientBounds.Width / Settings.General.ScreenScale);
 
 
             if (IsActive) {
@@ -243,13 +245,13 @@ namespace WaveTracker {
                 Input.windowFocusTimer = 5;
                 Input.dialogOpenCooldown = 3;
             }
-            if (Input.GetKeyDown(Keys.OemComma, KeyModifier.CtrlShiftAlt)) {
-                if (ScreenScale > 1)
-                    ScreenScale -= 0.5f;
-            }
-            if (Input.GetKeyDown(Keys.OemPeriod, KeyModifier.CtrlShiftAlt)) {
-                ScreenScale += 0.5f;
-            }
+            //if (Input.GetKeyDown(Keys.OemComma, KeyModifier.CtrlShiftAlt)) {
+            //    if (ScreenScale > 1)
+            //        Settings.General.ScreenScale -= 0.5f;
+            //}
+            //if (Input.GetKeyDown(Keys.OemPeriod, KeyModifier.CtrlShiftAlt)) {
+            //    ScreenScale += 0.5f;
+            //}
 
             if (Input.dialogOpenCooldown == 0) {
                 int mouseX = Mouse.GetState().X;
@@ -267,7 +269,8 @@ namespace WaveTracker {
             }
 
             Tooltip.Update(gameTime);
-            if (Input.GetKeyDown(Keys.F12, KeyModifier.None)) {
+            if (Shortcuts["General\\Reset audio"].IsPressedDown) {
+                ResetAudio();
             }
             PatternEditor.Update();
             if (!VisualizerMode) {
@@ -417,8 +420,8 @@ namespace WaveTracker {
             //set rendering back to the back buffer
             GraphicsDevice.SetRenderTarget(null);
             //render target to back buffer
-            targetBatch.Begin(SpriteSortMode.Deferred, BlendState.NonPremultiplied, (ScreenScale % 1).ApproximatelyEqualTo(0) ? SamplerState.PointClamp : SamplerState.LinearClamp, DepthStencilState.Default, RasterizerState.CullNone);
-            targetBatch.Draw(target, new Rectangle(0, 0, (int)(GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width * ScreenScale), (int)(GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height * ScreenScale)), Color.White);
+            targetBatch.Begin(SpriteSortMode.Deferred, BlendState.NonPremultiplied, (Settings.General.ScreenScale % 1) == 0 ? SamplerState.PointClamp : SamplerState.LinearClamp, DepthStencilState.Default, RasterizerState.CullNone);
+            targetBatch.Draw(target, new Rectangle(0, 0, GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width * Settings.General.ScreenScale, GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height * Settings.General.ScreenScale), Color.White);
             if (VisualizerMode && Input.focus == null) {
                 try {
                     visualization.DrawPiano(visualization.states);

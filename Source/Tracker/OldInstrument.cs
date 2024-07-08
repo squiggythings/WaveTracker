@@ -366,8 +366,8 @@ namespace WaveTracker.Tracker {
             sampleDataAccessL = new float[0];
             sampleDataAccessR = new float[0];
             sampleLoopType = SampleLoopType.OneShot;
-            resampleMode = (ResamplingMode)Preferences.profile.defaultResampleSample;
-            BaseKey = Preferences.profile.defaultBaseKey;
+            resampleMode = App.Settings.SamplesWaves.DefaultResampleModeSample;
+            BaseKey = App.Settings.SamplesWaves.DefaultSampleBaseKey;
             Detune = 0;
             _baseFrequency = Helpers.NoteToFrequency(BaseKey - (Detune / 100f));
         }

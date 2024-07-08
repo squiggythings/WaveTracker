@@ -28,23 +28,23 @@ namespace WaveTracker {
             Modifier = KeyModifier.None;
         }
 
-        public bool IsPressed() {
-            return Input.GetKey(Key, Modifier);
+        public bool IsPressed {
+            get { return Input.GetKey(Key, Modifier); }
         }
-        public bool IsPressedDown() {
-            return Input.GetKeyDown(Key, Modifier);
+        public bool IsPressedDown {
+            get { return Input.GetKeyDown(Key, Modifier); }
         }
-        public bool IsPressedRepeat() {
-            return Input.GetKeyRepeat(Key, Modifier);
+        public bool IsPressedRepeat {
+            get { return Input.GetKeyRepeat(Key, Modifier); }
         }
-        public bool WasReleasedThisFrame() {
-            return Input.GetKeyUp(Key, Modifier);
+        public bool WasReleasedThisFrame {
+            get { return Input.GetKeyUp(Key, Modifier); }
         }
 
         public override string ToString() {
             if (Key == Keys.None) {
                 return "(none)";
-            }            
+            }
             return Helpers.ModifierToString(Modifier) + Helpers.KeyToString(Key);
         }
 

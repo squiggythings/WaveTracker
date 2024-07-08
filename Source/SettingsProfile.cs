@@ -14,6 +14,7 @@ using WaveTracker.Audio;
 namespace WaveTracker {
     public class SettingsProfile {
         public CategoryGeneral General { get; set; }
+        public CategoryFiles Files { get; set; }
         public CategoryAppearance Appearance { get; set; }
         public CategoryPatternEditor PatternEditor { get; set; }
         public CategorySamplesWaves SamplesWaves { get; set; }
@@ -24,6 +25,7 @@ namespace WaveTracker {
 
         public SettingsProfile() {
             General = new CategoryGeneral();
+            Files = new CategoryFiles();
             Appearance = new CategoryAppearance();
             PatternEditor = new CategoryPatternEditor();
             SamplesWaves = new CategorySamplesWaves();
@@ -34,17 +36,22 @@ namespace WaveTracker {
 
         }
         public class CategoryGeneral {
-            public int ScreenScale { get; set; } = 1;
+            public int ScreenScale { get; set; } = 2;
             public int OscilloscopeMode { get; set; } = 1;
-            public int MeterDecayRate { get; set; } = 3;
+            public int MeterDecayRate { get; set; } = 2;
             public int MeterColorMode { get; set; } = 1;
             public bool FlashMeterRedWhenClipping { get; set; } = true;
+        }
+
+        public class CategoryFiles {
             public string DefaultTicksPerRow { get; set; } = "4";
             public int DefaultRowsPerFrame { get; set; } = 64;
             public int DefaultNumberOfChannels { get; set; } = 12;
             public string DefaultAuthorName { get; set; } = "";
             public int DefaultRowPrimaryHighlight { get; set; } = 16;
             public int DefaultRowSecondaryHighlight { get; set; } = 4;
+            public string LastSampleBrowserDirectory { get; set; } = "";
+            public string[] RecentFiles { get; set; } = new string[0];
 
         }
 
@@ -54,7 +61,7 @@ namespace WaveTracker {
 
         public class CategoryPatternEditor {
             public bool ShowRowNumbersInHex { get; set; } = false;
-            public bool ShowNoteOffAndReleaseAsText { get; set; } = true;
+            public bool ShowNoteOffAndReleaseAsText { get; set; } = false;
             public bool FadeVolumeColumn { get; set; } = true;
             public bool ShowPreviousNextPatterns { get; set; } = true;
             public bool IgnoreStepWhenMoving { get; set; } = true;
@@ -62,15 +69,16 @@ namespace WaveTracker {
             public bool PreviewNotesOnInput { get; set; } = true;
             public bool WrapCursorHorizontally { get; set; } = true;
             public bool WrapCursorAcrossFrames { get; set; } = true;
-            public bool KeyRepeat { get; set;} = true;
+            public bool KeyRepeat { get; set; } = true;
             public int PageJumpAmount { get; set; } = 2;
+            public bool RestoreChannelState { get; set; } = true;
+
         }
 
         public class CategorySamplesWaves {
 
             public bool AutomaticallyNormalizeSamplesOnImport { get; set; } = true;
             public bool AutomaticallyTrimSamples { get; set; } = true;
-            public bool AutomaticallyResampleSamples { get; set; } = true;
             public bool PreviewSamplesInBrowser { get; set; } = true;
             public int DefaultSampleBaseKey { get; set; } = 60;
             public bool IncludeSamplesInVisualizerByDefault { get; set; } = false;
@@ -92,11 +100,11 @@ namespace WaveTracker {
 
 
         public class CategoryAudio {
-            public string OutputDevice { get; set; } = "<default>";
+            public string OutputDevice { get; set; } = "(default)";
 
             public int MasterVolume { get; set; } = 100;
-            public SampleRate SampleRate { get; set; } = SampleRate._96000;
-            public int Oversampling { get; set; } = 1;
+            public SampleRate SampleRate { get; set; } = SampleRate._44100;
+            public int Oversampling { get; set; } = 2;
         }
         public class CategoryVisualizer {
             public int PianoSpeed { get; set; } = 8;
@@ -106,7 +114,7 @@ namespace WaveTracker {
             public int OscilloscopeZoom { get; set; } = 100;
             public bool OscilloscopeColorfulWaves { get; set; } = true;
             public int OscilloscopeThickness { get; set; } = 1;
-            public int OscilloscopeCrosshairs { get; set; } = 0;
+            public int OscilloscopeCrosshairs { get; set; } = 1;
             public bool OscilloscopeBorders { get; set; } = false;
         }
 
@@ -137,7 +145,10 @@ namespace WaveTracker {
                 {"General\\Module settings", new KeyboardShortcut() },
                 {"General\\Edit wave", new KeyboardShortcut() },
                 {"General\\Edit instrument", new KeyboardShortcut() },
-                {"General\\Toggle Visualizer", new KeyboardShortcut() },
+                {"General\\Toggle visualizer", new KeyboardShortcut() },
+                {"General\\Toggle Channel", new KeyboardShortcut(Keys.F3, KeyModifier.Shift) },
+                {"General\\Solo channel", new KeyboardShortcut(Keys.F4, KeyModifier.Shift) },
+                {"General\\Reset audio", new KeyboardShortcut(Keys.F12, KeyModifier.None) },
 
 
                 {"Frame\\Previous Frame", new KeyboardShortcut(Keys.Left, KeyModifier.Ctrl) },
@@ -214,6 +225,15 @@ namespace WaveTracker {
             }
         }
 
+        private void ValidateCategories() {
+            if (General == null) {
+                General = new CategoryGeneral();
+            }
+            if (Files == null) {
+                Files = new CategoryFiles();
+            }
+        }
+
         public static SettingsProfile Default {
             get {
                 return new SettingsProfile();
@@ -243,25 +263,29 @@ namespace WaveTracker {
         }
 
         /// <summary>
-        /// Writes this SettingsProfile to a json formatted file at <c>path\fileName</c>
+        /// Writes a SettingsProfile to a json formatted file at <c>path\fileName</c>
         /// </summary>
         /// <param name="path"></param>
         /// <param name="fileName"></param>
-        public void WriteToDisk(string path, string fileName) {
+        public static void WriteToDisk(string path, string fileName, SettingsProfile profileToSave) {
             using (StreamWriter outputFile = new StreamWriter(Path.Combine(path, fileName))) {
-                outputFile.Write(JsonSerializer.Serialize(this, typeof(SettingsProfile)));
+                outputFile.Write(JsonSerializer.Serialize(profileToSave, typeof(SettingsProfile)));
             }
         }
 
         /// <summary>
-        /// Returns a SettingsProfile read from the given path
+        /// Returns the SettingsProfile read from the given path, if not found, returns a default settings
         /// </summary>
         /// <param name="path"></param>
         /// <param name="fileName"></param>
-        /// <returns></returns>
         public static SettingsProfile ReadFromDisk(string path, string fileName) {
-            string jsonString = File.ReadAllText(Path.Combine(path, fileName));
-            SettingsProfile ret = JsonSerializer.Deserialize<SettingsProfile>(jsonString);
+            string jsonString;
+            SettingsProfile ret = Default;
+            try {
+                jsonString = File.ReadAllText(Path.Combine(path, fileName));
+                ret = JsonSerializer.Deserialize<SettingsProfile>(jsonString);
+            } catch { }
+            ret.ValidateCategories();
             return ret;
         }
     }

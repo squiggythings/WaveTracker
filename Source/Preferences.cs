@@ -12,33 +12,33 @@ using WaveTracker.UI;
 namespace WaveTracker {
     public static class Preferences {
 
-        public static PreferenceProfile profile;
+        public static PreferenceProfile profileA;
 
         static string settingspath => Directory.GetCurrentDirectory() + "/WaveTracker_pref";
         public static void ReadFromFile() {
-            if (File.Exists(settingspath)) {
-                var serializer = new XmlSerializer(typeof(PreferenceProfile));
-                try {
-                    using (Stream reader = new FileStream(settingspath, FileMode.Open)) {
-                        profile = (PreferenceProfile)serializer.Deserialize(reader);
-                    }
-                } catch {
-                    profile = PreferenceProfile.DefaultProfile;
-                    SaveToFile();
-                }
-            } else {
-                profile = PreferenceProfile.DefaultProfile;
-                SaveToFile();
-            }
+            //if (File.Exists(settingspath)) {
+            //    var serializer = new XmlSerializer(typeof(PreferenceProfile));
+            //    try {
+            //        using (Stream reader = new FileStream(settingspath, FileMode.Open)) {
+            //            profile = (PreferenceProfile)serializer.Deserialize(reader);
+            //        }
+            //    } catch {
+            //        profile = PreferenceProfile.DefaultProfile;
+            //        SaveToFile();
+            //    }
+            //} else {
+            //    profile = PreferenceProfile.DefaultProfile;
+            //    SaveToFile();
+            //}
         }
 
         public static void SaveToFile() {
-            using (var writer = new StreamWriter(settingspath)) {
-                var serializer = new XmlSerializer(typeof(PreferenceProfile));
-                serializer.Serialize(writer, profile);
-                writer.Flush();
-                Debug.WriteLine("Saved settings to: " + settingspath);
-            }
+            //using (var writer = new StreamWriter(settingspath)) {
+            //    var serializer = new XmlSerializer(typeof(PreferenceProfile));
+            //    serializer.Serialize(writer, profile);
+            //    writer.Flush();
+            //    Debug.WriteLine("Saved settings to: " + settingspath);
+            //}
         }
 
         /*

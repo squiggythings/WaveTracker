@@ -689,7 +689,7 @@ namespace WaveTracker.Audio {
             }
         }
 
-        public void ProcessSingleSample(out float left, out float right, bool continuousTick, float continuousDelta) {
+        public void ProcessSingleSample(out float left, out float right, bool continuousTick, float continuousDelta, int oversample) {
             left = right = 0;
 
             float freqCut = 1;
@@ -698,7 +698,7 @@ namespace WaveTracker.Audio {
             //    _frequency = 15804;
             //    //_state = VoiceState.Off;
             //}
-            float delta = 1f / (App.Settings.Audio.Oversampling * AudioEngine.SampleRate) * _frequency;
+            float delta = 1f / (oversample * AudioEngine.SampleRate) * _frequency;
             if (continuousTick)
                 ContinuousTick(continuousDelta);
             if (noteOn) {

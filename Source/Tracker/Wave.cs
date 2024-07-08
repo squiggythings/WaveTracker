@@ -22,7 +22,7 @@ namespace WaveTracker.Tracker {
             for (int i = 0; i < 64; i++) {
                 samples[i] = 16;
             }
-            this.resamplingMode = (ResamplingMode)Preferences.profile.defaultResampleWave;
+            this.resamplingMode = App.Settings.SamplesWaves.DefaultResampleModeWave;
         }
 
 
@@ -36,7 +36,7 @@ namespace WaveTracker.Tracker {
         }
 
         public Wave(string initialWaveString) {
-            this.resamplingMode = (ResamplingMode)Preferences.profile.defaultResampleWave;
+            this.resamplingMode = App.Settings.SamplesWaves.DefaultResampleModeWave;
             SetWaveformFromString(initialWaveString);
         }
         public Wave(string initialWaveString, ResamplingMode resampling) {

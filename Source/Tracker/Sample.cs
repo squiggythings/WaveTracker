@@ -37,6 +37,9 @@ namespace WaveTracker.Tracker {
         public short[] sampleDataAccessR = new short[0];
         public int Length { get { return sampleDataAccessL.Length; } }
         public bool IsStereo { get { return sampleDataAccessR.Length > 0; } }
+        [ProtoMember(10)]
+        public int sampleRate;
+
         public Sample() {
             loopPoint = 0;
 
@@ -44,23 +47,28 @@ namespace WaveTracker.Tracker {
             sampleDataAccessL = new short[0];
             sampleDataAccessR = new short[0];
             loopType = LoopType.OneShot;
-            resampleMode = (ResamplingMode)Preferences.profile.defaultResampleSample;
-            BaseKey = Preferences.profile.defaultBaseKey;
+            resampleMode = App.Settings.SamplesWaves.DefaultResampleModeSample;
+            BaseKey = App.Settings.SamplesWaves.DefaultSampleBaseKey;
+            sampleRate = 44100;
             SetDetune(0);
         }
 
         [ProtoAfterDeserialization]
         void AfterDeserialized() {
-            _baseFrequency = Helpers.NoteToFrequency(BaseKey - (Detune / 100f));
+            SetBaseFrequency();
         }
 
         public void SetDetune(int value) {
             Detune = value;
-            _baseFrequency = Helpers.NoteToFrequency(BaseKey - (Detune / 100f));
+            SetBaseFrequency();
         }
 
         public void SetBaseKey(int value) {
             BaseKey = value;
+            SetBaseFrequency();
+        }
+
+        void SetBaseFrequency() {
             _baseFrequency = Helpers.NoteToFrequency(BaseKey - (Detune / 100f));
         }
 
@@ -217,7 +225,7 @@ namespace WaveTracker.Tracker {
 
         public void SampleTick(float time, float stereoPhase, float startPercentage, out float outputL, out float outputR) {
             float sampleIndex = 0;
-            float x = (time * (AudioEngine.SampleRate / _baseFrequency));
+            float x = (time * (sampleRate / _baseFrequency));
             x += startPercentage * Length;
             long l = Length;
             long p = loopPoint;
