@@ -927,7 +927,7 @@ namespace WaveTracker.UI {
             DrawRect(0, 0, width, height, App.Settings.Appearance.Theme.background);
 
             DrawHeaderRect(0, -32, width);
-            DrawRect(ROW_COLUMN_WIDTH - 2, -32, channelHeaders[LastVisibleChannel].x + channelHeaders[LastVisibleChannel].width - ROW_COLUMN_WIDTH + 4, 1, App.Settings.Appearance.Theme.rowSeparator);
+            DrawRect(ROW_COLUMN_WIDTH - 2, -32, channelHeaders[LastVisibleChannel].x + channelHeaders[LastVisibleChannel].width - ROW_COLUMN_WIDTH + 4, 1, App.Settings.Appearance.Theme.channelSeparator);
 
             int frameWrap = 0;
             int frame = renderCursorPos.Frame;
@@ -1010,20 +1010,20 @@ namespace WaveTracker.UI {
             if (CurrentPattern.CellIsEmpty(renderCursorPos.Row, renderCursorPos.Channel, renderCursorPos.Column.ToCellType()))
                 DrawCursor(ref renderCursorPos);
 
-            DrawRect(ROW_COLUMN_WIDTH - 1, -32, 1, height + 32, App.Settings.Appearance.Theme.rowSeparator);
+            DrawRect(ROW_COLUMN_WIDTH - 1, -32, 1, height + 32, App.Settings.Appearance.Theme.channelSeparator);
             for (int i = FirstVisibleChannel; i <= LastVisibleChannel; ++i) {
                 channelHeaders[i].Draw();
                 //DrawRect(channelHeaders[i].x + channelHeaders[i].width - 1, -32, 3, 1, App.Settings.Appearance.Theme.rowSeparator);
                 //DrawRect(channelHeaders[i].x - 2, -32, 3, 1, App.Settings.Appearance.Theme.rowSeparator);
                 //DrawRect(channelHeaders[i].x + channelHeaders[i].width + 1, -32, 1, 1, App.Settings.Appearance.Theme.rowSeparator);
-                DrawRect(channelHeaders[i].x + channelHeaders[i].width, -32, 1, height + 32, App.Settings.Appearance.Theme.rowSeparator);
+                DrawRect(channelHeaders[i].x + channelHeaders[i].width, -32, 1, height + 32, App.Settings.Appearance.Theme.channelSeparator);
             }
             // DrawRect(channelHeaders[LastVisibleChannel].x + channelHeaders[LastVisibleChannel].x - 2, -32, 3, 1, App.Settings.Appearance.Theme.rowSeparator);
             //Write(selection.min.ToString(), 0, 0, Color.Red);
             //Write(selection.max.ToString(), 0, 20, Color.Red);
             //Write(cursorPosition.ToString(), 0, 30, Color.Cyan);
-            DrawRect(width, -32, 1, height + 32, App.Settings.Appearance.Theme.rowSeparator);
-            DrawRect(width + 1, -32, 1, 1, App.Settings.Appearance.Theme.rowSeparator);
+            DrawRect(width, -32, 1, height + 32, App.Settings.Appearance.Theme.channelSeparator);
+            DrawRect(width + 1, -32, 1, 1, App.Settings.Appearance.Theme.channelSeparator);
             DrawRect(LastChannelEndPos + 1, 0, width - LastChannelEndPos - 1, height, App.Settings.Appearance.Theme.background);
             DrawRect(0, channelScrollbar.y, ROW_COLUMN_WIDTH, channelScrollbar.height, UIColors.panel);
             channelScrollbar.Draw();

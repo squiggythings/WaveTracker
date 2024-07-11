@@ -158,10 +158,10 @@ namespace WaveTracker.Rendering {
             int rowSeparatorHeight = numVisibleRows * 7 + 19;
 
             // draw first row separator
-            DrawRect(px - 1, py, 1, rowSeparatorHeight, App.Settings.Appearance.Theme.rowSeparator);
+            DrawRect(px - 1, py, 1, rowSeparatorHeight, App.Settings.Appearance.Theme.channelSeparator);
 
             DrawBubbleRect(-1, py, px, 18, Color.White);
-            DrawRect(0, py + 18, 960, 1, App.Settings.Appearance.Theme.rowSeparator);
+            DrawRect(0, py + 18, 960, 1, App.Settings.Appearance.Theme.channelSeparator);
             for (int i = 0; i < App.CurrentModule.ChannelCount; ++i) {
                 DrawBubbleRect(px + i * channelWidth, py, channelWidth - 1, 18, Color.White);
 
@@ -183,7 +183,7 @@ namespace WaveTracker.Rendering {
 
 
                 // draw row separator
-                DrawRect(px + (i + 1) * channelWidth - 1, py, 1, rowSeparatorHeight, App.Settings.Appearance.Theme.rowSeparator);
+                DrawRect(px + (i + 1) * channelWidth - 1, py, 1, rowSeparatorHeight, App.Settings.Appearance.Theme.channelSeparator);
             }
             DrawBubbleRect(px + trackerWidth, py, App.WindowWidth - (px + trackerWidth) + 1, 18, Color.White);
             //DrawRect(tx + 2, py + 12, 80, 3, UIColors.panel);
@@ -194,7 +194,7 @@ namespace WaveTracker.Rendering {
                 int rowY = py + i * 7;
                 int thisRow = Playback.position.Row + i - numVisibleRows / 2;
                 if (thisRow == Playback.position.Row) {
-                    DrawRect(px - 1, rowY, trackerWidth + 1, 7, App.Settings.Appearance.Theme.rowSeparator);
+                    DrawRect(px - 1, rowY, trackerWidth + 1, 7, App.Settings.Appearance.Theme.channelSeparator);
                     DrawRect(px - 1, rowY, trackerWidth + 1, 7, Helpers.Alpha(App.Settings.Appearance.Theme.cursor, 90));
                 }
 

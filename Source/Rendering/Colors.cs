@@ -2,10 +2,87 @@
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System.Xml.Serialization;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace WaveTracker {
 
     public class ColorTheme {
+        Dictionary<string, Color> colors;
+
+        public Color this[string name] {
+            get { return colors[name]; }
+            set { colors[name] = value; }
+        }
+
+        public ColorTheme() {
+            colors = new Dictionary<string, Color>();
+            colors.Add("Row background (primary highlight)", Helpers.HexCodeToColor("14182e"));
+            colors.Add("Row background (secondary highlight)", Helpers.HexCodeToColor("14182e"));
+            colors.Add("Row background", new Color());
+            colors.Add("Empty dashes (primary highlight)", new Color());
+            colors.Add("Empty dashes (secondary highlight)", new Color());
+            colors.Add("Empty dashes", new Color());
+
+            colors.Add("Row text (primary highlight)", new Color());
+            colors.Add("Row text (secondary highlight)", new Color());
+            colors.Add("Row text", new Color());
+            colors.Add("Instrument (wave)", new Color());
+            colors.Add("Instrument (sample)", new Color());
+            colors.Add("Volume", new Color());
+            colors.Add("Effect", new Color());
+            colors.Add("Effect parameter", new Color());
+
+            colors.Add("Cursor", new Color());
+            colors.Add("Selection", new Color());
+
+            colors.Add("Current row (default)", Helpers.HexCodeToColor("14182e"));
+            colors.Add("Current row empty dashes (default)", new Color());
+
+            colors.Add("Current row (editing)", Helpers.HexCodeToColor("14182e"));
+            colors.Add("Current row empty dashes (editing)", new Color());
+
+            colors.Add("Playback row", new Color());
+            colors.Add("Playback row empty dashes", new Color());
+
+            colors.Add("Channel separator", new Color());
+            colors.Add("Channel separator", new Color());
+
+        }
+
+        /// <summary>
+        /// Converts a ColorTheme to a string
+        /// </summary>
+        /// <param name="theme"></param>
+        /// <returns></returns>
+        public static string CreateString(ColorTheme theme) {
+            string str = "";
+            for (int i = 0; i < theme.colors.Count; i++) {
+                str += theme.colors.ElementAt(0).Key + "=" + theme.colors.ElementAt(i).Value.GetHexCode();
+                if (i < theme.colors.Count - 1)
+                    str += "\n";
+            }
+            return str;
+        }
+
+        /// <summary>
+        /// Converts a ini formatted string into a ColorTheme
+        /// </summary>
+        /// <param name="fileText"></param>
+        /// <returns></returns>
+        public static ColorTheme FromString(string fileText) {
+            ColorTheme theme = new ColorTheme();
+            string[] lines = fileText.Split('\n');
+            foreach (string line in lines) {
+                string[] keyValuePair = line.Split('=');
+                if (theme.colors.ContainsKey(keyValuePair[0]){
+                    theme[keyValuePair[0]] = Helpers.HexCodeToColor(keyValuePair[1]);
+                }
+            }
+            return theme;
+        }
+
+
         public Color patternText;
         public Color patternTextHighlighted;
         public Color patternTextSubHighlight;
@@ -28,7 +105,7 @@ namespace WaveTracker {
         public Color rowCursorColor;
         public Color rowCursorText;
         public Color cursor;
-        public Color rowSeparator;
+        public Color channelSeparator;
         public Color selection;
 
         static Color AddBrightness(Color color, float amt) {
@@ -66,7 +143,7 @@ namespace WaveTracker {
                 ret.rowPlaybackColor = new(42, 29, 81);
                 ret.rowPlaybackText = new(60, 37, 105);
 
-                ret.rowSeparator = new(49, 56, 89);
+                ret.channelSeparator = new(49, 56, 89);
 
                 return ret;
             }
@@ -103,7 +180,7 @@ namespace WaveTracker {
                 ret.rowPlaybackColor = Helpers.HexCodeToColor("ffff80");
                 ret.rowPlaybackText = Helpers.HexCodeToColor("000000");
 
-                ret.rowSeparator = Helpers.HexCodeToColor("3d405f");
+                ret.channelSeparator = Helpers.HexCodeToColor("3d405f");
 
                 return ret;
             }
@@ -141,7 +218,7 @@ namespace WaveTracker {
                 ret.rowPlaybackColor = new(80, 0, 64);
                 ret.rowPlaybackText = AddBrightness(ret.rowPlaybackColor, 0.17f);
 
-                ret.rowSeparator = new(60, 60, 60);
+                ret.channelSeparator = new(60, 60, 60);
 
                 return ret;
             }
@@ -179,7 +256,7 @@ namespace WaveTracker {
                 ret.rowPlaybackColor = Helpers.HexCodeToColor("ffff80");
                 ret.rowPlaybackText = Helpers.HexCodeToColor("000000");
 
-                ret.rowSeparator = Helpers.HexCodeToColor("a0a0a0");
+                ret.channelSeparator = Helpers.HexCodeToColor("a0a0a0");
 
                 return ret;
             }
@@ -217,7 +294,7 @@ namespace WaveTracker {
                 ret.rowPlaybackColor = Helpers.HexCodeToColor("436998");
                 ret.rowPlaybackText = Helpers.HexCodeToColor("b4b4b4");
 
-                ret.rowSeparator = Helpers.HexCodeToColor("000000");
+                ret.channelSeparator = Helpers.HexCodeToColor("000000");
 
                 return ret;
             }
@@ -256,7 +333,7 @@ namespace WaveTracker {
                 ret.rowPlaybackColor = Helpers.HexCodeToColor("000000");
                 ret.rowPlaybackText = Helpers.HexCodeToColor("b4b4b4");
 
-                ret.rowSeparator = Helpers.HexCodeToColor("80808040");
+                ret.channelSeparator = Helpers.HexCodeToColor("80808040");
 
                 return ret;
             }

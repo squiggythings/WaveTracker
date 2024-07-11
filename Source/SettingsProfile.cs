@@ -57,6 +57,8 @@ namespace WaveTracker {
 
         public class CategoryAppearance {
             public ColorTheme Theme { get; set; } = ColorTheme.Default;
+
+
         }
 
         public class CategoryPatternEditor {
