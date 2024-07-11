@@ -4,15 +4,12 @@ using Microsoft.Xna.Framework.Input;
 using System.Xml.Serialization;
 
 namespace WaveTracker {
-    public class Colors {
-        //public static ColorTheme theme = ColorTheme.Default;
-    }
 
     public class ColorTheme {
         public Color patternText;
         public Color patternTextHighlighted;
         public Color patternTextSubHighlight;
-        public int patternEmptyTextAlpha;
+        public Color patternTextEmptyMultiply;
 
         public Color instrumentColumnWave;
         public Color instrumentColumnSample;
@@ -49,7 +46,7 @@ namespace WaveTracker {
                 ret.patternText = Color.White;
                 ret.patternTextHighlighted = new(202, 245, 254);
                 ret.patternTextSubHighlight = new(187, 215, 254);
-                ret.patternEmptyTextAlpha = 18;
+                ret.patternTextEmptyMultiply = new(255, 255, 255, 18);
 
                 ret.instrumentColumnWave = new(90, 234, 61);
                 ret.instrumentColumnSample = new(255, 153, 50);
@@ -86,7 +83,7 @@ namespace WaveTracker {
                 ret.patternText = Helpers.HexCodeToColor("f78c6c");
                 ret.patternTextHighlighted = Helpers.HexCodeToColor("ffcb6b");
                 ret.patternTextSubHighlight = Helpers.HexCodeToColor("ffcb6b");
-                ret.patternEmptyTextAlpha = 18;
+                ret.patternTextEmptyMultiply = new(255, 255, 255, 18);
 
                 ret.instrumentColumnWave = Helpers.HexCodeToColor("ffffff");
                 ret.instrumentColumnSample = Helpers.HexCodeToColor("ffffff");
@@ -124,7 +121,7 @@ namespace WaveTracker {
                 ret.patternText = new(0, 255, 0);
                 ret.patternTextHighlighted = new(240, 240, 0);
                 ret.patternTextSubHighlight = new(255, 255, 96);
-                ret.patternEmptyTextAlpha = 50;
+                ret.patternTextEmptyMultiply = new(1, 1, 1, 50);
 
                 ret.instrumentColumnWave = new(128, 255, 128);
                 ret.instrumentColumnSample = new(128, 255, 128);
@@ -162,7 +159,7 @@ namespace WaveTracker {
                 ret.patternText = Helpers.HexCodeToColor("000080");
                 ret.patternTextHighlighted = Helpers.HexCodeToColor("000080");
                 ret.patternTextSubHighlight = Helpers.HexCodeToColor("000080");
-                ret.patternEmptyTextAlpha = 255;
+                ret.patternTextEmptyMultiply = new(255, 255, 255, 255);
 
                 ret.instrumentColumnWave = Helpers.HexCodeToColor("008080");
                 ret.instrumentColumnSample = Helpers.HexCodeToColor("008080");
@@ -199,7 +196,8 @@ namespace WaveTracker {
                 ret.patternText = Helpers.HexCodeToColor("d29672");
                 ret.patternTextHighlighted = Helpers.HexCodeToColor("e7691b");
                 ret.patternTextSubHighlight = Helpers.HexCodeToColor("e7691b");
-                ret.patternEmptyTextAlpha = 60;
+                ret.patternTextEmptyMultiply = new(255, 255, 255, 60);
+
 
                 ret.instrumentColumnWave = Helpers.HexCodeToColor("2bcbbe");
                 ret.instrumentColumnSample = Helpers.HexCodeToColor("2bcbbe");
@@ -237,7 +235,8 @@ namespace WaveTracker {
                 ret.patternText = Helpers.HexCodeToColor("c0c8ed");
                 ret.patternTextHighlighted = Helpers.HexCodeToColor("ffffff");
                 ret.patternTextSubHighlight = Helpers.HexCodeToColor("ffffff");
-                ret.patternEmptyTextAlpha = 30;
+                ret.patternTextEmptyMultiply = new(255, 255, 255, 30);
+
 
                 ret.instrumentColumnWave = Helpers.HexCodeToColor("ffe239");
                 ret.instrumentColumnSample = Helpers.HexCodeToColor("ff860d");

@@ -696,6 +696,20 @@ namespace WaveTracker {
             return (value - fromSource) / (toSource - fromSource) * (toTarget - fromTarget) + fromTarget;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="col"></param>
+        /// <param name="other"></param>
+        /// <returns></returns>
+        public static Color MultiplyWith(this Color col, Color other) {
+            byte r = (byte)(col.R * (other.R / 255f));
+            byte g = (byte)(col.G * (other.G / 255f));
+            byte b = (byte)(col.B * (other.B / 255f));
+            byte a = (byte)(col.A * (other.A / 255f));
+            return new Color(r, g, b, a);
+        }
+
         public static Color AddTo(this Color value, Color other) {
             return new Color(value.R + other.R, value.G + other.G, value.B + other.B, value.A + other.A);
         }

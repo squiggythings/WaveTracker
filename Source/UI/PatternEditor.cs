@@ -1060,7 +1060,7 @@ namespace WaveTracker.UI {
             if (isCursorOnThisRow)
                 emptyColor = (EditMode ? App.Settings.Appearance.Theme.rowEditText : App.Settings.Appearance.Theme.rowCursorText);
             else
-                emptyColor = Helpers.Alpha(rowTextColor, App.Settings.Appearance.Theme.patternEmptyTextAlpha);
+                emptyColor = rowTextColor.MultiplyWith(App.Settings.Appearance.Theme.patternTextEmptyMultiply);
 
             // draw note
 

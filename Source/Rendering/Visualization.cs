@@ -237,7 +237,7 @@ namespace WaveTracker.Rendering {
             int instrumentValue = App.CurrentSong[frame][row, channel, CellType.Instrument];
             int volumeValue = App.CurrentSong[frame][row, channel, CellType.Volume];
 
-            Color emptyColor = Helpers.Alpha(App.Settings.Appearance.Theme.patternText, App.Settings.Appearance.Theme.patternEmptyTextAlpha);
+            Color emptyColor = App.Settings.Appearance.Theme.patternText.MultiplyWith(App.Settings.Appearance.Theme.patternTextEmptyMultiply);
             Color noteColor = Helpers.Alpha(App.Settings.Appearance.Theme.patternText, alpha);
             // draw note
 
@@ -316,7 +316,7 @@ namespace WaveTracker.Rendering {
             int instrumentValue = App.CurrentSong[frame][row, channel, CellType.Instrument];
             int volumeValue = App.CurrentSong[frame][row, channel, CellType.Volume];
 
-            Color emptyColor = Helpers.Alpha(App.Settings.Appearance.Theme.patternText, App.Settings.Appearance.Theme.patternEmptyTextAlpha);
+            Color emptyColor = App.Settings.Appearance.Theme.patternText.MultiplyWith(App.Settings.Appearance.Theme.patternTextEmptyMultiply);
             Color noteColor = Helpers.Alpha(App.Settings.Appearance.Theme.patternText, alpha);
             // draw note
 
@@ -420,7 +420,7 @@ namespace WaveTracker.Rendering {
             }
             else if (value == WTPattern.EVENT_EMPTY) // empty
               {
-                WriteMonospaced("···", x + 1, y, currRow ? currRowEmptyText : Helpers.Alpha(App.Settings.Appearance.Theme.patternText, App.Settings.Appearance.Theme.patternEmptyTextAlpha), 4);
+                WriteMonospaced("···", x + 1, y, currRow ? currRowEmptyText : App.Settings.Appearance.Theme.patternText.MultiplyWith(App.Settings.Appearance.Theme.patternTextEmptyMultiply), 4);
             }
             else {
                 string val = Helpers.MIDINoteToText(value);
@@ -438,7 +438,7 @@ namespace WaveTracker.Rendering {
         void WriteInstrument(int value, int x, int y, bool currRow) {
             int alpha = currRow ? 255 : 120;
             if (value < 0) {
-                WriteMonospaced("··", x + 1, y, currRow ? currRowEmptyText : Helpers.Alpha(App.Settings.Appearance.Theme.patternText, App.Settings.Appearance.Theme.patternEmptyTextAlpha), 4);
+                WriteMonospaced("··", x + 1, y, currRow ? currRowEmptyText : App.Settings.Appearance.Theme.patternText.MultiplyWith(App.Settings.Appearance.Theme.patternTextEmptyMultiply), 4);
             }
             else {
                 if (value >= App.CurrentModule.Instruments.Count)
@@ -453,7 +453,7 @@ namespace WaveTracker.Rendering {
 
         void WriteVolume(int value, int x, int y, bool currRow) {
             if (value < 0) {
-                WriteMonospaced("··", x + 1, y, currRow ? currRowEmptyText : Helpers.Alpha(App.Settings.Appearance.Theme.patternText, App.Settings.Appearance.Theme.patternEmptyTextAlpha), 4);
+                WriteMonospaced("··", x + 1, y, currRow ? currRowEmptyText : App.Settings.Appearance.Theme.patternText.MultiplyWith(App.Settings.Appearance.Theme.patternTextEmptyMultiply), 4);
             }
             else {
                 int alpha = currRow ? 255 : 100;
@@ -466,14 +466,14 @@ namespace WaveTracker.Rendering {
             int alpha = currRow ? 255 : 120;
 
             if (value < 0) {
-                Write("·", x + 1, y, currRow ? currRowEmptyText : Helpers.Alpha(App.Settings.Appearance.Theme.patternText, App.Settings.Appearance.Theme.patternEmptyTextAlpha));
+                Write("·", x + 1, y, currRow ? currRowEmptyText : App.Settings.Appearance.Theme.patternText.MultiplyWith(App.Settings.Appearance.Theme.patternTextEmptyMultiply));
             }
             else {
                 Write("" + Helpers.GetEffectCharacter(value), x, y, Helpers.Alpha(App.Settings.Appearance.Theme.effectColumn, alpha));
             }
 
             if (param < 0) {
-                WriteMonospaced("··", x + 1 + 5, y, currRow ? currRowEmptyText : Helpers.Alpha(App.Settings.Appearance.Theme.patternText, App.Settings.Appearance.Theme.patternEmptyTextAlpha), 4);
+                WriteMonospaced("··", x + 1 + 5, y, currRow ? currRowEmptyText : App.Settings.Appearance.Theme.patternText.MultiplyWith(App.Settings.Appearance.Theme.patternTextEmptyMultiply), 4);
             }
             else {
                 if (Helpers.IsEffectHex((char)value))
