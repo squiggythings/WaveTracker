@@ -113,7 +113,7 @@ namespace WaveTracker.UI {
                 if (offset == 0)
                     buttonColor = new Color(8, 124, 232);
                 else if (!App.PatternEditor.FollowMode && Playback.IsPlaying && Playback.position.Frame - App.PatternEditor.cursorPosition.Frame == offset)
-                    buttonColor = Colors.theme.rowPlaybackColor.AddTo(new Color(40, 20, 40));
+                    buttonColor = App.Settings.Appearance.Theme.rowPlaybackColor.AddTo(new Color(40, 20, 40));
                 else if (IsPressed && offset > -12 && offset < 12 && !isDragging)
                     buttonColor = new Color(89, 96, 138);
                 else

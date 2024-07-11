@@ -27,8 +27,6 @@ namespace WaveTracker {
         private SpriteBatch targetBatch;
         //public static Texture2D channelHeaderSprite;
 
-        public int ScreenWidth = 1920;
-        public int ScreenHeight = 1080;
         // public static float ScreenScale { get; } = 2;
         /// <summary>
         /// The height of the app in scaled pixels
@@ -70,6 +68,8 @@ namespace WaveTracker {
 
         public const int MENUSTRIP_HEIGHT = 10;
 
+        public static GameWindow ClientWindow => instance.Window;
+
         public MenuStrip MenuStrip { get; set; }
 
         public App(string[] args) {
@@ -89,7 +89,7 @@ namespace WaveTracker {
             //Preferences.profile = PreferenceProfile.DefaultProfile;
             //Preferences.ReadFromFile();
             //frameRenderer = new FrameRenderer();
-            var form = (System.Windows.Forms.Form)System.Windows.Forms.Control.FromHandle(Window.Handle);
+            System.Windows.Forms.Form form = (System.Windows.Forms.Form)System.Windows.Forms.Control.FromHandle(Window.Handle);
             form.WindowState = System.Windows.Forms.FormWindowState.Maximized;
             form.FormClosing += ClosingForm;
             Settings = new SettingsProfile();
@@ -235,7 +235,7 @@ namespace WaveTracker {
             Window.Title = SaveLoad.FileNameWithoutExtension + (SaveLoad.IsSaved ? "" : "*") + " [#" + (CurrentSongIndex + 1) + " " + CurrentSong.ToString() + "] - WaveTracker " + VERSION;
             WindowHeight = (Window.ClientBounds.Height / Settings.General.ScreenScale);
             WindowWidth = (Window.ClientBounds.Width / Settings.General.ScreenScale);
-
+            
 
             if (IsActive) {
                 Input.GetState(gameTime);

@@ -167,7 +167,8 @@ namespace WaveTracker.UI {
             pages["Samples/Waves"]["Default wave resample mode"].ValueInt = (int)App.Settings.SamplesWaves.DefaultResampleModeWave;
             pages["Samples/Waves"]["Default sample resample mode"].ValueInt = (int)App.Settings.SamplesWaves.DefaultResampleModeSample;
 
-            pages["MIDI"]["Input device"].ValueInt = App.Settings.MIDI.InputDevice;
+            pages["MIDI"]["Input device"].ValueInt = 0; // reset to none incase the one from settings is not found
+            pages["MIDI"]["Input device"].ValueString = App.Settings.MIDI.InputDevice;
             pages["MIDI"]["MIDI transpose"].ValueInt = App.Settings.MIDI.MIDITranspose;
             pages["MIDI"]["Apply octave transpose"].ValueBool = App.Settings.MIDI.ApplyOctaveTranspose;
             pages["MIDI"]["Record note velocity"].ValueBool = App.Settings.MIDI.RecordNoteVelocity;
@@ -198,11 +199,14 @@ namespace WaveTracker.UI {
         /// Reads the controls on this dialog into the app's settings profile
         /// </summary>
         void ApplySettings() {
-            if (!MidiInput.ChangeMidiDevice((pages["MIDI"]["Input device"] as ConfigurationOption.Dropdown).Value)) {
-                pages["MIDI"]["Input device"].ValueInt = 0;
-            }
+        
 
             App.Settings.General.ScreenScale = pages["General"]["Screen scale"].ValueInt + 1;
+            while (App.ClientWindow.ClientBounds.Height / App.Settings.General.ScreenScale < height) {
+                App.Settings.General.ScreenScale--;
+            }
+            pages["General"]["Screen scale"].ValueInt = App.Settings.General.ScreenScale - 1;
+
             App.Settings.General.OscilloscopeMode = pages["General"]["Oscilloscope mode"].ValueInt;
             App.Settings.General.MeterDecayRate = pages["General"]["Meter decay rate"].ValueInt;
             App.Settings.General.MeterColorMode = pages["General"]["Meter color mode"].ValueInt;
@@ -238,7 +242,10 @@ namespace WaveTracker.UI {
             App.Settings.SamplesWaves.DefaultResampleModeWave = (Audio.ResamplingMode)pages["Samples/Waves"]["Default wave resample mode"].ValueInt;
             App.Settings.SamplesWaves.DefaultResampleModeSample = (Audio.ResamplingMode)pages["Samples/Waves"]["Default sample resample mode"].ValueInt;
 
-            App.Settings.MIDI.InputDevice = pages["MIDI"]["Input device"].ValueInt;
+            if (!MidiInput.ChangeMidiDevice((pages["MIDI"]["Input device"] as ConfigurationOption.Dropdown).Value)) {
+                pages["MIDI"]["Input device"].ValueInt = 0;
+            }
+            App.Settings.MIDI.InputDevice = pages["MIDI"]["Input device"].ValueString;
             App.Settings.MIDI.MIDITranspose = pages["MIDI"]["MIDI transpose"].ValueInt;
             App.Settings.MIDI.ApplyOctaveTranspose = pages["MIDI"]["Apply octave transpose"].ValueBool;
             App.Settings.MIDI.RecordNoteVelocity = pages["MIDI"]["Record note velocity"].ValueBool;

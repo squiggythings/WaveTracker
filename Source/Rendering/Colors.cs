@@ -5,54 +5,33 @@ using System.Xml.Serialization;
 
 namespace WaveTracker {
     public class Colors {
-        public static ColorTheme theme = ColorTheme.Default;
+        //public static ColorTheme theme = ColorTheme.Default;
     }
 
     public class ColorTheme {
-        [XmlElement(ElementName = "patternText")]
         public Color patternText;
-        [XmlElement(ElementName = "patternTextHighlighted")]
         public Color patternTextHighlighted;
-        [XmlElement(ElementName = "patternTextSubHighlight")]
         public Color patternTextSubHighlight;
-        [XmlElement(ElementName = "patternEmptyTextAlpha")]
         public int patternEmptyTextAlpha;
 
-        [XmlElement(ElementName = "instrumentColumnWave")]
         public Color instrumentColumnWave;
-        [XmlElement(ElementName = "instrumentColumnSample")]
         public Color instrumentColumnSample;
-        [XmlElement(ElementName = "volumeColumn")]
         public Color volumeColumn;
-        [XmlElement(ElementName = "effectColumn")]
         public Color effectColumn;
-        [XmlElement(ElementName = "effectColumnParameter")]
         public Color effectColumnParameter;
 
-        [XmlElement(ElementName = "backgroundHighlighted")]
         public Color backgroundHighlighted;
-        [XmlElement(ElementName = "backgroundSubHighlight")]
         public Color backgroundSubHighlight;
-        [XmlElement(ElementName = "background")]
         public Color background;
 
-        [XmlElement(ElementName = "rowPlaybackColor")]
         public Color rowPlaybackColor;
-        [XmlElement(ElementName = "rowPlaybackText")]
         public Color rowPlaybackText;
-        [XmlElement(ElementName = "rowEditColor")]
         public Color rowEditColor;
-        [XmlElement(ElementName = "rowEditText")]
         public Color rowEditText;
-        [XmlElement(ElementName = "rowCurrentColor")]
-        public Color rowCurrentColor;
-        [XmlElement(ElementName = "rowCurrentText")]
-        public Color rowCurrentText;
-        [XmlElement(ElementName = "cursor")]
+        public Color rowCursorColor;
+        public Color rowCursorText;
         public Color cursor;
-        [XmlElement(ElementName = "rowSeparator")]
         public Color rowSeparator;
-        [XmlElement(ElementName = "selection")]
         public Color selection;
 
         static Color AddBrightness(Color color, float amt) {
@@ -81,8 +60,8 @@ namespace WaveTracker {
                 ret.selection = new(128, 128, 255, 150);
                 ret.cursor = new(126, 133, 168);
 
-                ret.rowCurrentColor = new(27, 55, 130);
-                ret.rowCurrentText = new(42, 83, 156);
+                ret.rowCursorColor = new(27, 55, 130);
+                ret.rowCursorText = new(42, 83, 156);
 
                 ret.rowEditColor = new(109, 29, 78);
                 ret.rowEditText = new(162, 39, 107);
@@ -95,6 +74,44 @@ namespace WaveTracker {
                 return ret;
             }
         }
+        public static ColorTheme Material {
+
+            get {
+                ColorTheme ret = new ColorTheme();
+
+                ret.background = Helpers.HexCodeToColor("292d3e");
+                ret.backgroundHighlighted = Helpers.HexCodeToColor("363951");
+                ret.backgroundSubHighlight = Helpers.HexCodeToColor("3d405f");
+
+                ret.patternText = Helpers.HexCodeToColor("f78c6c");
+                ret.patternTextHighlighted = Helpers.HexCodeToColor("ffcb6b");
+                ret.patternTextSubHighlight = Helpers.HexCodeToColor("ffcb6b");
+                ret.patternEmptyTextAlpha = 18;
+
+                ret.instrumentColumnWave = Helpers.HexCodeToColor("ffffff");
+                ret.instrumentColumnSample = Helpers.HexCodeToColor("ffffff");
+                ret.volumeColumn = Helpers.HexCodeToColor("9cdcfe");
+                ret.effectColumn = Helpers.HexCodeToColor("c3e88d");
+                ret.effectColumnParameter = Helpers.HexCodeToColor("c792ea");
+
+                ret.selection = Helpers.HexCodeToColor("8f8f8f50");
+                ret.cursor = Helpers.HexCodeToColor("8f8f8f");
+
+                ret.rowCursorColor = Helpers.HexCodeToColor("717171");
+                ret.rowCursorText = Helpers.HexCodeToColor("000000");
+
+                ret.rowEditColor = Helpers.HexCodeToColor("717171");
+                ret.rowEditText = Helpers.HexCodeToColor("292d3e");
+
+                ret.rowPlaybackColor = Helpers.HexCodeToColor("ffff80");
+                ret.rowPlaybackText = Helpers.HexCodeToColor("000000");
+
+                ret.rowSeparator = Helpers.HexCodeToColor("3d405f");
+
+                return ret;
+            }
+        }
+
         public static ColorTheme Famitracker {
 
             get {
@@ -118,8 +135,8 @@ namespace WaveTracker {
                 ret.selection = new(134, 125, 242, 150);
                 ret.cursor = new(128, 128, 128);
 
-                ret.rowCurrentColor = new(48, 32, 160);
-                ret.rowCurrentText = AddBrightness(ret.rowCurrentColor, 0.17f);
+                ret.rowCursorColor = new(48, 32, 160);
+                ret.rowCursorText = AddBrightness(ret.rowCursorColor, 0.17f);
 
                 ret.rowEditColor = new(128, 32, 48);
                 ret.rowEditText = AddBrightness(ret.rowEditColor, 0.17f);
@@ -156,8 +173,8 @@ namespace WaveTracker {
                 ret.selection = Helpers.HexCodeToColor("8080ff");
                 ret.cursor = Helpers.HexCodeToColor("8080ff");
 
-                ret.rowCurrentColor = Helpers.HexCodeToColor("c0c0c0");
-                ret.rowCurrentText = Helpers.HexCodeToColor("000000");
+                ret.rowCursorColor = Helpers.HexCodeToColor("c0c0c0");
+                ret.rowCursorText = Helpers.HexCodeToColor("000000");
 
                 ret.rowEditColor = Helpers.HexCodeToColor("c0c0c0");
                 ret.rowEditText = Helpers.HexCodeToColor("000000");
@@ -193,8 +210,8 @@ namespace WaveTracker {
                 ret.selection = Helpers.HexCodeToColor("0000ff80");
                 ret.cursor = Helpers.HexCodeToColor("88a8d3");
 
-                ret.rowCurrentColor = Helpers.HexCodeToColor("1152a8");
-                ret.rowCurrentText = Helpers.HexCodeToColor("ffffff");
+                ret.rowCursorColor = Helpers.HexCodeToColor("1152a8");
+                ret.rowCursorText = Helpers.HexCodeToColor("ffffff");
 
                 ret.rowEditColor = Helpers.HexCodeToColor("a84b4c");
                 ret.rowEditText = Helpers.HexCodeToColor("ffffff");
@@ -203,6 +220,44 @@ namespace WaveTracker {
                 ret.rowPlaybackText = Helpers.HexCodeToColor("b4b4b4");
 
                 ret.rowSeparator = Helpers.HexCodeToColor("000000");
+
+                return ret;
+            }
+        }
+
+        public static ColorTheme Neon {
+
+            get {
+                ColorTheme ret = new ColorTheme();
+
+                ret.background = Helpers.HexCodeToColor("272336");
+                ret.backgroundHighlighted = Helpers.HexCodeToColor("48386a");
+                ret.backgroundSubHighlight = Helpers.HexCodeToColor("362d4e");
+
+                ret.patternText = Helpers.HexCodeToColor("c0c8ed");
+                ret.patternTextHighlighted = Helpers.HexCodeToColor("ffffff");
+                ret.patternTextSubHighlight = Helpers.HexCodeToColor("ffffff");
+                ret.patternEmptyTextAlpha = 30;
+
+                ret.instrumentColumnWave = Helpers.HexCodeToColor("ffe239");
+                ret.instrumentColumnSample = Helpers.HexCodeToColor("ff860d");
+                ret.volumeColumn = Helpers.HexCodeToColor("00fdff");
+                ret.effectColumn = Helpers.HexCodeToColor("ff7af6");
+                ret.effectColumnParameter = Helpers.HexCodeToColor("97a4e2");
+
+                ret.selection = Helpers.HexCodeToColor("ff7a6d80");
+                ret.cursor = Helpers.HexCodeToColor("756b85");
+
+                ret.rowCursorColor = Helpers.HexCodeToColor("1152a8");
+                ret.rowCursorText = Helpers.HexCodeToColor("3f59a3");
+
+                ret.rowEditColor = Helpers.HexCodeToColor("692744");
+                ret.rowEditText = Helpers.HexCodeToColor("8a3366");
+
+                ret.rowPlaybackColor = Helpers.HexCodeToColor("000000");
+                ret.rowPlaybackText = Helpers.HexCodeToColor("b4b4b4");
+
+                ret.rowSeparator = Helpers.HexCodeToColor("80808040");
 
                 return ret;
             }

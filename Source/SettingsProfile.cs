@@ -88,7 +88,7 @@ namespace WaveTracker {
         }
 
         public class CategoryMIDI {
-            public int InputDevice { get; set; } = 0;
+            public string InputDevice { get; set; } = "(none)";
             public bool RecordNoteVelocity { get; set; } = true;
             public int MIDITranspose { get; set; } = 0;
             public bool ApplyOctaveTranspose { get; set; } = false;

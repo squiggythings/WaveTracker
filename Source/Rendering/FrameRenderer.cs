@@ -54,7 +54,7 @@ namespace WaveTracker.Rendering {
         }
 
         public void DrawFrame(Frame frame, int cursorRow, int cursorColumn) {
-            DrawRect(0, 0, 790, 500, Colors.theme.background);
+            DrawRect(0, 0, 790, 500, App.Settings.Appearance.Theme.background);
             int rowsNUM = frame.GetLastRow() + 1;
 
             this.cursorRow = cursorRow;
@@ -82,37 +82,37 @@ namespace WaveTracker.Rendering {
                 }
             }
 
-            DrawRect(0, 0, 790, 5, Colors.theme.rowSeparator);
+            DrawRect(0, 0, 790, 5, App.Settings.Appearance.Theme.rowSeparator);
             for (int i = 0; i < 12; ++i) {
-                DrawRect(i * 64 + 21, 0, 1, 389 + 90, Colors.theme.rowSeparator);
+                DrawRect(i * 64 + 21, 0, 1, 389 + 90, App.Settings.Appearance.Theme.rowSeparator);
 
                 headers[i + FrameEditor.channelScroll + 1].Draw();
             }
-            DrawRect(0, 32, 790, 1, Colors.theme.rowSeparator);
+            DrawRect(0, 32, 790, 1, App.Settings.Appearance.Theme.rowSeparator);
             headers[0].Draw();
         }
 
         void DrawRow(int rowNum, short[] rowContent, int y) {
             #region getRowColor
-            Color rowTextColor = Colors.theme.patternText;
-            Color rowColor = Colors.theme.background;
+            Color rowTextColor = App.Settings.Appearance.Theme.patternText;
+            Color rowColor = App.Settings.Appearance.Theme.background;
 
             if (rowNum % Song.currentSong.rowHighlight1 == 0) {
-                rowTextColor = Colors.theme.patternTextHighlighted;
-                rowColor = Colors.theme.backgroundHighlighted;
+                rowTextColor = App.Settings.Appearance.Theme.patternTextHighlighted;
+                rowColor = App.Settings.Appearance.Theme.backgroundHighlighted;
             }
             else if (rowNum % Song.currentSong.rowHighlight2 == 0) {
-                rowTextColor = Colors.theme.patternTextSubHighlight;
-                rowColor = Colors.theme.backgroundSubHighlight;
+                rowTextColor = App.Settings.Appearance.Theme.patternTextSubHighlight;
+                rowColor = App.Settings.Appearance.Theme.backgroundSubHighlight;
             }
             if (Playback.isPlaying && Playback.position.Frame == FrameEditor.currentFrame && Playback.position.Row == rowNum && !Audio.AudioEngine.rendering) {
-                rowColor = Colors.theme.rowPlaybackColor;
+                rowColor = App.Settings.Appearance.Theme.rowPlaybackColor;
             }
             if (rowNum == cursorRow)
                 if (FrameEditor.canEdit)
-                    rowColor = Colors.theme.rowEditColor;
+                    rowColor = App.Settings.Appearance.Theme.rowEditColor;
                 else
-                    rowColor = Colors.theme.rowCurrentColor;
+                    rowColor = App.Settings.Appearance.Theme.rowCurrentColor;
             #endregion
 
             if (Preferences.profile.showRowNumbersInHex)
@@ -126,13 +126,13 @@ namespace WaveTracker.Rendering {
 
         void DrawRowText(int rowNum, short[] rowContent, int y) {
             #region getRowColor
-            Color rowTextColor = Colors.theme.patternText;
+            Color rowTextColor = App.Settings.Appearance.Theme.patternText;
 
             if (rowNum % Song.currentSong.rowHighlight1 == 0) {
-                rowTextColor = Colors.theme.patternTextHighlighted;
+                rowTextColor = App.Settings.Appearance.Theme.patternTextHighlighted;
             }
             else if (rowNum % Song.currentSong.rowHighlight2 == 0) {
-                rowTextColor = Colors.theme.patternTextSubHighlight;
+                rowTextColor = App.Settings.Appearance.Theme.patternTextSubHighlight;
             }
 
             #endregion
@@ -180,8 +180,8 @@ namespace WaveTracker.Rendering {
                 px += 5;
             if (rowSegment > 6)
                 px += 5;
-            DrawRect(px, py, width - 2, 7, Colors.theme.cursor);
-            //DrawRoundedRect(px - 1, py - 1, width, 9, Colors.theme.cursorColor);
+            DrawRect(px, py, width - 2, 7, App.Settings.Appearance.Theme.cursor);
+            //DrawRoundedRect(px - 1, py - 1, width, 9, App.Settings.Appearance.Theme.cursorColor);
         }
 
         void DrawSelection() {
@@ -215,7 +215,7 @@ namespace WaveTracker.Rendering {
             if (height < 0)
                 height = 0;
 
-            DrawRect(startX + 22, startY - y, width, height, Colors.theme.selection);
+            DrawRect(startX + 22, startY - y, width, height, App.Settings.Appearance.Theme.selection);
 
         }
 
@@ -240,9 +240,9 @@ namespace WaveTracker.Rendering {
             else if (value < 0) // empty
             {
                 if (FrameEditor.canEdit)
-                    WriteMonospaced("···", x + 1, y, currRow ? Colors.theme.rowEditText : Helpers.Alpha(rowText, Colors.theme.patternEmptyTextAlpha), 4);
+                    WriteMonospaced("···", x + 1, y, currRow ? App.Settings.Appearance.Theme.rowEditText : Helpers.Alpha(rowText, App.Settings.Appearance.Theme.patternEmptyTextAlpha), 4);
                 else
-                    WriteMonospaced("···", x + 1, y, currRow ? Colors.theme.rowCurrentText : Helpers.Alpha(rowText, Colors.theme.patternEmptyTextAlpha), 4);
+                    WriteMonospaced("···", x + 1, y, currRow ? App.Settings.Appearance.Theme.rowCurrentText : Helpers.Alpha(rowText, App.Settings.Appearance.Theme.patternEmptyTextAlpha), 4);
             }
             else {
                 string val = Helpers.MIDINoteToText(value);
@@ -260,52 +260,52 @@ namespace WaveTracker.Rendering {
         void WriteInstrument(int value, int x, int y, bool currRow, Color rowText) {
             if (value < 0) {
                 if (FrameEditor.canEdit)
-                    WriteMonospaced("··", x + 1, y, currRow ? Colors.theme.rowEditText : Helpers.Alpha(rowText, Colors.theme.patternEmptyTextAlpha), 4);
+                    WriteMonospaced("··", x + 1, y, currRow ? App.Settings.Appearance.Theme.rowEditText : Helpers.Alpha(rowText, App.Settings.Appearance.Theme.patternEmptyTextAlpha), 4);
                 else
-                    WriteMonospaced("··", x + 1, y, currRow ? Colors.theme.rowCurrentText : Helpers.Alpha(rowText, Colors.theme.patternEmptyTextAlpha), 4);
+                    WriteMonospaced("··", x + 1, y, currRow ? App.Settings.Appearance.Theme.rowCurrentText : Helpers.Alpha(rowText, App.Settings.Appearance.Theme.patternEmptyTextAlpha), 4);
             }
             else {
                 if (value >= Song.currentSong.instruments.Count)
                     WriteMonospaced(value.ToString("D2"), x, y, Color.Red, 4);
                 else if (Song.currentSong.instruments[value].instrumentType == InstrumentType.Sample)
-                    WriteMonospaced(value.ToString("D2"), x, y, Colors.theme.instrumentColumnSample, 4);
+                    WriteMonospaced(value.ToString("D2"), x, y, App.Settings.Appearance.Theme.instrumentColumnSample, 4);
                 else
-                    WriteMonospaced(value.ToString("D2"), x, y, Colors.theme.instrumentColumnWave, 4);
+                    WriteMonospaced(value.ToString("D2"), x, y, App.Settings.Appearance.Theme.instrumentColumnWave, 4);
 
             }
         }
 
         void WriteVolume(int value, int x, int y, bool currRow, bool currColumn, Color rowText) {
             if (value < 0) {
-                WriteMonospaced("··", x + 1, y, currRow ? (FrameEditor.canEdit ? Colors.theme.rowEditText : Colors.theme.rowCurrentText) : Helpers.Alpha(rowText, Colors.theme.patternEmptyTextAlpha), 4);
+                WriteMonospaced("··", x + 1, y, currRow ? (FrameEditor.canEdit ? App.Settings.Appearance.Theme.rowEditText : App.Settings.Appearance.Theme.rowCurrentText) : Helpers.Alpha(rowText, App.Settings.Appearance.Theme.patternEmptyTextAlpha), 4);
             }
             else {
                 if (currRow && currColumn || !Preferences.profile.fadeVolumeColumn)
-                    WriteMonospaced(value.ToString("D2"), x, y, Colors.theme.volumeColumn, 4);
+                    WriteMonospaced(value.ToString("D2"), x, y, App.Settings.Appearance.Theme.volumeColumn, 4);
                 else
-                    WriteMonospaced(value.ToString("D2"), x, y, Helpers.Alpha(Colors.theme.volumeColumn, (int)(value / 100f * 180 + (255 - 180))), 4);
+                    WriteMonospaced(value.ToString("D2"), x, y, Helpers.Alpha(App.Settings.Appearance.Theme.volumeColumn, (int)(value / 100f * 180 + (255 - 180))), 4);
             }
         }
 
         void WriteEffect(int value, int x, int y, bool currRow, Color rowText) {
             if (value < 0) {
-                Write("·", x + 1, y, currRow ? (FrameEditor.canEdit ? Colors.theme.rowEditText : Colors.theme.rowCurrentText) : Helpers.Alpha(rowText, Colors.theme.patternEmptyTextAlpha));
+                Write("·", x + 1, y, currRow ? (FrameEditor.canEdit ? App.Settings.Appearance.Theme.rowEditText : App.Settings.Appearance.Theme.rowCurrentText) : Helpers.Alpha(rowText, App.Settings.Appearance.Theme.patternEmptyTextAlpha));
             }
             else {
-                Write("" + Helpers.GetEffectCharacter(value), x, y, Colors.theme.effectColumn);
+                Write("" + Helpers.GetEffectCharacter(value), x, y, App.Settings.Appearance.Theme.effectColumn);
             }
         }
 
         void WriteEffectParameter(int value, int x, int y, bool currRow, int effectNum, Color rowText) {
 
             if (value < 0) {
-                WriteMonospaced("··", x + 1, y, currRow ? (FrameEditor.canEdit ? Colors.theme.rowEditText : Colors.theme.rowCurrentText) : Helpers.Alpha(rowText, Colors.theme.patternEmptyTextAlpha), 4);
+                WriteMonospaced("··", x + 1, y, currRow ? (FrameEditor.canEdit ? App.Settings.Appearance.Theme.rowEditText : App.Settings.Appearance.Theme.rowCurrentText) : Helpers.Alpha(rowText, App.Settings.Appearance.Theme.patternEmptyTextAlpha), 4);
             }
             else {
                 if (Helpers.IsEffectHex((char)effectNum))
-                    WriteMonospaced(value.ToString("X2"), x, y, Colors.theme.effectColumnParameter, 4);
+                    WriteMonospaced(value.ToString("X2"), x, y, App.Settings.Appearance.Theme.effectColumnParameter, 4);
                 else
-                    WriteMonospaced(value.ToString("D2"), x, y, Colors.theme.effectColumnParameter, 4);
+                    WriteMonospaced(value.ToString("D2"), x, y, App.Settings.Appearance.Theme.effectColumnParameter, 4);
             }
         }*/
     }
