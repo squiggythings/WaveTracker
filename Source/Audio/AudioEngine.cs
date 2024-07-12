@@ -9,6 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using WaveTracker.Tracker;
 using WaveTracker.UI;
+using NAudio.Dsp;
 
 namespace WaveTracker.Audio {
     public static class AudioEngine {
@@ -28,11 +29,8 @@ namespace WaveTracker.Audio {
         public static bool cancelRender;
         public static MMDeviceCollection OutputDevices { get; private set; }
         public static string[] OutputDeviceNames { get; private set; }
+        static BiQuadFilter antialiasingFilterL, antialiasingFilterR;
 
-        static float filterSampleL;
-        static float filterSampleR;
-        static float lastFilterSampleL;
-        static float lastFilterSampleR;
         static Provider audioProvider;
 
 
@@ -54,7 +52,7 @@ namespace WaveTracker.Audio {
             Dialogs.exportingDialog = new ExportingDialog();
             currentBuffer = new float[2, PreviewBufferLength];
             audioProvider = new Provider();
-            SetSampleRate(App.Settings.Audio.SampleRate);
+            SetSampleRate(App.Settings.Audio.SampleRate, App.Settings.Audio.Oversampling);
             GetAudioOutputDevices();
             int index = Array.IndexOf(OutputDeviceNames, App.Settings.Audio.OutputDevice);
             if (index < 1) {
@@ -67,9 +65,11 @@ namespace WaveTracker.Audio {
             wasapiOut.Play();
         }
 
-        public static void SetSampleRate(SampleRate rate) {
+        public static void SetSampleRate(SampleRate rate, int oversampling) {
             SampleRate = SampleRateToInt(rate);
             audioProvider.SetWaveFormat(SampleRate, 2);
+            antialiasingFilterL = BiQuadFilter.LowPassFilter(SampleRate * oversampling, Math.Min(22000, SampleRate / 2), 1);
+            antialiasingFilterR = BiQuadFilter.LowPassFilter(SampleRate * oversampling, Math.Min(22000, SampleRate / 2), 1);
         }
 
         /// <summary>
@@ -98,7 +98,7 @@ namespace WaveTracker.Audio {
 
         public static void Reset() {
             wasapiOut.Stop();
-            SetSampleRate(App.Settings.Audio.SampleRate);
+            SetSampleRate(App.Settings.Audio.SampleRate, App.Settings.Audio.Oversampling);
             Thread.Sleep(1);
             int index = Array.IndexOf(OutputDeviceNames, App.Settings.Audio.OutputDevice);
             if (index < 1) {
@@ -171,27 +171,27 @@ namespace WaveTracker.Audio {
 
                 for (int n = 0; n < sampleCount; n += 2) {
                     buffer[n + offset] = buffer[n + offset + 1] = 0;
+                    float leftSum = 0;
+                    float rightSum = 0;
                     for (int j = 0; j < OVERSAMPLE; ++j) {
                         float l;
                         float r;
+                        leftSum = 0;
+                        rightSum = 0;
                         for (int c = 0; c < ChannelManager.channels.Count; ++c) {
                             ChannelManager.channels[c].ProcessSingleSample(out l, out r, true, delta, OVERSAMPLE);
-                            buffer[n + offset] += l;
-                            buffer[n + offset + 1] += r;
+                            leftSum += l;
+                            rightSum += r;
                         }
 
                         ChannelManager.previewChannel.ProcessSingleSample(out l, out r, true, delta, OVERSAMPLE);
-                        buffer[n + offset] += l;
-                        buffer[n + offset + 1] += r;
+                        leftSum += l;
+                        rightSum += r;
+                        buffer[n + offset] = antialiasingFilterL.Transform(leftSum);
+                        buffer[n + offset + 1] = antialiasingFilterR.Transform(rightSum);
                     }
-                    buffer[n + offset] /= OVERSAMPLE;
-                    buffer[n + offset + 1] /= OVERSAMPLE;
-                    lastFilterSampleL = filterSampleL;
-                    lastFilterSampleR = filterSampleR;
-                    filterSampleL = buffer[n + offset];
-                    filterSampleR = buffer[n + offset + 1];
-                    buffer[n + offset] = 0.5f * (filterSampleL + lastFilterSampleL) * App.Settings.Audio.MasterVolume / 100f;
-                    buffer[n + offset + 1] = 0.5f * (filterSampleR + lastFilterSampleR) * App.Settings.Audio.MasterVolume / 100f;
+                    //buffer[n + offset] = leftSum;
+                    //buffer[n + offset + 1] = rightSum;
 
                     if (!rendering) {
                         buffer[n + offset] = Math.Clamp(buffer[n + offset], -1, 1);

@@ -254,14 +254,17 @@ namespace WaveTracker.UI {
             App.Settings.MIDI.ReceiveRecordMessages = pages["MIDI"]["Receive record messages"].ValueBool;
             App.Settings.MIDI.ReceiveRecordMessages = pages["MIDI"]["Receive record messages"].ValueBool;
 
+            App.Settings.Audio.MasterVolume = pages["Audio"]["Volume"].ValueInt;
             if (App.Settings.Audio.OutputDevice != pages["Audio"]["Output device"].ValueString ||
-                App.Settings.Audio.SampleRate != (Audio.SampleRate)pages["Audio"]["Sample rate"].ValueInt) {
+                App.Settings.Audio.SampleRate != (Audio.SampleRate)pages["Audio"]["Sample rate"].ValueInt ||
+                App.Settings.Audio.Oversampling != (int)Math.Pow(2, pages["Audio"]["Oversampling"].ValueInt)) {
+
                 App.Settings.Audio.OutputDevice = pages["Audio"]["Output device"].ValueString;
                 App.Settings.Audio.SampleRate = (Audio.SampleRate)pages["Audio"]["Sample rate"].ValueInt;
+                App.Settings.Audio.Oversampling = (int)Math.Pow(2, pages["Audio"]["Oversampling"].ValueInt);
                 Audio.AudioEngine.Reset();
             }
-            App.Settings.Audio.MasterVolume = pages["Audio"]["Volume"].ValueInt;
-            App.Settings.Audio.Oversampling = (int)Math.Pow(2, pages["Audio"]["Oversampling"].ValueInt);
+
 
             App.Settings.Visualizer.PianoSpeed = pages["Visualizer"]["Note speed"].ValueInt;
             App.Settings.Visualizer.ChangeNoteWidthByVolume = pages["Visualizer"]["Change note width by volume"].ValueBool;
