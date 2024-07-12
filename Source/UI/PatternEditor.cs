@@ -149,7 +149,7 @@ namespace WaveTracker.UI {
         }
 
         public void Update() {
-            
+
             if (history.Count < 1) {
                 ClearHistory();
             }
@@ -924,10 +924,10 @@ namespace WaveTracker.UI {
                 SnapToPlaybackPosition();
             }
             renderCursorPos = cursorPosition;
-            DrawRect(0, 0, width, height, App.Settings.Appearance.Theme.background);
+            DrawRect(0, 0, width, height, App.Settings.Appearance.Theme["Row background"]);
 
             DrawHeaderRect(0, -32, width);
-            DrawRect(ROW_COLUMN_WIDTH - 2, -32, channelHeaders[LastVisibleChannel].x + channelHeaders[LastVisibleChannel].width - ROW_COLUMN_WIDTH + 4, 1, App.Settings.Appearance.Theme.channelSeparator);
+            DrawRect(ROW_COLUMN_WIDTH - 2, -32, channelHeaders[LastVisibleChannel].x + channelHeaders[LastVisibleChannel].width - ROW_COLUMN_WIDTH + 4, 1, App.Settings.Appearance.Theme["Channel separator"]);
 
             int frameWrap = 0;
             int frame = renderCursorPos.Frame;
@@ -976,7 +976,7 @@ namespace WaveTracker.UI {
                 if (frameWrap == 0 || App.Settings.PatternEditor.ShowPreviousNextPatterns) {
                     DrawRow(i, frame, row, frameWrap);
                     if (frameWrap != 0)
-                        DrawRect(0, i * ROW_HEIGHT, width, ROW_HEIGHT, Helpers.Alpha(App.Settings.Appearance.Theme.background, 180));
+                        DrawRect(0, i * ROW_HEIGHT, width, ROW_HEIGHT, Helpers.Alpha(App.Settings.Appearance.Theme["Row background"], 180));
                 }
                 row++;
                 if (row >= length) {
@@ -994,7 +994,7 @@ namespace WaveTracker.UI {
                 if (frameWrap == 0 || App.Settings.PatternEditor.ShowPreviousNextPatterns) {
                     DrawRow(i, frame, row, frameWrap);
                     if (frameWrap != 0)
-                        DrawRect(0, i * ROW_HEIGHT, width, ROW_HEIGHT, Helpers.Alpha(App.Settings.Appearance.Theme.background, 180));
+                        DrawRect(0, i * ROW_HEIGHT, width, ROW_HEIGHT, Helpers.Alpha(App.Settings.Appearance.Theme["Row background"], 180));
                 }
                 row--;
                 if (row < 0) {
@@ -1010,31 +1010,31 @@ namespace WaveTracker.UI {
             if (CurrentPattern.CellIsEmpty(renderCursorPos.Row, renderCursorPos.Channel, renderCursorPos.Column.ToCellType()))
                 DrawCursor(ref renderCursorPos);
 
-            DrawRect(ROW_COLUMN_WIDTH - 1, -32, 1, height + 32, App.Settings.Appearance.Theme.channelSeparator);
+            DrawRect(ROW_COLUMN_WIDTH - 1, -32, 1, height + 32, App.Settings.Appearance.Theme["Channel separator"]);
             for (int i = FirstVisibleChannel; i <= LastVisibleChannel; ++i) {
                 channelHeaders[i].Draw();
                 //DrawRect(channelHeaders[i].x + channelHeaders[i].width - 1, -32, 3, 1, App.Settings.Appearance.Theme.rowSeparator);
                 //DrawRect(channelHeaders[i].x - 2, -32, 3, 1, App.Settings.Appearance.Theme.rowSeparator);
                 //DrawRect(channelHeaders[i].x + channelHeaders[i].width + 1, -32, 1, 1, App.Settings.Appearance.Theme.rowSeparator);
-                DrawRect(channelHeaders[i].x + channelHeaders[i].width, -32, 1, height + 32, App.Settings.Appearance.Theme.channelSeparator);
+                DrawRect(channelHeaders[i].x + channelHeaders[i].width, -32, 1, height + 32, App.Settings.Appearance.Theme["Channel separator"]);
             }
             // DrawRect(channelHeaders[LastVisibleChannel].x + channelHeaders[LastVisibleChannel].x - 2, -32, 3, 1, App.Settings.Appearance.Theme.rowSeparator);
             //Write(selection.min.ToString(), 0, 0, Color.Red);
             //Write(selection.max.ToString(), 0, 20, Color.Red);
             //Write(cursorPosition.ToString(), 0, 30, Color.Cyan);
-            DrawRect(width, -32, 1, height + 32, App.Settings.Appearance.Theme.channelSeparator);
-            DrawRect(width + 1, -32, 1, 1, App.Settings.Appearance.Theme.channelSeparator);
-            DrawRect(LastChannelEndPos + 1, 0, width - LastChannelEndPos - 1, height, App.Settings.Appearance.Theme.background);
+            DrawRect(width, -32, 1, height + 32, App.Settings.Appearance.Theme["Channel separator"]);
+            DrawRect(width + 1, -32, 1, 1, App.Settings.Appearance.Theme["Channel separator"]);
+            DrawRect(LastChannelEndPos + 1, 0, width - LastChannelEndPos - 1, height, App.Settings.Appearance.Theme["Row background"]);
             DrawRect(0, channelScrollbar.y, ROW_COLUMN_WIDTH, channelScrollbar.height, UIColors.panel);
             channelScrollbar.Draw();
         }
         void DrawRow(int line, int frame, int row, int frameWrap) {
             // get the row color
-            Color rowTextColor = App.Settings.Appearance.Theme.patternText;
+            Color rowTextColor = App.Settings.Appearance.Theme["Row text"];
             if (row % App.CurrentSong.RowHighlightPrimary == 0)
-                rowTextColor = App.Settings.Appearance.Theme.patternTextHighlighted;
+                rowTextColor = App.Settings.Appearance.Theme["Row text (primary highlight)"];
             else if (row % App.CurrentSong.RowHighlightSecondary == 0)
-                rowTextColor = App.Settings.Appearance.Theme.patternTextSubHighlight;
+                rowTextColor = App.Settings.Appearance.Theme["Row text (secondary highlight)"];
 
             // draw row numbers
             if (App.Settings.PatternEditor.ShowRowNumbersInHex)
@@ -1057,11 +1057,21 @@ namespace WaveTracker.UI {
             bool isCursorOnThisRow = frameWrap == 0 && renderCursorPos.Row == row;
             bool isCursorOnThisEvent = isCursorOnThisRow && renderCursorPos.Channel == channel;
             Color emptyColor;
-            if (isCursorOnThisRow)
-                emptyColor = (EditMode ? App.Settings.Appearance.Theme.rowEditText : App.Settings.Appearance.Theme.rowCursorText);
-            else
-                emptyColor = rowTextColor.MultiplyWith(App.Settings.Appearance.Theme.patternTextEmptyMultiply);
-
+            if (isCursorOnThisRow) {
+                emptyColor = App.Settings.Appearance.Theme["Empty dashes tint"].MultiplyWith(rowTextColor);
+                //emptyColor = EditMode ? App.Settings.Appearance.Theme["Current row empty dashes (editing)"] : App.Settings.Appearance.Theme["Current row empty dashes (default)"];
+            }
+            else {
+                //if (Playback.IsPlaying && Playback.position.Frame == frame && Playback.position.Row == row)
+                //    emptyColor = App.Settings.Appearance.Theme["Playback row empty dashes"];
+                //else if (row % App.CurrentSong.RowHighlightPrimary == 0)
+                //    emptyColor = App.Settings.Appearance.Theme["Empty dashes (primary highlight)"];
+                //else if (row % App.CurrentSong.RowHighlightSecondary == 0)
+                //    emptyColor = App.Settings.Appearance.Theme["Empty dashes (secondary highlight)"];
+                //else
+                //    emptyColor = App.Settings.Appearance.Theme["Empty dashes tint"].MultiplyWith(rowTextColor);
+                emptyColor = App.Settings.Appearance.Theme["Empty dashes tint"].MultiplyWith(rowTextColor);
+            }
             // draw note
 
             if (noteValue == WTPattern.EVENT_NOTE_CUT) {
@@ -1101,9 +1111,9 @@ namespace WaveTracker.UI {
                 Color instrumentColor;
                 if (instrumentValue < App.CurrentModule.Instruments.Count) {
                     if (App.CurrentModule.Instruments[instrumentValue] is WaveInstrument)
-                        instrumentColor = App.Settings.Appearance.Theme.instrumentColumnWave;
+                        instrumentColor = App.Settings.Appearance.Theme["Instrument (wave)"];
                     else
-                        instrumentColor = App.Settings.Appearance.Theme.instrumentColumnSample;
+                        instrumentColor = App.Settings.Appearance.Theme["Instrument (sample)"];
                 }
                 else {
                     instrumentColor = Color.Red;
@@ -1119,10 +1129,10 @@ namespace WaveTracker.UI {
                 Color volumeColor;
                 bool isCursorOverThisVolumeText = isCursorOnThisEvent && (renderCursorPos.Column == CursorColumnType.Volume1 || renderCursorPos.Column == CursorColumnType.Volume2);
                 if (App.Settings.PatternEditor.FadeVolumeColumn && !isCursorOverThisVolumeText) {
-                    volumeColor = Helpers.Alpha(App.Settings.Appearance.Theme.volumeColumn, (int)(volumeValue / 100f * 180 + (255 - 180)));
+                    volumeColor = Helpers.Alpha(App.Settings.Appearance.Theme["Volume"], (int)(volumeValue / 100f * 180 + (255 - 180)));
                 }
                 else {
-                    volumeColor = App.Settings.Appearance.Theme.volumeColumn;
+                    volumeColor = App.Settings.Appearance.Theme["Volume"];
                 }
 
                 WriteMonospaced(volumeValue.ToString("D2"), x + 34, y, volumeColor, 4);
@@ -1136,11 +1146,11 @@ namespace WaveTracker.UI {
                     WriteMonospaced("···", x + 48 + 18 * i, y, emptyColor, 4);
                 }
                 else {
-                    Write(Helpers.FlushString((char)thisEffectType + ""), x + 47 + 18 * i, y, App.Settings.Appearance.Theme.effectColumn);
+                    Write(Helpers.FlushString((char)thisEffectType + ""), x + 47 + 18 * i, y, App.Settings.Appearance.Theme["Effect"]);
                     if (Helpers.IsEffectHex((char)thisEffectType))
-                        WriteMonospaced(thisEffectParameter.ToString("X2"), x + 52 + 18 * i, y, App.Settings.Appearance.Theme.effectColumnParameter, 4);
+                        WriteMonospaced(thisEffectParameter.ToString("X2"), x + 52 + 18 * i, y, App.Settings.Appearance.Theme["Effect parameter"], 4);
                     else
-                        WriteMonospaced(thisEffectParameter.ToString("D2"), x + 52 + 18 * i, y, App.Settings.Appearance.Theme.effectColumnParameter, 4);
+                        WriteMonospaced(thisEffectParameter.ToString("D2"), x + 52 + 18 * i, y, App.Settings.Appearance.Theme["Effect parameter"], 4);
                 }
             }
         }
@@ -1157,7 +1167,7 @@ namespace WaveTracker.UI {
                 2 or 4 or 6 or 9 or 12 or 15 => 0,
                 _ => 1
             };
-            DrawRect(rect.X + offset, rect.Y, width, ROW_HEIGHT, App.Settings.Appearance.Theme.cursor);
+            DrawRect(rect.X + offset, rect.Y, width, ROW_HEIGHT, App.Settings.Appearance.Theme["Cursor"]);
             //Write("Chan: " + (position.Channel + 1), rect.X, rect.Y + 10, Color.White);
             //Write("Col: " + position.Column, rect.X, rect.Y + 20, Color.White);
             //Write("Oct: " + CurrentOctave, rect.X, rect.Y + 30, Color.White);
@@ -1172,16 +1182,16 @@ namespace WaveTracker.UI {
             int linePositionY = line * ROW_HEIGHT;
 
             if (frame == renderCursorPos.Frame && row == renderCursorPos.Row && frameWrap == 0) {
-                rowBGcolor = EditMode ? App.Settings.Appearance.Theme.rowEditColor : App.Settings.Appearance.Theme.rowCursorColor;
+                rowBGcolor = EditMode ? App.Settings.Appearance.Theme["Current row (editing)"] : App.Settings.Appearance.Theme["Current row (default)"];
             }
             else if (!AudioEngine.rendering && Playback.IsPlaying && playbackFrame == frame && playbackRow == row) {
-                rowBGcolor = App.Settings.Appearance.Theme.rowPlaybackColor;
+                rowBGcolor = App.Settings.Appearance.Theme["Playback row"];
             }
             else if (row % App.CurrentSong.RowHighlightPrimary == 0) {
-                rowBGcolor = App.Settings.Appearance.Theme.backgroundHighlighted;
+                rowBGcolor = App.Settings.Appearance.Theme["Row background (primary highlight)"];
             }
             else if (row % App.CurrentSong.RowHighlightSecondary == 0) {
-                rowBGcolor = App.Settings.Appearance.Theme.backgroundSubHighlight;
+                rowBGcolor = App.Settings.Appearance.Theme["Row background (secondary highlight)"];
             }
             else {
                 // this row is not highlighted, no need to draw a background
@@ -1207,15 +1217,15 @@ namespace WaveTracker.UI {
                     end = ROW_COLUMN_WIDTH - 1;
                 if (start > end)
                     return;
-                DrawRect(start, linePositionY, end - start + 1, ROW_HEIGHT, App.Settings.Appearance.Theme.selection);
+                DrawRect(start, linePositionY, end - start + 1, ROW_HEIGHT, App.Settings.Appearance.Theme["Selection"]);
 
                 // draw selection outline
-                DrawRect(start, linePositionY, 1, ROW_HEIGHT, App.Settings.Appearance.Theme.selection);
-                DrawRect(end, linePositionY, 1, ROW_HEIGHT, App.Settings.Appearance.Theme.selection);
+                DrawRect(start, linePositionY, 1, ROW_HEIGHT, App.Settings.Appearance.Theme["Selection"]);
+                DrawRect(end, linePositionY, 1, ROW_HEIGHT, App.Settings.Appearance.Theme["Selection"]);
                 if (selection.min.Row == row && selection.min.Frame == frame)
-                    DrawRect(start, linePositionY, end - start, 1, App.Settings.Appearance.Theme.selection);
+                    DrawRect(start + 1, linePositionY, end - start - 1, 1, App.Settings.Appearance.Theme["Selection"]);
                 if (selection.max.Row == row && selection.max.Frame == frame)
-                    DrawRect(start, linePositionY + ROW_HEIGHT - 1, end - start, 1, App.Settings.Appearance.Theme.selection);
+                    DrawRect(start + 1, linePositionY + ROW_HEIGHT - 1, end - start - 1, 1, App.Settings.Appearance.Theme["Selection"]);
             }
         }
         #endregion

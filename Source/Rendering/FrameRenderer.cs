@@ -268,9 +268,9 @@ namespace WaveTracker.Rendering {
                 if (value >= Song.currentSong.instruments.Count)
                     WriteMonospaced(value.ToString("D2"), x, y, Color.Red, 4);
                 else if (Song.currentSong.instruments[value].instrumentType == InstrumentType.Sample)
-                    WriteMonospaced(value.ToString("D2"), x, y, App.Settings.Appearance.Theme.instrumentColumnSample, 4);
+                    WriteMonospaced(value.ToString("D2"), x, y, App.Settings.Appearance.Theme["Instrument (sample)"], 4);
                 else
-                    WriteMonospaced(value.ToString("D2"), x, y, App.Settings.Appearance.Theme.instrumentColumnWave, 4);
+                    WriteMonospaced(value.ToString("D2"), x, y, App.Settings.Appearance.Theme["Instrument (wave)"], 4);
 
             }
         }
@@ -281,9 +281,9 @@ namespace WaveTracker.Rendering {
             }
             else {
                 if (currRow && currColumn || !Preferences.profile.fadeVolumeColumn)
-                    WriteMonospaced(value.ToString("D2"), x, y, App.Settings.Appearance.Theme.volumeColumn, 4);
+                    WriteMonospaced(value.ToString("D2"), x, y, App.Settings.Appearance.Theme["Volume"], 4);
                 else
-                    WriteMonospaced(value.ToString("D2"), x, y, Helpers.Alpha(App.Settings.Appearance.Theme.volumeColumn, (int)(value / 100f * 180 + (255 - 180))), 4);
+                    WriteMonospaced(value.ToString("D2"), x, y, Helpers.Alpha(App.Settings.Appearance.Theme["Volume"], (int)(value / 100f * 180 + (255 - 180))), 4);
             }
         }
 
@@ -292,7 +292,7 @@ namespace WaveTracker.Rendering {
                 Write("·", x + 1, y, currRow ? (FrameEditor.canEdit ? App.Settings.Appearance.Theme.rowEditText : App.Settings.Appearance.Theme.rowCurrentText) : Helpers.Alpha(rowText, App.Settings.Appearance.Theme.patternEmptyTextAlpha));
             }
             else {
-                Write("" + Helpers.GetEffectCharacter(value), x, y, App.Settings.Appearance.Theme.effectColumn);
+                Write("" + Helpers.GetEffectCharacter(value), x, y, App.Settings.Appearance.Theme["Effect"]);
             }
         }
 
@@ -303,9 +303,9 @@ namespace WaveTracker.Rendering {
             }
             else {
                 if (Helpers.IsEffectHex((char)effectNum))
-                    WriteMonospaced(value.ToString("X2"), x, y, App.Settings.Appearance.Theme.effectColumnParameter, 4);
+                    WriteMonospaced(value.ToString("X2"), x, y, App.Settings.Appearance.Theme["Effect"]Parameter, 4);
                 else
-                    WriteMonospaced(value.ToString("D2"), x, y, App.Settings.Appearance.Theme.effectColumnParameter, 4);
+                    WriteMonospaced(value.ToString("D2"), x, y, App.Settings.Appearance.Theme["Effect"]Parameter, 4);
             }
         }*/
     }

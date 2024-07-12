@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using SharpDX.XInput;
 using WaveTracker.Tracker;
 
 namespace WaveTracker.Audio {
@@ -418,12 +419,15 @@ namespace WaveTracker.Audio {
                 _fadeMultiplier = 1f;
             }
             if (_state == VoiceState.Off) {
+                channelNotePorta = midiNum;
                 _time = 0.0;
             }
-            if (_state == VoiceState.Release && envelopePlayers[Envelope.EnvelopeType.Volume].Value == 0)
+            if (_state == VoiceState.Release && envelopePlayers[Envelope.EnvelopeType.Volume].Value == 0) {
                 _time = 0.0;
+            }
             targetBendAmt = 0;
             bendOffset = 0;
+
             if (channelNote != midiNum || _state != VoiceState.On) {
                 lastNote = channelNotePorta;
                 channelNote = midiNum;
