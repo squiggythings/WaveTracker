@@ -8,43 +8,43 @@ using System.Linq;
 namespace WaveTracker {
 
     public class ColorTheme {
-        Dictionary<string, Color> colors;
+        public Dictionary<string, Color> Colors { get; private set; }
 
         public Color this[string name] {
-            get { return colors[name]; }
-            set { colors[name] = value; }
+            get { return Colors[name]; }
+            set { Colors[name] = value; }
         }
 
         public ColorTheme() {
-            colors = new Dictionary<string, Color>();
-            colors.Add("Row background (primary highlight)", Helpers.HexCodeToColor("212840"));
-            colors.Add("Row background (secondary highlight)", Helpers.HexCodeToColor("1a1f36"));
-            colors.Add("Row background", Helpers.HexCodeToColor("14182e"));
+            Colors = new Dictionary<string, Color>();
+            Colors.Add("Row background (primary highlight)", Helpers.HexCodeToColor("212840"));
+            Colors.Add("Row background (secondary highlight)", Helpers.HexCodeToColor("1a1f36"));
+            Colors.Add("Row background", Helpers.HexCodeToColor("14182e"));
 
-            colors.Add("Row text (primary highlight)", Helpers.HexCodeToColor("caf5fe"));
-            colors.Add("Row text (secondary highlight)", Helpers.HexCodeToColor("bbd7fe"));
-            colors.Add("Row text", Helpers.HexCodeToColor("ffffff"));
-            colors.Add("Empty dashes tint", Helpers.HexCodeToColor("ffffff12"));
+            Colors.Add("Row text (primary highlight)", Helpers.HexCodeToColor("caf5fe"));
+            Colors.Add("Row text (secondary highlight)", Helpers.HexCodeToColor("bbd7fe"));
+            Colors.Add("Row text", Helpers.HexCodeToColor("ffffff"));
+            Colors.Add("Empty dashes tint", Helpers.HexCodeToColor("ffffff12"));
 
-            colors.Add("Instrument (wave)", Helpers.HexCodeToColor("5aea3d"));
-            colors.Add("Instrument (sample)", Helpers.HexCodeToColor("ff9932"));
-            colors.Add("Volume", Helpers.HexCodeToColor("50e7e5"));
-            colors.Add("Effect", Helpers.HexCodeToColor("ff5277"));
-            colors.Add("Effect parameter", Helpers.HexCodeToColor("ffd0d0"));
+            Colors.Add("Instrument (wave)", Helpers.HexCodeToColor("5aea3d"));
+            Colors.Add("Instrument (sample)", Helpers.HexCodeToColor("ff9932"));
+            Colors.Add("Volume", Helpers.HexCodeToColor("50e7e5"));
+            Colors.Add("Effect", Helpers.HexCodeToColor("ff5277"));
+            Colors.Add("Effect parameter", Helpers.HexCodeToColor("ffd0d0"));
 
-            colors.Add("Cursor", Helpers.HexCodeToColor("7e85a8"));
-            colors.Add("Selection", Helpers.HexCodeToColor("8080ff96"));
+            Colors.Add("Cursor", Helpers.HexCodeToColor("7e85a8"));
+            Colors.Add("Selection", Helpers.HexCodeToColor("8080ff96"));
 
-            colors.Add("Current row (default)", Helpers.HexCodeToColor("1b3782"));
-            colors.Add("Current row empty dashes (default)", Helpers.HexCodeToColor("2a539c"));
+            Colors.Add("Current row (default)", Helpers.HexCodeToColor("1b3782"));
+            Colors.Add("Current row empty dashes (default)", Helpers.HexCodeToColor("2a539c"));
 
-            colors.Add("Current row (editing)", Helpers.HexCodeToColor("6d1d4e"));
-            colors.Add("Current row empty dashes (editing)", Helpers.HexCodeToColor("a2276b"));
+            Colors.Add("Current row (editing)", Helpers.HexCodeToColor("6d1d4e"));
+            Colors.Add("Current row empty dashes (editing)", Helpers.HexCodeToColor("a2276b"));
 
-            colors.Add("Playback row", Helpers.HexCodeToColor("311f58"));
-            colors.Add("Playback row empty dashes", Helpers.HexCodeToColor("3e2e65"));
+            Colors.Add("Playback row", Helpers.HexCodeToColor("311f58"));
+            Colors.Add("Playback row empty dashes", Helpers.HexCodeToColor("3e2e65"));
 
-            colors.Add("Channel separator", Helpers.HexCodeToColor("313859"));
+            Colors.Add("Channel separator", Helpers.HexCodeToColor("313859"));
 
         }
 
@@ -128,9 +128,9 @@ namespace WaveTracker {
         /// <returns></returns>
         public static string CreateString(ColorTheme theme) {
             string str = "";
-            for (int i = 0; i < theme.colors.Count; i++) {
-                str += theme.colors.ElementAt(0).Key + "=" + theme.colors.ElementAt(i).Value.GetHexCode();
-                if (i < theme.colors.Count - 1)
+            for (int i = 0; i < theme.Colors.Count; i++) {
+                str += theme.Colors.ElementAt(0).Key + "=" + theme.Colors.ElementAt(i).Value.GetHexCode();
+                if (i < theme.Colors.Count - 1)
                     str += "\n";
             }
             return str;
@@ -146,7 +146,7 @@ namespace WaveTracker {
             string[] lines = fileText.Split('\n');
             foreach (string line in lines) {
                 string[] keyValuePair = line.Split('=');
-                if (theme.colors.ContainsKey(keyValuePair[0])) {
+                if (theme.Colors.ContainsKey(keyValuePair[0])) {
                     theme[keyValuePair[0]] = Helpers.HexCodeToColor(keyValuePair[1]);
                 }
             }

@@ -11,6 +11,8 @@ using WaveTracker.Rendering;
 namespace WaveTracker.UI {
     public class ColorButton : Clickable {
         public Color Color { get; set; }
+        public bool NeverShowAlpha { get; set; }
+        public bool DrawBorder { get; set; }
         public string HexValue {
             get { return Color.GetHexCodeWithAlpha(); }
             set { Color = Helpers.HexCodeToColor(value); }
@@ -21,8 +23,10 @@ namespace WaveTracker.UI {
             this.x = x;
             this.y = y;
             this.Color = color;
-            width = 55;
+            width = 62;
             height = 13;
+            DrawBorder = true;
+            NeverShowAlpha = false;
             SetParent(parent);
         }
 
@@ -45,7 +49,10 @@ namespace WaveTracker.UI {
             else {
                 textColor = Color.Black;
             }
-            DrawRect(0, 0, width, height, ButtonColors.Round.backgroundColor);
+            if (DrawBorder) {
+                DrawRect(0, 0, width, height, ButtonColors.Round.backgroundColor);
+            }
+            DrawSprite(1, 1, width - 2, height - 2, new Rectangle(400, 192, 4, 2), Color.White);
 
             // draw color
             DrawRect(1, 1, width - 2, height - 2, displayColor);
@@ -62,7 +69,8 @@ namespace WaveTracker.UI {
             DrawRect(1, height - 2, width - 2, 1, outlineColor);
             DrawRect(width - 2, 2, 1, height - 4, outlineColor);
 
-            string label = "#" + Color.GetHexCode();
+
+            string label = "#" + (NeverShowAlpha ? Color.GetHexCode() : Color.GetHexCodeWithAlpha());
             int labelWidth = Helpers.GetWidthOfText(label);
             Write(label, (width - labelWidth) / 2, (height + 1) / 2 - 4, textColor);
         }

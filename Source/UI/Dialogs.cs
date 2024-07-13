@@ -48,7 +48,6 @@ namespace WaveTracker.UI {
         public static void Update() {
             moduleSettings.Update();
             preferences.Update();
-            colorPicker.Update();
             humanizeDialog.Update();
             exportDialog.Update();
             exportingDialog.Update();
@@ -58,6 +57,7 @@ namespace WaveTracker.UI {
             waveSmoothDialog.Update();
             waveSyncDialog.Update();
             configurationDialog.Update();
+            colorPicker.Update();
 
             messageDialog.Update();
         }
@@ -65,7 +65,6 @@ namespace WaveTracker.UI {
         public static void Draw() {
             moduleSettings.Draw();
             preferences.Draw();
-            colorPicker.Draw();
             humanizeDialog.Draw();
             exportDialog.Draw();
             exportingDialog.Draw();
@@ -75,6 +74,7 @@ namespace WaveTracker.UI {
             waveSmoothDialog.Draw();
             waveSyncDialog.Draw();
             configurationDialog.Draw();
+            colorPicker.Draw();
 
 
             messageDialog.Draw();

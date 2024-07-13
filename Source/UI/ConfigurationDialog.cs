@@ -199,7 +199,7 @@ namespace WaveTracker.UI {
         /// Reads the controls on this dialog into the app's settings profile
         /// </summary>
         void ApplySettings() {
-        
+
 
             App.Settings.General.ScreenScale = pages["General"]["Screen scale"].ValueInt + 1;
             while (App.ClientWindow.ClientBounds.Height / App.Settings.General.ScreenScale < height) {
@@ -218,7 +218,7 @@ namespace WaveTracker.UI {
             App.Settings.Files.DefaultRowPrimaryHighlight = pages["Files"]["Default row highlight primary"].ValueInt;
             App.Settings.Files.DefaultRowSecondaryHighlight = pages["Files"]["Default row highlight secondary"].ValueInt;
 
-            (pages["Appearance"] as AppearancePage).LoadColorsFrom(App.Settings.Appearance.Theme);
+            (pages["Appearance"] as AppearancePage).SaveColorsInto(App.Settings.Appearance.Theme);
 
             App.Settings.PatternEditor.ShowRowNumbersInHex = pages["Pattern Editor"]["Show row numbers in hex"].ValueBool;
             App.Settings.PatternEditor.ShowNoteOffAndReleaseAsText = pages["Pattern Editor"]["Show note off/release as text"].ValueBool;
@@ -440,20 +440,27 @@ namespace WaveTracker.UI {
         }
 
         class AppearancePage : Page {
+            ColorButtonList colorList;
             public AppearancePage(Element parent) : base(parent) {
                 AddLabel("Appearance");
+                colorList = new ColorButtonList(4, ypos, width - 8, 9, this);
             }
 
             public override void Update() {
                 base.Update();
+                colorList.Update();
             }
 
             public override void Draw() {
                 base.Draw();
+                colorList.Draw();
             }
 
             public void LoadColorsFrom(ColorTheme theme) {
-
+                colorList.SetDictionary(theme.Colors);
+            }
+            public void SaveColorsInto(ColorTheme theme) {
+                colorList.SaveDictionaryInto(theme.Colors);
             }
         }
         #endregion

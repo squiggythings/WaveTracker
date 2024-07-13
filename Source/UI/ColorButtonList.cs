@@ -9,24 +9,20 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace WaveTracker.UI {
-    public class ColorList : Clickable {
-        Dictionary<string, Color> entries;
-        ColorButton[] colorButtons;
+    public class ColorButtonList : Clickable {
+        Dictionary<string, ColorButton> entries;
         Scrollbar scrollbar;
         int numRows;
-        int selectedIndex;
-        const int ROW_HEIGHT = 13;
+        const int ROW_HEIGHT = 17;
 
-        public bool ShowItemNumbers { get; set; }
-        public int HoveredIndex { get { return selectedIndex; } set { selectedIndex = Math.Clamp(value, 0, entries.Count - 1); } }
-
-        public ColorList(int x, int y, int width, int numVisibleRows, Element parent) {
+        public ColorButtonList(int x, int y, int width, int numVisibleRows, Element parent) {
             this.x = x;
             this.y = y;
             this.width = width;
             this.height = numVisibleRows * ROW_HEIGHT;
             this.numRows = numVisibleRows;
             scrollbar = new Scrollbar(0, 0, width, height, this);
+
             SetParent(parent);
         }
 
@@ -34,9 +30,11 @@ namespace WaveTracker.UI {
         /// Sets the list for this box to reference
         /// </summary>
         public void SetDictionary(Dictionary<string, Color> colors) {
-            entries = new Dictionary<string, Color>();
+            entries = new Dictionary<string, ColorButton>();
             foreach (KeyValuePair<string, Color> pair in colors) {
-                entries.Add(pair.Key, pair.Value);
+                ColorButton button = new ColorButton(pair.Value, 0, 0, this);
+                button.DrawBorder = false;
+                entries.Add(pair.Key, button);
             }
         }
 
@@ -46,32 +44,50 @@ namespace WaveTracker.UI {
         /// Saves the list in this box to the given dictionary
         /// </summary>
         public void SaveDictionaryInto(Dictionary<string, Color> colors) {
-            foreach (KeyValuePair<string, Color> pair in entries) {
-                colors[pair.Key] = pair.Value;
+            foreach (KeyValuePair<string, ColorButton> pair in entries) {
+                colors[pair.Key] = pair.Value.Color;
             }
         }
 
 
         public void Update() {
-            scrollbar.SetSize(entries.Count, numRows);
-            scrollbar.UpdateScrollValue();
-            scrollbar.Update();
-            HoveredIndex = -1;
-            if (MouseX >= 0 && MouseX < width - 7) {
-                int rowPos = 0;
-                for (int i = scrollbar.ScrollValue; i < numRows + scrollbar.ScrollValue; i++) {
-                    if (MouseY > rowPos && MouseY <= rowPos + ROW_HEIGHT) {
-                        HoveredIndex = i;
-                    }
-                    rowPos += ROW_HEIGHT;
+            if (InFocus) {
+                scrollbar.SetSize(entries.Count, numRows);
+                scrollbar.UpdateScrollValue();
+                scrollbar.Update();
+                int rowNum = numRows - 1;
+                for (int i = numRows + scrollbar.ScrollValue - 1; i >= scrollbar.ScrollValue; i--) {
+                    entries.ElementAt(i).Value.x = 2;
+                    entries.ElementAt(i).Value.y = 2 + rowNum * ROW_HEIGHT;
+                    entries.ElementAt(i).Value.Update();
+                    rowNum--;
                 }
             }
+            //if (MouseX >= 0 && MouseX < width - 7) {
+            //    int rowPos = 0;
+            //    for (int i = scrollbar.ScrollValue; i < numRows + scrollbar.ScrollValue; i++) {
+            //        if (MouseY > rowPos && MouseY <= rowPos + ROW_HEIGHT) {
+            //            HoveredIndex = i;
+            //        }
+            //        rowPos += ROW_HEIGHT;
+            //    }
+            //}
         }
 
 
         public void Draw() {
-            //scrollbar.Draw();
+            scrollbar.Draw();
 
+            Color bgColor = new Color(43, 49, 81);
+            Color bgColor2 = new Color(59, 68, 107);
+
+            int rowNum = numRows - 1;
+            for (int i = numRows + scrollbar.ScrollValue - 1; i >= scrollbar.ScrollValue; i--) {
+                DrawRect(0, rowNum * ROW_HEIGHT, width - 6, ROW_HEIGHT, i % 2 == 0 ? bgColor2 : bgColor);
+                entries.ElementAt(i).Value.Draw();
+                Write(entries.ElementAt(i).Key, 68, rowNum * ROW_HEIGHT + 5, Color.White);
+                rowNum--;
+            }
             //Color bgColor = new Color(43, 49, 81);
             //Color selectedColor = new Color(59, 68, 107);
             //Color errorColor = new Color(120, 29, 79);
@@ -171,22 +187,6 @@ namespace WaveTracker.UI {
             //editButton.Draw();
             //resetToDefaultButton.Draw();
 
-        }
-
-        class ListEntry {
-            public int dictionaryIndex;
-            public string categoryName;
-            public string actionName;
-            public Color color;
-            public bool isLabel;
-
-            public ListEntry(int i, string categoryName, string actionName, Color color, bool isLabel) {
-                dictionaryIndex = i;
-                this.categoryName = categoryName;
-                this.actionName = actionName;
-                this.color = color;
-                this.isLabel = isLabel;
-            }
         }
     }
 }
