@@ -45,7 +45,7 @@ namespace WaveTracker.UI {
             if (InFocus) {
                 if (enabled) {
                     if (IsVisible) {
-                        if (Input.GetClickDown(KeyModifier._Any)) {
+                        if (ClickedDown) {
                             lastClickWasOnScrollbar = bar.Contains(LastClickPos);
                             if (MouseY >= bar.Y && MouseY <= bar.Y + bar.Height) {
                                 if (lastClickWasOnScrollbar) {

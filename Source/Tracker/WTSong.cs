@@ -94,9 +94,10 @@ namespace WaveTracker.Tracker {
                 new WTFrame(0, this)
             };
             TicksPerRow = new int[] { 4 };
-            RowsPerFrame = 64;
-            RowHighlightPrimary = 16;
-            RowHighlightSecondary = 4;
+            LoadTicksFromString(App.Settings.Files.DefaultTicksPerRow);
+            RowsPerFrame = App.Settings.Files.DefaultRowsPerFrame;
+            RowHighlightPrimary = App.Settings.Files.DefaultRowPrimaryHighlight;
+            RowHighlightSecondary = App.Settings.Files.DefaultRowSecondaryHighlight;
         }
 
         /// <summary>

@@ -30,12 +30,17 @@ namespace WaveTracker.UI {
             StripButtons.Add(new MenuStripButton(name, nextX, 0, menu, this));
             nextX += StripButtons[StripButtons.Count - 1].width;
         }
+        public void AddButton(string name, Func<Menu> createMenuFunc) {
+            StripButtons.Add(new MenuStripButton(name, nextX, 0, createMenuFunc, this));
+            nextX += StripButtons[StripButtons.Count - 1].width;
+        }
 
         public void Update() {
             width = App.WindowWidth;
             currentMenu?.Update();
             foreach (MenuStripButton button in StripButtons) {
                 if (button.ClickedDown) {
+                    button.CreateMenu();
                     currentMenu = button.menu;
                     currentMenu.Open();
                 }
@@ -43,12 +48,13 @@ namespace WaveTracker.UI {
                 if (currentMenu != null && currentMenu.enabled && button.enabled) {
                     if (button.IsMouseOverRegion && button.menu != currentMenu) {
                         currentMenu.Close();
+                        button.CreateMenu();
                         currentMenu = button.menu;
                         currentMenu.Open();
                     }
                 }
             }
-                
+
         }
 
         public void Draw() {
@@ -64,7 +70,7 @@ namespace WaveTracker.UI {
     public class MenuStripButton : Clickable {
         const int MARGIN = 5;
         public Menu menu;
-
+        Func<Menu> createMenuFunc;
         public string Name { get; private set; }
         public MenuStripButton(string name, int x, int y, Menu menu, Element parent) {
             width = Helpers.GetWidthOfText(name) + MARGIN * 2;
@@ -78,14 +84,27 @@ namespace WaveTracker.UI {
             menu.SetParent(this);
             SetParent(parent);
         }
-
-        public void Update() {
-            //if (Clicked) {
-            //    menu.Open();
-            //}
+        public MenuStripButton(string name, int x, int y, Func<Menu> createMenu, Element parent) {
+            width = Helpers.GetWidthOfText(name) + MARGIN * 2;
+            height = 9;
+            createMenuFunc = createMenu;
+            this.x = x;
+            this.y = y;
+            Name = name;
+            SetParent(parent);
         }
+
+        public void CreateMenu() {
+            if (createMenuFunc != null) {
+                menu = createMenuFunc.Invoke();
+                menu.x = 0;
+                menu.y = height;
+                menu.SetParent(this);
+            }
+        }
+
         public void Draw(bool highlightletter) {
-            if (menu.enabled) {
+            if (menu != null && menu.enabled) {
                 DrawRect(0, 0, width, height, UIColors.selection);
                 Write(Name, MARGIN, 1, Color.White);
 

@@ -77,7 +77,8 @@ namespace WaveTracker.Tracker {
         public List<Instrument> Instruments { get; set; }
 
         public WTModule() {
-            ChannelCount = DEFAULT_CHANNEL_COUNT;
+            ChannelCount = App.Settings.Files.DefaultNumberOfChannels;
+            Author = App.Settings.Files.DefaultAuthorName;
             Songs = new List<WTSong>();
             Songs.Add(new WTSong(this));
             Instruments = new List<Instrument> {

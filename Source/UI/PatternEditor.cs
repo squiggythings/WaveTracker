@@ -148,51 +148,9 @@ namespace WaveTracker.UI {
             channelScrollbar = new ScrollbarHorizontal(ROW_COLUMN_WIDTH, 0, width, 6, this);
         }
 
-        public void Update() {
 
-            if (history.Count < 1) {
-                ClearHistory();
-            }
-            // responsive height
-            int bottomMargin = 8;
-            if (channelScrollbar.IsVisible)
-                height = App.WindowHeight - y - bottomMargin - channelScrollbar.height;
-            else
-                height = App.WindowHeight - y - bottomMargin;
-
-            // responsive width
-            int rightMargin = 156;
-            width = App.WindowWidth - x - rightMargin - 1;
-            #region change octave
-            if (Input.GetKeyRepeat(Keys.OemOpenBrackets, KeyModifier.None) || Input.GetKeyRepeat(Keys.Divide, KeyModifier.None))
-                CurrentOctave--;
-            if (Input.GetKeyRepeat(Keys.OemCloseBrackets, KeyModifier.None) || Input.GetKeyRepeat(Keys.Multiply, KeyModifier.None))
-                CurrentOctave++;
-            CurrentOctave = Math.Clamp(CurrentOctave, 0, 9);
-            #endregion
-
-            FirstVisibleChannel -= Input.MouseScrollWheel(KeyModifier.Alt);
-            FirstVisibleChannel = Math.Clamp(FirstVisibleChannel, 0, App.CurrentModule.ChannelCount - 1);
-
-            CalculateChannelPositioning(false);
-            channelScrollbar.width = width - ROW_COLUMN_WIDTH + 1;
-            channelScrollbar.y = height;
-            channelScrollbar.SetSize(App.CurrentModule.ChannelCount, App.CurrentModule.ChannelCount - MaxChannelScroll);
-            channelScrollbar.ScrollValue = FirstVisibleChannel;
-            channelScrollbar.Update();
-            FirstVisibleChannel = channelScrollbar.ScrollValue;
-            if (FirstVisibleChannel > MaxChannelScroll) {
-                FirstVisibleChannel = MaxChannelScroll;
-            }
-            CalculateChannelPositioning(true);
-
-
-
-
-            if (Input.focus != null || Input.focusTimer < 1 || App.VisualizerMode)
-                return;
-            if (RightClicked) {
-                ContextMenu.Open(new Menu(
+        public Menu CreateEditMenu() {
+            return new Menu(
                     new MenuItemBase[] {
                         new MenuOption("Undo", Undo, CanUndo),
                         new MenuOption("Redo", Redo, CanRedo),
@@ -222,7 +180,53 @@ namespace WaveTracker.UI {
 
                         }),
                     }
-                ));
+                );
+        }
+        public void Update() {
+
+            if (history.Count < 1) {
+                ClearHistory();
+            }
+            // responsive height
+            int bottomMargin = 8;
+            if (channelScrollbar.IsVisible)
+                height = App.WindowHeight - y - bottomMargin - channelScrollbar.height;
+            else
+                height = App.WindowHeight - y - bottomMargin;
+
+            // responsive width
+            int rightMargin = 156;
+            width = App.WindowWidth - x - rightMargin - 1;
+            #region change octave
+            if (App.Shortcuts["General\\Decrease octave"].IsPressedRepeat)
+                CurrentOctave--;
+            if (App.Shortcuts["General\\Increase octave"].IsPressedRepeat)
+                CurrentOctave++;
+            CurrentOctave = Math.Clamp(CurrentOctave, 0, 9);
+            #endregion
+
+            FirstVisibleChannel -= Input.MouseScrollWheel(KeyModifier.Alt);
+            FirstVisibleChannel = Math.Clamp(FirstVisibleChannel, 0, App.CurrentModule.ChannelCount - 1);
+
+            CalculateChannelPositioning(false);
+            channelScrollbar.width = width - ROW_COLUMN_WIDTH + 1;
+            channelScrollbar.y = height;
+            channelScrollbar.SetSize(App.CurrentModule.ChannelCount, App.CurrentModule.ChannelCount - MaxChannelScroll);
+            channelScrollbar.ScrollValue = FirstVisibleChannel;
+            channelScrollbar.Update();
+            FirstVisibleChannel = channelScrollbar.ScrollValue;
+            if (FirstVisibleChannel > MaxChannelScroll) {
+                FirstVisibleChannel = MaxChannelScroll;
+            }
+            CalculateChannelPositioning(true);
+
+
+
+
+            if (Input.focus != null || Input.focusTimer < 1 || App.VisualizerMode)
+                return;
+            if (RightClicked) {
+                ContextMenu.Open(CreateEditMenu());
             }
             if (MouseY < 0 && MouseY >= -32) {
                 if (MouseX < ROW_COLUMN_WIDTH || MouseX > LastChannelEndPos) {
@@ -258,11 +262,11 @@ namespace WaveTracker.UI {
 
             #region home/end navigation
             // On home key press
-            if (Input.GetKeyRepeat(Keys.Home, KeyModifier.None)) {
+            if (App.Shortcuts["Pattern\\Jump to top of frame"].IsPressedRepeat) {
                 GoToTopOfFrame();
             }
             // On end key press
-            if (Input.GetKeyRepeat(Keys.End, KeyModifier.None)) {
+            if (App.Shortcuts["Pattern\\Jump to bottom of frame"].IsPressedRepeat) {
                 GoToBottomOfFrame();
             }
             #endregion
@@ -276,11 +280,11 @@ namespace WaveTracker.UI {
                 CancelSelection();
                 MoveCursorRight();
             }
-            if (Input.GetKeyRepeat(Keys.Left, KeyModifier.Ctrl)) {
+            if (App.Shortcuts["Frame\\Previous frame"].IsPressedRepeat) {
                 CancelSelection();
                 PreviousFrame();
             }
-            if (Input.GetKeyRepeat(Keys.Right, KeyModifier.Ctrl)) {
+            if (App.Shortcuts["Frame\\Next frame"].IsPressedRepeat) {
                 CancelSelection();
                 NextFrame();
             }
@@ -419,10 +423,10 @@ namespace WaveTracker.UI {
             }
             #endregion
             #region selection with CTRL-A and ESC
-            if (Input.GetKeyRepeat(Keys.A, KeyModifier.Ctrl)) {
+            if (App.Shortcuts["Edit\\Select all"].IsPressedRepeat) {
                 SelectAll();
             }
-            if (Input.GetKeyRepeat(Keys.Escape, KeyModifier.None)) {
+            if (App.Shortcuts["Edit\\Deselect"].IsPressedRepeat) {
                 CancelSelection();
             }
             #endregion
@@ -442,7 +446,7 @@ namespace WaveTracker.UI {
             }
             #endregion
 
-            if (Input.GetKeyDown(Keys.Space, KeyModifier.None)) {
+            if (App.Shortcuts["General\\Toggle edit mode"].IsPressedRepeat) {
                 ToggleEditMode();
             }
             if (!EditMode)
@@ -487,8 +491,10 @@ namespace WaveTracker.UI {
                                 break;
                             case SettingsProfile.MoveToNextRowBehavior.AfterCell:
                             case SettingsProfile.MoveToNextRowBehavior.AfterCellIncludingEffect:
-                            case SettingsProfile.MoveToNextRowBehavior.Never:
                                 MoveCursorRight();
+                                break;
+                            case SettingsProfile.MoveToNextRowBehavior.Never:
+                                App.CurrentSong[cursorPosition] = (byte)((val % 10 * 10) + KeyInputs_Decimal[k]);
                                 break;
                         }
                         AddToUndoHistory();
@@ -516,7 +522,7 @@ namespace WaveTracker.UI {
                                 MoveToRow(cursorPosition.Row + InputStep);
                                 break;
                             case SettingsProfile.MoveToNextRowBehavior.Never:
-                                App.CurrentSong[cursorPosition] = (byte)((val % 10 * 10) + KeyInputs_Hex[k]);
+                                App.CurrentSong[cursorPosition] = (byte)((val % 10 * 10) + KeyInputs_Decimal[k]);
                                 break;
                         }
                         AddToUndoHistory();
@@ -563,8 +569,10 @@ namespace WaveTracker.UI {
                                     break;
                                 case SettingsProfile.MoveToNextRowBehavior.AfterCell:
                                 case SettingsProfile.MoveToNextRowBehavior.AfterCellIncludingEffect:
-                                case SettingsProfile.MoveToNextRowBehavior.Never:
                                     MoveCursorRight();
+                                    break;
+                                case SettingsProfile.MoveToNextRowBehavior.Never:
+                                    App.CurrentSong[cursorPosition] = (byte)((val % 16 * 16) + KeyInputs_Hex[k]);
                                     break;
                             }
                             AddToUndoHistory();
@@ -584,8 +592,10 @@ namespace WaveTracker.UI {
                                     break;
                                 case SettingsProfile.MoveToNextRowBehavior.AfterCell:
                                 case SettingsProfile.MoveToNextRowBehavior.AfterCellIncludingEffect:
-                                case SettingsProfile.MoveToNextRowBehavior.Never:
                                     MoveCursorRight();
+                                    break;
+                                case SettingsProfile.MoveToNextRowBehavior.Never:
+                                    App.CurrentSong[cursorPosition] = (byte)((val % 10 * 10) + KeyInputs_Decimal[k]);
                                     break;
                             }
                             AddToUndoHistory();
@@ -634,7 +644,7 @@ namespace WaveTracker.UI {
                                     MoveToRow(cursorPosition.Row + InputStep);
                                     break;
                                 case SettingsProfile.MoveToNextRowBehavior.Never:
-                                    App.CurrentSong[cursorPosition] = (byte)((val % 10 * 10) + KeyInputs_Hex[k]);
+                                    App.CurrentSong[cursorPosition] = (byte)((val % 10 * 10) + KeyInputs_Decimal[k]);
                                     break;
 
                             }
@@ -768,31 +778,31 @@ namespace WaveTracker.UI {
             #endregion
             #region backspace + insert + delete
 
-            if (KeyPress(Keys.Back, KeyModifier.None)) {
+            if (KeyPress(App.Shortcuts["Edit\\Backspace"])) {
                 Backspace();
             }
-            if (KeyPress(Keys.Insert, KeyModifier.None)) {
+            if (KeyPress(App.Shortcuts["Edit\\Insert"])) {
                 Insert();
             }
-            if (KeyPress(Keys.Delete, KeyModifier.None)) {
+            if (KeyPress(App.Shortcuts["Edit\\Delete"])) {
                 Delete();
             }
 
             #endregion
             #region value increment and transposing
-            if (KeyPress(Keys.F1, KeyModifier.Ctrl)) {
+            if (App.Shortcuts["Pattern\\Transpose: note down"].IsPressedRepeat) {
                 DecreaseNote();
             }
-            if (KeyPress(Keys.F2, KeyModifier.Ctrl)) {
+            if (App.Shortcuts["Pattern\\Transpose: note up"].IsPressedRepeat) {
                 IncreaseNote();
             }
-            if (KeyPress(Keys.F3, KeyModifier.Ctrl)) {
+            if (App.Shortcuts["Pattern\\Transpose: octave down"].IsPressedRepeat) {
                 DecreaseOctave();
             }
-            if (KeyPress(Keys.F4, KeyModifier.Ctrl)) {
+            if (App.Shortcuts["Pattern\\Transpose: octave up"].IsPressedRepeat) {
                 IncreaseOctave();
             }
-            if (KeyPress(Keys.F1, KeyModifier.Shift)) {
+            if (App.Shortcuts["Pattern\\Decrease values"].IsPressedRepeat) {
                 bool didSomething = false;
                 for (int r = selection.min.Row; r <= selection.max.Row; ++r) {
                     for (int c = selection.min.CellColumn; c <= selection.max.CellColumn; ++c) {
@@ -808,7 +818,7 @@ namespace WaveTracker.UI {
                     AddToUndoHistory();
                 }
             }
-            if (KeyPress(Keys.F2, KeyModifier.Shift)) {
+            if (App.Shortcuts["Pattern\\Increase values"].IsPressedRepeat) {
                 bool didSomething = false;
                 for (int r = selection.min.Row; r <= selection.max.Row; ++r) {
                     for (int c = selection.min.CellColumn; c <= selection.max.CellColumn; ++c) {
@@ -824,7 +834,7 @@ namespace WaveTracker.UI {
                     AddToUndoHistory();
                 }
             }
-            if (KeyPress(Keys.F3, KeyModifier.Shift)) {
+            if (App.Shortcuts["Pattern\\Coarse decrease values"].IsPressedRepeat) {
                 bool didSomething = false;
                 for (int r = selection.min.Row; r <= selection.max.Row; ++r) {
                     for (int c = selection.min.CellColumn; c <= selection.max.CellColumn; ++c) {
@@ -847,7 +857,7 @@ namespace WaveTracker.UI {
                     AddToUndoHistory();
                 }
             }
-            if (KeyPress(Keys.F4, KeyModifier.Shift)) {
+            if (App.Shortcuts["Pattern\\Coarse increase values"].IsPressedRepeat) {
                 bool didSomething = false;
                 for (int r = selection.min.Row; r <= selection.max.Row; ++r) {
                     for (int c = selection.min.CellColumn; c <= selection.max.CellColumn; ++c) {
@@ -873,44 +883,44 @@ namespace WaveTracker.UI {
             #endregion
             #region interpolate and reverse
             if (SelectionIsActive) {
-                if (KeyPress(Keys.G, KeyModifier.Ctrl)) {
+                if (App.Shortcuts["Pattern\\Interpolate"].IsPressedRepeat) {
                     InterpolateSelection();
                 }
-                if (KeyPress(Keys.R, KeyModifier.Ctrl)) {
+                if (App.Shortcuts["Pattern\\Reverse"].IsPressedRepeat) {
                     ReverseSelection();
                 }
             }
             #endregion
             #region copy/paste/cut
             if (SelectionIsActive) {
-                if (KeyPress(Keys.X, KeyModifier.Ctrl)) {
+                if (App.Shortcuts["Edit\\Cut"].IsPressedRepeat) {
                     Cut();
                 }
             }
             if (clipboard != null) {
-                if (KeyPress(Keys.V, KeyModifier.Ctrl)) {
+                if (App.Shortcuts["Edit\\Paste"].IsPressedRepeat) {
                     PasteFromClipboard();
                 }
-                if (KeyPress(Keys.M, KeyModifier.Ctrl)) {
+                if (App.Shortcuts["Edit\\Paste and mix"].IsPressedRepeat) {
                     PasteAndMix();
                 }
             }
             #endregion
             #region undo/redo
-            if (KeyPress(Keys.Z, KeyModifier.Ctrl))
+            if (App.Shortcuts["Edit\\Undo"].IsPressedRepeat)
                 Undo();
-            if (KeyPress(Keys.Y, KeyModifier.Ctrl))
+            if (App.Shortcuts["Edit\\Redo"].IsPressedRepeat)
                 Redo();
             #endregion
             #region alt+s replace instrument
             if (SelectionIsActive) {
-                if (Input.GetKeyDown(Keys.S, KeyModifier.Alt)) {
+                if (App.Shortcuts["Pattern\\Replace instrument"].IsPressedDown) {
                     ReplaceInstrument();
                 }
             }
             #endregion
             #region alt+h humanize
-            if (Input.GetKeyDown(Keys.H, KeyModifier.Alt)) {
+            if (App.Shortcuts["Pattern\\Humanize volumes"].IsPressedDown) {
                 Humanize();
             }
             #endregion

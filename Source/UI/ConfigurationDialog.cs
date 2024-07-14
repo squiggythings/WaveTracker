@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.IO;
 
 namespace WaveTracker.UI {
     public class ConfigurationDialog : Dialog {
@@ -278,7 +279,7 @@ namespace WaveTracker.UI {
 
             (pages["Keyboard"] as KeyboardPage).SaveBindingsInto(App.Settings.Keyboard.Shortcuts);
 
-
+            SettingsProfile.WriteToDisk(App.Settings);
         }
 
         public override void Update() {
@@ -406,10 +407,13 @@ namespace WaveTracker.UI {
 
         class KeyboardPage : Page {
             KeyboardBindingList bindingList;
+            Button resetAll;
             public KeyboardPage(Element parent) : base(parent) {
                 AddLabel("Keyboard Bindings");
                 bindingList = new KeyboardBindingList(4, ypos, width - 8, 16, this);
-                bindingList.SetDictionary(App.Settings.Keyboard.defaultShortcuts);
+                bindingList.SetDictionary(SettingsProfile.CategoryKeyboard.defaultShortcuts);
+                resetAll = new Button("Reset All", 0, bindingList.y + bindingList.height + 4, this);
+                resetAll.x = bindingList.x + bindingList.width - resetAll.width;
             }
 
             /// <summary>
@@ -431,29 +435,59 @@ namespace WaveTracker.UI {
             public override void Update() {
                 base.Update();
                 bindingList.Update();
+                if (resetAll.Clicked) {
+                    bindingList.ResetAll();
+                }
             }
 
             public override void Draw() {
                 base.Draw();
                 bindingList.Draw();
+                resetAll.Draw();
             }
         }
 
         class AppearancePage : Page {
             ColorButtonList colorList;
+            Button openThemeFiles;
+            Button loadTheme;
+            Button saveTheme;
             public AppearancePage(Element parent) : base(parent) {
                 AddLabel("Appearance");
                 colorList = new ColorButtonList(4, ypos, width - 8, 9, this);
+                saveTheme = new Button("Save As...", 4, colorList.y + colorList.height + 4, 55, this);
+                loadTheme = new Button("Load...", saveTheme.x + saveTheme.width + 4, colorList.y + colorList.height + 4, 55, this);
+                openThemeFiles = new Button("Open themes folder...", 0, colorList.y + colorList.height + 4, this);
+                openThemeFiles.x = colorList.x + colorList.width - openThemeFiles.width;
             }
 
             public override void Update() {
                 base.Update();
+                if (openThemeFiles.Clicked) {
+                    System.Diagnostics.Process.Start("explorer.exe", SaveLoad.ThemeFolderPath);
+                }
+                if (loadTheme.Clicked) {
+                    if (SaveLoad.GetThemePathThroughOpenDialog(out string filepath)) {
+                        LoadColorsFrom(ColorTheme.FromString(File.ReadAllText(filepath)));
+                    }
+                    colorList.ResetView();
+                }
+                if (saveTheme.Clicked) {
+                    if (SaveLoad.ChooseThemeSaveLocation(out string filepath)) {
+                        ColorTheme theme = new ColorTheme();
+                        SaveColorsInto(theme);
+                        File.WriteAllText(filepath, ColorTheme.CreateString(theme));
+                    }
+                }
                 colorList.Update();
             }
 
             public override void Draw() {
                 base.Draw();
                 colorList.Draw();
+                openThemeFiles.Draw();
+                loadTheme.Draw();
+                saveTheme.Draw();
             }
 
             public void LoadColorsFrom(ColorTheme theme) {

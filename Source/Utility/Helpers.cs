@@ -771,7 +771,7 @@ namespace WaveTracker {
         /// </summary>
         /// <param name="value"></param>
         /// <returns></returns>
-        public static string GetHexCode(this Color value) {
+        public static string GetHexCodeIgnoringAlpha(this Color value) {
             byte[] bytes = { value.R, value.G, value.B };
             return Convert.ToHexString(bytes).ToLower();
         }
@@ -780,9 +780,9 @@ namespace WaveTracker {
         /// </summary>
         /// <param name="value"></param>
         /// <returns></returns>
-        public static string GetHexCodeWithAlpha(this Color value) {
+        public static string GetHexCode(this Color value) {
             if (value.A == 255)
-                return GetHexCode(value);
+                return GetHexCodeIgnoringAlpha(value);
             else
                 return GetHexCodeWithAlphaAlways(value);
         }

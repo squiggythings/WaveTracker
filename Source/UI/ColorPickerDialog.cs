@@ -124,12 +124,12 @@ namespace WaveTracker.UI {
 
             hslColor = color.ToHSL();
 
-            hexCode.Text = color.GetHexCodeWithAlpha();
+            hexCode.Text = color.GetHexCode();
         }
 
         void UpdateColorFromHex() {
             color.SetFromHex(hexCode.Text);
-            hexCode.Text = color.GetHexCodeWithAlpha();
+            hexCode.Text = color.GetHexCode();
             hslColor = color.ToHSL();
             redNum.Value = color.R;
             greenNum.Value = color.G;
@@ -140,11 +140,11 @@ namespace WaveTracker.UI {
         void UpdateColorFromRGB() {
             color = new Color(redNum.Value, greenNum.Value, blueNum.Value, alphaNum.Value);
             hslColor = color.ToHSL();
-            hexCode.Text = color.GetHexCodeWithAlpha();
+            hexCode.Text = color.GetHexCode();
         }
         void UpdateColorFromHSL() {
             color = hslColor.ToRGB();
-            hexCode.Text = color.GetHexCodeWithAlpha();
+            hexCode.Text = color.GetHexCode();
             redNum.Value = color.R;
             greenNum.Value = color.G;
             blueNum.Value = color.B;

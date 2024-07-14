@@ -6,6 +6,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Text.Json.Serialization;
+using System.Text.Json;
 
 namespace WaveTracker {
     /// <summary>
@@ -13,8 +15,10 @@ namespace WaveTracker {
     /// </summary>
     [Serializable]
     public struct KeyboardShortcut {
-        public Keys Key { get; private set; }
-        public KeyModifier Modifier { get; private set; }
+        [JsonRequired]
+        public Keys Key { get; set; }
+        [JsonRequired]
+        public KeyModifier Modifier { get; set; }
         public KeyboardShortcut(Keys key, KeyModifier modifier) {
             Key = key;
             Modifier = modifier;
@@ -27,16 +31,19 @@ namespace WaveTracker {
             Key = Keys.None;
             Modifier = KeyModifier.None;
         }
-
+        [JsonIgnore]
         public bool IsPressed {
             get { return Input.GetKey(Key, Modifier); }
         }
+        [JsonIgnore]
         public bool IsPressedDown {
             get { return Input.GetKeyDown(Key, Modifier); }
         }
+        [JsonIgnore]
         public bool IsPressedRepeat {
             get { return Input.GetKeyRepeat(Key, Modifier); }
         }
+        [JsonIgnore]
         public bool WasReleasedThisFrame {
             get { return Input.GetKeyUp(Key, Modifier); }
         }

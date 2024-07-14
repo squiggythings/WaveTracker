@@ -6,9 +6,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Xml.Serialization;
 using System.IO;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using WaveTracker.Audio;
 
 namespace WaveTracker {
@@ -50,9 +50,6 @@ namespace WaveTracker {
             public string DefaultAuthorName { get; set; } = "";
             public int DefaultRowPrimaryHighlight { get; set; } = 16;
             public int DefaultRowSecondaryHighlight { get; set; } = 4;
-            public string LastSampleBrowserDirectory { get; set; } = "";
-            public string[] RecentFiles { get; set; } = new string[0];
-
         }
 
         public class CategoryAppearance {
@@ -129,8 +126,7 @@ namespace WaveTracker {
                     return Shortcuts[section + "\\" + name];
                 }
             }
-
-            public readonly Dictionary<string, KeyboardShortcut> defaultShortcuts = new Dictionary<string, KeyboardShortcut>() {
+            public static readonly Dictionary<string, KeyboardShortcut> defaultShortcuts = new Dictionary<string, KeyboardShortcut>() {
                 {"General\\Increase octave", new KeyboardShortcut(Keys.OemOpenBrackets) },
                 {"General\\Decrease octave", new KeyboardShortcut(Keys.OemCloseBrackets) },
                 {"General\\Play/Stop", new KeyboardShortcut(Keys.Enter) },
@@ -138,7 +134,7 @@ namespace WaveTracker {
                 {"General\\Play from cursor", new KeyboardShortcut(Keys.Enter, KeyModifier.Alt) },
                 {"General\\Play row", new KeyboardShortcut(Keys.Enter, KeyModifier.Ctrl) },
                 {"General\\Stop", new KeyboardShortcut(Keys.F8) },
-                {"General\\Toggle Edit mode", new KeyboardShortcut(Keys.Space) },
+                {"General\\Toggle edit mode", new KeyboardShortcut(Keys.Space) },
                 {"General\\Increase step", new KeyboardShortcut() },
                 {"General\\Decrease step", new KeyboardShortcut() },
                 {"General\\Next instrument", new KeyboardShortcut(Keys.Down, KeyModifier.Ctrl) },
@@ -148,15 +144,18 @@ namespace WaveTracker {
                 {"General\\Edit wave", new KeyboardShortcut() },
                 {"General\\Edit instrument", new KeyboardShortcut() },
                 {"General\\Toggle visualizer", new KeyboardShortcut() },
-                {"General\\Toggle Channel", new KeyboardShortcut(Keys.F3, KeyModifier.Shift) },
-                {"General\\Solo channel", new KeyboardShortcut(Keys.F4, KeyModifier.Shift) },
+                {"General\\Toggle Channel", new KeyboardShortcut(Keys.F9, KeyModifier.Alt) },
+                {"General\\Solo channel", new KeyboardShortcut(Keys.F10, KeyModifier.Alt) },
                 {"General\\Reset audio", new KeyboardShortcut(Keys.F12, KeyModifier.None) },
 
 
-                {"Frame\\Previous Frame", new KeyboardShortcut(Keys.Left, KeyModifier.Ctrl) },
-                {"Frame\\Next Frame", new KeyboardShortcut(Keys.Right, KeyModifier.Ctrl) },
-                {"Frame\\Duplicate Frame", new KeyboardShortcut(Keys.D, KeyModifier.Ctrl) },
-                {"Frame\\Remove Frame", new KeyboardShortcut() },
+
+
+
+                {"Frame\\Previous frame", new KeyboardShortcut(Keys.Left, KeyModifier.Ctrl) },
+                {"Frame\\Next frame", new KeyboardShortcut(Keys.Right, KeyModifier.Ctrl) },
+                {"Frame\\Duplicate frame", new KeyboardShortcut(Keys.D, KeyModifier.Ctrl) },
+                {"Frame\\Remove frame", new KeyboardShortcut() },
                 {"Frame\\Increase pattern value", new KeyboardShortcut() },
                 {"Frame\\Decrease pattern value", new KeyboardShortcut() },
 
@@ -167,11 +166,16 @@ namespace WaveTracker {
                 {"Edit\\Copy", new KeyboardShortcut(Keys.C, KeyModifier.Ctrl) },
                 {"Edit\\Paste", new KeyboardShortcut(Keys.V, KeyModifier.Ctrl) },
                 {"Edit\\Paste and mix", new KeyboardShortcut(Keys.M, KeyModifier.Ctrl) },
+                {"Edit\\Backspace", new KeyboardShortcut(Keys.Back) },
+                {"Edit\\Insert", new KeyboardShortcut(Keys.Insert) },
                 {"Edit\\Delete", new KeyboardShortcut(Keys.Delete) },
+                {"Edit\\Select all", new KeyboardShortcut(Keys.A, KeyModifier.Ctrl) },
+                {"Edit\\Deselect", new KeyboardShortcut(Keys.Escape) },
 
                 {"Pattern\\Interpolate", new KeyboardShortcut(Keys.G, KeyModifier.Ctrl) },
                 {"Pattern\\Reverse", new KeyboardShortcut(Keys.R, KeyModifier.Ctrl) },
                 {"Pattern\\Replace instrument", new KeyboardShortcut(Keys.S, KeyModifier.Alt) },
+                {"Pattern\\Humanize volumes", new KeyboardShortcut(Keys.H, KeyModifier.Alt) },
                 {"Pattern\\Transpose: note down", new KeyboardShortcut(Keys.F1, KeyModifier.Ctrl) },
                 {"Pattern\\Transpose: note up", new KeyboardShortcut(Keys.F2, KeyModifier.Ctrl) },
                 {"Pattern\\Transpose: octave down", new KeyboardShortcut(Keys.F3, KeyModifier.Ctrl) },
@@ -180,6 +184,8 @@ namespace WaveTracker {
                 {"Pattern\\Increase values", new KeyboardShortcut(Keys.F2, KeyModifier.Shift) },
                 {"Pattern\\Coarse decrease values", new KeyboardShortcut(Keys.F3, KeyModifier.Shift) },
                 {"Pattern\\Coarse increase values", new KeyboardShortcut(Keys.F4, KeyModifier.Shift) },
+                {"Pattern\\Jump to top of frame", new KeyboardShortcut(Keys.Home) },
+                {"Pattern\\Jump to bottom of frame", new KeyboardShortcut(Keys.End) },
 
 
                 {"Piano\\Note off", new KeyboardShortcut(Keys.D1) },
@@ -220,22 +226,51 @@ namespace WaveTracker {
                 {"Piano\\Upper E-3", new KeyboardShortcut(Keys.P) },
             };
             public CategoryKeyboard() {
+                Initialize();
+            }
+
+            public void Validate() {
+                int i = 0;
+                Dictionary<string, KeyboardShortcut> ret = new Dictionary<string, KeyboardShortcut>();
+                foreach (KeyValuePair<string, KeyboardShortcut> pair in defaultShortcuts) {
+                    if (!Shortcuts.ContainsKey(pair.Key)) {
+                        ret.Add(pair.Key, pair.Value);
+                    }
+                    else {
+                        ret.Add(pair.Key, Shortcuts[pair.Key]);
+                    }
+                    ++i;
+                }
+                Shortcuts = ret;
+            }
+
+            public void Initialize() {
                 Shortcuts = new Dictionary<string, KeyboardShortcut>();
                 for (int i = 0; i < defaultShortcuts.Count; i++) {
                     Shortcuts.Add(defaultShortcuts.ElementAt(i).Key, defaultShortcuts.ElementAt(i).Value);
                 }
+                System.Diagnostics.Debug.WriteLine("initialized shortcuts");
             }
         }
 
+        /// <summary>
+        /// If any categories are null, replace them with a new version
+        /// </summary>
         private void ValidateCategories() {
-            if (General == null) {
-                General = new CategoryGeneral();
-            }
-            if (Files == null) {
-                Files = new CategoryFiles();
-            }
+            General ??= new();
+            Files ??= new();
+            PatternEditor ??= new();
+            SamplesWaves ??= new();
+            MIDI ??= new();
+            Audio ??= new();
+            Visualizer ??= new();
+            Keyboard ??= new();
+            Keyboard.Validate();
         }
 
+        /// <summary>
+        /// The default settings
+        /// </summary>
         public static SettingsProfile Default {
             get {
                 return new SettingsProfile();
@@ -267,27 +302,33 @@ namespace WaveTracker {
         /// <summary>
         /// Writes a SettingsProfile to a json formatted file at <c>path\fileName</c>
         /// </summary>
-        /// <param name="path"></param>
-        /// <param name="fileName"></param>
-        public static void WriteToDisk(string path, string fileName, SettingsProfile profileToSave) {
-            using (StreamWriter outputFile = new StreamWriter(Path.Combine(path, fileName))) {
-                outputFile.Write(JsonSerializer.Serialize(profileToSave, typeof(SettingsProfile)));
+        public static void WriteToDisk(SettingsProfile profileToSave) {
+            Directory.CreateDirectory(SaveLoad.SettingsFolderPath);
+            using (StreamWriter outputFile = new StreamWriter(SaveLoad.SettingsPath)) {
+                JsonSerializerOptions options = new JsonSerializerOptions() {
+                    IncludeFields = true,
+                };
+                outputFile.Write(JsonSerializer.Serialize(profileToSave, typeof(SettingsProfile), options));
             }
         }
 
         /// <summary>
         /// Returns the SettingsProfile read from the given path, if not found, returns a default settings
         /// </summary>
-        /// <param name="path"></param>
-        /// <param name="fileName"></param>
-        public static SettingsProfile ReadFromDisk(string path, string fileName) {
+        public static SettingsProfile ReadFromDisk() {
             string jsonString;
             SettingsProfile ret = Default;
             try {
-                jsonString = File.ReadAllText(Path.Combine(path, fileName));
-                ret = JsonSerializer.Deserialize<SettingsProfile>(jsonString);
-            } catch { }
+                jsonString = File.ReadAllText(SaveLoad.SettingsPath);
+                JsonSerializerOptions options = new JsonSerializerOptions() {
+                    IncludeFields = true,
+                };
+                ret = JsonSerializer.Deserialize<SettingsProfile>(jsonString, options);
+            } catch {
+                WriteToDisk(Default);
+            }
             ret.ValidateCategories();
+
             return ret;
         }
     }

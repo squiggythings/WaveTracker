@@ -92,8 +92,19 @@ namespace WaveTracker {
             System.Windows.Forms.Form form = (System.Windows.Forms.Form)System.Windows.Forms.Control.FromHandle(Window.Handle);
             form.WindowState = System.Windows.Forms.FormWindowState.Maximized;
             form.FormClosing += ClosingForm;
-            Settings = new SettingsProfile();
-            SettingsProfile.ReadFromDisk(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData, Environment.SpecialFolderOption.Create), "WaveTracker"), "wtpref");
+            //Settings = new SettingsProfile();
+            if (!Directory.Exists(SaveLoad.ThemeFolderPath)) {
+                Directory.CreateDirectory(SaveLoad.ThemeFolderPath);
+                File.WriteAllText(Path.Combine(SaveLoad.ThemeFolderPath, "default.wttheme"), ColorTheme.CreateString(ColorTheme.Default));
+                File.WriteAllText(Path.Combine(SaveLoad.ThemeFolderPath, "famitracker.wttheme"), ColorTheme.CreateString(ColorTheme.Famitracker));
+                //File.WriteAllText(Path.Combine(SaveLoad.ThemeFolderPath, "bambootracker"), ColorTheme.CreateString(ColorTheme.BambooTracker));
+                //File.WriteAllText(Path.Combine(SaveLoad.ThemeFolderPath, "openMPT"), ColorTheme.CreateString(ColorTheme.OpenMPT));
+                File.WriteAllText(Path.Combine(SaveLoad.ThemeFolderPath, "neon.wttheme"), ColorTheme.CreateString(ColorTheme.Neon));
+            }
+            Input.Intialize();
+            Settings = SettingsProfile.ReadFromDisk();
+            //Settings.Appearance.Theme = ColorTheme.FromString()
+            SaveLoad.ReadRecentFiles();
             MidiInput.ReadMidiDevices();
         }
 
@@ -106,7 +117,6 @@ namespace WaveTracker {
 
         protected override void Initialize() {
 
-            Input.Intialize();
 
             CurrentModule = new WTModule();
             WaveBank = new WaveBank(510, 18 + MENUSTRIP_HEIGHT);
@@ -127,48 +137,8 @@ namespace WaveTracker {
             IsFixedTimeStep = false;
 
             MenuStrip = new MenuStrip(0, 0, 960, null);
-            MenuStrip.AddButton("File", new Menu(new MenuItemBase[] {
-                new MenuOption("New", SaveLoad.NewFile),
-                new MenuOption("Open...", SaveLoad.OpenFile),
-                new MenuOption("Save", SaveLoad.SaveFileVoid),
-                new MenuOption("Save As...", SaveLoad.SaveFileAsVoid),
-                null,
-                new MenuOption("Export as WAV...", Dialogs.exportDialog.Open),
-                null,
-                new MenuOption("Configuration...", Dialogs.configurationDialog.Open),
-                null,
-                new MenuOption("Exit", ExitApplication),
-            }));
-            MenuStrip.AddButton("Edit", new Menu(
-                new MenuItemBase[] {
-                    new MenuOption("Undo", PatternEditor.Undo, PatternEditor.CanUndo),
-                    new MenuOption("Redo", PatternEditor.Redo, PatternEditor.CanRedo),
-                    null,
-                    new MenuOption("Cut", PatternEditor.Cut, PatternEditor.SelectionIsActive),
-                    new MenuOption("Copy", PatternEditor.CopyToClipboard, PatternEditor.SelectionIsActive),
-                    new MenuOption("Paste", PatternEditor.PasteFromClipboard, PatternEditor.HasClipboard),
-                    new MenuOption("Delete", PatternEditor.Delete, PatternEditor.SelectionIsActive),
-                    new MenuOption("Select All", PatternEditor.SelectAll),
-                    null,
-                    new SubMenu("Pattern", new MenuItemBase[] {
-                        new MenuOption("Interpolate", PatternEditor.InterpolateSelection, PatternEditor.SelectionIsActive),
-                        new MenuOption("Reverse", PatternEditor.ReverseSelection, PatternEditor.SelectionIsActive),
-                        new MenuOption("Replace Instrument", PatternEditor.ReplaceInstrument, PatternEditor.SelectionIsActive),
-                        new MenuOption("Humanize Volumes", PatternEditor.Humanize, PatternEditor.SelectionIsActive),
-                        null,
-						//new MenuOption("Expand", null, PatternEditor.SelectionIsActive),
-						//new MenuOption("Shrink", null, PatternEditor.SelectionIsActive),
-						//new MenuOption("Stretch...", null, PatternEditor.SelectionIsActive),
-						//null,
-						new SubMenu("Transpose", new MenuItemBase[] {
-                            new MenuOption("Increase note", PatternEditor.IncreaseNote),
-                            new MenuOption("Decrease note", PatternEditor.DecreaseNote),
-                            new MenuOption("Increase octave", PatternEditor.IncreaseOctave),
-                            new MenuOption("Decrease octave", PatternEditor.DecreaseOctave),
-                        })
-                    }),
-                }
-            ));
+            MenuStrip.AddButton("File", SaveLoad.CreateFileMenu);
+            MenuStrip.AddButton("Edit", PatternEditor.CreateEditMenu);
             MenuStrip.AddButton("Song", new Menu(new MenuItemBase[] {
                 new MenuOption("Insert frame", PatternEditor.InsertNewFrame),
                 new MenuOption("Remove frame", PatternEditor.RemoveFrame),
@@ -185,18 +155,7 @@ namespace WaveTracker {
                         new MenuOption("Remove unused waves", CurrentModule.RemoveUnusedWaves),
                 })
             }));
-            MenuStrip.AddButton("Instrument", new Menu(new MenuItemBase[] {
-                new MenuOption("Add wave instrument", InstrumentBank.AddWave, CurrentModule.Instruments.Count < 100),
-                new MenuOption("Add sample instrument", InstrumentBank.AddSample, CurrentModule.Instruments.Count < 100),
-                new MenuOption("Duplicate", InstrumentBank.DuplicateInstrument, CurrentModule.Instruments.Count < 100),
-                new MenuOption("Remove", InstrumentBank.RemoveInstrument, CurrentModule.Instruments.Count > 1),
-                null,
-				//new MenuOption("Load from file...", null),
-				//new MenuOption("Save to file...", null),
-				//null,
-				new MenuOption("Rename...", InstrumentBank.Rename),
-                new MenuOption("Edit...", InstrumentBank.Edit)
-            }));
+            MenuStrip.AddButton("Instrument", InstrumentBank.CreateInstrumentMenu);
             MenuStrip.AddButton("Tracker", new Menu(new MenuItemBase[] {
                 new MenuOption("Play", Playback.Play),
                 new MenuOption("Play from beginning", Playback.PlayFromBeginning),
@@ -235,7 +194,7 @@ namespace WaveTracker {
             Window.Title = SaveLoad.FileNameWithoutExtension + (SaveLoad.IsSaved ? "" : "*") + " [#" + (CurrentSongIndex + 1) + " " + CurrentSong.ToString() + "] - WaveTracker " + VERSION;
             WindowHeight = (Window.ClientBounds.Height / Settings.General.ScreenScale);
             WindowWidth = (Window.ClientBounds.Width / Settings.General.ScreenScale);
-            
+
 
             if (IsActive) {
                 Input.GetState(gameTime);
@@ -449,6 +408,7 @@ namespace WaveTracker {
         /// </summary>
         public static void ExitApplication() {
             System.Windows.Forms.Form form = (System.Windows.Forms.Form)System.Windows.Forms.Control.FromHandle(instance.Window.Handle);
+            
             form.Close();
         }
 
@@ -483,6 +443,7 @@ namespace WaveTracker {
             Debug.WriteLine("Closing WaveTracker...");
             AudioEngine.Stop();
             MidiInput.Stop();
+            SettingsProfile.WriteToDisk(Settings);
             base.OnExiting(sender, args);
         }
     }

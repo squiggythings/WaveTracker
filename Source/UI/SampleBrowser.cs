@@ -50,12 +50,7 @@ namespace WaveTracker.UI {
             sortType = new Toggle("Type", width - 36, 30, this);
             entriesInDirectory = new string[0];
             previewOut = new WaveOutEvent();
-            if (Directory.Exists(App.Settings.Files.LastSampleBrowserDirectory)) {
-                currentPath = App.Settings.Files.LastSampleBrowserDirectory;
-            }
-            else {
-                currentPath = Directory.GetCurrentDirectory();
-            }
+            currentPath = SaveLoad.ReadPath("sample", Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments));
         }
 
         public void Update() {
@@ -266,7 +261,7 @@ namespace WaveTracker.UI {
             Input.focus = opened;
             if (File.Exists(selectedFilePath))
                 LoadSampleFromFile(selectedFilePath, launched.Sample);
-            App.Settings.Files.LastSampleBrowserDirectory = currentPath;
+            SaveLoad.SavePath("sample", currentPath);
             Preferences.SaveToFile();
             previewOut.Stop();
         }

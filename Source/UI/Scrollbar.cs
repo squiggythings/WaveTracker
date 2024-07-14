@@ -41,7 +41,7 @@ namespace WaveTracker.UI {
         public void Update() {
             if (!Input.internalDialogIsOpen) {
                 if (viewportSize < totalSize) {
-                    if (Input.GetClickDown(KeyModifier._Any)) {
+                    if (ClickedDown) {
                         lastClickWasOnScrollbar = bar.Contains(LastClickPos);
                         if (MouseX >= bar.X && MouseX <= bar.X + bar.Width) {
                             if (lastClickWasOnScrollbar) {

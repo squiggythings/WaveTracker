@@ -14,7 +14,7 @@ namespace WaveTracker.UI {
         public bool NeverShowAlpha { get; set; }
         public bool DrawBorder { get; set; }
         public string HexValue {
-            get { return Color.GetHexCodeWithAlpha(); }
+            get { return Color.GetHexCode(); }
             set { Color = Helpers.HexCodeToColor(value); }
         }
 
@@ -70,7 +70,7 @@ namespace WaveTracker.UI {
             DrawRect(width - 2, 2, 1, height - 4, outlineColor);
 
 
-            string label = "#" + (NeverShowAlpha ? Color.GetHexCode() : Color.GetHexCodeWithAlpha());
+            string label = "#" + (NeverShowAlpha ? Color.GetHexCodeIgnoringAlpha() : Color.GetHexCode());
             int labelWidth = Helpers.GetWidthOfText(label);
             Write(label, (width - labelWidth) / 2, (height + 1) / 2 - 4, textColor);
         }

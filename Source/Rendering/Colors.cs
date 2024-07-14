@@ -4,11 +4,15 @@ using Microsoft.Xna.Framework.Input;
 using System.Xml.Serialization;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json.Serialization;
+using System;
 
 namespace WaveTracker {
 
+    [Serializable]
     public class ColorTheme {
-        public Dictionary<string, Color> Colors { get; private set; }
+        [JsonRequired]
+        public Dictionary<string, Color> Colors { get; set; }
 
         public Color this[string name] {
             get { return Colors[name]; }
@@ -45,7 +49,7 @@ namespace WaveTracker {
             Colors.Add("Playback row empty dashes", Helpers.HexCodeToColor("3e2e65"));
 
             Colors.Add("Channel separator", Helpers.HexCodeToColor("313859"));
-
+            System.Diagnostics.Debug.WriteLine("created default colors" + this);
         }
 
 
@@ -59,7 +63,7 @@ namespace WaveTracker {
                 ret["Row text (primary highlight)"] = Helpers.HexCodeToColor("f0f000");
                 ret["Row text (secondary highlight)"] = Helpers.HexCodeToColor("ffff60");
                 ret["Row text"] = Helpers.HexCodeToColor("00ff00");
-                ret["Empty dashes tint"] = Helpers.HexCodeToColor("ffffffff");
+                ret["Empty dashes tint"] = Helpers.HexCodeToColor("ffffff50");
 
                 ret["Instrument (wave)"] = Helpers.HexCodeToColor("80ff80");
                 ret["Instrument (sample)"] = Helpers.HexCodeToColor("80ff80");
@@ -129,7 +133,7 @@ namespace WaveTracker {
         public static string CreateString(ColorTheme theme) {
             string str = "";
             for (int i = 0; i < theme.Colors.Count; i++) {
-                str += theme.Colors.ElementAt(0).Key + "=" + theme.Colors.ElementAt(i).Value.GetHexCode();
+                str += theme.Colors.ElementAt(i).Key + "=" + theme.Colors.ElementAt(i).Value.GetHexCode();
                 if (i < theme.Colors.Count - 1)
                     str += "\n";
             }
@@ -146,7 +150,9 @@ namespace WaveTracker {
             string[] lines = fileText.Split('\n');
             foreach (string line in lines) {
                 string[] keyValuePair = line.Split('=');
+                System.Diagnostics.Debug.WriteLine(keyValuePair[0]);
                 if (theme.Colors.ContainsKey(keyValuePair[0])) {
+                    System.Diagnostics.Debug.WriteLine(keyValuePair[1]);
                     theme[keyValuePair[0]] = Helpers.HexCodeToColor(keyValuePair[1]);
                 }
             }

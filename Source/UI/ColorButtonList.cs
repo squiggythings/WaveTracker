@@ -38,7 +38,9 @@ namespace WaveTracker.UI {
             }
         }
 
-
+        public void ResetView() {
+            scrollbar.ScrollValue = 0;
+        }
 
         /// <summary>
         /// Saves the list in this box to the given dictionary
