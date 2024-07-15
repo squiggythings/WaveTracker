@@ -151,7 +151,7 @@ namespace WaveTracker.UI {
 
         public Menu CreateEditMenu() {
             return new Menu(
-                    new MenuItemBase[] {
+                    [
                         new MenuOption("Undo", Undo, CanUndo),
                         new MenuOption("Redo", Redo, CanRedo),
                         null,
@@ -161,7 +161,7 @@ namespace WaveTracker.UI {
                         new MenuOption("Delete", Delete, SelectionIsActive),
                         new MenuOption("Select All", SelectAll),
                         null,
-                        new SubMenu("Pattern", new MenuItemBase[] {
+                        new SubMenu("Pattern", [
                             new MenuOption("Interpolate", InterpolateSelection, SelectionIsActive),
                             new MenuOption("Reverse", ReverseSelection, SelectionIsActive),
                             new MenuOption("Replace Instrument", ReplaceInstrument, SelectionIsActive),
@@ -171,15 +171,15 @@ namespace WaveTracker.UI {
                             new MenuOption("Shrink", null, SelectionIsActive),
                             new MenuOption("Stretch...", null, SelectionIsActive),
                             null,
-                            new SubMenu("Transpose", new MenuItemBase[] {
+                            new SubMenu("Transpose",[
                                 new MenuOption("Increase note", IncreaseNote),
                                 new MenuOption("Decrease note", DecreaseNote),
                                 new MenuOption("Increase octave", IncreaseOctave),
                                 new MenuOption("Decrease octave", DecreaseOctave),
-                            })
+                            ])
 
-                        }),
-                    }
+                        ]),
+                    ]
                 );
         }
         public void Update() {
@@ -2260,7 +2260,7 @@ namespace WaveTracker.UI {
         /// </summary>
         /// <param name="channel"></param>
         /// <returns></returns>
-        int GetWidthOfChannel(int channel) {
+        static int GetWidthOfChannel(int channel) {
             // width of note, inst, vol together is 45
             // width of effect + effect param is 18
             // width of the channel separator is 1

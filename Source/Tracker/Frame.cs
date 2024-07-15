@@ -81,7 +81,7 @@ namespace WaveTracker.Tracker {
         public void Unpack(string str) {
             string[] elements = str.Split((char)16);
             int x = 0;
-            int y = 0;
+            int y;
             foreach (string element in elements) {
                 y = 0;
                 for (int i = 0; i < element.Length; i += 2) {

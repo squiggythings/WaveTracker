@@ -13,10 +13,10 @@ using WaveTracker.Tracker;
 
 namespace WaveTracker.UI {
     public class SongSettings : Panel {
-        Textbox title, author, copyright, speed;
-        Dropdown selectedSong;
-        NumberBox rows;
-        SpriteButton editButton;
+         Textbox title, author,  copyright, speed;
+         Dropdown selectedSong;
+         NumberBox rows;
+         SpriteButton editButton;
         float ampLeft, ampRight;
         int ampL, ampR;
 
@@ -194,7 +194,6 @@ namespace WaveTracker.UI {
             int drawX = 0;
             int zoomX = Audio.AudioEngine.PreviewBufferLength / width;
             while (drawX < width - 2) {
-                int[] ys = new int[zoomX];
                 int minValR = 99;
                 int maxValR = -99;
                 int minValL = 99;
@@ -260,7 +259,6 @@ namespace WaveTracker.UI {
         }
 
         public void DrawStereoOscilloscope(int px, int py, int width, int height, Color back) {
-            Random rand = new Random();
             DrawRect(px, py, width, height, back);
             float[,] samples = Audio.AudioEngine.currentBuffer;
             int i = 0;

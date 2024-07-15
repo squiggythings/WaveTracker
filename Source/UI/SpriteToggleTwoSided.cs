@@ -10,8 +10,8 @@ using System.Threading.Tasks;
 
 namespace WaveTracker.UI {
     public class SpriteToggleTwoSided : Clickable {
-        readonly int sourceX;
-        readonly int sourceY;
+         int sourceX;
+         int sourceY;
 
         public bool Value { get; set; }
         public bool ValueWasChangedInternally { get; private set; }

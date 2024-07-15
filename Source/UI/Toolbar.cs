@@ -158,7 +158,7 @@ namespace WaveTracker.UI {
             if (frame_next.Clicked) { App.PatternEditor.NextFrame(); }
             if (frame_prev.Clicked) { App.PatternEditor.PreviousFrame(); }
 
-            if (preferences.Clicked) { Dialogs.preferences.Open(); }
+            if (preferences.Clicked) { Dialogs.configurationDialog.Open(); }
 
             followModeToggle.Value = App.PatternEditor.FollowMode;
             followModeToggle.Update();

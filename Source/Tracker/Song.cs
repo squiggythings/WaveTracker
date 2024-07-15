@@ -186,7 +186,7 @@ namespace WaveTracker.Tracker {
         public void LoadTicksFromString(string text) {
             List<int> ticks = new List<int>();
             foreach (string word in text.Split(' ')) {
-                if (checkTickString(word))
+                if (CheckTickString(word))
                     ticks.Add(int.Parse(word));
             }
             if (ticks.Count == 0)
@@ -199,7 +199,7 @@ namespace WaveTracker.Tracker {
             }
         }
 
-        bool checkTickString(string st) {
+        static bool CheckTickString(string st) {
             foreach (char c in st) {
                 if (!"0123456789".Contains(c))
                     return false;

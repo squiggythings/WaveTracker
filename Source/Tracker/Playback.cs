@@ -27,7 +27,7 @@ namespace WaveTracker.Tracker {
         static int ticksPerRow;
         public static WTFrame Frame => App.CurrentSong.FrameSequence[position.Frame];
 
-        public static void Update(GameTime gameTime) {
+        public static void Update() {
             if (Input.GetKeyDown(Keys.F5, KeyModifier.None)) {
                 PlayFromBeginning();
             }

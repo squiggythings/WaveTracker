@@ -195,7 +195,7 @@ namespace WaveTracker.Tracker {
 
         public void SetWaveformFromString(string s) {
             for (int i = 0; i < s.Length && i < 64; i++) {
-                samples[i] = convertCharToDecimal(s[i]);
+                samples[i] = ConvertCharToDecimal(s[i]);
             }
         }
         /// <summary>
@@ -204,9 +204,8 @@ namespace WaveTracker.Tracker {
         /// <returns></returns>
         public void SetFromNumberString(string s) {
             string[] nums = s.Split(' ');
-            byte num;
             for (int i = 0; i < nums.Length && i < 64; i++) {
-                if (byte.TryParse(nums[i], out num)) {
+                if (byte.TryParse(nums[i], out byte num)) {
                     samples[i] = num;
                 }
             }
@@ -215,7 +214,7 @@ namespace WaveTracker.Tracker {
         public override string ToString() {
             string s = "";
             for (int i = 0; i < samples.Length; i++) {
-                s += convertDecimalToChar(samples[i]);
+                s += ConvertDecimalToChar(samples[i]);
             }
             return s;
         }
@@ -272,7 +271,7 @@ namespace WaveTracker.Tracker {
             }
         }
 
-        float GetBentTime(float t, float bendAmt) {
+        static float GetBentTime(float t, float bendAmt) {
             if (t > 0.5f) {
                 return MathF.Pow(2 * t % 1, 1 - 0.8f * (-25 * bendAmt * bendAmt)) / 2f;
             }
@@ -321,7 +320,7 @@ namespace WaveTracker.Tracker {
         }
 
 
-        byte convertCharToDecimal(char c) { return (byte)"0123456789ABCDEFGHIJKLMNOPQRSTUV".IndexOf(c); }
-        char convertDecimalToChar(int i) { return "0123456789ABCDEFGHIJKLMNOPQRSTUV"[Math.Clamp(i, 0, 31)]; }
+        static byte ConvertCharToDecimal(char c) { return (byte)"0123456789ABCDEFGHIJKLMNOPQRSTUV".IndexOf(c); }
+        static char ConvertDecimalToChar(int i) { return "0123456789ABCDEFGHIJKLMNOPQRSTUV"[Math.Clamp(i, 0, 31)]; }
     }
 }

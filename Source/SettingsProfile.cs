@@ -233,11 +233,11 @@ namespace WaveTracker {
                 int i = 0;
                 Dictionary<string, KeyboardShortcut> ret = new Dictionary<string, KeyboardShortcut>();
                 foreach (KeyValuePair<string, KeyboardShortcut> pair in defaultShortcuts) {
-                    if (!Shortcuts.ContainsKey(pair.Key)) {
+                    if (!Shortcuts.TryGetValue(pair.Key, out KeyboardShortcut value)) {
                         ret.Add(pair.Key, pair.Value);
                     }
                     else {
-                        ret.Add(pair.Key, Shortcuts[pair.Key]);
+                        ret.Add(pair.Key, value);
                     }
                     ++i;
                 }

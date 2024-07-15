@@ -87,7 +87,7 @@ namespace WaveTracker.UI {
                             valueSaved = _value;
                         if (Input.GetClick(KeyModifier.None)) {
                             _value = valueSaved - (MouseY - LastClickPos.Y) / 2;
-                            App.mouseCursorArrow = 2;
+                            App.MouseCursorArrow = 2;
                         }
                     }
                 }

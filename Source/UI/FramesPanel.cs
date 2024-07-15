@@ -8,7 +8,7 @@ namespace WaveTracker.UI {
         public SpriteButton bNewFrame, bDeleteFrame, bDuplicateFrame, bMoveLeft, bMoveRight;
         //public Button increasePattern, decreasePattern;
         MouseRegion scrollRegion;
-        Menu contextMenu;
+        //Menu contextMenu;
         public FramesPanel(int x, int y, int width, int height) : base("Frames", x, y, width, height) {
             bNewFrame = new SpriteButton(4, 10, 15, 15, 285, 0, this);
             bNewFrame.SetTooltip("Insert Frame", "Insert a new frame after this one");
@@ -48,7 +48,7 @@ namespace WaveTracker.UI {
                 bMoveLeft.enabled = App.PatternEditor.cursorPosition.Frame > 0;
                 if (scrollRegion.IsHovered && Input.focus == null) {
                     if (scrollRegion.RightClicked) {
-                        ContextMenu.Open(new Menu(new MenuItemBase[] {
+                        ContextMenu.Open(new Menu([
                         new MenuOption("Insert Frame",App.PatternEditor.InsertNewFrame, bNewFrame.enabled),
                         new MenuOption("Remove Frame",App.PatternEditor.RemoveFrame, bDeleteFrame.enabled),
                         new MenuOption("Duplicate Frame",App.PatternEditor.DuplicateFrame, bDuplicateFrame.enabled),
@@ -59,7 +59,7 @@ namespace WaveTracker.UI {
                         new MenuOption("Increase Pattern",App.PatternEditor.IncreaseFramePatternIndex),
                         new MenuOption("Decrease Pattern",App.PatternEditor.DecreaseFramePatternIndex),
                         new MenuOption("Set pattern...",SetPatternIndex)
-                    }));
+                    ]));
                     }
                     if (!Input.GetClick(KeyModifier._Any)) {
                         if (Input.MouseScrollWheel(KeyModifier.None) < 0) {

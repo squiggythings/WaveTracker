@@ -44,10 +44,9 @@ namespace WaveTracker {
         FramesPanel frameView;
         public Toolbar toolbar;
         int lastPianoKey;
-        public static Song newSong;
         public static int pianoInput;
-        public static int mouseCursorArrow;
-        public static bool VisualizerMode;
+        public static int MouseCursorArrow { get; set; }
+        public static bool VisualizerMode { get; set; }
         public static Visualization visualization;
         string filename;
         public static PatternEditor PatternEditor { get; private set; }
@@ -95,11 +94,11 @@ namespace WaveTracker {
             //Settings = new SettingsProfile();
             if (!Directory.Exists(SaveLoad.ThemeFolderPath)) {
                 Directory.CreateDirectory(SaveLoad.ThemeFolderPath);
-                File.WriteAllText(Path.Combine(SaveLoad.ThemeFolderPath, "default.wttheme"), ColorTheme.CreateString(ColorTheme.Default));
-                File.WriteAllText(Path.Combine(SaveLoad.ThemeFolderPath, "famitracker.wttheme"), ColorTheme.CreateString(ColorTheme.Famitracker));
-                //File.WriteAllText(Path.Combine(SaveLoad.ThemeFolderPath, "bambootracker"), ColorTheme.CreateString(ColorTheme.BambooTracker));
-                //File.WriteAllText(Path.Combine(SaveLoad.ThemeFolderPath, "openMPT"), ColorTheme.CreateString(ColorTheme.OpenMPT));
-                File.WriteAllText(Path.Combine(SaveLoad.ThemeFolderPath, "neon.wttheme"), ColorTheme.CreateString(ColorTheme.Neon));
+                File.WriteAllText(Path.Combine(SaveLoad.ThemeFolderPath, "Default.wttheme"), ColorTheme.CreateString(ColorTheme.Default));
+                File.WriteAllText(Path.Combine(SaveLoad.ThemeFolderPath, "Famitracker.wttheme"), ColorTheme.CreateString(ColorTheme.Famitracker));
+                File.WriteAllText(Path.Combine(SaveLoad.ThemeFolderPath, "Fruity.wttheme"), ColorTheme.CreateString(ColorTheme.Fruity));
+                File.WriteAllText(Path.Combine(SaveLoad.ThemeFolderPath, "OpenMPT.wttheme"), ColorTheme.CreateString(ColorTheme.OpenMPT));
+                File.WriteAllText(Path.Combine(SaveLoad.ThemeFolderPath, "Neon.wttheme"), ColorTheme.CreateString(ColorTheme.Neon));
             }
             Input.Intialize();
             Settings = SettingsProfile.ReadFromDisk();
@@ -139,24 +138,24 @@ namespace WaveTracker {
             MenuStrip = new MenuStrip(0, 0, 960, null);
             MenuStrip.AddButton("File", SaveLoad.CreateFileMenu);
             MenuStrip.AddButton("Edit", PatternEditor.CreateEditMenu);
-            MenuStrip.AddButton("Song", new Menu(new MenuItemBase[] {
+            MenuStrip.AddButton("Song", new Menu([
                 new MenuOption("Insert frame", PatternEditor.InsertNewFrame),
                 new MenuOption("Remove frame", PatternEditor.RemoveFrame),
                 new MenuOption("Duplicate frame", PatternEditor.DuplicateFrame),
                 null,
                 new MenuOption("Move frame left", PatternEditor.MoveFrameLeft),
                 new MenuOption("Move frame right", PatternEditor.MoveFrameRight),
-            }));
-            MenuStrip.AddButton("Module", new Menu(new MenuItemBase[] {
+            ]));
+            MenuStrip.AddButton("Module", new Menu([
                 new MenuOption("Module Settings", Dialogs.moduleSettings.Open),
                 null,
-                new SubMenu("Cleanup", new MenuItemBase[] {
+                new SubMenu("Cleanup", [
                         new MenuOption("Remove unused instruments", CurrentModule.RemoveUnusedInstruments),
                         new MenuOption("Remove unused waves", CurrentModule.RemoveUnusedWaves),
-                })
-            }));
+                ])
+            ]));
             MenuStrip.AddButton("Instrument", InstrumentBank.CreateInstrumentMenu);
-            MenuStrip.AddButton("Tracker", new Menu(new MenuItemBase[] {
+            MenuStrip.AddButton("Tracker", new Menu([
                 new MenuOption("Play", Playback.Play),
                 new MenuOption("Play from beginning", Playback.PlayFromBeginning),
                 new MenuOption("Play from cursor", Playback.PlayFromCursor),
@@ -169,7 +168,7 @@ namespace WaveTracker {
                 null,
                 new MenuOption("Solo channel", ChannelManager.SoloCurrentChannel),
 
-            }));
+            ]));
 
             base.Initialize();
 
@@ -218,12 +217,12 @@ namespace WaveTracker {
                 int width = Window.ClientBounds.Width - 2;
                 int height = Window.ClientBounds.Height - 2;
                 if (new Rectangle(1, 1, width, height).Contains(mouseX, mouseY))
-                    if (mouseCursorArrow == 0) {
+                    if (MouseCursorArrow == 0) {
                         Mouse.SetCursor(MouseCursor.Arrow);
                     }
                     else {
                         Mouse.SetCursor(MouseCursor.SizeNS);
-                        mouseCursorArrow--;
+                        MouseCursorArrow--;
                     }
             }
 
@@ -271,7 +270,7 @@ namespace WaveTracker {
             //if (!ChannelManager.previewChannel.waveEnv.toPlay.IsActive)
             //    ChannelManager.previewChannel.SetWave(WaveBank.lastSelectedWave);
 
-            Playback.Update(gameTime);
+            Playback.Update();
 
 
             if (!VisualizerMode) {
@@ -408,7 +407,7 @@ namespace WaveTracker {
         /// </summary>
         public static void ExitApplication() {
             System.Windows.Forms.Form form = (System.Windows.Forms.Form)System.Windows.Forms.Control.FromHandle(instance.Window.Handle);
-            
+
             form.Close();
         }
 

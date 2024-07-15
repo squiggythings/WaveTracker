@@ -32,9 +32,9 @@ namespace WaveTracker.Tracker {
 
         public float _baseFrequency { get; private set; }
         [ProtoMember(8)]
-        public short[] sampleDataAccessL = new short[0];
+        public short[] sampleDataAccessL = [];
         [ProtoMember(9)]
-        public short[] sampleDataAccessR = new short[0];
+        public short[] sampleDataAccessR = [];
         public int Length { get { return sampleDataAccessL.Length; } }
         public bool IsStereo { get { return sampleDataAccessR.Length > 0; } }
         [ProtoMember(10)]
@@ -44,8 +44,8 @@ namespace WaveTracker.Tracker {
             loopPoint = 0;
 
             useInVisualization = false;
-            sampleDataAccessL = new short[0];
-            sampleDataAccessR = new short[0];
+            sampleDataAccessL = [];
+            sampleDataAccessR = [];
             loopType = LoopType.OneShot;
             resampleMode = App.Settings.SamplesWaves.DefaultResampleModeSample;
             BaseKey = App.Settings.SamplesWaves.DefaultSampleBaseKey;
@@ -160,7 +160,7 @@ namespace WaveTracker.Tracker {
             for (int i = 0; i < Length; ++i) {
                 sampleDataAccessL[i] = (short)(sampleDataAccessL[i] / 2 + sampleDataAccessR[i] / 2);
             }
-            sampleDataAccessR = new short[0];
+            sampleDataAccessR = [];
         }
 
         public void Cut(int start, int end) {
@@ -290,8 +290,7 @@ namespace WaveTracker.Tracker {
         }
 
         public void SaveToDisk() {
-            string filepath;
-            if (!SaveLoad.ChooseExportPath(out filepath)) {
+            if (!SaveLoad.ChooseExportPath(out string filepath)) {
                 return;
             }
             int channels = IsStereo ? 2 : 1;

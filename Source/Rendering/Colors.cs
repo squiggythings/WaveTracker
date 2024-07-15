@@ -40,13 +40,8 @@ namespace WaveTracker {
             Colors.Add("Selection", Helpers.HexCodeToColor("8080ff96"));
 
             Colors.Add("Current row (default)", Helpers.HexCodeToColor("1b3782"));
-            Colors.Add("Current row empty dashes (default)", Helpers.HexCodeToColor("2a539c"));
-
             Colors.Add("Current row (editing)", Helpers.HexCodeToColor("6d1d4e"));
-            Colors.Add("Current row empty dashes (editing)", Helpers.HexCodeToColor("a2276b"));
-
             Colors.Add("Playback row", Helpers.HexCodeToColor("311f58"));
-            Colors.Add("Playback row empty dashes", Helpers.HexCodeToColor("3e2e65"));
 
             Colors.Add("Channel separator", Helpers.HexCodeToColor("313859"));
             System.Diagnostics.Debug.WriteLine("created default colors" + this);
@@ -75,13 +70,8 @@ namespace WaveTracker {
                 ret["Selection"] = Helpers.HexCodeToColor("867df296");
 
                 ret["Current row (default)"] = Helpers.HexCodeToColor("3020a0");
-                ret["Current row empty dashes (default)"] = Helpers.HexCodeToColor("4131b1");
-
                 ret["Current row (editing)"] = Helpers.HexCodeToColor("802030");
-                ret["Current row empty dashes (editing)"] = Helpers.HexCodeToColor("913141");
-
                 ret["Playback row"] = Helpers.HexCodeToColor("500040");
-                ret["Playback row empty dashes"] = Helpers.HexCodeToColor("611151");
 
                 ret["Channel separator"] = Helpers.HexCodeToColor("606060");
                 return ret;
@@ -93,9 +83,9 @@ namespace WaveTracker {
         public static ColorTheme Neon {
             get {
                 ColorTheme ret = new ColorTheme();
-                ret["Row background (primary highlight)"] = Helpers.HexCodeToColor("48386a");
-                ret["Row background (secondary highlight)"] = Helpers.HexCodeToColor("362d4e");
-                ret["Row background"] = Helpers.HexCodeToColor("272336");
+                ret["Row background (primary highlight)"] = Helpers.HexCodeToColor("4b1d73");
+                ret["Row background (secondary highlight)"] = Helpers.HexCodeToColor("351557");
+                ret["Row background"] = Helpers.HexCodeToColor("2e0845");
 
                 ret["Row text (primary highlight)"] = Helpers.HexCodeToColor("ffffff");
                 ret["Row text (secondary highlight)"] = Helpers.HexCodeToColor("ffffff");
@@ -112,13 +102,8 @@ namespace WaveTracker {
                 ret["Selection"] = Helpers.HexCodeToColor("ff7a6d80");
 
                 ret["Current row (default)"] = Helpers.HexCodeToColor("1152a8");
-                ret["Current row empty dashes (default)"] = Helpers.HexCodeToColor("3f59a3");
-
                 ret["Current row (editing)"] = Helpers.HexCodeToColor("692744");
-                ret["Current row empty dashes (editing)"] = Helpers.HexCodeToColor("8a3366");
-
                 ret["Playback row"] = Helpers.HexCodeToColor("000000");
-                ret["Playback row empty dashes"] = Helpers.HexCodeToColor("b4b4b4");
 
                 ret["Channel separator"] = Helpers.HexCodeToColor("80808040");
                 return ret;
@@ -159,43 +144,7 @@ namespace WaveTracker {
             return theme;
         }
 
-        //public static ColorTheme Default {
-
-        //    get {
-        //        ColorTheme ret = new ColorTheme();
-
-        //        ret.background = Helpers.HexCodeToColor("14182e");
-        //        ret.backgroundHighlighted = new(33, 40, 64);
-        //        ret.backgroundSubHighlight = new(26, 31, 54);
-
-        //        ret.patternText = Color.White;
-        //        ret.patternTextHighlighted = new(202, 245, 254);
-        //        ret.patternTextSubHighlight = new(187, 215, 254);
-        //        ret.patternTextEmptyMultiply = new(255, 255, 255, 18);
-
-        //        ret.instrumentColumnWave = new(90, 234, 61);
-        //        ret.instrumentColumnSample = new(255, 153, 50);
-        //        ret.volumeColumn = new(80, 233, 230);
-        //        ret.effectColumn = new(255, 82, 119);
-        //        ret.effectColumnParameter = new(255, 208, 208);
-
-        //        ret.selection = new(128, 128, 255, 150);
-        //        ret.cursor = new(126, 133, 168);
-
-        //        ret.rowCursorColor = new(27, 55, 130);
-        //        ret.rowCursorText = new(42, 83, 156);
-
-        //        ret.rowEditColor = new(109, 29, 78);
-        //        ret.rowEditText = new(162, 39, 107);
-
-        //        ret.rowPlaybackColor = new(42, 29, 81);
-        //        ret.rowPlaybackText = new(60, 37, 105);
-
-        //        ret.channelSeparator = new(49, 56, 89);
-
-        //        return ret;
-        //    }
-        //}
+       
         //public static ColorTheme Material {
 
         //    get {
@@ -272,43 +221,68 @@ namespace WaveTracker {
         //    }
         //}
 
-        //public static ColorTheme OpenMPT {
+        public static ColorTheme OpenMPT {
 
-        //    get {
-        //        ColorTheme ret = new ColorTheme();
+            get {
+                ColorTheme ret = new ColorTheme(); 
+                ret["Row background (primary highlight)"] = Helpers.HexCodeToColor("e0e8e0");
+                ret["Row background (secondary highlight)"] = Helpers.HexCodeToColor("f2f6f2");
+                ret["Row background"] = Helpers.HexCodeToColor("ffffff");
 
-        //        ret.background = Helpers.HexCodeToColor("ffffff");
-        //        ret.backgroundHighlighted = Helpers.HexCodeToColor("f2f6f2");
-        //        ret.backgroundSubHighlight = Helpers.HexCodeToColor("e0e8e0");
+                ret["Row text (primary highlight)"] = Helpers.HexCodeToColor("000080");
+                ret["Row text (secondary highlight)"] = Helpers.HexCodeToColor("000080");
+                ret["Row text"] = Helpers.HexCodeToColor("000080");
+                ret["Empty dashes tint"] = Helpers.HexCodeToColor("ffffff80");
 
-        //        ret.patternText = Helpers.HexCodeToColor("000080");
-        //        ret.patternTextHighlighted = Helpers.HexCodeToColor("000080");
-        //        ret.patternTextSubHighlight = Helpers.HexCodeToColor("000080");
-        //        ret.patternTextEmptyMultiply = new(255, 255, 255, 255);
+                ret["Instrument (wave)"] = Helpers.HexCodeToColor("008080");
+                ret["Instrument (sample)"] = Helpers.HexCodeToColor("008080");
+                ret["Volume"] = Helpers.HexCodeToColor("008000");
+                ret["Effect"] = Helpers.HexCodeToColor("800000");
+                ret["Effect parameter"] = Helpers.HexCodeToColor("800000");
 
-        //        ret.instrumentColumnWave = Helpers.HexCodeToColor("008080");
-        //        ret.instrumentColumnSample = Helpers.HexCodeToColor("008080");
-        //        ret.volumeColumn = Helpers.HexCodeToColor("008000");
-        //        ret.effectColumn = Helpers.HexCodeToColor("800000");
-        //        ret.effectColumnParameter = ret.effectColumn;
+                ret["Cursor"] = Helpers.HexCodeToColor("8080ff");
+                ret["Selection"] = Helpers.HexCodeToColor("8080ff");
 
-        //        ret.selection = Helpers.HexCodeToColor("8080ff");
-        //        ret.cursor = Helpers.HexCodeToColor("8080ff");
+                ret["Current row (default)"] = Helpers.HexCodeToColor("7cc2f1");
+                ret["Current row (editing)"] = Helpers.HexCodeToColor("d692b5");
+                ret["Playback row"] = Helpers.HexCodeToColor("ffff80");
 
-        //        ret.rowCursorColor = Helpers.HexCodeToColor("c0c0c0");
-        //        ret.rowCursorText = Helpers.HexCodeToColor("000000");
+                ret["Channel separator"] = Helpers.HexCodeToColor("a0a0a0");
 
-        //        ret.rowEditColor = Helpers.HexCodeToColor("c0c0c0");
-        //        ret.rowEditText = Helpers.HexCodeToColor("000000");
+                return ret;
+            }
+        }
+        public static ColorTheme Fruity {
 
-        //        ret.rowPlaybackColor = Helpers.HexCodeToColor("ffff80");
-        //        ret.rowPlaybackText = Helpers.HexCodeToColor("000000");
+            get {
+                ColorTheme ret = new ColorTheme(); 
+                ret["Row background (primary highlight)"] = Helpers.HexCodeToColor("22323c");
+                ret["Row background (secondary highlight)"] = Helpers.HexCodeToColor("2b3b45");
+                ret["Row background"] = Helpers.HexCodeToColor("34444e");
 
-        //        ret.channelSeparator = Helpers.HexCodeToColor("a0a0a0");
+                ret["Row text (primary highlight)"] = Helpers.HexCodeToColor("a1d6d0");
+                ret["Row text (secondary highlight)"] = Helpers.HexCodeToColor("9fd3ba");
+                ret["Row text"] = Helpers.HexCodeToColor("9ed1a5");
+                ret["Empty dashes tint"] = Helpers.HexCodeToColor("ffffff0c");
 
-        //        return ret;
-        //    }
-        //}
+                ret["Instrument (wave)"] = Helpers.HexCodeToColor("d4c1a0");
+                ret["Instrument (sample)"] = Helpers.HexCodeToColor("d6afa2");
+                ret["Volume"] = Helpers.HexCodeToColor("a8a7de");
+                ret["Effect"] = Helpers.HexCodeToColor("d28bcb");
+                ret["Effect parameter"] = Helpers.HexCodeToColor("ebcce7");
+
+                ret["Cursor"] = Helpers.HexCodeToColor("81796b");
+                ret["Selection"] = Helpers.HexCodeToColor("fea7592a");
+
+                ret["Current row (default)"] = Helpers.HexCodeToColor("485066");
+                ret["Current row (editing)"] = Helpers.HexCodeToColor("5d4b5b");
+                ret["Playback row"] = Helpers.HexCodeToColor("414e44");
+
+                ret["Channel separator"] = Helpers.HexCodeToColor("263640");
+
+                return ret;
+            }
+        }
         //public static ColorTheme BambooTracker {
 
         //    get {

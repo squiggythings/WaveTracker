@@ -101,13 +101,6 @@ namespace WaveTracker {
             };
         }
 
-        /// <summary>
-        /// OUTDATED - do not use
-        /// </summary>
-        public static bool isEffectFrameTerminator(int num) {
-            return num >= 20 && num <= 22;
-        }
-
         public static int GetWidthOfText(string text) {
             int ret = 0;
             string alphabet = " 0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz!@#$%^&*()_+-={}[]\\|'\":;?/>.<,~`©àèìòùÀÈÌÒÙáéíóúýÁÉÍÓÚÝâêîôûÂÊÎÔÛãñõÃÑÕäëïöüÿÄËÏÖÜŸæçÇ";
@@ -567,8 +560,8 @@ namespace WaveTracker {
                 R = RChannel.ToArray();
                 return true;
             } catch {
-                L = new short[] { };
-                R = new short[] { };
+                L = [];
+                R = [];
                 fileSampleRate = 44100;
                 return false;
             }
@@ -624,7 +617,7 @@ namespace WaveTracker {
             return v1;
         }
         public static Color HexCodeToColor(string hexCode) {
-            if (hexCode.StartsWith("#")) {
+            if (hexCode.StartsWith('#')) {
                 hexCode = hexCode.Substring(1);
             }
             byte[] bytes = Convert.FromHexString(hexCode.ToUpper());

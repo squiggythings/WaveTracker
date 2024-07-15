@@ -390,9 +390,7 @@ namespace WaveTracker.Tracker {
                     rows++;
                     row++;
                 }
-                int nextFrame;
-                int nextRow;
-                this[frame].GetNextPlaybackPosition(frame, out nextFrame, out nextRow);
+                this[frame].GetNextPlaybackPosition(frame, out int nextFrame, out int nextRow);
                 if (nextFrame <= frame) {
                     loops--;
                 }

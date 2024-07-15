@@ -191,7 +191,7 @@ namespace WaveTracker {
         }
 
         public static Menu CreateFileMenu() {
-            return new Menu(new MenuItemBase[] {
+            return new Menu([
                 new MenuOption("New", NewFile),
                 new MenuOption("Open...", OpenFile),
                 new MenuOption("Save", SaveFileVoid),
@@ -204,12 +204,12 @@ namespace WaveTracker {
                 new SubMenu("Recent Files", CreateRecentFilesMenu()),
                 null,
                 new MenuOption("Exit", App.ExitApplication),
-            });
+            ]);
         }
 
         static MenuItemBase[] CreateRecentFilesMenu() {
             if (recentFilePaths.Count == 0) {
-                return new MenuItemBase[] { new MenuOption("Clear", recentFilePaths.Clear) };
+                return [new MenuOption("Clear", recentFilePaths.Clear)];
             }
             else {
                 MenuItemBase[] menu = new MenuItemBase[recentFilePaths.Count + 2];
@@ -224,13 +224,11 @@ namespace WaveTracker {
 
         public static void ReadRecentFiles() {
             recentFilePaths = new List<string>();
-            recentFilePaths = ReadPaths("recent", new string[] { }).ToList();
+            recentFilePaths = ReadPaths("recent", []).ToList();
         }
 
         public static void AddPathToRecentFiles(string path) {
-            if (recentFilePaths.Contains(path)) {
-                recentFilePaths.Remove(path);
-            }
+            recentFilePaths.Remove(path);
             recentFilePaths.Insert(0, path);
             if (recentFilePaths.Count > MAX_RECENT_FILES) {
                 recentFilePaths.RemoveAt(recentFilePaths.Count - 1);
@@ -332,7 +330,7 @@ namespace WaveTracker {
             Dialogs.messageDialog.Open(
                     "Save changes to " + FileName + "?",
                     MessageDialog.Icon.Question,
-                    new string[] { "Yes", "No", "Cancel" },
+                    ["Yes", "No", "Cancel"],
                     callback
                     );
         }
