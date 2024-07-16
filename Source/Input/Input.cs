@@ -184,7 +184,6 @@ namespace WaveTracker {
         }
 
         public static void ProcessTextInput(object sender, TextInputEventArgs e) {
-            Debug.WriteLine(e.Key);
         }
 
         public static bool GetKey(Keys key, KeyModifier modifier) {

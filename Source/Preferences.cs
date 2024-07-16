@@ -37,7 +37,6 @@ namespace WaveTracker {
             //    var serializer = new XmlSerializer(typeof(PreferenceProfile));
             //    serializer.Serialize(writer, profile);
             //    writer.Flush();
-            //    Debug.WriteLine("Saved settings to: " + settingspath);
             //}
         }
 

@@ -144,13 +144,11 @@ namespace WaveTracker.Tracker {
             SetPatternsDirty();
             patternsAsStrings = PackPatternsToStrings();
             frameSequence = GetFrameSequenceAsByteArray();
-            Debug.WriteLine(patternsAsStrings);
             return;
 
         }
         public void AfterDeserialized(WTModule parent) {
             ParentModule = parent;
-            Debug.WriteLine("read cell data: chancount: " + ParentModule.ChannelCount);
             UnpackFrameSequence(frameSequence);
             UnpackPatternsFromStrings(patternsAsStrings);
         }

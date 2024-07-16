@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using WaveTracker.Tracker;
 using WaveTracker.UI;
 using NAudio.Dsp;
+using SharpDX.XAPO.Fx;
 
 namespace WaveTracker.Audio {
     public static class AudioEngine {
@@ -30,7 +31,7 @@ namespace WaveTracker.Audio {
         public static MMDeviceCollection OutputDevices { get; private set; }
         public static string[] OutputDeviceNames { get; private set; }
         static BiQuadFilter antialiasingFilterL, antialiasingFilterR;
-
+        static ReverbLine delayL, delayR;
         static Provider audioProvider;
 
 
@@ -53,6 +54,9 @@ namespace WaveTracker.Audio {
             currentBuffer = new float[2, PreviewBufferLength];
             audioProvider = new Provider();
             SetSampleRate(App.Settings.Audio.SampleRate, App.Settings.Audio.Oversampling);
+
+            delayL = new ReverbLine(0.995f, 2f);
+            delayR = new ReverbLine(0.995f, 2f);
             GetAudioOutputDevices();
             int index = Array.IndexOf(OutputDeviceNames, App.Settings.Audio.OutputDevice);
             if (index < 1) {
@@ -113,7 +117,6 @@ namespace WaveTracker.Audio {
 
 
         public static async void RenderTo(string filepath, int maxloops, bool individualStems) {
-            //Debug.WriteLine("Total Rows with " + maxloops + " loops: " + Song.currentSong.GetNumberOfRows(maxloops));
             renderTotalRows = App.CurrentSong.GetNumberOfRows(maxloops);
             if (!SaveLoad.ChooseExportPath(out filepath)) {
                 return;
@@ -190,6 +193,9 @@ namespace WaveTracker.Audio {
                         buffer[n + offset] = antialiasingFilterL.Transform(leftSum);
                         buffer[n + offset + 1] = antialiasingFilterR.Transform(rightSum);
                     }
+
+                    buffer[n + offset] = delayL.Transform(buffer[n + offset]);
+                    buffer[n + offset + 1] = delayR.Transform(buffer[n + offset + 1]);
                     //buffer[n + offset] = leftSum;
                     //buffer[n + offset + 1] = rightSum;
 

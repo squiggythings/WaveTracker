@@ -33,8 +33,10 @@ namespace WaveTracker.UI {
             step.Update();
             highlightPrimary.Update();
             highlightSecondary.Update();
-            if (octave.ValueWasChangedInternally)
+            if (octave.ValueWasChangedInternally) {
                 App.PatternEditor.CurrentOctave = octave.Value;
+                PianoInput.ClearAllNotes();
+            }
             else
                 octave.Value = App.PatternEditor.CurrentOctave;
 

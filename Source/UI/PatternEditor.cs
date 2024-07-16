@@ -198,10 +198,14 @@ namespace WaveTracker.UI {
             int rightMargin = 156;
             width = App.WindowWidth - x - rightMargin - 1;
             #region change octave
-            if (App.Shortcuts["General\\Decrease octave"].IsPressedRepeat)
+            if (App.Shortcuts["General\\Decrease octave"].IsPressedRepeat) {
                 CurrentOctave--;
-            if (App.Shortcuts["General\\Increase octave"].IsPressedRepeat)
+                PianoInput.ClearAllNotes();
+            }
+            if (App.Shortcuts["General\\Increase octave"].IsPressedRepeat) {
                 CurrentOctave++;
+                PianoInput.ClearAllNotes();
+            }
             CurrentOctave = Math.Clamp(CurrentOctave, 0, 9);
             #endregion
 
@@ -1247,7 +1251,6 @@ namespace WaveTracker.UI {
         /// Resets the cursor position and view to the beginning of the song, and clears undo history
         /// </summary>
         public void OnSwitchSong() {
-            //Debug.WriteLine("switch song");
             if (Playback.IsPlaying) {
                 Playback.Stop();
                 Playback.PlayFromBeginning();

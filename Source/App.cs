@@ -21,7 +21,7 @@ using System.IO;
 namespace WaveTracker {
     public class App : Game {
         static App instance;
-        public const string VERSION = "0.2.1";
+        public const string VERSION = "0.3.1";
 
         private GraphicsDeviceManager graphics;
         private SpriteBatch targetBatch;
@@ -85,13 +85,10 @@ namespace WaveTracker {
             Window.AllowAltF4 = true;
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
-            //Preferences.profile = PreferenceProfile.DefaultProfile;
-            //Preferences.ReadFromFile();
-            //frameRenderer = new FrameRenderer();
+
             System.Windows.Forms.Form form = (System.Windows.Forms.Form)System.Windows.Forms.Control.FromHandle(Window.Handle);
             form.WindowState = System.Windows.Forms.FormWindowState.Maximized;
             form.FormClosing += ClosingForm;
-            //Settings = new SettingsProfile();
             if (!Directory.Exists(SaveLoad.ThemeFolderPath)) {
                 Directory.CreateDirectory(SaveLoad.ThemeFolderPath);
                 File.WriteAllText(Path.Combine(SaveLoad.ThemeFolderPath, "Default.wttheme"), ColorTheme.CreateString(ColorTheme.Default));
@@ -101,10 +98,9 @@ namespace WaveTracker {
                 File.WriteAllText(Path.Combine(SaveLoad.ThemeFolderPath, "Neon.wttheme"), ColorTheme.CreateString(ColorTheme.Neon));
             }
             Input.Intialize();
+            
             Settings = SettingsProfile.ReadFromDisk();
-            //Settings.Appearance.Theme = ColorTheme.FromString()
             SaveLoad.ReadRecentFiles();
-            MidiInput.ReadMidiDevices();
         }
 
         /// <summary>
@@ -125,6 +121,8 @@ namespace WaveTracker {
             InstrumentBank.Initialize();
             InstrumentEditor = new InstrumentEditor();
             Dialogs.Initialize();
+            PianoInput.Initialize();
+            PianoInput.ReadMidiDevices();
             EditSettings = new EditSettings(312, 18 + MENUSTRIP_HEIGHT);
             toolbar = new Toolbar(2, 0 + MENUSTRIP_HEIGHT);
             WaveEditor = new WaveEditor();
@@ -197,7 +195,7 @@ namespace WaveTracker {
 
             if (IsActive) {
                 Input.GetState(gameTime);
-                MidiInput.GetInput();
+                PianoInput.Update();
             }
             else {
                 Input.windowFocusTimer = 5;
@@ -240,12 +238,7 @@ namespace WaveTracker {
             lastPianoKey = pianoInput;
             pianoInput = -1;
             if (Input.focus == null || WaveEditor.IsOpen || InstrumentEditor.IsOpen) {
-                if (MidiInput.GetMidiNote > -1) {
-                    pianoInput = MidiInput.GetMidiNote;
-                }
-                else {
-
-                }
+                pianoInput = PianoInput.CurrentNote;
                 pianoInput = Helpers.GetPianoInput(PatternEditor.CurrentOctave);
             }
             if (WaveEditor.GetPianoMouseInput() > -1)
@@ -255,10 +248,10 @@ namespace WaveTracker {
 
             if (pianoInput >= 0 && lastPianoKey != pianoInput) {
                 if (PatternEditor.cursorPosition.Column == CursorColumnType.Note || WaveEditor.IsOpen || InstrumentEditor.IsOpen) {
-                    if (!Playback.IsPlaying)
-                        AudioEngine.ResetTicks();
-                    ChannelManager.previewChannel.SetMacro(InstrumentBank.CurrentInstrumentIndex);
-                    ChannelManager.previewChannel.TriggerNote(pianoInput);
+                    //if (!Playback.IsPlaying)
+                    //    AudioEngine.ResetTicks();
+                    //ChannelManager.previewChannel.SetMacro(InstrumentBank.CurrentInstrumentIndex);
+                    //ChannelManager.previewChannel.TriggerNote(pianoInput);
                 }
             }
             if (pianoInput < 0 && lastPianoKey != pianoInput) {
@@ -352,11 +345,11 @@ namespace WaveTracker {
             DropdownButton.DrawCurrentMenu();
             ContextMenu.Draw();
             Tooltip.Draw();
-            //if (MidiInput.currentlyHeldDownNotes != null) {
-            //    for (int i = 0; i < MidiInput.currentlyHeldDownNotes.Count; ++i) {
-            //        Graphics.Write("note: " + Helpers.MIDINoteToText(MidiInput.currentlyHeldDownNotes[i]) + " " + (int)(99 * (MidiInput.GetVelocity / 127f)), 20, 20 + i * 10, Color.Red);
-            //    }
-            //}
+            if (PianoInput.currentlyHeldDownNotes != null) {
+                for (int i = 0; i < PianoInput.currentlyHeldDownNotes.Count; ++i) {
+                    Graphics.Write("note: " + Helpers.MIDINoteToText(PianoInput.currentlyHeldDownNotes[i]), 20, 20 + (PianoInput.currentlyHeldDownNotes.Count - i) * 10, Color.Red);
+                }
+            }
             //int y = 10;
             //foreach (MMDevice k in audioEngine.devices)
             //{
@@ -368,8 +361,8 @@ namespace WaveTracker {
             //Rendering.Graphics.Write("filename: " + filename, 2, 12, Color.Red);
             //Rendering.Graphics.Write("FPS: " + 1 / gameTime.ElapsedGameTime.TotalSeconds, 2, 2, Color.Red);
 
-            Graphics.Write(MidiInput.GetMidiNote + ", " + pianoInput, 2, 250, Color.Red);
-            Graphics.Write("@" + Input.focus + "", 2, 260, Color.Red);
+            //Graphics.Write(MidiInput.GetMidiNote + ", " + pianoInput, 2, 250, Color.Red);
+            //Graphics.Write("@" + Input.focus + "", 2, 260, Color.Red);
 
             targetBatch.End();
 
@@ -398,7 +391,7 @@ namespace WaveTracker {
         /// </summary>
         public static void ResetAudio() {
             ChannelManager.Reset();
-            MidiInput.ReadMidiDevices();
+            PianoInput.ReadMidiDevices();
             AudioEngine.Reset();
         }
 
@@ -441,7 +434,7 @@ namespace WaveTracker {
         protected override void OnExiting(object sender, EventArgs args) {
             Debug.WriteLine("Closing WaveTracker...");
             AudioEngine.Stop();
-            MidiInput.Stop();
+            PianoInput.StopMIDI();
             SettingsProfile.WriteToDisk(Settings);
             base.OnExiting(sender, args);
         }

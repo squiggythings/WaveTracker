@@ -44,7 +44,6 @@ namespace WaveTracker {
             Colors.Add("Playback row", Helpers.HexCodeToColor("311f58"));
 
             Colors.Add("Channel separator", Helpers.HexCodeToColor("313859"));
-            System.Diagnostics.Debug.WriteLine("created default colors" + this);
         }
 
 
@@ -135,9 +134,7 @@ namespace WaveTracker {
             string[] lines = fileText.Split('\n');
             foreach (string line in lines) {
                 string[] keyValuePair = line.Split('=');
-                System.Diagnostics.Debug.WriteLine(keyValuePair[0]);
                 if (theme.Colors.ContainsKey(keyValuePair[0])) {
-                    System.Diagnostics.Debug.WriteLine(keyValuePair[1]);
                     theme[keyValuePair[0]] = Helpers.HexCodeToColor(keyValuePair[1]);
                 }
             }

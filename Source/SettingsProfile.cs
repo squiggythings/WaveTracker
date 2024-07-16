@@ -249,7 +249,6 @@ namespace WaveTracker {
                 for (int i = 0; i < defaultShortcuts.Count; i++) {
                     Shortcuts.Add(defaultShortcuts.ElementAt(i).Key, defaultShortcuts.ElementAt(i).Value);
                 }
-                System.Diagnostics.Debug.WriteLine("initialized shortcuts");
             }
         }
 

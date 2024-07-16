@@ -114,8 +114,8 @@ namespace WaveTracker.UI {
 
         public new void Open() {
             base.Open();
-            MidiInput.ReadMidiDevices();
-            (pages["MIDI"]["Input device"] as ConfigurationOption.Dropdown).SetMenuItems(MidiInput.MidiDevicesNames);
+            PianoInput.ReadMidiDevices();
+            (pages["MIDI"]["Input device"] as ConfigurationOption.Dropdown).SetMenuItems(PianoInput.MIDIDevicesNames);
 
             string[] audioDeviceOptions = new string[Audio.AudioEngine.OutputDevices.Count + 1];
             audioDeviceOptions[0] = "(default)";
@@ -243,7 +243,7 @@ namespace WaveTracker.UI {
             App.Settings.SamplesWaves.DefaultResampleModeWave = (Audio.ResamplingMode)pages["Samples/Waves"]["Default wave resample mode"].ValueInt;
             App.Settings.SamplesWaves.DefaultResampleModeSample = (Audio.ResamplingMode)pages["Samples/Waves"]["Default sample resample mode"].ValueInt;
 
-            if (!MidiInput.ChangeMidiDevice((pages["MIDI"]["Input device"] as ConfigurationOption.Dropdown).Value)) {
+            if (!PianoInput.SetMIDIDevice((pages["MIDI"]["Input device"] as ConfigurationOption.Dropdown).ValueString)) {
                 pages["MIDI"]["Input device"].ValueInt = 0;
             }
             App.Settings.MIDI.InputDevice = pages["MIDI"]["Input device"].ValueString;
