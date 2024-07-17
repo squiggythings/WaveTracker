@@ -39,9 +39,11 @@ namespace WaveTracker {
             foreach (KeyValuePair<string, int> binding in PianoKeyInputs) {
                 int midiNote = binding.Value + (App.PatternEditor.CurrentOctave + 1) * 12;
                 if (App.Shortcuts[binding.Key].IsPressedDown) {
-                    KeyboardNoteOn(midiNote);
-                    if (App.Shortcuts[binding.Key].IsPressedRepeat) {
-                        //App.PatternEditor.TryInputNote(midiNote);
+                    if (App.PatternEditor.cursorPosition.Column == CursorColumnType.Note) {
+                        KeyboardNoteOn(midiNote);
+                        if (App.Shortcuts[binding.Key].IsPressedRepeat) {
+                            App.PatternEditor.TryToEnterNote(midiNote, null);
+                        }
                     }
                 }
                 if (App.Shortcuts[binding.Key].WasReleasedThisFrame) {

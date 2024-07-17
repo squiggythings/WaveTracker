@@ -55,9 +55,6 @@ namespace WaveTracker.UI {
 
             scrollbar = new Scrollbar(1, 28, width - 1, 367, this);
         }
-        public void Initialize() {
-
-        }
 
         public Menu CreateInstrumentMenu() {
             return new Menu(new MenuItemBase[] {

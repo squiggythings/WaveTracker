@@ -32,6 +32,9 @@ namespace WaveTracker.Audio {
         float panValue = 0.5f;
         bool noteOn;
 
+        float sendAmount;
+        int currentEffectSend;
+
         int arpeggioOffset;
         int arpeggionote2;
         int arpeggionote3;

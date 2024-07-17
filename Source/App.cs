@@ -47,7 +47,8 @@ namespace WaveTracker {
         public static int pianoInput;
         public static int MouseCursorArrow { get; set; }
         public static bool VisualizerMode { get; set; }
-        public static Visualization visualization;
+        public static Visualizer Visualizer { get; set; }
+        //public static Visualization visualization;
         string filename;
         public static PatternEditor PatternEditor { get; private set; }
         public static InstrumentBank InstrumentBank { get; private set; }
@@ -118,8 +119,8 @@ namespace WaveTracker {
             ChannelManager.Initialize(WTModule.MAX_CHANNEL_COUNT, WaveBank);
             PatternEditor = new PatternEditor(0, 184 + MENUSTRIP_HEIGHT);
             InstrumentBank = new InstrumentBank(790, 152 + MENUSTRIP_HEIGHT);
-            InstrumentBank.Initialize();
             InstrumentEditor = new InstrumentEditor();
+            Visualizer = new Visualizer();
             Dialogs.Initialize();
             PianoInput.Initialize();
             PianoInput.ReadMidiDevices();
@@ -130,7 +131,7 @@ namespace WaveTracker {
             SongSettings = new SongSettings(2, 18 + MENUSTRIP_HEIGHT);
             AudioEngine.Initialize();
 
-            visualization = new Visualization();
+            //visualization = new Visualization();
             IsFixedTimeStep = false;
 
             MenuStrip = new MenuStrip(0, 0, 960, null);
@@ -235,6 +236,9 @@ namespace WaveTracker {
                 InstrumentBank.Update();
                 InstrumentEditor.Update();
             }
+            else {
+                Visualizer.Update();
+            }
             lastPianoKey = pianoInput;
             pianoInput = -1;
             if (Input.focus == null || WaveEditor.IsOpen || InstrumentEditor.IsOpen) {
@@ -301,7 +305,7 @@ namespace WaveTracker {
                 AlphaDestinationBlend = Blend.InverseSourceAlpha,
             }, SamplerState.PointClamp, DepthStencilState.Default, RasterizerState.CullNone);
 
-            Rendering.Graphics.batch = targetBatch;
+            Graphics.batch = targetBatch;
 
             if (!VisualizerMode) {
                 // draw frame editor
@@ -329,7 +333,7 @@ namespace WaveTracker {
                 //Rendering.Graphics.DrawRect(Input.lastClickReleaseLocation.X, Input.lastClickReleaseLocation.Y, 1, 1, Color.DarkRed);
             }
             else {
-                visualization.Draw();
+                Visualizer.Draw();
             }
             toolbar.Draw();
             MenuStrip.Draw();
@@ -383,14 +387,14 @@ namespace WaveTracker {
             //render target to back buffer
             targetBatch.Begin(SpriteSortMode.Deferred, BlendState.NonPremultiplied, (Settings.General.ScreenScale % 1) == 0 ? SamplerState.PointClamp : SamplerState.LinearClamp, DepthStencilState.Default, RasterizerState.CullNone);
             targetBatch.Draw(target, new Rectangle(0, 0, GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width * Settings.General.ScreenScale, GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height * Settings.General.ScreenScale), Color.White);
-            if (VisualizerMode && Input.focus == null) {
-                try {
-                    visualization.DrawPiano(visualization.states);
-                } catch {
-                    //visualization.DrawPiano(visualization.statesPrev);
-                }
-                visualization.DrawOscilloscopes();
-            }
+            //if (VisualizerMode && Input.focus == null) {
+            //    try {
+            //        visualization.DrawPiano(visualization.states);
+            //    } catch {
+            //        //visualization.DrawPiano(visualization.statesPrev);
+            //    }
+            //    visualization.DrawOscilloscopes();
+            //}
             targetBatch.End();
 
             base.Draw(gameTime);

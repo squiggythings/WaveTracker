@@ -32,8 +32,7 @@ namespace WaveTracker.Audio {
         static BiQuadFilter antialiasingFilterL, antialiasingFilterR;
         static Provider audioProvider;
         static StereoDelayLine delay;
-        static ReverbLine reverb;
-
+        static StereoDistortion distortion;
 
         static int TickSpeed {
             get {
@@ -57,9 +56,15 @@ namespace WaveTracker.Audio {
 
             //delayL = new ReverbLine(0.995f, 2f);
             //delayR = new ReverbLine(0.995f, 2f);
-            delay = new StereoDelayLine(SamplesPerTick * 16, 0.5f, 1f);
-            delay.PingPong = true;
-            reverb = new ReverbLine();
+            //delay = new StereoDelayLine(SamplesPerTick * 32, 0.6f, 0.5f);
+            //delay.PingPong = true;
+            //reverb = new ReverbLine();
+            //distortion = new StereoDistortion();
+            //distortion.Ratio = 900;
+            //distortion.Threshold = 0.3f;
+            //distortion.WetMix = 1;
+
+
             GetAudioOutputDevices();
             int index = Array.IndexOf(OutputDeviceNames, App.Settings.Audio.OutputDevice);
             if (index < 1) {
@@ -72,6 +77,12 @@ namespace WaveTracker.Audio {
             wasapiOut.Play();
         }
 
+
+        /// <summary>
+        /// Sets the sample rate and oversampling factor. Updates antialiasing filters accordingly.
+        /// </summary>
+        /// <param name="rate"></param>
+        /// <param name="oversampling"></param>
         public static void SetSampleRate(SampleRate rate, int oversampling) {
             SampleRate = SampleRateToInt(rate);
             audioProvider.SetWaveFormat(SampleRate, 2);
@@ -196,7 +207,17 @@ namespace WaveTracker.Audio {
                         buffer[n + offset] = antialiasingFilterL.Transform(leftSum);
                         buffer[n + offset + 1] = antialiasingFilterR.Transform(rightSum);
                     }
-                    reverb.Transform(ref buffer[n + offset], ref buffer[n + offset + 1]);
+                    //distortion.ResetInput();
+                    //distortion.Receive(buffer[n + offset], buffer[n + offset + 1]);
+                    //distortion.Transform();
+                    //buffer[n + offset] = distortion.OutputL;
+                    //buffer[n + offset + 1] = distortion.OutputR;
+                    //delay._ResetCurrent(buffer[n + offset], buffer[n + offset + 1]);
+                    //delay._Send(delay._PeekWetOutput(0) * 0.9f, delay._PeekWetOutput(1) * 0.9f);
+                    //delay._Step(1);
+                    //buffer[n + offset] += delay._PeekWetOutput(0);
+                    //buffer[n + offset + 1] += delay._PeekWetOutput(1);
+                    //delay.Transform(ref buffer[n + offset], ref buffer[n + offset + 1]);
                     //buffer[n + offset] = leftSum;
                     //buffer[n + offset + 1] = rightSum;
 
@@ -215,7 +236,7 @@ namespace WaveTracker.Audio {
 
                     if (App.VisualizerMode && !rendering)
                         if (_tickCounter % (SamplesPerTick / App.Settings.Visualizer.PianoSpeed) == 0) {
-                            App.visualization.Update();
+                            //App.visualization.Update();
                         }
 
                     _tickCounter++;
