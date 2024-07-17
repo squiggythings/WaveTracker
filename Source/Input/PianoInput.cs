@@ -19,8 +19,8 @@ namespace WaveTracker {
     /// </summary>
     public static class PianoInput {
         public static List<int> currentlyHeldDownNotes = new List<int>();
-        static List<int> keyboardNotes = new List<int>();
-        static List<int> midiNotes = new List<int>();
+        public static List<int> keyboardNotes = new List<int>();
+        public static List<int> midiNotes = new List<int>();
         public static int CurrentVelocity { get; private set; }
         public static int CurrentNote { get; private set; }
         static MidiIn MidiIn_ { get; set; }
@@ -30,6 +30,7 @@ namespace WaveTracker {
         public static string[] MIDIDevicesNames { get; private set; }
         public static string CurrentMidiDevice { get; private set; }
         public static void Initialize() {
+            ReadMidiDevices();
             SetMIDIDevice(App.Settings.MIDI.InputDevice);
         }
 
@@ -155,6 +156,9 @@ namespace WaveTracker {
             }
             else {
                 CurrentNote = -1;
+                if (!Playback.IsPlaying)
+                    AudioEngine.ResetTicks();
+                ChannelManager.previewChannel.PreviewCut();
             }
         }
 

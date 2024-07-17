@@ -465,14 +465,14 @@ namespace WaveTracker.UI {
                 foreach (string shortcutName in KeyInputs_Piano.Keys) {
                     if (KeyPress(App.Shortcuts[shortcutName])) {
                         int note = KeyInputs_Piano[shortcutName];
-                        if (note != WTPattern.EVENT_NOTE_CUT && note != WTPattern.EVENT_NOTE_RELEASE)
-                            note += (CurrentOctave + 1) * 12;
-                        CurrentPattern[cursorPosition.Row, cursorPosition.Channel, CellType.Note] = (byte)note;
-                        if (!InstrumentMask) {
-                            CurrentPattern[cursorPosition.Row, cursorPosition.Channel, CellType.Instrument] = (byte)App.InstrumentBank.CurrentInstrumentIndex;
+                        if (note == WTPattern.EVENT_NOTE_CUT && note != WTPattern.EVENT_NOTE_RELEASE) {
+                            CurrentPattern[cursorPosition.Row, cursorPosition.Channel, CellType.Note] = (byte)note;
+                            if (!InstrumentMask) {
+                                CurrentPattern[cursorPosition.Row, cursorPosition.Channel, CellType.Instrument] = (byte)App.InstrumentBank.CurrentInstrumentIndex;
+                            }
+                            MoveToRow(cursorPosition.Row + InputStep);
+                            AddToUndoHistory();
                         }
-                        MoveToRow(cursorPosition.Row + InputStep);
-                        AddToUndoHistory();
                     }
                 }
             }
@@ -1494,6 +1494,18 @@ namespace WaveTracker.UI {
                         }
                     }
                 }
+            }
+        }
+
+
+        public void TryToEnterNote(int note, int? volume) {
+            if (EditMode && cursorPosition.Column == CursorColumnType.Note) {
+                CurrentPattern[cursorPosition.Row, cursorPosition.Channel, CellType.Note] = (byte)note;
+                if (!InstrumentMask) {
+                    CurrentPattern[cursorPosition.Row, cursorPosition.Channel, CellType.Instrument] = (byte)App.InstrumentBank.CurrentInstrumentIndex;
+                }
+                MoveToRow(cursorPosition.Row + InputStep);
+                AddToUndoHistory();
             }
         }
 

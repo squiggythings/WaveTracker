@@ -254,11 +254,11 @@ namespace WaveTracker {
                     //ChannelManager.previewChannel.TriggerNote(pianoInput);
                 }
             }
-            if (pianoInput < 0 && lastPianoKey != pianoInput) {
-                if (!Playback.IsPlaying)
-                    AudioEngine.ResetTicks();
-                ChannelManager.previewChannel.PreviewCut();
-            }
+            //if (pianoInput < 0 && lastPianoKey != pianoInput) {
+            //    if (!Playback.IsPlaying)
+            //        AudioEngine.ResetTicks();
+            //    ChannelManager.previewChannel.PreviewCut();
+            //}
 
             //if (!ChannelManager.previewChannel.waveEnv.toPlay.IsActive)
             //    ChannelManager.previewChannel.SetWave(WaveBank.lastSelectedWave);
@@ -348,6 +348,16 @@ namespace WaveTracker {
             if (PianoInput.currentlyHeldDownNotes != null) {
                 for (int i = 0; i < PianoInput.currentlyHeldDownNotes.Count; ++i) {
                     Graphics.Write("note: " + Helpers.MIDINoteToText(PianoInput.currentlyHeldDownNotes[i]), 20, 20 + (PianoInput.currentlyHeldDownNotes.Count - i) * 10, Color.Red);
+                }
+            }
+            if (PianoInput.midiNotes != null) {
+                for (int i = 0; i < PianoInput.midiNotes.Count; ++i) {
+                    Graphics.Write("note: " + Helpers.MIDINoteToText(PianoInput.midiNotes[i]), 60, 20 + (PianoInput.midiNotes.Count - i) * 10, Color.Red);
+                }
+            }
+            if (PianoInput.keyboardNotes != null) {
+                for (int i = 0; i < PianoInput.keyboardNotes.Count; ++i) {
+                    Graphics.Write("note: " + Helpers.MIDINoteToText(PianoInput.keyboardNotes[i]), 100, 20 + (PianoInput.keyboardNotes.Count - i) * 10, Color.Red);
                 }
             }
             //int y = 10;

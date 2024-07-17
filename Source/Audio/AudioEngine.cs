@@ -10,7 +10,6 @@ using System.Threading.Tasks;
 using WaveTracker.Tracker;
 using WaveTracker.UI;
 using NAudio.Dsp;
-using SharpDX.XAPO.Fx;
 
 namespace WaveTracker.Audio {
     public static class AudioEngine {
@@ -31,8 +30,9 @@ namespace WaveTracker.Audio {
         public static MMDeviceCollection OutputDevices { get; private set; }
         public static string[] OutputDeviceNames { get; private set; }
         static BiQuadFilter antialiasingFilterL, antialiasingFilterR;
-        static ReverbLine delayL, delayR;
         static Provider audioProvider;
+        static StereoDelayLine delay;
+        static ReverbLine reverb;
 
 
         static int TickSpeed {
@@ -55,8 +55,11 @@ namespace WaveTracker.Audio {
             audioProvider = new Provider();
             SetSampleRate(App.Settings.Audio.SampleRate, App.Settings.Audio.Oversampling);
 
-            delayL = new ReverbLine(0.995f, 2f);
-            delayR = new ReverbLine(0.995f, 2f);
+            //delayL = new ReverbLine(0.995f, 2f);
+            //delayR = new ReverbLine(0.995f, 2f);
+            delay = new StereoDelayLine(SamplesPerTick * 16, 0.5f, 1f);
+            delay.PingPong = true;
+            reverb = new ReverbLine();
             GetAudioOutputDevices();
             int index = Array.IndexOf(OutputDeviceNames, App.Settings.Audio.OutputDevice);
             if (index < 1) {
@@ -193,9 +196,7 @@ namespace WaveTracker.Audio {
                         buffer[n + offset] = antialiasingFilterL.Transform(leftSum);
                         buffer[n + offset + 1] = antialiasingFilterR.Transform(rightSum);
                     }
-
-                    buffer[n + offset] = delayL.Transform(buffer[n + offset]);
-                    buffer[n + offset + 1] = delayR.Transform(buffer[n + offset + 1]);
+                    reverb.Transform(ref buffer[n + offset], ref buffer[n + offset + 1]);
                     //buffer[n + offset] = leftSum;
                     //buffer[n + offset + 1] = rightSum;
 
