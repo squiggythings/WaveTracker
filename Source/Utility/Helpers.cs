@@ -314,6 +314,17 @@ namespace WaveTracker {
             return new Color(c.R, c.G, c.B, a);
         }
 
+        /// <summary>
+        /// Sets alpha of color. from 0.0-1.0
+        /// </summary>
+        /// <param name="c"></param>
+        /// <param name="a"></param>
+        /// <returns></returns>
+        public static Color Alpha(Color c, float a) {
+            return new Color(c.R, c.G, c.B, (byte)(a * 255));
+        }
+
+
         public static Color LerpColor(Color a, Color b, float amt) {
             Color c = Color.White;
             c.R = (byte)(a.R + (b.R - a.R) * amt);

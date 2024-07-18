@@ -236,6 +236,7 @@ namespace WaveTracker.Audio {
 
                     if (App.VisualizerMode && !rendering)
                         if (_tickCounter % (SamplesPerTick / App.Settings.Visualizer.PianoSpeed) == 0) {
+                            App.Visualizer.RecordChannelStates();
                             //App.visualization.Update();
                         }
 
