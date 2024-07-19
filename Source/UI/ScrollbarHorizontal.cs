@@ -20,7 +20,6 @@ namespace WaveTracker.UI {
         int barClickOffset;
 
         public bool IsVisible { get { return viewportSize < totalSize; } }
-        public int barWasPressed;
         public ScrollbarHorizontal(int x, int y, int width, int height, Element parent) {
             this.x = x;
             this.y = y;
@@ -39,12 +38,13 @@ namespace WaveTracker.UI {
             bar.Width = (int)(width * (viewportSize / (float)totalSize));
         }
 
-
-
         public void Update() {
             if (InFocus) {
                 if (enabled) {
                     if (IsVisible) {
+                        if (Input.GetClickDown(KeyModifier._Any)) {
+                            lastClickWasOnScrollbar = bar.Contains(LastClickPos);
+                        }
                         if (ClickedDown) {
                             lastClickWasOnScrollbar = bar.Contains(LastClickPos);
                             if (MouseY >= bar.Y && MouseY <= bar.Y + bar.Height) {
@@ -72,13 +72,6 @@ namespace WaveTracker.UI {
                         }
                         UpdateScrollValue();
                     }
-                    if (BarisPressed) {
-                        barWasPressed = 2;
-                    }
-                    else {
-                        if (barWasPressed > 0)
-                            barWasPressed--;
-                    }
                 }
             }
         }
@@ -86,7 +79,6 @@ namespace WaveTracker.UI {
         public void Draw() {
             if (enabled) {
                 if (IsVisible) {
-
                     Color background = UIColors.panel;
                     Color barSpace = UIColors.labelLight;
                     Color barDefault = ButtonColors.Round.backgroundColor;

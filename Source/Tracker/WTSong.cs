@@ -259,8 +259,10 @@ namespace WaveTracker.Tracker {
         public void LoadTicksFromString(string text) {
             List<int> ticks = new List<int>();
             foreach (string word in text.Split(' ')) {
-                if (word.IsNumeric())
-                    ticks.Add(int.Parse(word));
+                if (word.IsNumeric()) {
+                    if (int.TryParse(word, out int val))
+                        ticks.Add(val);
+                }
             }
             if (ticks.Count == 0)
                 ticks.Add(1);

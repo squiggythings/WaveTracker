@@ -62,12 +62,11 @@ namespace WaveTracker {
             public bool ShowRowNumbersInHex { get; set; } = false;
             public bool ShowNoteOffAndReleaseAsText { get; set; } = false;
             public bool FadeVolumeColumn { get; set; } = true;
-            public bool ShowPreviousNextPatterns { get; set; } = true;
+            public bool ShowPreviousNextFrames { get; set; } = true;
             public bool IgnoreStepWhenMoving { get; set; } = true;
             public MoveToNextRowBehavior StepAfterNumericInput { get; set; } = MoveToNextRowBehavior.Always;
             public bool PreviewNotesOnInput { get; set; } = true;
             public bool WrapCursorHorizontally { get; set; } = true;
-            public bool WrapCursorAcrossFrames { get; set; } = true;
             public bool KeyRepeat { get; set; } = true;
             public int PageJumpAmount { get; set; } = 2;
             public bool RestoreChannelState { get; set; } = true;

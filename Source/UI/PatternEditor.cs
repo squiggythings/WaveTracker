@@ -279,10 +279,12 @@ namespace WaveTracker.UI {
             if (Input.GetKeyRepeat(Keys.Left, KeyModifier.None)) {
                 CancelSelection();
                 MoveCursorLeft();
+                MakeCursorVisibleInBounds();
             }
             if (Input.GetKeyRepeat(Keys.Right, KeyModifier.None)) {
                 CancelSelection();
                 MoveCursorRight();
+                MakeCursorVisibleInBounds();
             }
             if (App.Shortcuts["Frame\\Previous frame"].IsPressedRepeat) {
                 CancelSelection();
@@ -295,10 +297,12 @@ namespace WaveTracker.UI {
             if (Input.GetKeyRepeat(Keys.Left, KeyModifier.Alt)) {
                 CancelSelection();
                 MoveToChannel(cursorPosition.Channel - 1);
+                MakeCursorVisibleInBounds();
             }
             if (Input.GetKeyRepeat(Keys.Right, KeyModifier.Alt)) {
                 CancelSelection();
                 MoveToChannel(cursorPosition.Channel + 1);
+                MakeCursorVisibleInBounds();
             }
             if (Input.GetKeyRepeat(Keys.Down, KeyModifier.None)) {
                 CancelSelection();
@@ -314,8 +318,10 @@ namespace WaveTracker.UI {
                 CancelSelection();
             }
             if ((SingleClickedM(KeyModifier._Any) && Input.CurrentModifier != KeyModifier.Shift) && MouseX < channelHeaders[Song.CHANNEL_COUNT - 1].x + width && !Input.MouseJustEndedDragging) {
-                if (MouseX > ROW_COLUMN_WIDTH)
+                if (MouseX > ROW_COLUMN_WIDTH) {
                     cursorPosition = GetCursorPositionFromPoint(MouseX, MouseY);
+                    MakeCursorVisibleInBounds();
+                }
             }
             // scrolling up and down the pattern
             if ((IsHovered && Input.MouseScrollWheel(KeyModifier.None) > 0) || Input.GetKeyRepeat(Keys.PageUp, KeyModifier.None)) {
@@ -334,7 +340,9 @@ namespace WaveTracker.UI {
                     selection.IsActive = true;
                 }
                 MoveCursorLeft();
+                MakeCursorVisibleInBounds();
                 SetSelectionEnd(cursorPosition);
+
             }
             if (Input.GetKeyRepeat(Keys.Right, KeyModifier.Shift)) {
                 if (!SelectionIsActive) {
@@ -342,6 +350,7 @@ namespace WaveTracker.UI {
                     selection.IsActive = true;
                 }
                 MoveCursorRight();
+                MakeCursorVisibleInBounds();
                 SetSelectionEnd(cursorPosition);
             }
             if (Input.GetKeyRepeat(Keys.Left, KeyModifier.ShiftAlt)) {
@@ -350,6 +359,7 @@ namespace WaveTracker.UI {
                     selection.IsActive = true;
                 }
                 MoveToChannel(cursorPosition.Channel - 1);
+                MakeCursorVisibleInBounds();
                 SetSelectionEnd(cursorPosition);
             }
             if (Input.GetKeyRepeat(Keys.Right, KeyModifier.ShiftAlt)) {
@@ -358,6 +368,7 @@ namespace WaveTracker.UI {
                     selection.IsActive = true;
                 }
                 MoveToChannel(cursorPosition.Channel + 1);
+                MakeCursorVisibleInBounds();
                 SetSelectionEnd(cursorPosition);
             }
             if (Input.GetKeyRepeat(Keys.Down, KeyModifier.Shift)) {
@@ -949,7 +960,7 @@ namespace WaveTracker.UI {
             int row = renderCursorPos.Row;
             int length = App.CurrentSong[frame].GetModifiedLength();
             for (int i = NumVisibleLines / 2; i < NumVisibleLines; i++) {
-                if (frameWrap == 0 || App.Settings.PatternEditor.ShowPreviousNextPatterns) {
+                if (frameWrap == 0 || App.Settings.PatternEditor.ShowPreviousNextFrames) {
                     DrawRowBG(i, frame, row, frameWrap);
                 }
                 row++;
@@ -966,7 +977,7 @@ namespace WaveTracker.UI {
             //length = App.CurrentSong[frame].GetModifiedLength();
             frameWrap = 0;
             for (int i = NumVisibleLines / 2; i >= 0; i--) {
-                if (frameWrap == 0 || App.Settings.PatternEditor.ShowPreviousNextPatterns) {
+                if (frameWrap == 0 || App.Settings.PatternEditor.ShowPreviousNextFrames) {
                     DrawRowBG(i, frame, row, frameWrap);
                 }
                 row--;
@@ -988,7 +999,7 @@ namespace WaveTracker.UI {
             row = renderCursorPos.Row;
             length = App.CurrentSong[frame].GetModifiedLength();
             for (int i = NumVisibleLines / 2; i < NumVisibleLines; i++) {
-                if (frameWrap == 0 || App.Settings.PatternEditor.ShowPreviousNextPatterns) {
+                if (frameWrap == 0 || App.Settings.PatternEditor.ShowPreviousNextFrames) {
                     DrawRow(i, frame, row, frameWrap);
                     if (frameWrap != 0)
                         DrawRect(0, i * ROW_HEIGHT, width, ROW_HEIGHT, Helpers.Alpha(App.Settings.Appearance.Theme["Row background"], 180));
@@ -1006,7 +1017,7 @@ namespace WaveTracker.UI {
             row = renderCursorPos.Row;
             frameWrap = 0;
             for (int i = NumVisibleLines / 2; i >= 0; i--) {
-                if (frameWrap == 0 || App.Settings.PatternEditor.ShowPreviousNextPatterns) {
+                if (frameWrap == 0 || App.Settings.PatternEditor.ShowPreviousNextFrames) {
                     DrawRow(i, frame, row, frameWrap);
                     if (frameWrap != 0)
                         DrawRect(0, i * ROW_HEIGHT, width, ROW_HEIGHT, Helpers.Alpha(App.Settings.Appearance.Theme["Row background"], 180));
@@ -1041,6 +1052,7 @@ namespace WaveTracker.UI {
             DrawRect(width + 1, -32, 1, 1, App.Settings.Appearance.Theme["Channel separator"]);
             DrawRect(LastChannelEndPos + 1, 0, width - LastChannelEndPos - 1, height, App.Settings.Appearance.Theme["Row background"]);
             DrawRect(0, channelScrollbar.y, ROW_COLUMN_WIDTH, channelScrollbar.height, UIColors.panel);
+            Write((FirstVisibleChannel + 1) + "," + (LastVisibleChannel) + ";" + (cursorPosition.Channel + 1), 0, 0, Color.Red);
             channelScrollbar.Draw();
         }
         void DrawRow(int line, int frame, int row, int frameWrap) {
@@ -1182,7 +1194,9 @@ namespace WaveTracker.UI {
                 2 or 4 or 6 or 9 or 12 or 15 => 0,
                 _ => 1
             };
-            DrawRect(rect.X + offset, rect.Y, width, ROW_HEIGHT, App.Settings.Appearance.Theme["Cursor"]);
+            if (rect.X + offset > ROW_COLUMN_WIDTH) {
+                DrawRect(rect.X + offset, rect.Y, width, ROW_HEIGHT, App.Settings.Appearance.Theme["Cursor"]);
+            }
             //Write("Chan: " + (position.Channel + 1), rect.X, rect.Y + 10, Color.White);
             //Write("Col: " + position.Column, rect.X, rect.Y + 20, Color.White);
             //Write("Oct: " + CurrentOctave, rect.X, rect.Y + 30, Color.White);
@@ -1299,15 +1313,73 @@ namespace WaveTracker.UI {
         /// Moves the cursor one column to the left
         /// </summary>
         void MoveCursorLeft() {
+            int channel = cursorPosition.Channel;
             cursorPosition.MoveLeft(App.CurrentSong);
+            if (!App.Settings.PatternEditor.WrapCursorHorizontally && cursorPosition.Channel > channel) {
+                cursorPosition.MoveRight(App.CurrentSong);
+            }
         }
 
         /// <summary>
         /// Moves the cursor one column to the right
         /// </summary>
         void MoveCursorRight() {
+            int channel = cursorPosition.Channel;
             cursorPosition.MoveRight(App.CurrentSong);
+            if (!App.Settings.PatternEditor.WrapCursorHorizontally && cursorPosition.Channel < channel) {
+                cursorPosition.MoveLeft(App.CurrentSong);
+            }
         }
+
+        void MakeCursorVisibleInBounds() {
+
+            //int cursorX = GetRectFromCursorPos(ref cursorPosition).X;
+            if (cursorPosition.Channel > LastVisibleChannel - 1) {
+                while (cursorPosition.Channel > LastVisibleChannel - 1) {
+                    FirstVisibleChannel++;
+                    if (FirstVisibleChannel > MaxChannelScroll) {
+                        FirstVisibleChannel = MaxChannelScroll;
+                        break;
+                    }
+                    CalculateChannelPositioning(true);
+                }
+            }
+
+            if (cursorPosition.Channel < FirstVisibleChannel) {
+                while (cursorPosition.Channel < FirstVisibleChannel) {
+                    FirstVisibleChannel--;
+                }
+                CalculateChannelPositioning(true);
+            }
+
+        }
+
+        void MakeCursorPositionVisibleInBounds(ref CursorPos pos) {
+
+            if (pos.Channel > LastVisibleChannel - 1) {
+                while (pos.Channel > LastVisibleChannel - 1) {
+                    FirstVisibleChannel++;
+                    if (FirstVisibleChannel > MaxChannelScroll) {
+                        FirstVisibleChannel = MaxChannelScroll;
+                        break;
+                    }
+                    CalculateChannelPositioning(true);
+                }
+            }
+
+            if (pos.Channel < FirstVisibleChannel) {
+                while (pos.Channel < FirstVisibleChannel) {
+                    FirstVisibleChannel--;
+                    if (FirstVisibleChannel < 0) {
+                        FirstVisibleChannel = 0;
+                        break;
+                    }
+                }
+                CalculateChannelPositioning(true);
+            }
+
+        }
+
 
         /// <summary>
         /// Moves the cursor to the first column of a channel

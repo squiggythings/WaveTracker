@@ -19,7 +19,7 @@ namespace WaveTracker.UI {
             x = 0;
             y = 0;
             piano = new Piano(20, 50, 120 * 2, 120 * 2, this);
-            oscilloscopeGrid = new OscilloscopeGrid();
+            oscilloscopeGrid = new OscilloscopeGrid(this);
         }
 
         public void GetWaveColors() {
@@ -78,13 +78,14 @@ namespace WaveTracker.UI {
 
         public void Update() {
             int scale = App.Settings.Visualizer.DrawInHighResolution ? 2 : 1;
+            x = 0;
+            y = (App.MENUSTRIP_HEIGHT + 15) * scale;
             width = App.Settings.Visualizer.DrawInHighResolution ? App.ClientWindow.ClientBounds.Width : App.WindowWidth;
-            height = App.Settings.Visualizer.DrawInHighResolution ? App.ClientWindow.ClientBounds.Width : App.WindowHeight;
+            height = (App.Settings.Visualizer.DrawInHighResolution ? App.ClientWindow.ClientBounds.Height : App.WindowHeight) - y - 9 * scale;
             piano.x = 20 * scale;
-            piano.y = 40 * scale;
-            piano.width = (int)((App.WindowWidth - 20) / 1.5f) * scale;
-            piano.height = (int)(App.WindowHeight * 0.8f) * scale;
-
+            piano.y = 10 * scale;
+            piano.width = (int)((width - 20) / 1.5f);
+            piano.height = (int)(height * 0.75f);
             oscilloscopeGrid.x = piano.BoundsRight + 5 * scale;
             oscilloscopeGrid.y = piano.y;
             oscilloscopeGrid.width = (width - piano.BoundsRight - 25);
@@ -94,6 +95,7 @@ namespace WaveTracker.UI {
 
         public void Draw() {
             //DrawRect(0, 0, width, height, new Color(255, 0, 0, 128));
+            DrawRect(0, 0, width, height, Color.Black);
             piano.Draw();
             oscilloscopeGrid.Draw();
         }
@@ -284,10 +286,12 @@ namespace WaveTracker.UI {
                         if (App.Settings.Visualizer.OscilloscopeCrosshairs > 1)
                             DrawRect(width / 2, 0, 1, height, new Color(44, 53, 77));
                     }
-                    if (tr) {
-
+                    if (App.Settings.Visualizer.DrawInHighResolution) {
+                        WriteTwiceAsBig(channelID + 1 + "", 6, 4, new Color(126, 133, 168));
                     }
-                    Write(channelID + 1 + "", 3, 2, UIColors.label);
+                    else {
+                        Write(channelID + 1 + "", 3, 2, new Color(126, 133, 168));
+                    }
                     if (channel.IsMuted)
                         return;
                     float scopezoom = 80f / (100f / App.Settings.Visualizer.OscilloscopeZoom);
@@ -338,7 +342,8 @@ namespace WaveTracker.UI {
 
         public class OscilloscopeGrid : Clickable {
             public Oscilloscope[] oscilloscopes;
-            public OscilloscopeGrid() {
+            public OscilloscopeGrid(Element parent) {
+                SetParent(parent);
                 oscilloscopes = new Oscilloscope[ChannelManager.channels.Count];
                 for (int i = 0; i < ChannelManager.channels.Count; ++i) {
                     oscilloscopes[i] = new Oscilloscope(i, this);
