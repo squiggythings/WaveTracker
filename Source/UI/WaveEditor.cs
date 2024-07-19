@@ -477,7 +477,7 @@ namespace WaveTracker.UI {
                         }
                     }
                 }
-                piano.Draw(App.pianoInput);
+                piano.Draw(PianoInput.CurrentNote);
                 Write("Resampling Filter", 413, 205 + 9, UIColors.label);
                 ResampleDropdown.Draw();
                 //MenuStrip.Draw();

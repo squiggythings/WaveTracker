@@ -239,25 +239,31 @@ namespace WaveTracker {
             else {
                 Visualizer.Update();
             }
-            lastPianoKey = pianoInput;
             pianoInput = -1;
-            if (Input.focus == null || WaveEditor.IsOpen || InstrumentEditor.IsOpen) {
-                pianoInput = PianoInput.CurrentNote;
-                pianoInput = Helpers.GetPianoInput(PatternEditor.CurrentOctave);
-            }
             if (WaveEditor.GetPianoMouseInput() > -1)
                 pianoInput = WaveEditor.GetPianoMouseInput();
             if (InstrumentEditor.GetPianoMouseInput() > -1)
                 pianoInput = InstrumentEditor.GetPianoMouseInput();
+            PianoInput.ReceivePreviewPianoInput(pianoInput);
+            //if (Input.focus == null || WaveEditor.IsOpen || InstrumentEditor.IsOpen) {
 
-            if (pianoInput >= 0 && lastPianoKey != pianoInput) {
-                if (PatternEditor.cursorPosition.Column == CursorColumnType.Note || WaveEditor.IsOpen || InstrumentEditor.IsOpen) {
-                    //if (!Playback.IsPlaying)
-                    //    AudioEngine.ResetTicks();
-                    //ChannelManager.previewChannel.SetMacro(InstrumentBank.CurrentInstrumentIndex);
-                    //ChannelManager.previewChannel.TriggerNote(pianoInput);
-                }
-            }
+            //    //                pianoInput = PianoInput.CurrentNote;
+            //    //                pianoInput = Helpers.GetPianoInput(PatternEditor.CurrentOctave);
+            //}
+
+            //if (lastPianoKey != pianoInput) {
+            //    if (pianoInput > 0)
+            //        PianoInput.PreviewNoteOn(pianoInput);
+            //    PianoInput.PreviewNoteOff(lastPianoKey);
+            //    //if (PatternEditor.cursorPosition.Column == CursorColumnType.Note || WaveEditor.IsOpen || InstrumentEditor.IsOpen) {
+            //    //    //if (!Playback.IsPlaying)
+            //    //    //    AudioEngine.ResetTicks();
+            //    //    //ChannelManager.previewChannel.SetMacro(InstrumentBank.CurrentInstrumentIndex);
+            //    //    //ChannelManager.previewChannel.TriggerNote(pianoInput);
+            //    //}
+            //}
+            //else if (pianoInput < 0 && lastPianoKey != pianoInput) {
+            //}
             //if (pianoInput < 0 && lastPianoKey != pianoInput) {
             //    if (!Playback.IsPlaying)
             //        AudioEngine.ResetTicks();

@@ -21,6 +21,7 @@ namespace WaveTracker {
         public static List<int> currentlyHeldDownNotes = new List<int>();
         public static List<int> keyboardNotes = new List<int>();
         public static List<int> midiNotes = new List<int>();
+        static int previewNote;
         public static int CurrentVelocity { get; private set; }
         public static int CurrentNote { get; private set; }
         static MidiIn MidiIn_ { get; set; }
@@ -38,12 +39,12 @@ namespace WaveTracker {
 
             foreach (KeyValuePair<string, int> binding in PianoKeyInputs) {
                 int midiNote = binding.Value + (App.PatternEditor.CurrentOctave + 1) * 12;
-                if (App.Shortcuts[binding.Key].IsPressedDown) {
+                if (App.Shortcuts[binding.Key].IsPressedRepeat) {
                     if (App.PatternEditor.cursorPosition.Column == CursorColumnType.Note) {
-                        KeyboardNoteOn(midiNote);
-                        if (App.Shortcuts[binding.Key].IsPressedRepeat) {
-                            App.PatternEditor.TryToEnterNote(midiNote, null);
+                        if (App.Shortcuts[binding.Key].IsPressedDown) {
+                            KeyboardNoteOn(midiNote);
                         }
+                        App.PatternEditor.TryToEnterNote(midiNote, null);
                     }
                 }
                 if (App.Shortcuts[binding.Key].WasReleasedThisFrame) {
@@ -51,6 +52,17 @@ namespace WaveTracker {
                 }
             }
 
+        }
+
+
+        public static void ReceivePreviewPianoInput(int previewPianoCurrentNote) {
+            if (previewPianoCurrentNote != previewNote) {
+                if (previewPianoCurrentNote >= 0)
+                    OnNoteOnEvent(previewPianoCurrentNote, 99);
+                OnNoteOffEvent(previewNote);
+                previewNote = previewPianoCurrentNote;
+
+            }
         }
 
         /// <summary>
