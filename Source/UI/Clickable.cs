@@ -4,6 +4,9 @@ namespace WaveTracker.UI {
     public abstract class Clickable : Element {
         public int width;
         public int height;
+
+        public int BoundsBottom => y + height;
+        public int BoundsRight => x + width;
         public bool enabled = true;
         public string TooltipText {
             get; private set;

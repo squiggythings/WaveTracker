@@ -489,7 +489,7 @@ namespace WaveTracker.Audio {
         public float EvaluateWave(float time) {
             // float t = time;
             float s = (waveSyncAmt.AdditiveValue / 99f * 8) + 1;
-            time = (s * (time % 1)) % 1;
+            time = s * (time % 1) % 1;
             if (_fmSmooth > 0.001f)
                 return currentWave.GetSampleMorphed(time + App.CurrentModule.WaveBank[(WaveIndex + 1) % 100].GetSampleAtPosition(time) * ((_fmSmooth / 20f) * (_fmSmooth / 20f)) / 2f, App.CurrentModule.WaveBank[(WaveIndex + 1) % 100], WaveMorphPosition, _waveStretchSmooth / 100f);
             else

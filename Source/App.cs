@@ -99,7 +99,7 @@ namespace WaveTracker {
                 File.WriteAllText(Path.Combine(SaveLoad.ThemeFolderPath, "Neon.wttheme"), ColorTheme.CreateString(ColorTheme.Neon));
             }
             Input.Intialize();
-            
+
             Settings = SettingsProfile.ReadFromDisk();
             SaveLoad.ReadRecentFiles();
         }
@@ -333,7 +333,8 @@ namespace WaveTracker {
                 //Rendering.Graphics.DrawRect(Input.lastClickReleaseLocation.X, Input.lastClickReleaseLocation.Y, 1, 1, Color.DarkRed);
             }
             else {
-                Visualizer.Draw();
+                if (!Settings.Visualizer.DrawInHighResolution)
+                    Visualizer.Draw();
             }
             toolbar.Draw();
             MenuStrip.Draw();
@@ -341,7 +342,6 @@ namespace WaveTracker {
             if (!VisualizerMode) {
                 WaveEditor.Draw();
                 InstrumentEditor.Draw();
-
             }
 
             Dialogs.Draw();
@@ -387,14 +387,9 @@ namespace WaveTracker {
             //render target to back buffer
             targetBatch.Begin(SpriteSortMode.Deferred, BlendState.NonPremultiplied, (Settings.General.ScreenScale % 1) == 0 ? SamplerState.PointClamp : SamplerState.LinearClamp, DepthStencilState.Default, RasterizerState.CullNone);
             targetBatch.Draw(target, new Rectangle(0, 0, GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width * Settings.General.ScreenScale, GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height * Settings.General.ScreenScale), Color.White);
-            //if (VisualizerMode && Input.focus == null) {
-            //    try {
-            //        visualization.DrawPiano(visualization.states);
-            //    } catch {
-            //        //visualization.DrawPiano(visualization.statesPrev);
-            //    }
-            //    visualization.DrawOscilloscopes();
-            //}
+            if (VisualizerMode && Input.focus == null && Settings.Visualizer.DrawInHighResolution) {
+                Visualizer.Draw();
+            }
             targetBatch.End();
 
             base.Draw(gameTime);

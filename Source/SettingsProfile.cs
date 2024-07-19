@@ -115,6 +115,7 @@ namespace WaveTracker {
             public int OscilloscopeThickness { get; set; } = 1;
             public int OscilloscopeCrosshairs { get; set; } = 1;
             public bool OscilloscopeBorders { get; set; } = false;
+            public bool DrawInHighResolution { get; set; } = false;
         }
 
 
@@ -127,8 +128,8 @@ namespace WaveTracker {
                 }
             }
             public static readonly Dictionary<string, KeyboardShortcut> defaultShortcuts = new Dictionary<string, KeyboardShortcut>() {
-                {"General\\Increase octave", new KeyboardShortcut(Keys.OemOpenBrackets) },
-                {"General\\Decrease octave", new KeyboardShortcut(Keys.OemCloseBrackets) },
+                {"General\\Increase octave", new KeyboardShortcut(Keys.OemCloseBrackets) },
+                {"General\\Decrease octave", new KeyboardShortcut(Keys.OemOpenBrackets) },
                 {"General\\Play/Stop", new KeyboardShortcut(Keys.Enter) },
                 {"General\\Play from beginning", new KeyboardShortcut(Keys.F5) },
                 {"General\\Play from cursor", new KeyboardShortcut(Keys.Enter, KeyModifier.Alt) },
@@ -148,17 +149,12 @@ namespace WaveTracker {
                 {"General\\Solo channel", new KeyboardShortcut(Keys.F10, KeyModifier.Alt) },
                 {"General\\Reset audio", new KeyboardShortcut(Keys.F12, KeyModifier.None) },
 
-
-
-
-
                 {"Frame\\Previous frame", new KeyboardShortcut(Keys.Left, KeyModifier.Ctrl) },
                 {"Frame\\Next frame", new KeyboardShortcut(Keys.Right, KeyModifier.Ctrl) },
                 {"Frame\\Duplicate frame", new KeyboardShortcut(Keys.D, KeyModifier.Ctrl) },
                 {"Frame\\Remove frame", new KeyboardShortcut() },
                 {"Frame\\Increase pattern value", new KeyboardShortcut() },
                 {"Frame\\Decrease pattern value", new KeyboardShortcut() },
-
 
                 {"Edit\\Undo", new KeyboardShortcut(Keys.Z, KeyModifier.Ctrl) },
                 {"Edit\\Redo", new KeyboardShortcut(Keys.Y, KeyModifier.Ctrl) },
@@ -186,7 +182,6 @@ namespace WaveTracker {
                 {"Pattern\\Coarse increase values", new KeyboardShortcut(Keys.F4, KeyModifier.Shift) },
                 {"Pattern\\Jump to top of frame", new KeyboardShortcut(Keys.Home) },
                 {"Pattern\\Jump to bottom of frame", new KeyboardShortcut(Keys.End) },
-
 
                 {"Piano\\Note off", new KeyboardShortcut(Keys.D1) },
                 {"Piano\\Note release", new KeyboardShortcut(Keys.OemPlus) },

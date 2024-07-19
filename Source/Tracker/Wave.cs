@@ -260,7 +260,7 @@ namespace WaveTracker.Tracker {
             //    //t = (0.5f / s1) * s2 + 0.5f;
             //    //t = Math.Clamp(MathF.Sin((t - 0.5f) * MathF.PI / 2) * (bendAmt + 0.707f) + 0.5f, 0, 1f);*/
             //}
-            if (bendAmt > 0.001f) {
+            if (bendAmt > 0.001f && t != 0) {
                 t = GetBentTime(t, bendAmt) + 0.5f; // faster bend algorithm
             }
             if (interpolationAmt > 0) {
@@ -277,7 +277,6 @@ namespace WaveTracker.Tracker {
             }
             else {
                 return 1 - MathF.Pow(2 * (1 - t) % 1, 1 - 0.8f * (-25 * bendAmt * bendAmt)) / 2f;
-
             }
             //return MathF.Pow((t + 0.5f) % 1, 1 - 0.75f * bendAmt) + 0.5f;
         }

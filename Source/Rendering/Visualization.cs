@@ -393,11 +393,6 @@ namespace WaveTracker.Rendering {
             }
         }
 
-
-
-
-
-
         void WriteNote(int value, int x, int y, bool currRow) {
             int alpha = currRow ? 255 : 120;
             Color c = Helpers.Alpha(App.Settings.Appearance.Theme["Row text"], currRow ? 255 : 120);
@@ -483,31 +478,20 @@ namespace WaveTracker.Rendering {
             }
         }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         void DrawBubbleRect(int x, int y, int w, int h, Color c) {
             DrawRect(x + 1, y, w - 2, h, c);
             DrawRect(x, y + 1, w, h - 1, c);
         }
+
+
+
+
+
+
+
+
+
+
 
         public void DrawOscilloscopes() {
             int numOscsX = 3;

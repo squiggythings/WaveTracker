@@ -32,12 +32,12 @@ namespace WaveTracker.UI {
             pages.Add("Keyboard", new KeyboardPage(this));
 
             pages["General"].AddLabel("General");
-            pages["General"].AddDropdown("Screen scale", "", new string[] { "100%", "200%", "300%", "400%", "500%" });
+            pages["General"].AddDropdown("Screen scale", "", ["100%", "200%", "300%", "400%", "500%"]);
             pages["General"].AddBreak();
             pages["General"].AddLabel("Metering");
-            pages["General"].AddDropdown("Oscilloscope mode", "", new string[] { "Mono", "Stereo: split", "Stereo: overlap" }, width: 88);
-            pages["General"].AddDropdown("Meter decay rate", "", new string[] { "Slow", "Medium", "Fast" }, width: 88);
-            pages["General"].AddDropdown("Meter color mode", "", new string[] { "Flat", "Gradient" }, positionOffset: 1, width: 88);
+            pages["General"].AddDropdown("Oscilloscope mode", "", ["Mono", "Stereo: split", "Stereo: overlap"], width: 88);
+            pages["General"].AddDropdown("Meter decay rate", "", ["Slow", "Medium", "Fast"], width: 88);
+            pages["General"].AddDropdown("Meter color mode", "", ["Flat", "Gradient"], positionOffset: 1, width: 88);
             pages["General"].AddCheckbox("Flash meter red when clipping", "");
 
             pages["Files"].AddLabel("Default module info");
@@ -54,12 +54,12 @@ namespace WaveTracker.UI {
             pages["Pattern Editor"].AddCheckbox("Fade volume column", "");
             pages["Pattern Editor"].AddCheckbox("Show previous/next patterns", "");
             pages["Pattern Editor"].AddCheckbox("Ignore step when moving", "");
-            pages["Pattern Editor"].AddDropdown("Step after numeric input", "", new string[] { "Always", "At the end of a cell", "After cell, including effect", "Never" });
+            pages["Pattern Editor"].AddDropdown("Step after numeric input", "", ["Always", "At the end of a cell", "After cell, including effect", "Never"]);
             pages["Pattern Editor"].AddCheckbox("Preview notes on input", "");
             pages["Pattern Editor"].AddCheckbox("Wrap cursor horizontally", "");
             pages["Pattern Editor"].AddCheckbox("Wrap cursor across frames", "");
             pages["Pattern Editor"].AddCheckbox("Key repeat", "");
-            pages["Pattern Editor"].AddDropdown("Page jump amount", "", new string[] { "1", "2", "4", "8", "16" });
+            pages["Pattern Editor"].AddDropdown("Page jump amount", "", ["1", "2", "4", "8", "16"]);
             pages["Pattern Editor"].AddCheckbox("Restore channel state on playback", "");
 
             pages["Samples/Waves"].AddLabel("Sample Import Settings");
@@ -70,11 +70,11 @@ namespace WaveTracker.UI {
             pages["Samples/Waves"].AddNumberBox("Default base key", "", 12, 131, NumberBox.NumberDisplayMode.Note, 60);
             pages["Samples/Waves"].AddBreak();
             pages["Samples/Waves"].AddLabel("Resampling");
-            pages["Samples/Waves"].AddDropdown("Default wave resample mode", "", new string[] { "Harsh (None)", "Smooth (Linear)", "Mix (None + Linear)" }, positionOffset: 7);
-            pages["Samples/Waves"].AddDropdown("Default sample resample mode", "", new string[] { "Harsh (None)", "Smooth (Linear)", "Mix (None + Linear)" });
+            pages["Samples/Waves"].AddDropdown("Default wave resample mode", "", ["Harsh (None)", "Smooth (Linear)", "Mix (None + Linear)"], positionOffset: 7);
+            pages["Samples/Waves"].AddDropdown("Default sample resample mode", "", ["Harsh (None)", "Smooth (Linear)", "Mix (None + Linear)"]);
 
             pages["MIDI"].AddLabel("MIDI");
-            pages["MIDI"].AddDropdown("Input device", "", new string[] { "(none)" }, false, -1, 999);
+            pages["MIDI"].AddDropdown("Input device", "", ["(none)"], false, -1, 999);
             pages["MIDI"].AddBreak();
             pages["MIDI"].AddLabel("Transpose");
             pages["MIDI"].AddNumberBox("MIDI transpose", "", -48, 48, NumberBox.NumberDisplayMode.PlusMinus);
@@ -88,14 +88,14 @@ namespace WaveTracker.UI {
 
 
             pages["Audio"].AddLabel("Audio");
-            pages["Audio"].AddDropdown("Output device", "", new string[] { "(default)" }, false, -1, 999);
+            pages["Audio"].AddDropdown("Output device", "", ["(default)"], false, -1, 999);
             pages["Audio"].AddBreak();
             pages["Audio"].AddSlider("Volume", "", 32, 200, 10, 0, 200, "%");
             pages["Audio"].AddBreak();
-            pages["Audio"].AddDropdown("Sample rate", "", new string[] { "11025 Hz", "22050 Hz", "44100 Hz", "48000 Hz", "96000 Hz" }, false, positionOffset: 8);
+            pages["Audio"].AddDropdown("Sample rate", "", ["11025 Hz", "22050 Hz", "44100 Hz", "48000 Hz", "96000 Hz"], false, positionOffset: 8);
             pages["Audio"].AddBreak();
             pages["Audio"].AddLabel("Advanced");
-            pages["Audio"].AddDropdown("Oversampling", "", new string[] { "1x", "2x (recommended)", "4x", "8x" }, false);
+            pages["Audio"].AddDropdown("Oversampling", "", ["1x", "2x (recommended)", "4x", "8x"], false);
 
             pages["Visualizer"].AddLabel("Piano");
             pages["Visualizer"].AddSlider("Note speed", "", 18, 95, 0, 1, 20);
@@ -106,9 +106,12 @@ namespace WaveTracker.UI {
             pages["Visualizer"].AddLabel("Oscilloscopes");
             pages["Visualizer"].AddNumberBox("Wave zoom", "", 50, 200, NumberBox.NumberDisplayMode.Percent);
             pages["Visualizer"].AddCheckbox("Colorful waves", "");
-            pages["Visualizer"].AddDropdown("Wave thickness", "", new string[] { "Thin", "Medium", "Thick" });
-            pages["Visualizer"].AddDropdown("Crosshairs", "", new string[] { "None", "Horizontal", "Horizontal + Vertical" });
+            pages["Visualizer"].AddDropdown("Wave thickness", "", ["Thin", "Medium", "Thick"]);
+            pages["Visualizer"].AddDropdown("Crosshairs", "", ["None", "Horizontal", "Horizontal + Vertical"]);
             pages["Visualizer"].AddCheckbox("Oscilloscope borders", "");
+            pages["Visualizer"].AddBreak();
+            pages["Visualizer"].AddLabel("Advanced");
+            pages["Visualizer"].AddCheckbox("Draw in high resolution", "");
 
         }
 
@@ -192,6 +195,7 @@ namespace WaveTracker.UI {
             pages["Visualizer"]["Wave thickness"].ValueInt = App.Settings.Visualizer.OscilloscopeThickness;
             pages["Visualizer"]["Crosshairs"].ValueInt = App.Settings.Visualizer.OscilloscopeCrosshairs;
             pages["Visualizer"]["Oscilloscope borders"].ValueBool = App.Settings.Visualizer.OscilloscopeBorders;
+            pages["Visualizer"]["Draw in high resolution"].ValueBool = App.Settings.Visualizer.DrawInHighResolution;
 
             (pages["Keyboard"] as KeyboardPage).LoadBindingsFrom(App.Settings.Keyboard.Shortcuts);
 
@@ -276,6 +280,7 @@ namespace WaveTracker.UI {
             App.Settings.Visualizer.OscilloscopeThickness = pages["Visualizer"]["Wave thickness"].ValueInt;
             App.Settings.Visualizer.OscilloscopeCrosshairs = pages["Visualizer"]["Crosshairs"].ValueInt;
             App.Settings.Visualizer.OscilloscopeBorders = pages["Visualizer"]["Oscilloscope borders"].ValueBool;
+            App.Settings.Visualizer.DrawInHighResolution = pages["Visualizer"]["Draw in high resolution"].ValueBool;
 
             (pages["Keyboard"] as KeyboardPage).SaveBindingsInto(App.Settings.Keyboard.Shortcuts);
 
