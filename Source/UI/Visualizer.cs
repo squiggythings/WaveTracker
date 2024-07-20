@@ -22,7 +22,7 @@ namespace WaveTracker.UI {
             oscilloscopeGrid = new OscilloscopeGrid(this);
         }
 
-        public void GetWaveColors() {
+        public void GenerateWaveColors() {
             waveColors = new Color[100];
             int i = 0;
             foreach (Wave w in App.CurrentModule.WaveBank) {
@@ -77,25 +77,25 @@ namespace WaveTracker.UI {
         }
 
         public void Update() {
-            int scale = App.Settings.Visualizer.DrawInHighResolution ? 2 : 1;
+            int scale = App.Settings.Visualizer.DrawInHighResolution ? App.Settings.General.ScreenScale : 1;
             x = 0;
             y = (App.MENUSTRIP_HEIGHT + 15) * scale;
             width = App.Settings.Visualizer.DrawInHighResolution ? App.ClientWindow.ClientBounds.Width : App.WindowWidth;
             height = (App.Settings.Visualizer.DrawInHighResolution ? App.ClientWindow.ClientBounds.Height : App.WindowHeight) - y - 9 * scale;
-            piano.x = 20 * scale;
+            piano.x = 10 * scale;
             piano.y = 10 * scale;
             piano.width = (int)((width - 20) / 1.5f);
             piano.height = (int)(height * 0.75f);
             oscilloscopeGrid.x = piano.BoundsRight + 5 * scale;
             oscilloscopeGrid.y = piano.y;
-            oscilloscopeGrid.width = (width - piano.BoundsRight - 25);
+            oscilloscopeGrid.width = (width - piano.BoundsRight - 15 * scale);
             oscilloscopeGrid.height = piano.height;
             oscilloscopeGrid.Update();
         }
 
         public void Draw() {
             //DrawRect(0, 0, width, height, new Color(255, 0, 0, 128));
-            DrawRect(0, 0, width, height, Color.Black);
+            //DrawRect(0, 0, width - 1, height, Color.BlueViolet);
             piano.Draw();
             oscilloscopeGrid.Draw();
         }
@@ -110,8 +110,7 @@ namespace WaveTracker.UI {
 
             ChannelState[][] channelStates;
             int PianoNoteWidth => width / 120;
-            int PianoHeight => 24 * (PianoNoteWidth * 120) / 600;
-            int drawIndex;
+            int PianoHeight => 24 * PianoNoteWidth * 120 / 600;
             int writeIndex;
 
             public Piano(int x, int y, int width, int height, Element parent) {
@@ -159,6 +158,7 @@ namespace WaveTracker.UI {
 
             public void Draw() {
                 // draw piano graphic
+                DrawRect(0, 0, width, height, Color.DarkRed);
                 for (int i = 0; i < 10; ++i) {
                     if (App.Settings.Visualizer.HighlightPressedKeys) {
                         DrawSprite(i * PianoNoteWidth * 12, 0, PianoNoteWidth * 12, PianoHeight, new Rectangle(0, 104, 60, 24), new Color(128, 128, 128, 128));
@@ -264,84 +264,10 @@ namespace WaveTracker.UI {
             }
 
         }
-
-        public class Oscilloscope : Clickable {
-            int channelID;
-            Channel channel => ChannelManager.channels[channelID];
-            public Oscilloscope(int channelID, Element parent) {
-                this.channelID = channelID;
-                width = 2;
-                height = 2;
-                SetParent(parent);
-            }
-
-            public void Draw() {
-                if (enabled) {
-                    if (App.Settings.Visualizer.OscilloscopeBorders) {
-                        DrawRect(-1, -1, width + 2, height + 2, Color.White);
-                    }
-                    DrawRect(0, 0, width, height, UIColors.black);
-                    if (App.Settings.Visualizer.OscilloscopeCrosshairs > 0) {
-                        DrawRect(0, height / 2, width, 1, new Color(44, 53, 77));
-                        if (App.Settings.Visualizer.OscilloscopeCrosshairs > 1)
-                            DrawRect(width / 2, 0, 1, height, new Color(44, 53, 77));
-                    }
-                    if (App.Settings.Visualizer.DrawInHighResolution) {
-                        WriteTwiceAsBig(channelID + 1 + "", 6, 4, new Color(126, 133, 168));
-                    }
-                    else {
-                        Write(channelID + 1 + "", 3, 2, new Color(126, 133, 168));
-                    }
-                    if (channel.IsMuted)
-                        return;
-                    float scopezoom = 80f / (100f / App.Settings.Visualizer.OscilloscopeZoom);
-                    Color waveColor = App.Settings.Visualizer.OscilloscopeColorfulWaves ? GetColorOfWaveFromTable(channel.WaveIndex, channel.WaveMorphPosition) : Color.White;
-
-                    float position = -width / 2 / width * channel.CurrentFrequency / scopezoom;
-                    float sample = 0;
-
-                    float lastSample = sample;
-                    bool first = true;
-
-                    if (channel.currentInstrument is SampleInstrument instrument) {
-                        Sample audioSample = instrument.sample;
-                        for (float i = -width / 2; i < width / 2; i += 0.0625f) {
-                            position = i / width * channel.CurrentFrequency / scopezoom;
-                            sample = -audioSample.GetMonoSample((i / width * channel.CurrentFrequency / scopezoom) + (int)channel.SampleTime, channel.SampleStartOffset / 100f) * (height / 2f) * channel.CurrentAmplitudeAsWave / 1.5f + (height / 2f);
-                            if (first) {
-                                lastSample = sample;
-                                first = false;
-                            }
-                            DrawOscCol((int)Math.Round(i + width / 2), 0, lastSample, sample, Color.White, App.Settings.Visualizer.OscilloscopeThickness + 1);
-                            lastSample = sample;
-                        }
-                    }
-                    else {
-                        for (float i = -width / 2; i < width / 2; i += 0.0625f) {
-                            position = i / width * channel.CurrentFrequency / scopezoom;
-                            sample = (-channel.EvaluateWave(position) * channel.CurrentAmplitude * 0.5f + 0.5f) * height;
-                            if (first) {
-                                lastSample = sample;
-                                first = false;
-                            }
-                            DrawOscCol((int)Math.Round(i + width / 2), 0, lastSample, sample, waveColor, App.Settings.Visualizer.OscilloscopeThickness + 1);
-                            lastSample = sample;
-                        }
-                    }
-                }
-            }
-            void DrawOscCol(int x, int y, float min, float max, Color c, int size) {
-                if (min < max) {
-                    DrawRect(x, y + (int)min, size, (int)(max - min) + size, c);
-                }
-                else {
-                    DrawRect(x, y + (int)max, size, (int)(min - max) + size, c);
-                }
-            }
-        }
-
         public class OscilloscopeGrid : Clickable {
             public Oscilloscope[] oscilloscopes;
+            static int borderWidth = 1;
+
             public OscilloscopeGrid(Element parent) {
                 SetParent(parent);
                 oscilloscopes = new Oscilloscope[ChannelManager.channels.Count];
@@ -350,6 +276,10 @@ namespace WaveTracker.UI {
                 }
             }
             public void Update() {
+                if (App.Settings.Visualizer.DrawInHighResolution)
+                    borderWidth = 2;
+                else
+                    borderWidth = 1;
                 int numOscsX = 3;
                 if (App.CurrentModule.ChannelCount <= 12)
                     numOscsX = 2;
@@ -364,9 +294,9 @@ namespace WaveTracker.UI {
                 for (int y = 0; y < numOscsY; y++) {
                     for (int x = 0; x < numOscsX; x++) {
                         oscilloscopes[oscNum].x = (width / numOscsX) * x;
-                        oscilloscopes[oscNum].width = width / numOscsX - 1;
+                        oscilloscopes[oscNum].width = width / numOscsX - borderWidth;
                         oscilloscopes[oscNum].y = (height / numOscsY) * y;
-                        oscilloscopes[oscNum].height = height / numOscsY - 1;
+                        oscilloscopes[oscNum].height = height / numOscsY - borderWidth;
                         oscilloscopes[oscNum].enabled = oscNum < App.CurrentModule.ChannelCount;
                         oscNum++;
                     }
@@ -376,6 +306,90 @@ namespace WaveTracker.UI {
                 foreach (Oscilloscope oscilloscope in oscilloscopes) {
                     oscilloscope.Draw();
                 }
+            }
+
+
+            public class Oscilloscope : Clickable {
+                int channelID;
+                Channel channel => ChannelManager.channels[channelID];
+                public Oscilloscope(int channelID, Element parent) {
+                    this.channelID = channelID;
+                    width = 2;
+                    height = 2;
+                    SetParent(parent);
+                }
+
+                public void Draw() {
+                    if (enabled) {
+                        if (App.Settings.Visualizer.OscilloscopeBorders) {
+                            DrawRect(-borderWidth, -borderWidth, width + borderWidth * 2, height + borderWidth * 2, Color.White);
+                        }
+                        DrawRect(0, 0, width, height, UIColors.black);
+                        if (App.Settings.Visualizer.OscilloscopeCrosshairs > 0) {
+                            DrawRect(0, height / 2, width, 1, new Color(44, 53, 77));
+                            if (App.Settings.Visualizer.OscilloscopeCrosshairs > 1)
+                                DrawRect(width / 2, 0, 1, height, new Color(44, 53, 77));
+                        }
+                        Color labelColor = channel.IsMuted ? new Color(126, 133, 168, 128) : new Color(126, 133, 168);
+                        if (App.Settings.Visualizer.DrawInHighResolution) {
+                            WriteTwiceAsBig(channelID + 1 + "", 4, -2, labelColor);
+                        }
+                        else {
+                            Write(channelID + 1 + "", 2, 1, labelColor);
+
+                        }
+                        if (channel.IsMuted)
+                            return;
+                        float scopezoom = 80f / (100f / App.Settings.Visualizer.OscilloscopeZoom);
+                        Color waveColor = App.Settings.Visualizer.OscilloscopeColorfulWaves ? GetColorOfWaveFromTable(channel.WaveIndex, channel.WaveMorphPosition) : Color.White;
+
+                        float position = -width / 2 / width * channel.CurrentFrequency / scopezoom;
+                        float sample = 0;
+
+                        float lastSample = sample;
+                        bool first = true;
+
+                        if (channel.currentInstrument is SampleInstrument instrument) {
+                            Sample audioSample = instrument.sample;
+                            for (float i = -width / 2; i < width / 2; i += 0.0625f) {
+                                position = i / width * channel.CurrentFrequency / scopezoom;
+                                sample = -audioSample.GetMonoSample((i / width * channel.CurrentFrequency / scopezoom) + (int)channel.SampleTime, channel.SampleStartOffset / 100f) * (height / 2f) * channel.CurrentAmplitudeAsWave / 1.5f + (height / 2f);
+                                if (first) {
+                                    lastSample = sample;
+                                    first = false;
+                                }
+                                DrawOscCol((int)Math.Round(i + width / 2), 0, lastSample, sample, Color.White, App.Settings.Visualizer.OscilloscopeThickness + 1);
+                                lastSample = sample;
+                            }
+                        }
+                        else {
+                            for (float i = -width / 2; i < width / 2; i += 0.0625f) {
+                                position = i / width * channel.CurrentFrequency / scopezoom;
+                                sample = (-channel.EvaluateWave(position) * channel.CurrentAmplitude * 0.5f + 0.5f) * height;
+                                if (first) {
+                                    lastSample = sample;
+                                    first = false;
+                                }
+                                DrawOscCol((int)Math.Round(i + width / 2), 0, lastSample, sample, waveColor, App.Settings.Visualizer.OscilloscopeThickness + 1);
+                                lastSample = sample;
+                            }
+                        }
+                    }
+                }
+                void DrawOscCol(int x, int y, float min, float max, Color c, int size) {
+                    if (min < max) {
+                        DrawRect(x, y + (int)min, size, (int)(max - min) + size, c);
+                    }
+                    else {
+                        DrawRect(x, y + (int)max, size, (int)(min - max) + size, c);
+                    }
+                }
+            }
+        }
+
+        public class MiniTrackerLayout : Clickable {
+            public MiniTrackerLayout(Element parent) {
+                SetParent(this);
             }
         }
     }

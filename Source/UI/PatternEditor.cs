@@ -179,6 +179,7 @@ namespace WaveTracker.UI {
                             ])
 
                         ]),
+
                     ]
                 );
         }

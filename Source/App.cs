@@ -101,6 +101,8 @@ namespace WaveTracker {
             Input.Intialize();
 
             Settings = SettingsProfile.ReadFromDisk();
+            //WindowHeight = (Window.ClientBounds.Height / Settings.General.ScreenScale);
+            //WindowWidth = (Window.ClientBounds.Width / Settings.General.ScreenScale);
             SaveLoad.ReadRecentFiles();
         }
 
@@ -122,8 +124,6 @@ namespace WaveTracker {
             InstrumentEditor = new InstrumentEditor();
             Visualizer = new Visualizer();
             Dialogs.Initialize();
-            PianoInput.Initialize();
-            PianoInput.ReadMidiDevices();
             EditSettings = new EditSettings(312, 18 + MENUSTRIP_HEIGHT);
             toolbar = new Toolbar(2, 0 + MENUSTRIP_HEIGHT);
             WaveEditor = new WaveEditor();
@@ -186,13 +186,17 @@ namespace WaveTracker {
             SaveLoad.NewFile();
             SaveLoad.ReadFrom(filename);
         }
-
+        int midiDelay = 0;
         protected override void Update(GameTime gameTime) {
-
             Window.Title = SaveLoad.FileNameWithoutExtension + (SaveLoad.IsSaved ? "" : "*") + " [#" + (CurrentSongIndex + 1) + " " + CurrentSong.ToString() + "] - WaveTracker " + VERSION;
             WindowHeight = (Window.ClientBounds.Height / Settings.General.ScreenScale);
             WindowWidth = (Window.ClientBounds.Width / Settings.General.ScreenScale);
-
+            if (midiDelay < 2) {
+                midiDelay++;
+                if (midiDelay == 2) {
+                    PianoInput.Initialize();
+                }
+            }
 
             if (IsActive) {
                 Input.GetState(gameTime);

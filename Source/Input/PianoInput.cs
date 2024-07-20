@@ -156,7 +156,7 @@ namespace WaveTracker {
                 }
                 ChannelManager.previewChannel.SetMacro(App.InstrumentBank.CurrentInstrumentIndex);
                 ChannelManager.previewChannel.SetVolume(CurrentVelocity);
-                ChannelManager.previewChannel.TriggerNote(currentlyHeldDownNotes[currentlyHeldDownNotes.Count - 1]);
+                ChannelManager.previewChannel.TriggerNote(CurrentNote);
             }
         }
         /// <summary>
@@ -167,6 +167,9 @@ namespace WaveTracker {
             currentlyHeldDownNotes.Remove(note);
             if (currentlyHeldDownNotes.Count > 0) {
                 CurrentNote = currentlyHeldDownNotes[currentlyHeldDownNotes.Count - 1];
+                ChannelManager.previewChannel.SetMacro(App.InstrumentBank.CurrentInstrumentIndex);
+                ChannelManager.previewChannel.SetVolume(CurrentVelocity);
+                ChannelManager.previewChannel.TriggerNote(CurrentNote);
             }
             else {
                 CurrentNote = -1;

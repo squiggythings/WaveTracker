@@ -15,12 +15,12 @@ namespace WaveTracker.UI {
         VerticalListSelector pageSelector;
         public Dictionary<string, Page> pages;
 
-        public ConfigurationDialog() : base("Preferences...", 386, 300) {
+        public ConfigurationDialog() : base("Configuration...", 386, 300) {
             apply = AddNewBottomButton("Apply", this);
             cancel = AddNewBottomButton("Cancel", this);
             ok = AddNewBottomButton("OK", this);
             pages = new Dictionary<string, Page>();
-            pageSelector = new VerticalListSelector(5, 12, 75, 268, new string[] { "General", "Files", "Pattern Editor", "Appearance", "Samples/Waves", "MIDI", "Audio", "Visualizer", "Keyboard" }, this);
+            pageSelector = new VerticalListSelector(5, 12, 75, 268, ["General", "Files", "Pattern Editor", "Appearance", "Samples/Waves", "MIDI", "Audio", "Visualizer", "Keyboard"], this);
             pages.Add("General", new Page(this));
             pages.Add("Files", new Page(this));
             pages.Add("Appearance", new AppearancePage(this));
@@ -403,6 +403,9 @@ namespace WaveTracker.UI {
                 DrawRoundedRect(0, 0, width, height, Color.White);
                 foreach (ConfigurationOption option in options.Values) {
                     option.Draw();
+                    if (option.ShowDescription) {
+                        WriteMultiline("Description: " + option.Description, 4, ypos + 15, width - 20, UIColors.label);
+                    }
                 }
             }
         }
@@ -455,8 +458,8 @@ namespace WaveTracker.UI {
             Button loadTheme;
             Button saveTheme;
             public AppearancePage(Element parent) : base(parent) {
-                AddLabel("Appearance");
-                colorList = new ColorButtonList(4, ypos, width - 8, 9, this);
+                AddLabel("Current color theme");
+                colorList = new ColorButtonList(4, ypos, width - 8, 12, this);
                 saveTheme = new Button("Save As...", 4, colorList.y + colorList.height + 4, 55, this);
                 loadTheme = new Button("Load...", saveTheme.x + saveTheme.width + 4, colorList.y + colorList.height + 4, 55, this);
                 openThemeFiles = new Button("Open themes folder...", 0, colorList.y + colorList.height + 4, this);
@@ -506,6 +509,8 @@ namespace WaveTracker.UI {
     public class ConfigurationOption : Clickable {
         public string Name { get; private set; }
         public string Description { get; private set; }
+
+        public virtual bool ShowDescription { get; }
 
         public ConfigurationOption(int y, int height, string name, string description, ConfigurationDialog.Page parent) {
             Name = name;
@@ -563,6 +568,8 @@ namespace WaveTracker.UI {
 
         public class Checkbox : ConfigurationOption {
             UI.Checkbox checkbox;
+            public override bool ShowDescription { get { return IsHovered; } }
+
             public bool Value {
                 get {
                     return checkbox.Value;
@@ -613,6 +620,7 @@ namespace WaveTracker.UI {
         }
         public class Dropdown : ConfigurationOption {
             UI.Dropdown dropdown;
+            public override bool ShowDescription { get { return IsHovered && MouseX < dropdown.BoundsRight; } }
 
             public int Value {
                 get {
@@ -622,7 +630,6 @@ namespace WaveTracker.UI {
                     dropdown.Value = value;
                 }
             }
-            public bool ValueWasChangedInternally => dropdown.ValueWasChangedInternally;
             public Dropdown(int y, string name, string description, string[] dropdownItems, ConfigurationDialog.Page parent, bool scrollWrap = true, int dropdownPositionOffset = 0, int dropdownWidth = -1) : base(y, 13, name, description, parent) {
 
                 dropdown = new(Helpers.GetWidthOfText(name) + dropdownPositionOffset + 8, 0, this, scrollWrap);
@@ -660,6 +667,7 @@ namespace WaveTracker.UI {
 
         public class TextBox : ConfigurationOption {
             Textbox textBox;
+            public override bool ShowDescription { get { return IsHovered && MouseX < textBox.BoundsRight; } }
 
             public string Text {
                 get {
@@ -669,16 +677,15 @@ namespace WaveTracker.UI {
                     textBox.Text = value;
                 }
             }
-            public bool ValueWasChangedInternally => textBox.ValueWasChangedInternally;
             public TextBox(int y, int boxWidth, string name, string description, ConfigurationDialog.Page parent, int boxPositionOffset = 0, bool validate = false) : base(y, 13, name, description, parent) {
-                textBox = new("", Helpers.GetWidthOfText(name) + 8 + boxPositionOffset, 0, boxWidth, this);
+                textBox = new(name + ":", 0, 0, Helpers.GetWidthOfText(name) + boxPositionOffset + boxWidth + 1, boxWidth, this);
             }
 
             public override void Update() {
                 textBox.Update();
             }
             public override void Draw() {
-                Write(Name + ":", 0, 3, UIColors.labelDark);
+                //Write(Name + ":", 0, 3, UIColors.labelDark);
                 textBox.Draw();
             }
 
@@ -690,19 +697,22 @@ namespace WaveTracker.UI {
 
         public class NumberBox : ConfigurationOption {
             UI.NumberBox numberBox;
+            public override bool ShowDescription { get { return IsHovered && MouseX < numberBox.BoundsRight; } }
 
             public int Value => numberBox.Value;
-            public bool ValueWasChangedInternally => numberBox.ValueWasChangedInternally;
             public NumberBox(int y, string name, string description, ConfigurationDialog.Page parent, int numberBoxPositionOffset = 0, int numberBoxWidth = -1) : base(y, 13, name, description, parent) {
 
                 if (numberBoxWidth != -1) {
                     int minWidth = 38;
                     int maxWidth = width - numberBoxPositionOffset;
                     numberBoxWidth = Math.Clamp(numberBoxWidth, minWidth, maxWidth);
-                    numberBox = new("", Helpers.GetWidthOfText(name) + 8 + numberBoxPositionOffset, 0, numberBoxWidth, numberBoxWidth, this);
+                    numberBox = new(name + ":", 0, 0, numberBoxWidth + Helpers.GetWidthOfText(name) + 8 + numberBoxPositionOffset, numberBoxWidth, this);
                 }
                 else {
-                    numberBox = new("", Helpers.GetWidthOfText(name) + 8 + numberBoxPositionOffset, 0, this);
+                    //Helpers.GetWidthOfText(name) + 8 + numberBoxPositionOffset
+                    numberBoxWidth = 38;
+                    numberBox = new(name + ":", 0, 0, numberBoxWidth + Helpers.GetWidthOfText(name) + 8 + numberBoxPositionOffset, numberBoxWidth, this);
+
                 }
 
             }
@@ -719,7 +729,7 @@ namespace WaveTracker.UI {
                 numberBox.Update();
             }
             public override void Draw() {
-                Write(Name + ":", 0, 3, UIColors.labelDark);
+                //Write(Name + ":", 0, 3, UIColors.labelDark);
                 numberBox.Draw();
             }
             public override int ValueInt {
@@ -730,8 +740,11 @@ namespace WaveTracker.UI {
 
         public class Slider : ConfigurationOption {
             HorizontalSlider slider;
+            public override bool ShowDescription { get { return IsHovered && MouseX < slider.BoundsRight; } }
+
             string suffix;
             public int Value => slider.Value;
+
             public Slider(int y, string name, string description, ConfigurationDialog.Page parent, int sliderPositionOffset, int width, int numTicks, int min, int max, string suffix) : base(y, 13, name, description, parent) {
                 slider = new HorizontalSlider(Helpers.GetWidthOfText(name) + sliderPositionOffset + 8, 0, width, numTicks, this);
                 this.suffix = suffix;

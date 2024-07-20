@@ -68,8 +68,8 @@ namespace WaveTracker.UI {
         }
 
         public void Draw() {
-            Color dark = new Color(104, 111, 153);
-            Color text = new Color(20, 24, 46);
+            Color dark = UIColors.labelDark;
+            Color text = UIColors.black;
             if (IsHovered && canEdit && enabled) {
                 dark = text;
             }

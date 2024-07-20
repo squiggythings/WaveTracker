@@ -245,7 +245,7 @@ namespace WaveTracker {
 
             if (ReadFrom(path)) {
 
-                App.Visualizer.GetWaveColors();
+                App.Visualizer.GenerateWaveColors();
                 ChannelManager.Reset();
                 ChannelManager.UnmuteAllChannels();
                 App.CurrentModule.OnSaveModule();
