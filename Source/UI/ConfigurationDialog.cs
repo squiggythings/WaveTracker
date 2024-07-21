@@ -15,7 +15,7 @@ namespace WaveTracker.UI {
         VerticalListSelector pageSelector;
         public Dictionary<string, Page> pages;
 
-        public ConfigurationDialog() : base("Configuration...", 386, 300) {
+        public ConfigurationDialog() : base("Preferences...", 386, 300) {
             apply = AddNewBottomButton("Apply", this);
             cancel = AddNewBottomButton("Cancel", this);
             ok = AddNewBottomButton("OK", this);
@@ -35,9 +35,9 @@ namespace WaveTracker.UI {
             pages["General"].AddDropdown("Screen scale", "The pixel scaling of WaveTracker's interface", ["100%", "200% (recommended)", "300%", "400%", "500%"]);
             pages["General"].AddBreak();
             pages["General"].AddLabel("Metering");
-            pages["General"].AddDropdown("Oscilloscope mode", "Mono: Display a single oscilloscope. Stereo-split: Display 2 oscilloscopes for left and right. Stereo-overlap: Overlap left and right in a single oscilloscope, highlighting the difference between them", ["Mono", "Stereo: split", "Stereo: overlap"], width: 88);
+            pages["General"].AddDropdown("Oscilloscope mode", "Mono: Display a single oscilloscope. \n Stereo-split: Display 2 oscilloscopes for left and right. \n Stereo-overlap: Overlap left and right in a single oscilloscope, highlighting the difference between them", ["Mono", "Stereo: split", "Stereo: overlap"], width: 88);
             pages["General"].AddDropdown("Meter decay rate", "Determines how responsive the volume meters will be. Fast is very responsive but not very consistent; slow is more consistent but less responsive", ["Slow", "Medium", "Fast"], width: 88);
-            pages["General"].AddDropdown("Meter color mode", "Flat: the meter is one color. Gradient: the meter becomes more red as the signal is louder", ["Flat", "Gradient"], positionOffset: 1, width: 88);
+            pages["General"].AddDropdown("Meter color mode", "Flat: the meter is one color. \n Gradient: the meter becomes more red as the signal is louder", ["Flat", "Gradient"], positionOffset: 1, width: 88);
             pages["General"].AddCheckbox("Flash meter red when clipping", "If output is clipping, make the whole volume meter red");
 
             pages["Files"].AddLabel("Default module info");
@@ -76,14 +76,13 @@ namespace WaveTracker.UI {
             pages["MIDI"].AddDropdown("Input device", "The MIDI device to receive inputs from", ["(none)"], false, -1, 999);
             pages["MIDI"].AddBreak();
             pages["MIDI"].AddLabel("Transpose");
-            pages["MIDI"].AddNumberBox("MIDI transpose", "", -48, 48, NumberBox.NumberDisplayMode.PlusMinus);
+            pages["MIDI"].AddNumberBox("MIDI transpose", "The number of semitones to transpose incoming midi notes", -48, 48, NumberBox.NumberDisplayMode.PlusMinus);
             pages["MIDI"].AddCheckbox("Apply octave transpose", "Transpose incoming midi messages by the current octave");
             pages["MIDI"].AddBreak();
             pages["MIDI"].AddLabel("MIDI messages");
             pages["MIDI"].AddCheckbox("Record note velocity", "If this is enabled, the velocity of a note press in edit mode will be recorded in the volume column");
             pages["MIDI"].AddCheckbox("Use program change to select instrument", "If this is enabled, a midi controller with program change functionality can be used to select instruments");
             pages["MIDI"].AddCheckbox("Receive play/stop messages", "If this is enabled, a midi controller with PLAY/STOP buttons will control tracker playback");
-            pages["MIDI"].AddCheckbox("Receive record messages", "If this is enabled, a midi controller with a RECORD button will enable/disable edit mode");
 
 
             pages["Audio"].AddLabel("Audio");
@@ -94,7 +93,7 @@ namespace WaveTracker.UI {
             pages["Audio"].AddDropdown("Sample rate", "The output sample rate of WaveTracker.", ["11025 Hz", "22050 Hz", "44100 Hz", "48000 Hz", "96000 Hz"], false, positionOffset: 8);
             pages["Audio"].AddBreak();
             pages["Audio"].AddLabel("Advanced");
-            pages["Audio"].AddDropdown("Oversampling", "Higher values will reduce high frequency aliasing artifacts, at the expense of CPU", ["1x", "2x (recommended)", "4x", "8x"], false);
+            pages["Audio"].AddDropdown("Oversampling", "Higher values will reduce high frequency aliasing artefacts, at the expense of higher CPU usage \n Turn this down if audio is stuttering", ["1x", "2x (recommended)", "4x", "8x"], false);
 
             pages["Visualizer"].AddLabel("Piano");
             pages["Visualizer"].AddSlider("Note speed", "How fast notes scroll by in the piano roll, lower values are slower", 18, 95, 0, 1, 20);
@@ -110,7 +109,7 @@ namespace WaveTracker.UI {
             pages["Visualizer"].AddCheckbox("Oscilloscope borders", "Draws white borders around each oscilloscope");
             pages["Visualizer"].AddBreak();
             pages["Visualizer"].AddLabel("Advanced");
-            pages["Visualizer"].AddCheckbox("Draw in high resolution", "Draws the visualizer directly to the back buffer for higher resolution");
+            pages["Visualizer"].AddCheckbox("Draw in maximum resolution", "Draws the visualizer directly to the back buffer for higher resolution");
 
         }
 
@@ -176,8 +175,6 @@ namespace WaveTracker.UI {
             pages["MIDI"]["Record note velocity"].ValueBool = App.Settings.MIDI.RecordNoteVelocity;
             pages["MIDI"]["Use program change to select instrument"].ValueBool = App.Settings.MIDI.UseProgramChangeToSelectInstrument;
             pages["MIDI"]["Receive play/stop messages"].ValueBool = App.Settings.MIDI.ReceivePlayStopMessages;
-            pages["MIDI"]["Receive record messages"].ValueBool = App.Settings.MIDI.ReceiveRecordMessages;
-            pages["MIDI"]["Receive record messages"].ValueBool = App.Settings.MIDI.ReceiveRecordMessages;
 
             pages["Audio"]["Output device"].ValueString = App.Settings.Audio.OutputDevice;
             pages["Audio"]["Volume"].ValueInt = App.Settings.Audio.MasterVolume;
@@ -193,7 +190,7 @@ namespace WaveTracker.UI {
             pages["Visualizer"]["Wave thickness"].ValueInt = App.Settings.Visualizer.OscilloscopeThickness;
             pages["Visualizer"]["Crosshairs"].ValueInt = App.Settings.Visualizer.OscilloscopeCrosshairs;
             pages["Visualizer"]["Oscilloscope borders"].ValueBool = App.Settings.Visualizer.OscilloscopeBorders;
-            pages["Visualizer"]["Draw in high resolution"].ValueBool = App.Settings.Visualizer.DrawInHighResolution;
+            pages["Visualizer"]["Draw in maximum resolution"].ValueBool = App.Settings.Visualizer.DrawInHighResolution;
 
             (pages["Keyboard"] as KeyboardPage).LoadBindingsFrom(App.Settings.Keyboard.Shortcuts);
 
@@ -253,8 +250,7 @@ namespace WaveTracker.UI {
             App.Settings.MIDI.RecordNoteVelocity = pages["MIDI"]["Record note velocity"].ValueBool;
             App.Settings.MIDI.UseProgramChangeToSelectInstrument = pages["MIDI"]["Use program change to select instrument"].ValueBool;
             App.Settings.MIDI.ReceivePlayStopMessages = pages["MIDI"]["Receive play/stop messages"].ValueBool;
-            App.Settings.MIDI.ReceiveRecordMessages = pages["MIDI"]["Receive record messages"].ValueBool;
-            App.Settings.MIDI.ReceiveRecordMessages = pages["MIDI"]["Receive record messages"].ValueBool;
+            PianoInput.ClearAllNotes();
 
             App.Settings.Audio.MasterVolume = pages["Audio"]["Volume"].ValueInt;
             if (App.Settings.Audio.OutputDevice != pages["Audio"]["Output device"].ValueString ||
@@ -277,7 +273,7 @@ namespace WaveTracker.UI {
             App.Settings.Visualizer.OscilloscopeThickness = pages["Visualizer"]["Wave thickness"].ValueInt;
             App.Settings.Visualizer.OscilloscopeCrosshairs = pages["Visualizer"]["Crosshairs"].ValueInt;
             App.Settings.Visualizer.OscilloscopeBorders = pages["Visualizer"]["Oscilloscope borders"].ValueBool;
-            App.Settings.Visualizer.DrawInHighResolution = pages["Visualizer"]["Draw in high resolution"].ValueBool;
+            App.Settings.Visualizer.DrawInHighResolution = pages["Visualizer"]["Draw in maximum resolution"].ValueBool;
 
             (pages["Keyboard"] as KeyboardPage).SaveBindingsInto(App.Settings.Keyboard.Shortcuts);
 
@@ -404,7 +400,8 @@ namespace WaveTracker.UI {
                 foreach (ConfigurationOption option in options.Values) {
                     option.Draw();
                     if (option.ShowDescription) {
-                        WriteMultiline("Description: " + option.Description, 4, ypos + 15, width - 20, UIColors.label);
+                        Write(option.Name + ":", 4, ypos + 20, UIColors.selection);
+                        WriteMultiline(option.Description, 10, ypos + 30, width - 30, UIColors.labelLight);
                     }
                 }
             }

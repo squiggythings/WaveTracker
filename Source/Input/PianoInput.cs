@@ -44,7 +44,9 @@ namespace WaveTracker {
                         if (App.Shortcuts[binding.Key].IsPressedDown) {
                             KeyboardNoteOn(midiNote);
                         }
-                        App.PatternEditor.TryToEnterNote(midiNote, null);
+                        else if (App.Settings.PatternEditor.KeyRepeat) {
+                            App.PatternEditor.TryToEnterNote(midiNote, null);
+                        }
                     }
                 }
                 if (App.Shortcuts[binding.Key].WasReleasedThisFrame) {
@@ -146,17 +148,20 @@ namespace WaveTracker {
         /// </summary>
         /// <param name="note"></param>
         /// <param name="velocity"></param>
-        static void OnNoteOnEvent(int note, int velocity) {
+        static void OnNoteOnEvent(int note, int? velocity, bool enterToPatternEditor = false) {
             if (!currentlyHeldDownNotes.Contains(note)) {
                 currentlyHeldDownNotes.Add(note);
                 CurrentNote = note;
-                CurrentVelocity = velocity;
+                CurrentVelocity = velocity ?? 99;
                 if (!Playback.IsPlaying) {
                     AudioEngine.ResetTicks();
                 }
                 ChannelManager.previewChannel.SetMacro(App.InstrumentBank.CurrentInstrumentIndex);
                 ChannelManager.previewChannel.SetVolume(CurrentVelocity);
                 ChannelManager.previewChannel.TriggerNote(CurrentNote);
+                if (enterToPatternEditor) {
+                    App.PatternEditor.TryToEnterNote(note, velocity);
+                }
             }
         }
         /// <summary>
@@ -166,10 +171,12 @@ namespace WaveTracker {
         static void OnNoteOffEvent(int note) {
             currentlyHeldDownNotes.Remove(note);
             if (currentlyHeldDownNotes.Count > 0) {
-                CurrentNote = currentlyHeldDownNotes[currentlyHeldDownNotes.Count - 1];
-                ChannelManager.previewChannel.SetMacro(App.InstrumentBank.CurrentInstrumentIndex);
-                ChannelManager.previewChannel.SetVolume(CurrentVelocity);
-                ChannelManager.previewChannel.TriggerNote(CurrentNote);
+                if (CurrentNote != currentlyHeldDownNotes[currentlyHeldDownNotes.Count - 1]) {
+                    CurrentNote = currentlyHeldDownNotes[currentlyHeldDownNotes.Count - 1];
+                    ChannelManager.previewChannel.SetMacro(App.InstrumentBank.CurrentInstrumentIndex);
+                    ChannelManager.previewChannel.SetVolume(CurrentVelocity);
+                    ChannelManager.previewChannel.TriggerNote(CurrentNote);
+                }
             }
             else {
                 CurrentNote = -1;
@@ -187,7 +194,7 @@ namespace WaveTracker {
         public static void MIDINoteOn(int note, int velocity) {
             if (!midiNotes.Contains(note)) {
                 midiNotes.Add(note);
-                OnNoteOnEvent(note, (int)Math.Ceiling(velocity / 127f * 99));
+                OnNoteOnEvent(note, (int)Math.Ceiling(velocity / 127f * 99), true);
             }
         }
         /// <summary>
@@ -202,7 +209,7 @@ namespace WaveTracker {
         static void KeyboardNoteOn(int note) {
             if (!keyboardNotes.Contains(note)) {
                 keyboardNotes.Add(note);
-                OnNoteOnEvent(note, 99);
+                OnNoteOnEvent(note, null, true);
             }
         }
 
@@ -227,12 +234,30 @@ namespace WaveTracker {
 
         static void OnMIDIMessageReceived(object sender, MidiInMessageEventArgs e) {
             MidiEvent midiEvent = e.MidiEvent;
+            Debug.WriteLine(e.RawMessage);
+            Debug.WriteLine(e.MidiEvent);
+            if (App.Settings.MIDI.UseProgramChangeToSelectInstrument) {
+                if (midiEvent is PatchChangeEvent patchEvent) {
+                    App.InstrumentBank.CurrentInstrumentIndex = Math.Clamp(patchEvent.Patch, 0, App.CurrentModule.Instruments.Count - 1);
+                }
+            }
+            if (App.Settings.MIDI.ReceivePlayStopMessages) {
+                if (midiEvent.CommandCode == MidiCommandCode.ContinueSequence) {
+                    Playback.PlayFromCursor();
+                }
+                if (midiEvent.CommandCode == MidiCommandCode.StartSequence) {
+                    Playback.Play();
+                }
+                if (midiEvent.CommandCode == MidiCommandCode.StopSequence) {
+                    Playback.Stop();
+                }
+            }
             if (midiEvent is NoteEvent noteEvent) {
                 if (noteEvent.Velocity == 0) {
-                    MIDINoteOff(noteEvent.NoteNumber);
+                    MIDINoteOff(noteEvent.NoteNumber + App.Settings.MIDI.MIDITranspose + (App.Settings.MIDI.ApplyOctaveTranspose ? (App.PatternEditor.CurrentOctave - 4) * 12 : 0));
                 }
                 else {
-                    MIDINoteOn(noteEvent.NoteNumber, noteEvent.Velocity);
+                    MIDINoteOn(noteEvent.NoteNumber + App.Settings.MIDI.MIDITranspose + (App.Settings.MIDI.ApplyOctaveTranspose ? (App.PatternEditor.CurrentOctave - 4) * 12 : 0), noteEvent.Velocity);
                 }
             }
         }

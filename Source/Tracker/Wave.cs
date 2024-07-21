@@ -99,6 +99,19 @@ namespace WaveTracker.Tracker {
         }
 
         /// <summary>
+        /// Returns true if the wave is equal to the default wave
+        /// </summary>
+        /// <returns></returns>
+        public bool IsEmpty() {
+            for (int i = 0; i < 64; i++) {
+                if (samples[i] != 16) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        /// <summary>
         /// Move the wave up or down by <c>amt</c> steps
         /// </summary>
         /// <param name="amt"></param>

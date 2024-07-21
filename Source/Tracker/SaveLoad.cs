@@ -142,15 +142,18 @@ namespace WaveTracker {
             filePath = "";
             //FrameEditor.ClearHistory();
             //FrameEditor.Goto(0, 0);
-            Playback.Goto(0, 0);
-            ChannelManager.Reset();
-            ChannelManager.UnmuteAllChannels();
             //FrameEditor.cursorColumn = 0;
             //FrameEditor.UnmuteAllChannels();
             Song.currentSong = null;
             App.CurrentModule = new WTModule();
             App.CurrentSongIndex = 0;
-            App.PatternEditor.OnSwitchSong();
+            App.PatternEditor.OnSwitchSong(true);
+            Playback.Goto(0, 0);
+            WaveBank.currentWaveID = 0;
+            WaveBank.lastSelectedWave = 0;
+            ChannelManager.Reset();
+            ChannelManager.UnmuteAllChannels();
+            ChannelManager.previewChannel.SetWave(0);
         }
 
         public static void SaveFileAsVoid() {
@@ -199,8 +202,6 @@ namespace WaveTracker {
                 null,
                 new MenuOption("Export as WAV...", Dialogs.exportDialog.Open),
                 null,
-                new MenuOption("Configuration...", Dialogs.configurationDialog.Open),
-                null,
                 new SubMenu("Recent Files", CreateRecentFilesMenu()),
                 null,
                 new MenuOption("Exit", App.ExitApplication),
@@ -246,12 +247,15 @@ namespace WaveTracker {
             if (ReadFrom(path)) {
 
                 App.Visualizer.GenerateWaveColors();
-                ChannelManager.Reset();
-                ChannelManager.UnmuteAllChannels();
                 App.CurrentModule.OnSaveModule();
                 App.CurrentSongIndex = 0;
-                App.PatternEditor.OnSwitchSong();
+                App.PatternEditor.OnSwitchSong(true);
+                WaveBank.currentWaveID = 0;
+                WaveBank.lastSelectedWave = 0;
                 Playback.Goto(0, 0);
+                ChannelManager.Reset();
+                ChannelManager.UnmuteAllChannels();
+                ChannelManager.previewChannel.SetWave(0);
                 filePath = path;
                 AddPathToRecentFiles(filePath);
             }

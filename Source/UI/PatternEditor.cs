@@ -179,7 +179,8 @@ namespace WaveTracker.UI {
                             ])
 
                         ]),
-
+                        null,        
+                        new MenuOption("Preferences...", Dialogs.configurationDialog.Open),
                     ]
                 );
         }
@@ -1266,10 +1267,15 @@ namespace WaveTracker.UI {
         /// <summary>
         /// Resets the cursor position and view to the beginning of the song, and clears undo history
         /// </summary>
-        public void OnSwitchSong() {
-            if (Playback.IsPlaying) {
+        public void OnSwitchSong(bool haltPlayback = false) {
+            if (Playback.IsPlaying && !haltPlayback) {
                 Playback.Stop();
+                Playback.Goto(0, 0);
                 Playback.PlayFromBeginning();
+            }
+            else {
+                Playback.Stop();
+                Playback.Goto(0, 0);
             }
             cursorPosition.Initialize();
             lastCursorPosition.Initialize();
@@ -1579,6 +1585,9 @@ namespace WaveTracker.UI {
                 CurrentPattern[cursorPosition.Row, cursorPosition.Channel, CellType.Note] = (byte)note;
                 if (!InstrumentMask) {
                     CurrentPattern[cursorPosition.Row, cursorPosition.Channel, CellType.Instrument] = (byte)App.InstrumentBank.CurrentInstrumentIndex;
+                }
+                if (volume.HasValue) {
+                    CurrentPattern[cursorPosition.Row, cursorPosition.Channel, CellType.Volume] = (byte)volume.Value;
                 }
                 MoveToRow(cursorPosition.Row + InputStep);
                 AddToUndoHistory();

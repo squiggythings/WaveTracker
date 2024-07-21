@@ -115,6 +115,7 @@ namespace WaveTracker.Audio {
         }
 
         public static void Reset() {
+            PianoInput.ClearAllNotes();
             wasapiOut.Stop();
             SetSampleRate(App.Settings.Audio.SampleRate, App.Settings.Audio.Oversampling);
             Thread.Sleep(1);

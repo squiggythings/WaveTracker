@@ -7,6 +7,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using ProtoBuf;
+using System.Diagnostics;
+using WaveTracker.UI;
 
 
 namespace WaveTracker.Tracker {
@@ -82,7 +84,7 @@ namespace WaveTracker.Tracker {
             Songs = new List<WTSong>();
             Songs.Add(new WTSong(this));
             Instruments = new List<Instrument> {
-                new WaveInstrument ()
+                new WaveInstrument()
             };
             WaveBank = new Wave[100];
             WaveBank[0] = Wave.Sine;
@@ -242,11 +244,68 @@ namespace WaveTracker.Tracker {
         }
 
         public void RemoveUnusedInstruments() {
-            UI.Dialogs.messageDialog.Open("This function has not been implemented yet!", UI.MessageDialog.Icon.Warning, "OK");
+            List<int> unusedInstruments = new List<int>();
+            for (int i = Instruments.Count - 1; i >= 0; i--) {
+                unusedInstruments.Add(i);
+            }
+            Debug.WriteLine("allinst: " + Instruments.Count);
+
+            foreach (WTSong song in Songs) {
+                foreach (WTFrame frame in song.FrameSequence) {
+                    int length = frame.GetLength();
+                    for (int row = 0; row < length; ++row) {
+                        for (int channel = 0; channel < ChannelCount; channel++) {
+                            if (song[frame.PatternIndex][row, channel, CellType.Instrument] != WTPattern.EVENT_EMPTY) {
+                                unusedInstruments.Remove(song[frame.PatternIndex][row, channel, CellType.Instrument]);
+                            }
+                        }
+                    }
+                }
+            }
+            foreach (int inst in unusedInstruments) {
+                Instruments.RemoveAt(inst);
+            }
+            if (Instruments.Count == 0) {
+                Instruments.Add(new WaveInstrument());
+            }
+            App.InstrumentBank.CurrentInstrumentIndex = 0;
+            Dialogs.messageDialog.Open("Removed " + unusedInstruments.Count + " instruments.", MessageDialog.Icon.Information, "OK");
         }
 
         public void RemoveUnusedWaves() {
-            UI.Dialogs.messageDialog.Open("This function has not been implemented yet!", UI.MessageDialog.Icon.Warning, "OK");
+            List<int> unusedWaves = new List<int>();
+            for (int i = WaveBank.Length - 1; i >= 0; i--) {
+                if (!WaveBank[i].IsEmpty()) {
+                    unusedWaves.Add(i);
+                }
+            }
+            foreach (WTSong song in Songs) {
+                foreach (WTFrame frame in song.FrameSequence) {
+                    int length = frame.GetLength();
+                    for (int row = 0; row < length; ++row) {
+                        for (int channel = 0; channel < ChannelCount; channel++) {
+                            for (int effect = 0; effect < 4; ++effect) {
+                                if (song[frame.PatternIndex][row, channel, CellType.Effect1 + effect * 2] == 'V') {
+                                    unusedWaves.Remove(song[frame.PatternIndex][row, channel, CellType.Effect1Parameter + effect * 2]);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            foreach (Instrument instrument in Instruments) {
+                foreach (Envelope envelope in instrument.envelopes) {
+                    if (envelope.Type == Envelope.EnvelopeType.Wave) {
+                        foreach (sbyte value in envelope.values) {
+                            unusedWaves.Remove(value);
+                        }
+                    }
+                }
+            }
+            foreach (int i in unusedWaves) {
+                WaveBank[i] = new Wave();
+            }
+            Dialogs.messageDialog.Open("Removed " + unusedWaves.Count + " waves.", MessageDialog.Icon.Information, "OK");
         }
 
         /// <summary>

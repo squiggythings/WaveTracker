@@ -75,6 +75,10 @@ namespace WaveTracker.UI {
                 App.CurrentModule.TickRate = tickRateSlider.Value;
                 App.CurrentModule.SetDirty();
             }
+            if (App.CurrentSongIndex != songsList.SelectedIndex) {
+                App.CurrentSongIndex = songsList.SelectedIndex;
+                App.PatternEditor.OnSwitchSong();
+            }
             base.Close();
         }
 

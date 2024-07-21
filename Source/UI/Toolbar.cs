@@ -32,7 +32,7 @@ namespace WaveTracker.UI {
         public SpriteButton frame_prev;
         public SpriteButton frame_next;
 
-        public SpriteButton configuration;
+        public SpriteButton preferences;
         public Toggle followModeToggle;
         public Toggle visualizerModeToggle;
         public bool saveDialogOpen, loadDialogOpen;
@@ -96,8 +96,8 @@ namespace WaveTracker.UI {
             frame_next.SetTooltip("Next Frame", "Go to the next frame");
             px += 20;
 
-            configuration = new SpriteButton(px, 0, 15, 15, 210, 0, this);
-            configuration.SetTooltip("Configuration", "Open WaveTracker configuration");
+            preferences = new SpriteButton(px, 0, 15, 15, 210, 0, this);
+            preferences.SetTooltip("Preferences", "Open WaveTracker preferences");
             px += 20;
 
             followModeToggle = new Toggle("Follow mode", px, 1, this);
@@ -158,7 +158,7 @@ namespace WaveTracker.UI {
             if (frame_next.Clicked) { App.PatternEditor.NextFrame(); }
             if (frame_prev.Clicked) { App.PatternEditor.PreviousFrame(); }
 
-            if (configuration.Clicked) { Dialogs.configurationDialog.Open(); }
+            if (preferences.Clicked) { Dialogs.configurationDialog.Open(); }
 
             followModeToggle.Value = App.PatternEditor.FollowMode;
             followModeToggle.Update();
@@ -200,7 +200,7 @@ namespace WaveTracker.UI {
             frame_prev.Draw();
             frame_next.Draw();
 
-            configuration.Draw();
+            preferences.Draw();
 
             followModeToggle.Draw();
             visualizerModeToggle.Draw();

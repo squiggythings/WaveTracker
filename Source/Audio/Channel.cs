@@ -382,6 +382,7 @@ namespace WaveTracker.Audio {
             tremoloSpeed = 0;
             tremoloTime = 0;
             stereoPhaseOffset = 0;
+            waveIndex.Reset(0);
             waveBlendAmt.Reset(0);
             waveFmAmt.Reset(0);
             _fmSmooth = 0;

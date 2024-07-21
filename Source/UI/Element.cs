@@ -49,9 +49,16 @@ namespace WaveTracker.UI {
             int w = 0;
             foreach (string word in words) {
                 w += Helpers.GetWidthOfText(word + " ");
-                if (w > width) {
-                    str += "\n" + word + " ";
-                    w = Helpers.GetWidthOfText(word + " ");
+                if (w > width || word == "\n") {
+                    if (word == "\n") {
+                        str += "\n";
+                        w = 0;
+                    }
+                    else {
+                        str += "\n" + word + " ";
+                        w = Helpers.GetWidthOfText(word + " ");
+
+                    }
                 }
                 else {
                     str += word + " ";

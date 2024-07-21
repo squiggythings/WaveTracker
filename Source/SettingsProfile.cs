@@ -37,7 +37,7 @@ namespace WaveTracker {
         }
         public class CategoryGeneral {
             public int ScreenScale { get; set; } = 2;
-            public int OscilloscopeMode { get; set; } = 1;
+            public int OscilloscopeMode { get; set; } = 2;
             public int MeterDecayRate { get; set; } = 2;
             public int MeterColorMode { get; set; } = 1;
             public bool FlashMeterRedWhenClipping { get; set; } = true;
@@ -90,10 +90,8 @@ namespace WaveTracker {
             public bool RecordNoteVelocity { get; set; } = true;
             public int MIDITranspose { get; set; } = 0;
             public bool ApplyOctaveTranspose { get; set; } = false;
-            public bool UseProgramChangeToSelectInstrument { get; set; } = false;
-            public bool ReceivePlayStopMessages { get; set; } = false;
-            public bool ReceiveRecordMessages { get; set; } = false;
-
+            public bool UseProgramChangeToSelectInstrument { get; set; } = true;
+            public bool ReceivePlayStopMessages { get; set; } = true;
         }
 
 

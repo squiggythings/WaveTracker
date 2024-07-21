@@ -113,6 +113,17 @@ namespace WaveTracker {
             instance.Tick();
         }
 
+        Menu CreateModuleMenu() {
+            return new Menu([
+                new MenuOption("Module Settings", Dialogs.moduleSettings.Open),
+                null,
+                new SubMenu("Cleanup", [
+                        new MenuOption("Remove unused instruments", CurrentModule.RemoveUnusedInstruments),
+                        new MenuOption("Remove unused waves", CurrentModule.RemoveUnusedWaves),
+                ])
+                ]);
+        }
+
         protected override void Initialize() {
 
 
@@ -145,14 +156,7 @@ namespace WaveTracker {
                 new MenuOption("Move frame left", PatternEditor.MoveFrameLeft),
                 new MenuOption("Move frame right", PatternEditor.MoveFrameRight),
             ]));
-            MenuStrip.AddButton("Module", new Menu([
-                new MenuOption("Module Settings", Dialogs.moduleSettings.Open),
-                null,
-                new SubMenu("Cleanup", [
-                        new MenuOption("Remove unused instruments", CurrentModule.RemoveUnusedInstruments),
-                        new MenuOption("Remove unused waves", CurrentModule.RemoveUnusedWaves),
-                ])
-            ]));
+            MenuStrip.AddButton("Module", CreateModuleMenu);
             MenuStrip.AddButton("Instrument", InstrumentBank.CreateInstrumentMenu);
             MenuStrip.AddButton("Tracker", new Menu([
                 new MenuOption("Play", Playback.Play),
@@ -240,9 +244,7 @@ namespace WaveTracker {
                 InstrumentBank.Update();
                 InstrumentEditor.Update();
             }
-            else {
-                Visualizer.Update();
-            }
+            
             pianoInput = -1;
             if (WaveEditor.GetPianoMouseInput() > -1)
                 pianoInput = WaveEditor.GetPianoMouseInput();
@@ -287,12 +289,13 @@ namespace WaveTracker {
                 //FrameEditor.Update();
                 EditSettings.Update();
             }
-            else {
-                //sframeRenderer.UpdateChannelHeaders();
-            }
+           
             toolbar.Update();
             MenuStrip.Update();
             Dialogs.Update();
+            if (VisualizerMode) {
+                Visualizer.Update();
+            }
 
             ContextMenu.Update();
             base.Update(gameTime);
@@ -343,9 +346,16 @@ namespace WaveTracker {
                 //Rendering.Graphics.DrawRect(Input.lastClickReleaseLocation.X, Input.lastClickReleaseLocation.Y, 1, 1, Color.DarkRed);
             }
             else {
-                if (!Settings.Visualizer.DrawInHighResolution)
-                    Visualizer.Draw();
+                if (!Settings.Visualizer.DrawInHighResolution) {
+                    Visualizer.DrawPianoAndScopes();
+                    Visualizer.DrawTracker();
+                }
+                else if (Input.focus == null) {
+                    Visualizer.DrawTracker();
+                }
             }
+
+
             toolbar.Draw();
             MenuStrip.Draw();
 
@@ -359,6 +369,10 @@ namespace WaveTracker {
             DropdownButton.DrawCurrentMenu();
             ContextMenu.Draw();
             Tooltip.Draw();
+            if (VisualizerMode && Input.focus == null && Settings.Visualizer.DrawInHighResolution) {
+                Visualizer.DrawTracker();
+            }
+
             if (PianoInput.currentlyHeldDownNotes != null) {
                 for (int i = 0; i < PianoInput.currentlyHeldDownNotes.Count; ++i) {
                     Graphics.Write("note: " + Helpers.MIDINoteToText(PianoInput.currentlyHeldDownNotes[i]), 20, 20 + (PianoInput.currentlyHeldDownNotes.Count - i) * 10, Color.Red);
@@ -398,7 +412,7 @@ namespace WaveTracker {
             targetBatch.Begin(SpriteSortMode.Deferred, BlendState.NonPremultiplied, (Settings.General.ScreenScale % 1) == 0 ? SamplerState.PointClamp : SamplerState.LinearClamp, DepthStencilState.Default, RasterizerState.CullNone);
             targetBatch.Draw(target, new Rectangle(0, 0, GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width * Settings.General.ScreenScale, GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height * Settings.General.ScreenScale), Color.White);
             if (VisualizerMode && Input.focus == null && Settings.Visualizer.DrawInHighResolution) {
-                Visualizer.Draw();
+                Visualizer.DrawPianoAndScopes();
             }
             targetBatch.End();
 

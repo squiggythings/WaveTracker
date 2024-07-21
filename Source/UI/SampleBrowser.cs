@@ -262,7 +262,6 @@ namespace WaveTracker.UI {
             if (File.Exists(selectedFilePath))
                 LoadSampleFromFile(selectedFilePath, launched.Sample);
             SaveLoad.SavePath("sample", currentPath);
-            Preferences.SaveToFile();
             previewOut.Stop();
         }
 
