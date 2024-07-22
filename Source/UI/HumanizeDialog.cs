@@ -13,7 +13,7 @@ namespace WaveTracker.UI {
         PatternEditor parentEditor;
         Button cancel, ok;
         NumberBox volumeRange;
-        public HumanizeDialog() : base("Humanize Volumes", 146, 58) {
+        public HumanizeDialog() : base("Humanize volumes", 146, 58) {
             PositionInCenterOfScreen();
             cancel = AddNewBottomButton("Cancel", this);
             ok = AddNewBottomButton("OK", this);

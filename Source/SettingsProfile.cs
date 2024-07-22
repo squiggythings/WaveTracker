@@ -65,7 +65,6 @@ namespace WaveTracker {
             public bool ShowPreviousNextFrames { get; set; } = true;
             public bool IgnoreStepWhenMoving { get; set; } = true;
             public MoveToNextRowBehavior StepAfterNumericInput { get; set; } = MoveToNextRowBehavior.Always;
-            public bool PreviewNotesOnInput { get; set; } = true;
             public bool WrapCursorHorizontally { get; set; } = true;
             public bool KeyRepeat { get; set; } = true;
             public int PageJumpAmount { get; set; } = 2;
@@ -119,11 +118,6 @@ namespace WaveTracker {
         public class CategoryKeyboard {
             public Dictionary<string, KeyboardShortcut> Shortcuts { get; set; }
 
-            public KeyboardShortcut this[string section, string name] {
-                get {
-                    return Shortcuts[section + "\\" + name];
-                }
-            }
             public static readonly Dictionary<string, KeyboardShortcut> defaultShortcuts = new Dictionary<string, KeyboardShortcut>() {
                 {"General\\Increase octave", new KeyboardShortcut(Keys.OemCloseBrackets) },
                 {"General\\Decrease octave", new KeyboardShortcut(Keys.OemOpenBrackets) },
@@ -140,8 +134,8 @@ namespace WaveTracker {
                 {"General\\Follow mode", new KeyboardShortcut(Keys.Scroll) },
                 {"General\\Module settings", new KeyboardShortcut() },
                 {"General\\Edit wave", new KeyboardShortcut() },
-                {"General\\Edit instrument", new KeyboardShortcut() },
-                {"General\\Toggle visualizer", new KeyboardShortcut() },
+                {"General\\Edit instrument", new KeyboardShortcut(Keys.I, KeyModifier.Ctrl) },
+                {"General\\Toggle visualizer", new KeyboardShortcut(Keys.V, KeyModifier.Alt) },
                 {"General\\Toggle Channel", new KeyboardShortcut(Keys.F9, KeyModifier.Alt) },
                 {"General\\Solo channel", new KeyboardShortcut(Keys.F10, KeyModifier.Alt) },
                 {"General\\Reset audio", new KeyboardShortcut(Keys.F12, KeyModifier.None) },

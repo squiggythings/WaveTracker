@@ -51,6 +51,13 @@ namespace WaveTracker.UI {
                 }
                 ++i;
             }
+            if (InFocus) {
+                if (App.Shortcuts["General\\Edit wave"].IsPressedDown) {
+                    currentWaveID = lastSelectedWave;
+                    App.WaveEditor.Open(currentWaveID);
+                }
+            }
+
         }
 
         public new void Draw() {

@@ -222,9 +222,9 @@ namespace WaveTracker.Audio {
                     //buffer[n + offset] = leftSum;
                     //buffer[n + offset + 1] = rightSum;
 
+                    buffer[n + offset] = Math.Clamp(buffer[n + offset] * (App.Settings.Audio.MasterVolume / 100f), -1, 1);
+                    buffer[n + offset + 1] = Math.Clamp(buffer[n + offset + 1] * (App.Settings.Audio.MasterVolume / 100f), -1, 1);
                     if (!rendering) {
-                        buffer[n + offset] = Math.Clamp(buffer[n + offset], -1, 1);
-                        buffer[n + offset + 1] = Math.Clamp(buffer[n + offset + 1], -1, 1);
                         currentBuffer[0, currBufferPosition] = buffer[n + offset];
                         currentBuffer[1, currBufferPosition] = buffer[n + offset + 1];
                         currBufferPosition++;

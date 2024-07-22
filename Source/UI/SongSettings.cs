@@ -13,10 +13,10 @@ using WaveTracker.Tracker;
 
 namespace WaveTracker.UI {
     public class SongSettings : Panel {
-         Textbox title, author,  copyright, speed;
-         Dropdown selectedSong;
-         NumberBox rows;
-         SpriteButton editButton;
+        Textbox title, author, copyright, speed;
+        Dropdown selectedSong;
+        NumberBox rows;
+        SpriteButton editButton;
         float ampLeft, ampRight;
         int ampL, ampR;
 
@@ -42,65 +42,66 @@ namespace WaveTracker.UI {
         }
 
         public void Update() {
+            if (InFocus) {
+                title.Text = App.CurrentModule.Title;
+                title.Update();
+                if (title.ValueWasChangedInternally) {
+                    App.CurrentModule.Title = title.Text;
+                }
 
-            title.Text = App.CurrentModule.Title;
-            title.Update();
-            if (title.ValueWasChangedInternally) {
-                App.CurrentModule.Title = title.Text;
+                author.Text = App.CurrentModule.Author;
+                author.Update();
+                if (author.ValueWasChangedInternally) {
+                    App.CurrentModule.Author = author.Text;
+                }
+
+                //copyright.Text = App.CurrentModule.Year;
+                //copyright.Update();
+                //if (copyright.ValueWasChangedInternally) {
+                //    App.CurrentModule.Year = copyright.Text;
+                //}
+
+                speed.Text = App.CurrentSong.GetTicksAsString();
+                speed.Update();
+                if (speed.ValueWasChangedInternally) {
+                    App.CurrentSong.LoadTicksFromString(speed.Text);
+                }
+
+                rows.Value = App.CurrentSong.RowsPerFrame;
+                rows.Update();
+                if (rows.ValueWasChangedInternally) {
+                    App.CurrentSong.RowsPerFrame = rows.Value;
+                    App.PatternEditor.cursorPosition.Normalize(App.CurrentSong);
+
+                }
+                if (editButton.Clicked || App.Shortcuts["General\\Module settings"].IsPressedDown) {
+                    Dialogs.moduleSettings.Open();
+                }
+
+                selectedSong.SetMenuItems(App.CurrentModule.GetSongNames());
+                selectedSong.Value = App.CurrentSongIndex;
+                selectedSong.Update();
+                if (selectedSong.ValueWasChangedInternally) {
+                    App.CurrentSongIndex = selectedSong.Value;
+                    App.PatternEditor.OnSwitchSong();
+                }
+
+
+                float meterDecay = 0;
+                switch (App.Settings.General.MeterDecayRate) {
+                    case 0:
+                        meterDecay = 0.5f;
+                        break;
+                    case 1:
+                        meterDecay = 1.25f;
+                        break;
+                    case 2:
+                        meterDecay = 5;
+                        break;
+                }
+                ampLeft *= 1 - meterDecay / 10f;
+                ampRight *= 1 - meterDecay / 10f;
             }
-
-            author.Text = App.CurrentModule.Author;
-            author.Update();
-            if (author.ValueWasChangedInternally) {
-                App.CurrentModule.Author = author.Text;
-            }
-
-            //copyright.Text = App.CurrentModule.Year;
-            //copyright.Update();
-            //if (copyright.ValueWasChangedInternally) {
-            //    App.CurrentModule.Year = copyright.Text;
-            //}
-
-            speed.Text = App.CurrentSong.GetTicksAsString();
-            speed.Update();
-            if (speed.ValueWasChangedInternally) {
-                App.CurrentSong.LoadTicksFromString(speed.Text);
-            }
-
-            rows.Value = App.CurrentSong.RowsPerFrame;
-            rows.Update();
-            if (rows.ValueWasChangedInternally) {
-                App.CurrentSong.RowsPerFrame = rows.Value;
-                App.PatternEditor.cursorPosition.Normalize(App.CurrentSong);
-
-            }
-            if (editButton.Clicked) {
-                Dialogs.moduleSettings.Open();
-            }
-
-            selectedSong.SetMenuItems(App.CurrentModule.GetSongNames());
-            selectedSong.Value = App.CurrentSongIndex;
-            selectedSong.Update();
-            if (selectedSong.ValueWasChangedInternally) {
-                App.CurrentSongIndex = selectedSong.Value;
-                App.PatternEditor.OnSwitchSong();
-            }
-
-
-            float meterDecay = 0;
-            switch (App.Settings.General.MeterDecayRate) {
-                case 0:
-                    meterDecay = 0.5f;
-                    break;
-                case 1:
-                    meterDecay = 1.25f;
-                    break;
-                case 2:
-                    meterDecay = 5;
-                    break;
-            }
-            ampLeft *= 1 - meterDecay / 10f;
-            ampRight *= 1 - meterDecay / 10f;
         }
         public new void Draw() {
             base.Draw();

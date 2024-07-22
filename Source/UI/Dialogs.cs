@@ -13,6 +13,7 @@ namespace WaveTracker.UI {
         public static ModuleSettingsDialog moduleSettings;
         public static ColorPickerDialog colorPicker;
         public static HumanizeDialog humanizeDialog;
+        public static StretchDialog stretchDialog;
         public static ExportDialog exportDialog;
         public static ExportingDialog exportingDialog;
         public static SetFramePatternDialog setFramePatternDialog;
@@ -30,6 +31,7 @@ namespace WaveTracker.UI {
             moduleSettings = new ModuleSettingsDialog();
             colorPicker = new ColorPickerDialog();
             humanizeDialog = new HumanizeDialog();
+            stretchDialog = new StretchDialog();
             exportDialog = new ExportDialog();
             exportingDialog = new ExportingDialog();
             setFramePatternDialog = new SetFramePatternDialog();
@@ -46,6 +48,7 @@ namespace WaveTracker.UI {
         public static void Update() {
             moduleSettings.Update();
             humanizeDialog.Update();
+            stretchDialog.Update();
             exportDialog.Update();
             exportingDialog.Update();
             setFramePatternDialog.Update();
@@ -62,6 +65,7 @@ namespace WaveTracker.UI {
         public static void Draw() {
             moduleSettings.Draw();
             humanizeDialog.Draw();
+            stretchDialog.Draw();
             exportDialog.Draw();
             exportingDialog.Draw();
             setFramePatternDialog.Draw();

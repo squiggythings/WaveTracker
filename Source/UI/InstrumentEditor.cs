@@ -125,7 +125,7 @@ namespace WaveTracker.UI {
                 tabGroup.Draw();
                 DrawRect(9, 28, 280, 1, Color.White);
 
-                if (App.pianoInput > -1) {
+                if (PianoInput.CurrentNote > -1) {
                     piano.Draw(PianoInput.CurrentNote + ChannelManager.previewChannel.envelopePlayers[Envelope.EnvelopeType.Arpeggio].Value);
                 }
                 else {

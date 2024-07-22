@@ -234,8 +234,6 @@ namespace WaveTracker {
 
         static void OnMIDIMessageReceived(object sender, MidiInMessageEventArgs e) {
             MidiEvent midiEvent = e.MidiEvent;
-            Debug.WriteLine(e.RawMessage);
-            Debug.WriteLine(e.MidiEvent);
             if (App.Settings.MIDI.UseProgramChangeToSelectInstrument) {
                 if (midiEvent is PatchChangeEvent patchEvent) {
                     App.InstrumentBank.CurrentInstrumentIndex = Math.Clamp(patchEvent.Patch, 0, App.CurrentModule.Instruments.Count - 1);

@@ -160,13 +160,22 @@ namespace WaveTracker.UI {
 
             if (preferences.Clicked) { Dialogs.configurationDialog.Open(); }
 
+           
             followModeToggle.Value = App.PatternEditor.FollowMode;
             followModeToggle.Update();
+            if (App.Shortcuts["General\\Follow mode"].IsPressedDown) {
+                followModeToggle.Value = !followModeToggle.Value;
+            }
             App.PatternEditor.FollowMode = followModeToggle.Value;
 
             visualizerModeToggle.x = App.WindowWidth - visualizerModeToggle.width - 3;
+
+            
             visualizerModeToggle.Value = App.VisualizerMode;
             visualizerModeToggle.Update();
+            if (App.Shortcuts["General\\Toggle visualizer"].IsPressedDown) {
+                visualizerModeToggle.Value = !visualizerModeToggle.Value;
+            }
             if (visualizerModeToggle.Value != App.VisualizerMode) {
                 if (visualizerModeToggle.Value)
                     App.Visualizer.GenerateWaveColors();

@@ -39,7 +39,12 @@ namespace WaveTracker.UI {
             }
             else
                 octave.Value = App.PatternEditor.CurrentOctave;
-
+            if (App.Shortcuts["General\\Increase step"].IsPressedDown) {
+                App.PatternEditor.InputStep = Math.Clamp(App.PatternEditor.InputStep + 1, 1, 256);
+            }
+            if (App.Shortcuts["General\\Decrease step"].IsPressedDown) {
+                App.PatternEditor.InputStep = Math.Clamp(App.PatternEditor.InputStep - 1, 1, 256);
+            }
             if (step.ValueWasChangedInternally)
                 App.PatternEditor.InputStep = step.Value;
             else

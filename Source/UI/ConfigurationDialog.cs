@@ -55,7 +55,6 @@ namespace WaveTracker.UI {
             pages["Pattern Editor"].AddCheckbox("Show previous/next frames", "Displays the next and previous frames as greyed out in the pattern editor.");
             pages["Pattern Editor"].AddCheckbox("Ignore step when moving", "Ignore the step value in edit settings when moving the cursor. Only use it when inputting values");
             pages["Pattern Editor"].AddDropdown("Step after numeric input", "", ["Always", "At the end of a cell", "After cell, including effect", "Never"]);
-            pages["Pattern Editor"].AddCheckbox("Preview notes on input", "Fade items in the volume column according to their value");
             pages["Pattern Editor"].AddCheckbox("Wrap cursor horizontally", "Moving the cursor past the first or last channel will wrap around to the other side");
             pages["Pattern Editor"].AddCheckbox("Key repeat", "Enable key repetition when inputting notes and values");
             pages["Pattern Editor"].AddDropdown("Page jump amount", "How many rows the cursor jumps when scrolling", ["1", "2", "4", "8", "16"]);
@@ -151,10 +150,8 @@ namespace WaveTracker.UI {
             pages["Pattern Editor"]["Show note off/release as text"].ValueBool = App.Settings.PatternEditor.ShowNoteOffAndReleaseAsText;
             pages["Pattern Editor"]["Fade volume column"].ValueBool = App.Settings.PatternEditor.FadeVolumeColumn;
             pages["Pattern Editor"]["Show previous/next frames"].ValueBool = App.Settings.PatternEditor.ShowPreviousNextFrames;
-            pages["Pattern Editor"]["Preview notes on input"].ValueBool = App.Settings.PatternEditor.PreviewNotesOnInput;
             pages["Pattern Editor"]["Ignore step when moving"].ValueBool = App.Settings.PatternEditor.IgnoreStepWhenMoving;
             pages["Pattern Editor"]["Step after numeric input"].ValueInt = (int)App.Settings.PatternEditor.StepAfterNumericInput;
-            pages["Pattern Editor"]["Preview notes on input"].ValueBool = App.Settings.PatternEditor.PreviewNotesOnInput;
             pages["Pattern Editor"]["Wrap cursor horizontally"].ValueBool = App.Settings.PatternEditor.WrapCursorHorizontally;
             pages["Pattern Editor"]["Key repeat"].ValueBool = App.Settings.PatternEditor.KeyRepeat;
             pages["Pattern Editor"]["Page jump amount"].ValueInt = (int)Math.Log2(App.Settings.PatternEditor.PageJumpAmount);
@@ -224,10 +221,8 @@ namespace WaveTracker.UI {
             App.Settings.PatternEditor.ShowNoteOffAndReleaseAsText = pages["Pattern Editor"]["Show note off/release as text"].ValueBool;
             App.Settings.PatternEditor.FadeVolumeColumn = pages["Pattern Editor"]["Fade volume column"].ValueBool;
             App.Settings.PatternEditor.ShowPreviousNextFrames = pages["Pattern Editor"]["Show previous/next frames"].ValueBool;
-            App.Settings.PatternEditor.PreviewNotesOnInput = pages["Pattern Editor"]["Preview notes on input"].ValueBool;
             App.Settings.PatternEditor.IgnoreStepWhenMoving = pages["Pattern Editor"]["Ignore step when moving"].ValueBool;
             App.Settings.PatternEditor.StepAfterNumericInput = (SettingsProfile.MoveToNextRowBehavior)pages["Pattern Editor"]["Step after numeric input"].ValueInt;
-            App.Settings.PatternEditor.PreviewNotesOnInput = pages["Pattern Editor"]["Preview notes on input"].ValueBool;
             App.Settings.PatternEditor.WrapCursorHorizontally = pages["Pattern Editor"]["Wrap cursor horizontally"].ValueBool;
             App.Settings.PatternEditor.KeyRepeat = pages["Pattern Editor"]["Key repeat"].ValueBool;
             App.Settings.PatternEditor.PageJumpAmount = (int)Math.Pow(2, pages["Pattern Editor"]["Page jump amount"].ValueInt);

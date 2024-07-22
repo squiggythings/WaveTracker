@@ -249,6 +249,22 @@ namespace WaveTracker {
             }
             return ret;
         }
+
+        /// <summary>
+        /// Ensures that a string will not contain any characters that arent in the allowed characters
+        /// </summary>
+        /// <param name="original"></param>
+        /// <returns></returns>
+        public static string FlushString(string original, string allowedCharacters) {
+            if (original == null)
+                return "";
+            string ret = "";
+            foreach (char c in original) {
+                if (allowedCharacters.Contains(c))
+                    ret += c;
+            }
+            return ret;
+        }
         /// <summary>
         /// Returns true if the given effect is a hexadecimal effect
         /// </summary>

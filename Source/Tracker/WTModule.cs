@@ -248,7 +248,6 @@ namespace WaveTracker.Tracker {
             for (int i = Instruments.Count - 1; i >= 0; i--) {
                 unusedInstruments.Add(i);
             }
-            Debug.WriteLine("allinst: " + Instruments.Count);
 
             foreach (WTSong song in Songs) {
                 foreach (WTFrame frame in song.FrameSequence) {
@@ -264,6 +263,7 @@ namespace WaveTracker.Tracker {
             }
             foreach (int inst in unusedInstruments) {
                 Instruments.RemoveAt(inst);
+                AdjustForDeletedInstrument(inst);
             }
             if (Instruments.Count == 0) {
                 Instruments.Add(new WaveInstrument());

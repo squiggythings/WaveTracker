@@ -167,9 +167,9 @@ namespace WaveTracker.UI {
                             new MenuOption("Replace Instrument", ReplaceInstrument, SelectionIsActive),
                             new MenuOption("Humanize Volumes", Humanize, SelectionIsActive),
                             null,
-                            new MenuOption("Expand", null, SelectionIsActive),
-                            new MenuOption("Shrink", null, SelectionIsActive),
-                            new MenuOption("Stretch...", null, SelectionIsActive),
+                            new MenuOption("Expand", ExpandSelection, SelectionIsActive),
+                            new MenuOption("Shrink", ShrinkSelection, SelectionIsActive),
+                            new MenuOption("Stretch...", OpenStretchDialog, SelectionIsActive),
                             null,
                             new SubMenu("Transpose",[
                                 new MenuOption("Increase note", IncreaseNote),
@@ -179,7 +179,7 @@ namespace WaveTracker.UI {
                             ])
 
                         ]),
-                        null,        
+                        null,
                         new MenuOption("Preferences...", Dialogs.configurationDialog.Open),
                     ]
                 );
@@ -1054,7 +1054,6 @@ namespace WaveTracker.UI {
             DrawRect(width + 1, -32, 1, 1, App.Settings.Appearance.Theme["Channel separator"]);
             DrawRect(LastChannelEndPos + 1, 0, width - LastChannelEndPos - 1, height, App.Settings.Appearance.Theme["Row background"]);
             DrawRect(0, channelScrollbar.y, ROW_COLUMN_WIDTH, channelScrollbar.height, UIColors.panel);
-            Write((FirstVisibleChannel + 1) + "," + (LastVisibleChannel) + ";" + (cursorPosition.Channel + 1), 0, 0, Color.Red);
             channelScrollbar.Draw();
         }
         void DrawRow(int line, int frame, int row, int frameWrap) {
@@ -1586,7 +1585,7 @@ namespace WaveTracker.UI {
                 if (!InstrumentMask) {
                     CurrentPattern[cursorPosition.Row, cursorPosition.Channel, CellType.Instrument] = (byte)App.InstrumentBank.CurrentInstrumentIndex;
                 }
-                if (volume.HasValue) {
+                if (volume.HasValue && App.Settings.MIDI.RecordNoteVelocity) {
                     CurrentPattern[cursorPosition.Row, cursorPosition.Channel, CellType.Volume] = (byte)volume.Value;
                 }
                 MoveToRow(cursorPosition.Row + InputStep);
@@ -1948,6 +1947,68 @@ namespace WaveTracker.UI {
                 }
             }
             AddToUndoHistory();
+        }
+
+        public void ExpandSelection() {
+            StretchSelection("1 0");
+        }
+        public void ShrinkSelection() {
+            if (SelectionIsActive)
+                StretchSelection("2");
+        }
+        public void OpenStretchDialog() {
+            if (SelectionIsActive) {
+                Dialogs.stretchDialog.Open(this);
+            }
+        }
+
+        public void StretchSelection(string stretchPattern) {
+            if (SelectionIsActive) {
+                int[] values = StretchPatternToIntArray(stretchPattern);
+                if (values.Length > 0) {
+
+                    byte[,] selectClip = new byte[selection.Height, selection.Width];
+                    for (int row = 0; row < selection.Height; row++) {
+                        for (int column = 0; column < selection.Width; column++) {
+                            selectClip[row, column] = (byte)CurrentPattern[selection.min.Row + row, selection.min.CellColumn + column];
+                        }
+                    }
+
+                    int valueIndex = 0;
+                    int rowIndex = 0;
+                    for (int row = selection.min.Row; row <= selection.max.Row; ++row) {
+                        int c = 0;
+                        for (int column = selection.min.CellColumn; column <= selection.max.CellColumn; ++column) {
+                            if (values[valueIndex] == 0) {
+                                CurrentPattern[row, column] = WTPattern.EVENT_EMPTY;
+                            }
+                            else {
+                                CurrentPattern[row, column] = selectClip[rowIndex, c];
+                            }
+                            c++;
+                        }
+                        rowIndex += values[valueIndex];
+                        valueIndex++;
+                        if (valueIndex >= values.Length) {
+                            valueIndex = 0;
+                        }
+                    }
+                    AddToUndoHistory();
+                }
+            }
+        }
+
+        int[] StretchPatternToIntArray(string text) {
+            List<int> ticks = new List<int>();
+            foreach (string word in text.Split(' ')) {
+                if (word.IsNumeric()) {
+                    if (int.TryParse(word, out int val))
+                        ticks.Add(val);
+                }
+            }
+            if (ticks.Count == 0)
+                ticks.Add(1);
+            return ticks.ToArray();
         }
 
         public void IncreaseNote() {

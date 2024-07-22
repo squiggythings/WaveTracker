@@ -66,7 +66,7 @@ namespace WaveTracker.UI {
                 if (none.Clicked) {
                     ChannelManager.MuteAllChannels();
                 }
-                for (int i = 0; i < channels.Length; ++i) {
+                for (int i = 0; i < App.CurrentModule.ChannelCount; ++i) {
                     channels[i].Value = ChannelManager.IsChannelOn(i);
                     channels[i].Update();
                     if (channels[i].Value != ChannelManager.IsChannelOn(i))
@@ -86,7 +86,7 @@ namespace WaveTracker.UI {
                 DrawRect(55, 41, 104, 1, UIColors.labelLight);
                 all.Draw();
                 none.Draw();
-                for (int i = 0; i < channels.Length; ++i) {
+                for (int i = 0; i < App.CurrentModule.ChannelCount; ++i) {
                     channels[i].Draw();
                     WriteCenter((i + 1) + "", channels[i].x + 4, channels[i].y + 10, UIColors.label);
                 }

@@ -149,7 +149,7 @@ namespace WaveTracker.UI {
                     MoveUp();
                 }
 
-                if (bEdit.Clicked) {
+                if (bEdit.Clicked || App.Shortcuts["General\\Edit instrument"].IsPressedDown) {
                     Edit();
                 }
 
