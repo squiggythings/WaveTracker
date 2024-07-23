@@ -15,7 +15,7 @@ namespace WaveTracker.Audio {
         const int OVERSAMPLE = 2;
         int id;
         public bool IsMuted { get; set; }
-        public Wave currentWave => App.CurrentModule.WaveBank[WaveIndex];
+        public Wave currentWave => App.CurrentModule.WaveBank[(WaveIndex + 100) % 100];
         public int WaveIndex { get { return waveIndex.Value; } }
         public List<TickEvent> tickEvents;
         float TotalAmplitude {
