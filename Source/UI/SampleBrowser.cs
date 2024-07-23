@@ -253,6 +253,8 @@ namespace WaveTracker.UI {
             selectedFileIndex = -1;
             scrollbar.ScrollValue = 0;
             enabled = true;
+            this.x = (App.WindowWidth - width) / 2;
+            this.y = (App.WindowHeight - height) / 2;
             Input.focus = this;
         }
 
