@@ -87,7 +87,7 @@ namespace WaveTracker.UI {
             miniTrackerLayout.x = 0;
             miniTrackerLayout.width = unscaledWidth;
             miniTrackerLayout.y = App.MENUSTRIP_HEIGHT + 35 + (int)Math.Ceiling((unscaledHeight - 20) * pianoHeightRatio);
-            miniTrackerLayout.height = (int)Math.Ceiling((unscaledHeight - 18) * (1- pianoHeightRatio));
+            miniTrackerLayout.height = (int)Math.Ceiling((unscaledHeight - 18) * (1 - pianoHeightRatio));
 
             int scale = App.Settings.Visualizer.DrawInHighResolution ? App.Settings.General.ScreenScale : 1;
             x = 0;
@@ -155,15 +155,20 @@ namespace WaveTracker.UI {
                 for (int c = 0; c < ChannelManager.channels.Count; c++) {
                     chan = ChannelManager.channels[c];
 
-                    if ((chan.currentInstrument is WaveInstrument || (chan.currentInstrument is SampleInstrument inst && inst.sample.useInVisualization)) && chan.CurrentAmplitude > 0.01f && chan.CurrentPitch >= 12 && chan.CurrentPitch < 132 && ChannelManager.IsChannelOn(c)) {
-                        channelStates[writeIndex][c].Set(chan.CurrentPitch, chan.CurrentAmplitude, chan.currentInstrument is WaveInstrument ? GetColorOfWaveFromTable(chan.WaveIndex, chan.WaveMorphPosition) : Color.White, chan.IsPlaying);
+                    if ((chan.currentInstrument is WaveInstrument || (chan.currentInstrument is SampleInstrument inst && inst.sample.useInVisualization)) && chan.CurrentAmplitude > 0.0001f && chan.CurrentPitch >= 12 && chan.CurrentPitch < 132 && ChannelManager.IsChannelOn(c)) {
+                        channelStates[writeIndex][c].Set(chan.CurrentPitch, chan.CurrentAmplitude, chan.currentInstrument is WaveInstrument ? GetColorOfWaveFromTable(chan.WaveIndex, chan.WaveMorphPosition) : Color.White);
                     }
                     else {
                         channelStates[writeIndex][c].Clear();
                     }
                 }
                 chan = ChannelManager.previewChannel;
-                channelStates[writeIndex][24].Set(chan.CurrentPitch, chan.CurrentAmplitude, chan.currentInstrument is WaveInstrument ? GetColorOfWaveFromTable(chan.WaveIndex, chan.WaveMorphPosition) : Color.White, chan.IsPlaying);
+                if (chan.CurrentAmplitude > 0.0001f) {
+                    channelStates[writeIndex][24].Set(chan.CurrentPitch, chan.CurrentAmplitude, chan.currentInstrument is WaveInstrument ? GetColorOfWaveFromTable(chan.WaveIndex, chan.WaveMorphPosition) : Color.White);
+                }
+                else {
+                    channelStates[writeIndex][24].Clear();
+                }
                 Array.Sort(channelStates[writeIndex]);
                 writeIndex++;
                 if (writeIndex >= channelStates.GetLength(0)) {
@@ -193,7 +198,7 @@ namespace WaveTracker.UI {
                 if (App.Settings.Visualizer.HighlightPressedKeys) {
                     for (int c = 0; c < channelStates[drawIndex].Length; ++c) {
                         ChannelState state = channelStates[drawIndex][c];
-                        if (state.isPlaying) {
+                        if (state != null) {
                             int note = (int)(state.pitch + 0.5f);
                             int height = PianoHeight;
                             if (Helpers.IsNoteBlackKey(note)) {
@@ -208,7 +213,7 @@ namespace WaveTracker.UI {
                 for (int i = 0; i < height - PianoHeight; ++i) {
                     for (int c = 0; c < channelStates[drawIndex].Length; ++c) {
                         ChannelState state = channelStates[drawIndex][c];
-                        if (state != null && state.isPlaying) {
+                        if (state != null) {
                             int noteWidth = PianoNoteWidth;
                             if (App.Settings.Visualizer.ChangeNoteWidthByVolume) {
                                 noteWidth = (int)state.volume.Map(0, 1, 1, PianoNoteWidth + 2);
@@ -230,7 +235,6 @@ namespace WaveTracker.UI {
                 public float pitch;
                 public float volume;
                 Color color;
-                public bool isPlaying;
 
                 /// <summary>
                 /// Sets the state's values
@@ -239,11 +243,10 @@ namespace WaveTracker.UI {
                 /// <param name="volume"></param>
                 /// <param name="color"></param>
                 /// <param name="isPlaying"></param>
-                public void Set(float pitch, float volume, Color color, bool isPlaying) {
+                public void Set(float pitch, float volume, Color color) {
                     this.pitch = pitch;
                     this.volume = volume;
                     this.color = color;
-                    this.isPlaying = isPlaying;
                 }
 
                 /// <summary>
@@ -252,7 +255,6 @@ namespace WaveTracker.UI {
                 public void Clear() {
                     this.pitch = 0;
                     this.volume = 0;
-                    this.isPlaying = false;
                 }
 
                 /// <summary>

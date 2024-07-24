@@ -48,19 +48,19 @@ namespace WaveTracker.UI {
             pages["Files"].AddNumberBox("Default row highlight primary", "The default primary row highlight for new modules", 1, 256, positionOffset: 12);
             pages["Files"].AddNumberBox("Default row highlight secondary", "The default secondary row highlight for new modules", 1, 256);
 
-            pages["Pattern Editor"].AddLabel("Pattern Editor");
+            pages["Pattern Editor"].AddLabel("Pattern editor");
             pages["Pattern Editor"].AddCheckbox("Show row numbers in hex", "Display row numbers in hexadecimal instead of decimal");
             pages["Pattern Editor"].AddCheckbox("Show note off/release as text", "Display note off and release events as OFF and REL");
-            pages["Pattern Editor"].AddCheckbox("Fade volume column", "Dims the numbers in the volume column according to their value.");
-            pages["Pattern Editor"].AddCheckbox("Show previous/next frames", "Displays the next and previous frames as greyed out in the pattern editor.");
+            pages["Pattern Editor"].AddCheckbox("Fade volume column", "Fades the numbers in the volume column according to their value");
+            pages["Pattern Editor"].AddCheckbox("Show previous/next frames", "Displays the next and previous frames as greyed out in the pattern editor");
             pages["Pattern Editor"].AddCheckbox("Ignore step when moving", "Ignore the step value in edit settings when moving the cursor. Only use it when inputting values");
-            pages["Pattern Editor"].AddDropdown("Step after numeric input", "", ["Always", "At the end of a cell", "After cell, including effect", "Never"]);
+            pages["Pattern Editor"].AddDropdown("Step after numeric input", "Defines cursor movement behavior when inputting numbers", ["Always", "At the end of a cell", "After cell, including effect", "Never"]);
             pages["Pattern Editor"].AddCheckbox("Wrap cursor horizontally", "Moving the cursor past the first or last channel will wrap around to the other side");
             pages["Pattern Editor"].AddCheckbox("Key repeat", "Enable key repetition when inputting notes and values");
             pages["Pattern Editor"].AddDropdown("Page jump amount", "How many rows the cursor jumps when scrolling", ["1", "2", "4", "8", "16"]);
             pages["Pattern Editor"].AddCheckbox("Restore channel state on playback", "Reconstruct the current channel's state from previous frames upon playing");
 
-            pages["Samples/Waves"].AddLabel("Sample Import Settings");
+            pages["Samples/Waves"].AddLabel("Sample import settings");
             pages["Samples/Waves"].AddCheckbox("Automatically normalize samples on import", "Automatically makes each new sample have the same volume");
             pages["Samples/Waves"].AddCheckbox("Automatically trim sample silence on import", "Automatically trim any silence before and after a sample when importing");
             pages["Samples/Waves"].AddCheckbox("Automatically preview samples in browser", "Plays audio files upon clicking on them in the sample browser");
@@ -89,7 +89,7 @@ namespace WaveTracker.UI {
             pages["Audio"].AddBreak();
             pages["Audio"].AddSlider("Volume", "The output master volume", 32, 200, 10, 0, 200, "%");
             pages["Audio"].AddBreak();
-            pages["Audio"].AddDropdown("Sample rate", "The output sample rate of WaveTracker.", ["11025 Hz", "22050 Hz", "44100 Hz", "48000 Hz", "96000 Hz"], false, positionOffset: 8);
+            pages["Audio"].AddDropdown("Sample rate", "The output sample rate of WaveTracker", ["11025 Hz", "22050 Hz", "44100 Hz", "48000 Hz", "96000 Hz"], false, positionOffset: 8);
             pages["Audio"].AddBreak();
             pages["Audio"].AddLabel("Advanced");
             pages["Audio"].AddDropdown("Oversampling", "Higher values will reduce high frequency aliasing artefacts, at the expense of higher CPU usage \n Turn this down if audio is stuttering", ["1x", "2x (recommended)", "4x", "8x"], false);
