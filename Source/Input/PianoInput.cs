@@ -236,7 +236,9 @@ namespace WaveTracker {
             MidiEvent midiEvent = e.MidiEvent;
             if (App.Settings.MIDI.UseProgramChangeToSelectInstrument) {
                 if (midiEvent is PatchChangeEvent patchEvent) {
-                    App.InstrumentBank.CurrentInstrumentIndex = Math.Clamp(patchEvent.Patch, 0, App.CurrentModule.Instruments.Count - 1);
+                    if (!App.InstrumentEditor.IsOpen && !Menu.IsAMenuOpen) {
+                        App.InstrumentBank.CurrentInstrumentIndex = Math.Clamp(patchEvent.Patch, 0, App.CurrentModule.Instruments.Count - 1);
+                    }
                 }
             }
             if (App.Settings.MIDI.ReceivePlayStopMessages) {

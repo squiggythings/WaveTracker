@@ -73,6 +73,7 @@ namespace WaveTracker.UI {
                         new MenuOption("Edit...", Edit)
                    ]);
         }
+
         public void Update() {
             x = App.WindowWidth - width;
             height = App.WindowHeight - y;
