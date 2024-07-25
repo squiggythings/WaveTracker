@@ -63,7 +63,9 @@ namespace WaveTracker {
         /// How many frames since we last switched focus
         /// </summary>
         public static int focusTimer;
-
+        /// <summary>
+        /// How many frames since the window has been out of focus
+        /// </summary>
         public static int windowFocusTimer;
 
         public static Keys[] currentPressedKeys;
@@ -181,9 +183,6 @@ namespace WaveTracker {
 
         public static void CancelClick() {
             cancelClick = true;
-        }
-
-        public static void ProcessTextInput(object sender, TextInputEventArgs e) {
         }
 
         public static bool GetKey(Keys key, KeyModifier modifier) {

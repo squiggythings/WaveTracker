@@ -59,12 +59,6 @@ namespace WaveTracker.Tracker {
         public Wave[] WaveBank { get; private set; }
 
         /// <summary>
-        /// The list of instruments in this module
-        /// </summary>
-        [ProtoMember(8)]
-        public List<OldInstrument> OldInstruments { get; set; }
-
-        /// <summary>
         /// The number of channels in this module
         /// </summary>
         [ProtoMember(9)]
@@ -111,9 +105,6 @@ namespace WaveTracker.Tracker {
         internal void AfterDeserialization() {
             if (Instruments == null) {
                 Instruments = new List<Instrument>();
-                foreach (OldInstrument oldInstrument in OldInstruments) {
-                    Instruments.Add(oldInstrument.ToNewInstrument());
-                }
             }
             foreach (WTSong song in Songs) {
                 song.AfterDeserialized(this);
@@ -130,68 +121,6 @@ namespace WaveTracker.Tracker {
                 song.ResizeChannelCount();
             }
             App.PatternEditor.OnResizeChannels();
-
-        }
-
-        public static WTModule FromOldSongFormat(Song song) {
-            WTModule module = new WTModule() {
-                Comment = song.comment,
-                Title = song.name,
-                Author = song.author,
-                Year = song.year,
-                OldInstruments = song.instruments,
-                WaveBank = song.waves,
-                TickRate = song.tickRate,
-                ChannelCount = 24
-            };
-            module.Instruments = new List<Instrument>();
-            foreach (OldInstrument oldInstrument in module.OldInstruments) {
-                module.Instruments.Add(oldInstrument.ToNewInstrument());
-            }
-            WTSong wtsong = new WTSong(module) {
-                RowHighlightPrimary = song.rowHighlight1,
-                RowHighlightSecondary = song.rowHighlight2,
-                TicksPerRow = song.ticksPerRow,
-                RowsPerFrame = song.rowsPerFrame
-            };
-
-            int patternIndex = 0;
-            foreach (Frame frame in song.frames) {
-                wtsong.AddNewFrame();
-                WTPattern pat = wtsong.Patterns[patternIndex];
-                for (int row = 0; row < 256; ++row) {
-                    for (int channel = 0; channel < module.ChannelCount; ++channel) {
-                        pat[row, channel, CellType.Note] = ConvertCell(frame.pattern[row][channel * 5 + 0], true);
-                        pat[row, channel, CellType.Instrument] = ConvertCell(frame.pattern[row][channel * 5 + 1], false);
-                        pat[row, channel, CellType.Volume] = ConvertCell(frame.pattern[row][channel * 5 + 2], false);
-                        int effect = ConvertCell(frame.pattern[row][channel * 5 + 3], false);
-                        if (effect != WTPattern.EVENT_EMPTY) {
-                            effect = Helpers.GetEffectCharacter(effect);
-                        }
-                        pat[row, channel, CellType.Effect1] = effect;
-                        pat[row, channel, CellType.Effect1Parameter] = ConvertCell(frame.pattern[row][channel * 5 + 4], false);
-                    }
-                }
-                patternIndex++;
-            }
-            module.Songs[0] = wtsong;
-            return module;
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="cellValue"></param>
-        /// <param name="isNote"></param>
-        /// <returns></returns>
-        static int ConvertCell(short cellValue, bool isNote) {
-            if (cellValue == Frame.NOTE_EMPTY_VALUE) return WTPattern.EVENT_EMPTY;
-            if (cellValue == Frame.NOTE_CUT_VALUE) return WTPattern.EVENT_NOTE_CUT;
-            if (cellValue == Frame.NOTE_RELEASE_VALUE) return WTPattern.EVENT_NOTE_RELEASE;
-            if (isNote)
-                return cellValue + 12;
-            else
-                return cellValue;
 
         }
 

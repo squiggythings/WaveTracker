@@ -15,7 +15,6 @@ namespace WaveTracker.UI {
     public abstract class Dialog : Window {
         List<Button> bottomButtons;
 
-
         /// <summary>
         /// Initializes a dialog
         /// </summary>

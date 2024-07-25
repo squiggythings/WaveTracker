@@ -22,7 +22,7 @@ namespace WaveTracker.UI {
             width = MIN_WIDTH;
         }
         /// <summary>
-        /// 
+        /// Creates and initializes a menu
         /// </summary>
         /// <param name="items"></param>
         public Menu(MenuItemBase[] items) {

@@ -82,7 +82,7 @@ namespace WaveTracker.UI {
             if (listLength <= 0)
                 listLength = 1;
             if (!Menu.IsAMenuOpen) {
-                if (Input.GetKeyRepeat(Microsoft.Xna.Framework.Input.Keys.Down, KeyModifier.Ctrl)) {
+                if (App.Shortcuts["General\\Next instrument"].IsPressedRepeat) {
                     CurrentInstrumentIndex++;
                     CurrentInstrumentIndex = Math.Clamp(CurrentInstrumentIndex, 0, App.CurrentModule.Instruments.Count - 1);
                     moveBounds();
@@ -90,7 +90,7 @@ namespace WaveTracker.UI {
                         Edit();
                     }
                 }
-                if (Input.GetKeyRepeat(Microsoft.Xna.Framework.Input.Keys.Up, KeyModifier.Ctrl)) {
+                if (App.Shortcuts["General\\Next instrument"].IsPressedRepeat) {
                     CurrentInstrumentIndex--;
                     CurrentInstrumentIndex = Math.Clamp(CurrentInstrumentIndex, 0, App.CurrentModule.Instruments.Count - 1);
                     moveBounds();

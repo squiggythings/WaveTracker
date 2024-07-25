@@ -54,8 +54,6 @@ namespace WaveTracker {
 
         public class CategoryAppearance {
             public ColorTheme Theme { get; set; } = ColorTheme.Default;
-
-
         }
 
         public class CategoryPatternEditor {
@@ -136,7 +134,7 @@ namespace WaveTracker {
                 {"General\\Edit wave", new KeyboardShortcut() },
                 {"General\\Edit instrument", new KeyboardShortcut(Keys.I, KeyModifier.Ctrl) },
                 {"General\\Toggle visualizer", new KeyboardShortcut(Keys.V, KeyModifier.Alt) },
-                {"General\\Toggle Channel", new KeyboardShortcut(Keys.F9, KeyModifier.Alt) },
+                {"General\\Toggle channel", new KeyboardShortcut(Keys.F9, KeyModifier.Alt) },
                 {"General\\Solo channel", new KeyboardShortcut(Keys.F10, KeyModifier.Alt) },
                 {"General\\Reset audio", new KeyboardShortcut(Keys.F12, KeyModifier.None) },
 

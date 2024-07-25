@@ -28,17 +28,17 @@ namespace WaveTracker.Tracker {
         public static WTFrame Frame => App.CurrentSong.FrameSequence[position.Frame];
 
         public static void Update() {
-            if (Input.GetKeyDown(Keys.F5, KeyModifier.None)) {
+            if (App.Shortcuts["General\\Play from beginning"].IsPressedDown) {
                 PlayFromBeginning();
             }
-            if (Input.GetKeyDown(Keys.F7, KeyModifier.None)) {
+            if (App.Shortcuts["General\\Play from cursor"].IsPressedDown) {
                 PlayFromCursor();
             }
-            if (Input.GetKeyDown(Keys.F8, KeyModifier.None)) {
+            if (App.Shortcuts["General\\Stop"].IsPressedDown) {
                 Stop();
             }
-            if (Input.GetKeyDown(Keys.Enter, KeyModifier.None)) {
-                if (Input.windowFocusTimer == 0) {
+            if (App.Shortcuts["General\\Play/Stop"].IsPressedDown) {
+                if (Input.windowFocusTimer == 0 && Input.focusTimer > 1) {
                     if (IsPlaying) {
                         Stop();
                     }
@@ -48,15 +48,11 @@ namespace WaveTracker.Tracker {
                 }
             }
             if (!App.VisualizerMode) {
-                if (Input.GetKeyRepeat(Keys.Enter, KeyModifier.Ctrl)) {
+                if (App.Shortcuts["General\\Play row"].IsPressedRepeat) {
                     if (Input.dialogOpenCooldown == 0) {
                         ChannelManager.PlayRow(App.PatternEditor.cursorPosition.Frame, App.PatternEditor.cursorPosition.Row);
                         App.PatternEditor.MoveToRow(App.PatternEditor.cursorPosition.Row + 1);
                     }
-                }
-                if (Input.GetKeyDown(Keys.Enter, KeyModifier.Alt)) {
-                    if (Input.dialogOpenCooldown == 0)
-                        PlayFromCursor();
                 }
             }
         }

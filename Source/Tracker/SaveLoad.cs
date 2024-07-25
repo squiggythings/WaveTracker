@@ -144,7 +144,6 @@ namespace WaveTracker {
             //FrameEditor.Goto(0, 0);
             //FrameEditor.cursorColumn = 0;
             //FrameEditor.UnmuteAllChannels();
-            Song.currentSong = null;
             App.CurrentModule = new WTModule();
             App.CurrentSongIndex = 0;
             App.PatternEditor.OnSwitchSong(true);
@@ -304,20 +303,8 @@ namespace WaveTracker {
                     App.CurrentModule = Serializer.Deserialize<WTModule>(fs);
                 }
             } catch {
-                try {
-                    // try converting from the old format
-                    using (FileStream fs = new FileStream(path, FileMode.Open)) {
-                        fs.Position = 0;
-                        Song.currentSong = Serializer.Deserialize<Song>(fs);
-                    }
-                    Song.currentSong.Deserialize();
-                    App.CurrentModule = WTModule.FromOldSongFormat(Song.currentSong);
-                    Song.currentSong = null;
-                } catch {
-                    // invalid file format or file is corrupted
-                    return false;
-                }
-
+                // invalid file format or file is corrupted
+                return false;
             }
             stopwatch.Stop();
             Debug.WriteLine("opened in " + stopwatch.ElapsedMilliseconds + " ms");

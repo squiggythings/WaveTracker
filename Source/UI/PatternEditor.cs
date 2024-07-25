@@ -251,7 +251,7 @@ namespace WaveTracker.UI {
             lastSelection.IsActive = selection.IsActive;
 
             #region solo/mute channels function keys
-            if (App.Shortcuts["General\\Toggle Channel"].IsPressedDown)
+            if (App.Shortcuts["General\\Toggle channel"].IsPressedDown)
                 ChannelManager.ToggleChannel(cursorPosition.Channel);
 
             if (App.Shortcuts["General\\Solo channel"].IsPressedDown) {
@@ -319,8 +319,8 @@ namespace WaveTracker.UI {
             if (ClickedDown) {
                 CancelSelection();
             }
-            if ((SingleClickedM(KeyModifier._Any) && Input.CurrentModifier != KeyModifier.Shift) && MouseX < channelHeaders[Song.CHANNEL_COUNT - 1].x + width && !Input.MouseJustEndedDragging) {
-                if (MouseX > ROW_COLUMN_WIDTH) {
+            if ((SingleClickedM(KeyModifier._Any) && Input.CurrentModifier != KeyModifier.Shift) && MouseX <= LastChannelEndPos && !Input.MouseJustEndedDragging) {
+                if (MouseX > ROW_COLUMN_WIDTH && MouseX < width) {
                     cursorPosition = GetCursorPositionFromPoint(MouseX, MouseY);
                     MakeCursorVisibleInBounds();
                 }
@@ -453,7 +453,6 @@ namespace WaveTracker.UI {
                 selectionStart = selectionEnd = cursorPosition;
             }
             selection.Set(App.CurrentSong, selectionStart, selectionEnd);
-            //CreateSelectionBounds();
 
             #region copying selection
             if (SelectionIsActive) {

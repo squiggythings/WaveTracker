@@ -10,6 +10,7 @@ using WaveTracker.Tracker;
 
 
 namespace WaveTracker.UI {
+
     public abstract class WaveModifyDialog : Dialog {
         protected Wave waveToEdit;
         protected byte[] originalData;
@@ -44,6 +45,9 @@ namespace WaveTracker.UI {
             }
         }
 
+        /// <summary>
+        /// Applies the effect to the wave
+        /// </summary>
         public void Apply() {
             if (waveToEdit != null) {
                 for (int i = 0; i < 64; ++i) {
@@ -57,6 +61,12 @@ namespace WaveTracker.UI {
                 waveToEdit.samples[i] = originalData[i];
             }
         }
+
+        /// <summary>
+        /// Given the input index, define the output sample
+        /// </summary>
+        /// <param name="index"></param>
+        /// <returns></returns>
         protected abstract byte GetSampleValue(int index);
 
         public new void Draw() {
