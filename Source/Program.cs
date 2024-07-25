@@ -13,14 +13,11 @@ namespace WaveTracker
         /// The main entry point for the application.
         /// </summary>
         [STAThread]
-        static void Main(string[] args)
-        {
-            using (var game = new App(args))
+        static void Main(string[] args) {
+            using (var game = new App(args)) {
                 game.Run();
+            }
 
         }
-
-
     }
-
 }

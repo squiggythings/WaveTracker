@@ -43,8 +43,7 @@ namespace WaveTracker {
         public static EditSettings EditSettings { get; private set; }
         FramesPanel frameView;
         public Toolbar toolbar;
-        int lastPianoKey;
-        public static int pianoInput;
+        static int pianoInput;
         public static int MouseCursorArrow { get; set; }
         public static bool VisualizerMode { get; set; }
         public static Visualizer Visualizer { get; set; }
@@ -69,7 +68,7 @@ namespace WaveTracker {
         public static GameWindow ClientWindow => instance.Window;
 
         public MenuStrip MenuStrip { get; set; }
-        
+
         string inputFilepath;
 
 
@@ -78,7 +77,7 @@ namespace WaveTracker {
             if (args.Length > 0)
                 inputFilepath = args[0];
 
-            graphics = new GraphicsDeviceManager(this);            
+            graphics = new GraphicsDeviceManager(this);
             graphics.ApplyChanges();
             Window.Position = new Point(-8, 0);
             Window.AllowUserResizing = true;
@@ -230,14 +229,14 @@ namespace WaveTracker {
                 InstrumentBank.Update();
                 InstrumentEditor.Update();
             }
-            
+
             pianoInput = -1;
             if (WaveEditor.GetPianoMouseInput() > -1)
                 pianoInput = WaveEditor.GetPianoMouseInput();
             if (InstrumentEditor.GetPianoMouseInput() > -1)
                 pianoInput = InstrumentEditor.GetPianoMouseInput();
             PianoInput.ReceivePreviewPianoInput(pianoInput);
-            
+
             Playback.Update();
 
 
@@ -246,7 +245,7 @@ namespace WaveTracker {
                 frameView.Update();
                 EditSettings.Update();
             }
-           
+
             toolbar.Update();
             MenuStrip.Update();
             Dialogs.Update();

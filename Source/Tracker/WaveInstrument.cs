@@ -12,7 +12,6 @@ using ProtoBuf;
 
 namespace WaveTracker.Tracker {
     public class WaveInstrument : Instrument {
-        //[ProtoMember(11)]
 
         public WaveInstrument() : base() {
             name = "New Wave Instrument";
@@ -53,6 +52,5 @@ namespace WaveTracker.Tracker {
             }
             return m;
         }
-
     }
 }

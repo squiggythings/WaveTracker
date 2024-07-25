@@ -86,11 +86,12 @@ namespace WaveTracker.UI {
                     CurrentInstrumentIndex++;
                     CurrentInstrumentIndex = Math.Clamp(CurrentInstrumentIndex, 0, App.CurrentModule.Instruments.Count - 1);
                     moveBounds();
+                    System.Diagnostics.Debug.WriteLine("next");
                     if (App.InstrumentEditor.IsOpen) {
                         Edit();
                     }
                 }
-                if (App.Shortcuts["General\\Next instrument"].IsPressedRepeat) {
+                if (App.Shortcuts["General\\Previous instrument"].IsPressedRepeat) {
                     CurrentInstrumentIndex--;
                     CurrentInstrumentIndex = Math.Clamp(CurrentInstrumentIndex, 0, App.CurrentModule.Instruments.Count - 1);
                     moveBounds();
