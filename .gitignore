@@ -24,6 +24,7 @@ obj/Debug/net6.0-windows/
 Content/bin/
 /.vs
 bin/
+AsepritePlanning/
 
 #Visual Studio files
 *.pidb
@@ -340,3 +341,4 @@ obj/
 bin/
 Content/obj/
 Content/bin/
+/AsepritePlanning
