@@ -1,6 +1,0 @@
-﻿TODO:
-* Custom song settings dialog
-
-
-
-
