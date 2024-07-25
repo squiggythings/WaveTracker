@@ -12,6 +12,9 @@ using ProtoBuf;
 using WaveTracker.Audio;
 
 namespace WaveTracker.Tracker {
+    /// <summary>
+    /// Base class for an instrument
+    /// </summary>
     [ProtoContract]
     [ProtoInclude(10, typeof(WaveInstrument))]
     [ProtoInclude(20, typeof(SampleInstrument))]

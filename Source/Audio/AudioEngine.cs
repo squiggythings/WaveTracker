@@ -30,7 +30,7 @@ namespace WaveTracker.Audio {
         public static MMDeviceCollection OutputDevices { get; private set; }
         public static string[] OutputDeviceNames { get; private set; }
         static BiQuadFilter antialiasingFilterL, antialiasingFilterR;
-        static Provider audioProvider;
+        static AudioProvider audioProvider;
         static StereoDelayLine delay;
         static StereoDistortion distortion;
 
@@ -51,20 +51,8 @@ namespace WaveTracker.Audio {
         public static void Initialize() {
             Dialogs.exportingDialog = new ExportingDialog();
             currentBuffer = new float[2, PreviewBufferLength];
-            audioProvider = new Provider();
+            audioProvider = new AudioProvider();
             SetSampleRate(App.Settings.Audio.SampleRate, App.Settings.Audio.Oversampling);
-
-            //delayL = new ReverbLine(0.995f, 2f);
-            //delayR = new ReverbLine(0.995f, 2f);
-            //delay = new StereoDelayLine(SamplesPerTick * 32, 0.6f, 0.5f);
-            //delay.PingPong = true;
-            //reverb = new ReverbLine();
-            //distortion = new StereoDistortion();
-            //distortion.Ratio = 900;
-            //distortion.Threshold = 0.3f;
-            //distortion.WetMix = 1;
-
-
             GetAudioOutputDevices();
             int index = Array.IndexOf(OutputDeviceNames, App.Settings.Audio.OutputDevice);
             if (index < 1) {
@@ -131,7 +119,7 @@ namespace WaveTracker.Audio {
         }
 
 
-        public static async void RenderTo(string filepath, int maxloops, bool individualStems) {
+        public static async void RenderTo(string filepath, int maxloops) {
             renderTotalRows = App.CurrentSong.GetNumberOfRows(maxloops);
             if (!SaveLoad.ChooseExportPath(out filepath)) {
                 return;
@@ -150,11 +138,6 @@ namespace WaveTracker.Audio {
                 File.Copy(filepath + ".temp", filepath);
             }
             File.Delete(filepath + ".temp");
-            //rendering = false;
-            //waveFileWriter.Close();
-            //Tracker.Playback.Stop();
-            //rendering = false;
-
         }
 
 
@@ -174,7 +157,7 @@ namespace WaveTracker.Audio {
         }
 
 
-        public class Provider : WaveProvider32 {
+        public class AudioProvider : WaveProvider32 {
             public override int Read(float[] buffer, int offset, int sampleCount) {
                 if (rendering) {
                     if (renderProcessedRows >= renderTotalRows || cancelRender) {
@@ -189,8 +172,8 @@ namespace WaveTracker.Audio {
 
                 for (int n = 0; n < sampleCount; n += 2) {
                     buffer[n + offset] = buffer[n + offset + 1] = 0;
-                    float leftSum = 0;
-                    float rightSum = 0;
+                    float leftSum;
+                    float rightSum;
                     for (int j = 0; j < OVERSAMPLE; ++j) {
                         float l;
                         float r;
@@ -208,19 +191,6 @@ namespace WaveTracker.Audio {
                         buffer[n + offset] = antialiasingFilterL.Transform(leftSum);
                         buffer[n + offset + 1] = antialiasingFilterR.Transform(rightSum);
                     }
-                    //distortion.ResetInput();
-                    //distortion.Receive(buffer[n + offset], buffer[n + offset + 1]);
-                    //distortion.Transform();
-                    //buffer[n + offset] = distortion.OutputL;
-                    //buffer[n + offset + 1] = distortion.OutputR;
-                    //delay._ResetCurrent(buffer[n + offset], buffer[n + offset + 1]);
-                    //delay._Send(delay._PeekWetOutput(0) * 0.9f, delay._PeekWetOutput(1) * 0.9f);
-                    //delay._Step(1);
-                    //buffer[n + offset] += delay._PeekWetOutput(0);
-                    //buffer[n + offset + 1] += delay._PeekWetOutput(1);
-                    //delay.Transform(ref buffer[n + offset], ref buffer[n + offset + 1]);
-                    //buffer[n + offset] = leftSum;
-                    //buffer[n + offset + 1] = rightSum;
 
                     buffer[n + offset] = Math.Clamp(buffer[n + offset] * (App.Settings.Audio.MasterVolume / 100f), -1, 1);
                     buffer[n + offset + 1] = Math.Clamp(buffer[n + offset + 1] * (App.Settings.Audio.MasterVolume / 100f), -1, 1);
@@ -231,9 +201,6 @@ namespace WaveTracker.Audio {
                         if (currBufferPosition >= currentBuffer.Length / 2)
                             currBufferPosition = 0;
                     }
-
-
-
 
                     if (App.VisualizerMode && !rendering)
                         if (_tickCounter % (SamplesPerTick / (App.Settings.Visualizer.PianoSpeed / (App.Settings.Visualizer.DrawInHighResolution ? 1 : App.Settings.General.ScreenScale))) == 0) {

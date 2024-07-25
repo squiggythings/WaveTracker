@@ -22,21 +22,26 @@ namespace WaveTracker {
         public static List<int> keyboardNotes = new List<int>();
         public static List<int> midiNotes = new List<int>();
         static int previewNote;
+        /// <summary>
+        /// The current note's velocity
+        /// </summary>
         public static int CurrentVelocity { get; private set; }
+        /// <summary>
+        /// The current note pressed, -1 if none are held down
+        /// </summary>
         public static int CurrentNote { get; private set; }
         static MidiIn MidiIn_ { get; set; }
         /// <summary>
         /// The names of all midi devices detected. The first item is reserved for "(none)"
         /// </summary>
         public static string[] MIDIDevicesNames { get; private set; }
-        public static string CurrentMidiDevice { get; private set; }
+        public static string CurrentMidiDeviceName { get; private set; }
         public static void Initialize() {
             ReadMidiDevices();
             SetMIDIDevice(App.Settings.MIDI.InputDevice);
         }
 
         public static void Update() {
-
             foreach (KeyValuePair<string, int> binding in PianoKeyInputs) {
                 int midiNote = binding.Value + (App.PatternEditor.CurrentOctave + 1) * 12;
                 if (App.Shortcuts[binding.Key].IsPressedRepeat) {
@@ -75,27 +80,25 @@ namespace WaveTracker {
         public static bool SetMIDIDevice(string name) {
             Debug.WriteLine("Set midi device to: " + name);
             if (MidiIn_ != null) {
-                //MidiIn_.Reset();
-                //MidiIn_.Stop();
                 MidiIn_.Close();
                 MidiIn_.Dispose();
             }
             try {
                 if (name == "(none)") {
                     MidiIn_ = null;
-                    CurrentMidiDevice = name;
+                    CurrentMidiDeviceName = name;
                 }
                 else {
                     int index = Array.IndexOf(MIDIDevicesNames, name);
                     MidiIn_ = new MidiIn(index - 1);
-                    CurrentMidiDevice = name;
+                    CurrentMidiDeviceName = name;
                     MidiIn_.MessageReceived += OnMIDIMessageReceived;
                     MidiIn_.ErrorReceived += OnMIDIErrorReceived;
                     MidiIn_.Start();
                 }
             } catch {
                 MidiIn_ = null;
-                CurrentMidiDevice = "(none)";
+                CurrentMidiDeviceName = "(none)";
                 Dialogs.messageDialog.Open(
                     "Error opening MIDI device \"" + name + "\"!",
                     MessageDialog.Icon.Error,
@@ -115,7 +118,7 @@ namespace WaveTracker {
             for (int deviceIndex = 0; deviceIndex < MidiIn.NumberOfDevices; deviceIndex++) {
                 MIDIDevicesNames[deviceIndex + 1] = MidiIn.DeviceInfo(deviceIndex).ProductName;
             }
-            if (!MIDIDevicesNames.Contains(CurrentMidiDevice)) {
+            if (!MIDIDevicesNames.Contains(CurrentMidiDeviceName)) {
                 SetMIDIDevice("(none)");
             }
         }
@@ -128,9 +131,6 @@ namespace WaveTracker {
             for (int i = keyboardNotes.Count - 1; i >= 0; --i) {
                 KeyboardNoteOff(keyboardNotes[i]);
             }
-            //midiNotes.Clear();
-            //keyboardNotes.Clear();
-            //currentlyHeldDownNotes.Clear();
         }
 
         static bool IsKeyboardNotePressed(int midiNote) {

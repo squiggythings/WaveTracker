@@ -58,7 +58,7 @@ namespace WaveTracker.UI {
                     Close();
                 if (begin.Clicked) {
                     Close();
-                    AudioEngine.RenderTo("", loops.Value, false);
+                    AudioEngine.RenderTo("", loops.Value);
                 }
                 if (all.Clicked) {
                     ChannelManager.UnmuteAllChannels();
