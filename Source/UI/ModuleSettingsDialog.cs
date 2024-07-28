@@ -110,7 +110,7 @@ namespace WaveTracker.UI {
                         Dialogs.messageDialog.Open(
                         "Remove " + (App.CurrentModule.ChannelCount - numberOfChannels.Value) + " channels? There is no undo.",
                         MessageDialog.Icon.Warning,
-                        new string[] { "Yes", "No" },
+                        ["Yes", "No"],
                         OnExitMessageChoice);
                     }
                     else {
@@ -138,7 +138,7 @@ namespace WaveTracker.UI {
                     Dialogs.messageDialog.Open(
                         "Do you want to remove this song from the module? There is no undo.",
                         MessageDialog.Icon.Warning,
-                        new string[] { "Yes", "No" },
+                        ["Yes", "No"],
                         OnRemoveSongMessageChoice);
                 }
                 if (moveSongUp.Clicked) {
@@ -203,7 +203,7 @@ namespace WaveTracker.UI {
                 if (tickRateSlider.enabled) {
                     tickRateSlider.Draw();
                     Write("Custom speed: " + tickRateSlider.Value + " Hz", 8, tickRateSlider.y + 2, UIColors.label);
-                    Write("(" + 44100 / tickRateSlider.Value + " samples/tick)", 8, tickRateSlider.y + 12, UIColors.labelLight);
+                    Write("(" + Audio.AudioEngine.SampleRate / tickRateSlider.Value + " samples/tick)", 8, tickRateSlider.y + 12, UIColors.labelLight);
                 }
                 tickSpeedMode.Draw();
             }

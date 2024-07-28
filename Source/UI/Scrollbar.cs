@@ -16,6 +16,8 @@ namespace WaveTracker.UI {
         bool lastClickWasOnScrollbar;
         public int ScrollValue { get; set; }
         public int MaxScrollValue { get { return totalSize - viewportSize; } }
+        public bool IsVisible { get { return viewportSize < totalSize; } }
+
         public int CoarseStepAmount { get; set; }
         int barClickOffset;
         public Scrollbar(int x, int y, int width, int height, Element parent) {
@@ -32,42 +34,47 @@ namespace WaveTracker.UI {
             this.totalSize = totalSize;
             bar.Width = 6;
             bar.X = width - bar.Width;
-            bar.Height = (int)(height * (viewportSize / (float)totalSize));
+            bar.Height = Math.Max((int)(height * (viewportSize / (float)totalSize)), 4);
             UpdateScrollValue();
         }
 
 
 
         public void Update() {
-            if (!Input.internalDialogIsOpen) {
-                if (viewportSize < totalSize) {
-                    if (ClickedDown) {
-                        lastClickWasOnScrollbar = bar.Contains(LastClickPos);
-                        if (MouseX >= bar.X && MouseX <= bar.X + bar.Width) {
-                            if (lastClickWasOnScrollbar) {
-                                barClickOffset = bar.Y - MouseY;
-                            }
-                            else {
-                                // step bar towards mouse
-                                if (MouseY > bar.Y) {
-                                    ScrollValue += CoarseStepAmount;
+            if (InFocus) {
+                if (enabled) {
+                    if (IsVisible) {
+                        if (Input.GetClickDown(KeyModifier._Any)) {
+                            lastClickWasOnScrollbar = bar.Contains(LastClickPos);
+                        }
+                        if (ClickedDown) {
+                            lastClickWasOnScrollbar = bar.Contains(LastClickPos);
+                            if (MouseX >= bar.X && MouseX <= bar.X + bar.Width) {
+                                if (lastClickWasOnScrollbar) {
+                                    barClickOffset = bar.Y - MouseY;
                                 }
                                 else {
-                                    ScrollValue -= CoarseStepAmount;
+                                    // step bar towards mouse
+                                    if (MouseY > bar.Y) {
+                                        ScrollValue += CoarseStepAmount;
+                                    }
+                                    else {
+                                        ScrollValue -= CoarseStepAmount;
+                                    }
                                 }
                             }
                         }
-                    }
-                    if (BarIsPressed) {
-                        bar.Y = MouseY + barClickOffset;
+                        if (BarIsPressed) {
+                            bar.Y = MouseY + barClickOffset;
 
-                        ScrollValue = (int)Math.Round(BarValFromPos() * (totalSize - viewportSize));
-                    }
-                    else {
-                        if (IsHovered)
+                            ScrollValue = (int)Math.Round(BarValFromPos() * (totalSize - viewportSize));
+                        }
+                        else if (IsHovered) {
                             ScrollValue -= Input.MouseScrollWheel(KeyModifier._Any) * CoarseStepAmount;
+                        }
+                        UpdateScrollValue();
                     }
-                    UpdateScrollValue();
+
                 }
             }
         }

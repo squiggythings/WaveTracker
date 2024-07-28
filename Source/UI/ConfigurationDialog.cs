@@ -114,6 +114,7 @@ namespace WaveTracker.UI {
 
         public new void Open() {
             base.Open();
+            pageSelector.SelectedItemIndex = 0;
             PianoInput.ReadMidiDevices();
             (pages["MIDI"]["Input device"] as ConfigurationOption.Dropdown).SetMenuItems(PianoInput.MIDIDevicesNames);
 
@@ -123,7 +124,6 @@ namespace WaveTracker.UI {
                 audioDeviceOptions[i + 1] = Audio.AudioEngine.OutputDeviceNames[i];
             }
             (pages["Audio"]["Output device"] as ConfigurationOption.Dropdown).SetMenuItems(audioDeviceOptions);
-
             ReadSettings();
         }
 

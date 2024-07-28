@@ -205,15 +205,15 @@ namespace WaveTracker {
             }
 
             if (Input.dialogOpenCooldown == 0) {
-                int mouseX = Mouse.GetState().X;
-                int mouseY = Mouse.GetState().Y;
-                if (Window.ClientBounds.Contains(mouseX, mouseY)) {
-                    if (MouseCursorArrow == 0) {
-                        Mouse.SetCursor(MouseCursor.Arrow);
-                    }
-                    else {
-                        Mouse.SetCursor(MouseCursor.SizeNS);
-                        MouseCursorArrow--;
+                if (Input.MousePositionX > 1 && Input.MousePositionX < WindowWidth - 1) {
+                    if (Input.MousePositionY > 1 && Input.MousePositionY < WindowHeight - 1) {
+                        if (MouseCursorArrow == 0) {
+                            Mouse.SetCursor(MouseCursor.Arrow);
+                        }
+                        else {
+                            Mouse.SetCursor(MouseCursor.SizeNS);
+                            MouseCursorArrow--;
+                        }
                     }
                 }
             }
