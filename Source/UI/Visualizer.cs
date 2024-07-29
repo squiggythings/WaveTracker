@@ -452,7 +452,7 @@ namespace WaveTracker.UI {
 
                     // draw volume amp
                     int amp = (int)(maxVolumeWidth / 2 * App.PatternEditor.ChannelHeaders[i].Amplitude);
-                    Color volumeColor = ChannelManager.channels[i].IsMuted ? UIColors.label : new Color(63, 215, 52);
+                    Color volumeColor = ChannelManager.channels[i].IsMuted ? UIColors.labelLight : new Color(63, 215, 52);
                     DrawRect(volumeStartX + maxVolumeWidth / 2 - amp, 12, amp * 2, 3, volumeColor);
 
 
@@ -471,7 +471,6 @@ namespace WaveTracker.UI {
 
                     if (thisRow >= 0 && thisRow < Playback.Frame.GetLength())
                         DrawRow(px, rowY, i, Playback.position.Frame, thisRow, 0, thisRow == Playback.position.Row, channelWidth);
-                    //DrawRow(0, i * LINE_HEIGHT + HEADER_HEIGHT, i, (width - trackerWidth) / 2);
                 }
             }
 
