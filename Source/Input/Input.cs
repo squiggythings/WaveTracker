@@ -23,8 +23,19 @@ namespace WaveTracker {
         static MouseState currentMouseState;
         static MouseState previousMouseState;
 
+        /// <summary>
+        /// In milliseconds
+        /// </summary>
         public static float timeSinceLastClick;
+        /// <summary>
+        /// In milliseconds
+        /// </summary>
         public static float timeSinceLastClickUp;
+
+        /// <summary>
+        /// Time the mouse button is held down in milliseconds
+        /// </summary>
+        public static float ClickTime { get; private set; }
 
         static float lastTimeSinceLastClick;
         static float lastTimeSinceLastClickUp;
@@ -136,7 +147,12 @@ namespace WaveTracker {
             timeSinceLastClick += gameTime.ElapsedGameTime.Milliseconds;
             timeSinceLastClickUp += gameTime.ElapsedGameTime.Milliseconds;
             timeSinceDoubleClick += gameTime.ElapsedGameTime.Milliseconds;
-
+            if (GetClick(KeyModifier._Any)) {
+                ClickTime += gameTime.ElapsedGameTime.Milliseconds;
+            }
+            else {
+                ClickTime = 0;
+            }
             if (GetRightClickDown(KeyModifier._Any)) {
                 lastRightClickLocation = new Point(MousePositionX, MousePositionY);
             }

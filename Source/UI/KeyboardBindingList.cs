@@ -64,7 +64,9 @@ namespace WaveTracker.UI {
                 }
             }
         }
-
+        public void ResetView() {
+            scrollbar.ScrollValue = 0;
+        }
 
         public void ResetAll() {
             foreach (ListEntry entry in entries) {

@@ -20,10 +20,10 @@ namespace WaveTracker.UI {
             cancel = AddNewBottomButton("Cancel", this);
             ok = AddNewBottomButton("OK", this);
             pages = new Dictionary<string, Page>();
-            pageSelector = new VerticalListSelector(5, 12, 75, 268, ["General", "Files", "Pattern Editor", "Appearance", "Samples/Waves", "MIDI", "Audio", "Visualizer", "Keyboard"], this);
+            pageSelector = new VerticalListSelector(5, 12, 75, 268, ["General", "Files", "Pattern Editor", "Colors", "Samples/Waves", "MIDI", "Audio", "Visualizer", "Keyboard"], this);
             pages.Add("General", new Page(this));
             pages.Add("Files", new Page(this));
-            pages.Add("Appearance", new AppearancePage(this));
+            pages.Add("Colors", new AppearancePage(this));
             pages.Add("Pattern Editor", new Page(this));
             pages.Add("Samples/Waves", new Page(this));
             pages.Add("MIDI", new Page(this));
@@ -117,7 +117,8 @@ namespace WaveTracker.UI {
             pageSelector.SelectedItemIndex = 0;
             PianoInput.ReadMidiDevices();
             (pages["MIDI"]["Input device"] as ConfigurationOption.Dropdown).SetMenuItems(PianoInput.MIDIDevicesNames);
-
+            (pages["Keyboard"] as KeyboardPage).Initialize();
+            (pages["Colors"] as AppearancePage).Initialize();
             string[] audioDeviceOptions = new string[Audio.AudioEngine.OutputDevices.Count + 1];
             audioDeviceOptions[0] = "(default)";
             for (int i = 0; i < Audio.AudioEngine.OutputDevices.Count; i++) {
@@ -144,7 +145,7 @@ namespace WaveTracker.UI {
             pages["Files"]["Default row highlight primary"].ValueInt = App.Settings.Files.DefaultRowPrimaryHighlight;
             pages["Files"]["Default row highlight secondary"].ValueInt = App.Settings.Files.DefaultRowSecondaryHighlight;
 
-            (pages["Appearance"] as AppearancePage).LoadColorsFrom(App.Settings.Appearance.Theme);
+            (pages["Colors"] as AppearancePage).LoadColorsFrom(App.Settings.Colors.Theme);
 
             pages["Pattern Editor"]["Show row numbers in hex"].ValueBool = App.Settings.PatternEditor.ShowRowNumbersInHex;
             pages["Pattern Editor"]["Show note off/release as text"].ValueBool = App.Settings.PatternEditor.ShowNoteOffAndReleaseAsText;
@@ -215,7 +216,7 @@ namespace WaveTracker.UI {
             App.Settings.Files.DefaultRowPrimaryHighlight = pages["Files"]["Default row highlight primary"].ValueInt;
             App.Settings.Files.DefaultRowSecondaryHighlight = pages["Files"]["Default row highlight secondary"].ValueInt;
 
-            (pages["Appearance"] as AppearancePage).SaveColorsInto(App.Settings.Appearance.Theme);
+            (pages["Colors"] as AppearancePage).SaveColorsInto(App.Settings.Colors.Theme);
 
             App.Settings.PatternEditor.ShowRowNumbersInHex = pages["Pattern Editor"]["Show row numbers in hex"].ValueBool;
             App.Settings.PatternEditor.ShowNoteOffAndReleaseAsText = pages["Pattern Editor"]["Show note off/release as text"].ValueBool;
@@ -429,6 +430,10 @@ namespace WaveTracker.UI {
                 bindingList.SaveDictionaryInto(bindings);
             }
 
+            public void Initialize() {
+                bindingList.ResetView();
+            }
+
             public override void Update() {
                 base.Update();
                 bindingList.Update();
@@ -456,6 +461,10 @@ namespace WaveTracker.UI {
                 loadTheme = new Button("Load...", saveTheme.x + saveTheme.width + 4, colorList.y + colorList.height + 4, 55, this);
                 openThemeFiles = new Button("Open themes folder...", 0, colorList.y + colorList.height + 4, this);
                 openThemeFiles.x = colorList.x + colorList.width - openThemeFiles.width;
+            }
+
+            public void Initialize() {
+                colorList.ResetView();
             }
 
             public override void Update() {

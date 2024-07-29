@@ -61,8 +61,10 @@ namespace WaveTracker.UI {
                                 if (Input.GetClickDown(KeyModifier.None))
                                     valueSaved = ThisFrame.PatternIndex;
                                 if (Input.GetClick(KeyModifier.None)) {
-                                    if ((MouseY - LastClickPos.Y) / 4 != 0) {
-                                        isDragging = true;
+                                    if ((MouseY - LastClickPos.Y) / 4 != 0 || Input.ClickTime > 250) {
+                                        if ((MouseY - LastClickPos.Y) / 4 != 0) {
+                                            isDragging = true;
+                                        }
                                         App.MouseCursorArrow = 2;
                                     }
                                     if (isDragging) {
@@ -78,16 +80,6 @@ namespace WaveTracker.UI {
                     }
                 }
             }
-            //if (LastClickPos.X >= 0 && LastClickPos.Y >= 0) {
-            //    if (LastClickPos.X <= width - 10 && LastClickPos.Y <= height) {
-            //        if (Input.GetClickDown(KeyModifier.None))
-            //            valueSaved = Value;
-            //        if (Input.GetClick(KeyModifier.None)) {
-            //            Value = valueSaved - (MouseY - LastClickPos.Y) / 2;
-            //            Game1.mouseCursorArrow = 2;
-            //        }
-            //    }
-            //}
             enabled = ThisFrameIndex >= 0 && ThisFrameIndex <= FrameSequence.Count;
         }
 
@@ -113,7 +105,7 @@ namespace WaveTracker.UI {
                 if (Offset == 0)
                     buttonColor = new Color(8, 124, 232);
                 else if (!App.PatternEditor.FollowMode && Playback.IsPlaying && Playback.position.Frame - App.PatternEditor.cursorPosition.Frame == Offset)
-                    buttonColor = App.Settings.Appearance.Theme["Playback row"].AddTo(new Color(40, 20, 40));
+                    buttonColor = App.Settings.Colors.Theme["Playback row"].AddTo(new Color(40, 20, 40));
                 else if (IsPressed && Offset > -12 && Offset < 12 && !isDragging)
                     buttonColor = new Color(89, 96, 138);
                 else

@@ -11,7 +11,7 @@ using WaveTracker.Tracker;
 using WaveTracker.UI;
 
 namespace WaveTracker.UI {
-    public class WChannelHeader : Clickable {
+    public class ChannelHeader : Clickable {
 
         /// <summary>
         /// The number of pixels to decay the volume meter each frame
@@ -65,7 +65,7 @@ namespace WaveTracker.UI {
         public float Amplitude { get { return Math.Clamp(amplitude / 50f, 0f, 1f); } }
         Channel channelToDisplay;
         Menu contextMenu;
-        public WChannelHeader(int x, int y, int width, int channelNum, PatternEditor parentEditor) {
+        public ChannelHeader(int x, int y, int width, int channelNum, PatternEditor parentEditor) {
             this.x = x;
             this.y = y;
             this.width = width;
@@ -74,11 +74,11 @@ namespace WaveTracker.UI {
             this.parentEditor = parentEditor;
             expandEffectButton = new MouseRegion(56, 7, 6, 13, this);
             collapseEffectButton = new MouseRegion(50, 7, 6, 13, this);
-            contextMenu = new Menu(new MenuItemBase[] {
+            contextMenu = new Menu([
                 new MenuOption("Toggle channel",ToggleChannel),
                 new MenuOption("Solo channel",SoloChannel),
                 new MenuOption("Unmute all channels",ChannelManager.UnmuteAllChannels)
-            });
+            ]);
             SetParent(parentEditor);
             channelToDisplay = ChannelManager.channels[channelNum];
         }

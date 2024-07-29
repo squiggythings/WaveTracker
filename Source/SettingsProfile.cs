@@ -15,7 +15,7 @@ namespace WaveTracker {
     public class SettingsProfile {
         public CategoryGeneral General { get; set; }
         public CategoryFiles Files { get; set; }
-        public CategoryAppearance Appearance { get; set; }
+        public CategoryAppearance Colors { get; set; }
         public CategoryPatternEditor PatternEditor { get; set; }
         public CategorySamplesWaves SamplesWaves { get; set; }
         public CategoryMIDI MIDI { get; set; }
@@ -26,7 +26,7 @@ namespace WaveTracker {
         public SettingsProfile() {
             General = new CategoryGeneral();
             Files = new CategoryFiles();
-            Appearance = new CategoryAppearance();
+            Colors = new CategoryAppearance();
             PatternEditor = new CategoryPatternEditor();
             SamplesWaves = new CategorySamplesWaves();
             MIDI = new CategoryMIDI();
