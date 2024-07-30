@@ -11,6 +11,11 @@ using System.Threading.Tasks;
 namespace WaveTracker.UI {
     public class DropdownButton : Clickable {
         static DropdownButton currentlyOpen;
+        /// <summary>
+        /// Returns true if a dropdown button is open
+        /// </summary>
+        public static bool IsADropdownButtonOpen { get { return currentlyOpen != null; } }
+
 
         Element previousFocus;
         bool showMenu;

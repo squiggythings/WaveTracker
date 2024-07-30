@@ -15,7 +15,6 @@ namespace WaveTracker.UI {
         //MenuStripButton currentButton;
         Menu currentMenu;
         int nextX;
-        bool showAlt;
 
         public MenuStrip(int x, int y, int width, Element parent) {
             this.x = x;
@@ -61,7 +60,7 @@ namespace WaveTracker.UI {
             DrawRect(0, 0, width, height, Color.White);
             DrawRect(0, height, width, 1, UIColors.labelLight);
             foreach (MenuStripButton button in StripButtons) {
-                button.Draw(showAlt);
+                button.Draw();
             }
             currentMenu?.Draw();
         }
@@ -103,7 +102,7 @@ namespace WaveTracker.UI {
             }
         }
 
-        public void Draw(bool highlightletter) {
+        public void Draw() {
             if (menu != null && menu.enabled) {
                 DrawRect(0, 0, width, height, UIColors.selection);
                 Write(Name, MARGIN, 1, Color.White);

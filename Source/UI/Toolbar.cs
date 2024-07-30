@@ -178,7 +178,7 @@ namespace WaveTracker.UI {
             }
             if (visualizerModeToggle.Value != App.VisualizerMode) {
                 if (visualizerModeToggle.Value)
-                    App.Visualizer.GenerateWaveColors();
+                    Visualizer.GenerateWaveColors();
                 App.VisualizerMode = visualizerModeToggle.Value;
             }
 

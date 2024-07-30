@@ -39,7 +39,7 @@ namespace WaveTracker.UI {
             sampleEditor = new SampleEditor(16, 36, this);
             envelopeEditor = new EnvelopeEditor(118, 36, 464, this);
             envelopeList = new EnvelopeListBox(16, 48, 132, this);
-            piano = new PreviewPiano(44, 306, this);
+            piano = new PreviewPiano(60, 306, this);
         }
 
         public void Update() {
@@ -101,14 +101,6 @@ namespace WaveTracker.UI {
         public new void Close() {
             envelopeEditor.ResetScrollbar();
             base.Close();
-        }
-
-        void DrawPiano(int x, int y) {
-            DrawRect(x, y, 482, 26, UIColors.black);
-            for (int i = 0; i < 10; ++i) {
-                // draw 1 octave of the piano sprite
-                DrawSprite(x + i * 48 + 1, y + 1, new Rectangle(0, 80, 48, 24));
-            }
         }
 
         public new void Draw() {

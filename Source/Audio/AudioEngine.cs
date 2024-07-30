@@ -31,8 +31,6 @@ namespace WaveTracker.Audio {
         public static string[] OutputDeviceNames { get; private set; }
         static BiQuadFilter antialiasingFilterL, antialiasingFilterR;
         static AudioProvider audioProvider;
-        static StereoDelayLine delay;
-        static StereoDistortion distortion;
 
         static int TickSpeed {
             get {

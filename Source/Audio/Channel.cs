@@ -12,7 +12,6 @@ using WaveTracker.Tracker;
 namespace WaveTracker.Audio {
     public class Channel {
 
-        const int OVERSAMPLE = 2;
         int id;
         public bool IsMuted { get; set; }
         public Wave currentWave => App.CurrentModule.WaveBank[(WaveIndex + 100) % 100];
@@ -31,9 +30,6 @@ namespace WaveTracker.Audio {
         /// </summary>
         float panValue = 0.5f;
         bool noteOn;
-
-        float sendAmount;
-        int currentEffectSend;
 
         int arpeggioOffset;
         int arpeggionote2;

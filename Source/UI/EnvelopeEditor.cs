@@ -56,21 +56,13 @@ namespace WaveTracker.UI {
             return MARGIN_WIDTH + 3 + index * ColumnWidth;
         }
         int GetYPositionOfValue(int value) {
-            switch (currentEnvelope.Type) {
-                case Envelope.EnvelopeType.Volume:
-                case Envelope.EnvelopeType.WaveBlend:
-                case Envelope.EnvelopeType.WaveStretch:
-                case Envelope.EnvelopeType.WaveFM:
-                case Envelope.EnvelopeType.WaveSync:
-                    return drawingRegion.y + (99 - value) * 2;
-                case Envelope.EnvelopeType.Arpeggio:
-                    return drawingRegion.y + (arpRange - value - scrollbar.ScrollValue) * arpHeight;
-                case Envelope.EnvelopeType.Pitch:
-                    return drawingRegion.y + (99 - value);
-                case Envelope.EnvelopeType.Wave:
-                    return drawingRegion.y + (waveRange - value - scrollbar.ScrollValue - 2) * waveHeight;
-            }
-            return 0;
+            return currentEnvelope.Type switch {
+                Envelope.EnvelopeType.Volume or Envelope.EnvelopeType.WaveBlend or Envelope.EnvelopeType.WaveStretch or Envelope.EnvelopeType.WaveFM or Envelope.EnvelopeType.WaveSync => drawingRegion.y + (99 - value) * 2,
+                Envelope.EnvelopeType.Arpeggio => drawingRegion.y + (arpRange - value - scrollbar.ScrollValue) * arpHeight,
+                Envelope.EnvelopeType.Pitch => drawingRegion.y + (99 - value),
+                Envelope.EnvelopeType.Wave => drawingRegion.y + (waveRange - value - scrollbar.ScrollValue - 2) * waveHeight,
+                _ => 0,
+            };
         }
 
         public void Update() {

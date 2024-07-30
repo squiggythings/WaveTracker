@@ -225,7 +225,7 @@ namespace WaveTracker.Tracker {
 
         public void SampleTick(float time, float stereoPhase, float startPercentage, out float outputL, out float outputR) {
             float sampleIndex = 0;
-            float x = (time * (sampleRate / _baseFrequency));
+            float x = time * (sampleRate / _baseFrequency);
             x += startPercentage * Length;
             long l = Length;
             long p = loopPoint;

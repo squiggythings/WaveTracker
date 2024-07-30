@@ -76,8 +76,6 @@ namespace WaveTracker.UI {
                         SelectedIndex = List.Count - 1;
                 }
             }
-            //addEnvelopeButton.width = width - 2;
-            //addEnvelopeButton.y = (List.Count - 1) * 16 + 17;
             addEnvelopeButton.enabled = remainingEnvelopes.Length > 0;
             addEnvelopeButton.Update();
             if (addEnvelopeButton.SelectedAnItem) {
@@ -100,7 +98,9 @@ namespace WaveTracker.UI {
                     }
                 }
                 if (!hasEnvelope) {
-                    list.Add(type);
+                    if (App.InstrumentBank.GetCurrentInstrument is WaveInstrument || (type == Envelope.EnvelopeType.Volume || type == Envelope.EnvelopeType.Arpeggio || type == Envelope.EnvelopeType.Pitch)) {
+                        list.Add(type);
+                    }
                 }
             }
             remainingEnvelopes = list.ToArray();
@@ -137,7 +137,8 @@ namespace WaveTracker.UI {
 
         public void Draw() {
             //DrawRect(0, 0, width, height, new Color(192, 195, 212));
-            Write("Envelopes (" + List.Count + "/" + items.Length + ")", 0, -10, UIColors.label);
+            int maxEnvelopes = App.InstrumentBank.GetCurrentInstrument is WaveInstrument ? 8 : 3;
+            Write("Envelopes (" + List.Count + "/" + maxEnvelopes + ")", 0, -10, UIColors.label);
             DrawRect(0, 0, width, height, UIColors.panel);
             for (int i = 0; i < items.Length; ++i) {
                 items[i].Draw(SelectedIndex == i);

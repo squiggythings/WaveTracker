@@ -245,7 +245,7 @@ namespace WaveTracker {
 
             if (ReadFrom(path)) {
 
-                App.Visualizer.GenerateWaveColors();
+                Visualizer.GenerateWaveColors();
                 App.CurrentModule.OnSaveModule();
                 App.CurrentSongIndex = 0;
                 App.PatternEditor.OnSwitchSong(true);

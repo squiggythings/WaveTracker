@@ -12,6 +12,15 @@ namespace WaveTracker.UI {
     public class Dropdown : Clickable {
 
         static Dropdown currentlyOpen;
+        /// <summary>
+        /// Returns true if a dropdown is open
+        /// </summary>
+        public static bool IsADropdownOpen { get { return currentlyOpen != null; } }
+
+        /// <summary>
+        /// Returns true if any dropdown or dropdown button menu is open
+        /// </summary>
+        public static bool IsAnyDropdownOpen { get { return IsADropdownOpen || DropdownButton.IsADropdownButtonOpen; } }
 
         Element previousFocus;
         bool showMenu;

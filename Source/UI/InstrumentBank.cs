@@ -82,12 +82,11 @@ namespace WaveTracker.UI {
             scrollbar.SetSize(App.CurrentModule.Instruments.Count, listLength);
             if (listLength <= 0)
                 listLength = 1;
-            if (!Menu.IsAMenuOpen) {
+            if (!Menu.IsAMenuOpen && !Dropdown.IsAnyDropdownOpen) {
                 if (App.Shortcuts["General\\Next instrument"].IsPressedRepeat) {
                     CurrentInstrumentIndex++;
                     CurrentInstrumentIndex = Math.Clamp(CurrentInstrumentIndex, 0, App.CurrentModule.Instruments.Count - 1);
-                    moveBounds();
-                    System.Diagnostics.Debug.WriteLine("next");
+                    MoveBounds();
                     if (App.InstrumentEditor.IsOpen) {
                         Edit();
                     }
@@ -95,7 +94,7 @@ namespace WaveTracker.UI {
                 if (App.Shortcuts["General\\Previous instrument"].IsPressedRepeat) {
                     CurrentInstrumentIndex--;
                     CurrentInstrumentIndex = Math.Clamp(CurrentInstrumentIndex, 0, App.CurrentModule.Instruments.Count - 1);
-                    moveBounds();
+                    MoveBounds();
                     if (App.InstrumentEditor.IsOpen) {
                         Edit();
                     }
@@ -162,7 +161,6 @@ namespace WaveTracker.UI {
                 CurrentInstrumentIndex = Math.Clamp(CurrentInstrumentIndex, 0, App.CurrentModule.Instruments.Count - 1);
                 if (lastIndex != CurrentInstrumentIndex) {
                     lastIndex = CurrentInstrumentIndex;
-                    //ChannelManager.instance.GetCurrentChannel().SetMacro(CurrentInstrumentIndex);
                 }
                 scrollbar.UpdateScrollValue();
             }
@@ -193,14 +191,14 @@ namespace WaveTracker.UI {
             App.CurrentModule.Instruments.Reverse(CurrentInstrumentIndex - 1, 2);
             App.CurrentModule.SetDirty();
             CurrentInstrumentIndex--;
-            moveBounds();
+            MoveBounds();
         }
         public void MoveDown() {
             App.CurrentModule.SwapInstrumentsInSongs(CurrentInstrumentIndex, CurrentInstrumentIndex + 1);
             App.CurrentModule.Instruments.Reverse(CurrentInstrumentIndex, 2);
             App.CurrentModule.SetDirty();
             CurrentInstrumentIndex++;
-            moveBounds();
+            MoveBounds();
         }
 
         public void RemoveInstrument() {
@@ -225,9 +223,9 @@ namespace WaveTracker.UI {
 
         void Goto(int index) {
             CurrentInstrumentIndex = index;
-            moveBounds();
+            MoveBounds();
         }
-        void moveBounds() {
+        void MoveBounds() {
             if (CurrentInstrumentIndex > scrollbar.ScrollValue + listLength - 1) {
                 scrollbar.ScrollValue = CurrentInstrumentIndex - listLength + 1;
             }

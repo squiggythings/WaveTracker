@@ -509,46 +509,7 @@ namespace WaveTracker {
             };
         }
 
-        //public static bool readWav(string filepath, out float[] L, out float[] R) {
-        //    List<float> LChannel = new List<float>();
-        //    List<float> RChannel = new List<float>();
-        //    try {
-        //        AudioFileReader Nreader = new AudioFileReader(filepath);
-        //        ISampleProvider isp;
-        //        bool mono = Nreader.WaveFormat.Channels == 1;
-
-        //        var outFormat = new WaveFormat(44100, Nreader.WaveFormat.Channels);
-        //        IWaveProvider waveProvider = Nreader.ToWaveProvider();
-        //        if (Preferences.profile.automaticallyResampleSamples)
-        //            using (var resampler = new MediaFoundationResampler(Nreader, outFormat)) {
-        //                isp = resampler.ToSampleProvider();
-        //            }
-        //        else
-        //            isp = Nreader.ToSampleProvider();
-        //        long sampleLength = (long)(Nreader.Length * (44100.0 / Nreader.WaveFormat.SampleRate));
-        //        float[] buffer = new float[sampleLength / 4];
-        //        isp.Read(buffer, 0, buffer.Length);
-        //        for (int sampleIndex = 0, bufferIndex = 0; bufferIndex < buffer.Length; sampleIndex++) {
-        //            if (sampleIndex > 16777216)
-        //                break;
-        //            LChannel.Add(buffer[bufferIndex++]);
-        //            if (!mono)
-        //                RChannel.Add(buffer[bufferIndex++]);
-        //        }
-        //        if (mono)
-        //            RChannel.Clear();
-        //        L = LChannel.ToArray();
-        //        R = RChannel.ToArray();
-        //        return true;
-        //    } catch {
-        //        LChannel.Add(0f);
-        //        RChannel.Add(0f);
-        //        L = LChannel.ToArray();
-        //        R = RChannel.ToArray();
-        //        return false;
-        //    }
-        //}
-
+      
         /// <summary>
         /// Read an audio file into 2 arrays of shorts
         /// </summary>

@@ -32,7 +32,7 @@ namespace WaveTracker.Audio {
     }
 
     public class StereoDistortion : SendEffect {
-        BiQuadFilter filterL, filterR;
+        //BiQuadFilter filterL, filterR;
 
         public float Gain { get; set; }
         public float Threshold { get; set; }

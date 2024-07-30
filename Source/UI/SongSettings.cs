@@ -13,7 +13,7 @@ using WaveTracker.Tracker;
 
 namespace WaveTracker.UI {
     public class SongSettings : Panel {
-        Textbox title, author, copyright, speed;
+        Textbox title, author, speed;
         Dropdown selectedSong;
         NumberBox rows;
         SpriteButton editButton;
@@ -23,19 +23,14 @@ namespace WaveTracker.UI {
         public SongSettings(int x, int y) : base("Module", x, y, 306, 84) {
             title = new Textbox("Title", 4, 12, 155, 110, this);
 
-            //title.canEdit = false;
             author = new Textbox("Author", 4, 26, 155, 110, this);
-            //author.canEdit = false;
-            //copyright = new Textbox("Copyright", 4, 40, 155, 110, this);
+           
             selectedSong = new Dropdown(34, 42, this, scrollWrap: false);
             selectedSong.width = 125;
-            // copyright.canEdit = false;
 
             speed = new Textbox("Speed (ticks/row)", 167, 12, 132, 40, this);
-            // speed.canEdit = false;
             rows = new NumberBox("Frame Length", 167, 26, 132, 40, this);
             rows.SetValueLimits(1, 256);
-            //rows.canEdit = false;
 
             editButton = new SpriteButton(296, 0, 10, 9, 488, 0, this);
             editButton.SetTooltip("Edit module settings", "Open the module settings window");
@@ -54,12 +49,6 @@ namespace WaveTracker.UI {
                 if (author.ValueWasChangedInternally) {
                     App.CurrentModule.Author = author.Text;
                 }
-
-                //copyright.Text = App.CurrentModule.Year;
-                //copyright.Update();
-                //if (copyright.ValueWasChangedInternally) {
-                //    App.CurrentModule.Year = copyright.Text;
-                //}
 
                 speed.Text = App.CurrentSong.GetTicksAsString();
                 speed.Update();
@@ -108,7 +97,6 @@ namespace WaveTracker.UI {
             editButton.Draw();
             title.Draw();
             author.Draw();
-            //copyright.Draw();
             speed.Draw();
             rows.Draw();
             if (Audio.AudioEngine.currentBuffer != null) {
