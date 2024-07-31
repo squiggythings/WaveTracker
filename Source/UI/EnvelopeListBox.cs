@@ -53,7 +53,7 @@ namespace WaveTracker.UI {
                     }
                     if (items[i].WasClickedOnToDelete) {
                         List.RemoveAt(i);
-                        Audio.ChannelManager.previewChannel.Reset();
+                        Audio.ChannelManager.PreviewChannel.Reset();
                         App.CurrentModule.SetDirty();
                         UpdateRemainingEnvelopes();
                         if (SelectedIndex >= List.Count)
@@ -80,7 +80,7 @@ namespace WaveTracker.UI {
             addEnvelopeButton.Update();
             if (addEnvelopeButton.SelectedAnItem) {
                 AddEnvelope(remainingEnvelopes[addEnvelopeButton.SelectedIndex]);
-                Audio.ChannelManager.previewChannel.Reset();
+                Audio.ChannelManager.PreviewChannel.Reset();
                 App.CurrentModule.SetDirty();
             }
 

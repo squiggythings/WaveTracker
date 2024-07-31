@@ -30,13 +30,7 @@ namespace WaveTracker.UI {
         bool isDragging;
         Point dragOffset;
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="name"></param>
-        /// <param name="width"></param>
-        /// <param name="height"></param>
-        /// <param name="hasExitButton"></param>
+
         public Window(string name, int width, int height, bool hasExitButton = true) : base(name, (App.WindowWidth - width) / 2, (App.WindowHeight - height) / 2, width, height) {
             if (hasExitButton)
                 ExitButton = new SpriteButton(width - 10, 0, 10, 9, 472, 0, this);
@@ -93,10 +87,12 @@ namespace WaveTracker.UI {
             if (y > App.WindowHeight - height - 10) {
                 y = App.WindowHeight - height - 10;
             }
-            if (x < 2)
+            if (x < 2) {
                 x = 2;
-            if (y < 2)
+            }
+            if (y < 2) {
                 y = 2;
+            }
         }
 
         protected new void Draw() {
@@ -105,13 +101,12 @@ namespace WaveTracker.UI {
 
                 // draw a transparent black rectangle behind the window
                 DrawRect(-x, -y, App.WindowWidth, App.WindowHeight, Helpers.Alpha(Color.Black, 90));
-                //DrawRoundedRect(-1, -1, width + 2, height + 2, Helpers.Alpha(UIColors.black, 40));
 
                 // draw the panel
                 base.Draw();
+
                 // draw the exit button if there is one
-                if (ExitButton != null)
-                    ExitButton.Draw();
+                ExitButton?.Draw();
             }
         }
         protected void Open() {

@@ -65,10 +65,10 @@ namespace WaveTracker.Tracker {
             IsPlaying = true;
             tickCounter = 0;
             ChannelManager.Reset();
-            ChannelManager.previewChannel.Reset();
+            ChannelManager.PreviewChannel.Reset();
             position.Frame = App.PatternEditor.cursorPosition.Frame;
             position.Row = 0;
-            if (App.PatternEditor.FollowMode && !AudioEngine.rendering) {
+            if (App.PatternEditor.FollowMode && !AudioEngine.IsRendering) {
                 App.PatternEditor.SnapToPlaybackPosition();
             }
             Restore();
@@ -84,7 +84,7 @@ namespace WaveTracker.Tracker {
             ChannelManager.Reset();
             tickCounter = 0;
             position = App.PatternEditor.cursorPosition;
-            if (App.PatternEditor.FollowMode && !AudioEngine.rendering) {
+            if (App.PatternEditor.FollowMode && !AudioEngine.IsRendering) {
                 App.PatternEditor.SnapToPlaybackPosition();
             }
             Restore();
@@ -102,7 +102,7 @@ namespace WaveTracker.Tracker {
 
             position.Frame = 0;
             position.Row = 0;
-            if (App.PatternEditor.FollowMode && !AudioEngine.rendering) {
+            if (App.PatternEditor.FollowMode && !AudioEngine.IsRendering) {
                 App.PatternEditor.SnapToPlaybackPosition();
             }
             Restore();
@@ -114,7 +114,7 @@ namespace WaveTracker.Tracker {
         /// </summary>
         public static void Stop() {
             IsPlaying = false;
-            foreach (Channel c in ChannelManager.channels) {
+            foreach (Channel c in ChannelManager.Channels) {
                 c.Cut();
             }
             ChannelManager.Reset();
@@ -144,14 +144,14 @@ namespace WaveTracker.Tracker {
                         hasGotoTriggerFlag = false;
                         if (nextPlaybackFrame < 0) // CXX command
                         {
-                            AudioEngine.renderProcessedRows += 2;
+                            AudioEngine.RenderProcessedRows += 2;
                             Stop();
                             return;
                         }
                         else {
                             position.Frame = nextPlaybackFrame;
                             position.Row = nextPlaybackRow;
-                            if (App.PatternEditor.FollowMode && !AudioEngine.rendering) {
+                            if (App.PatternEditor.FollowMode && !AudioEngine.IsRendering) {
                                 App.PatternEditor.SnapToPlaybackPosition();
                             }
                         }
@@ -159,8 +159,8 @@ namespace WaveTracker.Tracker {
                     else {
                         MoveNextRow();
                     }
-                    if (AudioEngine.rendering) {
-                        AudioEngine.renderProcessedRows++;
+                    if (AudioEngine.IsRendering) {
+                        AudioEngine.RenderProcessedRows++;
                     }
                     PlayRow();
                     SetTicksPerRow();
@@ -175,7 +175,6 @@ namespace WaveTracker.Tracker {
                 }
 
             }
-            //ChannelManager.Tick(0);
         }
 
         static void PlayRow() {
@@ -186,7 +185,7 @@ namespace WaveTracker.Tracker {
         static void MoveNextRow() {
             position.MoveToRow(position.Row + 1, App.CurrentSong);
             if (IsPlaying) {
-                if (App.PatternEditor.FollowMode && !AudioEngine.rendering) {
+                if (App.PatternEditor.FollowMode && !AudioEngine.IsRendering) {
                     App.PatternEditor.SnapToPlaybackPosition();
                 }
             }
@@ -203,6 +202,7 @@ namespace WaveTracker.Tracker {
             position.Row = 0;
             PlayRow();
         }
+
         /// <summary>
         /// Makes sure playback will stop on the next row
         /// </summary>

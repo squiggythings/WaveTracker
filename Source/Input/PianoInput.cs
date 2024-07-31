@@ -156,9 +156,9 @@ namespace WaveTracker {
                 if (!Playback.IsPlaying) {
                     AudioEngine.ResetTicks();
                 }
-                ChannelManager.previewChannel.SetMacro(App.InstrumentBank.CurrentInstrumentIndex);
-                ChannelManager.previewChannel.SetVolume(CurrentVelocity);
-                ChannelManager.previewChannel.TriggerNote(CurrentNote);
+                ChannelManager.PreviewChannel.SetMacro(App.InstrumentBank.CurrentInstrumentIndex);
+                ChannelManager.PreviewChannel.SetVolume(CurrentVelocity);
+                ChannelManager.PreviewChannel.TriggerNote(CurrentNote);
                 if (enterToPatternEditor) {
                     App.PatternEditor.TryToEnterNote(note, velocity);
                 }
@@ -173,16 +173,16 @@ namespace WaveTracker {
             if (currentlyHeldDownNotes.Count > 0) {
                 if (CurrentNote != currentlyHeldDownNotes[currentlyHeldDownNotes.Count - 1]) {
                     CurrentNote = currentlyHeldDownNotes[currentlyHeldDownNotes.Count - 1];
-                    ChannelManager.previewChannel.SetMacro(App.InstrumentBank.CurrentInstrumentIndex);
-                    ChannelManager.previewChannel.SetVolume(CurrentVelocity);
-                    ChannelManager.previewChannel.TriggerNote(CurrentNote);
+                    ChannelManager.PreviewChannel.SetMacro(App.InstrumentBank.CurrentInstrumentIndex);
+                    ChannelManager.PreviewChannel.SetVolume(CurrentVelocity);
+                    ChannelManager.PreviewChannel.TriggerNote(CurrentNote);
                 }
             }
             else {
                 CurrentNote = -1;
                 if (!Playback.IsPlaying)
                     AudioEngine.ResetTicks();
-                ChannelManager.previewChannel.PreviewCut();
+                ChannelManager.PreviewChannel.PreviewCut();
             }
         }
 

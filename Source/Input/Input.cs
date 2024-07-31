@@ -26,11 +26,11 @@ namespace WaveTracker {
         /// <summary>
         /// In milliseconds
         /// </summary>
-        public static float timeSinceLastClick;
+        public static float TimeSinceLastClick { get; private set; }
         /// <summary>
         /// In milliseconds
         /// </summary>
-        public static float timeSinceLastClickUp;
+        public static float TimeSinceLastClickUp { get; private set; }
 
         /// <summary>
         /// Time the mouse button is held down in milliseconds
@@ -52,10 +52,10 @@ namespace WaveTracker {
         public static KeyboardState Keyboard { get { return currentKeyState; } }
         public static MouseState Mouse { get { return currentMouseState; } }
 
-        public static Point lastClickLocation;
-        public static Point lastRightClickLocation;
-        public static Point lastClickReleaseLocation;
-        public static Point lastRightClickReleaseLocation;
+        public static Point LastClickLocation { get; private set; }
+        public static Point LastRightClickLocation { get; private set; }
+        public static Point LastClickReleaseLocation { get; private set; }
+        public static Point LastRightClickReleaseLocation { get; private set; }
 
         static bool cancelClick;
 
@@ -87,7 +87,7 @@ namespace WaveTracker {
             foreach (Keys k in Enum.GetValues(typeof(Keys))) {
                 keyTimePairs.Add(k, 0);
             }
-            timeSinceLastClick = 1000;
+            TimeSinceLastClick = 1000;
         }
 
         public static void DialogStarted() {
@@ -114,8 +114,8 @@ namespace WaveTracker {
                     return;
                 }
             }
-            lastTimeSinceLastClick = timeSinceLastClick;
-            lastTimeSinceLastClickUp = timeSinceLastClickUp;
+            lastTimeSinceLastClick = TimeSinceLastClick;
+            lastTimeSinceLastClickUp = TimeSinceLastClickUp;
             previousKeyState = currentKeyState;
             currentKeyState = Microsoft.Xna.Framework.Input.Keyboard.GetState();
             currentPressedKeys = currentKeyState.GetPressedKeys();
@@ -144,8 +144,8 @@ namespace WaveTracker {
 
             previousMouseState = currentMouseState;
             currentMouseState = Microsoft.Xna.Framework.Input.Mouse.GetState();
-            timeSinceLastClick += gameTime.ElapsedGameTime.Milliseconds;
-            timeSinceLastClickUp += gameTime.ElapsedGameTime.Milliseconds;
+            TimeSinceLastClick += gameTime.ElapsedGameTime.Milliseconds;
+            TimeSinceLastClickUp += gameTime.ElapsedGameTime.Milliseconds;
             timeSinceDoubleClick += gameTime.ElapsedGameTime.Milliseconds;
             if (GetClick(KeyModifier._Any)) {
                 ClickTime += gameTime.ElapsedGameTime.Milliseconds;
@@ -154,13 +154,13 @@ namespace WaveTracker {
                 ClickTime = 0;
             }
             if (GetRightClickDown(KeyModifier._Any)) {
-                lastRightClickLocation = new Point(MousePositionX, MousePositionY);
+                LastRightClickLocation = new Point(MousePositionX, MousePositionY);
             }
 
             if (GetClickDown(KeyModifier._Any)) {
-                lastClickLocation = new Point(MousePositionX, MousePositionY);
+                LastClickLocation = new Point(MousePositionX, MousePositionY);
                 lastClickFocus = focus;
-                if (!doubleClick && timeSinceLastClick < DOUBLE_CLICK_TIME && Vector2.Distance(lastClickReleaseLocation.ToVector2(), MousePos) < MOUSE_DRAG_DISTANCE) {
+                if (!doubleClick && TimeSinceLastClick < DOUBLE_CLICK_TIME && Vector2.Distance(LastClickReleaseLocation.ToVector2(), MousePos) < MOUSE_DRAG_DISTANCE) {
                     //this is a double click
                     doubleClick = true;
                 }
@@ -168,11 +168,11 @@ namespace WaveTracker {
                     //this is a normal click
                     doubleClick = false;
                 }
-                timeSinceLastClick = 0;
+                TimeSinceLastClick = 0;
             }
 
             if (GetClick(KeyModifier._Any)) {
-                if (Vector2.Distance(lastClickLocation.ToVector2(), MousePos) > MOUSE_DRAG_DISTANCE) {
+                if (Vector2.Distance(LastClickLocation.ToVector2(), MousePos) > MOUSE_DRAG_DISTANCE) {
                     dragging = true;
                 }
             }
@@ -186,12 +186,12 @@ namespace WaveTracker {
                 dragging = false;
             }
             if (GetClickUp(KeyModifier._Any)) {
-                timeSinceLastClickUp = 0;
-                lastClickReleaseLocation = new Point(MousePositionX, MousePositionY);
+                TimeSinceLastClickUp = 0;
+                LastClickReleaseLocation = new Point(MousePositionX, MousePositionY);
             }
 
             if (GetRightClickUp(KeyModifier._Any)) {
-                lastRightClickReleaseLocation = new Point(MousePositionX, MousePositionY);
+                LastRightClickReleaseLocation = new Point(MousePositionX, MousePositionY);
             }
         }
 
@@ -202,7 +202,7 @@ namespace WaveTracker {
         }
 
         public static bool GetKey(Keys key, KeyModifier modifier) {
-            if (modifierMatches(modifier))
+            if (ModifierMatches(modifier))
                 return currentKeyState.IsKeyDown(key);
             else
                 return false;
@@ -210,7 +210,7 @@ namespace WaveTracker {
 
         public static bool GetKeyDown(Keys key, KeyModifier modifier) {
 
-            if (modifierMatches(modifier))
+            if (ModifierMatches(modifier))
                 return currentKeyState.IsKeyDown(key) && !previousKeyState.IsKeyDown(key);
             else
                 return false;
@@ -219,7 +219,7 @@ namespace WaveTracker {
 
         public static bool GetKeyRepeat(Keys key, KeyModifier modifier) {
 
-            if (modifierMatches(modifier)) {
+            if (ModifierMatches(modifier)) {
                 if (currentKeyState.IsKeyDown(key) && !previousKeyState.IsKeyDown(key))
                     return true;
                 if (keyTimePairs[key] > KEY_REPEAT_DELAY) {
@@ -234,7 +234,7 @@ namespace WaveTracker {
 
         public static bool GetKeyUp(Keys key, KeyModifier modifier) {
 
-            if (modifierMatches(modifier))
+            if (ModifierMatches(modifier))
                 return !currentKeyState.IsKeyDown(key) && previousKeyState.IsKeyDown(key);
             else
                 return false;
@@ -242,7 +242,7 @@ namespace WaveTracker {
 
         public static bool GetClickUp(KeyModifier modifier) {
 
-            if (modifierMatches(modifier) && !cancelClick)
+            if (ModifierMatches(modifier) && !cancelClick)
                 return currentMouseState.LeftButton == ButtonState.Released && previousMouseState.LeftButton == ButtonState.Pressed;
             else
                 return false;
@@ -254,14 +254,14 @@ namespace WaveTracker {
         }
         public static bool GetClickDown(KeyModifier modifier) {
 
-            if (modifierMatches(modifier) && !cancelClick)
+            if (ModifierMatches(modifier) && !cancelClick)
                 return currentMouseState.LeftButton == ButtonState.Pressed && previousMouseState.LeftButton == ButtonState.Released;
             else
                 return false;
         }
         public static bool GetClick(KeyModifier modifier) {
 
-            if (modifierMatches(modifier) && !cancelClick)
+            if (ModifierMatches(modifier) && !cancelClick)
                 return currentMouseState.LeftButton == ButtonState.Pressed;
             else
                 return false;
@@ -269,7 +269,7 @@ namespace WaveTracker {
 
         public static bool GetRightClick(KeyModifier modifier) {
 
-            if (modifierMatches(modifier) && !cancelClick)
+            if (ModifierMatches(modifier) && !cancelClick)
                 return currentMouseState.RightButton == ButtonState.Pressed;
             else
                 return false;
@@ -277,14 +277,14 @@ namespace WaveTracker {
 
         public static bool GetRightClickUp(KeyModifier modifier) {
 
-            if (modifierMatches(modifier) && !cancelClick)
+            if (ModifierMatches(modifier) && !cancelClick)
                 return currentMouseState.RightButton == ButtonState.Released && previousMouseState.RightButton == ButtonState.Pressed;
             else
                 return false;
         }
         public static bool GetRightClickDown(KeyModifier modifier) {
 
-            if (modifierMatches(modifier) && !cancelClick)
+            if (ModifierMatches(modifier) && !cancelClick)
                 return currentMouseState.RightButton == ButtonState.Pressed && previousMouseState.RightButton == ButtonState.Released;
             else
                 return false;
@@ -302,7 +302,7 @@ namespace WaveTracker {
         public static int MouseDeltaY { get { return (int)(currentMouseState.Y / App.Settings.General.ScreenScale) - (int)(previousMouseState.Y / App.Settings.General.ScreenScale); } }
 
         public static int MouseScrollWheel(KeyModifier modifier) {
-            if (modifierMatches(modifier)) {
+            if (ModifierMatches(modifier)) {
                 if (currentMouseState.ScrollWheelValue < previousMouseState.ScrollWheelValue) return -1;
                 if (currentMouseState.ScrollWheelValue > previousMouseState.ScrollWheelValue) return 1;
                 return 0;
@@ -311,7 +311,7 @@ namespace WaveTracker {
                 return 0;
         }
 
-        static bool modifierMatches(KeyModifier mod) {
+        static bool ModifierMatches(KeyModifier mod) {
             if (mod == KeyModifier._Any)
                 return true;
             return CurrentModifier == mod;

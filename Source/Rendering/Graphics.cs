@@ -19,15 +19,15 @@ namespace WaveTracker.Rendering {
         }
 
         public static void Write(string text, int x, int y, Color c) {
-            batch.DrawString(font, text, new Vector2((int)x, (int)y - 5), c);
+            batch.DrawString(font, text, new Vector2(x, y - 5), c);
         }
 
         public static void WriteTwiceAsBig(string text, int x, int y, Color c) {
-            batch.DrawString(font, text, new Vector2((int)x, (int)y - 5), c, 0, Vector2.Zero, 2, SpriteEffects.None, 0);
+            batch.DrawString(font, text, new Vector2(x, y - 5), c, 0, Vector2.Zero, 2, SpriteEffects.None, 0);
         }
 
         public static void WriteRightJustified(string text, int x, int y, Color c) {
-            batch.DrawString(font, text, new Vector2((int)x - Helpers.GetWidthOfText(text), (int)y - 5), c);
+            batch.DrawString(font, text, new Vector2(x - Helpers.GetWidthOfText(text), y - 5), c);
         }
 
         public static void WriteMonospaced(string text, int x, int y, Color c, int width = 5) {
@@ -36,8 +36,6 @@ namespace WaveTracker.Rendering {
                 x += width + 1;
             }
         }
-
-
 
         public static void DrawSprite(int x, int y, Rectangle bounds) {
             batch.Draw(img, new Rectangle(x, y, bounds.Width, bounds.Height), bounds, Color.White);

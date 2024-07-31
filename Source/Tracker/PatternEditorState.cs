@@ -11,9 +11,7 @@ using ProtoBuf;
 using System.Diagnostics;
 
 namespace WaveTracker.Tracker {
-    /// <summary>
-    /// 
-    /// </summary>
+    
     public record PatternEditorState {
 
         string[] patternStrings;

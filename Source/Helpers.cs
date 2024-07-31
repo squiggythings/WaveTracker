@@ -69,38 +69,10 @@ namespace WaveTracker {
         }
 
         /// <summary>
-        /// OUTDATED - do not use
+        /// Gets the width of string <c>text</c> if it were to be displayed on screen
         /// </summary>
-        public static char GetEffectCharacter(int num) {
-            return num switch {
-                0 => '0',
-                1 => '1',
-                2 => '2',
-                3 => '3',
-                4 => '4',
-                7 => '7',
-                8 => '8',
-                9 => '9',
-                10 => 'Q',
-                11 => 'R',
-                12 => 'A',
-                13 => 'W',
-                14 => 'P',
-                15 => 'F',
-                16 => 'V',
-                17 => 'G',
-                18 => 'S',
-                19 => 'I',
-                20 => 'C',
-                21 => 'B',
-                22 => 'D',
-                23 => 'M',
-                24 => 'J',
-                25 => 'J',
-                _ => '-',
-            };
-        }
-
+        /// <param name="text"></param>
+        /// <returns></returns>
         public static int GetWidthOfText(string text) {
             int ret = 0;
             string alphabet = " 0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz!@#$%^&*()_+-={}[]\\|'\":;?/>.<,~`©àèìòùÀÈÌÒÙáéíóúýÁÉÍÓÚÝâêîôûÂÊÎÔÛãñõÃÑÕäëïöüÿÄËÏÖÜŸæçÇ";
@@ -127,15 +99,29 @@ namespace WaveTracker {
             return ret - 1;
         }
 
+        /// <summary>
+        /// Gets the height of <c>text</c>, a string separated by <c>\n</c> characters
+        /// </summary>
+        /// <param name="text"></param>
+        /// <param name="width"></param>
+        /// <param name="lineSpacing"></param>
+        /// <returns></returns>
         public static int GetHeightOfMultilineText(string text, int width, int lineSpacing = 10) {
             string str = "";
             string[] words = text.Split(' ');
             int w = 0;
             foreach (string word in words) {
                 w += GetWidthOfText(word + " ");
-                if (w > width) {
-                    str += "\n" + word + " ";
-                    w = GetWidthOfText(word + " ");
+                if (w > width || word == "\n") {
+                    if (word == "\n") {
+                        str += "\n";
+                        w = 0;
+                    }
+                    else {
+                        str += "\n" + word + " ";
+                        w = GetWidthOfText(word + " ");
+
+                    }
                 }
                 else {
                     str += word + " ";
@@ -219,6 +205,11 @@ namespace WaveTracker {
             };
         }
 
+        /// <summary>
+        /// Converts a <c>KeyModifier</c> enum to its string representation.
+        /// </summary>
+        /// <param name="modifier"></param>
+        /// <returns></returns>
         public static string ModifierToString(KeyModifier modifier) {
             return modifier switch {
                 KeyModifier.Shift => "Shift+",
@@ -288,13 +279,30 @@ namespace WaveTracker {
             };
         }
 
+        /// <summary>
+        /// Converts a midi note to a frequency in hertz.
+        /// </summary>
+        /// <param name="midiNoteNum"></param>
+        /// <returns></returns>
         public static float NoteToFrequency(float midiNoteNum) {
             return (float)Math.Pow(2, (midiNoteNum - 69) / 12.0) * 440;
         }
 
+        /// <summary>
+        /// True modulus operator
+        /// </summary>
+        /// <param name="a"></param>
+        /// <param name="b"></param>
+        /// <returns></returns>
         public static float Mod(float a, float b) {
             return (a - b * MathF.Floor(a / b));
         }
+        /// <summary>
+        /// True modulus operator
+        /// </summary>
+        /// <param name="a"></param>
+        /// <param name="b"></param>
+        /// <returns></returns>
         public static double Mod(double a, double b) {
             return (a - b * Math.Floor(a / b));
         }
@@ -320,6 +328,7 @@ namespace WaveTracker {
             int tmp2 = (int)(b * (tmp - 1072632447) + 1072632447);
             return (float)BitConverter.Int64BitsToDouble(((long)tmp2) << 32);
         }
+
         /// <summary>
         /// Sets alpha of color. from 0-255
         /// </summary>
@@ -340,7 +349,13 @@ namespace WaveTracker {
             return new Color(c.R, c.G, c.B, (byte)(a * 255));
         }
 
-
+        /// <summary>
+        /// Linearly interpolates between two colors
+        /// </summary>
+        /// <param name="a"></param>
+        /// <param name="b"></param>
+        /// <param name="amt"></param>
+        /// <returns></returns>
         public static Color LerpColor(Color a, Color b, float amt) {
             Color c = Color.White;
             c.R = (byte)(a.R + (b.R - a.R) * amt);
@@ -348,6 +363,7 @@ namespace WaveTracker {
             c.B = (byte)(a.B + (b.B - a.B) * amt);
             return c;
         }
+
         /// <summary>
         /// Map a float from one range to another
         /// </summary>
@@ -377,130 +393,11 @@ namespace WaveTracker {
         }
 
 
-        /// <summary>
-        /// Returns the midi note number of the current piano key held down, -1 if none are pressed
-        /// </summary>
-        /// <param name="currentOctave"></param>
-        /// <returns></returns>
-        public static int GetPianoInput(int currentOctave) {
-            currentOctave++;
-            if (Input.GetKey(Keys.Z, KeyModifier.None)) return currentOctave * 12 + 0;
-            if (Input.GetKey(Keys.S, KeyModifier.None)) return currentOctave * 12 + 1;
-            if (Input.GetKey(Keys.X, KeyModifier.None)) return currentOctave * 12 + 2;
-            if (Input.GetKey(Keys.D, KeyModifier.None)) return currentOctave * 12 + 3;
-            if (Input.GetKey(Keys.C, KeyModifier.None)) return currentOctave * 12 + 4;
-            if (Input.GetKey(Keys.V, KeyModifier.None)) return currentOctave * 12 + 5;
-            if (Input.GetKey(Keys.G, KeyModifier.None)) return currentOctave * 12 + 6;
-            if (Input.GetKey(Keys.B, KeyModifier.None)) return currentOctave * 12 + 7;
-            if (Input.GetKey(Keys.H, KeyModifier.None)) return currentOctave * 12 + 8;
-            if (Input.GetKey(Keys.N, KeyModifier.None)) return currentOctave * 12 + 9;
-            if (Input.GetKey(Keys.J, KeyModifier.None)) return currentOctave * 12 + 10;
-            if (Input.GetKey(Keys.M, KeyModifier.None)) return currentOctave * 12 + 11;
-            if (Input.GetKey(Keys.OemComma, KeyModifier.None)) return currentOctave * 12 + 12;
-            if (Input.GetKey(Keys.L, KeyModifier.None)) return currentOctave * 12 + 13;
-            if (Input.GetKey(Keys.OemPeriod, KeyModifier.None)) return currentOctave * 12 + 14;
-            if (Input.GetKey(Keys.OemSemicolon, KeyModifier.None)) return currentOctave * 12 + 15;
-            if (Input.GetKey(Keys.OemQuestion, KeyModifier.None)) return currentOctave * 12 + 16;
-            if (Input.GetKey(Keys.Q, KeyModifier.None)) return currentOctave * 12 + 12;
-            if (Input.GetKey(Keys.D2, KeyModifier.None)) return currentOctave * 12 + 13;
-            if (Input.GetKey(Keys.W, KeyModifier.None)) return currentOctave * 12 + 14;
-            if (Input.GetKey(Keys.D3, KeyModifier.None)) return currentOctave * 12 + 15;
-            if (Input.GetKey(Keys.E, KeyModifier.None)) return currentOctave * 12 + 16;
-            if (Input.GetKey(Keys.R, KeyModifier.None)) return currentOctave * 12 + 17;
-            if (Input.GetKey(Keys.D5, KeyModifier.None)) return currentOctave * 12 + 18;
-            if (Input.GetKey(Keys.T, KeyModifier.None)) return currentOctave * 12 + 19;
-            if (Input.GetKey(Keys.D6, KeyModifier.None)) return currentOctave * 12 + 20;
-            if (Input.GetKey(Keys.Y, KeyModifier.None)) return currentOctave * 12 + 21;
-            if (Input.GetKey(Keys.D7, KeyModifier.None)) return currentOctave * 12 + 22;
-            if (Input.GetKey(Keys.U, KeyModifier.None)) return currentOctave * 12 + 23;
-            if (Input.GetKey(Keys.I, KeyModifier.None)) return currentOctave * 12 + 24;
-            if (Input.GetKey(Keys.D9, KeyModifier.None)) return currentOctave * 12 + 25;
-            if (Input.GetKey(Keys.O, KeyModifier.None)) return currentOctave * 12 + 26;
-            if (Input.GetKey(Keys.D0, KeyModifier.None)) return currentOctave * 12 + 27;
-            if (Input.GetKey(Keys.P, KeyModifier.None)) return currentOctave * 12 + 28;
-            return -1;
-        }
-        public static int GetPianoInputDown(int currentOctave) {
-            currentOctave++;
-            if (Input.GetKeyDown(Keys.Z, KeyModifier.None)) return currentOctave * 12 + 0;
-            if (Input.GetKeyDown(Keys.S, KeyModifier.None)) return currentOctave * 12 + 1;
-            if (Input.GetKeyDown(Keys.X, KeyModifier.None)) return currentOctave * 12 + 2;
-            if (Input.GetKeyDown(Keys.D, KeyModifier.None)) return currentOctave * 12 + 3;
-            if (Input.GetKeyDown(Keys.C, KeyModifier.None)) return currentOctave * 12 + 4;
-            if (Input.GetKeyDown(Keys.V, KeyModifier.None)) return currentOctave * 12 + 5;
-            if (Input.GetKeyDown(Keys.G, KeyModifier.None)) return currentOctave * 12 + 6;
-            if (Input.GetKeyDown(Keys.B, KeyModifier.None)) return currentOctave * 12 + 7;
-            if (Input.GetKeyDown(Keys.H, KeyModifier.None)) return currentOctave * 12 + 8;
-            if (Input.GetKeyDown(Keys.N, KeyModifier.None)) return currentOctave * 12 + 9;
-            if (Input.GetKeyDown(Keys.J, KeyModifier.None)) return currentOctave * 12 + 10;
-            if (Input.GetKeyDown(Keys.M, KeyModifier.None)) return currentOctave * 12 + 11;
-            if (Input.GetKeyDown(Keys.OemComma, KeyModifier.None)) return currentOctave * 12 + 12;
-            if (Input.GetKeyDown(Keys.L, KeyModifier.None)) return currentOctave * 12 + 13;
-            if (Input.GetKeyDown(Keys.OemPeriod, KeyModifier.None)) return currentOctave * 12 + 14;
-            if (Input.GetKeyDown(Keys.OemSemicolon, KeyModifier.None)) return currentOctave * 12 + 15;
-            if (Input.GetKeyDown(Keys.OemQuestion, KeyModifier.None)) return currentOctave * 12 + 16;
-            if (Input.GetKeyDown(Keys.Q, KeyModifier.None)) return currentOctave * 12 + 12;
-            if (Input.GetKeyDown(Keys.D2, KeyModifier.None)) return currentOctave * 12 + 13;
-            if (Input.GetKeyDown(Keys.W, KeyModifier.None)) return currentOctave * 12 + 14;
-            if (Input.GetKeyDown(Keys.D3, KeyModifier.None)) return currentOctave * 12 + 15;
-            if (Input.GetKeyDown(Keys.E, KeyModifier.None)) return currentOctave * 12 + 16;
-            if (Input.GetKeyDown(Keys.R, KeyModifier.None)) return currentOctave * 12 + 17;
-            if (Input.GetKeyDown(Keys.D5, KeyModifier.None)) return currentOctave * 12 + 18;
-            if (Input.GetKeyDown(Keys.T, KeyModifier.None)) return currentOctave * 12 + 19;
-            if (Input.GetKeyDown(Keys.D6, KeyModifier.None)) return currentOctave * 12 + 20;
-            if (Input.GetKeyDown(Keys.Y, KeyModifier.None)) return currentOctave * 12 + 21;
-            if (Input.GetKeyDown(Keys.D7, KeyModifier.None)) return currentOctave * 12 + 22;
-            if (Input.GetKeyDown(Keys.U, KeyModifier.None)) return currentOctave * 12 + 23;
-            if (Input.GetKeyDown(Keys.I, KeyModifier.None)) return currentOctave * 12 + 24;
-            if (Input.GetKeyDown(Keys.D9, KeyModifier.None)) return currentOctave * 12 + 25;
-            if (Input.GetKeyDown(Keys.O, KeyModifier.None)) return currentOctave * 12 + 26;
-            if (Input.GetKeyDown(Keys.D0, KeyModifier.None)) return currentOctave * 12 + 27;
-            if (Input.GetKeyDown(Keys.P, KeyModifier.None)) return currentOctave * 12 + 28;
-            return -1;
-        }
-        public static int GetPianoInputUp(int currentOctave) {
-            currentOctave++;
-            if (Input.GetKeyUp(Keys.Z, KeyModifier.None)) return currentOctave * 12 + 0;
-            if (Input.GetKeyUp(Keys.S, KeyModifier.None)) return currentOctave * 12 + 1;
-            if (Input.GetKeyUp(Keys.X, KeyModifier.None)) return currentOctave * 12 + 2;
-            if (Input.GetKeyUp(Keys.D, KeyModifier.None)) return currentOctave * 12 + 3;
-            if (Input.GetKeyUp(Keys.C, KeyModifier.None)) return currentOctave * 12 + 4;
-            if (Input.GetKeyUp(Keys.V, KeyModifier.None)) return currentOctave * 12 + 5;
-            if (Input.GetKeyUp(Keys.G, KeyModifier.None)) return currentOctave * 12 + 6;
-            if (Input.GetKeyUp(Keys.B, KeyModifier.None)) return currentOctave * 12 + 7;
-            if (Input.GetKeyUp(Keys.H, KeyModifier.None)) return currentOctave * 12 + 8;
-            if (Input.GetKeyUp(Keys.N, KeyModifier.None)) return currentOctave * 12 + 9;
-            if (Input.GetKeyUp(Keys.J, KeyModifier.None)) return currentOctave * 12 + 10;
-            if (Input.GetKeyUp(Keys.M, KeyModifier.None)) return currentOctave * 12 + 11;
-            if (Input.GetKeyUp(Keys.OemComma, KeyModifier.None)) return currentOctave * 12 + 12;
-            if (Input.GetKeyUp(Keys.L, KeyModifier.None)) return currentOctave * 12 + 13;
-            if (Input.GetKeyUp(Keys.OemPeriod, KeyModifier.None)) return currentOctave * 12 + 14;
-            if (Input.GetKeyUp(Keys.OemSemicolon, KeyModifier.None)) return currentOctave * 12 + 15;
-            if (Input.GetKeyUp(Keys.OemQuestion, KeyModifier.None)) return currentOctave * 12 + 16;
-            if (Input.GetKeyUp(Keys.Q, KeyModifier.None)) return currentOctave * 12 + 12;
-            if (Input.GetKeyUp(Keys.D2, KeyModifier.None)) return currentOctave * 12 + 13;
-            if (Input.GetKeyUp(Keys.W, KeyModifier.None)) return currentOctave * 12 + 14;
-            if (Input.GetKeyUp(Keys.D3, KeyModifier.None)) return currentOctave * 12 + 15;
-            if (Input.GetKeyUp(Keys.E, KeyModifier.None)) return currentOctave * 12 + 16;
-            if (Input.GetKeyUp(Keys.R, KeyModifier.None)) return currentOctave * 12 + 17;
-            if (Input.GetKeyUp(Keys.D5, KeyModifier.None)) return currentOctave * 12 + 18;
-            if (Input.GetKeyUp(Keys.T, KeyModifier.None)) return currentOctave * 12 + 19;
-            if (Input.GetKeyUp(Keys.D6, KeyModifier.None)) return currentOctave * 12 + 20;
-            if (Input.GetKeyUp(Keys.Y, KeyModifier.None)) return currentOctave * 12 + 21;
-            if (Input.GetKeyUp(Keys.D7, KeyModifier.None)) return currentOctave * 12 + 22;
-            if (Input.GetKeyUp(Keys.U, KeyModifier.None)) return currentOctave * 12 + 23;
-            if (Input.GetKeyUp(Keys.I, KeyModifier.None)) return currentOctave * 12 + 24;
-            if (Input.GetKeyUp(Keys.D9, KeyModifier.None)) return currentOctave * 12 + 25;
-            if (Input.GetKeyUp(Keys.O, KeyModifier.None)) return currentOctave * 12 + 26;
-            if (Input.GetKeyUp(Keys.D0, KeyModifier.None)) return currentOctave * 12 + 27;
-            if (Input.GetKeyUp(Keys.P, KeyModifier.None)) return currentOctave * 12 + 28;
-            return -1;
-        }
 
         /// <summary>
         /// Returns true if the midi note number is a black key
         /// </summary>
-        /// <param name="noteNum"></param>
+        /// <param name="midiNoteNum"></param>
         /// <returns></returns>
         public static bool IsNoteBlackKey(int midiNoteNum) {
             return (midiNoteNum % 12) switch {
@@ -509,13 +406,14 @@ namespace WaveTracker {
             };
         }
 
-      
+
         /// <summary>
-        /// Read an audio file into 2 arrays of shorts
+        /// Reads an audio file into 2 arrays of shorts
         /// </summary>
         /// <param name="filepath"></param>
         /// <param name="L"></param>
         /// <param name="R"></param>
+        /// <param name="fileSampleRate"></param>
         /// <returns></returns>
         public static bool ReadAudioFile(string filepath, out short[] L, out short[] R, out int fileSampleRate) {
             List<short> LChannel = new List<short>();
@@ -525,10 +423,8 @@ namespace WaveTracker {
                 int bytesPerSample = Nreader.WaveFormat.BitsPerSample / 8;
                 bool isMono = Nreader.WaveFormat.Channels == 1;
                 fileSampleRate = Nreader.WaveFormat.SampleRate;
-                int sampleRate = fileSampleRate;//App.Settings.SamplesWaves.AutomaticallyResampleSamples ? Audio.AudioEngine.SampleRate : Nreader.WaveFormat.SampleRate;
-
                 ISampleProvider isp;
-                WaveFormat desiredFormat = new WaveFormat(sampleRate, 16, Nreader.WaveFormat.Channels);
+                WaveFormat desiredFormat = new WaveFormat(fileSampleRate, 16, Nreader.WaveFormat.Channels);
                 IWaveProvider waveProvider = Nreader.ToWaveProvider();
                 using (var resampler = new MediaFoundationResampler(Nreader, desiredFormat)) {
                     isp = resampler.ToSampleProvider();
@@ -586,6 +482,7 @@ namespace WaveTracker {
             return new Color(r, g, b);
         }
 
+
         private static float HueToRGB(float v1, float v2, float vH) {
             if (vH < 0)
                 vH += 1;
@@ -604,6 +501,11 @@ namespace WaveTracker {
 
             return v1;
         }
+        /// <summary>
+        /// Converts a hex code <c>hexCode</c> into a <c>Color</c>
+        /// </summary>
+        /// <param name="hexCode"></param>
+        /// <returns></returns>
         public static Color HexCodeToColor(string hexCode) {
             if (hexCode.StartsWith('#')) {
                 hexCode = hexCode.Substring(1);
@@ -691,17 +593,23 @@ namespace WaveTracker {
             return new Color(r, g, b, a);
         }
 
-        public static Color AddTo(this Color value, Color other) {
-            return new Color(value.R + other.R, value.G + other.G, value.B + other.B, value.A + other.A);
+        /// <summary>
+        /// Adds <c>other</c> to this color
+        /// </summary>
+        /// <param name="col"></param>
+        /// <param name="other"></param>
+        /// <returns></returns>
+        public static Color AddTo(this Color col, Color other) {
+            return new Color(col.R + other.R, col.G + other.G, col.B + other.B, col.A + other.A);
         }
 
         /// <summary>
         /// Returns the negative of this color
         /// </summary>
-        /// <param name="value"></param>
+        /// <param name="col"></param>
         /// <returns></returns>
-        public static Color ToNegative(this Color value) {
-            return new Color(255 - value.R, 255 - value.G, 255 - value.B, 255);
+        public static Color ToNegative(this Color col) {
+            return new Color(255 - col.R, 255 - col.G, 255 - col.B, 255);
         }
 
         /// <summary>

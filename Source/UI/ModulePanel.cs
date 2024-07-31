@@ -12,7 +12,7 @@ using Microsoft.Xna.Framework.Audio;
 using WaveTracker.Tracker;
 
 namespace WaveTracker.UI {
-    public class SongSettings : Panel {
+    public class ModulePanel : Panel {
         Textbox title, author, speed;
         Dropdown selectedSong;
         NumberBox rows;
@@ -20,11 +20,11 @@ namespace WaveTracker.UI {
         float ampLeft, ampRight;
         int ampL, ampR;
 
-        public SongSettings(int x, int y) : base("Module", x, y, 306, 84) {
+        public ModulePanel(int x, int y) : base("Module", x, y, 306, 84) {
             title = new Textbox("Title", 4, 12, 155, 110, this);
 
             author = new Textbox("Author", 4, 26, 155, 110, this);
-           
+
             selectedSong = new Dropdown(34, 42, this, scrollWrap: false);
             selectedSong.width = 125;
 
@@ -99,8 +99,8 @@ namespace WaveTracker.UI {
             author.Draw();
             speed.Draw();
             rows.Draw();
-            if (Audio.AudioEngine.currentBuffer != null) {
-                if (Audio.AudioEngine.currentBuffer.Length > 0) {
+            if (Audio.AudioEngine.CurrentBuffer != null) {
+                if (Audio.AudioEngine.CurrentBuffer.Length > 0) {
                     if (App.Settings.General.OscilloscopeMode == 0)
                         DrawMonoOscilloscope(166, 44, 135, 35, new Color(56, 64, 102));
                     if (App.Settings.General.OscilloscopeMode == 1)
@@ -117,7 +117,7 @@ namespace WaveTracker.UI {
 
         public void DrawVolumeMeters(int px, int py, int width, int height) {
             Color grey = new Color(163, 167, 194);
-            #region draw letters
+            #region draw L+R letters
             DrawRect(px - 7, py, 1, 4, grey);
             DrawRect(px - 6, py + 3, 2, 1, grey);
 
@@ -128,9 +128,9 @@ namespace WaveTracker.UI {
             DrawRect(px - 5, py + height + 4, 1, 1, grey);
             #endregion
 
-            for (int i = 0; i < Audio.AudioEngine.currentBuffer.GetLength(1); i++) {
-                float l = Math.Abs(Audio.AudioEngine.currentBuffer[0, i]);
-                float r = Math.Abs(Audio.AudioEngine.currentBuffer[1, i]);
+            for (int i = 0; i < Audio.AudioEngine.CurrentBuffer.GetLength(1); i++) {
+                float l = Math.Abs(Audio.AudioEngine.CurrentBuffer[0, i]);
+                float r = Math.Abs(Audio.AudioEngine.CurrentBuffer[1, i]);
                 if (l > ampLeft)
                     ampLeft = l;
                 if (r > ampRight)
@@ -151,15 +151,15 @@ namespace WaveTracker.UI {
             DrawRect(px, py + height + 1, width, 1, shadow);
 
             // draw volume bars
-            if (App.Settings.General.MeterColorMode == 0) // flat
-            {
+            if (App.Settings.General.MeterColorMode == 0) {
+                // flat
                 Color barCol = ampLeft >= 1 && App.Settings.General.FlashMeterRedWhenClipping ? Color.Red : bar;
                 DrawRect(px, py + 1, ampL, height - 1, barCol);
                 barCol = ampRight >= 1 && App.Settings.General.FlashMeterRedWhenClipping ? Color.Red : bar;
                 DrawRect(px, py + height + 2, ampR, height - 1, barCol);
             }
-            else // gradient
-            {
+            else {
+                // gradient
                 for (int x = 0; x < ampL; x++) {
                     Color barCol = ampLeft >= 1 && App.Settings.General.FlashMeterRedWhenClipping ? Color.Red : Helpers.HSLtoRGB((int)Helpers.MapClamped(x, width * 0.6667f, width, 130, 10), 1, 0.42f);
                     DrawRect(px + x, py + 1, 1, height - 1, barCol);
@@ -172,16 +172,16 @@ namespace WaveTracker.UI {
 
             // draw channel squares
             for (int i = 0; i < App.CurrentModule.ChannelCount; i++) {
-                DrawRect(px + i * 6, py - 9, 5, 5, Helpers.LerpColor(grey, bar, Math.Clamp(Audio.ChannelManager.channels[i].CurrentAmplitude, 0, 1)));
+                DrawRect(px + i * 6, py - 9, 5, 5, Helpers.LerpColor(grey, bar, Math.Clamp(Audio.ChannelManager.Channels[i].CurrentAmplitude, 0, 1)));
             }
         }
 
         public void DrawOverlappedOscilloscope(int px, int py, int width, int height, Color back) {
             DrawRect(px, py, width, height, back);
-            float[,] samples = Audio.AudioEngine.currentBuffer;
+            float[,] samples = Audio.AudioEngine.CurrentBuffer;
             int i = 0;
             int drawX = 0;
-            int zoomX = Audio.AudioEngine.PreviewBufferLength / width;
+            int zoomX = Audio.AudioEngine.PREVIEW_BUFFER_LENGTH / width;
             while (drawX < width - 2) {
                 int minValR = 99;
                 int maxValR = -99;
@@ -220,10 +220,10 @@ namespace WaveTracker.UI {
 
         public void DrawMonoOscilloscope(int px, int py, int width, int height, Color back) {
             DrawRect(px, py, width, height, back);
-            float[,] samples = Audio.AudioEngine.currentBuffer;
+            float[,] samples = Audio.AudioEngine.CurrentBuffer;
             int i = 0;
             int drawX = 0;
-            int zoomX = Audio.AudioEngine.PreviewBufferLength / width;
+            int zoomX = Audio.AudioEngine.PREVIEW_BUFFER_LENGTH / width;
             while (drawX < width - 2) {
 
                 int minValL = 99;
@@ -249,10 +249,10 @@ namespace WaveTracker.UI {
 
         public void DrawStereoOscilloscope(int px, int py, int width, int height, Color back) {
             DrawRect(px, py, width, height, back);
-            float[,] samples = Audio.AudioEngine.currentBuffer;
+            float[,] samples = Audio.AudioEngine.CurrentBuffer;
             int i = 0;
             int drawX = 0;
-            int zoomX = Audio.AudioEngine.PreviewBufferLength / width * 2;
+            int zoomX = Audio.AudioEngine.PREVIEW_BUFFER_LENGTH / width * 2;
             while (drawX < width / 2 - 1) {
                 int minVal = 99;
                 int maxVal = -99;

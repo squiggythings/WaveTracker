@@ -32,9 +32,8 @@ namespace WaveTracker.Tracker {
 
         public Envelope(EnvelopeType type) {
             Type = type;
-            //this.defaultValue = defaultValue;
             IsActive = true;
-            values = new sbyte[0];
+            values = [];
             ReleaseIndex = EMPTY_LOOP_RELEASE_INDEX;
             LoopIndex = EMPTY_LOOP_RELEASE_INDEX;
         }
@@ -142,53 +141,11 @@ namespace WaveTracker.Tracker {
                 }
             }
             else {
-                values = new sbyte[0];
+                values = [];
             }
         }
 
-        //public string ToEncodedString() {
-        //    StringBuilder sb = new StringBuilder();
-        //    sb.Append((char)Type);
-        //    sb.Append((char)ReleaseIndex);
-        //    sb.Append((char)LoopIndex);
-        //    sb.Append(IsActive ? '1' : '0');
-        //    foreach (short value in values) {
-        //        sb.Append((char)value);
-        //    }
-        //    return sb.ToString();
-        //}
-
-        //public void FromEncodedString(string encodedEnvelope) {
-        //    int i = 0;
-        //    Type = (EnvelopeType)encodedEnvelope[i++];
-        //    ReleaseIndex = (byte)encodedEnvelope[i++];
-        //    LoopIndex = (byte)encodedEnvelope[i++];
-        //    IsActive = encodedEnvelope[i++] == '1';
-        //    List<short> newValues = new List<short>();
-        //    while (i < encodedEnvelope.Length) {
-        //        newValues.Add((short)encodedEnvelope[i++]);
-        //    }
-        //    values = newValues.ToArray();
-        //}
-
-        /*public bool IsEqualTo(Envelope other) {
-            if (other.isActive != isActive)
-                return false;
-
-            if (other.loopIndex != loopIndex)
-                return false;
-            if (other.releaseIndex != releaseIndex)
-                return false;
-            if (values.Length != other.values.Length)
-                return false;
-            for (int i = 0; i < values.Length; ++i) {
-                if (values[i] != other.values[i]) {
-                    return false;
-                }
-            }
-            return true;
-        }*/
-
+   
         public bool HasRelease { get { return ReleaseIndex != EMPTY_LOOP_RELEASE_INDEX; } }
         public bool HasLoop { get { return LoopIndex != EMPTY_LOOP_RELEASE_INDEX; } }
 

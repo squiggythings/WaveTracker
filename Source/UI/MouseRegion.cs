@@ -31,9 +31,9 @@ namespace WaveTracker.UI {
         /// <summary>
         /// Returns true if the mouse was clicked in the region and is still held down, even if the mouse is no longer in the region
         /// </summary>
-        public bool DidClickInRegion => Input.GetClick(KeyModifier._Any) && GlobalPointIsInBounds(Input.lastClickLocation) && IsInHierarchy(Input.lastClickFocus);
-        public bool ClickedDownM(KeyModifier keyModifier) => Input.GetClickDown(keyModifier) && GlobalPointIsInBounds(Input.lastClickLocation) && IsInHierarchy(Input.lastClickFocus);
+        public bool DidClickInRegion => Input.GetClick(KeyModifier._Any) && GlobalPointIsInBounds(Input.LastClickLocation) && IsInHierarchy(Input.lastClickFocus);
+        public bool ClickedDownM(KeyModifier keyModifier) => Input.GetClickDown(keyModifier) && GlobalPointIsInBounds(Input.LastClickLocation) && IsInHierarchy(Input.lastClickFocus);
 
-        public bool DidClickInRegionM(KeyModifier keyModifier) => Input.GetClick(keyModifier) && GlobalPointIsInBounds(Input.lastClickLocation) && IsInHierarchy(Input.lastClickFocus);
+        public bool DidClickInRegionM(KeyModifier keyModifier) => Input.GetClick(keyModifier) && GlobalPointIsInBounds(Input.LastClickLocation) && IsInHierarchy(Input.lastClickFocus);
     }
 }

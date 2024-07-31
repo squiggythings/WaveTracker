@@ -60,7 +60,7 @@ namespace WaveTracker.UI {
                     }
                 }
             }
-            if (GlobalPointIsInBounds(Input.lastClickLocation)) {
+            if (GlobalPointIsInBounds(Input.LastClickLocation)) {
                 if (Input.GetKeyRepeat(Keys.Up, KeyModifier.None)) {
                     SelectedIndex--;
                     if (SelectedIndex < 0)

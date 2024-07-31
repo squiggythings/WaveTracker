@@ -403,7 +403,7 @@ namespace WaveTracker.UI {
             }
             #endregion
             #region selection with mouse
-            if (Input.GetClick(KeyModifier.None) && Input.MouseIsDragging && GlobalPointIsInBounds(Input.lastClickLocation)) {
+            if (Input.GetClick(KeyModifier.None) && Input.MouseIsDragging && GlobalPointIsInBounds(Input.LastClickLocation)) {
                 if (!SelectionIsActive) {
                     SetSelectionStart(GetCursorPositionFromPoint(LastClickPos.X, LastClickPos.Y));
                     selection.IsActive = true;
@@ -947,7 +947,7 @@ namespace WaveTracker.UI {
         public void Draw() {
             playbackFrame = Playback.position.Frame;
             playbackRow = Playback.position.Row;
-            if (Playback.IsPlaying && !AudioEngine.rendering && FollowMode) {
+            if (Playback.IsPlaying && !AudioEngine.IsRendering && FollowMode) {
                 SnapToPlaybackPosition();
             }
             renderCursorPos = cursorPosition;
@@ -1213,7 +1213,7 @@ namespace WaveTracker.UI {
             if (frame == renderCursorPos.Frame && row == renderCursorPos.Row && frameWrap == 0) {
                 rowBGcolor = EditMode ? App.Settings.Colors.Theme["Current row (editing)"] : App.Settings.Colors.Theme["Current row (default)"];
             }
-            else if (!AudioEngine.rendering && Playback.IsPlaying && playbackFrame == frame && playbackRow == row) {
+            else if (!AudioEngine.IsRendering && Playback.IsPlaying && playbackFrame == frame && playbackRow == row) {
                 rowBGcolor = App.Settings.Colors.Theme["Playback row"];
             }
             else if (row % App.CurrentSong.RowHighlightPrimary == 0) {

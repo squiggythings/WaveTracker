@@ -12,7 +12,6 @@ namespace WaveTracker.UI {
         public bool LabelIsCentered { get; set; }
         ButtonColors colors;
         int labelWidth;
-        ButtonType type;
 
         public Button(string label, int x, int y, Element parent) {
             enabled = true;
@@ -21,10 +20,7 @@ namespace WaveTracker.UI {
             this.Label = label;
             colors = ButtonColors.Round;
             LabelIsCentered = true;
-            type = ButtonType.Rounded;
             width = Helpers.GetWidthOfText(label) + 8;
-            //if (width < 30)
-            //    width = 30;
             labelWidth = Helpers.GetWidthOfText(label);
             height = 13;
             SetParent(parent);
@@ -36,10 +32,7 @@ namespace WaveTracker.UI {
             this.Label = label;
             colors = ButtonColors.Round;
             LabelIsCentered = true;
-            type = ButtonType.Rounded;
             this.width = width;
-            //if (width < 30)
-            //    width = 30;
             labelWidth = Helpers.GetWidthOfText(label);
             height = 13;
             SetParent(parent);
@@ -49,7 +42,7 @@ namespace WaveTracker.UI {
             this.Label = label;
             labelWidth = Helpers.GetWidthOfText(label);
         }
-        Color getBackgroundColor() {
+        Color GetBackgroundColor() {
             if (IsPressed)
                 return colors.backgroundColorPressed;
             if (IsHovered)
@@ -57,13 +50,13 @@ namespace WaveTracker.UI {
             return colors.backgroundColor;
         }
 
-        Color getTextColor() {
+        Color GetTextColor() {
             if (IsPressed)
                 return colors.textColorPressed;
             return colors.textColor;
         }
 
-        Color getBorderColor() {
+        Color GetBorderColor() {
             if (IsPressed)
                 return colors.borderColorPressed;
             return colors.borderColor;
@@ -71,19 +64,17 @@ namespace WaveTracker.UI {
 
         public void Draw() {
             if (enabled) {
-                DrawRoundedRect(0, 0, width, height, getBackgroundColor());
- 
-                int textOffset = type == ButtonType.Rounded && IsPressed ? 1 : 0;
+                DrawRoundedRect(0, 0, width, height, GetBackgroundColor());
+
+                int textOffset = IsPressed ? 1 : 0;
 
                 if (LabelIsCentered)
-                    Write(Label, (width - labelWidth) / 2, (height + 1) / 2 - 4 + textOffset, getTextColor());
+                    Write(Label, (width - labelWidth) / 2, (height + 1) / 2 - 4 + textOffset, GetTextColor());
                 else
-                    Write(Label, 4, (height + 1) / 2 - 4 + textOffset, getTextColor());
+                    Write(Label, 4, (height + 1) / 2 - 4 + textOffset, GetTextColor());
             }
             else {
-                if (type == ButtonType.Rounded) {
-                    DrawRoundedRect(0, 0, width, height, colors.backgroundColorDisabled);
-                }
+                DrawRoundedRect(0, 0, width, height, colors.backgroundColorDisabled);
                 if (LabelIsCentered)
                     Write(Label, (width - labelWidth) / 2, (height + 1) / 2 - 4, colors.textColorDisabled);
                 else
@@ -93,5 +84,4 @@ namespace WaveTracker.UI {
         }
 
     }
-    public enum ButtonType { Square, Rounded }
 }

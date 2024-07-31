@@ -20,18 +20,10 @@ namespace WaveTracker.UI {
         int currentInstrumentID;
         Instrument CurrentInstrument => App.CurrentModule.Instruments[currentInstrumentID];
 
-        //public Button sample_importSample, sample_normalize, sample_reverse, sample_fadeIn, sample_fadeOut, sample_amplifyUp, sample_amplifyDown, sample_invert;
-        //public NumberBox sample_loopPoint;
-        //public NumberBox sample_baseKey, sample_detune;
-        //public Toggle sample_loopOneshot, sample_loopForward, sample_loopPingpong;
         public EnvelopeEditor envelopeEditor;
         public SampleEditor sampleEditor;
         public EnvelopeListBox envelopeList;
         PreviewPiano piano;
-        //public Checkbox visualize_toggle;
-
-        //public Dropdown sample_resampleDropdown;
-        // public Dropdown wave_modTypeDropdown;
         TabGroup tabGroup;
 
         public InstrumentEditor() : base("Instrument Editor", 600, 340) {
@@ -55,7 +47,7 @@ namespace WaveTracker.UI {
                     else {
                         envelopeList.Update();
                         if (envelopeList.SelectedIndex >= 0) {
-                            envelopeEditor.SetEnvelope(CurrentInstrument.envelopes[envelopeList.SelectedIndex], ChannelManager.previewChannel.envelopePlayers[CurrentInstrument.envelopes[envelopeList.SelectedIndex].Type]);
+                            envelopeEditor.SetEnvelope(CurrentInstrument.envelopes[envelopeList.SelectedIndex], ChannelManager.PreviewChannel.envelopePlayers[CurrentInstrument.envelopes[envelopeList.SelectedIndex].Type]);
                             envelopeEditor.Update();
                         }
                         else {
@@ -66,7 +58,7 @@ namespace WaveTracker.UI {
                 else {
                     envelopeList.Update();
                     if (envelopeList.SelectedIndex >= 0) {
-                        envelopeEditor.SetEnvelope(CurrentInstrument.envelopes[envelopeList.SelectedIndex], ChannelManager.previewChannel.envelopePlayers[CurrentInstrument.envelopes[envelopeList.SelectedIndex].Type]);
+                        envelopeEditor.SetEnvelope(CurrentInstrument.envelopes[envelopeList.SelectedIndex], ChannelManager.PreviewChannel.envelopePlayers[CurrentInstrument.envelopes[envelopeList.SelectedIndex].Type]);
                         envelopeEditor.Update();
                     }
                     else {
@@ -106,23 +98,13 @@ namespace WaveTracker.UI {
         public new void Draw() {
             if (WindowIsOpen) {
                 name = "Edit Instrument " + currentInstrumentID.ToString("D2");
-                base.Draw();
-                // black box across screen behind window
-                //DrawRect(-x, -y, 960, 600, Helpers.Alpha(Color.Black, 90));
-
+                
                 // draw window
+                base.Draw();
+
                 DrawRoundedRect(8, 28, width - 16, 270, Color.White);
-                
-                
                 tabGroup.Draw();
                 DrawRect(9, 28, 280, 1, Color.White);
-
-                if (PianoInput.CurrentNote > -1) {
-                    piano.Draw(PianoInput.CurrentNote + ChannelManager.previewChannel.envelopePlayers[Envelope.EnvelopeType.Arpeggio].Value);
-                }
-                else {
-                    piano.Draw();
-                }
 
                 if (CurrentInstrument is SampleInstrument instrument && tabGroup.SelectedTabIndex == 0) {
                     sampleEditor.Draw();
@@ -134,6 +116,14 @@ namespace WaveTracker.UI {
                     envelopeEditor.Draw();
                     envelopeList.Draw();
                 }
+                if (PianoInput.CurrentNote > -1) {
+                    piano.Draw(PianoInput.CurrentNote + ChannelManager.PreviewChannel.envelopePlayers[Envelope.EnvelopeType.Arpeggio].Value);
+                }
+                else {
+                    piano.Draw();
+                }
+
+               
 
             }
         }

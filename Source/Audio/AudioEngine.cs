@@ -14,24 +14,6 @@ using NAudio.Dsp;
 namespace WaveTracker.Audio {
     public static class AudioEngine {
         public static int SampleRate { get; private set; }
-        public static int SamplesPerTick => (SampleRate / TickSpeed);
-        public static int PreviewBufferLength => 1000;
-
-        public const bool quantizeAmplitude = false;
-        static int currBufferPosition;
-        public static int renderTotalRows;
-        public static int renderProcessedRows;
-        public static int _tickCounter;
-        public static long samplesRead;
-        public static WaveFileWriter waveFileWriter;
-        public static WasapiOut wasapiOut;
-        public static bool rendering;
-        public static bool cancelRender;
-        public static MMDeviceCollection OutputDevices { get; private set; }
-        public static string[] OutputDeviceNames { get; private set; }
-        static BiQuadFilter antialiasingFilterL, antialiasingFilterR;
-        static AudioProvider audioProvider;
-
         static int TickSpeed {
             get {
                 if (App.CurrentModule == null)
@@ -39,8 +21,24 @@ namespace WaveTracker.Audio {
                 else return App.CurrentModule.TickRate;
             }
         }
+        public static int SamplesPerTick => SampleRate / TickSpeed;
+        public static float[,] CurrentBuffer { get; private set; }
+        public const int PREVIEW_BUFFER_LENGTH = 1000;
 
-        public static float[,] currentBuffer;
+        static int currBufferPosition;
+        public static int RenderProcessedRows { get; set; }
+        public static int RenderTotalRows { get; private set; }
+        static int _tickCounter;
+        static WasapiOut wasapiOut;
+        public static bool IsRendering { get; private set; }
+        public static bool CancelRenderFlag { get; set; }
+        public static MMDeviceCollection OutputDevices { get; private set; }
+        public static string[] OutputDeviceNames { get; private set; }
+
+        static BiQuadFilter antialiasingFilterL, antialiasingFilterR;
+        static AudioProvider audioProvider;
+
+
 
         public static void ResetTicks() {
             _tickCounter = 0;
@@ -48,7 +46,7 @@ namespace WaveTracker.Audio {
 
         public static void Initialize() {
             Dialogs.exportingDialog = new ExportingDialog();
-            currentBuffer = new float[2, PreviewBufferLength];
+            CurrentBuffer = new float[2, PREVIEW_BUFFER_LENGTH];
             audioProvider = new AudioProvider();
             SetSampleRate(App.Settings.Audio.SampleRate, App.Settings.Audio.Oversampling);
             GetAudioOutputDevices();
@@ -118,13 +116,13 @@ namespace WaveTracker.Audio {
 
 
         public static async void RenderTo(string filepath, int maxloops) {
-            renderTotalRows = App.CurrentSong.GetNumberOfRows(maxloops);
+            RenderTotalRows = App.CurrentSong.GetNumberOfRows(maxloops);
             if (!SaveLoad.ChooseExportPath(out filepath)) {
                 return;
             }
             Dialogs.exportingDialog.Open();
             Dialogs.exportingDialog.Path = filepath;
-            Dialogs.exportingDialog.TotalRows = renderTotalRows;
+            Dialogs.exportingDialog.TotalRows = RenderTotalRows;
             bool overwriting = File.Exists(filepath);
 
             bool b = await Task.Run(() => WriteToWaveFile(filepath + ".temp", audioProvider));
@@ -141,26 +139,25 @@ namespace WaveTracker.Audio {
 
         static bool WriteToWaveFile(string path, IWaveProvider source) {
             wasapiOut.Stop();
-            rendering = true;
-            cancelRender = false;
+            IsRendering = true;
+            CancelRenderFlag = false;
             _tickCounter = 0;
-            samplesRead = 0;
-            renderProcessedRows = 0;
+            RenderProcessedRows = 0;
 
             ChannelManager.Reset();
             Playback.PlayFromBeginning();
             WaveFileWriter.CreateWaveFile(path, source);
             wasapiOut.Play();
-            return !cancelRender;
+            return !CancelRenderFlag;
         }
 
 
         public class AudioProvider : WaveProvider32 {
             public override int Read(float[] buffer, int offset, int sampleCount) {
-                if (rendering) {
-                    if (renderProcessedRows >= renderTotalRows || cancelRender) {
+                if (IsRendering) {
+                    if (RenderProcessedRows >= RenderTotalRows || CancelRenderFlag) {
                         Playback.Stop();
-                        rendering = false;
+                        IsRendering = false;
                         return 0;
                     }
                 }
@@ -177,13 +174,13 @@ namespace WaveTracker.Audio {
                         float r;
                         leftSum = 0;
                         rightSum = 0;
-                        for (int c = 0; c < ChannelManager.channels.Count; ++c) {
-                            ChannelManager.channels[c].ProcessSingleSample(out l, out r, true, delta, OVERSAMPLE);
+                        for (int c = 0; c < ChannelManager.Channels.Count; ++c) {
+                            ChannelManager.Channels[c].ProcessSingleSample(out l, out r, true, delta, OVERSAMPLE);
                             leftSum += l;
                             rightSum += r;
                         }
 
-                        ChannelManager.previewChannel.ProcessSingleSample(out l, out r, true, delta, OVERSAMPLE);
+                        ChannelManager.PreviewChannel.ProcessSingleSample(out l, out r, true, delta, OVERSAMPLE);
                         leftSum += l;
                         rightSum += r;
                         buffer[n + offset] = antialiasingFilterL.Transform(leftSum);
@@ -192,15 +189,15 @@ namespace WaveTracker.Audio {
 
                     buffer[n + offset] = Math.Clamp(buffer[n + offset] * (App.Settings.Audio.MasterVolume / 100f), -1, 1);
                     buffer[n + offset + 1] = Math.Clamp(buffer[n + offset + 1] * (App.Settings.Audio.MasterVolume / 100f), -1, 1);
-                    if (!rendering) {
-                        currentBuffer[0, currBufferPosition] = buffer[n + offset];
-                        currentBuffer[1, currBufferPosition] = buffer[n + offset + 1];
+                    if (!IsRendering) {
+                        CurrentBuffer[0, currBufferPosition] = buffer[n + offset];
+                        CurrentBuffer[1, currBufferPosition] = buffer[n + offset + 1];
                         currBufferPosition++;
-                        if (currBufferPosition >= currentBuffer.Length / 2)
+                        if (currBufferPosition >= CurrentBuffer.Length / 2)
                             currBufferPosition = 0;
                     }
 
-                    if (App.VisualizerMode && !rendering)
+                    if (App.VisualizerMode && !IsRendering)
                         if (_tickCounter % (int)(SamplesPerTick / ((float)App.Settings.Visualizer.PianoSpeed / (App.Settings.Visualizer.DrawInHighResolution ? 1 : App.Settings.General.ScreenScale))) == 0) {
                             App.Visualizer.RecordChannelStates();
                             //App.visualization.Update();
@@ -210,13 +207,13 @@ namespace WaveTracker.Audio {
                     if (_tickCounter >= SamplesPerTick) {
                         _tickCounter = 0;
                         Playback.Tick();
-                        foreach (Channel c in ChannelManager.channels) {
+                        foreach (Channel c in ChannelManager.Channels) {
                             c.NextTick();
                         }
-                        ChannelManager.previewChannel.NextTick();
+                        ChannelManager.PreviewChannel.NextTick();
                     }
-                    if (rendering) {
-                        if (renderProcessedRows >= renderTotalRows || cancelRender) {
+                    if (IsRendering) {
+                        if (RenderProcessedRows >= RenderTotalRows || CancelRenderFlag) {
                             return n;
                         }
                     }

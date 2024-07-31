@@ -54,7 +54,7 @@ namespace WaveTracker.UI {
             bypassToggle.Update();
             if (bypassToggle.ValueWasChangedInternally) {
                 Envelope.IsActive = bypassToggle.Value;
-                Audio.ChannelManager.previewChannel.Reset();
+                Audio.ChannelManager.PreviewChannel.Reset();
             }
         }
 

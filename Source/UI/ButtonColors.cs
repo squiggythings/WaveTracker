@@ -58,26 +58,5 @@ namespace WaveTracker.UI {
                 return result;
             }
         }
-
-        public static ButtonColors RoundLight {
-            get {
-                ButtonColors result = new ButtonColors();
-
-                result.backgroundColorHover = new Color(170, 174, 199);
-                result.backgroundColor = new Color(182, 185, 207);
-                result.backgroundColorPressed = new Color(137, 142, 177);
-
-                result.borderColor = new Color(104, 111, 153);
-                result.borderColorPressed = new Color(8, 124, 232);
-
-                result.textColor = new Color(20, 24, 46);
-                result.textColorPressed = new Color(20, 24, 46);
-
-                result.textColorDisabled = new Color(174, 176, 199);
-                result.backgroundColorDisabled = new Color(207, 208, 221);
-                result.toggleBackgroundColor = new Color(22, 134, 236);
-                return result;
-            }
-        }
     }
 }

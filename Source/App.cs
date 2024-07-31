@@ -20,14 +20,14 @@ using System.IO;
 
 namespace WaveTracker {
     public class App : Game {
+
+        public const string VERSION = "1.0.0";
         static App instance;
-        public const string VERSION = "0.3.1";
 
         private GraphicsDeviceManager graphics;
         private SpriteBatch targetBatch;
-        //public static Texture2D channelHeaderSprite;
+        private RenderTarget2D target;
 
-        // public static float ScreenScale { get; } = 2;
         /// <summary>
         /// The height of the app in scaled pixels
         /// </summary>
@@ -36,41 +36,105 @@ namespace WaveTracker {
         /// The width of the app in scaled pixels
         /// </summary>
         public static int WindowWidth { get; private set; }
-        RenderTarget2D target;
 
-
-        public static SongSettings SongSettings { get; private set; }
+        /// <summary>
+        /// The module panel
+        /// </summary>
+        public static ModulePanel ModulePanel { get; private set; }
+        /// <summary>
+        /// The edit settings panel
+        /// </summary>
         public static EditSettings EditSettings { get; private set; }
-        FramesPanel frameView;
-        public Toolbar toolbar;
-        static int pianoInput;
-        public static int MouseCursorArrow { get; set; }
+        /// <summary>
+        /// The frames panel
+        /// </summary>
+        public static FramesPanel FramesPanel { get; private set; }
+        /// <summary>
+        /// The toolbar at the top of the screen
+        /// </summary>
+        public static Toolbar Toolbar { get; private set; }
+
+        /// <summary>
+        /// The visualizer
+        /// </summary>
+        public static Visualizer Visualizer { get; private set; }
+        /// <summary>
+        /// Is the visualizer active or not
+        /// </summary>
         public static bool VisualizerMode { get; set; }
-        public static Visualizer Visualizer { get; set; }
+        /// <summary>
+        /// The pattern editor
+        /// </summary>
         public static PatternEditor PatternEditor { get; private set; }
+
+        /// <summary>
+        /// The instrument bank panel
+        /// </summary>
         public static InstrumentBank InstrumentBank { get; private set; }
 
+        /// <summary>
+        /// The Instrument Editor window
+        /// </summary>
         public static InstrumentEditor InstrumentEditor { get; private set; }
-        public static WaveBank WaveBank { get; set; }
+
+        /// <summary>
+        /// The Wave Bank panel
+        /// </summary>
+        public static WaveBank WaveBank { get; private set; }
+
+        /// <summary>
+        /// The Wave Editor window
+        /// </summary>
         public static WaveEditor WaveEditor { get; private set; }
 
-
+        /// <summary>
+        /// The module currently being edited
+        /// </summary>
         public static WTModule CurrentModule { get; set; }
+        /// <summary>
+        /// The index of the song currently being edited
+        /// </summary>
         public static int CurrentSongIndex { get; set; }
+        /// <summary>
+        /// The song currently being edited
+        /// </summary>
         public static WTSong CurrentSong { get { return CurrentModule.Songs[CurrentSongIndex]; } }
 
+        /// <summary>
+        /// The App's currently loaded settings
+        /// </summary>
         public static SettingsProfile Settings { get; private set; }
 
+        /// <summary>
+        /// A reference to the settings' keyboard shortcuts
+        /// </summary>
         public static Dictionary<string, KeyboardShortcut> Shortcuts => Settings.Keyboard.Shortcuts;
 
-        public const int MENUSTRIP_HEIGHT = 10;
-
+        /// <summary>
+        /// A reference to the window
+        /// </summary>
         public static GameWindow ClientWindow => instance.Window;
 
-        public MenuStrip MenuStrip { get; set; }
+        /// <summary>
+        /// Height of the menustrip
+        /// </summary>
+        public const int MENUSTRIP_HEIGHT = 10;
 
+        /// <summary>
+        /// The timer to set the mouse cursor to an directional arrow instead of the default
+        /// </summary>
+        public static int MouseCursorArrow { get; set; }
+
+        /// <summary>
+        /// The menustrip at the top of the screen
+        /// </summary>
+        public MenuStrip MenuStrip { get; private set; }
+
+        /// <summary>
+        /// If the application is being opened to edit a file, this is that filepath.
+        /// </summary>
         string inputFilepath;
-
+        
 
         public App(string[] args) {
             instance = this;
@@ -125,17 +189,17 @@ namespace WaveTracker {
 
             CurrentModule = new WTModule();
             WaveBank = new WaveBank(510, 18 + MENUSTRIP_HEIGHT);
-            ChannelManager.Initialize(WTModule.MAX_CHANNEL_COUNT, WaveBank);
+            ChannelManager.Initialize(WTModule.MAX_CHANNEL_COUNT);
             PatternEditor = new PatternEditor(0, 184 + MENUSTRIP_HEIGHT);
             InstrumentBank = new InstrumentBank(790, 152 + MENUSTRIP_HEIGHT);
             InstrumentEditor = new InstrumentEditor();
             Visualizer = new Visualizer();
             Dialogs.Initialize();
             EditSettings = new EditSettings(312, 18 + MENUSTRIP_HEIGHT);
-            toolbar = new Toolbar(2, 0 + MENUSTRIP_HEIGHT);
+            Toolbar = new Toolbar(2, 0 + MENUSTRIP_HEIGHT);
             WaveEditor = new WaveEditor();
-            frameView = new FramesPanel(2, 106 + MENUSTRIP_HEIGHT, 504, 42);
-            SongSettings = new SongSettings(2, 18 + MENUSTRIP_HEIGHT);
+            FramesPanel = new FramesPanel(2, 106 + MENUSTRIP_HEIGHT, 504, 42);
+            ModulePanel = new ModulePanel(2, 18 + MENUSTRIP_HEIGHT);
             AudioEngine.Initialize();
 
             IsFixedTimeStep = false;
@@ -181,7 +245,7 @@ namespace WaveTracker {
             targetBatch = new SpriteBatch(GraphicsDevice);
             target = new RenderTarget2D(GraphicsDevice, GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width, GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height);
             SaveLoad.NewFile();
-            SaveLoad.ReadFrom(inputFilepath);
+            SaveLoad.LoadFile(inputFilepath);
         }
         int midiDelay = 0;
         protected override void Update(GameTime gameTime) {
@@ -230,7 +294,7 @@ namespace WaveTracker {
                 InstrumentEditor.Update();
             }
 
-            pianoInput = -1;
+            int pianoInput = -1;
             if (WaveEditor.GetPianoMouseInput() > -1)
                 pianoInput = WaveEditor.GetPianoMouseInput();
             if (InstrumentEditor.GetPianoMouseInput() > -1)
@@ -241,12 +305,12 @@ namespace WaveTracker {
 
 
             if (!VisualizerMode) {
-                SongSettings.Update();
-                frameView.Update();
+                ModulePanel.Update();
+                FramesPanel.Update();
                 EditSettings.Update();
             }
 
-            toolbar.Update();
+            Toolbar.Update();
             MenuStrip.Update();
             Dialogs.Update();
 
@@ -291,10 +355,10 @@ namespace WaveTracker {
                 EditSettings.Draw();
 
                 // draw frame view
-                frameView.Draw();
+                FramesPanel.Draw();
 
                 // draw song settings
-                SongSettings.Draw();
+                ModulePanel.Draw();
 
                 // draw click position
                 //Rendering.Graphics.DrawRect(Input.lastClickLocation.X, Input.lastClickLocation.Y, 1, 1, Color.Red);
@@ -311,7 +375,7 @@ namespace WaveTracker {
             }
 
 
-            toolbar.Draw();
+            Toolbar.Draw();
             MenuStrip.Draw();
 
             if (!VisualizerMode) {

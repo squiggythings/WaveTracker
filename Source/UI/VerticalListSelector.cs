@@ -33,7 +33,7 @@ namespace WaveTracker.UI {
                 if (MouseX > 0 && MouseX < width) {
                     if (MouseY >= i * 11 && MouseY < (i + 1) * 11) {
                         hoveredItemIndex = i;
-                        if (GlobalPointIsInBounds(Input.lastClickLocation) && IsPressed) {
+                        if (GlobalPointIsInBounds(Input.LastClickLocation) && IsPressed) {
                             if (SelectedItemIndex != i)
                                 ValueWasChangedInternally = true;
                             SelectedItemIndex = i;

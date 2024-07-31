@@ -161,7 +161,7 @@ namespace WaveTracker.UI {
             for (int i = 0; i < options.Length; i++) {
                 int y = i * 11 + menuY + 1;
                 if (i == hoveredValue) {
-                    DrawRect(menuX + 1, y, menuWidth - 2, 11, Helpers.LerpColor(UIColors.selection, Color.White, 0.7f));
+                    DrawRect(menuX + 1, y, menuWidth - 2, 11, UIColors.selection.Lerp(Color.White, 0.7f));
                     Write(Helpers.TrimTextToWidth(menuWidth - 8, options[i]), menuX + 4, y + 2, UIColors.black);
                 }
                 else {

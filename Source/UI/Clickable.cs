@@ -46,53 +46,53 @@ namespace WaveTracker.UI {
                 return MouseX < width && MouseY < height && MouseX >= 0 && MouseY >= 0;
             }
         }
-        public bool IsPressed { get { return IsHovered && Input.GetClick(KeyModifier._Any) && GlobalPointIsInBounds(Input.lastClickLocation) && IsInHierarchy(Input.lastClickFocus); } }
+        public bool IsPressed { get { return IsHovered && Input.GetClick(KeyModifier._Any) && GlobalPointIsInBounds(Input.LastClickLocation) && IsInHierarchy(Input.lastClickFocus); } }
 
         public bool Clicked {
             get {
-                return enabled && IsHovered && Input.GetClickUp(KeyModifier._Any) && GlobalPointIsInBounds(Input.lastClickLocation) && GlobalPointIsInBounds(Input.lastClickReleaseLocation) && IsInHierarchy(Input.lastClickFocus);
+                return enabled && IsHovered && Input.GetClickUp(KeyModifier._Any) && GlobalPointIsInBounds(Input.LastClickLocation) && GlobalPointIsInBounds(Input.LastClickReleaseLocation) && IsInHierarchy(Input.lastClickFocus);
             }
         }
 
         public bool RightClicked {
             get {
-                return enabled && IsHovered && Input.GetRightClickUp(KeyModifier._Any) && GlobalPointIsInBounds(Input.lastRightClickLocation) && GlobalPointIsInBounds(Input.lastRightClickReleaseLocation);
+                return enabled && IsHovered && Input.GetRightClickUp(KeyModifier._Any) && GlobalPointIsInBounds(Input.LastRightClickLocation) && GlobalPointIsInBounds(Input.LastRightClickReleaseLocation);
             }
         }
 
         public bool RightClickedDown {
             get {
-                return enabled && IsHovered && Input.GetRightClickDown(KeyModifier._Any) && GlobalPointIsInBounds(Input.lastRightClickLocation);
+                return enabled && IsHovered && Input.GetRightClickDown(KeyModifier._Any) && GlobalPointIsInBounds(Input.LastRightClickLocation);
             }
         }
 
         public bool ClickedDown {
             get {
-                return enabled && IsHovered && Input.GetClickDown(KeyModifier._Any) && GlobalPointIsInBounds(Input.lastClickLocation) && IsInHierarchy(Input.lastClickFocus);
+                return enabled && IsHovered && Input.GetClickDown(KeyModifier._Any) && GlobalPointIsInBounds(Input.LastClickLocation) && IsInHierarchy(Input.lastClickFocus);
             }
         }
 
         public bool DoubleClicked {
             get {
-                return enabled && IsHovered && Input.GetDoubleClick(KeyModifier._Any) && GlobalPointIsInBounds(Input.lastClickLocation) && GlobalPointIsInBounds(Input.lastClickReleaseLocation) && IsInHierarchy(Input.lastClickFocus);
+                return enabled && IsHovered && Input.GetDoubleClick(KeyModifier._Any) && GlobalPointIsInBounds(Input.LastClickLocation) && GlobalPointIsInBounds(Input.LastClickReleaseLocation) && IsInHierarchy(Input.lastClickFocus);
             }
         }
 
         public bool ClickedM(KeyModifier modifier) {
             if (!InFocus)
                 return false;
-            return enabled && IsHovered && Input.GetClickUp(modifier) && GlobalPointIsInBounds(Input.lastClickLocation) && GlobalPointIsInBounds(Input.lastClickReleaseLocation) && IsInHierarchy(Input.lastClickFocus);
+            return enabled && IsHovered && Input.GetClickUp(modifier) && GlobalPointIsInBounds(Input.LastClickLocation) && GlobalPointIsInBounds(Input.LastClickReleaseLocation) && IsInHierarchy(Input.lastClickFocus);
         }
 
         public bool SingleClickedM(KeyModifier modifier) {
             if (!InFocus)
                 return false;
-            return enabled && IsHovered && Input.GetSingleClickUp(modifier) && GlobalPointIsInBounds(Input.lastClickLocation) && GlobalPointIsInBounds(Input.lastClickReleaseLocation) && IsInHierarchy(Input.lastClickFocus); ;
+            return enabled && IsHovered && Input.GetSingleClickUp(modifier) && GlobalPointIsInBounds(Input.LastClickLocation) && GlobalPointIsInBounds(Input.LastClickReleaseLocation) && IsInHierarchy(Input.lastClickFocus); ;
         }
 
 
         public bool IsPressedM(KeyModifier modifier) {
-            return IsHovered && Input.GetClick(modifier) && GlobalPointIsInBounds(Input.lastClickLocation) && IsInHierarchy(Input.lastClickFocus);
+            return IsHovered && Input.GetClick(modifier) && GlobalPointIsInBounds(Input.LastClickLocation) && IsInHierarchy(Input.lastClickFocus);
         }
 
 

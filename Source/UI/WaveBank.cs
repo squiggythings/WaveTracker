@@ -46,8 +46,8 @@ namespace WaveTracker.UI {
                     currentWaveID = i;
                     lastSelectedWave = i;
                     App.WaveEditor.Open(i);
-                    if (!ChannelManager.previewChannel.envelopePlayers[Envelope.EnvelopeType.Wave].HasActiveEnvelopeData)
-                        ChannelManager.previewChannel.SetWave(i);
+                    if (!ChannelManager.PreviewChannel.envelopePlayers[Envelope.EnvelopeType.Wave].HasActiveEnvelopeData)
+                        ChannelManager.PreviewChannel.SetWave(i);
                 }
                 ++i;
             }

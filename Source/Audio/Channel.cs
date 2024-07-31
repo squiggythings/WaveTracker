@@ -626,15 +626,15 @@ namespace WaveTracker.Audio {
             if (channelVolume < 0)
                 channelVolume = 0;
             for (int i = 0; i < tickEvents.Count; i++) {
-                TickEvent t = tickEvents[i];
-                if (t != null) {
-                    if (t.countdown <= 0) {
-                        DoEvent(t);
-                        tickEvents.Remove(t);
+                TickEvent tickEvent = tickEvents[i];
+                if (tickEvent != null) {
+                    if (tickEvent.countdown <= 0) {
+                        DoEvent(tickEvent);
+                        tickEvents.Remove(tickEvent);
                         i--;
                     }
                     else {
-                        t.Update();
+                        tickEvent.Update();
                     }
                 }
             }
@@ -665,11 +665,8 @@ namespace WaveTracker.Audio {
                         envelopePlayers[Envelope.EnvelopeType.Volume].EnvelopeToPlay.values[envelopePlayers[Envelope.EnvelopeType.Volume].EnvelopeToPlay.Length - 1] == 0)
                         Cut();
                 } catch {
-                    // Cut();
                 }
-            //arpEnvelopeResult = envelopePlayers[1].Evaluate();
             bassBoost = 0.6f * MathF.Pow(1.025f, -TotalPitch) + 0.975f;
-            //bassBoost = 1;
 
         }
 
@@ -697,18 +694,12 @@ namespace WaveTracker.Audio {
             left = right = 0;
 
             float freqCut = 1;
-            //if (_frequency > 15804) {
-            //    //freqCut = 0;
-            //    _frequency = 15804;
-            //    //_state = VoiceState.Off;
-            //}
             float delta = 1f / (oversample * AudioEngine.SampleRate) * _frequency;
             if (continuousTick)
                 ContinuousTick(continuousDelta);
             if (noteOn) {
                 float sampleL;
                 float sampleR;
-                //for (int i = 0; i < OVERSAMPLE; ++i) {
                 if (_state == VoiceState.Off) {
                     _fadeMultiplier /= 1.002f;
                     if (_fadeMultiplier < 0.001f) {
@@ -759,24 +750,15 @@ namespace WaveTracker.Audio {
                 }
 
                 _volumeSmooth += (TotalAmplitude - _volumeSmooth) * 0.02f;
-                _fmSmooth += (waveFmAmt.AdditiveValue - _fmSmooth) * 0.035f;
+                _fmSmooth += (waveFmAmt.AdditiveValue - _fmSmooth) * 0.02f;
                 _waveStretchSmooth += (waveStretchAmt.AdditiveValue - _waveStretchSmooth) * 0.02f;
 
-                // float f = (float)Math.Pow(_volumeSmooth, 1.25);
                 float f = _volumeSmooth;
                 float l = sampleL * f * _leftAmp * _fadeMultiplier * freqCut;
                 float r = sampleR * f * _rightAmp * _fadeMultiplier * freqCut;
-                //if (AudioEngine.quantizeAmplitude) {
-                //    if (_volumeSmooth < 0.005f) {
-                //        l = 0;
-                //        r = 0;
-                //    }
-                //    int quantamt = 8;
-                //    l = (float)(Math.Ceiling(l * quantamt)) / (float)quantamt;
-                //    r = (float)(Math.Ceiling(r * quantamt)) / (float)quantamt;
-                //}
-                left = l * 0.2f * bassBoost;
-                right = r * 0.2f * bassBoost;
+               
+                left = l * 0.225f * bassBoost;
+                right = r * 0.225f * bassBoost;
                 if (id >= 0 && IsMuted) {
                     left = 0;
                     right = 0;

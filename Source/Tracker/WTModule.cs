@@ -15,7 +15,6 @@ namespace WaveTracker.Tracker {
     [ProtoContract(SkipConstructor = true)]
     public class WTModule {
         public const int MAX_CHANNEL_COUNT = 24;
-        public const int DEFAULT_CHANNEL_COUNT = 24;
         public const int MAX_SONG_COUNT = 32;
 
         public bool IsDirty { get; private set; }
@@ -75,11 +74,8 @@ namespace WaveTracker.Tracker {
         public WTModule() {
             ChannelCount = App.Settings.Files.DefaultNumberOfChannels;
             Author = App.Settings.Files.DefaultAuthorName;
-            Songs = new List<WTSong>();
-            Songs.Add(new WTSong(this));
-            Instruments = new List<Instrument> {
-                new WaveInstrument()
-            };
+            Songs = [new WTSong(this)];
+            Instruments = [new WaveInstrument()];
             WaveBank = new Wave[100];
             WaveBank[0] = Wave.Sine;
             WaveBank[1] = Wave.Triangle;
@@ -96,10 +92,7 @@ namespace WaveTracker.Tracker {
 
         [ProtoBeforeSerialization]
         internal void BeforeSerialization() {
-            //foreach(WTSong song in Songs) {
-            //    song.BeforeSerialized();
-            //}
-            return;
+
         }
         [ProtoAfterDeserialization]
         internal void AfterDeserialization() {
@@ -160,8 +153,7 @@ namespace WaveTracker.Tracker {
                     for (int row = 0; row < 256; row++) {
                         for (int channel = 0; channel < ChannelCount; channel++) {
                             // ex: swapping 00 with 01
-                            // all instruments that are 01 are set to 128
-                            // all instruments that are 00 are set to 01
+                            // all instruments that are 128 are set to 00
                             if (pattern[row, channel, CellType.Instrument] == 128) {
                                 pattern.SetCellRaw(row, channel, CellType.Instrument, (byte)inst1);
                             }

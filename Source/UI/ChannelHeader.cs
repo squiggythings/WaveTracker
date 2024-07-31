@@ -80,7 +80,7 @@ namespace WaveTracker.UI {
                 new MenuOption("Unmute all channels",ChannelManager.UnmuteAllChannels)
             ]);
             SetParent(parentEditor);
-            channelToDisplay = ChannelManager.channels[channelNum];
+            channelToDisplay = ChannelManager.Channels[channelNum];
         }
 
         void ToggleChannel() {
@@ -92,10 +92,10 @@ namespace WaveTracker.UI {
 
         public void Update() {
             // if the user is editing this header's channel, render the preview channel instead
-            if (parentEditor.cursorPosition.Channel == channelNum && !ChannelManager.channels[channelNum].IsPlaying && !Playback.IsPlaying)
-                channelToDisplay = ChannelManager.previewChannel;
+            if (parentEditor.cursorPosition.Channel == channelNum && !ChannelManager.Channels[channelNum].IsPlaying && !Playback.IsPlaying)
+                channelToDisplay = ChannelManager.PreviewChannel;
             else
-                channelToDisplay = ChannelManager.channels[channelNum];
+                channelToDisplay = ChannelManager.Channels[channelNum];
             UpdateAmplitude(channelToDisplay);
             if (enabled && !App.VisualizerMode) {
                 if (Input.focusTimer > 1) {
@@ -182,7 +182,7 @@ namespace WaveTracker.UI {
                 }
 
                 // draw pan/volume meter
-                if (!AudioEngine.rendering) {
+                if (!AudioEngine.IsRendering) {
                     if (ChannelManager.IsChannelMuted(channelNum)) {
                         DrawRect(panMeterStartPos + (int)(channelToDisplay.CurrentPan * (PAN_METER_WIDTH - 2)), 22, 3, 2, new Color(104, 111, 153));
                         DrawRect(5, 25, amplitude, 3, new Color(104, 111, 153));

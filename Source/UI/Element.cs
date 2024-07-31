@@ -112,6 +112,6 @@ namespace WaveTracker.UI {
             return new Point(p.X - GlobalX, p.Y - GlobalY);
         }
 
-        public Point LastClickPos => GlobalPointToLocalPoint(Input.lastClickLocation);
+        public Point LastClickPos => GlobalPointToLocalPoint(Input.LastClickLocation);
     }
 }

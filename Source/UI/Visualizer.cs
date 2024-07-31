@@ -152,8 +152,8 @@ namespace WaveTracker.UI {
             /// </summary>
             public void RecordChannelStates() {
                 Channel chan;
-                for (int c = 0; c < ChannelManager.channels.Count; c++) {
-                    chan = ChannelManager.channels[c];
+                for (int c = 0; c < ChannelManager.Channels.Count; c++) {
+                    chan = ChannelManager.Channels[c];
 
                     if ((chan.currentInstrument is WaveInstrument || (chan.currentInstrument is SampleInstrument inst && inst.sample.useInVisualization)) && chan.CurrentAmplitude > 0.0001f && chan.CurrentPitch >= 12 && chan.CurrentPitch < 132 && ChannelManager.IsChannelOn(c)) {
                         channelStates[writeIndex][c].Set(chan.CurrentPitch, chan.CurrentAmplitude, chan.currentInstrument is WaveInstrument ? GetColorOfWaveFromTable(chan.WaveIndex, chan.WaveMorphPosition) : Color.White);
@@ -162,7 +162,7 @@ namespace WaveTracker.UI {
                         channelStates[writeIndex][c].Clear();
                     }
                 }
-                chan = ChannelManager.previewChannel;
+                chan = ChannelManager.PreviewChannel;
                 if (chan.CurrentAmplitude > 0.0001f) {
                     channelStates[writeIndex][24].Set(chan.CurrentPitch, chan.CurrentAmplitude, chan.currentInstrument is WaveInstrument ? GetColorOfWaveFromTable(chan.WaveIndex, chan.WaveMorphPosition) : Color.White);
                 }
@@ -289,8 +289,8 @@ namespace WaveTracker.UI {
 
             public OscilloscopeGrid(Element parent) {
                 SetParent(parent);
-                oscilloscopes = new Oscilloscope[ChannelManager.channels.Count];
-                for (int i = 0; i < ChannelManager.channels.Count; ++i) {
+                oscilloscopes = new Oscilloscope[ChannelManager.Channels.Count];
+                for (int i = 0; i < ChannelManager.Channels.Count; ++i) {
                     oscilloscopes[i] = new Oscilloscope(i, this);
                 }
             }
@@ -330,7 +330,7 @@ namespace WaveTracker.UI {
 
             public class Oscilloscope : Clickable {
                 int channelID;
-                Channel channel => ChannelManager.channels[channelID];
+                Channel channel => ChannelManager.Channels[channelID];
                 public Oscilloscope(int channelID, Element parent) {
                     this.channelID = channelID;
                     width = 2;
@@ -441,7 +441,7 @@ namespace WaveTracker.UI {
                         str = "Channel " + (i + 1).ToString("D2");
                     }
 
-                    Color textColor = ChannelManager.channels[i].IsMuted ? new Color(230, 69, 57) : UIColors.label;
+                    Color textColor = ChannelManager.Channels[i].IsMuted ? new Color(230, 69, 57) : UIColors.label;
 
                     Write(str, px + i * channelWidth + channelWidth / 2 - Helpers.GetWidthOfText(str) / 2 - 1, 3, textColor);
                     int volumeStartX = px + i * channelWidth + 2;
@@ -450,7 +450,7 @@ namespace WaveTracker.UI {
 
                     // draw volume amp
                     int amp = (int)(maxVolumeWidth / 2 * App.PatternEditor.ChannelHeaders[i].Amplitude);
-                    Color volumeColor = ChannelManager.channels[i].IsMuted ? UIColors.labelLight : new Color(63, 215, 52);
+                    Color volumeColor = ChannelManager.Channels[i].IsMuted ? UIColors.labelLight : new Color(63, 215, 52);
                     DrawRect(volumeStartX + maxVolumeWidth / 2 - amp, 12, amp * 2, 3, volumeColor);
 
 
