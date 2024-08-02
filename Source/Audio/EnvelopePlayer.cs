@@ -66,24 +66,6 @@ namespace WaveTracker.Audio {
             }
         }
 
-        //public int Evaluate() {
-        //    if (!envelopeToPlay.IsActive)
-        //        return GetDefaultValue();
-        //    if (envelopeToPlay.Length > 0) {
-        //        if (step > envelopeToPlay.Length)
-        //            step = envelopeToPlay.Length - 1;
-        //        if (step < 0)
-        //            step = 0;
-        //    }
-        //    if (envelopeToPlay.Length <= 0 || step < 0)
-        //        return GetDefaultValue();
-        //    try {
-        //        return envelopeToPlay.values[step];
-        //    } catch {
-        //        return GetDefaultValue();
-        //    }
-        //}
-
         int GetDefaultValue() {
             return Type switch {
                 Envelope.EnvelopeType.Volume => 99,
@@ -113,8 +95,8 @@ namespace WaveTracker.Audio {
                     }
 
                 }
-                else // no release
-                  {
+                else {
+                    // no release
                     if (EnvelopeToPlay.HasLoop) {
                         if (step >= EnvelopeToPlay.Length) {
                             step = EnvelopeToPlay.LoopIndex;
@@ -140,8 +122,12 @@ namespace WaveTracker.Audio {
             else if (!EnvelopeToPlay.IsActive) {
                 Value = GetDefaultValue();
             }
-            else if (step >= 0 && step < EnvelopeToPlay.Length) {
-                Value = EnvelopeToPlay.values[step];
+            else if (step >= 0 && step < EnvelopeToPlay.values.Length) {
+                try {
+                    Value = EnvelopeToPlay.values[step];
+                } catch {
+                    Value = GetDefaultValue();
+                }
             }
             else {
                 Value = GetDefaultValue();

@@ -233,11 +233,6 @@ namespace WaveTracker.Audio {
                 foreach (Envelope envelope in instrument.envelopes) {
                     envelopePlayers[envelope.Type].SetEnvelope(envelope);
                 }
-                //volumeEnv.toPlay = instrument.volumeEnvelope;
-                //arpEnv.toPlay = instrument.arpEnvelope;
-                //pitchEnv.toPlay = instrument.pitchEnvelope;
-                //waveEnv.toPlay = instrument.waveEnvelope;
-                //waveModEnv.toPlay = instrument.waveModEnvelope;
                 if (currentInstrumentID != id) {
                     currentInstrumentID = id;
                     if (this.id < 0)
@@ -287,24 +282,6 @@ namespace WaveTracker.Audio {
                 else {
                     _time = 0;
                 }
-                //if (currentInstrument is WaveInstrument) {
-                //    if (waveEnv.toPlay.IsActive)
-                //        if (!waveEnv.EnvelopeEnded)
-                //            SetWave(waveEnv.Evaluate());
-                //    if (waveModEnv.toPlay.IsActive)
-                //        if (!waveModEnv.EnvelopeEnded) {
-                //            if (currentInstrument.waveModType == 0) {
-                //                waveBlendAmt = waveModEnv.Evaluate();
-                //            }
-                //            else if (currentInstrument.waveModType == 1) {
-                //                waveStretchAmt = waveModEnv.Evaluate();
-                //            }
-                //            else if (currentInstrument.waveModType == 2) {
-                //                fmAmt = waveModEnv.Evaluate() / 20f;
-                //                _fmSmooth = fmAmt;
-                //            }
-                //        }
-                //}
             }
 
         }
@@ -314,11 +291,6 @@ namespace WaveTracker.Audio {
                 foreach (Envelope envelope in currentInstrument.envelopes) {
                     envelopePlayers[envelope.Type].Release();
                 }
-                //volumeEnv.Release();
-                //pitchEnv.Release();
-                //arpEnv.Release();
-                //waveEnv.Release();
-                //waveModEnv.Release();
                 _state = VoiceState.Release;
             }
         }
@@ -351,11 +323,6 @@ namespace WaveTracker.Audio {
         public void Reset() {
             currentInstrument = new WaveInstrument();
             currentInstrumentID = 0;
-            //volumeEnv = new EnvelopePlayer();
-            //arpEnv = new EnvelopePlayer();
-            //pitchEnv = new EnvelopePlayer();
-            //waveEnv = new EnvelopePlayer();
-            //waveModEnv = new EnvelopePlayer();
             tickEvents.Clear();
             noteOn = false;
             _state = VoiceState.Off;
@@ -409,7 +376,6 @@ namespace WaveTracker.Audio {
 
         public void SetWave(int waveIndex) {
             this.waveIndex.Reset(waveIndex);
-            //currentWave = ChannelManager.waveBank.GetWave(waveIndex);
         }
 
 
@@ -437,12 +403,9 @@ namespace WaveTracker.Audio {
                 noteOn = true;
                 _state = VoiceState.On;
             }
-            //if (envelopePlayersDict[Envelope.EnvelopeType.Arpeggio].HasActiveEnvelopeData)
-            //    envelopePlayersDict[Envelope.EnvelopeType.Arpeggio].Start();
             _frequency = Helpers.NoteToFrequency(TotalPitch);
-
-
         }
+
         private void SetPanning(float val) {
             if (val > 0.98f)
                 val = 1.0f;
