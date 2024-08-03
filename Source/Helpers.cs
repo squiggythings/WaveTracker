@@ -263,18 +263,7 @@ namespace WaveTracker {
         /// <returns></returns>
         public static bool IsEffectHex(char effectType) {
             return effectType switch {
-                '0' or '4' or '7' or 'Q' or 'R' => true,
-                _ => false,
-            };
-        }
-        /// <summary>
-        /// Returns true if the given effect is a hexadecimal effect
-        /// </summary>
-        /// <param name="effectType"></param>
-        /// <returns></returns>
-        public static bool IsEffectHex(byte effectType) {
-            return (char)effectType switch {
-                '0' or '4' or '7' or 'Q' or 'R' => true,
+                '0' or '4' or '7' or 'Q' or 'R' or 'E' => true,
                 _ => false,
             };
         }
@@ -295,7 +284,7 @@ namespace WaveTracker {
         /// <param name="b"></param>
         /// <returns></returns>
         public static float Mod(float a, float b) {
-            return (a - b * MathF.Floor(a / b));
+            return a - b * MathF.Floor(a / b);
         }
         /// <summary>
         /// True modulus operator
@@ -323,11 +312,11 @@ namespace WaveTracker {
             return BitConverter.Int64BitsToDouble(((long)tmp2) << 32);
         }
 
-        public static float FastPower(float a, float b) {
-            int tmp = (int)(BitConverter.DoubleToInt64Bits(a) >> 32);
-            int tmp2 = (int)(b * (tmp - 1072632447) + 1072632447);
-            return (float)BitConverter.Int64BitsToDouble(((long)tmp2) << 32);
-        }
+        //public static float FastPower(float a, float b) {
+        //    int tmp = (int)(BitConverter.DoubleToInt64Bits(a) >> 32);
+        //    int tmp2 = (int)(b * (tmp - 1072632447) + 1072632447);
+        //    return (float)BitConverter.Int64BitsToDouble(((long)tmp2) << 32);
+        //}
 
         /// <summary>
         /// Sets alpha of color. from 0-255

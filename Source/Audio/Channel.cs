@@ -19,7 +19,7 @@ namespace WaveTracker.Audio {
         public List<TickEvent> tickEvents;
         float TotalAmplitude {
             get { return tremoloMultiplier * (channelVolume / 99f) * (envelopePlayers[Envelope.EnvelopeType.Volume].Value / 99f); }
-        } // * currentMacro.GetState().volumeMultiplier;
+        }
         float TotalPitch => Math.Clamp(channelNotePorta + bendOffset + vibratoOffset + pitchFallOffset + arpeggioOffset + detuneOffset + envelopePlayers[Envelope.EnvelopeType.Arpeggio].Value, -12, 131);
 
         public float WaveMorphPosition => waveBlendAmt.Value / 99f;
@@ -63,6 +63,7 @@ namespace WaveTracker.Audio {
         EnvelopeParameter waveSyncAmt;
         int downsampleFactor; //Xxx command
         int downsampleCounter;
+        StereoBiQuadFilter stereoBiQuadFilter;
         float lastSampleL;
         float lastSampleR;
         struct EnvelopeParameter {
@@ -105,6 +106,9 @@ namespace WaveTracker.Audio {
         float _fmSmooth;
         public float coarseSampleVolume;
         public int tickNum;
+        float filterResonance;
+        float targetFilterCutoffFrequency;
+        float _filterCutoffFrequency;
         int currentInstrumentID;
         private enum VoiceState { On, Off, Release }
         private VoiceState _state;
@@ -124,6 +128,7 @@ namespace WaveTracker.Audio {
                     defaultEnvelopes[i] = new Envelope((Envelope.EnvelopeType)i);
                 }
             }
+            stereoBiQuadFilter = new StereoBiQuadFilter();
             Reset();
         }
 
@@ -208,6 +213,9 @@ namespace WaveTracker.Audio {
                     break;
                 case 'X':
                     downsampleFactor = parameter;
+                    break;
+                case 'E':
+                    SetFilter(Helpers.Map(parameter / 16, 0, 16, 1, 0.3f), Helpers.Map(parameter % 16, 0, 16, 1, 8));
                     break;
             }
         }
@@ -362,7 +370,19 @@ namespace WaveTracker.Audio {
             bendOffset = 0;
             downsampleCounter = 0;
             downsampleFactor = 0;
+            SetFilter(1, 1);
             SetPanning(0.5f);
+        }
+
+        public void SetFilter(float cutoffValue, float resonance) {
+            targetFilterCutoffFrequency = Helpers.NoteToFrequency(cutoffValue * 135) / 22050f;
+            filterResonance = resonance;
+            UpdateFilter();
+        }
+
+        public void UpdateFilter() {
+            _filterCutoffFrequency = targetFilterCutoffFrequency * Math.Min(20000, AudioEngine.SampleRate / 2f);
+            stereoBiQuadFilter.SetLowpassFilter(AudioEngine.TrueSampleRate, _filterCutoffFrequency, filterResonance);
         }
 
         public void ResetModulations() {
@@ -553,7 +573,7 @@ namespace WaveTracker.Audio {
                     }
                 }
             }
-           
+
             channelVolume += volumeSlideSpeed;
             if (channelVolume > 99)
                 channelVolume = 99;
@@ -686,11 +706,12 @@ namespace WaveTracker.Audio {
                 _volumeSmooth += (TotalAmplitude - _volumeSmooth) * 0.02f;
                 _fmSmooth += (waveFmAmt.AdditiveValue - _fmSmooth) * 0.02f;
                 _waveStretchSmooth += (waveStretchAmt.AdditiveValue - _waveStretchSmooth) * 0.02f;
+                //_filterCutoffFrequency += (targetFilterCutoffFrequency * Math.Min(20000, AudioEngine.SampleRate / 2f) - _filterCutoffFrequency) * 0.02f;
 
-                float f = _volumeSmooth;
-                float l = sampleL * f * _leftAmp * _fadeMultiplier * freqCut;
-                float r = sampleR * f * _rightAmp * _fadeMultiplier * freqCut;
-               
+                float l = sampleL * _volumeSmooth * _leftAmp * _fadeMultiplier * freqCut;
+                float r = sampleR * _volumeSmooth * _rightAmp * _fadeMultiplier * freqCut;
+                //stereoBiQuadFilter.SetLowpassFilter(AudioEngine.TrueSampleRate, _filterCutoffFrequency, filterResonance);
+                stereoBiQuadFilter.Transform(l, r, out l, out r);
                 left = l * 0.225f * bassBoost;
                 right = r * 0.225f * bassBoost;
                 if (id >= 0 && IsMuted) {

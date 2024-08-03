@@ -105,7 +105,9 @@ namespace WaveTracker.UI {
         byte[,] clipboard;
         CellType clipboardStartCellType;
 
-
+        /// <summary>
+        /// A copy of the volume values before scaling
+        /// </summary>
         float[,] scaleClipboard;
 
 
@@ -2559,7 +2561,7 @@ namespace WaveTracker.UI {
             {Keys.Y, 'Y'},
             {Keys.K, 'K'},
             {Keys.X, 'X'},
-
+            {Keys.E, 'E'},
         };
 
         readonly Dictionary<Keys, int> KeyInputs_Hex = new Dictionary<Keys, int>() {

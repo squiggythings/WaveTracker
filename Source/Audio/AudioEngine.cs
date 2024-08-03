@@ -14,6 +14,7 @@ using NAudio.Dsp;
 namespace WaveTracker.Audio {
     public static class AudioEngine {
         public static int SampleRate { get; private set; }
+        public static int TrueSampleRate { get; private set; }
         static int TickSpeed {
             get {
                 if (App.CurrentModule == null)
@@ -35,7 +36,6 @@ namespace WaveTracker.Audio {
         public static MMDeviceCollection OutputDevices { get; private set; }
         public static string[] OutputDeviceNames { get; private set; }
 
-        static BiQuadFilter antialiasingFilterL, antialiasingFilterR;
         static AudioProvider audioProvider;
 
 
@@ -69,9 +69,12 @@ namespace WaveTracker.Audio {
         /// <param name="oversampling"></param>
         public static void SetSampleRate(SampleRate rate, int oversampling) {
             SampleRate = SampleRateToInt(rate);
+            TrueSampleRate = SampleRate * oversampling;
             audioProvider.SetWaveFormat(SampleRate, 2);
-            antialiasingFilterL = BiQuadFilter.LowPassFilter(SampleRate * oversampling, Math.Min(22000, SampleRate / 2), 1);
-            antialiasingFilterR = BiQuadFilter.LowPassFilter(SampleRate * oversampling, Math.Min(22000, SampleRate / 2), 1);
+            foreach(Channel chan in ChannelManager.Channels) {
+                chan.UpdateFilter();
+            }
+            ChannelManager.PreviewChannel.UpdateFilter();
         }
 
         /// <summary>
@@ -183,8 +186,8 @@ namespace WaveTracker.Audio {
                         ChannelManager.PreviewChannel.ProcessSingleSample(out l, out r, true, delta, OVERSAMPLE);
                         leftSum += l;
                         rightSum += r;
-                        buffer[n + offset] = antialiasingFilterL.Transform(leftSum);
-                        buffer[n + offset + 1] = antialiasingFilterR.Transform(rightSum);
+                        buffer[n + offset] = leftSum;
+                        buffer[n + offset + 1] = rightSum;
                     }
 
                     buffer[n + offset] = Math.Clamp(buffer[n + offset] * (App.Settings.Audio.MasterVolume / 100f), -1, 1);
