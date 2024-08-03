@@ -553,36 +553,7 @@ namespace WaveTracker.Audio {
                     }
                 }
             }
-            //if (currentInstrument is WaveInstrument) {
-            //    waveEnv.Step();
-            //    if (waveEnv.toPlay.IsActive)
-            //        if (!waveEnv.EnvelopeEnded && _state != VoiceState.Off)
-            //            SetWave(waveEnv.Evaluate());
-
-            //}
-            //if (currentInstrument is WaveInstrument) {
-            //    waveModEnv.Step();
-            //    if (waveModEnv.toPlay.IsActive)
-            //        if (!waveModEnv.EnvelopeEnded && _state != VoiceState.Off) {
-            //            if (currentInstrument.waveModType == 0) {
-            //                waveMorphAmt = waveModEnv.Evaluate();
-            //            }
-            //            else if (currentInstrument.waveModType == 1) {
-            //                waveBendAmt = waveModEnv.Evaluate();
-            //            }
-            //            else if (currentInstrument.waveModType == 2) {
-            //                fmAmt = waveModEnv.Evaluate() / 20f;
-            //            }
-            //        }
-
-            //}
-            //if (volumeEnv.toPlay.IsActive)
-            //    volumeEnv.Step();
-            //if (arpEnv.toPlay.IsActive)
-            //    arpEnv.Step();
-            //if (pitchEnv.toPlay.IsActive)
-            //    pitchEnv.Step();
-
+           
             channelVolume += volumeSlideSpeed;
             if (channelVolume > 99)
                 channelVolume = 99;

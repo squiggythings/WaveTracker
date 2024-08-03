@@ -646,7 +646,7 @@ namespace WaveTracker.UI {
                 }
             }
 
-           
+
 
             void DrawBubbleRect(int x, int y, int w, int h, Color c) {
                 DrawRect(x + 1, y, w - 2, h, c);
