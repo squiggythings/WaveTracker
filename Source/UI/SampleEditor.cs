@@ -91,12 +91,12 @@ namespace WaveTracker.UI {
 
         public void Update() {
             if (waveformRegion.IsHovered) {
-                mouseSampleIndex = (int)(waveformRegion.MouseXClamped * (Sample.Length - 1) + 0.5f);
+                mouseSampleIndex = (int)(waveformRegion.MouseXClamped * Sample.Length + 0.5f);
             }
             else {
                 mouseSampleIndex = -1;
             }
-            mouseSampleIndexClamped = (int)(waveformRegion.MouseXClamped * (Sample.Length - 1) + 0.5f);
+            mouseSampleIndexClamped = (int)(waveformRegion.MouseXClamped * Sample.Length + 0.5f);
             if (InFocus) {
                 lastMouseHoverSample = mouseSampleIndexClamped;
             }
@@ -268,7 +268,12 @@ namespace WaveTracker.UI {
         }
 
         void SetLoopPoint() {
-            Sample.loopPoint = lastMouseHoverSample;
+            if (SelectionIsActive) {
+                Sample.loopPoint = SelectionMin;
+            }
+            else {
+                Sample.loopPoint = lastMouseHoverSample;
+            }
             if (Sample.loopType == Sample.LoopType.OneShot) Sample.loopType = Sample.LoopType.Forward;
         }
 
@@ -289,7 +294,6 @@ namespace WaveTracker.UI {
             else {
                 DrawWaveform(waveformRegion.x, waveformRegion.y, Sample.sampleDataAccessL, waveformRegion.width, waveformRegion.height);
             }
-            //Write("[" + mouseSampleIndex + "]", waveformRegion.x, waveformRegion.y + waveformRegion.height + 15, UIColors.label);
             importSample.Draw();
             DrawSprite(importSample.x + importSample.width - 14, importSample.y + (importSample.IsPressed ? 3 : 2), new Rectangle(72, 81, 12, 9));
             loopMode.Draw();
@@ -326,8 +330,8 @@ namespace WaveTracker.UI {
             if (data.Length > 0) {
                 if (SelectionIsActive) {
                     int x1 = GetXPositionOfSample(SelectionMin, data.Length, width);
-                    int x2 = GetXPositionOfSample(SelectionMax + 1, data.Length, width);
-                    DrawRect(x + x1, y, x2 - x1, height, Helpers.Alpha(UIColors.selection, 128));
+                    int x2 = GetXPositionOfSample(SelectionMax, data.Length, width);
+                    DrawRect(x + x1 + 1, y, x2 - x1 - 1, height, Helpers.Alpha(UIColors.selection, 128));
 
                 }
                 int loopPosition = GetXPositionOfSample(Sample.loopPoint, data.Length, width);
@@ -358,7 +362,7 @@ namespace WaveTracker.UI {
                     int rectEnd = (int)(min * height / 2);
                     int avgStart = (int)(average * height / -2);
                     int avgEnd = (int)(average * height / 2);
-                    if (SelectionIsActive && sampleIndex + 1 >= SelectionMin && nextSampleIndex <= SelectionMax) {
+                    if (SelectionIsActive && sampleIndex + 1 > SelectionMin && nextSampleIndex < SelectionMax) {
                         DrawRect(x + i, startY - rectStart, 1, rectStart - rectEnd + 1, Color.LightGray);
                     }
                     else {
