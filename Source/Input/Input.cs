@@ -122,11 +122,13 @@ namespace WaveTracker {
             CurrentModifier = GetCurrentModifier();
             foreach (Keys k in Enum.GetValues(typeof(Keys))) {
                 if (currentKeyState.IsKeyDown(k)) {
+                    if (keyTimePairs[k] > KEY_REPEAT_DELAY) {
+                        keyTimePairs[k] -= KEY_REPEAT_TIME;
+                    }
                     keyTimePairs[k] += gameTime.ElapsedGameTime.Milliseconds;
                 }
                 else
                     keyTimePairs[k] = 0;
-
             }
             CurrentPressedKey = Keys.None;
             foreach (Keys k in currentPressedKeys) {
@@ -220,10 +222,10 @@ namespace WaveTracker {
         public static bool GetKeyRepeat(Keys key, KeyModifier modifier) {
 
             if (ModifierMatches(modifier)) {
-                if (currentKeyState.IsKeyDown(key) && !previousKeyState.IsKeyDown(key))
+                if (currentKeyState.IsKeyDown(key) && !previousKeyState.IsKeyDown(key)) {
                     return true;
+                }
                 if (keyTimePairs[key] > KEY_REPEAT_DELAY) {
-                    keyTimePairs[key] -= KEY_REPEAT_TIME;
                     return true;
                 }
                 return false;

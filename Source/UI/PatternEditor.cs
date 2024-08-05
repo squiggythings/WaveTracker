@@ -458,7 +458,7 @@ namespace WaveTracker.UI {
 
             #region copying selection
             if (SelectionIsActive) {
-                if (KeyPress(Keys.C, KeyModifier.Ctrl)) {
+                if (App.Shortcuts["Edit\\Copy"].IsPressedDown) {
                     CopyToClipboard();
                 }
             }
@@ -467,18 +467,19 @@ namespace WaveTracker.UI {
             if (App.Shortcuts["General\\Toggle edit mode"].IsPressedRepeat) {
                 ToggleEditMode();
             }
-            if (!EditMode)
+            if (!EditMode) {
                 return;
-
+            }
             /////////////////////////////////
             //           EDITING           //
             /////////////////////////////////
+          
             #region field input
             if (cursorPosition.Column == CursorColumnType.Note) {
                 // input note column
-                foreach (string shortcutName in KeyInputs_Piano.Keys) {
-                    if (KeyPress(App.Shortcuts[shortcutName])) {
-                        int note = KeyInputs_Piano[shortcutName];
+                foreach (string pianoKeyShortcut in KeyInputs_Piano.Keys) {
+                    if (KeyPress(App.Shortcuts[pianoKeyShortcut])) {
+                        int note = KeyInputs_Piano[pianoKeyShortcut];
                         if (note == WTPattern.EVENT_NOTE_CUT || note == WTPattern.EVENT_NOTE_RELEASE) {
                             CurrentPattern[cursorPosition.Row, cursorPosition.Channel, CellType.Note] = (byte)note;
                             if (!InstrumentMask) {
@@ -825,7 +826,12 @@ namespace WaveTracker.UI {
                 bool didSomething = false;
                 for (int r = selection.min.Row; r <= selection.max.Row; ++r) {
                     for (int c = selection.min.CellColumn; c <= selection.max.CellColumn; ++c) {
-                        if (WTPattern.GetCellTypeFromCellColumn(c) != CellType.Note) {
+                        CellType cellType = WTPattern.GetCellTypeFromCellColumn(c);
+                        if (cellType != CellType.Note &&
+                            cellType != CellType.Effect1 &&
+                            cellType != CellType.Effect2 &&
+                            cellType != CellType.Effect3 &&
+                            cellType != CellType.Effect4) {
                             if (!CurrentPattern.CellIsEmptyOrNoteCutRelease(r, c)) {
                                 CurrentPattern[r, c] -= 1;
                                 didSomething = true;
@@ -841,7 +847,12 @@ namespace WaveTracker.UI {
                 bool didSomething = false;
                 for (int r = selection.min.Row; r <= selection.max.Row; ++r) {
                     for (int c = selection.min.CellColumn; c <= selection.max.CellColumn; ++c) {
-                        if (WTPattern.GetCellTypeFromCellColumn(c) != CellType.Note) {
+                        CellType cellType = WTPattern.GetCellTypeFromCellColumn(c);
+                        if (cellType != CellType.Note &&
+                            cellType != CellType.Effect1 &&
+                            cellType != CellType.Effect2 &&
+                            cellType != CellType.Effect3 &&
+                            cellType != CellType.Effect4) {
                             if (!CurrentPattern.CellIsEmptyOrNoteCutRelease(r, c)) {
                                 CurrentPattern[r, c] += 1;
                                 didSomething = true;
@@ -857,7 +868,12 @@ namespace WaveTracker.UI {
                 bool didSomething = false;
                 for (int r = selection.min.Row; r <= selection.max.Row; ++r) {
                     for (int c = selection.min.CellColumn; c <= selection.max.CellColumn; ++c) {
-                        if (WTPattern.GetCellTypeFromCellColumn(c) != CellType.Note) {
+                        CellType cellType = WTPattern.GetCellTypeFromCellColumn(c);
+                        if (cellType != CellType.Note &&
+                            cellType != CellType.Effect1 &&
+                            cellType != CellType.Effect2 &&
+                            cellType != CellType.Effect3 &&
+                            cellType != CellType.Effect4) {
                             if (!CurrentPattern.CellIsEmptyOrNoteCutRelease(r, c)) {
                                 if (WTPattern.GetCellTypeFromCellColumn(c) == CellType.Effect1Parameter ||
                                     WTPattern.GetCellTypeFromCellColumn(c) == CellType.Effect2Parameter ||
@@ -880,7 +896,12 @@ namespace WaveTracker.UI {
                 bool didSomething = false;
                 for (int r = selection.min.Row; r <= selection.max.Row; ++r) {
                     for (int c = selection.min.CellColumn; c <= selection.max.CellColumn; ++c) {
-                        if (WTPattern.GetCellTypeFromCellColumn(c) != CellType.Note) {
+                        CellType cellType = WTPattern.GetCellTypeFromCellColumn(c);
+                        if (cellType != CellType.Note &&
+                            cellType != CellType.Effect1 &&
+                            cellType != CellType.Effect2 &&
+                            cellType != CellType.Effect3 &&
+                            cellType != CellType.Effect4) {
                             if (!CurrentPattern.CellIsEmptyOrNoteCutRelease(r, c)) {
                                 if (WTPattern.GetCellTypeFromCellColumn(c) == CellType.Effect1Parameter ||
                                     WTPattern.GetCellTypeFromCellColumn(c) == CellType.Effect2Parameter ||
@@ -1494,62 +1515,53 @@ namespace WaveTracker.UI {
         }
 
         /// <summary>
-        /// Scales the volumes and effect parameters in a direction relative to the maximum value in the selection
+        /// Scales volumes and effect parameters in a direction relative to the maximum value in the selection
         /// </summary>
         /// <param name="direction"></param>
         void ScaleSelection(int direction) {
             int selX = 0;
             int selY;
             float max = 0;
-            for (int c = selection.min.CellColumn; c <= selection.max.CellColumn; ++c) {
-                CellType cellType = WTPattern.GetCellTypeFromCellColumn(c);
-                if (cellType == CellType.Volume ||
-                    cellType == CellType.Effect1Parameter ||
-                    cellType == CellType.Effect2Parameter ||
-                    cellType == CellType.Effect3Parameter ||
-                    cellType == CellType.Effect4Parameter) {
+            int c = selection.min.CellColumn;
+            CellType cellType = WTPattern.GetCellTypeFromCellColumn(c);
+            if (cellType == CellType.Volume ||
+                cellType == CellType.Effect1Parameter ||
+                cellType == CellType.Effect2Parameter ||
+                cellType == CellType.Effect3Parameter ||
+                cellType == CellType.Effect4Parameter) {
 
-                    selY = 0;
-                    for (int r = selection.min.Row; r <= selection.max.Row; ++r) {
-                        if (cellType != CellType.Volume) {
-                            if (Helpers.IsEffectHex((char)CurrentPattern[r, c - 1]))
-                                continue;
-                        }
-                        if (scaleClipboard[selY, selX] != WTPattern.EVENT_EMPTY) {
-                            if (scaleClipboard[selY, selX] > max) {
-                                max = scaleClipboard[selY, selX];
-                            }
-                        }
-                        selY++;
+                selY = 0;
+                for (int r = selection.min.Row; r <= selection.max.Row; ++r) {
+                    if (cellType != CellType.Volume) {
+                        if (Helpers.IsEffectHex((char)CurrentPattern[r, c - 1]))
+                            continue;
                     }
+                    if (scaleClipboard[selY, selX] != WTPattern.EVENT_EMPTY) {
+                        if (scaleClipboard[selY, selX] > max) {
+                            max = scaleClipboard[selY, selX];
+                        }
+                    }
+                    selY++;
                 }
-                selX++;
-            }
-            float factor = (max + direction) / (float)max;
 
-            selX = 0;
-            for (int c = selection.min.CellColumn; c <= selection.max.CellColumn; ++c) {
-                CellType cellType = WTPattern.GetCellTypeFromCellColumn(c);
-                if (cellType == CellType.Volume ||
-                    cellType == CellType.Effect1Parameter ||
-                    cellType == CellType.Effect2Parameter ||
-                    cellType == CellType.Effect3Parameter ||
-                    cellType == CellType.Effect4Parameter) {
-                    selY = 0;
-                    for (int r = selection.min.Row; r <= selection.max.Row; ++r) {
-                        if (cellType != CellType.Volume) {
-                            if (Helpers.IsEffectHex((char)CurrentPattern[r, c - 1]))
-                                continue;
-                        }
-                        if (CurrentPattern[r, c] != WTPattern.EVENT_EMPTY) {
-                            scaleClipboard[selY, selX] *= factor;
-                            CurrentPattern[r, c] = (int)scaleClipboard[selY, selX];
-                        }
-                        selY++;
+
+                float factor = (max + direction) / (float)max;
+
+                selY = 0;
+                for (int r = selection.min.Row; r <= selection.max.Row; ++r) {
+                    if (cellType != CellType.Volume) {
+                        if (Helpers.IsEffectHex((char)CurrentPattern[r, c - 1]))
+                            continue;
                     }
+                    if (CurrentPattern[r, c] != WTPattern.EVENT_EMPTY) {
+                        scaleClipboard[selY, selX] *= factor;
+                        CurrentPattern[r, c] = (int)scaleClipboard[selY, selX];
+                    }
+                    selY++;
                 }
-                selX++;
+
             }
+
         }
 
         /// <summary>
@@ -1625,9 +1637,6 @@ namespace WaveTracker.UI {
             App.CurrentModule.SetDirty();
         }
 
-        /// <summary>
-        /// Reverts the editor back to the last previous 
-        /// </summary>
         public void Undo() {
             cursorPosition = history[historyIndex].PrePosition.CursorPosition;
             SetSelectionStart(history[historyIndex].PrePosition.SelectionStart);
@@ -1661,34 +1670,6 @@ namespace WaveTracker.UI {
         public PatternEditorPosition GetPreviousEditorPosition() {
             return new PatternEditorPosition(lastCursorPosition, lastSelection);
         }
-
-        ///// <summary>
-        ///// Adds the current song state to the undo stack, and clears redo history.
-        ///// </summary>
-        //void AddToUndoHistory() {
-        //    undoHistory.Push(new WTSongState(App.CurrentSong, lastCursorPosition, cursorPosition));
-        //    redoHistory.Clear();
-        //}
-
-        ///// <summary>
-        ///// Reverts the song to the state at the top of the undo stack, moving the current state to the redo stack
-        ///// </summary>
-        //public void Undo() {
-        //    WTSongState newState = undoHistory.Pop();
-        //    redoHistory.Push(new WTSongState(App.CurrentSong, lastCursorPosition, cursorPosition));
-        //    cursorPosition = newState.previousPosition;
-        //    newState.RestoreIntoSong(App.CurrentSong);
-        //}
-
-        ///// <summary>
-        ///// Reverts the song to the state at the top of the undo stack 
-        ///// </summary>
-        //public void Redo() {
-        //    WTSongState newState = redoHistory.Pop();
-        //    undoHistory.Push(new WTSongState(App.CurrentSong, lastCursorPosition, cursorPosition));
-        //    newState.RestoreIntoSong(App.CurrentSong);
-        //    cursorPosition = newState.currentPosition;
-        //}
 
         /// <summary>
         /// Removes all data in the selection and copies it to the clipboard
@@ -2189,23 +2170,21 @@ namespace WaveTracker.UI {
         /// <param name="keyModifier"></param>
         /// <returns></returns>
         static bool KeyPress(Keys key, KeyModifier keyModifier) {
-            if (App.Settings.PatternEditor.KeyRepeat)
+
+            if (App.Settings.PatternEditor.KeyRepeat) {
                 return Input.GetKeyRepeat(key, keyModifier);
-            else
+            }
+            else {
                 return Input.GetKeyDown(key, keyModifier);
+            }
         }
 
         /// <summary>
         /// Gets a key press, taking into account the key repeat setting in preferences
         /// </summary>
-        /// <param name="key"></param>
-        /// <param name="keyModifier"></param>
         /// <returns></returns>
         static bool KeyPress(KeyboardShortcut shortcut) {
-            if (App.Settings.PatternEditor.KeyRepeat)
-                return shortcut.IsPressedRepeat;
-            else
-                return shortcut.IsPressedDown;
+            return KeyPress(shortcut.Key, shortcut.Modifier);
         }
 
         /// <summary>

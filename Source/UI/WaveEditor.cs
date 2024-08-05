@@ -167,7 +167,6 @@ namespace WaveTracker.UI {
                     ChannelManager.PreviewChannel.SetWave(WaveBank.currentWaveID);
                 }
 
-                phase++;
 
                 ResampleDropdown.Value = (int)CurrentWave.resamplingMode;
                 if (startcooldown > 0) {
@@ -389,6 +388,7 @@ namespace WaveTracker.UI {
                         DrawRect(drawingRegion.x + i * 6, drawingRegion.y + drawingRegion.height - samp * 5, 6, -5, waveColor);
                     }
                 }
+                phase++;
                 // draw mini wave
                 for (int i = 0; i < 64; ++i) {
                     DrawRect(419 + i, 185, 1, 16 - CurrentWave.GetSample(i + phase), new Color(190, 192, 211));

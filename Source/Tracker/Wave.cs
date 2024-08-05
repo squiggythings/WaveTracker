@@ -261,7 +261,7 @@ namespace WaveTracker.Tracker {
             if (bendAmt > 0.001f && t != 0) {
                 t = GetBentTime(t, bendAmt) + 0.5f; // faster bend algorithm
             }
-            if (interpolationAmt > 0) {
+            if (interpolationAmt > 0.001f) {
                 return MathHelper.Lerp(GetSampleAtPosition(t), other.GetSampleAtPosition(t), interpolationAmt);
             }
             else {
@@ -283,9 +283,9 @@ namespace WaveTracker.Tracker {
 
         /// <summary>
         /// Gets sample at the position from 0.0-1.0
-        /// <br></br>
+        /// <br/>
         /// 0.0 is the beginning of the waveform
-        /// <br></br>
+        /// <br/>
         /// 1.0 is the end of the waveform, one full cycle
         /// </summary>
         /// <param name="t"></param>
@@ -302,14 +302,14 @@ namespace WaveTracker.Tracker {
 
             int index2 = (index1 + 1) % 64;
             float sample2 = samples[index2] / 16f - 1f;
-            float lerpt = (t * samples.Length) - index1;
-            float lerpedSample = MathHelper.Lerp(sample1, sample2, lerpt);
+            float betweenSamplesLerp = (t * samples.Length) - index1;
+            float lerpedSample = MathHelper.Lerp(sample1, sample2, betweenSamplesLerp);
             if (resamplingMode == ResamplingMode.Linear) {
                 return lerpedSample;
             }
 
 
-            float nearestSample = lerpt > 0.5f ? sample2 : sample1;
+            float nearestSample = betweenSamplesLerp > 0.5f ? sample2 : sample1;
 
             float sampDifference = MathF.Abs(samples[index1] - samples[index2]);
 

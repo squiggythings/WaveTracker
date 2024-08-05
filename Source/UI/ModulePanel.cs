@@ -74,23 +74,21 @@ namespace WaveTracker.UI {
                     App.CurrentSongIndex = selectedSong.Value;
                     App.PatternEditor.OnSwitchSong();
                 }
-
-
-                float meterDecay = 0;
-                switch (App.Settings.General.MeterDecayRate) {
-                    case 0:
-                        meterDecay = 0.5f;
-                        break;
-                    case 1:
-                        meterDecay = 1.25f;
-                        break;
-                    case 2:
-                        meterDecay = 5;
-                        break;
-                }
-                ampLeft *= 1 - meterDecay / 10f;
-                ampRight *= 1 - meterDecay / 10f;
             }
+            float meterDecay = 0;
+            switch (App.Settings.General.MeterDecayRate) {
+                case 0:
+                    meterDecay = 0.5f;
+                    break;
+                case 1:
+                    meterDecay = 1.25f;
+                    break;
+                case 2:
+                    meterDecay = 5;
+                    break;
+            }
+            ampLeft *= 1 - meterDecay / 10f;
+            ampRight *= 1 - meterDecay / 10f;
         }
         public new void Draw() {
             base.Draw();
