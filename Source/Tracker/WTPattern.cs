@@ -426,40 +426,4 @@ namespace WaveTracker.Tracker {
         Effect4,
         Effect4Parameter
     }
-
-
-    //    /* Effects Cheatsheet
-    //     * 
-    //     * 0xy - arpeggio
-    //     * 1xx - rise
-    //     * 2xx - fall
-    //     * 3xx - portamento
-    //     * 4xy - vibrato
-    //     * 7xy - tremolo
-    //     * 8xx - pan
-    //     * 9xx - stereo phase offset
-    //     * 
-    //     * Axx - volume fade down
-    //     * Wxx - volume fade up
-    //     * 
-    //     * Gxx - delay row
-    //     * 
-    //     * Qxy - note bend up
-    //     * Rxy - note bend down
-    //     * Pxx - pitch
-    //     * 
-    //     * Bxx - loop to frame #
-    //     * Cxx - stop song
-    //     * Dxx - skip # frames
-    //     * Fxx - speed change
-    //     * 
-    //     * Sxx - cut
-    //     * Lxx - release
-    //     * 
-    //     * Vxx - set wave
-    //     * Xxx - blend wave
-    //     * Zxx - stretch wave
-    //     * Mxx - fm
-    //     */
-    //}
 }

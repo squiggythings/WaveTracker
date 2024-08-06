@@ -291,26 +291,11 @@ namespace WaveTracker {
             return a - b * MathF.Floor(a / b);
         }
 
-
-        /// <summary>
-        /// Quick and dirty approximation of e^x
-        /// </summary>
-        /// <param name="x"></param>
-        /// <returns></returns>
-        public static float Exp(float x) {
-            return (6 + x * (6 + x * (3 + x))) * 0.16666666f;
-        }
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static double MoreAccuratePower(double x, double n) {
             return x * Math.Exp((x - 1) * (n - 1));
         }
-
-        public static double FastPower(double a, double b) {
-            int tmp = (int)(BitConverter.DoubleToInt64Bits(a) >> 32);
-            int tmp2 = (int)(b * (tmp - 1072632447) + 1072632447);
-            return BitConverter.Int64BitsToDouble(((long)tmp2) << 32);
-        }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static double FasterPower(double a, double b) {
             // exponentiation by squaring
             double r = 1.0;
@@ -330,12 +315,6 @@ namespace WaveTracker {
             long tmp2 = (long)(b_faction * (tmp - 4606921280493453312L)) + 4606921280493453312L;
             return r * BitConverter.Int64BitsToDouble(tmp2);
         }
-
-        //public static float FastPower(float a, float b) {
-        //    int tmp = (int)(BitConverter.DoubleToInt64Bits(a) >> 32);
-        //    int tmp2 = (int)(b * (tmp - 1072632447) + 1072632447);
-        //    return (float)BitConverter.Int64BitsToDouble(((long)tmp2) << 32);
-        //}
 
         /// <summary>
         /// Sets alpha of color. from 0-255
@@ -588,7 +567,7 @@ namespace WaveTracker {
         }
 
         /// <summary>
-        /// 
+        /// Multiplies this color by <c>other</c>
         /// </summary>
         /// <param name="col"></param>
         /// <param name="other"></param>
@@ -626,9 +605,9 @@ namespace WaveTracker {
         /// <param name="value"></param>
         /// <returns></returns>
         public static HSLColor ToHSL(this Color value) {
-            float _R = (value.R / 255f);
-            float _G = (value.G / 255f);
-            float _B = (value.B / 255f);
+            float _R = value.R / 255f;
+            float _G = value.G / 255f;
+            float _B = value.B / 255f;
 
             float _Min = Math.Min(Math.Min(_R, _G), _B);
             float _Max = Math.Max(Math.Max(_R, _G), _B);
