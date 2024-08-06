@@ -21,6 +21,7 @@ namespace WaveTracker.Audio {
             filterR.SetLowPassFilter(sampleRate, cutoffFrequency, q);
         }
 
+
         public void Transform(float inputL, float inputR, out float outputL, out float outputR) {
             outputL = filterL.Transform(inputL);
             outputR = filterR.Transform(inputR);

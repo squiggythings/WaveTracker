@@ -71,7 +71,7 @@ namespace WaveTracker.Audio {
             SampleRate = SampleRateToInt(rate);
             TrueSampleRate = SampleRate * oversampling;
             audioProvider.SetWaveFormat(SampleRate, 2);
-            foreach(Channel chan in ChannelManager.Channels) {
+            foreach (Channel chan in ChannelManager.Channels) {
                 chan.UpdateFilter();
             }
             ChannelManager.PreviewChannel.UpdateFilter();
@@ -166,7 +166,7 @@ namespace WaveTracker.Audio {
                 }
                 int sampleRate = WaveFormat.SampleRate;
                 int OVERSAMPLE = App.Settings.Audio.Oversampling;
-                float delta = (1f / (OVERSAMPLE * sampleRate) * (TickSpeed / 60f));
+                float delta = 1f / TrueSampleRate * (TickSpeed / 60f);
 
                 for (int n = 0; n < sampleCount; n += 2) {
                     buffer[n + offset] = buffer[n + offset + 1] = 0;
@@ -178,12 +178,12 @@ namespace WaveTracker.Audio {
                         leftSum = 0;
                         rightSum = 0;
                         for (int c = 0; c < ChannelManager.Channels.Count; ++c) {
-                            ChannelManager.Channels[c].ProcessSingleSample(out l, out r, true, delta, OVERSAMPLE);
+                            ChannelManager.Channels[c].ProcessSingleSample(out l, out r, delta);
                             leftSum += l;
                             rightSum += r;
                         }
 
-                        ChannelManager.PreviewChannel.ProcessSingleSample(out l, out r, true, delta, OVERSAMPLE);
+                        ChannelManager.PreviewChannel.ProcessSingleSample(out l, out r, delta);
                         leftSum += l;
                         rightSum += r;
                         buffer[n + offset] = leftSum;

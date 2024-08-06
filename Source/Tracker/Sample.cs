@@ -9,6 +9,8 @@ using System.Threading.Tasks;
 using ProtoBuf;
 using WaveTracker.Audio;
 using NAudio.Wave;
+using System.Runtime.CompilerServices;
+
 
 namespace WaveTracker.Tracker {
     [Serializable]
@@ -241,6 +243,8 @@ namespace WaveTracker.Tracker {
 
         public void SampleTick(float time, float stereoPhase, float startPercentage, out float outputL, out float outputR) {
             float sampleIndex = 0;
+            stereoPhase *= 100;
+            int stereo = (int)(stereoPhase * 100);
             float x = time * (sampleRate / _baseFrequency);
             x += startPercentage * Length;
             long l = Length;
@@ -262,25 +266,25 @@ namespace WaveTracker.Tracker {
             }
             currentPlaybackPosition = (int)sampleIndex;
             if (resampleMode == ResamplingMode.None) {
-                outputL = GetSampleAt(0, (int)(sampleIndex + stereoPhase * 100));
-                outputR = GetSampleAt(1, (int)(sampleIndex - stereoPhase * 100));
+                outputL = GetSampleAt(0, (int)(sampleIndex + stereo));
+                outputR = GetSampleAt(1, (int)(sampleIndex - stereo));
             }
             else if (resampleMode == ResamplingMode.Linear) {
                 int one = (int)sampleIndex;
                 int two = one + 1;
                 float by = (float)(sampleIndex % 1f);
-                outputL = MathHelper.Lerp(GetSampleAt(0, one + (int)(stereoPhase * 100)), GetSampleAt(0, two + (int)(stereoPhase * 100)), by);
-                outputR = MathHelper.Lerp(GetSampleAt(1, one - (int)(stereoPhase * 100)), GetSampleAt(1, two - (int)(stereoPhase * 100)), by);
+                outputL = MathHelper.Lerp(GetSampleAt(0, one + stereo), GetSampleAt(0, two + stereo), by);
+                outputR = MathHelper.Lerp(GetSampleAt(1, one - stereo), GetSampleAt(1, two - stereo), by);
             }
             else {
                 int one = (int)sampleIndex;
                 int two = one + 1;
                 float by = (float)(sampleIndex % 1f);
-                outputL = MathHelper.Lerp(GetSampleAt(0, one + (int)(stereoPhase * 100)), GetSampleAt(0, two + (int)(stereoPhase * 100)), by);
-                outputR = MathHelper.Lerp(GetSampleAt(1, one - (int)(stereoPhase * 100)), GetSampleAt(1, two - (int)(stereoPhase * 100)), by);
+                outputL = MathHelper.Lerp(GetSampleAt(0, one + stereo), GetSampleAt(0, two + stereo), by);
+                outputR = MathHelper.Lerp(GetSampleAt(1, one - stereo), GetSampleAt(1, two - stereo), by);
 
-                outputL += GetSampleAt(0, (int)(sampleIndex + stereoPhase * 100));
-                outputR += GetSampleAt(1, (int)(sampleIndex - stereoPhase * 100));
+                outputL += GetSampleAt(0, (int)sampleIndex + stereo);
+                outputR += GetSampleAt(1, (int)sampleIndex - stereo);
                 outputL /= 2f;
                 outputR /= 2f;
             }
@@ -288,7 +292,7 @@ namespace WaveTracker.Tracker {
             outputR *= 1.5f;
         }
 
-
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         float GetSampleAt(int chan, int index) {
             if (sampleDataAccessL.Length == 0) {
                 return 0;

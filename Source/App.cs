@@ -393,19 +393,6 @@ namespace WaveTracker {
             }
 
 
-            //int y = 10;
-            //foreach (MMDevice k in audioEngine.devices)
-            //{
-            //    Rendering.Graphics.Write(k.DeviceFriendlyName, 2, y, Color.Red);
-            //    y += 10;
-
-            //}
-            //Rendering.Graphics.Write("AudioStatus: " + audioEngine.wasapiOut.PlaybackState.ToString(), 2, 2, Color.Red);
-            //Rendering.Graphics.Write("filename: " + filename, 2, 12, Color.Red);
-            //Rendering.Graphics.Write("FPS: " + 1 / gameTime.ElapsedGameTime.TotalSeconds, 2, 2, Color.Red);
-
-            //Graphics.Write(MidiInput.GetMidiNote + ", " + pianoInput, 2, 250, Color.Red);
-            //Graphics.Write("@" + Input.focus + "", 2, 260, Color.Red);
 
             targetBatch.End();
 

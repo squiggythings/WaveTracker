@@ -36,8 +36,6 @@ namespace WaveTracker.UI {
         }
 
         public static void Draw() {
-            Rendering.Graphics.Write(contextMenu + "", 2, 22, Color.Red);
-
             if (contextMenu != null) {
                 contextMenu.Draw();
             }

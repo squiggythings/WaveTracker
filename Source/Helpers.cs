@@ -13,6 +13,8 @@ using NAudio.Wave;
 using NAudio.Wave.SampleProviders;
 using WaveTracker.Tracker;
 using WaveTracker.Rendering;
+using System.Runtime.CompilerServices;
+
 
 namespace WaveTracker {
     public class Helpers {
@@ -273,6 +275,7 @@ namespace WaveTracker {
         /// </summary>
         /// <param name="midiNoteNum"></param>
         /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static float NoteToFrequency(float midiNoteNum) {
             return (float)Math.Pow(2, (midiNoteNum - 69) / 12.0) * 440;
         }
@@ -283,18 +286,11 @@ namespace WaveTracker {
         /// <param name="a"></param>
         /// <param name="b"></param>
         /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static float Mod(float a, float b) {
             return a - b * MathF.Floor(a / b);
         }
-        /// <summary>
-        /// True modulus operator
-        /// </summary>
-        /// <param name="a"></param>
-        /// <param name="b"></param>
-        /// <returns></returns>
-        public static double Mod(double a, double b) {
-            return (a - b * Math.Floor(a / b));
-        }
+
 
         /// <summary>
         /// Quick and dirty approximation of e^x
@@ -305,11 +301,34 @@ namespace WaveTracker {
             return (6 + x * (6 + x * (3 + x))) * 0.16666666f;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static double MoreAccuratePower(double x, double n) {
+            return x * Math.Exp((x - 1) * (n - 1));
+        }
 
         public static double FastPower(double a, double b) {
             int tmp = (int)(BitConverter.DoubleToInt64Bits(a) >> 32);
             int tmp2 = (int)(b * (tmp - 1072632447) + 1072632447);
             return BitConverter.Int64BitsToDouble(((long)tmp2) << 32);
+        }
+        public static double FasterPower(double a, double b) {
+            // exponentiation by squaring
+            double r = 1.0;
+            int exp = (int)b;
+            double _base = a;
+            while (exp != 0) {
+                if ((exp & 1) != 0) {
+                    r *= _base;
+                }
+                _base *= _base;
+                exp >>= 1;
+            }
+
+            // use the IEEE 754 trick for the fraction of the exponent
+            double b_faction = b - (int)b;
+            long tmp = BitConverter.DoubleToInt64Bits(a);
+            long tmp2 = (long)(b_faction * (tmp - 4606921280493453312L)) + 4606921280493453312L;
+            return r * BitConverter.Int64BitsToDouble(tmp2);
         }
 
         //public static float FastPower(float a, float b) {

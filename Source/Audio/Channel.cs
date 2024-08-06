@@ -8,6 +8,8 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using SharpDX.XInput;
 using WaveTracker.Tracker;
+using System.Runtime.CompilerServices;
+
 
 namespace WaveTracker.Audio {
     public class Channel {
@@ -480,7 +482,7 @@ namespace WaveTracker.Audio {
             else
                 return currentWave.GetSampleMorphed(time, App.CurrentModule.WaveBank[(WaveIndex + 1) % 100], WaveMorphPosition, _waveStretchSmooth / 100f);
         }
-
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         void ContinuousTick(float deltaTime) {
             if (tremoloIntensity > 0) {
                 tremoloTime += deltaTime * tremoloSpeed * 6f;
@@ -649,13 +651,11 @@ namespace WaveTracker.Audio {
             }
         }
 
-        public void ProcessSingleSample(out float left, out float right, bool continuousTick, float continuousDelta, int oversample) {
+        public void ProcessSingleSample(out float left, out float right, float continuousDelta) {
+            ContinuousTick(continuousDelta);
             left = right = 0;
-
             float freqCut = 1;
-            float delta = 1f / (oversample * AudioEngine.SampleRate) * _frequency;
-            if (continuousTick)
-                ContinuousTick(continuousDelta);
+            float delta = 1f / AudioEngine.TrueSampleRate * _frequency;
             if (noteOn) {
                 float sampleL;
                 float sampleR;
@@ -711,11 +711,9 @@ namespace WaveTracker.Audio {
                 _volumeSmooth += (TotalAmplitude - _volumeSmooth) * 0.02f;
                 _fmSmooth += (waveFmAmt.AdditiveValue - _fmSmooth) * 0.02f;
                 _waveStretchSmooth += (waveStretchAmt.AdditiveValue - _waveStretchSmooth) * 0.02f;
-                //_filterCutoffFrequency += (targetFilterCutoffFrequency * Math.Min(20000, AudioEngine.SampleRate / 2f) - _filterCutoffFrequency) * 0.02f;
 
                 float l = sampleL * _volumeSmooth * _leftAmp * _fadeMultiplier * freqCut;
                 float r = sampleR * _volumeSmooth * _rightAmp * _fadeMultiplier * freqCut;
-                //stereoBiQuadFilter.SetLowpassFilter(AudioEngine.TrueSampleRate, _filterCutoffFrequency, filterResonance);
                 stereoBiQuadFilter.Transform(l, r, out l, out r);
                 left = l * 0.225f * bassBoost;
                 right = r * 0.225f * bassBoost;

@@ -7,6 +7,8 @@ using WaveTracker.Rendering;
 using Microsoft.Xna.Framework;
 using ProtoBuf;
 using WaveTracker.Audio;
+using System.Runtime.CompilerServices;
+
 using System.Diagnostics;
 
 namespace WaveTracker.Tracker {
@@ -254,12 +256,13 @@ namespace WaveTracker.Tracker {
 
             return samples[index % 64];
         }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
 
         public float GetSampleMorphed(float t, Wave other, float interpolationAmt, float bendAmt) {
             if (t < 0 || t >= 1)
                 t = Helpers.Mod(t, 1);
             if (bendAmt > 0.001f && t != 0) {
-                t = GetBentTime(t, bendAmt) + 0.5f; // faster bend algorithm
+                t = GetBentTime(t, bendAmt); // faster bend algorithm
             }
             if (interpolationAmt > 0.001f) {
                 return MathHelper.Lerp(GetSampleAtPosition(t), other.GetSampleAtPosition(t), interpolationAmt);
@@ -268,15 +271,27 @@ namespace WaveTracker.Tracker {
                 return GetSampleAtPosition(t);
             }
         }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
 
         static float GetBentTime(float t, float bendAmt) {
+            //bendAmt = bendAmt * bendAmt * 50;
+            //bendAmt += 1;
+            //float c = (1 - bendAmt) / (bendAmt - 3);
+            //if (t > 0.5f) {
+            //    return 1 - (1 - t) * (((1 - t) * (1 + c)) / ((1 - t) + (1 - 0.5f) * c)) * (((1 - t) * (1 + c)) / ((1 - t) + (1 - 0.5f) * c));
+            //}
+            //else {
+            //    return t * ((t * (1 + c)) / (t + 0.5f * c)) * ((t * (1 + c)) / (t + 0.5f * c));
+            //}
+            bendAmt = -25 * bendAmt * bendAmt;
+            float exp = 1 - 0.8f * bendAmt;
             if (t > 0.5f) {
                 t = 2 * t % 1;
-                return (float)Math.Pow(t, 1 - 0.8f * (-25 * bendAmt * bendAmt)) / 2f;
+                return (float)Helpers.MoreAccuratePower(t, exp) / 2f + 0.5f;
             }
             else {
                 t = 2 * (1 - t) % 1;
-                return 1 - (float)Math.Pow(t, 1 - 0.8f * (-25 * bendAmt * bendAmt)) / 2f;
+                return 1 - (float)Helpers.MoreAccuratePower(t, exp) / 2f - 0.5f;
             }
         }
 
@@ -290,9 +305,11 @@ namespace WaveTracker.Tracker {
         /// </summary>
         /// <param name="t"></param>
         /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public float GetSampleAtPosition(float t) {
             if (t < 0 || t >= 1)
                 t = Helpers.Mod(t, 1);
+
             int index1 = (int)(t * samples.Length);
             float sample1 = samples[index1] / 16f - 1f;
 
