@@ -314,7 +314,7 @@ namespace WaveTracker.Tracker {
                 return;
             }
             int channels = IsStereo ? 2 : 1;
-            WaveFormat format = new WaveFormat(AudioEngine.SampleRate, 32, channels);
+            WaveFormat format = new WaveFormat(sampleRate, channels);
             using (WaveFileWriter writer = new WaveFileWriter(filepath, format)) {
                 for (int i = 0; i < Length; ++i) {
                     writer.WriteSample(sampleDataAccessL[i] / (float)short.MaxValue);
