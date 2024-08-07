@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
+﻿using Microsoft.Xna.Framework;
 using WaveTracker.Rendering;
 
 namespace WaveTracker.UI {
@@ -14,26 +8,20 @@ namespace WaveTracker.UI {
         protected int MouseX { get { return Input.MousePositionX - (x + OffX); } }
         protected int MouseY { get { return Input.MousePositionY - (y + OffY); } }
 
-        protected int OffX { get { if (parent == null) return 0; return parent.x + parent.OffX; } }
-        protected int OffY { get { if (parent == null) return 0; return parent.y + parent.OffY; } }
+        protected int OffX { get { return parent == null ? 0 : parent.x + parent.OffX; } }
+        protected int OffY { get { return parent == null ? 0 : parent.y + parent.OffY; } }
 
         protected int GlobalX { get { return x + OffX; } }
         protected int GlobalY { get { return y + OffY; } }
 
         public bool InFocus {
             get {
-                if (Input.focus == null) return true;
-                if (parent == null) return Input.focus == this;
-                if (parent.InFocus)
-                    return true;
-                return Input.focus == this;
+                return Input.focus == null || (parent == null ? Input.focus == this : parent.InFocus || Input.focus == this);
             }
         }
 
         public bool IsInHierarchy(Element element) {
-            if (element == this) return true;
-            if (parent == null) return element == null;
-            return parent.IsInHierarchy(element);
+            return element == this || (parent == null ? element == null : parent.IsInHierarchy(element));
         }
 
         public void SetParent(Element parent) {
@@ -112,6 +100,10 @@ namespace WaveTracker.UI {
             return new Point(p.X - GlobalX, p.Y - GlobalY);
         }
 
-        public Point LastClickPos => GlobalPointToLocalPoint(Input.LastClickLocation);
+        public Point LastClickPos {
+            get {
+                return GlobalPointToLocalPoint(Input.LastClickLocation);
+            }
+        }
     }
 }

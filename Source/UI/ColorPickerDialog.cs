@@ -1,33 +1,23 @@
 ﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using WaveTracker.Rendering;
 
 namespace WaveTracker.UI {
     public class ColorPickerDialog : Dialog {
         public ColorButton parentButton;
-        Button cancel, ok;
-        Color color;
-        HSLColor hslColor;
-
-
-        MouseRegion colorSpectrumRegion;
-        MouseRegion satSliderRegion;
-        MouseRegion alphaSliderRegion;
-        const int spectrumX = 9;
-        const int spectrumY = 18;
-        const int spectrumWidth = 128;
-        const int spectrumHeight = 100;
-        const int sliderHeight = 7;
-        bool canStart = false;
-        Textbox hexCode;
-        NumberBox redNum, greenNum, blueNum, alphaNum;
+        private Button cancel, ok;
+        private Color color;
+        private HSLColor hslColor;
+        private MouseRegion colorSpectrumRegion;
+        private MouseRegion satSliderRegion;
+        private MouseRegion alphaSliderRegion;
+        private const int spectrumX = 9;
+        private const int spectrumY = 18;
+        private const int spectrumWidth = 128;
+        private const int spectrumHeight = 100;
+        private const int sliderHeight = 7;
+        private bool canStart = false;
+        private Textbox hexCode;
+        private NumberBox redNum, greenNum, blueNum, alphaNum;
 
         public ColorPickerDialog() : base("Pick Color...", 221, 160) {
             cancel = AddNewBottomButton("Cancel", this);
@@ -59,7 +49,7 @@ namespace WaveTracker.UI {
 
         public void Open(ColorButton button) {
             base.Open(Input.focus);
-            this.parentButton = button;
+            parentButton = button;
             color = parentButton.Color;
             SetAllValuesFromColor();
             canStart = false;
@@ -69,13 +59,14 @@ namespace WaveTracker.UI {
             if (WindowIsOpen) {
                 DoDragging();
                 if (canStart) {
-                    if (cancel.Clicked || ExitButton.Clicked)
+                    if (cancel.Clicked || ExitButton.Clicked) {
                         Close();
+                    }
+
                     if (ok.Clicked) {
                         parentButton.Color = color;
                         Close();
                     }
-
 
                     if (colorSpectrumRegion.DidClickInRegion) {
                         hslColor.H = colorSpectrumRegion.MouseXClamped * 360f;
@@ -92,31 +83,37 @@ namespace WaveTracker.UI {
                     }
 
                     redNum.Update();
-                    if (redNum.ValueWasChangedInternally)
+                    if (redNum.ValueWasChangedInternally) {
                         UpdateColorFromRGB();
+                    }
 
                     greenNum.Update();
-                    if (greenNum.ValueWasChangedInternally)
+                    if (greenNum.ValueWasChangedInternally) {
                         UpdateColorFromRGB();
+                    }
 
                     blueNum.Update();
-                    if (blueNum.ValueWasChangedInternally)
+                    if (blueNum.ValueWasChangedInternally) {
                         UpdateColorFromRGB();
+                    }
 
                     alphaNum.Update();
-                    if (alphaNum.ValueWasChangedInternally)
+                    if (alphaNum.ValueWasChangedInternally) {
                         UpdateColorFromRGB();
+                    }
 
                     hexCode.Update();
-                    if (hexCode.ValueWasChangedInternally)
+                    if (hexCode.ValueWasChangedInternally) {
                         UpdateColorFromHex();
+                    }
                 }
-                else if (!Input.GetClick(KeyModifier._Any))
+                else if (!Input.GetClick(KeyModifier._Any)) {
                     canStart = true;
+                }
             }
         }
 
-        void SetAllValuesFromColor() {
+        private void SetAllValuesFromColor() {
             redNum.Value = color.R;
             greenNum.Value = color.G;
             blueNum.Value = color.B;
@@ -127,7 +124,7 @@ namespace WaveTracker.UI {
             hexCode.Text = color.GetHexCode();
         }
 
-        void UpdateColorFromHex() {
+        private void UpdateColorFromHex() {
             color.SetFromHex(hexCode.Text);
             hexCode.Text = color.GetHexCode();
             hslColor = color.ToHSL();
@@ -137,12 +134,13 @@ namespace WaveTracker.UI {
             alphaNum.Value = color.A;
         }
 
-        void UpdateColorFromRGB() {
+        private void UpdateColorFromRGB() {
             color = new Color(redNum.Value, greenNum.Value, blueNum.Value, alphaNum.Value);
             hslColor = color.ToHSL();
             hexCode.Text = color.GetHexCode();
         }
-        void UpdateColorFromHSL() {
+
+        private void UpdateColorFromHSL() {
             color = hslColor.ToRGB();
             hexCode.Text = color.GetHexCode();
             redNum.Value = color.R;
@@ -151,12 +149,8 @@ namespace WaveTracker.UI {
             alphaNum.Value = color.A;
         }
 
-        void DrawSelectorPoint(int x, int y) {
-            Color pointColor;
-            if ((color.R * 30 + color.G * 59 + color.B * 11) / 100 < 128)
-                pointColor = Color.White;
-            else
-                pointColor = Color.Black;
+        private void DrawSelectorPoint(int x, int y) {
+            Color pointColor = (color.R * 30 + color.G * 59 + color.B * 11) / 100 < 128 ? Color.White : Color.Black;
 
             //DrawRect(x + 1, y, 2, 1, ptCol);
             //DrawRect(x, y + 1, 1, 2, ptCol);
@@ -171,7 +165,6 @@ namespace WaveTracker.UI {
         public new void Draw() {
             if (WindowIsOpen) {
                 base.Draw();
-
 
                 int specX = colorSpectrumRegion.x;
                 int specY = colorSpectrumRegion.y;
@@ -217,7 +210,6 @@ namespace WaveTracker.UI {
                 DrawSelectorPoint(spectrumX + (int)(hslColor.S * (spectrumWidth - 1)), spectrumY + spectrumHeight + 2 + sliderHeight / 2);
                 DrawSelectorPoint(spectrumX + (int)(hslColor.A * (spectrumWidth - 1)), spectrumY + spectrumHeight + 4 + sliderHeight + sliderHeight / 2);
 
-
                 // draw color preview
                 int prevX = 148;
                 int prevY = 18;
@@ -227,10 +219,12 @@ namespace WaveTracker.UI {
                 DrawRect(prevX, prevY, prevW + 1, prevH + 1, Color.White);
                 for (int i = 0; i < 8; ++i) {
                     for (int j = 0; j < 5; ++j) {
-                        if ((i + j) % 2 == 0)
+                        if ((i + j) % 2 == 0) {
                             DrawRect(prevX + i * 8, prevY + j * 8, 8, 8, Color.Gray);
-                        else
+                        }
+                        else {
                             DrawRect(prevX + i * 8, prevY + j * 8, 8, 8, Color.LightGray);
+                        }
                     }
                 }
                 DrawRect(prevX, prevY, prevW, prevH, color);

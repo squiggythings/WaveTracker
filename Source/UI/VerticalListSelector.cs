@@ -1,21 +1,13 @@
 ﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace WaveTracker.UI {
     public class VerticalListSelector : Clickable {
         public int SelectedItemIndex { get; set; }
         public bool ValueWasChangedInternally { get; private set; }
         public string SelectedItem { get { return listItems[SelectedItemIndex]; } }
-        int hoveredItemIndex;
 
-        string[] listItems;
+        private int hoveredItemIndex;
+        private string[] listItems;
         public VerticalListSelector(int x, int y, int width, int height, string[] listItems, Element parent) {
             this.x = x;
             this.y = y;
@@ -34,8 +26,10 @@ namespace WaveTracker.UI {
                     if (MouseY >= i * 11 && MouseY < (i + 1) * 11) {
                         hoveredItemIndex = i;
                         if (GlobalPointIsInBounds(Input.LastClickLocation) && IsPressed) {
-                            if (SelectedItemIndex != i)
+                            if (SelectedItemIndex != i) {
                                 ValueWasChangedInternally = true;
+                            }
+
                             SelectedItemIndex = i;
                         }
                     }

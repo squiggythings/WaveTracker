@@ -1,19 +1,19 @@
 ﻿using Microsoft.Xna.Framework;
 using System;
 
-
 namespace WaveTracker.UI {
     /// <summary>
     /// A menu item that holds another menu inside it
     /// </summary>
     public class SubMenu : MenuItemBase {
-        const int TIME_TO_OPEN_MENU = 500;
+        private const int TIME_TO_OPEN_MENU = 500;
         public string Name { get; set; }
         public Menu menu;
+
         /// <summary>
         /// milliseconds since hovered
         /// </summary>
-        int hoverTime;
+        private int hoverTime;
 
         public SubMenu(string name) {
             menu = new Menu(this);
@@ -56,7 +56,7 @@ namespace WaveTracker.UI {
             hoverTime = 0;
         }
 
-        void PositionMenu() {
+        private void PositionMenu() {
             menu.x = width;
             menu.y = -1;
             if (menu.IsOutOfBoundsY()) {
@@ -69,9 +69,11 @@ namespace WaveTracker.UI {
 
         public override void Update() {
             menu.Update();
-            if (IsHovered || (menu.IsHoveredOrAChildMenuHovered())) {
-                if (hoverTime < 0)
+            if (IsHovered || menu.IsHoveredOrAChildMenuHovered()) {
+                if (hoverTime < 0) {
                     hoverTime = 0;
+                }
+
                 if (hoverTime < TIME_TO_OPEN_MENU) {
                     hoverTime += Input.deltaTime;
                     if (RightClickedDown) {
@@ -86,8 +88,10 @@ namespace WaveTracker.UI {
                 }
             }
             else {
-                if (hoverTime > 0)
+                if (hoverTime > 0) {
                     hoverTime = 0;
+                }
+
                 if (hoverTime > -TIME_TO_OPEN_MENU) {
                     hoverTime -= Input.deltaTime;
                 }
@@ -98,13 +102,13 @@ namespace WaveTracker.UI {
             }
         }
 
-        void DrawArrow(int x, int y, Color col) {
+        private void DrawArrow(int x, int y, Color col) {
             DrawRect(x, y, 1, 5, col);
             DrawRect(x + 1, y + 1, 1, 3, col);
             DrawRect(x + 2, y + 2, 1, 1, col);
         }
         public override void Draw() {
-            
+
             if (enabled) {
                 if (IsHoveredExclusive) {
                     DrawRect(0, 0, width, height, UIColors.selectionLight);

@@ -1,33 +1,27 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Input;
-using Microsoft.Xna.Framework.Graphics;
+﻿using Microsoft.Xna.Framework;
+using System;
 using System.Windows.Forms;
-using WaveTracker.Rendering;
 
 namespace WaveTracker.UI {
     public class NumberBox : Clickable {
         private Forms.EnterText dialog;
-        bool dialogOpen;
+        private bool dialogOpen;
 
         public SpriteButton bUp;
         public SpriteButton bDown;
-        int boxWidth;
-        string label;
-        int min = int.MinValue;
-        int max = int.MaxValue;
-        int valueSaved;
-        bool canScroll = true;
+        private int boxWidth;
+        private string label;
+        private int min = int.MinValue;
+        private int max = int.MaxValue;
+        private int valueSaved;
+        private bool canScroll = true;
         public enum NumberDisplayMode { Number, Note, NoteOnly, PlusMinus, Percent }
         public NumberDisplayMode DisplayMode { get; set; }
         public bool ValueWasChanged { get; private set; }
         public bool ValueWasChangedInternally { get; private set; }
-        int lastValue;
-        int _value;
+
+        private int lastValue;
+        private int _value;
         public int Value { get { return _value; } set { _value = Math.Clamp(value, min, max); } }
 
         public NumberBox(string label, int x, int y, int width, int boxWidth, Element parent) {
@@ -48,9 +42,9 @@ namespace WaveTracker.UI {
             this.label = label;
             this.x = x;
             this.y = y;
-            this.width = Helpers.GetWidthOfText(label) + 46;
+            width = Helpers.GetWidthOfText(label) + 46;
             DisplayMode = NumberDisplayMode.Number;
-            this.boxWidth = 38;
+            boxWidth = 38;
             height = 13;
             canScroll = true;
             SetParent(parent);
@@ -64,8 +58,13 @@ namespace WaveTracker.UI {
         public void SetValueLimits(int min, int max) {
             this.min = min;
             this.max = max;
-            if (Value < min) Value = min;
-            if (Value > max) Value = max;
+            if (Value < min) {
+                Value = min;
+            }
+
+            if (Value > max) {
+                Value = max;
+            }
         }
 
         public void Update() {
@@ -85,8 +84,10 @@ namespace WaveTracker.UI {
                 if (IsInHierarchy(Input.lastClickFocus)) {
                     if (LastClickPos.X >= 0 && LastClickPos.Y >= 0) {
                         if (LastClickPos.X <= width - 10 && LastClickPos.Y <= height) {
-                            if (Input.GetClickDown(KeyModifier.None))
+                            if (Input.GetClickDown(KeyModifier.None)) {
                                 valueSaved = Value;
+                            }
+
                             if (Input.GetClick(KeyModifier.None)) {
                                 Value = valueSaved - (MouseY - LastClickPos.Y) / 2;
                                 App.MouseCursorArrow = 2;
@@ -94,13 +95,17 @@ namespace WaveTracker.UI {
                         }
                     }
                 }
-                if (IsHovered && canScroll)
+                if (IsHovered && canScroll) {
                     Value += Input.MouseScrollWheel(KeyModifier.None);
+                }
 
-                if (bUp.Clicked)
+                if (bUp.Clicked) {
                     Value++;
-                if (bDown.Clicked)
+                }
+
+                if (bDown.Clicked) {
                     Value--;
+                }
 
                 if (Value != lastValue) {
                     ValueWasChanged = true;
@@ -131,16 +136,22 @@ namespace WaveTracker.UI {
             DrawRect(boxStart + 1, boxStartY + 1, bWidth - 2, boxHeight - 2, Color.White);
             DrawRect(boxStart + 1, boxStartY + 1, bWidth - 2, 1, new Color(193, 196, 213));
             DrawRect(width, boxStartY + 6, -10, 1, ButtonColors.Round.backgroundColor);
-            if (DisplayMode == NumberDisplayMode.Number)
+            if (DisplayMode == NumberDisplayMode.Number) {
                 Write(Value + "", boxStart + 4, height / 2 - 3, text);
-            else if (DisplayMode == NumberDisplayMode.Note)
+            }
+            else if (DisplayMode == NumberDisplayMode.Note) {
                 Write(Value + " (" + Helpers.MIDINoteToText(Value) + ")", boxStart + 4, height / 2 - 3, text);
-            else if (DisplayMode == NumberDisplayMode.NoteOnly)
+            }
+            else if (DisplayMode == NumberDisplayMode.NoteOnly) {
                 Write(Helpers.MIDINoteToText(Value), boxStart + 4, height / 2 - 3, text);
-            else if (DisplayMode == NumberDisplayMode.PlusMinus)
+            }
+            else if (DisplayMode == NumberDisplayMode.PlusMinus) {
                 Write((Value <= 0 ? Value : "+" + Value) + "", boxStart + 4, height / 2 - 3, text);
-            else if (DisplayMode == NumberDisplayMode.Percent)
+            }
+            else if (DisplayMode == NumberDisplayMode.Percent) {
                 Write(Value + "%", boxStart + 4, height / 2 - 3, text);
+            }
+
             bUp.Draw();
             bDown.Draw();
         }
@@ -151,8 +162,7 @@ namespace WaveTracker.UI {
             dialog.textBox.Text = Value + "";
             dialog.label.Text = label;
             if (dialog.ShowDialog() == DialogResult.OK) {
-                int a;
-                if (int.TryParse(dialog.textBox.Text, out a)) {
+                if (int.TryParse(dialog.textBox.Text, out int a)) {
                     Value = a;
                 }
             }

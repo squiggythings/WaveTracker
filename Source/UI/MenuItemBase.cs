@@ -1,10 +1,4 @@
-﻿using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
-using System;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿using System;
 
 namespace WaveTracker.UI {
     /// <summary>
@@ -20,9 +14,17 @@ namespace WaveTracker.UI {
         public const int PADDING_RIGHT = 6;
         public const int MARGIN_RIGHT = 0;
         public const int OPTION_HEIGHT = 10;
-        public bool IsHoveredExclusive => IsHovered && !parentMenu.IsChildMenuHovered();
-        public new bool Clicked => base.Clicked && !parentMenu.IsChildMenuHovered();
+        public bool IsHoveredExclusive {
+            get {
+                return IsHovered && !parentMenu.IsChildMenuHovered();
+            }
+        }
 
+        public new bool Clicked {
+            get {
+                return base.Clicked && !parentMenu.IsChildMenuHovered();
+            }
+        }
 
         public abstract void Update();
         public abstract void Draw();
@@ -37,12 +39,7 @@ namespace WaveTracker.UI {
         /// <exception cref="IndexOutOfRangeException"></exception>
         public MenuItemBase this[int index] {
             get {
-                if (this is SubMenu sub) {
-                    return sub.menu[index];
-                }
-                else {
-                    throw new IndexOutOfRangeException("This menu item does not have any children!");
-                }
+                return this is SubMenu sub ? sub.menu[index] : throw new IndexOutOfRangeException("This menu item does not have any children!");
             }
             set {
                 if (this is SubMenu sub) {

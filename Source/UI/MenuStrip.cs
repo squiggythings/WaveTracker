@@ -1,27 +1,21 @@
 ﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
-
 
 namespace WaveTracker.UI {
     public class MenuStrip : Clickable {
         public List<MenuStripButton> StripButtons { get; private set; }
+
         //MenuStripButton currentButton;
-        Menu currentMenu;
-        int nextX;
+        private Menu currentMenu;
+        private int nextX;
 
         public MenuStrip(int x, int y, int width, Element parent) {
             this.x = x;
             this.y = y;
-            this.height = 9;
+            height = 9;
             this.width = width;
-            StripButtons = new List<MenuStripButton>();
+            StripButtons = [];
             SetParent(parent);
         }
 
@@ -67,9 +61,9 @@ namespace WaveTracker.UI {
     }
 
     public class MenuStripButton : Clickable {
-        const int MARGIN = 5;
+        private const int MARGIN = 5;
         public Menu menu;
-        Func<Menu> createMenuFunc;
+        private Func<Menu> createMenuFunc;
         public string Name { get; private set; }
         public MenuStripButton(string name, int x, int y, Menu menu, Element parent) {
             width = Helpers.GetWidthOfText(name) + MARGIN * 2;

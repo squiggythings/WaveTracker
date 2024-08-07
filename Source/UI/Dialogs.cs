@@ -1,14 +1,4 @@
-﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace WaveTracker.UI {
+﻿namespace WaveTracker.UI {
     public static class Dialogs {
         public static ModuleSettingsDialog moduleSettings;
         public static ColorPickerDialog colorPicker;
@@ -22,8 +12,6 @@ namespace WaveTracker.UI {
         public static WaveSmoothDialog waveSmoothDialog;
         public static WaveSyncDialog waveSyncDialog;
         public static ConfigurationDialog configurationDialog;
-
-
 
         public static MessageDialog messageDialog;
 
@@ -44,7 +32,6 @@ namespace WaveTracker.UI {
             messageDialog = new MessageDialog();
         }
 
-        
         public static void Update() {
             moduleSettings.Update();
             humanizeDialog.Update();
@@ -75,7 +62,6 @@ namespace WaveTracker.UI {
             waveSyncDialog.Draw();
             configurationDialog.Draw();
             colorPicker.Draw();
-
 
             messageDialog.Draw();
         }

@@ -1,14 +1,4 @@
-﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ProtoBuf;
-
-
+﻿using ProtoBuf;
 
 namespace WaveTracker.Tracker {
 
@@ -25,7 +15,7 @@ namespace WaveTracker.Tracker {
         public override SampleInstrument Clone() {
             SampleInstrument m = new SampleInstrument();
             m.name = name;
-            m.envelopes = new List<Envelope>();
+            m.envelopes = [];
             foreach (Envelope envelope in envelopes) {
                 m.envelopes.Add(envelope.Clone());
             }
@@ -33,8 +23,9 @@ namespace WaveTracker.Tracker {
             m.sample.sampleDataAccessR = new short[sample.sampleDataAccessR.Length];
             for (int i = 0; i < sample.sampleDataAccessL.Length; i++) {
                 m.sample.sampleDataAccessL[i] = sample.sampleDataAccessL[i];
-                if (sample.sampleDataAccessR.Length != 0)
+                if (sample.sampleDataAccessR.Length != 0) {
                     m.sample.sampleDataAccessR[i] = sample.sampleDataAccessR[i];
+                }
             }
 
             m.sample.loopType = sample.loopType;

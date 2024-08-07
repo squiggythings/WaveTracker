@@ -1,18 +1,9 @@
-﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System;
 using System.Text;
-using System.Threading.Tasks;
-using ProtoBuf;
-using System.Diagnostics;
 
 namespace WaveTracker.Tracker {
     public class WTPattern {
-
-        byte[][] cells;
+        private byte[][] cells;
 
         public string CellsAsString { get; private set; }
 
@@ -32,13 +23,14 @@ namespace WaveTracker.Tracker {
             get {
                 for (int row = 0; row < cells.Length; ++row) {
                     for (int column = 0; column < cells[row].Length; ++column) {
-                        if (cells[row][column] != EVENT_EMPTY) return false;
+                        if (cells[row][column] != EVENT_EMPTY) {
+                            return false;
+                        }
                     }
                 }
                 return true;
             }
         }
-
 
         /// <summary>
         /// Initializes a new pattern with all empty events
@@ -73,7 +65,6 @@ namespace WaveTracker.Tracker {
             return clone;
         }
 
-
         /// <summary>
         /// Gets the position playback will go to immediately after finishing this pattern
         /// </summary>
@@ -100,8 +91,10 @@ namespace WaveTracker.Tracker {
                 }
             }
             nextFrame = currentFrame + 1;
-            if (nextFrame >= ParentSong.FrameSequence.Count)
+            if (nextFrame >= ParentSong.FrameSequence.Count) {
                 nextFrame = 0;
+            }
+
             nextRow = 0;
             return;
         }
@@ -110,8 +103,10 @@ namespace WaveTracker.Tracker {
         /// If this pattern had any changes since the last pack, will update CellsAsString to reflect the current pattern state.
         /// </summary>
         public void PackAnyChanges() {
-            if (IsDirty)
+            if (IsDirty) {
                 CellsAsString = GetCellDataAsString();
+            }
+
             IsDirty = false;
         }
 
@@ -121,7 +116,6 @@ namespace WaveTracker.Tracker {
         public void ForcePackAnyChanges() {
             CellsAsString = GetCellDataAsString();
         }
-
 
         /// <summary>
         /// Gets this pattern's data as an encoded string
@@ -158,8 +152,10 @@ namespace WaveTracker.Tracker {
                 cells = new byte[256][];
                 for (int column = 0; column < ParentSong.ParentModule.ChannelCount * 11; ++column) {
                     for (int row = 0; row < 256; ++row) {
-                        if (cells[row] == null)
+                        if (cells[row] == null) {
                             cells[row] = new byte[ParentSong.ParentModule.ChannelCount * 11];
+                        }
+
                         cells[row][column] = data[i];
                         ++i;
                     }
@@ -175,10 +171,7 @@ namespace WaveTracker.Tracker {
             for (int row = 0; row < cells.Length; ++row) {
                 byte[] resizedRow = new byte[ParentSong.ParentModule.ChannelCount * 11];
                 for (int column = 0; column < resizedRow.Length; ++column) {
-                    if (column < cells[row].Length)
-                        resizedRow[column] = cells[row][column];
-                    else
-                        resizedRow[column] = WTPattern.EVENT_EMPTY;
+                    resizedRow[column] = column < cells[row].Length ? cells[row][column] : WTPattern.EVENT_EMPTY;
                 }
 
                 cells[row] = resizedRow;
@@ -221,10 +214,11 @@ namespace WaveTracker.Tracker {
                 CellType cellType = (CellType)(column % 11);
                 switch (cellType) {
                     case CellType.Note:
-                        if (value == EVENT_NOTE_CUT || value == EVENT_NOTE_RELEASE || value == EVENT_EMPTY) {
+                        if (value is EVENT_NOTE_CUT or EVENT_NOTE_RELEASE or EVENT_EMPTY) {
                             cells[row][column] = (byte)value;
-                            if (value == EVENT_NOTE_CUT || value == EVENT_NOTE_RELEASE)
+                            if (value is EVENT_NOTE_CUT or EVENT_NOTE_RELEASE) {
                                 cells[row][column + 1] = EVENT_EMPTY;
+                            }
                         }
                         else {
                             cells[row][column] = (byte)Math.Clamp(value, 12, 131);
@@ -232,21 +226,13 @@ namespace WaveTracker.Tracker {
                         break;
 
                     case CellType.Instrument:
-                        if (value == EVENT_EMPTY || cells[row][column - 1] == EVENT_NOTE_CUT || cells[row][column - 1] == EVENT_NOTE_RELEASE) {
-                            cells[row][column] = EVENT_EMPTY;
-                        }
-                        else {
-                            cells[row][column] = (byte)Math.Clamp(value, 0, 99);
-                        }
+                        cells[row][column] = value == EVENT_EMPTY || cells[row][column - 1] == EVENT_NOTE_CUT || cells[row][column - 1] == EVENT_NOTE_RELEASE
+                            ? EVENT_EMPTY
+                            : (byte)Math.Clamp(value, 0, 99);
                         break;
 
                     case CellType.Volume:
-                        if (value == EVENT_EMPTY) {
-                            cells[row][column] = EVENT_EMPTY;
-                        }
-                        else {
-                            cells[row][column] = (byte)Math.Clamp(value, 0, 99);
-                        }
+                        cells[row][column] = value == EVENT_EMPTY ? EVENT_EMPTY : (byte)Math.Clamp(value, 0, 99);
                         break;
                     case CellType.Effect1:
                     case CellType.Effect2:
@@ -254,10 +240,7 @@ namespace WaveTracker.Tracker {
                     case CellType.Effect4:
                         if (cells[row][column] == EVENT_EMPTY) {
                             // if the effect was previously empty, intialize the parameter with the default value
-                            if (value == '8' || value == 'P')
-                                cells[row][column + 1] = 50;
-                            else
-                                cells[row][column + 1] = 0;
+                            cells[row][column + 1] = value is '8' or 'P' ? (byte)50 : (byte)0;
                         }
                         if (value == EVENT_EMPTY) {
                             // if the effect is being set to empty, set the parameter to empty too
@@ -273,12 +256,7 @@ namespace WaveTracker.Tracker {
                     case CellType.Effect2Parameter:
                     case CellType.Effect3Parameter:
                     case CellType.Effect4Parameter:
-                        if (Helpers.IsEffectHex((char)cells[row][column - 1])) {
-                            cells[row][column] = (byte)Math.Clamp(value, 0, 255);
-                        }
-                        else {
-                            cells[row][column] = (byte)Math.Clamp(value, 0, 99);
-                        }
+                        cells[row][column] = Helpers.IsEffectHex((char)cells[row][column - 1]) ? (byte)Math.Clamp(value, 0, 255) : (byte)Math.Clamp(value, 0, 99);
                         break;
                 }
             }
@@ -310,12 +288,11 @@ namespace WaveTracker.Tracker {
         /// <param name="cellType"></param>
         /// <returns></returns>
         public bool CellIsEmptyOrNoteCutRelease(int row, int channel, CellType cellType) {
-            if (cellType == CellType.Note)
-                return cells[row][channel * 11 + (int)CellType.Note] == WTPattern.EVENT_EMPTY ||
-                    cells[row][channel * 11 + (int)CellType.Note] == WTPattern.EVENT_NOTE_RELEASE ||
-                    cells[row][channel * 11 + (int)CellType.Note] == WTPattern.EVENT_NOTE_CUT;
-            else
-                return CellIsEmpty(row, channel, cellType);
+            return cellType == CellType.Note
+                ? cells[row][channel * 11 + (int)CellType.Note] is WTPattern.EVENT_EMPTY or
+                    WTPattern.EVENT_NOTE_RELEASE or
+                    WTPattern.EVENT_NOTE_CUT
+                : CellIsEmpty(row, channel, cellType);
         }
         /// <summary>
         /// Returns true if the cell at the given location is empty or a note cut or note release
@@ -326,12 +303,11 @@ namespace WaveTracker.Tracker {
         /// <returns></returns>
         public bool CellIsEmptyOrNoteCutRelease(int row, int column) {
             CellType cellType = (CellType)(column % 11);
-            if (cellType == CellType.Note)
-                return cells[row][column] == WTPattern.EVENT_EMPTY ||
-                    cells[row][column] == WTPattern.EVENT_NOTE_RELEASE ||
-                    cells[row][column] == WTPattern.EVENT_NOTE_CUT;
-            else
-                return CellIsEmpty(row, column);
+            return cellType == CellType.Note
+                ? cells[row][column] is WTPattern.EVENT_EMPTY or
+                    WTPattern.EVENT_NOTE_RELEASE or
+                    WTPattern.EVENT_NOTE_CUT
+                : CellIsEmpty(row, column);
         }
         /// <summary>
         /// Returns true if the cell at the given location is empty
@@ -341,15 +317,15 @@ namespace WaveTracker.Tracker {
         /// <param name="cellType"></param>
         /// <returns></returns>
         public bool CellIsEmpty(int row, int channel, CellType cellType) {
-            if (cellType == CellType.Effect1Parameter)
-                return cells[row][channel * 11 + (int)CellType.Effect1] == WTPattern.EVENT_EMPTY;
-            if (cellType == CellType.Effect2Parameter)
-                return cells[row][channel * 11 + (int)CellType.Effect2] == WTPattern.EVENT_EMPTY;
-            if (cellType == CellType.Effect3Parameter)
-                return cells[row][channel * 11 + (int)CellType.Effect3] == WTPattern.EVENT_EMPTY;
-            if (cellType == CellType.Effect4Parameter)
-                return cells[row][channel * 11 + (int)CellType.Effect4] == WTPattern.EVENT_EMPTY;
-            return cells[row][channel * 11 + (int)cellType] == WTPattern.EVENT_EMPTY;
+            return cellType == CellType.Effect1Parameter
+                ? cells[row][channel * 11 + (int)CellType.Effect1] == WTPattern.EVENT_EMPTY
+                : cellType == CellType.Effect2Parameter
+                ? cells[row][channel * 11 + (int)CellType.Effect2] == WTPattern.EVENT_EMPTY
+                : cellType == CellType.Effect3Parameter
+                ? cells[row][channel * 11 + (int)CellType.Effect3] == WTPattern.EVENT_EMPTY
+                : cellType == CellType.Effect4Parameter
+                ? cells[row][channel * 11 + (int)CellType.Effect4] == WTPattern.EVENT_EMPTY
+                : cells[row][channel * 11 + (int)cellType] == WTPattern.EVENT_EMPTY;
         }
 
         /// <summary>
@@ -361,18 +337,16 @@ namespace WaveTracker.Tracker {
         /// <returns></returns>
         public bool CellIsEmpty(int row, int column) {
             CellType cellType = (CellType)(column % 11);
-            if (cellType == CellType.Effect1Parameter)
-                return cells[row][column - 1] == WTPattern.EVENT_EMPTY;
-            if (cellType == CellType.Effect2Parameter)
-                return cells[row][column - 1] == WTPattern.EVENT_EMPTY;
-            if (cellType == CellType.Effect3Parameter)
-                return cells[row][column - 1] == WTPattern.EVENT_EMPTY;
-            if (cellType == CellType.Effect4Parameter)
-                return cells[row][column - 1] == WTPattern.EVENT_EMPTY;
-            return cells[row][column] == WTPattern.EVENT_EMPTY;
+            return cellType == CellType.Effect1Parameter
+                ? cells[row][column - 1] == WTPattern.EVENT_EMPTY
+                : cellType == CellType.Effect2Parameter
+                ? cells[row][column - 1] == WTPattern.EVENT_EMPTY
+                : cellType == CellType.Effect3Parameter
+                ? cells[row][column - 1] == WTPattern.EVENT_EMPTY
+                : cellType == CellType.Effect4Parameter
+                ? cells[row][column - 1] == WTPattern.EVENT_EMPTY
+                : cells[row][column] == WTPattern.EVENT_EMPTY;
         }
-
-
 
         /// <summary>
         /// Gets the length of this pattern, taking into account effects that may cut it short. (Cxx, Dxx, and Bxx)
@@ -381,14 +355,14 @@ namespace WaveTracker.Tracker {
             for (int row = 0; row < ParentSong.RowsPerFrame; ++row) {
                 for (int channel = 0; channel < ParentSong.ParentModule.ChannelCount; ++channel) {
                     for (int effectColumn = 0; effectColumn < ParentSong.NumEffectColumns[channel]; ++effectColumn) {
-                        if ("CDB".Contains((char)this[row, channel, CellType.Effect1 + effectColumn * 2]))
+                        if ("CDB".Contains((char)this[row, channel, CellType.Effect1 + effectColumn * 2])) {
                             return row + 1;
+                        }
                     }
                 }
             }
             return ParentSong.RowsPerFrame;
         }
-
 
         /// <summary>
         /// Gets the cell type of a column in the pattern

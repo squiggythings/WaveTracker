@@ -1,11 +1,4 @@
 ﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using WaveTracker.Tracker;
 
 namespace WaveTracker.UI {
@@ -21,8 +14,8 @@ namespace WaveTracker.UI {
         public bool WasClickedOnToSelect { get; private set; }
         public bool WasClickedOnToDelete { get; private set; }
 
-        Clickable deleteButton;
-        SwitchToggle bypassToggle;
+        private Clickable deleteButton;
+        private SwitchToggle bypassToggle;
 
         public EnvelopeListItem(int x, int y, Element parent) {
             this.x = x;
@@ -38,8 +31,10 @@ namespace WaveTracker.UI {
         }
 
         public void Update() {
-            if (Envelope == null)
+            if (Envelope == null) {
                 return;
+            }
+
             WasClickedOnToSelect = false;
             WasClickedOnToDelete = false;
             if (ClickedDown && !bypassToggle.IsHovered) {
@@ -65,7 +60,7 @@ namespace WaveTracker.UI {
                     bypassToggle.Draw();
                     Write(Envelope.GetName(), 18, 4, Helpers.Alpha(Color.White, Envelope.IsActive ? 255 : 64));
                     if (deleteButton.IsHovered) {
-                        DrawRoundedRect(78, 1, 13, 13, new Color(122,167,255));
+                        DrawRoundedRect(78, 1, 13, 13, new Color(122, 167, 255));
                     }
                     DrawSprite(82, 5, new Rectangle(472, 48, 5, 5), Color.White);
                 }

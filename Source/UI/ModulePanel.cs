@@ -1,24 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
-using WaveTracker.UI;
-using System.Windows.Forms;
-using Microsoft.Xna.Framework.Audio;
-using WaveTracker.Tracker;
+﻿using Microsoft.Xna.Framework;
+using System;
 
 namespace WaveTracker.UI {
     public class ModulePanel : Panel {
-        Textbox title, author, speed;
-        Dropdown selectedSong;
-        NumberBox rows;
-        SpriteButton editButton;
-        float ampLeft, ampRight;
-        int ampL, ampR;
+        private Textbox title, author, speed;
+        private Dropdown selectedSong;
+        private NumberBox rows;
+        private SpriteButton editButton;
+        private float ampLeft, ampRight;
+        private int ampL, ampR;
 
         public ModulePanel(int x, int y) : base("Module", x, y, 306, 84) {
             title = new Textbox("Title", 4, 12, 155, 110, this);
@@ -99,19 +89,24 @@ namespace WaveTracker.UI {
             rows.Draw();
             if (Audio.AudioEngine.CurrentBuffer != null) {
                 if (Audio.AudioEngine.CurrentBuffer.Length > 0) {
-                    if (App.Settings.General.OscilloscopeMode == 0)
+                    if (App.Settings.General.OscilloscopeMode == 0) {
                         DrawMonoOscilloscope(166, 44, 135, 35, new Color(56, 64, 102));
-                    if (App.Settings.General.OscilloscopeMode == 1)
+                    }
+
+                    if (App.Settings.General.OscilloscopeMode == 1) {
                         DrawStereoOscilloscope(166, 44, 135, 35, new Color(56, 64, 102));
-                    if (App.Settings.General.OscilloscopeMode == 2)
+                    }
+
+                    if (App.Settings.General.OscilloscopeMode == 2) {
                         DrawOverlappedOscilloscope(166, 44, 135, 35, new Color(56, 64, 102));
+                    }
+
                     DrawVolumeMeters(16, 70, 143, 4);
                 }
             }
             Write("Song", 4, selectedSong.y + 2, UIColors.label);
             selectedSong.Draw();
         }
-
 
         public void DrawVolumeMeters(int px, int py, int width, int height) {
             Color grey = new Color(163, 167, 194);
@@ -129,10 +124,13 @@ namespace WaveTracker.UI {
             for (int i = 0; i < Audio.AudioEngine.CurrentBuffer.GetLength(1); i++) {
                 float l = Math.Abs(Audio.AudioEngine.CurrentBuffer[0, i]);
                 float r = Math.Abs(Audio.AudioEngine.CurrentBuffer[1, i]);
-                if (l > ampLeft)
+                if (l > ampLeft) {
                     ampLeft = l;
-                if (r > ampRight)
+                }
+
+                if (r > ampRight) {
                     ampRight = r;
+                }
             }
             double dbL = 20 * Math.Log10(ampLeft);
             double dbR = 20 * Math.Log10(ampRight);
@@ -186,31 +184,42 @@ namespace WaveTracker.UI {
                 int minValL = 99;
                 int maxValL = -99;
                 for (int j = 0; j < zoomX; j++) {
-                    if (i >= samples.GetLength(1))
+                    if (i >= samples.GetLength(1)) {
                         break;
-                    int sampleL = (int)Math.Round(Math.Clamp((-samples[1, i] * 20), height / -2, height / 2));
-                    int sampleR = (int)Math.Round(Math.Clamp((-samples[0, i] * 20), height / -2, height / 2));
-                    if (sampleL < minValL)
+                    }
+
+                    int sampleL = (int)Math.Round(Math.Clamp(-samples[1, i] * 20, height / -2, height / 2));
+                    int sampleR = (int)Math.Round(Math.Clamp(-samples[0, i] * 20, height / -2, height / 2));
+                    if (sampleL < minValL) {
                         minValL = sampleL;
-                    if (sampleL > maxValL)
+                    }
+
+                    if (sampleL > maxValL) {
                         maxValL = sampleL;
-                    if (sampleR < minValR)
+                    }
+
+                    if (sampleR < minValR) {
                         minValR = sampleR;
-                    if (sampleR > maxValR)
+                    }
+
+                    if (sampleR > maxValR) {
                         maxValR = sampleR;
+                    }
+
                     i++;
 
                 }
 
-                if (minValL == minValR && maxValR == maxValL)
-                    DrawRect(1 + px + drawX, minValL + py + (height / 2), 1, maxValL - minValL + 1, Color.White);
+                if (minValL == minValR && maxValR == maxValL) {
+                    DrawRect(1 + px + drawX, minValL + py + height / 2, 1, maxValL - minValL + 1, Color.White);
+                }
                 else {
                     float actualMax = Math.Max(Math.Max(Math.Abs(maxValR), Math.Abs(minValR)), Math.Max(Math.Abs(maxValL), Math.Abs(minValL)));
                     float distMin = Math.Abs(minValL - minValR) / actualMax / 1.15f;
                     float distMax = Math.Abs(maxValL - maxValR) / actualMax / 1.15f;
                     float dist = Math.Clamp((distMin + distMax) / 2f, 0, 1);
-                    DrawRect(1 + px + drawX, minValL + py + (height / 2), 1, maxValL - minValL + 1, Helpers.LerpColor(Color.Gray, Color.White, 1 - dist));
-                    DrawRect(1 + px + drawX, minValR + py + (height / 2), 1, maxValR - minValR + 1, Helpers.LerpColor(Color.Gray, Color.White, 1 - dist));
+                    DrawRect(1 + px + drawX, minValL + py + height / 2, 1, maxValL - minValL + 1, Helpers.LerpColor(Color.Gray, Color.White, 1 - dist));
+                    DrawRect(1 + px + drawX, minValR + py + height / 2, 1, maxValR - minValR + 1, Helpers.LerpColor(Color.Gray, Color.White, 1 - dist));
                 }
                 drawX++;
             }
@@ -227,20 +236,26 @@ namespace WaveTracker.UI {
                 int minValL = 99;
                 int maxValL = -99;
                 for (int j = 0; j < zoomX; j++) {
-                    if (i >= samples.GetLength(1))
+                    if (i >= samples.GetLength(1)) {
                         break;
+                    }
+
                     float sampleL = Math.Clamp(-samples[1, i] * 20, height / -2, height / 2);
                     float sampleR = Math.Clamp(-samples[0, i] * 20, height / -2, height / 2);
                     int sample = (int)Math.Round((sampleL + sampleR) / 2f);
-                    if (sample < minValL)
+                    if (sample < minValL) {
                         minValL = sample;
-                    if (sample > maxValL)
+                    }
+
+                    if (sample > maxValL) {
                         maxValL = sample;
+                    }
+
                     i++;
 
                 }
                 i--;
-                DrawRect(1 + px + drawX, minValL + py + (height / 2), 1, maxValL - minValL + 1, Color.White);
+                DrawRect(1 + px + drawX, minValL + py + height / 2, 1, maxValL - minValL + 1, Color.White);
                 drawX++;
             }
         }
@@ -255,21 +270,27 @@ namespace WaveTracker.UI {
                 int minVal = 99;
                 int maxVal = -99;
                 for (int j = 0; j < zoomX; j++) {
-                    if (i >= samples.GetLength(1))
+                    if (i >= samples.GetLength(1)) {
                         break;
-                    int sampleR = (int)Math.Round(Math.Clamp((-samples[0, i] * 20), height / -2, height / 2));
+                    }
+
+                    int sampleR = (int)Math.Round(Math.Clamp(-samples[0, i] * 20, height / -2, height / 2));
 
                     int sample = sampleR;
-                    if (sample < minVal)
+                    if (sample < minVal) {
                         minVal = sample;
-                    if (sample > maxVal)
+                    }
+
+                    if (sample > maxVal) {
                         maxVal = sample;
+                    }
+
                     i++;
 
                 }
                 i--;
 
-                DrawRect(1 + px + drawX, minVal + py + (height / 2), 1, maxVal - minVal + 1, Color.White);
+                DrawRect(1 + px + drawX, minVal + py + height / 2, 1, maxVal - minVal + 1, Color.White);
                 drawX++;
             }
             drawX = 0;
@@ -278,15 +299,21 @@ namespace WaveTracker.UI {
                 int minVal = 99;
                 int maxVal = -99;
                 for (int j = 0; j < zoomX; j++) {
-                    if (i >= samples.GetLength(1))
+                    if (i >= samples.GetLength(1)) {
                         break;
-                    int sampleL = (int)Math.Round(Math.Clamp((-samples[1, i] * 20), height / -2, height / 2));
+                    }
+
+                    int sampleL = (int)Math.Round(Math.Clamp(-samples[1, i] * 20, height / -2, height / 2));
 
                     int sample = sampleL;
-                    if (sample < minVal)
+                    if (sample < minVal) {
                         minVal = sample;
-                    if (sample > maxVal)
+                    }
+
+                    if (sample > maxVal) {
                         maxVal = sample;
+                    }
+
                     i++;
 
                 }

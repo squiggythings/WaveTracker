@@ -4,25 +4,18 @@ using Microsoft.Xna.Framework.Input;
 //using System.Windows.Forms;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Threading;
 using System.Diagnostics;
-using NAudio.CoreAudioApi;
-using System.Runtime.InteropServices;
-using System.Security.Principal;
-using WaveTracker.UI;
+using System.IO;
+using WaveTracker.Audio;
 using WaveTracker.Rendering;
 using WaveTracker.Tracker;
-using WaveTracker.Audio;
-using System.IO;
+using WaveTracker.UI;
 
 namespace WaveTracker {
     public class App : Game {
 
         public const string VERSION = "1.0.0";
-        static App instance;
+        private static App instance;
 
         private GraphicsDeviceManager graphics;
         private SpriteBatch targetBatch;
@@ -108,12 +101,20 @@ namespace WaveTracker {
         /// <summary>
         /// A reference to the settings' keyboard shortcuts
         /// </summary>
-        public static Dictionary<string, KeyboardShortcut> Shortcuts => Settings.Keyboard.Shortcuts;
+        public static Dictionary<string, KeyboardShortcut> Shortcuts {
+            get {
+                return Settings.Keyboard.Shortcuts;
+            }
+        }
 
         /// <summary>
         /// A reference to the window
         /// </summary>
-        public static GameWindow ClientWindow => instance.Window;
+        public static GameWindow ClientWindow {
+            get {
+                return instance.Window;
+            }
+        }
 
         /// <summary>
         /// Height of the menustrip
@@ -133,13 +134,13 @@ namespace WaveTracker {
         /// <summary>
         /// If the application is being opened to edit a file, this is that filepath.
         /// </summary>
-        string inputFilepath;
-        
+        private string inputFilepath;
 
         public App(string[] args) {
             instance = this;
-            if (args.Length > 0)
+            if (args.Length > 0) {
                 inputFilepath = args[0];
+            }
 
             graphics = new GraphicsDeviceManager(this);
             graphics.ApplyChanges();
@@ -153,7 +154,7 @@ namespace WaveTracker {
             form.WindowState = System.Windows.Forms.FormWindowState.Maximized;
             form.FormClosing += ClosingForm;
             if (!Directory.Exists(SaveLoad.ThemeFolderPath)) {
-                Directory.CreateDirectory(SaveLoad.ThemeFolderPath);
+                _ = Directory.CreateDirectory(SaveLoad.ThemeFolderPath);
                 File.WriteAllText(Path.Combine(SaveLoad.ThemeFolderPath, "Default.wttheme"), ColorTheme.CreateString(ColorTheme.Default));
                 File.WriteAllText(Path.Combine(SaveLoad.ThemeFolderPath, "Famitracker.wttheme"), ColorTheme.CreateString(ColorTheme.Famitracker));
                 File.WriteAllText(Path.Combine(SaveLoad.ThemeFolderPath, "Fruity.wttheme"), ColorTheme.CreateString(ColorTheme.Fruity));
@@ -173,7 +174,7 @@ namespace WaveTracker {
             instance.Tick();
         }
 
-        Menu CreateModuleMenu() {
+        private Menu CreateModuleMenu() {
             return new Menu([
                 new MenuOption("Module Settings", Dialogs.moduleSettings.Open),
                 null,
@@ -185,7 +186,6 @@ namespace WaveTracker {
         }
 
         protected override void Initialize() {
-
 
             CurrentModule = new WTModule();
             WaveBank = new WaveBank(510, 18 + MENUSTRIP_HEIGHT);
@@ -245,13 +245,14 @@ namespace WaveTracker {
             targetBatch = new SpriteBatch(GraphicsDevice);
             target = new RenderTarget2D(GraphicsDevice, GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width, GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height);
             SaveLoad.NewFile();
-            SaveLoad.LoadFile(inputFilepath);
+            _ = SaveLoad.LoadFile(inputFilepath);
         }
-        int midiDelay = 0;
+
+        private int midiDelay = 0;
         protected override void Update(GameTime gameTime) {
             Window.Title = SaveLoad.FileNameWithoutExtension + (SaveLoad.IsSaved ? "" : "*") + " [#" + (CurrentSongIndex + 1) + " " + CurrentSong.ToString() + "] - WaveTracker " + VERSION;
-            WindowHeight = (Window.ClientBounds.Height / Settings.General.ScreenScale);
-            WindowWidth = (Window.ClientBounds.Width / Settings.General.ScreenScale);
+            WindowHeight = Window.ClientBounds.Height / Settings.General.ScreenScale;
+            WindowWidth = Window.ClientBounds.Width / Settings.General.ScreenScale;
             if (midiDelay < 2) {
                 midiDelay++;
                 if (midiDelay == 2) {
@@ -295,14 +296,17 @@ namespace WaveTracker {
             }
 
             int pianoInput = -1;
-            if (WaveEditor.GetPianoMouseInput() > -1)
+            if (WaveEditor.GetPianoMouseInput() > -1) {
                 pianoInput = WaveEditor.GetPianoMouseInput();
-            if (InstrumentEditor.GetPianoMouseInput() > -1)
+            }
+
+            if (InstrumentEditor.GetPianoMouseInput() > -1) {
                 pianoInput = InstrumentEditor.GetPianoMouseInput();
+            }
+
             PianoInput.ReceivePreviewPianoInput(pianoInput);
 
             Playback.Update();
-
 
             if (!VisualizerMode) {
                 ModulePanel.Update();
@@ -329,7 +333,6 @@ namespace WaveTracker {
 
             GraphicsDevice.SetRenderTarget(target);
             GraphicsDevice.Clear(UIColors.black);
-
 
             // TODO: Add your drawing code here
             targetBatch.Begin(SpriteSortMode.Deferred, new BlendState {
@@ -374,7 +377,6 @@ namespace WaveTracker {
                 }
             }
 
-
             Toolbar.Draw();
             MenuStrip.Draw();
 
@@ -392,16 +394,12 @@ namespace WaveTracker {
                 Visualizer.DrawTracker();
             }
 
-
-
             targetBatch.End();
-
-
 
             //set rendering back to the back buffer
             GraphicsDevice.SetRenderTarget(null);
             //render target to back buffer
-            targetBatch.Begin(SpriteSortMode.Deferred, BlendState.NonPremultiplied, (Settings.General.ScreenScale % 1) == 0 ? SamplerState.PointClamp : SamplerState.LinearClamp, DepthStencilState.Default, RasterizerState.CullNone);
+            targetBatch.Begin(SpriteSortMode.Deferred, BlendState.NonPremultiplied, Settings.General.ScreenScale % 1 == 0 ? SamplerState.PointClamp : SamplerState.LinearClamp, DepthStencilState.Default, RasterizerState.CullNone);
             targetBatch.Draw(target, new Rectangle(0, 0, GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width * Settings.General.ScreenScale, GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height * Settings.General.ScreenScale), Color.White);
             if (VisualizerMode && Input.focus == null && Settings.Visualizer.DrawInHighResolution) {
                 Visualizer.DrawPianoAndScopes();
@@ -446,9 +444,9 @@ namespace WaveTracker {
         /// Called
         /// </summary>
         /// <param name="result"></param>
-        void UnsavedChangesCallback(string result) {
+        private void UnsavedChangesCallback(string result) {
             if (result == "Yes") {
-                SaveLoad.SaveFile();
+                _ = SaveLoad.SaveFile();
             }
             else if (result == "Cancel") {
                 return;

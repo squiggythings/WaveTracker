@@ -1,14 +1,5 @@
-﻿using System;
+﻿using Microsoft.Xna.Framework;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
-using WaveTracker.UI;
-using WaveTracker.Tracker;
-using System.Diagnostics;
 
 namespace WaveTracker.UI {
     public class TabGroup : Element {
@@ -18,11 +9,15 @@ namespace WaveTracker.UI {
         public TabGroup(int x, int y, Element parent) {
             this.x = x;
             this.y = y;
-            tabs = new List<Tab>();
+            tabs = [];
             SetParent(parent);
         }
 
-        public Tab GetSelectedTab => tabs[SelectedTabIndex];
+        public Tab GetSelectedTab {
+            get {
+                return tabs[SelectedTabIndex];
+            }
+        }
 
         public void ClearTabs() {
             tabs.Clear();
@@ -31,7 +26,8 @@ namespace WaveTracker.UI {
         public void AddTab(string label, bool hasToggle) {
             if (tabs.Count == 0) {
                 tabs.Add(new Tab(label, 0, 0, hasToggle, this));
-            } else {
+            }
+            else {
                 tabs.Add(new Tab(label, tabs[tabs.Count - 1].x + tabs[tabs.Count - 1].width + 1, 0, hasToggle, this));
             }
         }
@@ -83,27 +79,20 @@ namespace WaveTracker.UI {
         }
 
         public void Draw(bool selected) {
-            Color bgCol;
-            if (selected) {
-                bgCol = Color.White;
-            } else {
-                if (IsHovered) {
-                    bgCol = new Color(191, 194, 212);
-                } else {
-                    bgCol = new Color(176, 180, 202);
-                }
-            }
+            Color bgCol = selected ? Color.White : IsHovered ? new Color(191, 194, 212) : new Color(176, 180, 202);
             DrawRect(0, 1, width, height, bgCol);
             DrawRect(1, 0, width - 2, height, bgCol);
             int y = selected ? 3 : 4;
             if (hasToggle) {
                 if (selected) {
                     toggle.Draw();
-                } else {
+                }
+                else {
                     toggle.DrawAsTabToggle();
                 }
                 Write(label, 14, y, Helpers.Alpha(new Color(20, 24, 46), toggle.Value ? 255 : 80));
-            } else {
+            }
+            else {
                 Write(label, 5, y, new Color(20, 24, 46));
             }
         }

@@ -1,21 +1,13 @@
-﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System;
 using WaveTracker.Tracker;
-
 
 namespace WaveTracker.UI {
     public class WaveAddFuzzDialog : WaveModifyDialog {
-        NumberBox fuzzAmt;
-        CheckboxLabeled wrapAround;
-        Button newSeed;
-        Random rand;
-        float[] randomValues;
+        private NumberBox fuzzAmt;
+        private CheckboxLabeled wrapAround;
+        private Button newSeed;
+        private Random rand;
+        private float[] randomValues;
 
         public WaveAddFuzzDialog() : base("Add Fuzz...") {
             rand = new Random();
@@ -40,10 +32,13 @@ namespace WaveTracker.UI {
                 if (newSeed.Clicked) {
                     DoNewSeed();
                 }
-                if (fuzzAmt.ValueWasChangedInternally)
+                if (fuzzAmt.ValueWasChangedInternally) {
                     Apply();
-                if (wrapAround.Clicked)
+                }
+
+                if (wrapAround.Clicked) {
                     Apply();
+                }
             }
         }
 
@@ -51,7 +46,7 @@ namespace WaveTracker.UI {
             base.Open(wave);
         }
 
-        void DoNewSeed() {
+        private void DoNewSeed() {
             for (int i = 0; i < 64; ++i) {
                 randomValues[i] = (float)rand.NextDouble() * 2 - 1;
             }
@@ -62,11 +57,13 @@ namespace WaveTracker.UI {
             int samp = originalData[index];
             int sign = Math.Sign(randomValues[index]);
             for (int j = 0; j < Math.Abs((int)(randomValues[index] * fuzzAmt.Value / 100f * 32)); ++j) {
-                if (samp + sign > 31 || samp + sign < 0) {
-                    if (wrapAround.Value)
+                if (samp + sign is > 31 or < 0) {
+                    if (wrapAround.Value) {
                         sign *= -1;
-                    else
+                    }
+                    else {
                         break;
+                    }
                 }
                 samp += sign;
             }

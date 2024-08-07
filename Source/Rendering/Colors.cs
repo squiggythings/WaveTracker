@@ -1,11 +1,8 @@
 ﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
-using System.Xml.Serialization;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json.Serialization;
-using System;
 
 namespace WaveTracker {
 
@@ -51,8 +48,9 @@ namespace WaveTracker {
             string str = "";
             for (int i = 0; i < theme.Colors.Count; i++) {
                 str += theme.Colors.ElementAt(i).Key + "=" + theme.Colors.ElementAt(i).Value.GetHexCode();
-                if (i < theme.Colors.Count - 1)
+                if (i < theme.Colors.Count - 1) {
                     str += "\n";
+                }
             }
             return str;
         }
@@ -105,7 +103,6 @@ namespace WaveTracker {
             }
         }
 
-
         public static ColorTheme Neon {
             get {
                 ColorTheme ret = new ColorTheme();
@@ -139,7 +136,7 @@ namespace WaveTracker {
         public static ColorTheme OpenMPT {
 
             get {
-                ColorTheme ret = new ColorTheme(); 
+                ColorTheme ret = new ColorTheme();
                 ret["Row background (primary highlight)"] = Helpers.HexCodeToColor("e0e8e0");
                 ret["Row background (secondary highlight)"] = Helpers.HexCodeToColor("f2f6f2");
                 ret["Row background"] = Helpers.HexCodeToColor("ffffff");
@@ -170,7 +167,7 @@ namespace WaveTracker {
         public static ColorTheme Fruity {
 
             get {
-                ColorTheme ret = new ColorTheme(); 
+                ColorTheme ret = new ColorTheme();
                 ret["Row background (primary highlight)"] = Helpers.HexCodeToColor("22323c");
                 ret["Row background (secondary highlight)"] = Helpers.HexCodeToColor("2b3b45");
                 ret["Row background"] = Helpers.HexCodeToColor("34444e");

@@ -1,34 +1,29 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Input;
-using Microsoft.Xna.Framework.Graphics;
+﻿using Microsoft.Xna.Framework;
+using System;
 using System.Windows.Forms;
-using WaveTracker.Rendering;
 
 namespace WaveTracker.UI {
     public class NumberBoxDecimal : Clickable {
         private Forms.EnterText dialog;
-        bool dialogOpen;
+        private bool dialogOpen;
 
         public SpriteButton bUp;
         public SpriteButton bDown;
-        int boxWidth;
-        string label;
-        float min = float.MinValue;
-        float max = float.MaxValue;
-        int valueSaved;
-        bool canScroll = true;
+        private int boxWidth;
+        private string label;
+        private float min = float.MinValue;
+        private float max = float.MaxValue;
+        private int valueSaved;
+        private bool canScroll = true;
         public enum DisplayMode { Number, Note, NoteOnly, PlusMinus }
         public DisplayMode displayMode = DisplayMode.Number;
         public bool ValueWasChanged { get; private set; }
         public bool ValueWasChangedInternally { get; private set; }
-        int lastValue;
-        int _value;
-        int DecimalPlaces { get; set; }
+
+        private int lastValue;
+        private int _value;
+
+        private int DecimalPlaces { get; set; }
         public float Value { get { return _value / powersOfTen[DecimalPlaces]; } set { _value = (int)Math.Clamp(value * powersOfTen[DecimalPlaces], min * powersOfTen[DecimalPlaces], max * powersOfTen[DecimalPlaces]); } }
 
         private static int[] powersOfTen = { 1, 10, 100, 1000, 10000, 100000 };
@@ -51,8 +46,8 @@ namespace WaveTracker.UI {
             this.label = label;
             this.x = x;
             this.y = y;
-            this.width = Helpers.GetWidthOfText(label) + 46;
-            this.boxWidth = 38;
+            width = Helpers.GetWidthOfText(label) + 46;
+            boxWidth = 38;
             DecimalPlaces = decimalPlaces;
             height = 13;
             canScroll = true;
@@ -83,8 +78,10 @@ namespace WaveTracker.UI {
                 }
                 if (LastClickPos.X >= 0 && LastClickPos.Y >= 0) {
                     if (LastClickPos.X <= width - 10 && LastClickPos.Y <= height) {
-                        if (Input.GetClickDown(KeyModifier.None))
+                        if (Input.GetClickDown(KeyModifier.None)) {
                             valueSaved = _value;
+                        }
+
                         if (Input.GetClick(KeyModifier.None)) {
                             _value = valueSaved - (MouseY - LastClickPos.Y) / 2;
                             App.MouseCursorArrow = 2;
@@ -93,13 +90,17 @@ namespace WaveTracker.UI {
                 }
                 bUp.enabled = Value < max;
                 bDown.enabled = Value > min;
-                if (IsHovered && canScroll)
+                if (IsHovered && canScroll) {
                     Value += Input.MouseScrollWheel(KeyModifier.None);
+                }
 
-                if (bUp.Clicked)
+                if (bUp.Clicked) {
                     Value++;
-                if (bDown.Clicked)
+                }
+
+                if (bDown.Clicked) {
                     Value--;
+                }
 
                 if (_value != lastValue) {
                     ValueWasChanged = true;
@@ -141,8 +142,7 @@ namespace WaveTracker.UI {
             dialog.textBox.Text = Value + "";
             dialog.label.Text = label;
             if (dialog.ShowDialog() == DialogResult.OK) {
-                float a;
-                if (float.TryParse(dialog.textBox.Text, out a)) {
+                if (float.TryParse(dialog.textBox.Text, out float a)) {
                     Value = a;
                 }
             }

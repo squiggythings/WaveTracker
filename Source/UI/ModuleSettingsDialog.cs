@@ -1,23 +1,15 @@
-﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Microsoft.Xna.Framework.Input;
 using WaveTracker.Tracker;
 
 namespace WaveTracker.UI {
     public class ModuleSettingsDialog : Dialog {
-        Button ok, cancel;
-        ListBox<WTSong> songsList;
-        Textbox songTitle;
-        Button addSong, insertSong, duplicateSong, removeSong, moveSongUp, moveSongDown;
-        NumberBox numberOfChannels;
-        Dropdown tickSpeedMode;
-        HorizontalSlider tickRateSlider;
+        private Button ok, cancel;
+        private ListBox<WTSong> songsList;
+        private Textbox songTitle;
+        private Button addSong, insertSong, duplicateSong, removeSong, moveSongUp, moveSongDown;
+        private NumberBox numberOfChannels;
+        private Dropdown tickSpeedMode;
+        private HorizontalSlider tickRateSlider;
         public ModuleSettingsDialog() : base("Module Settings", 232, 256) {
             cancel = AddNewBottomButton("Cancel", this);
             ok = AddNewBottomButton("OK", this);
@@ -154,7 +146,6 @@ namespace WaveTracker.UI {
                     songsList.MoveBounds();
                 }
 
-
                 songsList.Update();
                 songTitle.Text = songsList.SelectedItem.Name;
                 songTitle.Update();
@@ -170,12 +161,14 @@ namespace WaveTracker.UI {
 
             }
         }
-        void OnExitMessageChoice(string result) {
+
+        private void OnExitMessageChoice(string result) {
             if (result == "Yes") {
                 ApplyClose();
             }
         }
-        void OnRemoveSongMessageChoice(string result) {
+
+        private void OnRemoveSongMessageChoice(string result) {
             if (result == "Yes") {
                 App.CurrentModule.Songs.RemoveAt(songsList.SelectedIndex);
                 App.CurrentModule.SetDirty();

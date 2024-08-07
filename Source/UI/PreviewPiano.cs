@@ -1,23 +1,10 @@
 ﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 
 namespace WaveTracker.UI {
     public class PreviewPiano : Clickable {
         public int CurrentClickedNote {
             get {
-                if (IsPressed && enabled) {
-                    return MouseX / 4 + 12;
-                }
-                else {
-                    return -1;
-                }
+                return IsPressed && enabled ? MouseX / 4 + 12 : -1;
             }
         }
         public int BaseKeyIndex { get; set; }
@@ -25,8 +12,8 @@ namespace WaveTracker.UI {
         public PreviewPiano(int x, int y, Element parent) {
             this.x = x;
             this.y = y;
-            this.width = 480;
-            this.height = 24;
+            width = 480;
+            height = 24;
             SetParent(parent);
         }
 
@@ -41,17 +28,21 @@ namespace WaveTracker.UI {
             }
             // draw the base key
             if (ShowBaseKey) {
-                if (Helpers.IsNoteBlackKey(BaseKeyIndex))
+                if (Helpers.IsNoteBlackKey(BaseKeyIndex)) {
                     DrawSprite((BaseKeyIndex - 12) * 4, 0, new Rectangle(60, 80, 4, 24));
-                else
+                }
+                else {
                     DrawSprite((BaseKeyIndex - 12) * 4, 0, new Rectangle(56, 80, 4, 24));
+                }
             }
             // draw the pressed note
-            if (pressedNote >= 12 && pressedNote < 132) {
-                if (Helpers.IsNoteBlackKey(pressedNote))
+            if (pressedNote is >= 12 and < 132) {
+                if (Helpers.IsNoteBlackKey(pressedNote)) {
                     DrawSprite((pressedNote - 12) * 4, 0, new Rectangle(52, 80, 4, 24));
-                else
+                }
+                else {
                     DrawSprite((pressedNote - 12) * 4, 0, new Rectangle(48, 80, 4, 24));
+                }
             }
         }
     }

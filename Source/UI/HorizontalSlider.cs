@@ -1,12 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 
 namespace WaveTracker.UI {
     public class HorizontalSlider : Clickable {
@@ -23,14 +16,14 @@ namespace WaveTracker.UI {
 
         public float TickSpacing { get; set; }
 
-        Clickable handle;
-        bool isDraggingHandle;
+        private Clickable handle;
+        private bool isDraggingHandle;
 
         public HorizontalSlider(int x, int y, int width, int numTicks, Element parent) {
             this.x = x;
             this.y = y;
             this.width = width;
-            this.height = 11;
+            height = 11;
             handle = new MouseRegion(0, 0, 5, height, this);
             QuantizeValue = 1;
             FineAdjustAmount = 1;
@@ -57,13 +50,15 @@ namespace WaveTracker.UI {
                 if (ClickedDown) {
                     if (MouseX < handle.x + handle.width / 2) {
                         Value -= CoarseAdjustAmount;
-                        if (Value < mouseValue)
+                        if (Value < mouseValue) {
                             Value = mouseValue;
+                        }
                     }
                     else {
                         Value += CoarseAdjustAmount;
-                        if (Value > mouseValue)
+                        if (Value > mouseValue) {
                             Value = mouseValue;
+                        }
                     }
                 }
                 if (IsHovered) {
@@ -80,11 +75,10 @@ namespace WaveTracker.UI {
             Value = Math.Clamp(Value, min, max);
         }
 
-        void DrawTick(int x, int tickHeight) {
+        private void DrawTick(int x, int tickHeight) {
             DrawRect(x, 0, 1, tickHeight, UIColors.labelLight);
             DrawRect(x, height - tickHeight, 1, tickHeight, UIColors.labelLight);
         }
-
 
         public void Draw() {
             DrawRect(-2, height / 2 - 1, width + 1 + 4, 3, UIColors.labelLight);

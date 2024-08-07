@@ -1,27 +1,21 @@
-﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
+﻿using NAudio.Midi;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using WaveTracker.Tracker;
-using WaveTracker.Audio;
-using WaveTracker.UI;
 using System.Diagnostics;
-using NAudio.Midi;
-
+using System.Linq;
+using WaveTracker.Audio;
+using WaveTracker.Tracker;
+using WaveTracker.UI;
 
 namespace WaveTracker {
     /// <summary>
     /// Handles MIDI piano input and keyboard piano input
     /// </summary>
     public static class PianoInput {
-        public static List<int> currentlyHeldDownNotes = new List<int>();
-        public static List<int> keyboardNotes = new List<int>();
-        public static List<int> midiNotes = new List<int>();
-        static int previewNote;
+        public static List<int> currentlyHeldDownNotes = [];
+        public static List<int> keyboardNotes = [];
+        public static List<int> midiNotes = [];
+        private static int previewNote;
         /// <summary>
         /// The current note's velocity
         /// </summary>
@@ -30,7 +24,7 @@ namespace WaveTracker {
         /// The current note pressed, -1 if none are held down
         /// </summary>
         public static int CurrentNote { get; private set; }
-        static MidiIn MidiIn_ { get; set; }
+        private static MidiIn MidiIn_ { get; set; }
         /// <summary>
         /// The names of all midi devices detected. The first item is reserved for "(none)"
         /// </summary>
@@ -38,7 +32,7 @@ namespace WaveTracker {
         public static string CurrentMidiDeviceName { get; private set; }
         public static void Initialize() {
             ReadMidiDevices();
-            SetMIDIDevice(App.Settings.MIDI.InputDevice);
+            _ = SetMIDIDevice(App.Settings.MIDI.InputDevice);
         }
 
         public static void Update() {
@@ -61,11 +55,12 @@ namespace WaveTracker {
 
         }
 
-
         public static void ReceivePreviewPianoInput(int previewPianoCurrentNote) {
             if (previewPianoCurrentNote != previewNote) {
-                if (previewPianoCurrentNote >= 0)
+                if (previewPianoCurrentNote >= 0) {
                     OnNoteOnEvent(previewPianoCurrentNote, 99);
+                }
+
                 OnNoteOffEvent(previewNote);
                 previewNote = previewPianoCurrentNote;
 
@@ -119,7 +114,7 @@ namespace WaveTracker {
                 MIDIDevicesNames[deviceIndex + 1] = MidiIn.DeviceInfo(deviceIndex).ProductName;
             }
             if (!MIDIDevicesNames.Contains(CurrentMidiDeviceName)) {
-                SetMIDIDevice("(none)");
+                _ = SetMIDIDevice("(none)");
             }
         }
 
@@ -133,11 +128,12 @@ namespace WaveTracker {
             }
         }
 
-        static bool IsKeyboardNotePressed(int midiNote) {
+        private static bool IsKeyboardNotePressed(int midiNote) {
             foreach (KeyValuePair<string, int> binding in PianoKeyInputs) {
                 if (App.Shortcuts[binding.Key].IsPressed) {
-                    if (midiNote == binding.Value + (App.PatternEditor.CurrentOctave + 1) * 12)
+                    if (midiNote == binding.Value + (App.PatternEditor.CurrentOctave + 1) * 12) {
                         return true;
+                    }
                 }
             }
             return false;
@@ -148,7 +144,7 @@ namespace WaveTracker {
         /// </summary>
         /// <param name="note"></param>
         /// <param name="velocity"></param>
-        static void OnNoteOnEvent(int note, int? velocity, bool enterToPatternEditor = false) {
+        private static void OnNoteOnEvent(int note, int? velocity, bool enterToPatternEditor = false) {
             if (!currentlyHeldDownNotes.Contains(note)) {
                 currentlyHeldDownNotes.Add(note);
                 CurrentNote = note;
@@ -164,12 +160,13 @@ namespace WaveTracker {
                 }
             }
         }
+
         /// <summary>
         /// Called when a note is turned off, from either keyboard or midi
         /// </summary>
         /// <param name="note"></param>
-        static void OnNoteOffEvent(int note) {
-            currentlyHeldDownNotes.Remove(note);
+        private static void OnNoteOffEvent(int note) {
+            _ = currentlyHeldDownNotes.Remove(note);
             if (currentlyHeldDownNotes.Count > 0) {
                 if (CurrentNote != currentlyHeldDownNotes[currentlyHeldDownNotes.Count - 1]) {
                     CurrentNote = currentlyHeldDownNotes[currentlyHeldDownNotes.Count - 1];
@@ -180,8 +177,10 @@ namespace WaveTracker {
             }
             else {
                 CurrentNote = -1;
-                if (!Playback.IsPlaying)
+                if (!Playback.IsPlaying) {
                     AudioEngine.ResetTicks();
+                }
+
                 ChannelManager.PreviewChannel.PreviewCut();
             }
         }
@@ -203,23 +202,22 @@ namespace WaveTracker {
         /// <param name="note"></param>
         public static void MIDINoteOff(int note) {
             OnNoteOffEvent(note);
-            midiNotes.Remove(note);
+            _ = midiNotes.Remove(note);
         }
 
-        static void KeyboardNoteOn(int note) {
+        private static void KeyboardNoteOn(int note) {
             if (!keyboardNotes.Contains(note)) {
                 keyboardNotes.Add(note);
                 OnNoteOnEvent(note, null, true);
             }
         }
 
-        static void KeyboardNoteOff(int note) {
-            keyboardNotes.Remove(note);
+        private static void KeyboardNoteOff(int note) {
+            _ = keyboardNotes.Remove(note);
             if (!midiNotes.Contains(note)) {
                 OnNoteOffEvent(note);
             }
         }
-
 
         public static void StopMIDI() {
             if (MidiIn_ != null) {
@@ -228,11 +226,11 @@ namespace WaveTracker {
             }
         }
 
-        static void OnMIDIErrorReceived(object sender, MidiInMessageEventArgs e) {
-            Dialogs.messageDialog.Open(String.Format("Time {0} Message 0x{1:X8} Event {2}", e.Timestamp, e.RawMessage, e.MidiEvent), MessageDialog.Icon.Error, "OK");
+        private static void OnMIDIErrorReceived(object sender, MidiInMessageEventArgs e) {
+            Dialogs.messageDialog.Open(string.Format("Time {0} Message 0x{1:X8} Event {2}", e.Timestamp, e.RawMessage, e.MidiEvent), MessageDialog.Icon.Error, "OK");
         }
 
-        static void OnMIDIMessageReceived(object sender, MidiInMessageEventArgs e) {
+        private static void OnMIDIMessageReceived(object sender, MidiInMessageEventArgs e) {
             MidiEvent midiEvent = e.MidiEvent;
             if (App.Settings.MIDI.UseProgramChangeToSelectInstrument) {
                 if (midiEvent is PatchChangeEvent patchEvent) {
@@ -262,8 +260,7 @@ namespace WaveTracker {
             }
         }
 
-
-        static readonly Dictionary<string, int> PianoKeyInputs = new Dictionary<string, int>() {
+        private static readonly Dictionary<string, int> PianoKeyInputs = new Dictionary<string, int>() {
             { "Piano\\Lower C-1", 0 },
             { "Piano\\Lower C#1", 1 },
             { "Piano\\Lower D-1", 2 },

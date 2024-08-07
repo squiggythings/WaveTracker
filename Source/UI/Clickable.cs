@@ -5,8 +5,18 @@ namespace WaveTracker.UI {
         public int width;
         public int height;
 
-        public int BoundsBottom => y + height;
-        public int BoundsRight => x + width;
+        public int BoundsBottom {
+            get {
+                return y + height;
+            }
+        }
+
+        public int BoundsRight {
+            get {
+                return x + width;
+            }
+        }
+
         public bool enabled = true;
         public string TooltipText {
             get; private set;
@@ -25,13 +35,19 @@ namespace WaveTracker.UI {
 
         public bool IsHovered {
             get {
-                if (!InFocus)
+                if (!InFocus) {
                     return false;
+                }
+
                 if (MouseX < width && MouseY < height && MouseX >= 0 && MouseY >= 0) {
-                    if (TooltipTextLong != "")
+                    if (TooltipTextLong != "") {
                         Tooltip.TooltipTextLong = TooltipTextLong;
-                    if (TooltipText != "")
+                    }
+
+                    if (TooltipText != "") {
                         Tooltip.TooltipText = TooltipText;
+                    }
+
                     return true;
                 }
                 return false;
@@ -79,29 +95,26 @@ namespace WaveTracker.UI {
         }
 
         public bool ClickedM(KeyModifier modifier) {
-            if (!InFocus)
-                return false;
-            return enabled && IsHovered && Input.GetClickUp(modifier) && GlobalPointIsInBounds(Input.LastClickLocation) && GlobalPointIsInBounds(Input.LastClickReleaseLocation) && IsInHierarchy(Input.lastClickFocus);
+            return InFocus
+&& enabled && IsHovered && Input.GetClickUp(modifier) && GlobalPointIsInBounds(Input.LastClickLocation) && GlobalPointIsInBounds(Input.LastClickReleaseLocation) && IsInHierarchy(Input.lastClickFocus);
         }
 
         public bool SingleClickedM(KeyModifier modifier) {
-            if (!InFocus)
-                return false;
-            return enabled && IsHovered && Input.GetSingleClickUp(modifier) && GlobalPointIsInBounds(Input.LastClickLocation) && GlobalPointIsInBounds(Input.LastClickReleaseLocation) && IsInHierarchy(Input.lastClickFocus); ;
+            return InFocus
+&& enabled && IsHovered && Input.GetSingleClickUp(modifier) && GlobalPointIsInBounds(Input.LastClickLocation) && GlobalPointIsInBounds(Input.LastClickReleaseLocation) && IsInHierarchy(Input.lastClickFocus);
+            ;
         }
-
 
         public bool IsPressedM(KeyModifier modifier) {
             return IsHovered && Input.GetClick(modifier) && GlobalPointIsInBounds(Input.LastClickLocation) && IsInHierarchy(Input.lastClickFocus);
         }
-
 
         public bool DoubleClickedM(KeyModifier modifier) {
             return enabled && IsHovered && Input.GetDoubleClick(modifier) && IsInHierarchy(Input.lastClickFocus);
         }
 
         public bool GlobalPointIsInBounds(Point p) {
-            return p.X >= this.GlobalX && p.Y >= this.GlobalY && p.X < this.GlobalX + this.width && p.Y < this.GlobalY + this.height;
+            return p.X >= GlobalX && p.Y >= GlobalY && p.X < GlobalX + width && p.Y < GlobalY + height;
         }
     }
 }

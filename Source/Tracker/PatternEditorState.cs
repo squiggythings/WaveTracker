@@ -1,20 +1,7 @@
-﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ProtoBuf;
-using System.Diagnostics;
+﻿namespace WaveTracker.Tracker {
 
-namespace WaveTracker.Tracker {
-    
     public record PatternEditorState {
-
-        string[] patternStrings;
+        private string[] patternStrings;
         /// <summary>
         /// The position before this action was committed
         /// </summary>
@@ -27,7 +14,7 @@ namespace WaveTracker.Tracker {
         /// <summary>
         /// The song's frameSequence
         /// </summary>
-        byte[] frameSequence;
+        private byte[] frameSequence;
 
         public PatternEditorState(WTSong song, PatternEditorPosition previous, PatternEditorPosition next) {
             patternStrings = song.ForcePackPatternsToStrings();

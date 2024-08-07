@@ -1,13 +1,6 @@
-﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
+﻿using ProtoBuf;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ProtoBuf;
-using System.Diagnostics;
 
 namespace WaveTracker.Tracker {
     [ProtoContract(SkipConstructor = true)]
@@ -40,7 +33,7 @@ namespace WaveTracker.Tracker {
         /// An array of strings containing the data for all patterns in the module
         /// </summary>
         [ProtoMember(4)]
-        string[] patternsAsStrings;
+        private string[] patternsAsStrings;
 
         /// <summary>
         /// The order of frames in this song
@@ -51,7 +44,7 @@ namespace WaveTracker.Tracker {
         /// A byte array containing the frame-pattern sequence
         /// </summary>
         [ProtoMember(5)]
-        byte[] frameSequence;
+        private byte[] frameSequence;
 
         /// <summary>
         /// The number of effect columns each channel has
@@ -90,9 +83,9 @@ namespace WaveTracker.Tracker {
             for (int i = 0; i < NumEffectColumns.Length; ++i) {
                 NumEffectColumns[i] = 1;
             }
-            FrameSequence = new List<WTFrame> {
+            FrameSequence = [
                 new WTFrame(0, this)
-            };
+            ];
             TicksPerRow = new int[] { 4 };
             LoadTicksFromString(App.Settings.Files.DefaultTicksPerRow);
             RowsPerFrame = App.Settings.Files.DefaultRowsPerFrame;
@@ -129,10 +122,7 @@ namespace WaveTracker.Tracker {
             NumEffectColumns = new int[ParentModule.ChannelCount];
 
             for (int i = 0; i < NumEffectColumns.Length; ++i) {
-                if (i < oldArray.Length)
-                    NumEffectColumns[i] = oldArray[i];
-                else
-                    NumEffectColumns[i] = 1;
+                NumEffectColumns[i] = i < oldArray.Length ? oldArray[i] : 1;
             }
             foreach (WTPattern pattern in Patterns) {
                 pattern.Resize();
@@ -152,7 +142,6 @@ namespace WaveTracker.Tracker {
             UnpackFrameSequence(frameSequence);
             UnpackPatternsFromStrings(patternsAsStrings);
         }
-
 
         /// <summary>
         /// Appends a new frame at the end of the sequence using the next free pattern
@@ -217,7 +206,7 @@ namespace WaveTracker.Tracker {
         /// Gets the index of the next free pattern in the pattern bank
         /// </summary>
         /// <returns></returns>
-        int GetNextFreePattern() {
+        private int GetNextFreePattern() {
             for (int i = 0; i < 100; ++i) {
                 if (Patterns[i].IsEmpty) {
                     bool containedInSongAlready = false;
@@ -226,8 +215,9 @@ namespace WaveTracker.Tracker {
                             containedInSongAlready = true;
                         }
                     }
-                    if (!containedInSongAlready)
+                    if (!containedInSongAlready) {
                         return i;
+                    }
                 }
             }
             return 99;
@@ -257,15 +247,18 @@ namespace WaveTracker.Tracker {
         /// </summary>
         /// <param name="text"></param>
         public void LoadTicksFromString(string text) {
-            List<int> ticks = new List<int>();
+            List<int> ticks = [];
             foreach (string word in text.Split(' ')) {
                 if (word.IsNumeric()) {
-                    if (int.TryParse(word, out int val))
+                    if (int.TryParse(word, out int val)) {
                         ticks.Add(val);
+                    }
                 }
             }
-            if (ticks.Count == 0)
+            if (ticks.Count == 0) {
                 ticks.Add(1);
+            }
+
             TicksPerRow = new int[ticks.Count];
             int n = 0;
             foreach (int i in ticks) {
@@ -302,7 +295,6 @@ namespace WaveTracker.Tracker {
         public CursorColumnType GetLastCursorColumnOfChannel(int channel) {
             return (CursorColumnType)(4 + NumEffectColumns[channel] * 3);
         }
-
 
         /// <summary>
         /// Accesses the byte at a cursor position.
@@ -435,7 +427,7 @@ namespace WaveTracker.Tracker {
         /// </summary>
         /// <param name="frameSequence"></param>
         public void UnpackFrameSequence(byte[] frameSequence) {
-            FrameSequence = new List<WTFrame>();
+            FrameSequence = [];
             foreach (byte index in frameSequence) {
                 FrameSequence.Add(new WTFrame(index, this));
             }

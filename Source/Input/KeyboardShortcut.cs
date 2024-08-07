@@ -1,13 +1,6 @@
-﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
+﻿using Microsoft.Xna.Framework.Input;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Text.Json.Serialization;
-using System.Text.Json;
 
 namespace WaveTracker {
     /// <summary>
@@ -49,10 +42,7 @@ namespace WaveTracker {
         }
 
         public override string ToString() {
-            if (Key == Keys.None) {
-                return "(none)";
-            }
-            return Helpers.ModifierToString(Modifier) + Helpers.KeyToString(Key);
+            return Key == Keys.None ? "(none)" : Helpers.ModifierToString(Modifier) + Helpers.KeyToString(Key);
         }
 
         public static bool operator ==(KeyboardShortcut one, KeyboardShortcut two) {
@@ -77,6 +67,5 @@ namespace WaveTracker {
 
         public static KeyboardShortcut None { get { return new KeyboardShortcut(Keys.None, KeyModifier.None); } }
     }
-
 
 }

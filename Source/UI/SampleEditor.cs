@@ -1,13 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using WaveTracker.Tracker;
 using WaveTracker.Audio;
+using WaveTracker.Tracker;
 
 namespace WaveTracker.UI {
     public class SampleEditor : Element {
@@ -16,25 +10,36 @@ namespace WaveTracker.UI {
         /// </summary>
         public Sample Sample { get; set; }
 
-        MouseRegion waveformRegion;
-        int mouseSampleIndex;
-        int mouseSampleIndexClamped;
-        int selectionStartIndex;
-        int selectionEndIndex;
-        bool SelectionIsActive { get; set; }
-        int SelectionMin => Math.Min(selectionStartIndex, selectionEndIndex);
-        int SelectionMax => Math.Max(selectionStartIndex, selectionEndIndex);
-        NumberBox baseKey;
-        NumberBox fineTune;
-        Button importSample;
-        Dropdown resamplingMode;
+        private MouseRegion waveformRegion;
+        private int mouseSampleIndex;
+        private int mouseSampleIndexClamped;
+        private int selectionStartIndex;
+        private int selectionEndIndex;
 
-        Dropdown loopMode;
-        NumberBox loopPoint;
-        SampleBrowser browser;
-        Button normalize, reverse, fadeIn, fadeOut, amplifyUp, amplifyDown, invert, cut;
-        CheckboxLabeled showInVisualizer;
-        int lastMouseHoverSample;
+        private bool SelectionIsActive { get; set; }
+
+        private int SelectionMin {
+            get {
+                return Math.Min(selectionStartIndex, selectionEndIndex);
+            }
+        }
+
+        private int SelectionMax {
+            get {
+                return Math.Max(selectionStartIndex, selectionEndIndex);
+            }
+        }
+
+        private NumberBox baseKey;
+        private NumberBox fineTune;
+        private Button importSample;
+        private Dropdown resamplingMode;
+        private Dropdown loopMode;
+        private NumberBox loopPoint;
+        private SampleBrowser browser;
+        private Button normalize, reverse, fadeIn, fadeOut, amplifyUp, amplifyDown, invert, cut;
+        private CheckboxLabeled showInVisualizer;
+        private int lastMouseHoverSample;
 
         public SampleEditor(int x, int y, Element parent) {
             this.x = x;
@@ -90,12 +95,7 @@ namespace WaveTracker.UI {
         }
 
         public void Update() {
-            if (waveformRegion.IsHovered) {
-                mouseSampleIndex = (int)(waveformRegion.MouseXClamped * Sample.Length + 0.5f);
-            }
-            else {
-                mouseSampleIndex = -1;
-            }
+            mouseSampleIndex = waveformRegion.IsHovered ? (int)(waveformRegion.MouseXClamped * Sample.Length + 0.5f) : -1;
             mouseSampleIndexClamped = (int)(waveformRegion.MouseXClamped * Sample.Length + 0.5f);
             if (InFocus) {
                 lastMouseHoverSample = mouseSampleIndexClamped;
@@ -207,77 +207,90 @@ namespace WaveTracker.UI {
             browser.Update();
         }
 
-        void Cut() {
+        private void Cut() {
             Sample.Cut(SelectionMin, SelectionMax);
             SelectionIsActive = false;
         }
 
-        void Normalize() {
-            if (SelectionIsActive)
+        private void Normalize() {
+            if (SelectionIsActive) {
                 Sample.Normalize(SelectionMin, SelectionMax);
-            else
+            }
+            else {
                 Sample.Normalize();
+            }
         }
-        void FadeIn() {
-            if (SelectionIsActive)
+
+        private void FadeIn() {
+            if (SelectionIsActive) {
                 Sample.FadeIn(SelectionMin, SelectionMax);
-            else
+            }
+            else {
                 Sample.FadeIn();
+            }
         }
-        void FadeOut() {
-            if (SelectionIsActive)
+
+        private void FadeOut() {
+            if (SelectionIsActive) {
                 Sample.FadeOut(SelectionMin, SelectionMax);
-            else
+            }
+            else {
                 Sample.FadeOut();
+            }
         }
-        void Invert() {
-            if (SelectionIsActive)
+
+        private void Invert() {
+            if (SelectionIsActive) {
                 Sample.Invert(SelectionMin, SelectionMax);
-            else
+            }
+            else {
                 Sample.Invert();
+            }
         }
 
-        void AmplifyUp() {
-            if (SelectionIsActive)
+        private void AmplifyUp() {
+            if (SelectionIsActive) {
                 Sample.Amplify(1.1f, SelectionMin, SelectionMax);
-            else
+            }
+            else {
                 Sample.Amplify(1.1f);
+            }
         }
-        void AmplifyDown() {
-            if (SelectionIsActive)
+
+        private void AmplifyDown() {
+            if (SelectionIsActive) {
                 Sample.Amplify(0.9f, SelectionMin, SelectionMax);
-            else
+            }
+            else {
                 Sample.Amplify(0.9f);
+            }
         }
 
-        void Reverse() {
-            if (SelectionIsActive)
+        private void Reverse() {
+            if (SelectionIsActive) {
                 Sample.Reverse(SelectionMin, SelectionMax);
-            else
+            }
+            else {
                 Sample.Reverse();
+            }
         }
 
-        void Deselect() {
+        private void Deselect() {
             SelectionIsActive = false;
         }
 
-        void SelectAll() {
+        private void SelectAll() {
             SelectionIsActive = true;
             selectionStartIndex = 0;
             selectionEndIndex = Sample.Length - 1;
         }
 
-        void SetLoopPoint() {
-            if (SelectionIsActive) {
-                Sample.loopPoint = SelectionMin;
+        private void SetLoopPoint() {
+            Sample.loopPoint = SelectionIsActive ? SelectionMin : lastMouseHoverSample;
+            if (Sample.loopType == Sample.LoopType.OneShot) {
+                Sample.loopType = Sample.LoopType.Forward;
             }
-            else {
-                Sample.loopPoint = lastMouseHoverSample;
-            }
-            if (Sample.loopType == Sample.LoopType.OneShot) Sample.loopType = Sample.LoopType.Forward;
         }
-
-
 
         public void Draw() {
             if (Sample == null) {
@@ -320,7 +333,7 @@ namespace WaveTracker.UI {
             browser.Draw();
         }
 
-        void DrawWaveform(int x, int y, short[] data, int width, int height) {
+        private void DrawWaveform(int x, int y, short[] data, int width, int height) {
             int startY = y + height / 2;
             uint nextSampleIndex;
             uint sampleIndex;
@@ -340,8 +353,8 @@ namespace WaveTracker.UI {
                 }
                 for (int i = 0; i < width - 1; i++) {
 
-                    sampleIndex = (uint)(((long)i * data.Length) / width);
-                    nextSampleIndex = (uint)(((long)(i + 1) * data.Length) / width);
+                    sampleIndex = (uint)((long)i * data.Length / width);
+                    nextSampleIndex = (uint)((long)(i + 1) * data.Length / width);
 
                     float min = 1;
                     float max = -1;
@@ -350,8 +363,14 @@ namespace WaveTracker.UI {
                     for (uint j = sampleIndex; j <= nextSampleIndex; ++j) {
                         float value = data[j] / (float)short.MaxValue;
                         average += MathF.Abs(value);
-                        if (value < min) min = value;
-                        if (value > max) max = value;
+                        if (value < min) {
+                            min = value;
+                        }
+
+                        if (value > max) {
+                            max = value;
+                        }
+
                         if (underflowSkip > 0) {
                             j += underflowSkip;
                             average += MathF.Abs(value) * underflowSkip;
@@ -373,7 +392,6 @@ namespace WaveTracker.UI {
                     DrawRect(x + i, startY - avgStart, 1, avgStart - avgEnd + 1, Helpers.Alpha(Color.White, 90));
                 }
 
-
                 if (Sample.loopType != Sample.LoopType.OneShot) {
                     DrawRect(x + loopPosition, y, 1, height, Color.Yellow);
                 }
@@ -389,7 +407,7 @@ namespace WaveTracker.UI {
             }
         }
 
-        int GetXPositionOfSample(int sampleIndex, int dataLength, int maxWidth) {
+        private int GetXPositionOfSample(int sampleIndex, int dataLength, int maxWidth) {
             return (int)((float)sampleIndex / dataLength * maxWidth);
         }
     }

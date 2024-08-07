@@ -1,51 +1,43 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using System.Windows.Forms;
 
 namespace WaveTracker.UI {
     public class Textbox : Clickable {
         private Forms.EnterText dialog;
         public bool canEdit = true;
-        string label;
-        string textPrefix = "";
-        int textboxWidth;
+        private string label;
+        private string textPrefix = "";
+        private int textboxWidth;
         public bool ValueWasChanged { get; private set; }
         public bool ValueWasChangedInternally { get; set; }
         public string Text { get; set; }
-        string lastText;
+
+        private string lastText;
         public int MaxLength { get; set; }
         public Textbox(string label, int x, int y, int width, int textBoxWidth, Element parent) {
             this.width = width;
-            this.textboxWidth = textBoxWidth;
+            textboxWidth = textBoxWidth;
             this.x = x;
             this.y = y;
             this.label = label;
-            this.height = 13;
+            height = 13;
             MaxLength = 32;
             SetParent(parent);
         }
 
         public Textbox(string label, int x, int y, int width, Element parent) {
             this.width = width;
-            if (label == "")
-                this.textboxWidth = width;
-            else
-                this.textboxWidth = width - Helpers.GetWidthOfText(label) - 4;
+            textboxWidth = label == "" ? width : width - Helpers.GetWidthOfText(label) - 4;
             this.x = x;
             this.y = y;
             this.label = label;
-            this.height = 13;
+            height = 13;
             MaxLength = 32;
             SetParent(parent);
         }
 
-
         public void SetPrefix(string prefix) {
-            this.textPrefix = prefix;
+            textPrefix = prefix;
         }
 
         public void Update() {
@@ -76,14 +68,17 @@ namespace WaveTracker.UI {
             Write(label + "", 0, height / 2 - 3, dark);
             DrawRect(width - textboxWidth, 0, textboxWidth, height, dark);
             DrawRect(width - textboxWidth + 1, 1, textboxWidth - 2, height - 2, Color.White);
-            if (canEdit)
+            if (canEdit) {
                 DrawRect(width - textboxWidth + 1, 1, textboxWidth - 2, 1, new Color(193, 196, 213));
-            string t = textPrefix + Text + "";
-            if (t.Length > 0)
-                Write(Helpers.TrimTextToWidth(textboxWidth, t), width - textboxWidth + 4, height / 2 - 3, text);
-            else
-                Write(Helpers.TrimTextToWidth(textboxWidth, t), width - textboxWidth + 4, height / 2 - 3, text);
+            }
 
+            string t = textPrefix + Text + "";
+            if (t.Length > 0) {
+                Write(Helpers.TrimTextToWidth(textboxWidth, t), width - textboxWidth + 4, height / 2 - 3, text);
+            }
+            else {
+                Write(Helpers.TrimTextToWidth(textboxWidth, t), width - textboxWidth + 4, height / 2 - 3, text);
+            }
         }
 
         public void StartDialog() {

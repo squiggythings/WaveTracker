@@ -1,15 +1,5 @@
-﻿using System;
+﻿using ProtoBuf;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-using System.Threading;
-using Microsoft.Xna.Framework;
-using System.IO;
-using System.Diagnostics;
-using ProtoBuf;
-using WaveTracker.Audio;
 
 namespace WaveTracker.Tracker {
     /// <summary>
@@ -26,7 +16,7 @@ namespace WaveTracker.Tracker {
 
         public Instrument() {
             name = "New Instrument";
-            envelopes = new List<Envelope>();
+            envelopes = [];
 
         }
 

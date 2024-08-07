@@ -1,22 +1,18 @@
 ﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace WaveTracker.UI {
     public class KeyboardBindingList : Clickable {
-        List<ListEntry> entries;
-        Scrollbar scrollbar;
-        int numRows;
-        int selectedIndex;
-        const int ROW_HEIGHT = 13;
-        SpriteToggleTwoSided editButton;
-        SpriteButton resetToDefaultButton;
+        private List<ListEntry> entries;
+        private Scrollbar scrollbar;
+        private int numRows;
+        private int selectedIndex;
+        private const int ROW_HEIGHT = 13;
+        private SpriteToggleTwoSided editButton;
+        private SpriteButton resetToDefaultButton;
 
         public bool ShowItemNumbers { get; set; }
         public int HoveredIndex { get { return selectedIndex; } set { selectedIndex = Math.Clamp(value, 0, entries.Count - 1); } }
@@ -25,8 +21,8 @@ namespace WaveTracker.UI {
             this.x = x;
             this.y = y;
             this.width = width;
-            this.height = numVisibleRows * ROW_HEIGHT;
-            this.numRows = numVisibleRows;
+            height = numVisibleRows * ROW_HEIGHT;
+            numRows = numVisibleRows;
             scrollbar = new Scrollbar(0, 0, width, height, this);
             editButton = new SpriteToggleTwoSided(0, 0, 10, 9, 474, 144, this);
             resetToDefaultButton = new SpriteButton(0, 0, 10, 9, 464, 144, this);
@@ -39,8 +35,8 @@ namespace WaveTracker.UI {
         /// </summary>
         /// <param name="list"></param>
         public void SetDictionary(Dictionary<string, KeyboardShortcut> bindings) {
-            entries = new List<ListEntry>();
-            List<string> categories = new List<string>();
+            entries = [];
+            List<string> categories = [];
             for (int i = 0; i < bindings.Count; i++) {
                 string category = bindings.ElementAt(i).Key.Split('\\')[0];
                 string name = bindings.ElementAt(i).Key.Split('\\')[1];
@@ -51,7 +47,6 @@ namespace WaveTracker.UI {
                 entries.Add(new ListEntry(i, category, name, bindings.ElementAt(i).Value, false));
             }
         }
-
 
         /// <summary>
         /// Saves the list in this box to the given dictionary
@@ -124,7 +119,6 @@ namespace WaveTracker.UI {
             }
         }
 
-
         public void Draw() {
             scrollbar.Draw();
 
@@ -133,8 +127,7 @@ namespace WaveTracker.UI {
             Color errorColor = new Color(120, 29, 79);
             int rowNum = numRows - 1;
             for (int i = numRows + scrollbar.ScrollValue - 1; i >= scrollbar.ScrollValue; i--) {
-                List<string> conflicts = new List<string>();
-                conflicts.Add("Conflicts with:");
+                List<string> conflicts = ["Conflicts with:"];
                 int maxConflictLength = Helpers.GetWidthOfText("Conflicts with:");
                 if (entries[i].shortcut != KeyboardShortcut.None && !entries[i].isLabel) {
                     for (int j = 0; j < entries.Count; j++) {
@@ -142,21 +135,15 @@ namespace WaveTracker.UI {
                             if (entries[i].shortcut == entries[j].shortcut) {
                                 conflicts.Add(entries[j].actionName);
                                 int textwidth = Helpers.GetWidthOfText(entries[j].actionName);
-                                if (textwidth > maxConflictLength)
+                                if (textwidth > maxConflictLength) {
                                     maxConflictLength = textwidth;
+                                }
                             }
                         }
                     }
                 }
                 if (entries.Count > i && i >= 0) {
-                    Color rowColor;
-                    if (selectedIndex == i) {
-                        rowColor = selectedColor;
-                    }
-                    else {
-                        rowColor = bgColor;
-                    }
-
+                    Color rowColor = selectedIndex == i ? selectedColor : bgColor;
                     if (rowNum == 0 || entries[i].isLabel) {
                         string categoryName = entries[i].categoryName;
                         int nameWidth = Helpers.GetWidthOfText(categoryName);
@@ -229,7 +216,7 @@ namespace WaveTracker.UI {
 
         }
 
-        class ListEntry {
+        private class ListEntry {
             public int dictionaryIndex;
             public string categoryName;
             public string actionName;

@@ -1,18 +1,10 @@
-﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using WaveTracker.Tracker;
+﻿using WaveTracker.Tracker;
 
 namespace WaveTracker.UI {
     public class SetFramePatternDialog : Dialog {
-        Button cancel, ok;
-        NumberBox patternIndex;
-        WTFrame parentFrame;
+        private Button cancel, ok;
+        private NumberBox patternIndex;
+        private WTFrame parentFrame;
         public SetFramePatternDialog() : base("Set Pattern...", 146, 58) {
             PositionInCenterOfScreen();
             cancel = AddNewBottomButton("Cancel", this);
@@ -31,8 +23,10 @@ namespace WaveTracker.UI {
         public override void Update() {
             if (WindowIsOpen) {
                 DoDragging();
-                if (cancel.Clicked || ExitButton.Clicked)
+                if (cancel.Clicked || ExitButton.Clicked) {
                     Close();
+                }
+
                 if (ok.Clicked) {
                     parentFrame.PatternIndex = patternIndex.Value;
                     Close();

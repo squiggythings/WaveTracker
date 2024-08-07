@@ -1,20 +1,12 @@
 ﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using WaveTracker.Tracker;
-
 
 namespace WaveTracker.UI {
 
     public abstract class WaveModifyDialog : Dialog {
         protected Wave waveToEdit;
         protected byte[] originalData;
-        Button ok, cancel;
+        private Button ok, cancel;
         public WaveModifyDialog(string name) : base(name, 258, 113, false) {
             cancel = AddNewBottomButton("Cancel", this);
             ok = AddNewBottomButton("OK", this);
@@ -29,8 +21,6 @@ namespace WaveTracker.UI {
             Open();
             Apply();
         }
-
-        
 
         public override void Update() {
             if (WindowIsOpen) {

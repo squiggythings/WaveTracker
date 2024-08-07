@@ -1,19 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Audio;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
-using WaveTracker.UI;
-using WaveTracker.Tracker;
+using System;
 using WaveTracker.Audio;
+using WaveTracker.Tracker;
 
 namespace WaveTracker.UI {
     public class WaveEditor : Window {
-        public bool IsOpen { get { return WindowIsOpen || (currentDialog != null && currentDialog.WindowIsOpen); } }
+        public bool IsOpen { get { return WindowIsOpen || currentDialog != null && currentDialog.WindowIsOpen; } }
         public static bool enabled;
         public SpriteButton presetSine, presetTria, presetSaw, presetRect50, presetRect25, presetRect12, presetRand, presetClear;
         public Toggle filterNone, filterLinear, filterMix;
@@ -23,24 +16,27 @@ namespace WaveTracker.UI {
         public Textbox waveText;
         public Dropdown ResampleDropdown;
         public int id;
-        int holdPosY, holdPosX;
-        static string clipboardWave = "";
-        static ResamplingMode clipboardSampleMode = ResamplingMode.Mix;
-        PreviewPiano piano;
-        MouseRegion drawingRegion;
-        bool displayAsLines;
-        WaveModifyDialog currentDialog;
+        private int holdPosY, holdPosX;
+        private static string clipboardWave = "";
+        private static ResamplingMode clipboardSampleMode = ResamplingMode.Mix;
+        private PreviewPiano piano;
+        private MouseRegion drawingRegion;
+        private bool displayAsLines;
+        private WaveModifyDialog currentDialog;
 
-        Wave CurrentWave => App.CurrentModule.WaveBank[WaveBank.currentWaveID];
+        private Wave CurrentWave {
+            get {
+                return App.CurrentModule.WaveBank[WaveBank.currentWaveID];
+            }
+        }
 
-        int phase;
+        private int phase;
 
         public WaveEditor() : base("Wave Editor", 500, 270) {
 
             int buttonY = 23;
             int buttonX = 420;
             int buttonWidth = 64;
-
 
             CopyButton = new Button("Copy", buttonX, buttonY, buttonWidth / 2 - 1, this);
             CopyButton.SetTooltip("", "Copy wave settings");
@@ -73,11 +69,9 @@ namespace WaveTracker.UI {
             NormalizeButton.SetTooltip("", "Make the wave maximum amplitude");
             buttonY += 18;
 
-
             ModifyButton = new DropdownButton("Modify...", buttonX, buttonY, buttonWidth, this);
             ModifyButton.LabelIsCentered = true;
             ModifyButton.SetMenuItems(["Smooth...", "Add Fuzz...", "Sync...", "Sample and hold..."]);
-
 
             presetSine = new SpriteButton(17, 215, 18, 12, 104, 80, this);
             presetSine.SetTooltip("Sine", "Sine wave preset");
@@ -110,7 +104,6 @@ namespace WaveTracker.UI {
             ResampleDropdown.SetMenuItems(["Harsh (None)", "Smooth (Linear)", "Mix (None + Linear)"]);
             piano = new PreviewPiano(10, 240, this);
 
-
         }
         public void Open(int waveIndex) {
             base.Open();
@@ -127,26 +120,40 @@ namespace WaveTracker.UI {
         }
 
         public int GetPianoMouseInput() {
-            if (!enabled || !InFocus)
-                return -1;
-            return piano.CurrentClickedNote;
+            return !enabled || !InFocus ? -1 : piano.CurrentClickedNote;
         }
 
-        bool IsMouseInCanvasBounds() {
+        private bool IsMouseInCanvasBounds() {
             return InFocus && drawingRegion.IsHovered;
         }
-        int CanvasPosX => drawingRegion.MouseX / 6;
-        int CanvasPosY => 31 - (drawingRegion.MouseY / 5);
 
-        void ToggleDisplayMode() {
+        private int CanvasPosX {
+            get {
+                return drawingRegion.MouseX / 6;
+            }
+        }
+
+        private int CanvasPosY {
+            get {
+                return 31 - drawingRegion.MouseY / 5;
+            }
+        }
+
+        private void ToggleDisplayMode() {
             displayAsLines = !displayAsLines;
         }
 
         public void Update() {
             if (WindowIsOpen && !(currentDialog != null && currentDialog.WindowIsOpen)) {
                 DoDragging();
-                if (WaveBank.currentWaveID < 0) return;
-                if (WaveBank.currentWaveID > 99) return;
+                if (WaveBank.currentWaveID < 0) {
+                    return;
+                }
+
+                if (WaveBank.currentWaveID > 99) {
+                    return;
+                }
+
                 if (Input.GetKeyRepeat(Keys.Left, KeyModifier.None)) {
                     WaveBank.currentWaveID--;
                     if (WaveBank.currentWaveID < 0) {
@@ -166,7 +173,6 @@ namespace WaveTracker.UI {
                     WaveBank.lastSelectedWave = id;
                     ChannelManager.PreviewChannel.SetWave(WaveBank.currentWaveID);
                 }
-
 
                 ResampleDropdown.Value = (int)CurrentWave.resamplingMode;
                 if (startcooldown > 0) {
@@ -303,7 +309,6 @@ namespace WaveTracker.UI {
                             holdPosY = CanvasPosY;
                         }
 
-
                         if (drawingRegion.DidClickInRegionM(KeyModifier.None)) {
                             CurrentWave.samples[CanvasPosX] = (byte)CanvasPosY;
                             App.CurrentModule.SetDirty();
@@ -395,9 +400,8 @@ namespace WaveTracker.UI {
                     DrawRect(419 + i, 201 - CurrentWave.GetSample(i + phase), 1, 1, new Color(118, 124, 163));
                 }
 
-
                 if (IsMouseInCanvasBounds() && InFocus) {
-                    DrawRect(drawingRegion.x + (drawingRegion.MouseX / 6 * 6), drawingRegion.y + drawingRegion.height - ((31 - drawingRegion.MouseY / 5) * 5), 6, -5, Helpers.Alpha(Color.White, 80));
+                    DrawRect(drawingRegion.x + drawingRegion.MouseX / 6 * 6, drawingRegion.y + drawingRegion.height - (31 - drawingRegion.MouseY / 5) * 5, 6, -5, Helpers.Alpha(Color.White, 80));
                     if (Input.GetClick(KeyModifier.Shift)) {
                         int diff = Math.Abs(holdPosX - CanvasPosX);
                         if (diff > 0) {

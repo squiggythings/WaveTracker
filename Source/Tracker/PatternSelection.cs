@@ -1,14 +1,4 @@
-﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-
-namespace WaveTracker.Tracker {
+﻿namespace WaveTracker.Tracker {
     public class PatternSelection {
         public WTSong Song { get; private set; }
         /// <summary>
@@ -29,7 +19,6 @@ namespace WaveTracker.Tracker {
             Song = song;
             min = startPos;
             max = endPos;
-
 
             // perform any swaps necessary
             if (startPos.IsBelow(endPos)) {
@@ -54,43 +43,59 @@ namespace WaveTracker.Tracker {
             }
 
             // adjust the cursor positions to fill all of mulit-digit fields like instrument, volume and effects
-            if (max.Column == CursorColumnType.Instrument1)
+            if (max.Column == CursorColumnType.Instrument1) {
                 max.Column = CursorColumnType.Instrument2;
-            else if (max.Column == CursorColumnType.Volume1)
+            }
+            else if (max.Column == CursorColumnType.Volume1) {
                 max.Column = CursorColumnType.Volume2;
-            else if (max.Column == CursorColumnType.Effect1 || max.Column == CursorColumnType.Effect1Param1)
+            }
+            else if (max.Column is CursorColumnType.Effect1 or CursorColumnType.Effect1Param1) {
                 max.Column = CursorColumnType.Effect1Param2;
-            else if (max.Column == CursorColumnType.Effect2 || max.Column == CursorColumnType.Effect2Param1)
+            }
+            else if (max.Column is CursorColumnType.Effect2 or CursorColumnType.Effect2Param1) {
                 max.Column = CursorColumnType.Effect2Param2;
-            else if (max.Column == CursorColumnType.Effect3 || max.Column == CursorColumnType.Effect3Param1)
+            }
+            else if (max.Column is CursorColumnType.Effect3 or CursorColumnType.Effect3Param1) {
                 max.Column = CursorColumnType.Effect3Param2;
-            else if (max.Column == CursorColumnType.Effect4 || max.Column == CursorColumnType.Effect4Param1)
+            }
+            else if (max.Column is CursorColumnType.Effect4 or CursorColumnType.Effect4Param1) {
                 max.Column = CursorColumnType.Effect4Param2;
+            }
 
-            if (min.Column == CursorColumnType.Instrument2)
+            if (min.Column == CursorColumnType.Instrument2) {
                 min.Column = CursorColumnType.Instrument1;
-            else if (min.Column == CursorColumnType.Volume2)
+            }
+            else if (min.Column == CursorColumnType.Volume2) {
                 min.Column = CursorColumnType.Volume1;
-            else if (min.Column == CursorColumnType.Effect1Param1 || min.Column == CursorColumnType.Effect1Param2)
+            }
+            else if (min.Column is CursorColumnType.Effect1Param1 or CursorColumnType.Effect1Param2) {
                 min.Column = CursorColumnType.Effect1;
-            else if (min.Column == CursorColumnType.Effect2Param1 || min.Column == CursorColumnType.Effect2Param2)
+            }
+            else if (min.Column is CursorColumnType.Effect2Param1 or CursorColumnType.Effect2Param2) {
                 min.Column = CursorColumnType.Effect2;
-            else if (min.Column == CursorColumnType.Effect3Param1 || min.Column == CursorColumnType.Effect3Param2)
+            }
+            else if (min.Column is CursorColumnType.Effect3Param1 or CursorColumnType.Effect3Param2) {
                 min.Column = CursorColumnType.Effect3;
-            else if (min.Column == CursorColumnType.Effect4Param1 || min.Column == CursorColumnType.Effect4Param2)
+            }
+            else if (min.Column is CursorColumnType.Effect4Param1 or CursorColumnType.Effect4Param2) {
                 min.Column = CursorColumnType.Effect4;
+            }
 
-            if (min.Channel < 0)
+            if (min.Channel < 0) {
                 min.Channel = 0;
-            if (max.Channel < 0)
+            }
+
+            if (max.Channel < 0) {
                 max.Channel = 0;
-            if (max.Column > song.GetLastCursorColumnOfChannel(max.Channel))
+            }
+
+            if (max.Column > song.GetLastCursorColumnOfChannel(max.Channel)) {
                 max.Column = song.GetLastCursorColumnOfChannel(max.Channel);
+            }
 
             Width = max.CellColumn - min.CellColumn + 1;
             Height = max.Row - min.Row + 1;
         }
-
 
         public PatternSelection(WTSong song, CursorPos startPos, CursorPos endPos) {
             Set(song, startPos, endPos);

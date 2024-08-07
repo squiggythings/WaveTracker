@@ -1,13 +1,13 @@
 ﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using WaveTracker.Tracker;
 
 namespace WaveTracker.UI {
     public class FramesPanel : Panel {
-        FrameButton[] frames;
+        private FrameButton[] frames;
         public SpriteButton bNewFrame, bDeleteFrame, bDuplicateFrame, bMoveLeft, bMoveRight;
+
         //public Button increasePattern, decreasePattern;
-        MouseRegion scrollRegion;
+        private MouseRegion scrollRegion;
         //Menu contextMenu;
         public FramesPanel(int x, int y, int width, int height) : base("Frames", x, y, width, height) {
             bNewFrame = new SpriteButton(4, 10, 15, 15, 285, 0, this);
@@ -36,7 +36,6 @@ namespace WaveTracker.UI {
             }
         }
 
-
         public void Update() {
             if (InFocus) {
                 foreach (FrameButton button in frames) {
@@ -63,16 +62,20 @@ namespace WaveTracker.UI {
                     }
                     if (!Input.GetClick(KeyModifier._Any)) {
                         if (Input.MouseScrollWheel(KeyModifier.None) < 0) {
-                            if (Playback.IsPlaying && App.PatternEditor.FollowMode)
+                            if (Playback.IsPlaying && App.PatternEditor.FollowMode) {
                                 Playback.GotoNextFrame();
-                            else
+                            }
+                            else {
                                 App.PatternEditor.NextFrame();
+                            }
                         }
                         if (Input.MouseScrollWheel(KeyModifier.None) > 0) {
-                            if (Playback.IsPlaying && App.PatternEditor.FollowMode)
+                            if (Playback.IsPlaying && App.PatternEditor.FollowMode) {
                                 Playback.GotoPreviousFrame();
-                            else
+                            }
+                            else {
                                 App.PatternEditor.PreviousFrame();
+                            }
                         }
                     }
                 }
@@ -96,7 +99,6 @@ namespace WaveTracker.UI {
                         //    FrameEditor.currentFrame = 0;
                         //FrameEditor.Goto(FrameEditor.currentFrame, FrameEditor.currentRow);
                     }
-
 
                     if (bMoveRight.Clicked) {
                         App.PatternEditor.MoveFrameRight();
@@ -124,11 +126,9 @@ namespace WaveTracker.UI {
             }
         }
 
-        void SetPatternIndex() {
+        private void SetPatternIndex() {
             Dialogs.setFramePatternDialog.Open(App.CurrentSong.FrameSequence[App.PatternEditor.cursorPosition.Frame]);
         }
-
-
 
         public new void Draw() {
             base.Draw();

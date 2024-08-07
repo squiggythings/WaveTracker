@@ -1,17 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
-
+﻿using Microsoft.Xna.Framework;
 
 namespace WaveTracker.UI {
     public class SpriteButton : Clickable {
-        int sourceX;
-        int sourceY;
+        private int sourceX;
+        private int sourceY;
         public SpriteButton(int x, int y, int width, int height, int sourceX, int sourceY, Element parent) {
             enabled = true;
             this.x = x;
@@ -30,7 +22,7 @@ namespace WaveTracker.UI {
         // 3. toggled
         // 4. disabled
 
-        Rectangle GetBounds(int num) {
+        private Rectangle GetBounds(int num) {
             return new Rectangle(sourceX, sourceY + num * height, width, height);
         }
 

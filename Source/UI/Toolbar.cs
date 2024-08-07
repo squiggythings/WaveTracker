@@ -1,13 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using WaveTracker.UI;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
-using System.Diagnostics;
 
 namespace WaveTracker.UI {
     public class Toolbar : Element {
@@ -57,14 +49,12 @@ namespace WaveTracker.UI {
             file_export.SetTooltip("Export", "Export the song as a .wav");
             px += 20;
 
-
             edit_undo = new SpriteButton(px, 0, 15, 15, 390, 0, this);
             edit_undo.SetTooltip("Undo", "Undo the last action");
             px += 15;
             edit_redo = new SpriteButton(px, 0, 15, 15, 405, 0, this);
             edit_redo.SetTooltip("Redo", "Redo the previously undone action");
             px += 20;
-
 
             edit_cut = new SpriteButton(px, 0, 15, 15, 75, 0, this);
             edit_cut.SetTooltip("Cut", "Cut this selection");
@@ -121,22 +111,19 @@ namespace WaveTracker.UI {
             frame_prev.enabled = !App.VisualizerMode;
 
             if (Input.GetKeyDown(Keys.S, KeyModifier.Ctrl)) {
-                SaveLoad.SaveFile();
+                _ = SaveLoad.SaveFile();
             }
             if (Input.GetKeyDown(Keys.O, KeyModifier.Ctrl)) { SaveLoad.OpenFile(); }
 
             if (file_new.Clicked) { SaveLoad.NewFile(); }
 
             if (file_open.Clicked) { SaveLoad.OpenFile(); }
-            if (file_save.Clicked) { SaveLoad.SaveFile(); }
-            if (file_saveAs.Clicked) { SaveLoad.SaveFileAs(); }
+            if (file_save.Clicked) { _ = SaveLoad.SaveFile(); }
+            if (file_saveAs.Clicked) { _ = SaveLoad.SaveFileAs(); }
             if (file_export.Clicked) {
                 Input.CancelClick();
                 Dialogs.exportDialog.Open();
             }
-
-
-
 
             if (edit_undo.Clicked) { App.PatternEditor.Undo(); }
             if (edit_redo.Clicked) { App.PatternEditor.Redo(); }
@@ -154,13 +141,11 @@ namespace WaveTracker.UI {
                 App.PatternEditor.EditMode = playback_record.Value;
             }
 
-
             if (frame_next.Clicked) { App.PatternEditor.NextFrame(); }
             if (frame_prev.Clicked) { App.PatternEditor.PreviousFrame(); }
 
             if (preferences.Clicked) { Dialogs.configurationDialog.Open(); }
 
-           
             followModeToggle.Value = App.PatternEditor.FollowMode;
             followModeToggle.Update();
             if (App.Shortcuts["General\\Follow mode"].IsPressedDown) {
@@ -170,15 +155,16 @@ namespace WaveTracker.UI {
 
             visualizerModeToggle.x = App.WindowWidth - visualizerModeToggle.width - 3;
 
-            
             visualizerModeToggle.Value = App.VisualizerMode;
             visualizerModeToggle.Update();
             if (App.Shortcuts["General\\Toggle visualizer"].IsPressedDown) {
                 visualizerModeToggle.Value = !visualizerModeToggle.Value;
             }
             if (visualizerModeToggle.Value != App.VisualizerMode) {
-                if (visualizerModeToggle.Value)
+                if (visualizerModeToggle.Value) {
                     Visualizer.GenerateWaveColors();
+                }
+
                 App.VisualizerMode = visualizerModeToggle.Value;
             }
 

@@ -1,17 +1,9 @@
 ﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using WaveTracker.Rendering;
 
 namespace WaveTracker.UI {
     public class Dropdown : Clickable {
-
-        static Dropdown currentlyOpen;
+        private static Dropdown currentlyOpen;
         /// <summary>
         /// Returns true if a dropdown is open
         /// </summary>
@@ -22,8 +14,8 @@ namespace WaveTracker.UI {
         /// </summary>
         public static bool IsAnyDropdownOpen { get { return IsADropdownOpen || DropdownButton.IsADropdownButtonOpen; } }
 
-        Element previousFocus;
-        bool showMenu;
+        private Element previousFocus;
+        private bool showMenu;
         public int Value { get; set; }
         public string ValueName {
             get { return options[Value]; }
@@ -45,9 +37,10 @@ namespace WaveTracker.UI {
         /// If set to true, scrolling over this drop down wrap around the options list
         /// </summary>
         public bool ScrollWrap { get; set; }
-        int hoveredValue;
-        string[] options;
-        int cooldown;
+
+        private int hoveredValue;
+        private string[] options;
+        private int cooldown;
 
         public Dropdown(int x, int y, Element parent, bool scrollWrap = true) {
             enabled = true;
@@ -64,23 +57,24 @@ namespace WaveTracker.UI {
             options = new string[items.Length];
             for (int i = 0; i < items.Length; i++) {
                 options[i] = Helpers.FlushString(items[i]);
-                if (Helpers.GetWidthOfText(options[i]) > maxlength)
+                if (Helpers.GetWidthOfText(options[i]) > maxlength) {
                     maxlength = Helpers.GetWidthOfText(options[i]);
+                }
             }
-            if (width == 0)
+            if (width == 0) {
                 width = maxlength + 18;
+            }
         }
 
         public void Update() {
-            if (!InFocus)
+            if (!InFocus) {
                 cooldown = 2;
+            }
+
             int previousValue = Value;
             if (IsHovered && Input.MouseScrollWheel(KeyModifier.None) != 0) {
                 Value -= Input.MouseScrollWheel(KeyModifier.None);
-                if (ScrollWrap)
-                    Value = (Value + options.Length) % options.Length;
-                else
-                    Value = Math.Clamp(Value, 0, options.Length - 1);
+                Value = ScrollWrap ? (Value + options.Length) % options.Length : Math.Clamp(Value, 0, options.Length - 1);
                 hoveredValue = Value;
             }
             if (showMenu) {
@@ -108,13 +102,14 @@ namespace WaveTracker.UI {
                 if (Clicked && cooldown <= 0) {
                     OpenMenu();
                 }
-                if (cooldown > 0)
+                if (cooldown > 0) {
                     cooldown--;
+                }
             }
             ValueWasChangedInternally = previousValue != Value;
         }
 
-        void OpenMenu() {
+        private void OpenMenu() {
             previousFocus = Input.focus;
             Input.focus = this;
             hoveredValue = Value;
@@ -122,29 +117,24 @@ namespace WaveTracker.UI {
             showMenu = true;
         }
 
-        void CloseMenu() {
+        private void CloseMenu() {
             showMenu = false;
             currentlyOpen = null;
             Input.focus = previousFocus;
         }
 
-        Color getBackgroundColor() {
-            if (!enabled)
-                return ButtonColors.Round.backgroundColorDisabled;
-            if (IsPressed)
-                return ButtonColors.Round.backgroundColorPressed;
-            if ((IsHovered || showMenu))
-                return ButtonColors.Round.backgroundColorHover;
-
-            return ButtonColors.Round.backgroundColor;
+        private Color getBackgroundColor() {
+            return !enabled
+                ? ButtonColors.Round.backgroundColorDisabled
+                : IsPressed
+                ? ButtonColors.Round.backgroundColorPressed
+                : IsHovered || showMenu ? ButtonColors.Round.backgroundColorHover : ButtonColors.Round.backgroundColor;
         }
 
-        Color getTextColor() {
-            if (!enabled)
-                return ButtonColors.Round.textColorDisabled;
-            if (IsPressed)
-                return ButtonColors.Round.textColorPressed;
-            return ButtonColors.Round.textColor;
+        private Color getTextColor() {
+            return !enabled
+                ? ButtonColors.Round.textColorDisabled
+                : IsPressed ? ButtonColors.Round.textColorPressed : ButtonColors.Round.textColor;
         }
         public void Draw() {
             int textOffset = IsPressed && enabled ? 1 : 0;
@@ -161,12 +151,10 @@ namespace WaveTracker.UI {
         }
 
         public static void DrawCurrentMenu() {
-            if (currentlyOpen != null) {
-                currentlyOpen.DrawMenu();
-            }
+            currentlyOpen?.DrawMenu();
         }
 
-        void DrawMenu() {
+        private void DrawMenu() {
             DrawRect(0, 13, width, 11 * options.Length + 2, UIColors.labelDark);
             for (int i = 0; i < options.Length; i++) {
                 int y = i * 11 + 14;

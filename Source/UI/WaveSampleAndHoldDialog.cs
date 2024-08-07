@@ -1,17 +1,8 @@
-﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using WaveTracker.Tracker;
-
+﻿using WaveTracker.Tracker;
 
 namespace WaveTracker.UI {
     public class WaveSampleAndHoldDialog : WaveModifyDialog {
-        NumberBox holdLength;
+        private NumberBox holdLength;
 
         public WaveSampleAndHoldDialog() : base("Sample and hold...") {
             holdLength = new NumberBox("Hold length", 8, 25, 94, 36, this);
@@ -27,8 +18,9 @@ namespace WaveTracker.UI {
             if (WindowIsOpen) {
                 base.Update();
                 holdLength.Update();
-                if (holdLength.ValueWasChangedInternally)
+                if (holdLength.ValueWasChangedInternally) {
                     Apply();
+                }
             }
         }
 

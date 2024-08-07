@@ -1,12 +1,4 @@
-﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿using System;
 
 namespace WaveTracker.UI {
     /// <summary>
@@ -22,18 +14,45 @@ namespace WaveTracker.UI {
             SetParent(parent);
         }
 
-        public new int MouseX => base.MouseX;
-        public new int MouseY => base.MouseY;
+        public new int MouseX {
+            get {
+                return base.MouseX;
+            }
+        }
 
-        public float MouseXClamped => Math.Clamp(MouseX / (float)(width - 1), 0f, 1f);
-        public float MouseYClamped => Math.Clamp(MouseY / (float)(height - 1), 0f, 1f);
+        public new int MouseY {
+            get {
+                return base.MouseY;
+            }
+        }
+
+        public float MouseXClamped {
+            get {
+                return Math.Clamp(MouseX / (float)(width - 1), 0f, 1f);
+            }
+        }
+
+        public float MouseYClamped {
+            get {
+                return Math.Clamp(MouseY / (float)(height - 1), 0f, 1f);
+            }
+        }
 
         /// <summary>
         /// Returns true if the mouse was clicked in the region and is still held down, even if the mouse is no longer in the region
         /// </summary>
-        public bool DidClickInRegion => Input.GetClick(KeyModifier._Any) && GlobalPointIsInBounds(Input.LastClickLocation) && IsInHierarchy(Input.lastClickFocus);
-        public bool ClickedDownM(KeyModifier keyModifier) => Input.GetClickDown(keyModifier) && GlobalPointIsInBounds(Input.LastClickLocation) && IsInHierarchy(Input.lastClickFocus);
+        public bool DidClickInRegion {
+            get {
+                return Input.GetClick(KeyModifier._Any) && GlobalPointIsInBounds(Input.LastClickLocation) && IsInHierarchy(Input.lastClickFocus);
+            }
+        }
 
-        public bool DidClickInRegionM(KeyModifier keyModifier) => Input.GetClick(keyModifier) && GlobalPointIsInBounds(Input.LastClickLocation) && IsInHierarchy(Input.lastClickFocus);
+        public bool ClickedDownM(KeyModifier keyModifier) {
+            return Input.GetClickDown(keyModifier) && GlobalPointIsInBounds(Input.LastClickLocation) && IsInHierarchy(Input.lastClickFocus);
+        }
+
+        public bool DidClickInRegionM(KeyModifier keyModifier) {
+            return Input.GetClick(keyModifier) && GlobalPointIsInBounds(Input.LastClickLocation) && IsInHierarchy(Input.lastClickFocus);
+        }
     }
 }

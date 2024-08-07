@@ -1,25 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
-using WaveTracker.Rendering;
+﻿using Microsoft.Xna.Framework;
+using System;
 
 namespace WaveTracker.UI {
     public class Scrollbar : Clickable {
         public int totalSize;
         public int viewportSize;
         public Rectangle bar;
-        bool lastClickWasOnScrollbar;
+        private bool lastClickWasOnScrollbar;
         public int ScrollValue { get; set; }
         public int MaxScrollValue { get { return totalSize - viewportSize; } }
         public bool IsVisible { get { return viewportSize < totalSize; } }
 
         public int CoarseStepAmount { get; set; }
-        int barClickOffset;
+
+        private int barClickOffset;
         public Scrollbar(int x, int y, int width, int height, Element parent) {
             this.x = x;
             this.y = y;
@@ -37,8 +31,6 @@ namespace WaveTracker.UI {
             bar.Height = Math.Max((int)(height * (viewportSize / (float)totalSize)), 4);
             UpdateScrollValue();
         }
-
-
 
         public void Update() {
             if (InFocus) {
@@ -100,28 +92,37 @@ namespace WaveTracker.UI {
 
                 DrawRect(bar.X, 0, bar.Width, height, background);
                 DrawRoundedRect(bar.X + 1, 1, bar.Width - 2, height - 2, barSpace);
-                if (BarIsPressed)
+                if (BarIsPressed) {
                     DrawRoundedRect(bar.X + 1, bar.Y, bar.Width - 2, bar.Height, barPressed);
-                else if (BarIsHovered)
+                }
+                else if (BarIsHovered) {
                     DrawRoundedRect(bar.X + 1, bar.Y, bar.Width - 2, bar.Height, barHover);
-                else
+                }
+                else {
                     DrawRoundedRect(bar.X + 1, bar.Y, bar.Width - 2, bar.Height, barDefault);
+                }
             }
         }
 
-        float BarValFromPos() {
+        private float BarValFromPos() {
             return (bar.Y - 1) / (float)(height - 2 - bar.Height);
         }
 
-        float BarPosFromVal() {
-            return ScrollValue / (float)(totalSize);
+        private float BarPosFromVal() {
+            return ScrollValue / (float)totalSize;
 
         }
 
+        private bool BarIsHovered {
+            get {
+                return InFocus && bar.Contains(MouseX, MouseY);
+            }
+        }
 
-
-        bool BarIsHovered => InFocus && bar.Contains(MouseX, MouseY);
-        bool BarIsPressed => InFocus && Input.GetClick(KeyModifier._Any) && lastClickWasOnScrollbar;
-
+        private bool BarIsPressed {
+            get {
+                return InFocus && Input.GetClick(KeyModifier._Any) && lastClickWasOnScrollbar;
+            }
+        }
     }
 }

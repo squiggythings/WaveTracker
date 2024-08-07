@@ -1,12 +1,4 @@
 ﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 
 namespace WaveTracker.UI {
     public class SwitchToggleCustom : Clickable {
@@ -16,7 +8,8 @@ namespace WaveTracker.UI {
         public Color ToggledColor { get; set; }
         public bool Value { get; set; }
         public bool ValueWasChangedInternally { get; set; }
-        string label;
+
+        private string label;
 
         public SwitchToggleCustom(int x, int y, string label) {
             width = 16;

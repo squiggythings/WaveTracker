@@ -1,24 +1,30 @@
 ﻿using Microsoft.Xna.Framework;
 using System.Collections.Generic;
 
-
 namespace WaveTracker.UI {
     public class Menu : Clickable {
         public static bool IsAMenuOpen { get { return CurrentOpenMenu != null; } }
         public static Menu CurrentOpenMenu { get; private set; }
-        const int MIN_WIDTH = 120;
-        Element opened;
-        SubMenu parentSubMenu;
-        List<MenuItemBase> Items { get; set; }
-        List<int> breakIndexes;
 
-        bool IsRootMenu => parentSubMenu == null;
+        private const int MIN_WIDTH = 120;
+        private Element opened;
+        private SubMenu parentSubMenu;
+
+        private List<MenuItemBase> Items { get; set; }
+
+        private List<int> breakIndexes;
+
+        private bool IsRootMenu {
+            get {
+                return parentSubMenu == null;
+            }
+        }
 
         public Menu() {
             enabled = false;
             parentSubMenu = null;
-            Items = new List<MenuItemBase>();
-            breakIndexes = new List<int>();
+            Items = [];
+            breakIndexes = [];
             width = MIN_WIDTH;
         }
         /// <summary>
@@ -28,8 +34,8 @@ namespace WaveTracker.UI {
         public Menu(MenuItemBase[] items) {
             enabled = false;
             parentSubMenu = null;
-            Items = new List<MenuItemBase>();
-            breakIndexes = new List<int>();
+            Items = [];
+            breakIndexes = [];
             width = MIN_WIDTH;
             AddItems(items);
         }
@@ -37,8 +43,8 @@ namespace WaveTracker.UI {
         public Menu(SubMenu parentSubMenu) {
             enabled = false;
             this.parentSubMenu = parentSubMenu;
-            Items = new List<MenuItemBase>();
-            breakIndexes = new List<int>();
+            Items = [];
+            breakIndexes = [];
             width = 0;
         }
 
@@ -50,21 +56,25 @@ namespace WaveTracker.UI {
             item.SetParent(this);
             item.parentMenu = this;
             Items.Add(item);
-            if (item.width + 6 > width)
+            if (item.width + 6 > width) {
                 width = item.width + 6;
+            }
+
             UpdateItemPositions();
         }
 
         public void AddItems(MenuItemBase[] items) {
             foreach (MenuItemBase item in items) {
-                if (item == null)
+                if (item == null) {
                     AddBreak();
-                else
+                }
+                else {
                     AddItem(item);
+                }
             }
         }
 
-        void UpdateItemPositions() {
+        private void UpdateItemPositions() {
             int itemY = 3;
             int i = 0;
             foreach (MenuItemBase menuItem in Items) {
@@ -92,11 +102,15 @@ namespace WaveTracker.UI {
 
         public bool IsHoveredOrAChildMenuHovered() {
             if (enabled) {
-                if (IsHovered) return true;
+                if (IsHovered) {
+                    return true;
+                }
+
                 foreach (MenuItemBase item in Items) {
                     if (item is SubMenu sub) {
-                        if (sub.menu.enabled && sub.menu.IsHoveredOrAChildMenuHovered())
+                        if (sub.menu.enabled && sub.menu.IsHoveredOrAChildMenuHovered()) {
                             return true;
+                        }
                     }
                 }
             }
@@ -107,8 +121,9 @@ namespace WaveTracker.UI {
             if (enabled) {
                 foreach (MenuItemBase item in Items) {
                     if (item is SubMenu sub) {
-                        if (sub.menu.enabled && sub.menu.IsHoveredOrAChildMenuHovered())
+                        if (sub.menu.enabled && sub.menu.IsHoveredOrAChildMenuHovered()) {
                             return true;
+                        }
                     }
                 }
             }
@@ -145,8 +160,9 @@ namespace WaveTracker.UI {
                 if (IsOutOfBoundsX()) {
                     this.x -= width;
                 }
-                if (IsOutOfBoundsY())
+                if (IsOutOfBoundsY()) {
                     this.y -= height;
+                }
             }
         }
 

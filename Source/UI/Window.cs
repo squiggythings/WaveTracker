@@ -1,12 +1,4 @@
 ﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace WaveTracker.UI {
     /// <summary>
@@ -27,15 +19,14 @@ namespace WaveTracker.UI {
         /// </summary>
         public bool WindowIsOpen { get; protected set; }
 
-        bool isDragging;
-        Point dragOffset;
-
+        private bool isDragging;
+        private Point dragOffset;
 
         public Window(string name, int width, int height, bool hasExitButton = true) : base(name, (App.WindowWidth - width) / 2, (App.WindowHeight - height) / 2, width, height) {
-            if (hasExitButton)
+            if (hasExitButton) {
                 ExitButton = new SpriteButton(width - 10, 0, 10, 9, 472, 0, this);
+            }
         }
-
 
         /// <summary>
         /// Positions the window in the center of the screen
@@ -80,7 +71,7 @@ namespace WaveTracker.UI {
         /// <summary>
         /// Clamps the position of the window to be within screen bounds
         /// </summary>
-        void ClampPosition() {
+        private void ClampPosition() {
             if (x > App.WindowWidth - width - 2) {
                 x = App.WindowWidth - width - 2;
             }

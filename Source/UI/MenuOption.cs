@@ -1,7 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using System;
 
-
 namespace WaveTracker.UI {
     /// <summary>
     /// A menu item that performs an action when clicked
@@ -11,7 +10,8 @@ namespace WaveTracker.UI {
         public string Name { get; set; }
         public Action OnClick { get; set; }
         public Action<string> OnClickArg { get; set; }
-        string args;
+
+        private string args;
         public MenuOption(string name, Action onClick) {
             Name = name;
             OnClick = onClick;
@@ -96,16 +96,20 @@ namespace WaveTracker.UI {
                 if (IsHoveredExclusive) {
                     DrawRect(0, 0, width, height, UIColors.selectionLight);
                 }
-                if (OnClick == null && OnClickArg == null)
+                if (OnClick == null && OnClickArg == null) {
                     Write(Name, MARGIN_LEFT + PADDING_LEFT, 1, Color.Red);
-                else
+                }
+                else {
                     Write(Name, MARGIN_LEFT + PADDING_LEFT, 1, UIColors.labelDark);
+                }
             }
             else {
-                if (OnClick == null && OnClickArg == null)
+                if (OnClick == null && OnClickArg == null) {
                     Write(Name, MARGIN_LEFT + PADDING_LEFT, 1, Helpers.Alpha(Color.Red, 128));
-                else
+                }
+                else {
                     Write(Name, MARGIN_LEFT + PADDING_LEFT, 1, Helpers.Alpha(UIColors.labelLight, 128));
+                }
             }
         }
     }

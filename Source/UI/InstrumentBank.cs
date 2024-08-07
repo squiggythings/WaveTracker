@@ -1,27 +1,22 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
-using WaveTracker.UI;
-using WaveTracker.Tracker;
-using WaveTracker.Audio;
+﻿using Microsoft.Xna.Framework;
+using System;
 using System.Windows.Forms;
-
+using WaveTracker.Tracker;
 
 namespace WaveTracker.UI {
     public class InstrumentBank : Panel {
         private Forms.EnterText renameDialog;
-        bool dialogOpen;
-        int lastIndex;
-        int listLength = 32;
+        private bool dialogOpen;
+        private int lastIndex;
+        private int listLength = 32;
         public Scrollbar scrollbar;
 
         public int CurrentInstrumentIndex { get; set; }
-        public Instrument GetCurrentInstrument => App.CurrentModule.Instruments[CurrentInstrumentIndex];
+        public Instrument GetCurrentInstrument {
+            get {
+                return App.CurrentModule.Instruments[CurrentInstrumentIndex];
+            }
+        }
 
         public SpriteButton bNewWave, bNewSample, bRemove, bDuplicate, bMoveUp, bMoveDown, bRename;
         public SpriteButton bEdit;
@@ -39,13 +34,11 @@ namespace WaveTracker.UI {
             bDuplicate = new SpriteButton(46, 10, 15, 15, 255, 0, this);
             bDuplicate.SetTooltip("Duplicate Instrument", "Create a copy of this instrument and add it to the track");
 
-
             bMoveDown = new SpriteButton(70, 10, 15, 15, 345, 0, this);
             bMoveDown.SetTooltip("Move Down", "Move this instrument to be lower down the list");
 
             bMoveUp = new SpriteButton(85, 10, 15, 15, 330, 0, this);
             bMoveUp.SetTooltip("Move Up", "Move this instrument to be higher up the list");
-
 
             bEdit = new SpriteButton(109, 10, 15, 15, 270, 0, this);
             bEdit.SetTooltip("Edit Instrument", "Open the instrument editor");
@@ -80,8 +73,10 @@ namespace WaveTracker.UI {
             listLength = (App.WindowHeight - y - 28 - 8) / 11;
             scrollbar.height = listLength * 11;
             scrollbar.SetSize(App.CurrentModule.Instruments.Count, listLength);
-            if (listLength <= 0)
+            if (listLength <= 0) {
                 listLength = 1;
+            }
+
             if (!Menu.IsAMenuOpen && !Dropdown.IsAnyDropdownOpen) {
                 if (App.Shortcuts["General\\Next instrument"].IsPressedRepeat) {
                     CurrentInstrumentIndex++;
@@ -106,9 +101,11 @@ namespace WaveTracker.UI {
 
                 scrollbar.height = listLength * 11;
                 scrollbar.SetSize(App.CurrentModule.Instruments.Count, listLength);
-                if (Input.internalDialogIsOpen)
+                if (Input.internalDialogIsOpen) {
                     return;
-                if (MouseX > 1 && MouseX < 162) {
+                }
+
+                if (MouseX is > 1 and < 162) {
                     if (MouseY > 28) {
                         if (Input.GetRightClickUp(KeyModifier._Any)) {
                             CurrentInstrumentIndex = Math.Clamp((MouseY - 28) / 11 + scrollbar.ScrollValue, 0, App.CurrentModule.Instruments.Count - 1);
@@ -121,8 +118,9 @@ namespace WaveTracker.UI {
                         }
                         if (Input.GetDoubleClick(KeyModifier._Any)) {
                             int ix = (MouseY - 28) / 11 + scrollbar.ScrollValue;
-                            if (ix < App.CurrentModule.Instruments.Count && ix >= 0)
+                            if (ix < App.CurrentModule.Instruments.Count && ix >= 0) {
                                 App.InstrumentEditor.Open(GetCurrentInstrument, CurrentInstrumentIndex);
+                            }
                         }
                     }
                 }
@@ -221,11 +219,12 @@ namespace WaveTracker.UI {
             App.InstrumentEditor.Open(GetCurrentInstrument, CurrentInstrumentIndex);
         }
 
-        void Goto(int index) {
+        private void Goto(int index) {
             CurrentInstrumentIndex = index;
             MoveBounds();
         }
-        void MoveBounds() {
+
+        private void MoveBounds() {
             if (CurrentInstrumentIndex > scrollbar.ScrollValue + listLength - 1) {
                 scrollbar.ScrollValue = CurrentInstrumentIndex - listLength + 1;
             }
@@ -243,26 +242,21 @@ namespace WaveTracker.UI {
             Color selected = UIColors.selection;
             int y = 0;
             for (int i = scrollbar.ScrollValue; i < listLength + scrollbar.ScrollValue; i++) {
-                Color row;
-                if (i == CurrentInstrumentIndex)
-                    row = selected;
-                else if (i % 2 == 0)
-                    row = even;
-                else
-                    row = odd;
+                Color row = i == CurrentInstrumentIndex ? selected : i % 2 == 0 ? even : odd;
                 DrawRect(1, 28 + y * 11, width - 7, 11, row);
                 if (App.CurrentModule.Instruments.Count > i && i >= 0) {
                     WriteMonospaced(i.ToString("D2"), 15, 30 + y * 11, Color.White, 4);
                     Write(App.CurrentModule.Instruments[i].name, 29, 30 + y * 11, Color.White);
-                    if (App.CurrentModule.Instruments[i] is WaveInstrument)
+                    if (App.CurrentModule.Instruments[i] is WaveInstrument) {
                         DrawSprite(3, 30 + y * 11, new Rectangle(88, 80, 8, 7));
-                    else
+                    }
+                    else {
                         DrawSprite(3, 30 + y * 11, new Rectangle(88, 87, 8, 7));
+                    }
                 }
                 ++y;
             }
         }
-
 
         public new void Draw() {
             base.Draw();
@@ -278,7 +272,6 @@ namespace WaveTracker.UI {
             DrawList();
             scrollbar.Draw();
         }
-
 
         public void StartRenameDialog() {
             Input.DialogStarted();

@@ -1,26 +1,20 @@
 ﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
-using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace WaveTracker.UI {
     public class ColorButtonList : Clickable {
-        Dictionary<string, ColorButton> entries;
-        Scrollbar scrollbar;
-        int numRows;
-        const int ROW_HEIGHT = 17;
+        private Dictionary<string, ColorButton> entries;
+        private Scrollbar scrollbar;
+        private int numRows;
+        private const int ROW_HEIGHT = 17;
 
         public ColorButtonList(int x, int y, int width, int numVisibleRows, Element parent) {
             this.x = x;
             this.y = y;
             this.width = width;
-            this.height = numVisibleRows * ROW_HEIGHT;
-            this.numRows = numVisibleRows;
+            height = numVisibleRows * ROW_HEIGHT;
+            numRows = numVisibleRows;
             scrollbar = new Scrollbar(0, 0, width, height, this);
 
             SetParent(parent);
@@ -30,7 +24,7 @@ namespace WaveTracker.UI {
         /// Sets the list for this box to reference
         /// </summary>
         public void SetDictionary(Dictionary<string, Color> colors) {
-            entries = new Dictionary<string, ColorButton>();
+            entries = [];
             foreach (KeyValuePair<string, Color> pair in colors) {
                 ColorButton button = new ColorButton(pair.Value, 0, 0, this);
                 button.DrawBorder = false;
@@ -50,7 +44,6 @@ namespace WaveTracker.UI {
                 colors[pair.Key] = pair.Value.Color;
             }
         }
-
 
         public void Update() {
             if (InFocus) {
@@ -75,7 +68,6 @@ namespace WaveTracker.UI {
             //    }
             //}
         }
-
 
         public void Draw() {
             scrollbar.Draw();

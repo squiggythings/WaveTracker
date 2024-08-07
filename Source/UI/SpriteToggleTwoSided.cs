@@ -1,17 +1,9 @@
 ﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 
 namespace WaveTracker.UI {
     public class SpriteToggleTwoSided : Clickable {
-         int sourceX;
-         int sourceY;
+        private int sourceX;
+        private int sourceY;
 
         public bool Value { get; set; }
         public bool ValueWasChangedInternally { get; private set; }
@@ -40,7 +32,7 @@ namespace WaveTracker.UI {
 
         }
 
-        Rectangle GetSpriteBounds(int num) {
+        private Rectangle GetSpriteBounds(int num) {
             return new Rectangle(sourceX, sourceY + num * height, width, height);
         }
         public void Draw() {

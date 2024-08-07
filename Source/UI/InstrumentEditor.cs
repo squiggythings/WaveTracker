@@ -1,30 +1,24 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Threading;
-using WaveTracker.UI;
-using WaveTracker.Tracker;
+﻿using Microsoft.Xna.Framework;
 using WaveTracker.Audio;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
-using System.Diagnostics;
-using System.Xml.Schema;
+using WaveTracker.Tracker;
 
 namespace WaveTracker.UI {
     public class InstrumentEditor : Window {
         public bool IsOpen { get { return WindowIsOpen; } }
 
-        int currentInstrumentID;
-        Instrument CurrentInstrument => App.CurrentModule.Instruments[currentInstrumentID];
+        private int currentInstrumentID;
+
+        private Instrument CurrentInstrument {
+            get {
+                return App.CurrentModule.Instruments[currentInstrumentID];
+            }
+        }
 
         public EnvelopeEditor envelopeEditor;
         public SampleEditor sampleEditor;
         public EnvelopeListBox envelopeList;
-        PreviewPiano piano;
-        TabGroup tabGroup;
+        private PreviewPiano piano;
+        private TabGroup tabGroup;
 
         public InstrumentEditor() : base("Instrument Editor", 600, 340) {
             ExitButton.SetTooltip("Close", "Close instrument editor");
@@ -36,8 +30,10 @@ namespace WaveTracker.UI {
 
         public void Update() {
             if (WindowIsOpen) {
-                if (ExitButton.Clicked)
+                if (ExitButton.Clicked) {
                     Close();
+                }
+
                 DoDragging();
                 tabGroup.Update();
                 if (CurrentInstrument is SampleInstrument) {
@@ -68,7 +64,6 @@ namespace WaveTracker.UI {
             }
         }
 
-
         public void Open(Instrument instrumentToEdit, int instrumentIndex) {
             Open();
             currentInstrumentID = instrumentIndex;
@@ -85,9 +80,7 @@ namespace WaveTracker.UI {
         }
 
         public int GetPianoMouseInput() {
-            if (!WindowIsOpen || !InFocus)
-                return -1;
-            return piano.CurrentClickedNote;
+            return !WindowIsOpen || !InFocus ? -1 : piano.CurrentClickedNote;
         }
 
         public new void Close() {
@@ -98,7 +91,7 @@ namespace WaveTracker.UI {
         public new void Draw() {
             if (WindowIsOpen) {
                 name = "Edit Instrument " + currentInstrumentID.ToString("D2");
-                
+
                 // draw window
                 base.Draw();
 

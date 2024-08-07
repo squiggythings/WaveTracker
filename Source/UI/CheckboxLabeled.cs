@@ -1,17 +1,10 @@
 ﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using WaveTracker.Rendering;
 
 namespace WaveTracker.UI {
     public class CheckboxLabeled : Clickable {
         public bool Value { get; set; }
-        string label;
+
+        private string label;
         public bool ShowCheckboxOnRight { get; set; }
 
         public CheckboxLabeled(string label, int x, int y, int width, Element parent) {
@@ -29,7 +22,7 @@ namespace WaveTracker.UI {
             }
         }
 
-        Rectangle GetBounds(int num) {
+        private Rectangle GetBounds(int num) {
             return new Rectangle(440, num * 9, 9, 9);
         }
 
@@ -38,10 +31,12 @@ namespace WaveTracker.UI {
             if (enabled) {
                 if (Value) {
                     if (IsHovered) {
-                        if (IsPressed)
+                        if (IsPressed) {
                             DrawSprite(checkX, (height - 9) / 2, GetBounds(5));
-                        else
+                        }
+                        else {
                             DrawSprite(checkX, (height - 9) / 2, GetBounds(4));
+                        }
                     }
                     else {
                         DrawSprite(checkX, (height - 9) / 2, GetBounds(3));
@@ -49,10 +44,12 @@ namespace WaveTracker.UI {
                 }
                 else {
                     if (IsHovered) {
-                        if (IsPressed)
+                        if (IsPressed) {
                             DrawSprite(checkX, (height - 9) / 2, GetBounds(2));
-                        else
+                        }
+                        else {
                             DrawSprite(checkX, (height - 9) / 2, GetBounds(1));
+                        }
                     }
                     else {
                         DrawSprite(checkX, (height - 9) / 2, GetBounds(0));
@@ -61,14 +58,18 @@ namespace WaveTracker.UI {
 
             }
             else {
-                if (Value)
+                if (Value) {
                     DrawSprite(checkX, (height - 9) / 2, GetBounds(7));
-                else
+                }
+                else {
                     DrawSprite(checkX, (height - 9) / 2, GetBounds(6));
+                }
             }
             Color labelCol = UIColors.labelDark;
-            if (IsHovered)
+            if (IsHovered) {
                 labelCol = Color.Black;
+            }
+
             Write(label + "", ShowCheckboxOnRight ? 0 : 13, (height - 7) / 2, labelCol);
         }
 

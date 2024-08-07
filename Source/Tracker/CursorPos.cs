@@ -1,15 +1,4 @@
-﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-
+﻿using System;
 
 namespace WaveTracker.Tracker {
 
@@ -36,25 +25,20 @@ namespace WaveTracker.Tracker {
         /// </summary>
         public CursorColumnType Column { get; set; }
 
-
         public bool IsAbove(CursorPos other) {
-            if (Frame == other.Frame) return Row < other.Row;
-            return Frame < other.Frame;
+            return Frame == other.Frame ? Row < other.Row : Frame < other.Frame;
         }
 
         public bool IsBelow(CursorPos other) {
-            if (Frame == other.Frame) return Row > other.Row;
-            return Frame > other.Frame;
+            return Frame == other.Frame ? Row > other.Row : Frame > other.Frame;
         }
 
         public bool IsLeftOf(CursorPos other) {
-            if (Channel == other.Channel) return Column < other.Column;
-            return Channel < other.Channel;
+            return Channel == other.Channel ? Column < other.Column : Channel < other.Channel;
         }
 
         public bool IsRightOf(CursorPos other) {
-            if (Channel == other.Channel) return Column > other.Column;
-            return Channel > other.Channel;
+            return Channel == other.Channel ? Column > other.Column : Channel > other.Channel;
         }
 
         /// <summary>
@@ -81,15 +65,12 @@ namespace WaveTracker.Tracker {
         /// <param name="song"></param>
         /// <returns></returns>
         public bool IsValid(WTSong song) {
-            if (Frame < 0) return false;
-            if (Frame >= song.FrameSequence.Count) return false;
-            if (Row < 0) return false;
-            if (Row >= song.FrameSequence[Frame].GetPattern().GetModifiedLength()) return false;
-            if (Channel < 0) return false;
-            if (Channel >= song.NumEffectColumns.Length) return false;
-            if (Column < 0) return false;
-            if ((int)Column > 2 + song.NumEffectColumns[Channel] * 2) return false;
-            return true;
+            return Frame >= 0
+&& Frame < song.FrameSequence.Count
+&& Row >= 0
+&& Row < song.FrameSequence[Frame].GetPattern().GetModifiedLength()
+&& Channel >= 0
+&& Channel < song.NumEffectColumns.Length && Column >= 0 && (int)Column <= 2 + song.NumEffectColumns[Channel] * 2;
         }
 
         /// <summary>
@@ -120,8 +101,9 @@ namespace WaveTracker.Tracker {
         }
 
         public void ClampRow(int maxRow) {
-            if (Row > maxRow)
+            if (Row > maxRow) {
                 Row = maxRow;
+            }
         }
 
         /// <summary>
@@ -133,6 +115,7 @@ namespace WaveTracker.Tracker {
                 MoveToChannel(Channel - 1, song);
                 column = song.GetNumCursorColumns(Channel) - 1;
             }
+
             Column = (CursorColumnType)column;
         }
 
@@ -145,6 +128,7 @@ namespace WaveTracker.Tracker {
                 MoveToChannel(Channel + 1, song);
                 column = 0;
             }
+
             Column = (CursorColumnType)column;
         }
 
@@ -166,6 +150,7 @@ namespace WaveTracker.Tracker {
             if (channel < 0) {
                 channel += song.ParentModule.ChannelCount;
             }
+
             Channel = channel;
             Column = CursorColumnType.Note;
         }
@@ -180,11 +165,13 @@ namespace WaveTracker.Tracker {
                 row += song.FrameSequence[Frame].GetLength();
                 frameWrapCount--;
             }
+
             while (row >= song.FrameSequence[Frame].GetLength()) {
                 row -= song.FrameSequence[Frame].GetLength();
                 MoveToFrame(Frame + 1, song);
                 frameWrapCount++;
             }
+
             Row = row;
         }
 
@@ -197,10 +184,12 @@ namespace WaveTracker.Tracker {
                 MoveToFrame(Frame - 1, song);
                 row += song.FrameSequence[Frame].GetLength();
             }
+
             while (row >= song.FrameSequence[Frame].GetLength()) {
                 row -= song.FrameSequence[Frame].GetLength();
                 MoveToFrame(Frame + 1, song);
             }
+
             Row = row;
         }
 
@@ -213,29 +202,21 @@ namespace WaveTracker.Tracker {
             Row = Math.Clamp(row, 0, song[Frame].GetModifiedLength() - 1);
         }
 
-
-
         /// <summary>
         /// Returns true if this position in song is empty
         /// </summary>
         /// <param name="song"></param>
         /// <returns></returns>
         public bool IsPositionEmpty(WTSong song) {
-            if (Column == CursorColumnType.Effect1Param1 || Column == CursorColumnType.Effect1Param2) {
-                return song[Frame][Row, Channel, CellType.Effect1] == WTPattern.EVENT_EMPTY;
-            }
-            else if (Column == CursorColumnType.Effect2Param1 || Column == CursorColumnType.Effect2Param2) {
-                return song[Frame][Row, Channel, CellType.Effect2] == WTPattern.EVENT_EMPTY;
-            }
-            else if (Column == CursorColumnType.Effect3Param1 || Column == CursorColumnType.Effect3Param2) {
-                return song[Frame][Row, Channel, CellType.Effect3] == WTPattern.EVENT_EMPTY;
-            }
-            else if (Column == CursorColumnType.Effect4Param1 || Column == CursorColumnType.Effect4Param2) {
-                return song[Frame][Row, Channel, CellType.Effect4] == WTPattern.EVENT_EMPTY;
-            }
-            else {
-                return song[Frame][Row, Channel, Column.ToCellType()] == WTPattern.EVENT_EMPTY;
-            }
+            return Column is CursorColumnType.Effect1Param1 or CursorColumnType.Effect1Param2
+                ? song[Frame][Row, Channel, CellType.Effect1] == WTPattern.EVENT_EMPTY
+                : Column is CursorColumnType.Effect2Param1 or CursorColumnType.Effect2Param2
+                    ? song[Frame][Row, Channel, CellType.Effect2] == WTPattern.EVENT_EMPTY
+                    : Column is CursorColumnType.Effect3Param1 or CursorColumnType.Effect3Param2
+                                    ? song[Frame][Row, Channel, CellType.Effect3] == WTPattern.EVENT_EMPTY
+                                    : Column is CursorColumnType.Effect4Param1 or CursorColumnType.Effect4Param2
+                                                    ? song[Frame][Row, Channel, CellType.Effect4] == WTPattern.EVENT_EMPTY
+                                                    : song[Frame][Row, Channel, Column.ToCellType()] == WTPattern.EVENT_EMPTY;
         }
 
         /// <summary>
@@ -249,6 +230,7 @@ namespace WaveTracker.Tracker {
             if (frame < 0) {
                 frame += numFrames;
             }
+
             Frame = frame;
 
             // make sure the cursor is in bounds of this frame
@@ -259,15 +241,25 @@ namespace WaveTracker.Tracker {
             return "[f:" + Frame + "|r:" + Row + "|t:" + Channel + "|c:" + Column.ToString() + "]";
         }
 
-        public override bool Equals(object obj) => obj is CursorPos other && Equals(other);
+        public override bool Equals(object obj) {
+            return obj is CursorPos other && Equals(other);
+        }
 
-        public bool Equals(CursorPos p) => Frame == p.Frame && Row == p.Row && Channel == p.Channel && Column == p.Column;
+        public bool Equals(CursorPos p) {
+            return Frame == p.Frame && Row == p.Row && Channel == p.Channel && Column == p.Column;
+        }
 
-        public override int GetHashCode() => (Frame, Row, Channel, Column).GetHashCode();
+        public override int GetHashCode() {
+            return HashCode.Combine(Frame, Row, Channel, Column);
+        }
 
-        public static bool operator ==(CursorPos lhs, CursorPos rhs) => lhs.Equals(rhs);
+        public static bool operator ==(CursorPos lhs, CursorPos rhs) {
+            return lhs.Equals(rhs);
+        }
 
-        public static bool operator !=(CursorPos lhs, CursorPos rhs) => !(lhs == rhs);
+        public static bool operator !=(CursorPos lhs, CursorPos rhs) {
+            return !(lhs == rhs);
+        }
 
         /// <summary>
         /// The column of this position in the patterns cell array
@@ -279,8 +271,6 @@ namespace WaveTracker.Tracker {
             }
         }
     }
-
-
 
     public enum CursorColumnType {
         Note,

@@ -1,23 +1,19 @@
-﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
+﻿using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using WaveTracker.Tracker;
 
 namespace WaveTracker.UI {
     public class EnvelopeListBox : Clickable {
 
         public List<Envelope> List { get; private set; }
-        EnvelopeListItem[] items;
+
+        private EnvelopeListItem[] items;
         public int SelectedIndex { get; set; }
         public Envelope SelectedItem { get { return SelectedIndex >= 0 ? List[SelectedIndex] : null; } }
-        DropdownButton addEnvelopeButton;
-        Envelope.EnvelopeType[] remainingEnvelopes;
+
+        private DropdownButton addEnvelopeButton;
+        private Envelope.EnvelopeType[] remainingEnvelopes;
 
         public EnvelopeListBox(int x, int y, int height, Element parent) {
             this.x = x;
@@ -33,12 +29,7 @@ namespace WaveTracker.UI {
         }
 
         public void Intialize(List<Envelope> listOfEnvelopes) {
-            if (listOfEnvelopes.Count > 0) {
-                SelectedIndex = 0;
-            }
-            else {
-                SelectedIndex = -1;
-            }
+            SelectedIndex = listOfEnvelopes.Count > 0 ? 0 : -1;
             List = listOfEnvelopes;
             UpdateRemainingEnvelopes();
         }
@@ -56,8 +47,9 @@ namespace WaveTracker.UI {
                         Audio.ChannelManager.PreviewChannel.Reset();
                         App.CurrentModule.SetDirty();
                         UpdateRemainingEnvelopes();
-                        if (SelectedIndex >= List.Count)
+                        if (SelectedIndex >= List.Count) {
                             SelectedIndex--;
+                        }
                     }
                 }
                 else {
@@ -67,13 +59,15 @@ namespace WaveTracker.UI {
             if (List.Count > 1) {
                 if (Input.GetKeyRepeat(Keys.Up, KeyModifier.None)) {
                     SelectedIndex--;
-                    if (SelectedIndex < 0)
+                    if (SelectedIndex < 0) {
                         SelectedIndex = 0;
+                    }
                 }
                 if (Input.GetKeyRepeat(Keys.Down, KeyModifier.None)) {
                     SelectedIndex++;
-                    if (SelectedIndex > List.Count - 1)
+                    if (SelectedIndex > List.Count - 1) {
                         SelectedIndex = List.Count - 1;
+                    }
                 }
             }
             addEnvelopeButton.enabled = remainingEnvelopes.Length > 0;
@@ -84,10 +78,10 @@ namespace WaveTracker.UI {
                 App.CurrentModule.SetDirty();
             }
 
-
         }
-        void UpdateRemainingEnvelopes() {
-            List<Envelope.EnvelopeType> list = new List<Envelope.EnvelopeType>();
+
+        private void UpdateRemainingEnvelopes() {
+            List<Envelope.EnvelopeType> list = [];
 
             foreach (Envelope.EnvelopeType type in Enum.GetValues(typeof(Envelope.EnvelopeType))) {
                 bool hasEnvelope = false;
@@ -98,7 +92,7 @@ namespace WaveTracker.UI {
                     }
                 }
                 if (!hasEnvelope) {
-                    if (App.InstrumentBank.GetCurrentInstrument is WaveInstrument || (type == Envelope.EnvelopeType.Volume || type == Envelope.EnvelopeType.Arpeggio || type == Envelope.EnvelopeType.Pitch)) {
+                    if (App.InstrumentBank.GetCurrentInstrument is WaveInstrument || type == Envelope.EnvelopeType.Volume || type == Envelope.EnvelopeType.Arpeggio || type == Envelope.EnvelopeType.Pitch) {
                         list.Add(type);
                     }
                 }
@@ -111,7 +105,7 @@ namespace WaveTracker.UI {
             addEnvelopeButton.SetMenuItems(names);
         }
 
-        void AddEnvelope(Envelope.EnvelopeType type) {
+        private void AddEnvelope(Envelope.EnvelopeType type) {
             foreach (Envelope envelope in List) {
                 if (envelope.Type == type) {
                     return;
@@ -132,8 +126,6 @@ namespace WaveTracker.UI {
             }
             UpdateRemainingEnvelopes();
         }
-
-
 
         public void Draw() {
             //DrawRect(0, 0, width, height, new Color(192, 195, 212));

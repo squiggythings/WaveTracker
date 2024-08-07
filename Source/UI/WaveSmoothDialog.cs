@@ -1,18 +1,10 @@
-﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System;
 using WaveTracker.Tracker;
-
 
 namespace WaveTracker.UI {
     public class WaveSmoothDialog : WaveModifyDialog {
-        NumberBox smoothWindow;
-        NumberBox smoothAmt;
+        private NumberBox smoothWindow;
+        private NumberBox smoothAmt;
 
         public WaveSmoothDialog() : base("Smooth wave...") {
             smoothWindow = new NumberBox("Window size", 8, 25, 94, 40, this);
@@ -32,10 +24,13 @@ namespace WaveTracker.UI {
                 base.Update();
                 smoothWindow.Update();
                 smoothAmt.Update();
-                if (smoothAmt.ValueWasChangedInternally)
+                if (smoothAmt.ValueWasChangedInternally) {
                     Apply();
-                if (smoothWindow.ValueWasChangedInternally)
+                }
+
+                if (smoothWindow.ValueWasChangedInternally) {
                     Apply();
+                }
             }
         }
 

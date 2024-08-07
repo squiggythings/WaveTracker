@@ -1,22 +1,16 @@
 ﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 
 namespace WaveTracker.UI {
     public class MessageDialog : Dialog {
         protected Action<string> OnDialogExit;
         public enum Icon { Information, Error, Warning, Question, None }
-        Icon icon;
+
+        private Icon icon;
         public string Message { get; protected set; }
         protected Button[] buttons;
-        int textHeight;
-        int textWidth;
+        private int textHeight;
+        private int textWidth;
         public MessageDialog() : base("WaveTracker", 240, 80, hasExitButton: false) {
 
         }
@@ -37,14 +31,19 @@ namespace WaveTracker.UI {
                 buttons[i] = AddNewBottomButton(buttonNames[i], this);
             }
             OnDialogExit = onExitCallback;
-            if (icon == Icon.Information)
+            if (icon == Icon.Information) {
                 System.Media.SystemSounds.Asterisk.Play();
-            else if (icon == Icon.Error)
+            }
+            else if (icon == Icon.Error) {
                 System.Media.SystemSounds.Hand.Play();
-            else if (icon == Icon.Warning)
+            }
+            else if (icon == Icon.Warning) {
                 System.Media.SystemSounds.Exclamation.Play();
-            else if (icon == Icon.Question)
+            }
+            else if (icon == Icon.Question) {
                 System.Media.SystemSounds.Question.Play();
+            }
+
             textWidth = width - (icon == Icon.None ? 16 : 64);
             textHeight = Helpers.GetHeightOfMultilineText(Message, textWidth);
             Open();
@@ -65,14 +64,18 @@ namespace WaveTracker.UI {
 
             OnDialogExit = null;
             if (playSound) {
-                if (icon == Icon.Information)
+                if (icon == Icon.Information) {
                     System.Media.SystemSounds.Asterisk.Play();
-                else if (icon == Icon.Error)
+                }
+                else if (icon == Icon.Error) {
                     System.Media.SystemSounds.Hand.Play();
-                else if(icon == Icon.Warning)
+                }
+                else if (icon == Icon.Warning) {
                     System.Media.SystemSounds.Exclamation.Play();
-                else if(icon == Icon.Question)
+                }
+                else if (icon == Icon.Question) {
                     System.Media.SystemSounds.Question.Play();
+                }
             }
             textWidth = width - (icon == Icon.None ? 16 : 64);
             textHeight = Helpers.GetHeightOfMultilineText(Message, textWidth);
@@ -102,16 +105,23 @@ namespace WaveTracker.UI {
                 // 220
                 DrawRect(0, 9, width, height - 28, Color.White);
 
-
                 int textY = 10 + (height - 25 - textHeight) / 2;
-                if (icon == Icon.Information)
+                if (icon == Icon.Information) {
                     DrawSprite(8, 19, new Rectangle(256, 80, 32, 32));
-                if (icon == Icon.Error)
+                }
+
+                if (icon == Icon.Error) {
                     DrawSprite(8, 19, new Rectangle(288, 80, 32, 32));
-                if (icon == Icon.Warning)
+                }
+
+                if (icon == Icon.Warning) {
                     DrawSprite(8, 19, new Rectangle(320, 80, 32, 32));
-                if (icon == Icon.Question)
+                }
+
+                if (icon == Icon.Question) {
                     DrawSprite(8, 19, new Rectangle(352, 80, 32, 32));
+                }
+
                 WriteMultiline(Message, icon == Icon.None ? 8 : 48, textY, textWidth, UIColors.labelDark);
             }
         }

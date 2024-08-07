@@ -1,12 +1,4 @@
 ﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 
 namespace WaveTracker.UI {
     public class Checkbox : Clickable {
@@ -32,7 +24,7 @@ namespace WaveTracker.UI {
             }
         }
 
-        Rectangle GetBounds(int num) {
+        private Rectangle GetBounds(int num) {
             return new Rectangle(440, num * 9, 9, 9);
         }
 
@@ -49,10 +41,12 @@ namespace WaveTracker.UI {
             if (enabled) {
                 if (Value) {
                     if (isHovered) {
-                        if (isPressed)
+                        if (isPressed) {
                             DrawSprite(0, 0, GetBounds(5));
-                        else
+                        }
+                        else {
                             DrawSprite(0, 0, GetBounds(4));
+                        }
                     }
                     else {
                         DrawSprite(0, 0, GetBounds(3));
@@ -60,10 +54,12 @@ namespace WaveTracker.UI {
                 }
                 else {
                     if (isHovered) {
-                        if (isPressed)
+                        if (isPressed) {
                             DrawSprite(0, 0, GetBounds(2));
-                        else
+                        }
+                        else {
                             DrawSprite(0, 0, GetBounds(1));
+                        }
                     }
                     else {
                         DrawSprite(0, 0, GetBounds(0));
@@ -72,10 +68,12 @@ namespace WaveTracker.UI {
 
             }
             else {
-                if (Value)
+                if (Value) {
                     DrawSprite(0, 0, GetBounds(7));
-                else
+                }
+                else {
                     DrawSprite(0, 0, GetBounds(6));
+                }
             }
 
         }
@@ -84,10 +82,12 @@ namespace WaveTracker.UI {
             if (enabled) {
                 if (Value) {
                     if (IsHovered) {
-                        if (IsPressed)
+                        if (IsPressed) {
                             DrawSprite(0, 0, GetBounds(5));
-                        else
+                        }
+                        else {
                             DrawSprite(0, 0, GetBounds(4));
+                        }
                     }
                     else {
                         DrawSprite(0, 0, GetBounds(3));
@@ -95,10 +95,12 @@ namespace WaveTracker.UI {
                 }
                 else {
                     if (IsHovered) {
-                        if (IsPressed)
+                        if (IsPressed) {
                             DrawSprite(0, 0, GetBounds(2));
-                        else
+                        }
+                        else {
                             DrawSprite(0, 0, GetBounds(1));
+                        }
                     }
                     else {
                         DrawSprite(0, 0, GetBounds(0));
@@ -107,10 +109,12 @@ namespace WaveTracker.UI {
 
             }
             else {
-                if (Value)
+                if (Value) {
                     DrawSprite(0, 0, GetBounds(7));
-                else
+                }
+                else {
                     DrawSprite(0, 0, GetBounds(6));
+                }
             }
 
         }

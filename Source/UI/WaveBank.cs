@@ -1,18 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
-using WaveTracker.UI;
-using WaveTracker.Tracker;
+﻿using Microsoft.Xna.Framework;
 using WaveTracker.Audio;
+using WaveTracker.Tracker;
 
 namespace WaveTracker.UI {
     public class WaveBank : Panel {
-        WaveBankElement[] waveBankElements;
+        private WaveBankElement[] waveBankElements;
         public static int currentWaveID;
         public static int lastSelectedWave;
         public WaveBank(int x, int y) : base("Wave Bank", x, y, 448, 130) {
@@ -38,16 +30,19 @@ namespace WaveTracker.UI {
 
         public void Update() {
             int i = 0;
-            if (Input.focus == null)
+            if (Input.focus == null) {
                 currentWaveID = -1;
+            }
+
             foreach (WaveBankElement e in waveBankElements) {
                 e.Update();
                 if (e.Clicked) {
                     currentWaveID = i;
                     lastSelectedWave = i;
                     App.WaveEditor.Open(i);
-                    if (!ChannelManager.PreviewChannel.envelopePlayers[Envelope.EnvelopeType.Wave].HasActiveEnvelopeData)
+                    if (!ChannelManager.PreviewChannel.envelopePlayers[Envelope.EnvelopeType.Wave].HasActiveEnvelopeData) {
                         ChannelManager.PreviewChannel.SetWave(i);
+                    }
                 }
                 ++i;
             }

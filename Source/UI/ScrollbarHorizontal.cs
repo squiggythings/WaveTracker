@@ -1,23 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
-using WaveTracker.Rendering;
+﻿using Microsoft.Xna.Framework;
+using System;
 
 namespace WaveTracker.UI {
     public class ScrollbarHorizontal : Clickable {
         public int totalSize;
         public int viewportSize;
         public Rectangle bar;
-        bool lastClickWasOnScrollbar;
+        private bool lastClickWasOnScrollbar;
         public int ScrollValue { get; set; }
         public int CoarseStepAmount { get; set; }
-        int barClickOffset;
+
+        private int barClickOffset;
 
         public bool IsVisible { get { return viewportSize < totalSize; } }
         public ScrollbarHorizontal(int x, int y, int width, int height, Element parent) {
@@ -26,8 +19,9 @@ namespace WaveTracker.UI {
             this.width = width;
             this.height = height;
             CoarseStepAmount = 1;
-            if (parent != null)
+            if (parent != null) {
                 SetParent(parent);
+            }
         }
 
         public void SetSize(int totalSize, int viewportSize) {
@@ -88,16 +82,18 @@ namespace WaveTracker.UI {
 
                     DrawRect(0, bar.Y, width, bar.Height, background);
                     DrawRoundedRect(1, bar.Y + 1, width - 2, bar.Height - 2, barSpace);
-                    if (BarisPressed && (!Input.internalDialogIsOpen))
+                    if (BarisPressed && !Input.internalDialogIsOpen) {
                         DrawRoundedRect(bar.X, bar.Y + 1, bar.Width, bar.Height - 2, barPressed);
-                    else if (BarisHovered && (!Input.internalDialogIsOpen))
+                    }
+                    else if (BarisHovered && !Input.internalDialogIsOpen) {
                         DrawRoundedRect(bar.X, bar.Y + 1, bar.Width, bar.Height - 2, barHover);
-                    else
+                    }
+                    else {
                         DrawRoundedRect(bar.X, bar.Y + 1, bar.Width, bar.Height - 2, barDefault);
+                    }
                 }
             }
         }
-
 
         /// <summary>
         /// Clamps the scroll value if the scroll value is out of range
@@ -109,17 +105,24 @@ namespace WaveTracker.UI {
             }
         }
 
-        float BarValFromPos() {
+        private float BarValFromPos() {
             return (bar.X - 1) / (float)(width - 2 - bar.Width);
         }
 
-        float BarPosFromVal() {
+        private float BarPosFromVal() {
             return ScrollValue / (float)totalSize;
         }
 
+        private bool BarisHovered {
+            get {
+                return InFocus && bar.Contains(MouseX, MouseY);
+            }
+        }
 
-
-        bool BarisHovered => InFocus && bar.Contains(MouseX, MouseY);
-        bool BarisPressed => InFocus && Input.GetClick(KeyModifier._Any) && lastClickWasOnScrollbar;
+        private bool BarisPressed {
+            get {
+                return InFocus && Input.GetClick(KeyModifier._Any) && lastClickWasOnScrollbar;
+            }
+        }
     }
 }

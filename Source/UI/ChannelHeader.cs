@@ -1,14 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using WaveTracker.Audio;
 using WaveTracker.Tracker;
-using WaveTracker.UI;
 
 namespace WaveTracker.UI {
     public class ChannelHeader : Clickable {
@@ -16,16 +9,17 @@ namespace WaveTracker.UI {
         /// <summary>
         /// The number of pixels to decay the volume meter each frame
         /// </summary>
-        const int METER_DECAY_RATE = 4;
+        private const int METER_DECAY_RATE = 4;
 
         /// <summary>
         /// The width of the pan meter
         /// </summary>
-        const int PAN_METER_WIDTH = 23;
+        private const int PAN_METER_WIDTH = 23;
+
         /// <summary>
         /// The width of the volume meter
         /// </summary>
-        const int VOLUME_METER_WIDTH = 53;
+        private const int VOLUME_METER_WIDTH = 53;
 
         /// <summary>
         /// The number of effect columns on this channel
@@ -35,36 +29,41 @@ namespace WaveTracker.UI {
         /// <summary>
         /// Returns false if the mouse is past the patternEditors bounds
         /// </summary>
-        bool MouseIsValid => MouseX + x < parentEditor.width;
+        private bool MouseIsValid {
+            get {
+                return MouseX + x < parentEditor.width;
+            }
+        }
 
         /// <summary>
         /// The pattern editor this channel header belongs to
         /// </summary>
-        PatternEditor parentEditor;
+        private PatternEditor parentEditor;
 
         /// <summary>
         /// The bounds of where the user clicks to add an effect column
         /// </summary>
-        MouseRegion expandEffectButton;
+        private MouseRegion expandEffectButton;
 
         /// <summary>
         /// The bounds of where the user clicks to remove an effect column
         /// </summary>
-        MouseRegion collapseEffectButton;
+        private MouseRegion collapseEffectButton;
 
         /// <summary>
         /// The index of the channel this channel header is rendering
         /// </summary>
-        int channelNum;
+        private int channelNum;
 
         /// <summary>
         /// The amplitude meter value (in pixels)
         /// </summary>
-        int amplitude;
+        private int amplitude;
 
         public float Amplitude { get { return Math.Clamp(amplitude / 50f, 0f, 1f); } }
-        Channel channelToDisplay;
-        Menu contextMenu;
+
+        private Channel channelToDisplay;
+        private Menu contextMenu;
         public ChannelHeader(int x, int y, int width, int channelNum, PatternEditor parentEditor) {
             this.x = x;
             this.y = y;
@@ -83,19 +82,19 @@ namespace WaveTracker.UI {
             channelToDisplay = ChannelManager.Channels[channelNum];
         }
 
-        void ToggleChannel() {
+        private void ToggleChannel() {
             ChannelManager.ToggleChannel(channelNum);
         }
-        void SoloChannel() {
+
+        private void SoloChannel() {
             ChannelManager.SoloChannel(channelNum);
         }
 
         public void Update() {
             // if the user is editing this header's channel, render the preview channel instead
-            if (parentEditor.cursorPosition.Channel == channelNum && !ChannelManager.Channels[channelNum].IsPlaying && !Playback.IsPlaying)
-                channelToDisplay = ChannelManager.PreviewChannel;
-            else
-                channelToDisplay = ChannelManager.Channels[channelNum];
+            channelToDisplay = parentEditor.cursorPosition.Channel == channelNum && !ChannelManager.Channels[channelNum].IsPlaying && !Playback.IsPlaying
+                ? ChannelManager.PreviewChannel
+                : ChannelManager.Channels[channelNum];
             UpdateAmplitude(channelToDisplay);
             if (enabled && !App.VisualizerMode) {
                 if (Input.focusTimer > 1) {
@@ -108,15 +107,22 @@ namespace WaveTracker.UI {
                                 ToggleChannel();
                             }
                             if (DoubleClickedM(KeyModifier.None) || ClickedM(KeyModifier.Ctrl)) {
-                                if (ChannelManager.IsEveryChannelMuted() || ChannelManager.IsChannelSoloed(channelNum))
+                                if (ChannelManager.IsEveryChannelMuted() || ChannelManager.IsChannelSoloed(channelNum)) {
                                     ChannelManager.UnmuteAllChannels();
-                                else
+                                }
+                                else {
                                     SoloChannel();
+                                }
                             }
                         }
 
-                        if (expandEffectButton.Clicked) NumEffectColumns++;
-                        if (collapseEffectButton.Clicked) NumEffectColumns--;
+                        if (expandEffectButton.Clicked) {
+                            NumEffectColumns++;
+                        }
+
+                        if (collapseEffectButton.Clicked) {
+                            NumEffectColumns--;
+                        }
                     }
                     expandEffectButton.enabled = NumEffectColumns < 4;
                     collapseEffectButton.enabled = NumEffectColumns > 1;
@@ -124,15 +130,18 @@ namespace WaveTracker.UI {
             }
         }
 
-        void UpdateAmplitude(Channel channel) {
+        private void UpdateAmplitude(Channel channel) {
             int currentAmp = Math.Clamp((int)(channel.CurrentAmplitude * VOLUME_METER_WIDTH + 0.5f), 0, VOLUME_METER_WIDTH);
 
             amplitude -= METER_DECAY_RATE;
-            if (currentAmp >= amplitude)
+            if (currentAmp >= amplitude) {
                 amplitude = currentAmp;
+            }
 
-            if (amplitude < 0)
+            if (amplitude < 0) {
                 amplitude = 0;
+            }
+
             channel._sampleVolume *= 0.6f;
         }
 
@@ -144,28 +153,35 @@ namespace WaveTracker.UI {
                 if (ChannelManager.IsChannelMuted(channelNum)) {
                     DrawRoundedRect(0, 0, width, height, new Color(208, 209, 221));
                     DrawRect(0, 20, width, height - 20, new Color(191, 193, 209));
-                    if (channelNum >= 0)
+                    if (channelNum >= 0) {
                         Write("Channel " + (channelNum + 1), 4, 11, new Color(230, 69, 57));
+                    }
+
                     arrowOffset = 12;
                 }
                 else if (MouseIsValid && IsPressed && !(collapseEffectButton.IsHovered || expandEffectButton.IsHovered)) {
                     DrawRoundedRect(0, 0, width, height, new Color(223, 224, 232));
                     DrawRect(0, 20, width, height - 20, new Color(208, 209, 221));
-                    if (channelNum >= 0)
+                    if (channelNum >= 0) {
                         Write("Channel " + (channelNum + 1), 4, 10, new Color(104, 111, 153));
+                    }
                 }
                 else {
                     DrawRoundedRect(0, 0, width, height, Color.White);
                     DrawRect(0, 20, width, height - 20, new Color(223, 224, 232));
-                    if (channelNum >= 0)
+                    if (channelNum >= 0) {
                         Write("Channel " + (channelNum + 1), 4, 10, new Color(104, 111, 153));
+                    }
                 }
 
                 // draw expansion arrows
-                if (collapseEffectButton.enabled)
+                if (collapseEffectButton.enabled) {
                     DrawExpansionArrow(52 - (collapseEffectButton.IsPressed ? 1 : 0), arrowOffset, true, collapseEffectButton.IsHovered && MouseIsValid);
-                if (expandEffectButton.enabled)
+                }
+
+                if (expandEffectButton.enabled) {
                     DrawExpansionArrow(57 + (expandEffectButton.IsPressed ? 1 : 0), arrowOffset, false, expandEffectButton.IsHovered && MouseIsValid);
+                }
 
                 // draw panning meter bg
                 int panMeterStartPos = 5 + VOLUME_METER_WIDTH / 2 - PAN_METER_WIDTH / 2;
@@ -178,7 +194,7 @@ namespace WaveTracker.UI {
 
                 // write "fx" under each extra effect column
                 for (int i = 2; i <= NumEffectColumns; ++i) {
-                    Write("fx" + (i), 65 + (i - 2) * 18, 22, UIColors.labelLight);
+                    Write("fx" + i, 65 + (i - 2) * 18, 22, UIColors.labelLight);
                 }
 
                 // draw pan/volume meter
@@ -195,8 +211,7 @@ namespace WaveTracker.UI {
             }
         }
 
-
-        void DrawExpansionArrow(int x, int y, bool facingLeft, bool hovered) {
+        private void DrawExpansionArrow(int x, int y, bool facingLeft, bool hovered) {
             Color c = hovered ? UIColors.labelDark : Helpers.Alpha(UIColors.labelLight, 200);
             if (facingLeft) {
                 DrawRect(x + 2, y, 1, 5, c);

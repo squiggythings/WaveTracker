@@ -1,13 +1,6 @@
-﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
+﻿using ProtoBuf;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ProtoBuf;
-
 
 namespace WaveTracker.Tracker {
     [ProtoContract(SkipConstructor = true)]
@@ -28,7 +21,6 @@ namespace WaveTracker.Tracker {
         public int Length { get { return values.Length; } }
 
         public const int EMPTY_LOOP_RELEASE_INDEX = byte.MaxValue;
-
 
         public Envelope(EnvelopeType type) {
             Type = type;
@@ -51,58 +43,37 @@ namespace WaveTracker.Tracker {
         }
 
         public string GetName() {
-            switch (Type) {
-                case EnvelopeType.Volume:
-                    return "Volume";
-                case EnvelopeType.Arpeggio:
-                    return "Arpeggio";
-                case EnvelopeType.Pitch:
-                    return "Pitch";
-                case EnvelopeType.Wave:
-                    return "Wave";
-                case EnvelopeType.WaveBlend:
-                    return "Wave Blend";
-                case EnvelopeType.WaveStretch:
-                    return "Wave Stretch";
-                case EnvelopeType.WaveSync:
-                    return "Wave Sync";
-                case EnvelopeType.WaveFM:
-                    return "Wave FM";
-            }
-            return "--";
+            return Type switch {
+                EnvelopeType.Volume => "Volume",
+                EnvelopeType.Arpeggio => "Arpeggio",
+                EnvelopeType.Pitch => "Pitch",
+                EnvelopeType.Wave => "Wave",
+                EnvelopeType.WaveBlend => "Wave Blend",
+                EnvelopeType.WaveStretch => "Wave Stretch",
+                EnvelopeType.WaveSync => "Wave Sync",
+                EnvelopeType.WaveFM => "Wave FM",
+                _ => "--",
+            };
         }
 
         public static string GetName(EnvelopeType type) {
-            switch (type) {
-                case EnvelopeType.Volume:
-                    return "Volume";
-                case EnvelopeType.Arpeggio:
-                    return "Arpeggio";
-                case EnvelopeType.Pitch:
-                    return "Pitch";
-                case EnvelopeType.Wave:
-                    return "Wave";
-                case EnvelopeType.WaveBlend:
-                    return "Wave Blend";
-                case EnvelopeType.WaveStretch:
-                    return "Wave Stretch";
-                case EnvelopeType.WaveSync:
-                    return "Wave Sync";
-                case EnvelopeType.WaveFM:
-                    return "Wave FM";
-            }
-            return "--";
+            return type switch {
+                EnvelopeType.Volume => "Volume",
+                EnvelopeType.Arpeggio => "Arpeggio",
+                EnvelopeType.Pitch => "Pitch",
+                EnvelopeType.Wave => "Wave",
+                EnvelopeType.WaveBlend => "Wave Blend",
+                EnvelopeType.WaveStretch => "Wave Stretch",
+                EnvelopeType.WaveSync => "Wave Sync",
+                EnvelopeType.WaveFM => "Wave FM",
+                _ => "--",
+            };
         }
 
         public void Resize(int length) {
             sbyte[] newArr = new sbyte[length];
             for (int i = 0; i < newArr.Length; i++) {
-                if (i < values.Length) {
-                    newArr[i] = values[i];
-                }
-                else {
-                    newArr[i] = 0;
-                }
+                newArr[i] = i < values.Length ? values[i] : (sbyte)0;
             }
             values = newArr;
             if (LoopIndex > values.Length - 1) {
@@ -113,10 +84,6 @@ namespace WaveTracker.Tracker {
             }
         }
 
-        [ProtoBeforeSerialization]
-        internal void BeforeSerialization() {
-            
-        }
         [ProtoAfterDeserialization]
         internal void AfterDeserialization() {
             if (values != null) {
@@ -145,7 +112,6 @@ namespace WaveTracker.Tracker {
             }
         }
 
-   
         public bool HasRelease { get { return ReleaseIndex != EMPTY_LOOP_RELEASE_INDEX; } }
         public bool HasLoop { get { return LoopIndex != EMPTY_LOOP_RELEASE_INDEX; } }
 
@@ -178,12 +144,16 @@ namespace WaveTracker.Tracker {
             int i = 0;
             ReleaseIndex = EMPTY_LOOP_RELEASE_INDEX;
             LoopIndex = EMPTY_LOOP_RELEASE_INDEX;
-            List<sbyte> vals = new List<sbyte>();
+            List<sbyte> vals = [];
             foreach (string part in parts) {
-                if (part == "/")
+                if (part == "/") {
                     ReleaseIndex = (byte)--i;
-                if (part == "|")
+                }
+
+                if (part == "|") {
                     LoopIndex = (byte)i--;
+                }
+
                 if (sbyte.TryParse(part, out sbyte val)) {
                     switch (Type) {
                         case EnvelopeType.Volume:

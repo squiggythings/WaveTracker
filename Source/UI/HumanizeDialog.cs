@@ -1,18 +1,8 @@
-﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace WaveTracker.UI {
+﻿namespace WaveTracker.UI {
     public class HumanizeDialog : Dialog {
-        PatternEditor parentEditor;
-        Button cancel, ok;
-        NumberBox volumeRange;
+        private PatternEditor parentEditor;
+        private Button cancel, ok;
+        private NumberBox volumeRange;
         public HumanizeDialog() : base("Humanize volumes", 146, 58) {
             PositionInCenterOfScreen();
             cancel = AddNewBottomButton("Cancel", this);
@@ -31,8 +21,10 @@ namespace WaveTracker.UI {
         public override void Update() {
             if (WindowIsOpen) {
                 DoDragging();
-                if (cancel.Clicked || ExitButton.Clicked)
+                if (cancel.Clicked || ExitButton.Clicked) {
                     Close();
+                }
+
                 if (ok.Clicked) {
                     parentEditor.RandomizeSelectedVolumes(volumeRange.Value);
                     Close();

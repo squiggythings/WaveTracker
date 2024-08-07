@@ -1,15 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace WaveTracker.UI {
     public class StretchDialog : Dialog {
-        PatternEditor parentEditor;
-        Button cancel, ok;
-        Textbox stretchText;
-        int[] stretchPattern;
+        private PatternEditor parentEditor;
+        private Button cancel, ok;
+        private Textbox stretchText;
+        private int[] stretchPattern;
         public StretchDialog() : base("Stretch selection", 260, 62) {
             PositionInCenterOfScreen();
             cancel = AddNewBottomButton("Cancel", this);
@@ -27,8 +23,9 @@ namespace WaveTracker.UI {
         public override void Update() {
             if (WindowIsOpen) {
                 DoDragging();
-                if (cancel.Clicked || ExitButton.Clicked)
+                if (cancel.Clicked || ExitButton.Clicked) {
                     Close();
+                }
 
                 if (ok.Clicked) {
                     parentEditor.StretchSelection(stretchText.Text);
@@ -45,16 +42,20 @@ namespace WaveTracker.UI {
                 }
             }
         }
-        int[] StretchPatternToIntArray(string text) {
-            List<int> ticks = new List<int>();
+
+        private int[] StretchPatternToIntArray(string text) {
+            List<int> ticks = [];
             foreach (string word in text.Split(' ')) {
                 if (word.IsNumeric()) {
-                    if (int.TryParse(word, out int val))
+                    if (int.TryParse(word, out int val)) {
                         ticks.Add(val);
+                    }
                 }
             }
-            if (ticks.Count == 0)
+            if (ticks.Count == 0) {
                 ticks.Add(1);
+            }
+
             return ticks.ToArray();
         }
 
@@ -62,7 +63,7 @@ namespace WaveTracker.UI {
             if (WindowIsOpen) {
                 base.Draw();
                 stretchText.Draw();
-                int[] testText = new int[16];
+                _ = new int[16];
 
                 int r = 0;
                 int index = 0;

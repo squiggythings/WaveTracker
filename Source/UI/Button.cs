@@ -1,23 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.Xna.Framework;
-
+﻿using Microsoft.Xna.Framework;
 
 namespace WaveTracker.UI {
     public class Button : Clickable {
         public string Label { get; private set; }
         public bool LabelIsCentered { get; set; }
-        ButtonColors colors;
-        int labelWidth;
+
+        private ButtonColors colors;
+        private int labelWidth;
 
         public Button(string label, int x, int y, Element parent) {
             enabled = true;
             this.x = x;
             this.y = y;
-            this.Label = label;
+            Label = label;
             colors = ButtonColors.Round;
             LabelIsCentered = true;
             width = Helpers.GetWidthOfText(label) + 8;
@@ -29,7 +24,7 @@ namespace WaveTracker.UI {
             enabled = true;
             this.x = x;
             this.y = y;
-            this.Label = label;
+            Label = label;
             colors = ButtonColors.Round;
             LabelIsCentered = true;
             this.width = width;
@@ -39,27 +34,20 @@ namespace WaveTracker.UI {
         }
 
         public void SetLabel(string label) {
-            this.Label = label;
+            Label = label;
             labelWidth = Helpers.GetWidthOfText(label);
         }
-        Color GetBackgroundColor() {
-            if (IsPressed)
-                return colors.backgroundColorPressed;
-            if (IsHovered)
-                return colors.backgroundColorHover;
-            return colors.backgroundColor;
+
+        private Color GetBackgroundColor() {
+            return IsPressed ? colors.backgroundColorPressed : IsHovered ? colors.backgroundColorHover : colors.backgroundColor;
         }
 
-        Color GetTextColor() {
-            if (IsPressed)
-                return colors.textColorPressed;
-            return colors.textColor;
+        private Color GetTextColor() {
+            return IsPressed ? colors.textColorPressed : colors.textColor;
         }
 
-        Color GetBorderColor() {
-            if (IsPressed)
-                return colors.borderColorPressed;
-            return colors.borderColor;
+        private Color GetBorderColor() {
+            return IsPressed ? colors.borderColorPressed : colors.borderColor;
         }
 
         public void Draw() {
@@ -68,17 +56,21 @@ namespace WaveTracker.UI {
 
                 int textOffset = IsPressed ? 1 : 0;
 
-                if (LabelIsCentered)
+                if (LabelIsCentered) {
                     Write(Label, (width - labelWidth) / 2, (height + 1) / 2 - 4 + textOffset, GetTextColor());
-                else
+                }
+                else {
                     Write(Label, 4, (height + 1) / 2 - 4 + textOffset, GetTextColor());
+                }
             }
             else {
                 DrawRoundedRect(0, 0, width, height, colors.backgroundColorDisabled);
-                if (LabelIsCentered)
+                if (LabelIsCentered) {
                     Write(Label, (width - labelWidth) / 2, (height + 1) / 2 - 4, colors.textColorDisabled);
-                else
+                }
+                else {
                     Write(Label, 4, (height + 1) / 2 - 4, colors.textColorDisabled);
+                }
             }
 
         }

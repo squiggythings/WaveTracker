@@ -1,25 +1,14 @@
-﻿using System;
+﻿using ProtoBuf;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using WaveTracker.UI;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using System.Windows.Forms;
-using System.IO;
-using System.Text.Encodings;
-using WaveTracker.Tracker;
-using System.Globalization;
 using System.Diagnostics;
+using System.IO;
+using System.Linq;
 using System.Threading;
-using System.Runtime.Serialization.Formatters.Binary;
-using System.Xml.Serialization;
-using System.Runtime.Serialization;
-using ProtoBuf;
-using WaveTracker.Rendering;
-using WaveTracker;
+using System.Windows.Forms;
 using WaveTracker.Audio;
+using WaveTracker.Tracker;
+using WaveTracker.UI;
 
 namespace WaveTracker {
     public static class SaveLoad {
@@ -36,12 +25,12 @@ namespace WaveTracker {
         /// <summary>
         /// Maximum length of the recent files list
         /// </summary>
-        const int MAX_RECENT_FILES = 10;
+        private const int MAX_RECENT_FILES = 10;
 
         /// <summary>
         /// Holds paths to the last recently opened files
         /// </summary>
-        static List<string> recentFilePaths = new List<string>();
+        private static List<string> recentFilePaths = [];
 
         /// <summary>
         /// The path of the folder containing themes
@@ -62,19 +51,18 @@ namespace WaveTracker {
         /// <summary>
         /// The current filename, including the extension
         /// </summary>
-        public static string FileName { get { if (CurrentFilepath == "") return "Untitled.wtm"; return Path.GetFileName(CurrentFilepath); } }
+        public static string FileName { get { return CurrentFilepath == "" ? "Untitled.wtm" : Path.GetFileName(CurrentFilepath); } }
         /// <summary>
         /// The current filename, without the extension
         /// </summary>
-        public static string FileNameWithoutExtension { get { if (CurrentFilepath == "") return "Untitled"; return Path.GetFileNameWithoutExtension(CurrentFilepath); } }
+        public static string FileNameWithoutExtension { get { return CurrentFilepath == "" ? "Untitled" : Path.GetFileNameWithoutExtension(CurrentFilepath); } }
         public static int savecooldown = 0;
-
 
         /// <summary>
         /// Writes the current module to <c>path</c>
         /// </summary>
         /// <param name="path"></param>
-        static void WriteTo(string path) {
+        private static void WriteTo(string path) {
             Debug.WriteLine("Saving to: " + path);
             Stopwatch stopwatch = Stopwatch.StartNew();
 
@@ -93,7 +81,7 @@ namespace WaveTracker {
         /// Calls SaveFile() as a void instead of bool
         /// </summary>
         public static void SaveFileVoid() {
-            SaveFile();
+            _ = SaveFile();
         }
 
         /// <summary>
@@ -136,15 +124,15 @@ namespace WaveTracker {
         /// Handles results to "Save changes to [file]?" when opening a new file
         /// </summary>
         /// <param name="ret"></param>
-        static void NewFileUnsavedChangesCallback(string ret) {
+        private static void NewFileUnsavedChangesCallback(string ret) {
             if (ret == "Yes") {
                 if (!File.Exists(CurrentFilepath)) {
-                    SaveFileAs();
+                    _ = SaveFileAs();
                 }
                 else {
                     WriteTo(CurrentFilepath);
                 }
-                SaveFile();
+                _ = SaveFile();
                 OpenANewFile();
             }
             if (ret == "No") {
@@ -159,7 +147,7 @@ namespace WaveTracker {
         /// <summary>
         /// Discards the current file and opens a new one
         /// </summary>
-        static void OpenANewFile() {
+        private static void OpenANewFile() {
             CurrentFilepath = "";
             //FrameEditor.ClearHistory();
             //FrameEditor.Goto(0, 0);
@@ -177,7 +165,7 @@ namespace WaveTracker {
         }
 
         public static void SaveFileAsVoid() {
-            SaveFileAs();
+            _ = SaveFileAs();
         }
         public static bool SaveFileAs() {
             if (Input.focus != null) {
@@ -232,7 +220,7 @@ namespace WaveTracker {
             ]);
         }
 
-        static MenuItemBase[] CreateRecentFilesMenu() {
+        private static MenuItemBase[] CreateRecentFilesMenu() {
             if (recentFilePaths.Count == 0) {
                 return [new MenuOption("Clear", recentFilePaths.Clear)];
             }
@@ -251,7 +239,7 @@ namespace WaveTracker {
         /// Reads paths from the 'recent.path' saved in settings into recentFilePaths
         /// </summary>
         public static void ReadRecentFiles() {
-            recentFilePaths = new List<string>();
+            recentFilePaths = [];
             recentFilePaths = ReadPaths("recent", []).ToList();
         }
 
@@ -260,7 +248,7 @@ namespace WaveTracker {
         /// </summary>
         /// <param name="path"></param>
         public static void AddPathToRecentFiles(string path) {
-            recentFilePaths.Remove(path);
+            _ = recentFilePaths.Remove(path);
             recentFilePaths.Insert(0, path);
             if (recentFilePaths.Count > MAX_RECENT_FILES) {
                 recentFilePaths.RemoveAt(recentFilePaths.Count - 1);
@@ -272,7 +260,7 @@ namespace WaveTracker {
         /// Attempts to open the file at <c>path</c>. Displays an error dialog if opening failed.
         /// </summary>
         /// <param name="path"></param>
-        static void TryToLoadFile(string path) {
+        private static void TryToLoadFile(string path) {
             string currentPath = CurrentFilepath;
 
             if (LoadFile(path)) {
@@ -305,7 +293,7 @@ namespace WaveTracker {
         /// Opens the open dialog and tries to load the chosen file<br/>
         /// Opens the error dialog if failed
         /// </summary>
-        static void ChooseFileToOpenAndLoad() {
+        private static void ChooseFileToOpenAndLoad() {
             if (SetFilePathThroughOpenDialog(out string filepath)) {
                 TryToLoadFile(filepath);
             }
@@ -318,11 +306,12 @@ namespace WaveTracker {
         /// <returns><c>true</c> if successfully loaded<br/>
         /// <c>false</c> if loading failed</returns>
         public static bool LoadFile(string path) {
-            if (!File.Exists(path))
+            if (!File.Exists(path)) {
                 return false;
+            }
+
             Stopwatch stopwatch = new Stopwatch();
             stopwatch.Start();
-
 
             try {
                 // try loading the module
@@ -339,7 +328,6 @@ namespace WaveTracker {
             CurrentFilepath = path;
             return true;
         }
-
 
         /// <summary>
         /// Opens a "Save changes to current file?" question box
@@ -359,10 +347,11 @@ namespace WaveTracker {
         /// This handles the results from the dialog that pops up
         /// </summary>
         /// <param name="result"></param>
-        static void OpenUnsavedCallback(string result) {
+        private static void OpenUnsavedCallback(string result) {
             if (result == "Yes") {
-                if (SaveFile())
+                if (SaveFile()) {
                     ChooseFileToOpenAndLoad();
+                }
             }
             if (result == "No") {
                 ChooseFileToOpenAndLoad();
@@ -372,17 +361,16 @@ namespace WaveTracker {
             }
         }
 
-
         /// <summary>
         /// Opens a file browser and asks the user to choose a wtm file. (Open)
         /// </summary>
         /// <returns>true if they choose a file and accept, false otherwise.</returns>
-        static bool SetFilePathThroughOpenDialog(out string filepath) {
+        private static bool SetFilePathThroughOpenDialog(out string filepath) {
             bool didIt = false;
             string ret = "";
             filepath = CurrentFilepath;
             if (Input.dialogOpenCooldown == 0) {
-                Thread t = new Thread((ThreadStart)(() => {
+                Thread t = new Thread(() => {
                     Input.DialogStarted();
                     Input.CancelClick();
                     OpenFileDialog openFileDialog = new OpenFileDialog();
@@ -400,7 +388,7 @@ namespace WaveTracker {
                         didIt = true;
                     }
 
-                }));
+                });
 
                 t.SetApartmentState(ApartmentState.STA);
                 App.ForceUpdate();
@@ -416,12 +404,12 @@ namespace WaveTracker {
         /// Opens a file browser and asks the user to choose a path to save a wtm file. (Save As)
         /// </summary>
         /// <returns>Returns true if they choose a file and accept, false otherwise.</returns>
-        static bool SetFilePathThroughSaveAsDialog(out string filepath) {
+        private static bool SetFilePathThroughSaveAsDialog(out string filepath) {
             string ret = "";
             bool didIt = false;
             filepath = CurrentFilepath;
             if (Input.dialogOpenCooldown == 0) {
-                Thread t = new Thread((ThreadStart)(() => {
+                Thread t = new Thread(() => {
                     Input.DialogStarted();
                     Input.CancelClick();
                     SaveFileDialog saveFileDialog = new SaveFileDialog();
@@ -435,7 +423,6 @@ namespace WaveTracker {
                     saveFileDialog.CheckPathExists = true;
                     saveFileDialog.ValidateNames = true;
 
-
                     if (saveFileDialog.ShowDialog() == DialogResult.OK) {
                         ret = saveFileDialog.FileName;
                         SavePath("savewtm", Directory.GetParent(ret).FullName + "");
@@ -443,7 +430,7 @@ namespace WaveTracker {
                         didIt = true;
                     }
 
-                }));
+                });
 
                 t.SetApartmentState(ApartmentState.STA);
                 App.ForceUpdate();
@@ -461,7 +448,7 @@ namespace WaveTracker {
             string ret = "";
             bool didIt = false;
             if (Input.dialogOpenCooldown == 0) {
-                Thread t = new Thread((ThreadStart)(() => {
+                Thread t = new Thread(() => {
                     Input.DialogStarted();
                     Input.CancelClick();
                     SaveFileDialog saveFileDialog = new SaveFileDialog();
@@ -475,7 +462,6 @@ namespace WaveTracker {
                     saveFileDialog.CheckPathExists = true;
                     saveFileDialog.ValidateNames = true;
 
-
                     if (saveFileDialog.ShowDialog() == DialogResult.OK) {
                         ret = saveFileDialog.FileName;
                         SavePath("export", Directory.GetParent(ret).FullName + "");
@@ -483,7 +469,7 @@ namespace WaveTracker {
                         didIt = true;
                     }
 
-                }));
+                });
 
                 t.SetApartmentState(ApartmentState.STA);
                 App.ForceUpdate();
@@ -494,7 +480,6 @@ namespace WaveTracker {
             return didIt;
         }
 
-
         /// <summary>
         /// Opens a file browser and asks the user to choose a path to export to. (Export .wav)
         /// </summary>
@@ -503,7 +488,7 @@ namespace WaveTracker {
             string ret = "";
             bool didIt = false;
             if (Input.dialogOpenCooldown == 0) {
-                Thread t = new Thread((ThreadStart)(() => {
+                Thread t = new Thread(() => {
                     Input.DialogStarted();
                     Input.CancelClick();
                     SaveFileDialog saveFileDialog = new SaveFileDialog();
@@ -518,13 +503,12 @@ namespace WaveTracker {
                     saveFileDialog.CheckPathExists = true;
                     saveFileDialog.ValidateNames = true;
 
-
                     if (saveFileDialog.ShowDialog() == DialogResult.OK) {
                         ret = saveFileDialog.FileName;
                         didIt = true;
                     }
 
-                }));
+                });
 
                 t.SetApartmentState(ApartmentState.STA);
                 App.ForceUpdate();
@@ -544,7 +528,7 @@ namespace WaveTracker {
             string ret = "";
             filepath = CurrentFilepath;
             if (Input.dialogOpenCooldown == 0) {
-                Thread t = new Thread((ThreadStart)(() => {
+                Thread t = new Thread(() => {
                     Input.DialogStarted();
                     Input.CancelClick();
                     OpenFileDialog openFileDialog = new OpenFileDialog();
@@ -560,7 +544,7 @@ namespace WaveTracker {
                         didIt = true;
                     }
 
-                }));
+                });
 
                 t.SetApartmentState(ApartmentState.STA);
                 App.ForceUpdate();
@@ -572,14 +556,13 @@ namespace WaveTracker {
             return didIt;
         }
 
-
         /// <summary>
         /// Saves a path to a file in the paths folder
         /// </summary>
         /// <param name="pathName"></param>
         /// <param name="path"></param>
         public static void SavePath(string pathName, string path) {
-            Directory.CreateDirectory(PathsFolderPath);
+            _ = Directory.CreateDirectory(PathsFolderPath);
             File.WriteAllText(Path.Combine(PathsFolderPath, pathName + ".path"), path);
         }
         /// <summary>
@@ -605,7 +588,7 @@ namespace WaveTracker {
         /// <param name="pathName"></param>
         /// <param name="paths"></param>
         public static void SavePaths(string pathName, string[] paths) {
-            Directory.CreateDirectory(PathsFolderPath);
+            _ = Directory.CreateDirectory(PathsFolderPath);
             File.WriteAllLines(Path.Combine(PathsFolderPath, pathName + ".path"), paths);
         }
         /// <summary>

@@ -1,12 +1,4 @@
-﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System;
 using WaveTracker.Tracker;
 
 namespace WaveTracker.Audio {
@@ -44,10 +36,7 @@ namespace WaveTracker.Audio {
 
         public bool HasActiveEnvelopeData {
             get {
-                if (EnvelopeToPlay == null)
-                    return false;
-                else
-                    return EnvelopeToPlay.Length > 0 && EnvelopeToPlay.IsActive;
+                return EnvelopeToPlay != null && EnvelopeToPlay.Length > 0 && EnvelopeToPlay.IsActive;
             }
         }
 
@@ -66,7 +55,7 @@ namespace WaveTracker.Audio {
             }
         }
 
-        int GetDefaultValue() {
+        private int GetDefaultValue() {
             return Type switch {
                 Envelope.EnvelopeType.Volume => 99,
                 _ => 0,
@@ -78,14 +67,15 @@ namespace WaveTracker.Audio {
                 step++;
                 if (EnvelopeToPlay.HasRelease) {
                     if (step > EnvelopeToPlay.ReleaseIndex && !released) {
-                        if (EnvelopeToPlay.ReleaseIndex <= EnvelopeToPlay.LoopIndex || !EnvelopeToPlay.HasLoop)
+                        if (EnvelopeToPlay.ReleaseIndex <= EnvelopeToPlay.LoopIndex || !EnvelopeToPlay.HasLoop) {
                             step = EnvelopeToPlay.ReleaseIndex;
-
+                        }
                     }
                     if (EnvelopeToPlay.HasLoop) {
                         if (EnvelopeToPlay.ReleaseIndex >= EnvelopeToPlay.LoopIndex) {
-                            if (step > EnvelopeToPlay.ReleaseIndex && !released)
+                            if (step > EnvelopeToPlay.ReleaseIndex && !released) {
                                 step = EnvelopeToPlay.LoopIndex;
+                            }
                         }
                         else {
                             if (step >= EnvelopeToPlay.Length) {
@@ -114,8 +104,7 @@ namespace WaveTracker.Audio {
             Evaluate();
         }
 
-
-        void Evaluate() {
+        private void Evaluate() {
             if (EnvelopeToPlay == null) {
                 Value = GetDefaultValue();
             }

@@ -1,16 +1,8 @@
-﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿using Microsoft.Xna.Framework.Input;
 
 namespace WaveTracker.UI {
     public static class ContextMenu {
-        static Menu contextMenu;
+        private static Menu contextMenu;
 
         public static void Open(Menu menu) {
             if (contextMenu != menu) {
@@ -36,9 +28,7 @@ namespace WaveTracker.UI {
         }
 
         public static void Draw() {
-            if (contextMenu != null) {
-                contextMenu.Draw();
-            }
+            contextMenu?.Draw();
         }
     }
 }

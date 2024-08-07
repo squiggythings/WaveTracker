@@ -1,14 +1,8 @@
-﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
-using System;
+﻿using Microsoft.Xna.Framework.Input;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.IO;
+using System.Linq;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 using WaveTracker.Audio;
 
 namespace WaveTracker {
@@ -91,7 +85,6 @@ namespace WaveTracker {
             public bool ReceivePlayStopMessages { get; set; } = true;
         }
 
-
         public class CategoryAudio {
             public string OutputDevice { get; set; } = "(default)";
 
@@ -111,7 +104,6 @@ namespace WaveTracker {
             public bool OscilloscopeBorders { get; set; } = false;
             public bool DrawInHighResolution { get; set; } = false;
         }
-
 
         public class CategoryKeyboard {
             public Dictionary<string, KeyboardShortcut> Shortcuts { get; set; }
@@ -215,7 +207,7 @@ namespace WaveTracker {
 
             public void Validate() {
                 int i = 0;
-                Dictionary<string, KeyboardShortcut> ret = new Dictionary<string, KeyboardShortcut>();
+                Dictionary<string, KeyboardShortcut> ret = [];
                 foreach (KeyValuePair<string, KeyboardShortcut> pair in defaultShortcuts) {
                     if (!Shortcuts.TryGetValue(pair.Key, out KeyboardShortcut value)) {
                         ret.Add(pair.Key, pair.Value);
@@ -229,7 +221,7 @@ namespace WaveTracker {
             }
 
             public void Initialize() {
-                Shortcuts = new Dictionary<string, KeyboardShortcut>();
+                Shortcuts = [];
                 for (int i = 0; i < defaultShortcuts.Count; i++) {
                     Shortcuts.Add(defaultShortcuts.ElementAt(i).Key, defaultShortcuts.ElementAt(i).Value);
                 }
@@ -286,7 +278,7 @@ namespace WaveTracker {
         /// Writes a SettingsProfile to a json formatted file at <c>path\fileName</c>
         /// </summary>
         public static void WriteToDisk(SettingsProfile profileToSave) {
-            Directory.CreateDirectory(SaveLoad.SettingsFolderPath);
+            _ = Directory.CreateDirectory(SaveLoad.SettingsFolderPath);
             using (StreamWriter outputFile = new StreamWriter(SaveLoad.SettingsPath)) {
                 JsonSerializerOptions options = new JsonSerializerOptions() {
                     IncludeFields = true,

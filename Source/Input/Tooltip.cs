@@ -1,26 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using WaveTracker.Rendering;
 
-namespace WaveTracker
-{
+namespace WaveTracker {
     public static class Tooltip {
-        static int hoverTime;
-        static int elapsedMS;
-        static int px, py;
-        static string lasttooltip;
-        static bool show;
+        private static int hoverTime;
+        private static int elapsedMS;
+        private static int px, py;
+        private static string lasttooltip;
+        private static bool show;
         public static string TooltipText { get; set; }
         public static string TooltipTextLong { get; set; }
         public static void Update(GameTime gameTime) {
             TooltipText = "";
             TooltipTextLong = "";
             elapsedMS = gameTime.ElapsedGameTime.Milliseconds;
-
 
         }
         public static void Draw() {
@@ -30,8 +23,11 @@ namespace WaveTracker
                 hoverTime = 0;
                 lasttooltip = TooltipText;
             }
-            if (TooltipTextLong != "" && TooltipTextLong != null) Graphics.Write(TooltipTextLong, 2, y, new Color(58, 63, 94));
-            if (TooltipText != "" && TooltipText != null) {
+            if (TooltipTextLong is not "" and not null) {
+                Graphics.Write(TooltipTextLong, 2, y, new Color(58, 63, 94));
+            }
+
+            if (TooltipText is not "" and not null) {
                 hoverTime += elapsedMS;
                 if (hoverTime > 500) {
                     if (show == false) {
@@ -41,17 +37,19 @@ namespace WaveTracker
                     show = true;
                     int width = Helpers.GetWidthOfText(TooltipText) + 6;
                     if (px + width + 1 > App.WindowWidth) {
-                        int diff = (px + width + 1) - App.WindowWidth;
+                        int diff = px + width + 1 - App.WindowWidth;
                         px -= diff;
                     }
                     Graphics.DrawRect(px - 1, py - 1, width, 10, new Color(151, 156, 186));
 
                     Graphics.DrawRect(px, py, width - 2, 8, new Color(255, 255, 255));
                     Graphics.Write(TooltipText, px + 2, py, new Color(151, 156, 186));
-                } else {
+                }
+                else {
                     show = false;
                 }
-            } else {
+            }
+            else {
                 show = false;
                 hoverTime = 0;
             }

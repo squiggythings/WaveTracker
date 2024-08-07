@@ -1,12 +1,4 @@
-﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ProtoBuf;
+﻿using System;
 
 namespace WaveTracker.Tracker {
     /// <summary>
@@ -17,7 +9,7 @@ namespace WaveTracker.Tracker {
         /// <summary>
         /// The index of the pattern this frame should reference
         /// </summary>
-        int patternIndex;
+        private int patternIndex;
 
         /// <summary>
         /// The index of the pattern this frame should reference, automatically clamped between 0-99

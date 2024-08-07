@@ -1,13 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using WaveTracker.UI;
-using WaveTracker.Rendering;
 
 namespace WaveTracker.UI {
     public class ExportingDialog : Window {
@@ -56,7 +48,7 @@ namespace WaveTracker.UI {
                 float fraction = (float)procRow / maxRow;
                 WriteCenter(Helpers.TrimTextToWidth(width - 20, "Saving to " + Path), width / 2, 16, UIColors.label); ;
                 DrawRect(10, 29, barwidth, 1, UIColors.labelLight);
-                WriteCenter("Row " + (procRow + "/" + maxRow) + ": (" + (int)(fraction * 100) + "% done)", width / 2, 35, UIColors.label);
+                WriteCenter("Row " + procRow + "/" + maxRow + ": (" + (int)(fraction * 100) + "% done)", width / 2, 35, UIColors.label);
                 Color shadow = new Color(126, 133, 168);
                 Color grey = new Color(163, 167, 194);
                 Color bar = new Color(0, 219, 39);

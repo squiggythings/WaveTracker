@@ -1,16 +1,13 @@
 ﻿using Microsoft.Xna.Framework;
-using WaveTracker.Tracker;
 using System;
-using System.Collections;
-using System.Collections.Generic;
 
 namespace WaveTracker.UI {
     public class EditSettings : Panel {
-        NumberBox octave;
-        NumberBox step;
-        Toggle instrumentMask;
-        NumberBox highlightPrimary;
-        NumberBox highlightSecondary;
+        private NumberBox octave;
+        private NumberBox step;
+        private Toggle instrumentMask;
+        private NumberBox highlightPrimary;
+        private NumberBox highlightSecondary;
         public EditSettings(int x, int y) : base("Edit Settings", x, y, 194, 84) {
             octave = new NumberBox("Octave", 5, 24, 80, 40, this);
             octave.bUp.SetTooltip("", "Increase current octave - ]");
@@ -37,28 +34,36 @@ namespace WaveTracker.UI {
                 App.PatternEditor.CurrentOctave = octave.Value;
                 PianoInput.ClearAllNotes();
             }
-            else
+            else {
                 octave.Value = App.PatternEditor.CurrentOctave;
+            }
+
             if (App.Shortcuts["General\\Increase step"].IsPressedDown) {
                 App.PatternEditor.InputStep = Math.Clamp(App.PatternEditor.InputStep + 1, 0, 256);
             }
             if (App.Shortcuts["General\\Decrease step"].IsPressedDown) {
                 App.PatternEditor.InputStep = Math.Clamp(App.PatternEditor.InputStep - 1, 0, 256);
             }
-            if (step.ValueWasChangedInternally)
+            if (step.ValueWasChangedInternally) {
                 App.PatternEditor.InputStep = step.Value;
-            else
+            }
+            else {
                 step.Value = App.PatternEditor.InputStep;
+            }
 
-            if (highlightPrimary.ValueWasChangedInternally)
+            if (highlightPrimary.ValueWasChangedInternally) {
                 App.CurrentSong.RowHighlightPrimary = highlightPrimary.Value;
-            else
+            }
+            else {
                 highlightPrimary.Value = App.CurrentSong.RowHighlightPrimary;
+            }
 
-            if (highlightSecondary.ValueWasChangedInternally)
+            if (highlightSecondary.ValueWasChangedInternally) {
                 App.CurrentSong.RowHighlightSecondary = highlightSecondary.Value;
-            else
+            }
+            else {
                 highlightSecondary.Value = App.CurrentSong.RowHighlightSecondary;
+            }
 
             instrumentMask.Update();
             App.PatternEditor.InstrumentMask = instrumentMask.Value;
@@ -74,8 +79,6 @@ namespace WaveTracker.UI {
             DrawRect(93, 14, 1, 63, new Color(163, 167, 194));
             Write("Note Input", 5, 15, new Color(163, 167, 194));
             Write("Row Highlight", 100, 15, new Color(163, 167, 194));
-
-
 
             ////*********************************************************
             //int winW = 300;

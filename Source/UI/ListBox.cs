@@ -1,32 +1,20 @@
 ﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace WaveTracker.UI {
     public class ListBox<T> : Clickable {
-
-        List<T> items;
-        Scrollbar scrollbar;
-        int numRows;
-        int selectedIndex;
-
+        private List<T> items;
+        private Scrollbar scrollbar;
+        private int numRows;
+        private int selectedIndex;
 
         public bool ShowItemNumbers { get; set; }
         public int SelectedIndex { get { return selectedIndex; } set { selectedIndex = Math.Clamp(value, 0, items.Count - 1); } }
         public T SelectedItem {
             get {
-                if (items == null)
-                    return default(T);
-                else if (items.Count == 0)
-                    return default(T);
-                else
-                    return items[SelectedIndex];
+                return items == null ? default : items.Count == 0 ? default : items[SelectedIndex];
             }
         }
 
@@ -34,8 +22,8 @@ namespace WaveTracker.UI {
             this.x = x;
             this.y = y;
             this.width = width;
-            this.height = numVisibleRows * 11;
-            this.numRows = numVisibleRows;
+            height = numVisibleRows * 11;
+            numRows = numVisibleRows;
             scrollbar = new Scrollbar(0, 0, width, height, this);
             SetParent(parent);
         }
@@ -63,8 +51,10 @@ namespace WaveTracker.UI {
             if (GlobalPointIsInBounds(Input.LastClickLocation)) {
                 if (Input.GetKeyRepeat(Keys.Up, KeyModifier.None)) {
                     SelectedIndex--;
-                    if (SelectedIndex < 0)
+                    if (SelectedIndex < 0) {
                         SelectedIndex = 0;
+                    }
+
                     MoveBounds();
                 }
                 if (Input.GetKeyRepeat(Keys.Down, KeyModifier.None)) {
@@ -93,22 +83,10 @@ namespace WaveTracker.UI {
             int rowNum = 0;
             DrawRect(0, 0, width, height, selected);
             for (int i = scrollbar.ScrollValue; i < numRows + scrollbar.ScrollValue; i++) {
-                Color rowColor;
-                if (i == SelectedIndex)
-                    rowColor = selected;
-                else if (i % 2 == 0)
-                    rowColor = even;
-                else
-                    rowColor = odd;
+                Color rowColor = i == SelectedIndex ? selected : i % 2 == 0 ? even : odd;
                 DrawRect(0, rowNum * 11, width, 11, rowColor);
                 if (items.Count > i && i >= 0) {
-                    string text;
-                    if (ShowItemNumbers) {
-                        text = "#" + (i + 1) + " " + items[i].ToString();
-                    }
-                    else {
-                        text = items[i].ToString();
-                    }
+                    string text = ShowItemNumbers ? "#" + (i + 1) + " " + items[i].ToString() : items[i].ToString();
                     Write(Helpers.TrimTextToWidth(width - 7, Helpers.FlushString(text)), 3, rowNum * 11 + 2, Color.White);
 
                 }

@@ -1,42 +1,37 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
-using WaveTracker.UI;
-using WaveTracker.Tracker;
-using System.Diagnostics;
-using System.Threading;
-using WaveTracker.Rendering;
-using WaveTracker;
-using WaveTracker.Audio;
+﻿using WaveTracker.Audio;
 
 namespace WaveTracker.Tracker {
     public static class Playback {
         public static bool IsPlaying { get; private set; }
-        static bool lastIsPlaying;
+
+        private static bool lastIsPlaying;
         public static CursorPos position;
-        static int nextPlaybackFrame;
-        static int nextPlaybackRow;
-        static bool hasGotoTriggerFlag;
-        static int tickCounter;
+        private static int nextPlaybackFrame;
+        private static int nextPlaybackRow;
+        private static bool hasGotoTriggerFlag;
+        private static int tickCounter;
         public static int TicksPerRowOverride { get; set; }
-        static int ticksPerRow;
-        public static WTFrame Frame => App.CurrentSong.FrameSequence[position.Frame];
+
+        private static int ticksPerRow;
+        public static WTFrame Frame {
+            get {
+                return App.CurrentSong.FrameSequence[position.Frame];
+            }
+        }
 
         public static void Update() {
             if (App.Shortcuts["General\\Play from beginning"].IsPressedDown) {
                 PlayFromBeginning();
             }
+
             if (App.Shortcuts["General\\Play from cursor"].IsPressedDown) {
                 PlayFromCursor();
             }
+
             if (App.Shortcuts["General\\Stop"].IsPressedDown) {
                 Stop();
             }
+
             if (App.Shortcuts["General\\Play/Stop"].IsPressedDown) {
                 if (Input.windowFocusTimer == 0 && Input.focusTimer > 1) {
                     if (IsPlaying) {
@@ -47,6 +42,7 @@ namespace WaveTracker.Tracker {
                     }
                 }
             }
+
             if (!App.VisualizerMode) {
                 if (App.Shortcuts["General\\Play row"].IsPressedRepeat) {
                     if (Input.dialogOpenCooldown == 0) {
@@ -71,6 +67,7 @@ namespace WaveTracker.Tracker {
             if (App.PatternEditor.FollowMode && !AudioEngine.IsRendering) {
                 App.PatternEditor.SnapToPlaybackPosition();
             }
+
             Restore();
             PlayRow();
         }
@@ -87,6 +84,7 @@ namespace WaveTracker.Tracker {
             if (App.PatternEditor.FollowMode && !AudioEngine.IsRendering) {
                 App.PatternEditor.SnapToPlaybackPosition();
             }
+
             Restore();
             PlayRow();
         }
@@ -105,6 +103,7 @@ namespace WaveTracker.Tracker {
             if (App.PatternEditor.FollowMode && !AudioEngine.IsRendering) {
                 App.PatternEditor.SnapToPlaybackPosition();
             }
+
             Restore();
             PlayRow();
         }
@@ -117,14 +116,14 @@ namespace WaveTracker.Tracker {
             foreach (Channel c in ChannelManager.Channels) {
                 c.Cut();
             }
+
             ChannelManager.Reset();
         }
 
-        static void SetTicksPerRow() {
-            if (TicksPerRowOverride == -1)
-                ticksPerRow = App.CurrentSong.TicksPerRow[position.Row % App.CurrentSong.TicksPerRow.Length];
-            else
-                ticksPerRow = TicksPerRowOverride;
+        private static void SetTicksPerRow() {
+            ticksPerRow = TicksPerRowOverride == -1
+                ? App.CurrentSong.TicksPerRow[position.Row % App.CurrentSong.TicksPerRow.Length]
+                : TicksPerRowOverride;
         }
 
         public static void Tick() {
@@ -137,6 +136,7 @@ namespace WaveTracker.Tracker {
                     PlayRow();
                     SetTicksPerRow();
                 }
+
                 if (tickCounter >= ticksPerRow) {
                     // reached next row
                     tickCounter = 0;
@@ -159,13 +159,16 @@ namespace WaveTracker.Tracker {
                     else {
                         MoveNextRow();
                     }
+
                     if (AudioEngine.IsRendering) {
                         AudioEngine.RenderProcessedRows++;
                     }
+
                     PlayRow();
                     SetTicksPerRow();
 
                 }
+
                 tickCounter++;
             }
             else {
@@ -173,16 +176,16 @@ namespace WaveTracker.Tracker {
                     lastIsPlaying = false;
                     ChannelManager.Reset();
                 }
-
             }
         }
 
-        static void PlayRow() {
-            if (position.Frame < App.CurrentSong.FrameSequence.Count)
+        private static void PlayRow() {
+            if (position.Frame < App.CurrentSong.FrameSequence.Count) {
                 ChannelManager.PlayRow(position.Frame, position.Row);
+            }
         }
 
-        static void MoveNextRow() {
+        private static void MoveNextRow() {
             position.MoveToRow(position.Row + 1, App.CurrentSong);
             if (IsPlaying) {
                 if (App.PatternEditor.FollowMode && !AudioEngine.IsRendering) {
@@ -227,12 +230,13 @@ namespace WaveTracker.Tracker {
             position.Row = row;
         }
 
-        static void Restore() {
+        private static void Restore() {
             if (App.Settings.PatternEditor.RestoreChannelState) {
                 RestoreUntil(position.Frame, position.Row);
             }
         }
-        static void RestoreUntil(int frame, int row) {
+
+        private static void RestoreUntil(int frame, int row) {
             TicksPerRowOverride = -1;
             for (int f = 0; f <= frame; f++) {
                 int frameLength = App.CurrentSong[f].GetModifiedLength();

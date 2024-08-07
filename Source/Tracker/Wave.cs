@@ -1,15 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using WaveTracker.Rendering;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using ProtoBuf;
-using WaveTracker.Audio;
+using System;
 using System.Runtime.CompilerServices;
-
-using System.Diagnostics;
+using WaveTracker.Audio;
 
 namespace WaveTracker.Tracker {
     [ProtoContract(SkipConstructor = true)]
@@ -24,9 +17,8 @@ namespace WaveTracker.Tracker {
             for (int i = 0; i < 64; i++) {
                 samples[i] = 16;
             }
-            this.resamplingMode = App.Settings.SamplesWaves.DefaultResampleModeWave;
+            resamplingMode = App.Settings.SamplesWaves.DefaultResampleModeWave;
         }
-
 
         public Wave Clone() {
             Wave clonedWave = new Wave();
@@ -38,11 +30,11 @@ namespace WaveTracker.Tracker {
         }
 
         public Wave(string initialWaveString) {
-            this.resamplingMode = App.Settings.SamplesWaves.DefaultResampleModeWave;
+            resamplingMode = App.Settings.SamplesWaves.DefaultResampleModeWave;
             SetWaveformFromString(initialWaveString);
         }
         public Wave(string initialWaveString, ResamplingMode resampling) {
-            this.resamplingMode = resampling;
+            resamplingMode = resampling;
             SetWaveformFromString(initialWaveString);
         }
 
@@ -168,14 +160,13 @@ namespace WaveTracker.Tracker {
 
         }
 
-
         /// <summary>
         /// Hold the wave's position every <c>amt</c> samples
         /// </summary>
         /// <param name="amt"></param>
         public void SampleAndHold(int amt) {
             for (int i = 0; i < samples.Length; i++) {
-                samples[i] = samples[(i / amt) * amt];
+                samples[i] = samples[i / amt * amt];
             }
         }
 
@@ -186,11 +177,13 @@ namespace WaveTracker.Tracker {
             float max = 0;
             float min = 31;
             foreach (byte sample in samples) {
-                if (sample > max)
+                if (sample > max) {
                     max = sample;
+                }
 
-                if (sample < min)
+                if (sample < min) {
                     min = sample;
+                }
             }
 
             for (int i = 0; i < 64; ++i) {
@@ -247,33 +240,25 @@ namespace WaveTracker.Tracker {
             return s;
         }
 
-
-
         public byte GetSample(int index) {
-            if (index < 0) {
-                return samples[(int)Helpers.Mod(index, 64)];
-            }
-
-            return samples[index % 64];
+            return index < 0 ? samples[(int)Helpers.Mod(index, 64)] : samples[index % 64];
         }
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 
         public float GetSampleMorphed(float t, Wave other, float interpolationAmt, float bendAmt) {
-            if (t < 0 || t >= 1)
+            if (t is < 0 or >= 1) {
                 t = Helpers.Mod(t, 1);
+            }
+
             if (bendAmt > 0.001f && t != 0) {
                 t = GetBentTime(t, bendAmt); // faster bend algorithm
             }
-            if (interpolationAmt > 0.001f) {
-                return MathHelper.Lerp(GetSampleAtPosition(t), other.GetSampleAtPosition(t), interpolationAmt);
-            }
-            else {
-                return GetSampleAtPosition(t);
-            }
+            return interpolationAmt > 0.001f
+                ? MathHelper.Lerp(GetSampleAtPosition(t), other.GetSampleAtPosition(t), interpolationAmt)
+                : GetSampleAtPosition(t);
         }
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-
-        static float GetBentTime(float t, float bendAmt) {
+        private static float GetBentTime(float t, float bendAmt) {
             //bendAmt = bendAmt * bendAmt * 50;
             //bendAmt += 1;
             //float c = (1 - bendAmt) / (bendAmt - 3);
@@ -295,7 +280,6 @@ namespace WaveTracker.Tracker {
             }
         }
 
-
         /// <summary>
         /// Gets sample at the position from 0.0-1.0
         /// <br/>
@@ -307,8 +291,9 @@ namespace WaveTracker.Tracker {
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public float GetSampleAtPosition(float t) {
-            if (t < 0 || t >= 1)
+            if (t is < 0 or >= 1) {
                 t = Helpers.Mod(t, 1);
+            }
 
             int index1 = (int)(t * samples.Length);
             float sample1 = samples[index1] / 16f - 1f;
@@ -319,12 +304,11 @@ namespace WaveTracker.Tracker {
 
             int index2 = (index1 + 1) % 64;
             float sample2 = samples[index2] / 16f - 1f;
-            float betweenSamplesLerp = (t * samples.Length) - index1;
+            float betweenSamplesLerp = t * samples.Length - index1;
             float lerpedSample = MathHelper.Lerp(sample1, sample2, betweenSamplesLerp);
             if (resamplingMode == ResamplingMode.Linear) {
                 return lerpedSample;
             }
-
 
             float nearestSample = betweenSamplesLerp > 0.5f ? sample2 : sample1;
 
@@ -333,8 +317,8 @@ namespace WaveTracker.Tracker {
             return MathHelper.Lerp(lerpedSample, nearestSample, sampDifference / 31f);
         }
 
+        private static byte ConvertCharToDecimal(char c) { return (byte)"0123456789ABCDEFGHIJKLMNOPQRSTUV".IndexOf(c); }
 
-        static byte ConvertCharToDecimal(char c) { return (byte)"0123456789ABCDEFGHIJKLMNOPQRSTUV".IndexOf(c); }
-        static char ConvertDecimalToChar(int i) { return "0123456789ABCDEFGHIJKLMNOPQRSTUV"[Math.Clamp(i, 0, 31)]; }
+        private static char ConvertDecimalToChar(int i) { return "0123456789ABCDEFGHIJKLMNOPQRSTUV"[Math.Clamp(i, 0, 31)]; }
     }
 }

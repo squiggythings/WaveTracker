@@ -1,14 +1,4 @@
-﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using WaveTracker.UI;
-using WaveTracker.Rendering;
-using WaveTracker.Audio;
+﻿using WaveTracker.Audio;
 
 namespace WaveTracker.UI {
     public class ExportDialog : Dialog {
@@ -54,8 +44,10 @@ namespace WaveTracker.UI {
             if (WindowIsOpen) {
                 DoDragging();
                 loops.Update();
-                if (cancel.Clicked || ExitButton.Clicked)
+                if (cancel.Clicked || ExitButton.Clicked) {
                     Close();
+                }
+
                 if (begin.Clicked) {
                     Close();
                     AudioEngine.RenderTo("", loops.Value);
@@ -69,8 +61,9 @@ namespace WaveTracker.UI {
                 for (int i = 0; i < App.CurrentModule.ChannelCount; ++i) {
                     channels[i].Value = ChannelManager.IsChannelOn(i);
                     channels[i].Update();
-                    if (channels[i].Value != ChannelManager.IsChannelOn(i))
+                    if (channels[i].Value != ChannelManager.IsChannelOn(i)) {
                         ChannelManager.ToggleChannel(i);
+                    }
                 }
             }
         }
@@ -88,7 +81,7 @@ namespace WaveTracker.UI {
                 none.Draw();
                 for (int i = 0; i < App.CurrentModule.ChannelCount; ++i) {
                     channels[i].Draw();
-                    WriteCenter((i + 1) + "", channels[i].x + 4, channels[i].y + 10, UIColors.label);
+                    WriteCenter(i + 1 + "", channels[i].x + 4, channels[i].y + 10, UIColors.label);
                 }
             }
         }

@@ -1,11 +1,4 @@
 ﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace WaveTracker.UI {
     public class SwitchToggle : Clickable {
@@ -20,7 +13,7 @@ namespace WaveTracker.UI {
             SetParent(parent);
         }
 
-        Rectangle GetSpriteBounds(int index) {
+        private Rectangle GetSpriteBounds(int index) {
             return new Rectangle(HasContrastOutline ? 473 : 456, 64 + index * 9, 12, 9);
         }
 

@@ -1,17 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.Xna.Framework;
-using WaveTracker.Rendering;
+﻿using Microsoft.Xna.Framework;
 
 namespace WaveTracker.UI {
     public class Toggle : Clickable {
-        string label;
+        private string label;
         public bool centerLabel = true;
-        ButtonColors colors;
-        int labelWidth;
+        private ButtonColors colors;
+        private int labelWidth;
         public bool Value { get; set; }
 
         public Toggle(string label, int x, int y, Element parent) {
@@ -34,26 +28,24 @@ namespace WaveTracker.UI {
             }
         }
 
-        Color getBackgroundColor() {
+        private Color getBackgroundColor() {
             if (Value) {
-                if (IsPressed)
-                    return colors.backgroundColorPressed;
-                if (IsHovered)
-                    return colors.toggleBackgroundColor;
-                return colors.backgroundColorPressed;
-            } else {
-                if (IsPressed)
+                return IsPressed ? colors.backgroundColorPressed : IsHovered ? colors.toggleBackgroundColor : colors.backgroundColorPressed;
+            }
+            else {
+                if (IsPressed) {
                     return colors.backgroundColor;
-                if (IsHovered)
+                }
+
+                if (IsHovered) {
                     return colors.backgroundColorHover;
+                }
             }
             return colors.backgroundColor;
         }
 
-        Color getTextColor() {
-            if (IsPressed || Value)
-                return colors.textColorPressed;
-            return colors.textColor;
+        private Color getTextColor() {
+            return IsPressed || Value ? colors.textColorPressed : colors.textColor;
         }
 
         public void Draw() {
@@ -61,16 +53,21 @@ namespace WaveTracker.UI {
                 DrawRoundedRect(0, 0, width, height, getBackgroundColor());
                 int textOffset = IsPressed ? 1 : 0;
 
-                if (centerLabel)
+                if (centerLabel) {
                     Write(label, (width - labelWidth) / 2, (height + 1) / 2 - 4 + textOffset, getTextColor());
-                else
+                }
+                else {
                     Write(label, 4, (height + 1) / 2 - 4 + textOffset, getTextColor());
-            } else {
+                }
+            }
+            else {
                 DrawRoundedRect(0, 0, width, height, colors.backgroundColorDisabled);
-                if (centerLabel)
+                if (centerLabel) {
                     Write(label, (width - labelWidth) / 2, (height + 1) / 2 - 4, colors.textColorDisabled);
-                else
+                }
+                else {
                     Write(label, 4, (height + 1) / 2 - 4, colors.textColorDisabled);
+                }
             }
 
         }
