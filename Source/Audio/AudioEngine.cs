@@ -155,7 +155,6 @@ namespace WaveTracker.Audio {
                     }
                 }
 
-                _ = WaveFormat.SampleRate;
                 int OVERSAMPLE = App.Settings.Audio.Oversampling;
                 float delta = 1f / TrueSampleRate * (TickSpeed / 60f);
 

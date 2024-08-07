@@ -32,7 +32,7 @@ namespace WaveTracker {
         public static string CurrentMidiDeviceName { get; private set; }
         public static void Initialize() {
             ReadMidiDevices();
-            _ = SetMIDIDevice(App.Settings.MIDI.InputDevice);
+            SetMIDIDevice(App.Settings.MIDI.InputDevice);
         }
 
         public static void Update() {
@@ -114,29 +114,17 @@ namespace WaveTracker {
                 MIDIDevicesNames[deviceIndex + 1] = MidiIn.DeviceInfo(deviceIndex).ProductName;
             }
             if (!MIDIDevicesNames.Contains(CurrentMidiDeviceName)) {
-                _ = SetMIDIDevice("(none)");
+                SetMIDIDevice("(none)");
             }
         }
 
         public static void ClearAllNotes() {
-
             for (int i = midiNotes.Count - 1; i >= 0; --i) {
                 MIDINoteOff(midiNotes[i]);
             }
             for (int i = keyboardNotes.Count - 1; i >= 0; --i) {
                 KeyboardNoteOff(keyboardNotes[i]);
             }
-        }
-
-        private static bool IsKeyboardNotePressed(int midiNote) {
-            foreach (KeyValuePair<string, int> binding in PianoKeyInputs) {
-                if (App.Shortcuts[binding.Key].IsPressed) {
-                    if (midiNote == binding.Value + (App.PatternEditor.CurrentOctave + 1) * 12) {
-                        return true;
-                    }
-                }
-            }
-            return false;
         }
 
         /// <summary>
@@ -166,7 +154,7 @@ namespace WaveTracker {
         /// </summary>
         /// <param name="note"></param>
         private static void OnNoteOffEvent(int note) {
-            _ = currentlyHeldDownNotes.Remove(note);
+            currentlyHeldDownNotes.Remove(note);
             if (currentlyHeldDownNotes.Count > 0) {
                 if (CurrentNote != currentlyHeldDownNotes[currentlyHeldDownNotes.Count - 1]) {
                     CurrentNote = currentlyHeldDownNotes[currentlyHeldDownNotes.Count - 1];
@@ -202,7 +190,7 @@ namespace WaveTracker {
         /// <param name="note"></param>
         public static void MIDINoteOff(int note) {
             OnNoteOffEvent(note);
-            _ = midiNotes.Remove(note);
+            midiNotes.Remove(note);
         }
 
         private static void KeyboardNoteOn(int note) {
@@ -213,7 +201,7 @@ namespace WaveTracker {
         }
 
         private static void KeyboardNoteOff(int note) {
-            _ = keyboardNotes.Remove(note);
+            keyboardNotes.Remove(note);
             if (!midiNotes.Contains(note)) {
                 OnNoteOffEvent(note);
             }

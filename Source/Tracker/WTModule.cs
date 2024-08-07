@@ -166,7 +166,7 @@ namespace WaveTracker.Tracker {
                     for (int row = 0; row < length; ++row) {
                         for (int channel = 0; channel < ChannelCount; channel++) {
                             if (song[frame.PatternIndex][row, channel, CellType.Instrument] != WTPattern.EVENT_EMPTY) {
-                                _ = unusedInstruments.Remove(song[frame.PatternIndex][row, channel, CellType.Instrument]);
+                                unusedInstruments.Remove(song[frame.PatternIndex][row, channel, CellType.Instrument]);
                             }
                         }
                     }
@@ -197,7 +197,7 @@ namespace WaveTracker.Tracker {
                         for (int channel = 0; channel < ChannelCount; channel++) {
                             for (int effect = 0; effect < 4; ++effect) {
                                 if (song[frame.PatternIndex][row, channel, CellType.Effect1 + effect * 2] == 'V') {
-                                    _ = unusedWaves.Remove(song[frame.PatternIndex][row, channel, CellType.Effect1Parameter + effect * 2]);
+                                    unusedWaves.Remove(song[frame.PatternIndex][row, channel, CellType.Effect1Parameter + effect * 2]);
                                 }
                             }
                         }
@@ -208,7 +208,7 @@ namespace WaveTracker.Tracker {
                 foreach (Envelope envelope in instrument.envelopes) {
                     if (envelope.Type == Envelope.EnvelopeType.Wave) {
                         foreach (sbyte value in envelope.values) {
-                            _ = unusedWaves.Remove(value);
+                            unusedWaves.Remove(value);
                         }
                     }
                 }

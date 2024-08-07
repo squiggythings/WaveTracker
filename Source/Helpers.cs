@@ -418,7 +418,7 @@ namespace WaveTracker {
                     isp = resampler.ToSampleProvider();
                 }
                 float[] buffer = new float[Nreader.Length / bytesPerSample];
-                _ = isp.Read(buffer, 0, buffer.Length);
+                isp.Read(buffer, 0, buffer.Length);
                 for (int s = 0, v = 0; v < buffer.Length; s++) {
                     if (s > 16777216) {
                         break;
@@ -514,7 +514,7 @@ namespace WaveTracker {
                         break;
                     }
                 }
-                _ = output.Append(count + "" + input[i]);
+                output.Append(count + "" + input[i]);
             }
             return output.ToString();
         }
@@ -530,7 +530,7 @@ namespace WaveTracker {
                 char count = input[i];
                 char data = input[i + 1];
                 for (int j = 0; j <= count; j++) {
-                    _ = output.Append(data);
+                    output.Append(data);
                 }
             }
             return output.ToString();

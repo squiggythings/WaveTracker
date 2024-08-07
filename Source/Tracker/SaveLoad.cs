@@ -81,7 +81,7 @@ namespace WaveTracker {
         /// Calls SaveFile() as a void instead of bool
         /// </summary>
         public static void SaveFileVoid() {
-            _ = SaveFile();
+            SaveFile();
         }
 
         /// <summary>
@@ -127,12 +127,12 @@ namespace WaveTracker {
         private static void NewFileUnsavedChangesCallback(string ret) {
             if (ret == "Yes") {
                 if (!File.Exists(CurrentFilepath)) {
-                    _ = SaveFileAs();
+                    SaveFileAs();
                 }
                 else {
                     WriteTo(CurrentFilepath);
                 }
-                _ = SaveFile();
+                SaveFile();
                 OpenANewFile();
             }
             if (ret == "No") {
@@ -165,7 +165,7 @@ namespace WaveTracker {
         }
 
         public static void SaveFileAsVoid() {
-            _ = SaveFileAs();
+            SaveFileAs();
         }
         public static bool SaveFileAs() {
             if (Input.focus != null) {
@@ -248,7 +248,7 @@ namespace WaveTracker {
         /// </summary>
         /// <param name="path"></param>
         public static void AddPathToRecentFiles(string path) {
-            _ = recentFilePaths.Remove(path);
+            recentFilePaths.Remove(path);
             recentFilePaths.Insert(0, path);
             if (recentFilePaths.Count > MAX_RECENT_FILES) {
                 recentFilePaths.RemoveAt(recentFilePaths.Count - 1);
@@ -562,7 +562,7 @@ namespace WaveTracker {
         /// <param name="pathName"></param>
         /// <param name="path"></param>
         public static void SavePath(string pathName, string path) {
-            _ = Directory.CreateDirectory(PathsFolderPath);
+            Directory.CreateDirectory(PathsFolderPath);
             File.WriteAllText(Path.Combine(PathsFolderPath, pathName + ".path"), path);
         }
         /// <summary>
@@ -588,7 +588,7 @@ namespace WaveTracker {
         /// <param name="pathName"></param>
         /// <param name="paths"></param>
         public static void SavePaths(string pathName, string[] paths) {
-            _ = Directory.CreateDirectory(PathsFolderPath);
+            Directory.CreateDirectory(PathsFolderPath);
             File.WriteAllLines(Path.Combine(PathsFolderPath, pathName + ".path"), paths);
         }
         /// <summary>

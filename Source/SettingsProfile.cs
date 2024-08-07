@@ -278,7 +278,7 @@ namespace WaveTracker {
         /// Writes a SettingsProfile to a json formatted file at <c>path\fileName</c>
         /// </summary>
         public static void WriteToDisk(SettingsProfile profileToSave) {
-            _ = Directory.CreateDirectory(SaveLoad.SettingsFolderPath);
+            Directory.CreateDirectory(SaveLoad.SettingsFolderPath);
             using (StreamWriter outputFile = new StreamWriter(SaveLoad.SettingsPath)) {
                 JsonSerializerOptions options = new JsonSerializerOptions() {
                     IncludeFields = true,

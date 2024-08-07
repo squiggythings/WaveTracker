@@ -154,7 +154,7 @@ namespace WaveTracker {
             form.WindowState = System.Windows.Forms.FormWindowState.Maximized;
             form.FormClosing += ClosingForm;
             if (!Directory.Exists(SaveLoad.ThemeFolderPath)) {
-                _ = Directory.CreateDirectory(SaveLoad.ThemeFolderPath);
+                Directory.CreateDirectory(SaveLoad.ThemeFolderPath);
                 File.WriteAllText(Path.Combine(SaveLoad.ThemeFolderPath, "Default.wttheme"), ColorTheme.CreateString(ColorTheme.Default));
                 File.WriteAllText(Path.Combine(SaveLoad.ThemeFolderPath, "Famitracker.wttheme"), ColorTheme.CreateString(ColorTheme.Famitracker));
                 File.WriteAllText(Path.Combine(SaveLoad.ThemeFolderPath, "Fruity.wttheme"), ColorTheme.CreateString(ColorTheme.Fruity));
@@ -245,7 +245,7 @@ namespace WaveTracker {
             targetBatch = new SpriteBatch(GraphicsDevice);
             target = new RenderTarget2D(GraphicsDevice, GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width, GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height);
             SaveLoad.NewFile();
-            _ = SaveLoad.LoadFile(inputFilepath);
+            SaveLoad.LoadFile(inputFilepath);
         }
 
         private int midiDelay = 0;
@@ -446,7 +446,7 @@ namespace WaveTracker {
         /// <param name="result"></param>
         private void UnsavedChangesCallback(string result) {
             if (result == "Yes") {
-                _ = SaveLoad.SaveFile();
+                SaveLoad.SaveFile();
             }
             else if (result == "Cancel") {
                 return;

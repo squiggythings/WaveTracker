@@ -598,7 +598,7 @@ namespace WaveTracker.Audio {
                 if (tickEvent != null) {
                     if (tickEvent.countdown <= 0) {
                         DoEvent(tickEvent);
-                        _ = tickEvents.Remove(tickEvent);
+                        tickEvents.Remove(tickEvent);
                         i--;
                     }
                     else {

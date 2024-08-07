@@ -111,15 +111,15 @@ namespace WaveTracker.UI {
             frame_prev.enabled = !App.VisualizerMode;
 
             if (Input.GetKeyDown(Keys.S, KeyModifier.Ctrl)) {
-                _ = SaveLoad.SaveFile();
+                SaveLoad.SaveFile();
             }
             if (Input.GetKeyDown(Keys.O, KeyModifier.Ctrl)) { SaveLoad.OpenFile(); }
 
             if (file_new.Clicked) { SaveLoad.NewFile(); }
 
             if (file_open.Clicked) { SaveLoad.OpenFile(); }
-            if (file_save.Clicked) { _ = SaveLoad.SaveFile(); }
-            if (file_saveAs.Clicked) { _ = SaveLoad.SaveFileAs(); }
+            if (file_save.Clicked) { SaveLoad.SaveFile(); }
+            if (file_saveAs.Clicked) { SaveLoad.SaveFileAs(); }
             if (file_export.Clicked) {
                 Input.CancelClick();
                 Dialogs.exportDialog.Open();

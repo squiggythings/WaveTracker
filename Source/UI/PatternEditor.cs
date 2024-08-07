@@ -1971,7 +1971,7 @@ namespace WaveTracker.UI {
                     for (int row = selection.min.Row; row <= selection.max.Row; ++row) {
                         int c = 0;
                         for (int column = selection.min.CellColumn; column <= selection.max.CellColumn; ++column) {
-                            CurrentPattern[row, column] = values[valueIndex] == 0 ? WTPattern.EVENT_EMPTY : selectClip[rowIndex, c];
+                            CurrentPattern[row, column] = values[valueIndex] == 0 || rowIndex >= selectClip.GetLength(0) ? WTPattern.EVENT_EMPTY : selectClip[rowIndex, c];
                             c++;
                         }
                         rowIndex += values[valueIndex];

@@ -35,10 +35,6 @@ namespace WaveTracker.UI {
                 if (stretchText.ValueWasChangedInternally) {
                     stretchText.Text = Helpers.FlushString(stretchText.Text, " 0123456789");
                     stretchPattern = StretchPatternToIntArray(stretchText.Text);
-                    //stretchText.Text = "";
-                    //for (int i = 0; i < stretchPattern.Length; ++i) {
-                    //    stretchText.Text += i + (i < stretchPattern.Length - 1 ? " " : "");
-                    //}
                 }
             }
         }
@@ -63,7 +59,7 @@ namespace WaveTracker.UI {
             if (WindowIsOpen) {
                 base.Draw();
                 stretchText.Draw();
-                _ = new int[16];
+                
 
                 int r = 0;
                 int index = 0;

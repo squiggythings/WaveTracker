@@ -26,83 +26,83 @@ namespace WaveTracker.UI {
             pages.Add("Visualizer", new Page(this));
             pages.Add("Keyboard", new KeyboardPage(this));
 
-            _ = pages["General"].AddLabel("General");
-            _ = pages["General"].AddDropdown("Screen scale", "The pixel scaling of WaveTracker's interface", ["100%", "200% (recommended)", "300%", "400%", "500%"]);
+            pages["General"].AddLabel("General");
+            pages["General"].AddDropdown("Screen scale", "The pixel scaling of WaveTracker's interface", ["100%", "200% (recommended)", "300%", "400%", "500%"]);
             pages["General"].AddBreak();
-            _ = pages["General"].AddLabel("Metering");
-            _ = pages["General"].AddDropdown("Oscilloscope mode", "Mono: Display a single oscilloscope. \n Stereo-split: Display 2 oscilloscopes for left and right. \n Stereo-overlap: Overlap left and right in a single oscilloscope, highlighting the difference between them", ["Mono", "Stereo: split", "Stereo: overlap"], width: 88);
-            _ = pages["General"].AddDropdown("Meter decay rate", "Determines how responsive the volume meters will be. Fast is very responsive but not very consistent; slow is more consistent but less responsive", ["Slow", "Medium", "Fast"], width: 88);
-            _ = pages["General"].AddDropdown("Meter color mode", "Flat: the meter is one color. \n Gradient: the meter becomes more red as the signal is louder", ["Flat", "Gradient"], positionOffset: 1, width: 88);
-            _ = pages["General"].AddCheckbox("Flash meter red when clipping", "If output is clipping, make the whole volume meter red");
+            pages["General"].AddLabel("Metering");
+            pages["General"].AddDropdown("Oscilloscope mode", "Mono: Display a single oscilloscope. \n Stereo-split: Display 2 oscilloscopes for left and right. \n Stereo-overlap: Overlap left and right in a single oscilloscope, highlighting the difference between them", ["Mono", "Stereo: split", "Stereo: overlap"], width: 88);
+            pages["General"].AddDropdown("Meter decay rate", "Determines how responsive the volume meters will be. Fast is very responsive but not very consistent; slow is more consistent but less responsive", ["Slow", "Medium", "Fast"], width: 88);
+            pages["General"].AddDropdown("Meter color mode", "Flat: the meter is one color. \n Gradient: the meter becomes more red as the signal is louder", ["Flat", "Gradient"], positionOffset: 1, width: 88);
+            pages["General"].AddCheckbox("Flash meter red when clipping", "If output is clipping, make the whole volume meter red");
 
-            _ = pages["Files"].AddLabel("Default module info");
-            _ = pages["Files"].AddTextbox("Default ticks per row", "The default speed for new modules", width: 38, positionOffset: 52, validate: true);
-            _ = pages["Files"].AddNumberBox("Default rows per frame", "The default frame length for new modules", 1, 256, positionOffset: 34);
-            _ = pages["Files"].AddNumberBox("Default number of channels", "The default number of channels for new modules", 1, 24, positionOffset: 17);
-            _ = pages["Files"].AddTextbox("Default author name", "The default author name for new modules", 110, positionOffset: 55);
-            _ = pages["Files"].AddNumberBox("Default row highlight primary", "The default primary row highlight for new modules", 1, 256, positionOffset: 12);
-            _ = pages["Files"].AddNumberBox("Default row highlight secondary", "The default secondary row highlight for new modules", 1, 256);
+            pages["Files"].AddLabel("Default module info");
+            pages["Files"].AddTextbox("Default ticks per row", "The default speed for new modules", width: 38, positionOffset: 52, validate: true);
+            pages["Files"].AddNumberBox("Default rows per frame", "The default frame length for new modules", 1, 256, positionOffset: 34);
+            pages["Files"].AddNumberBox("Default number of channels", "The default number of channels for new modules", 1, 24, positionOffset: 17);
+            pages["Files"].AddTextbox("Default author name", "The default author name for new modules", 110, positionOffset: 55);
+            pages["Files"].AddNumberBox("Default row highlight primary", "The default primary row highlight for new modules", 1, 256, positionOffset: 12);
+            pages["Files"].AddNumberBox("Default row highlight secondary", "The default secondary row highlight for new modules", 1, 256);
 
-            _ = pages["Pattern Editor"].AddLabel("Pattern editor");
-            _ = pages["Pattern Editor"].AddCheckbox("Show row numbers in hex", "Display row numbers in hexadecimal instead of decimal");
-            _ = pages["Pattern Editor"].AddCheckbox("Show note off/release as text", "Display note off and release events as OFF and REL");
-            _ = pages["Pattern Editor"].AddCheckbox("Fade volume column", "Fades the numbers in the volume column according to their value");
-            _ = pages["Pattern Editor"].AddCheckbox("Show previous/next frames", "Displays the next and previous frames as greyed out in the pattern editor");
-            _ = pages["Pattern Editor"].AddCheckbox("Ignore step when moving", "Ignore the step value in edit settings when moving the cursor. Only use it when inputting values");
-            _ = pages["Pattern Editor"].AddDropdown("Step after numeric input", "Defines cursor movement behavior when inputting numbers", ["Always", "At the end of a cell", "After cell, including effect", "Never"]);
-            _ = pages["Pattern Editor"].AddCheckbox("Wrap cursor horizontally", "Moving the cursor past the first or last channel will wrap around to the other side");
-            _ = pages["Pattern Editor"].AddCheckbox("Key repeat", "Enable key repetition when inputting notes and values");
-            _ = pages["Pattern Editor"].AddDropdown("Page jump amount", "How many rows the cursor jumps when scrolling", ["1", "2", "4", "8", "16"]);
-            _ = pages["Pattern Editor"].AddCheckbox("Restore channel state on playback", "Reconstruct the current channel's state from previous frames upon playing");
+            pages["Pattern Editor"].AddLabel("Pattern editor");
+            pages["Pattern Editor"].AddCheckbox("Show row numbers in hex", "Display row numbers in hexadecimal instead of decimal");
+            pages["Pattern Editor"].AddCheckbox("Show note off/release as text", "Display note off and release events as OFF and REL");
+            pages["Pattern Editor"].AddCheckbox("Fade volume column", "Fades the numbers in the volume column according to their value");
+            pages["Pattern Editor"].AddCheckbox("Show previous/next frames", "Displays the next and previous frames as greyed out in the pattern editor");
+            pages["Pattern Editor"].AddCheckbox("Ignore step when moving", "Ignore the step value in edit settings when moving the cursor. Only use it when inputting values");
+            pages["Pattern Editor"].AddDropdown("Step after numeric input", "Defines cursor movement behavior when inputting numbers", ["Always", "At the end of a cell", "After cell, including effect", "Never"]);
+            pages["Pattern Editor"].AddCheckbox("Wrap cursor horizontally", "Moving the cursor past the first or last channel will wrap around to the other side");
+            pages["Pattern Editor"].AddCheckbox("Key repeat", "Enable key repetition when inputting notes and values");
+            pages["Pattern Editor"].AddDropdown("Page jump amount", "How many rows the cursor jumps when scrolling", ["1", "2", "4", "8", "16"]);
+            pages["Pattern Editor"].AddCheckbox("Restore channel state on playback", "Reconstruct the current channel's state from previous frames upon playing");
 
-            _ = pages["Samples/Waves"].AddLabel("Sample import settings");
-            _ = pages["Samples/Waves"].AddCheckbox("Automatically normalize samples on import", "Automatically makes each new sample have the same volume");
-            _ = pages["Samples/Waves"].AddCheckbox("Automatically trim sample silence on import", "Automatically trim any silence before and after a sample when importing");
-            _ = pages["Samples/Waves"].AddCheckbox("Automatically preview samples in browser", "Plays audio files upon clicking on them in the sample browser");
-            _ = pages["Samples/Waves"].AddCheckbox("Include samples in visualizer by default", "New samples will have \'Include in visualizer\' checked off automatically");
-            _ = pages["Samples/Waves"].AddNumberBox("Default base key", "The default base key value of any new sample", 12, 131, NumberBox.NumberDisplayMode.Note, 60);
+            pages["Samples/Waves"].AddLabel("Sample import settings");
+            pages["Samples/Waves"].AddCheckbox("Automatically normalize samples on import", "Automatically makes each new sample have the same volume");
+            pages["Samples/Waves"].AddCheckbox("Automatically trim sample silence on import", "Automatically trim any silence before and after a sample when importing");
+            pages["Samples/Waves"].AddCheckbox("Automatically preview samples in browser", "Plays audio files upon clicking on them in the sample browser");
+            pages["Samples/Waves"].AddCheckbox("Include samples in visualizer by default", "New samples will have \'Include in visualizer\' checked off automatically");
+            pages["Samples/Waves"].AddNumberBox("Default base key", "The default base key value of any new sample", 12, 131, NumberBox.NumberDisplayMode.Note, 60);
             pages["Samples/Waves"].AddBreak();
-            _ = pages["Samples/Waves"].AddLabel("Resampling");
-            _ = pages["Samples/Waves"].AddDropdown("Default wave resample mode", "The default resampling algorithm that waves in new modules will have", ["Harsh (None)", "Smooth (Linear)", "Mix (None + Linear)"], positionOffset: 7);
-            _ = pages["Samples/Waves"].AddDropdown("Default sample resample mode", "The default resampling algorithm that new samples will have", ["Harsh (None)", "Smooth (Linear)", "Mix (None + Linear)"]);
+            pages["Samples/Waves"].AddLabel("Resampling");
+            pages["Samples/Waves"].AddDropdown("Default wave resample mode", "The default resampling algorithm that waves in new modules will have", ["Harsh (None)", "Smooth (Linear)", "Mix (None + Linear)"], positionOffset: 7);
+            pages["Samples/Waves"].AddDropdown("Default sample resample mode", "The default resampling algorithm that new samples will have", ["Harsh (None)", "Smooth (Linear)", "Mix (None + Linear)"]);
 
-            _ = pages["MIDI"].AddLabel("MIDI");
-            _ = pages["MIDI"].AddDropdown("Input device", "The MIDI device to receive inputs from", ["(none)"], false, -1, 999);
+            pages["MIDI"].AddLabel("MIDI");
+            pages["MIDI"].AddDropdown("Input device", "The MIDI device to receive inputs from", ["(none)"], false, -1, 999);
             pages["MIDI"].AddBreak();
-            _ = pages["MIDI"].AddLabel("Transpose");
-            _ = pages["MIDI"].AddNumberBox("MIDI transpose", "The number of semitones to transpose incoming midi notes", -48, 48, NumberBox.NumberDisplayMode.PlusMinus);
-            _ = pages["MIDI"].AddCheckbox("Apply octave transpose", "Transpose incoming midi messages by the current octave");
+            pages["MIDI"].AddLabel("Transpose");
+            pages["MIDI"].AddNumberBox("MIDI transpose", "The number of semitones to transpose incoming midi notes", -48, 48, NumberBox.NumberDisplayMode.PlusMinus);
+            pages["MIDI"].AddCheckbox("Apply octave transpose", "Transpose incoming midi messages by the current octave");
             pages["MIDI"].AddBreak();
-            _ = pages["MIDI"].AddLabel("MIDI messages");
-            _ = pages["MIDI"].AddCheckbox("Record note velocity", "If this is enabled, the velocity of a note press in edit mode will be recorded in the volume column");
-            _ = pages["MIDI"].AddCheckbox("Use program change to select instrument", "If this is enabled, a midi controller with program change functionality can be used to select instruments");
-            _ = pages["MIDI"].AddCheckbox("Receive play/stop messages", "If this is enabled, a midi controller with PLAY/STOP buttons will control tracker playback");
+            pages["MIDI"].AddLabel("MIDI messages");
+            pages["MIDI"].AddCheckbox("Record note velocity", "If this is enabled, the velocity of a note press in edit mode will be recorded in the volume column");
+            pages["MIDI"].AddCheckbox("Use program change to select instrument", "If this is enabled, a midi controller with program change functionality can be used to select instruments");
+            pages["MIDI"].AddCheckbox("Receive play/stop messages", "If this is enabled, a midi controller with PLAY/STOP buttons will control tracker playback");
 
-            _ = pages["Audio"].AddLabel("Audio");
-            _ = pages["Audio"].AddDropdown("Output device", "The audio device to output to", ["(default)"], false, -1, 999);
+            pages["Audio"].AddLabel("Audio");
+            pages["Audio"].AddDropdown("Output device", "The audio device to output to", ["(default)"], false, -1, 999);
             pages["Audio"].AddBreak();
-            _ = pages["Audio"].AddSlider("Volume", "The output master volume", 32, 200, 10, 0, 200, "%");
+            pages["Audio"].AddSlider("Volume", "The output master volume", 32, 200, 10, 0, 200, "%");
             pages["Audio"].AddBreak();
-            _ = pages["Audio"].AddDropdown("Sample rate", "The output sample rate of WaveTracker", ["11025 Hz", "22050 Hz", "44100 Hz", "48000 Hz", "96000 Hz"], false, positionOffset: 8);
+            pages["Audio"].AddDropdown("Sample rate", "The output sample rate of WaveTracker", ["11025 Hz", "22050 Hz", "44100 Hz", "48000 Hz", "96000 Hz"], false, positionOffset: 8);
             pages["Audio"].AddBreak();
-            _ = pages["Audio"].AddLabel("Advanced");
-            _ = pages["Audio"].AddDropdown("Oversampling", "Higher values will reduce high frequency aliasing artefacts, at the expense of higher CPU usage \n Turn this down if audio is stuttering", ["1x", "2x (recommended)", "4x", "8x"], false);
+            pages["Audio"].AddLabel("Advanced");
+            pages["Audio"].AddDropdown("Oversampling", "Higher values will reduce high frequency aliasing artefacts, at the expense of higher CPU usage \n Turn this down if audio is stuttering", ["1x", "2x (recommended)", "4x", "8x"], false);
 
-            _ = pages["Visualizer"].AddLabel("Piano");
-            _ = pages["Visualizer"].AddSlider("Note speed", "How fast notes scroll by in the piano roll, lower values are slower", 18, 95, 0, 1, 20);
-            _ = pages["Visualizer"].AddCheckbox("Change note width by volume", "If this is enabled, notes get thinner as they get softer");
-            _ = pages["Visualizer"].AddCheckbox("Change note opacity by volume", "If this is enabled, notes fade out as they get softer");
-            _ = pages["Visualizer"].AddCheckbox("Highlight pressed keys", "If this is enabled, currently playing notes will be highlighted on the keyboard itself");
+            pages["Visualizer"].AddLabel("Piano");
+            pages["Visualizer"].AddSlider("Note speed", "How fast notes scroll by in the piano roll, lower values are slower", 18, 95, 0, 1, 20);
+            pages["Visualizer"].AddCheckbox("Change note width by volume", "If this is enabled, notes get thinner as they get softer");
+            pages["Visualizer"].AddCheckbox("Change note opacity by volume", "If this is enabled, notes fade out as they get softer");
+            pages["Visualizer"].AddCheckbox("Highlight pressed keys", "If this is enabled, currently playing notes will be highlighted on the keyboard itself");
             pages["Visualizer"].AddBreak();
-            _ = pages["Visualizer"].AddLabel("Oscilloscopes");
-            _ = pages["Visualizer"].AddNumberBox("Wave zoom", "Determines how far zoomed in the waves in the oscilloscope are", 50, 200, NumberBox.NumberDisplayMode.Percent);
-            _ = pages["Visualizer"].AddCheckbox("Colorful waves", "If this is enabled, each oscilloscope window will use the same color as their notes in the piano roll");
-            _ = pages["Visualizer"].AddDropdown("Wave thickness", "Determines the thickness in pixels of each oscilloscope's wave", ["Thin", "Medium", "Thick"]);
-            _ = pages["Visualizer"].AddDropdown("Crosshairs", "Determines how crosshairs should be drawn in the center of each oscilloscope", ["None", "Horizontal", "Horizontal + Vertical"]);
-            _ = pages["Visualizer"].AddCheckbox("Oscilloscope borders", "Draws white borders around each oscilloscope");
+            pages["Visualizer"].AddLabel("Oscilloscopes");
+            pages["Visualizer"].AddNumberBox("Wave zoom", "Determines how far zoomed in the waves in the oscilloscope are", 50, 200, NumberBox.NumberDisplayMode.Percent);
+            pages["Visualizer"].AddCheckbox("Colorful waves", "If this is enabled, each oscilloscope window will use the same color as their notes in the piano roll");
+            pages["Visualizer"].AddDropdown("Wave thickness", "Determines the thickness in pixels of each oscilloscope's wave", ["Thin", "Medium", "Thick"]);
+            pages["Visualizer"].AddDropdown("Crosshairs", "Determines how crosshairs should be drawn in the center of each oscilloscope", ["None", "Horizontal", "Horizontal + Vertical"]);
+            pages["Visualizer"].AddCheckbox("Oscilloscope borders", "Draws white borders around each oscilloscope");
             pages["Visualizer"].AddBreak();
-            _ = pages["Visualizer"].AddLabel("Advanced");
-            _ = pages["Visualizer"].AddCheckbox("Draw in maximum resolution", "Draws the visualizer directly to the back buffer for higher resolution");
+            pages["Visualizer"].AddLabel("Advanced");
+            pages["Visualizer"].AddCheckbox("Draw in maximum resolution", "Draws the visualizer directly to the back buffer for higher resolution");
 
         }
 
@@ -398,7 +398,7 @@ namespace WaveTracker.UI {
             private KeyboardBindingList bindingList;
             private Button resetAll;
             public KeyboardPage(Element parent) : base(parent) {
-                _ = AddLabel("Keyboard Bindings");
+                AddLabel("Keyboard Bindings");
                 bindingList = new KeyboardBindingList(4, ypos, width - 8, 16, this);
                 bindingList.SetDictionary(SettingsProfile.CategoryKeyboard.defaultShortcuts);
                 resetAll = new Button("Reset All", 0, bindingList.y + bindingList.height + 4, this);
@@ -446,7 +446,7 @@ namespace WaveTracker.UI {
             private Button loadTheme;
             private Button saveTheme;
             public AppearancePage(Element parent) : base(parent) {
-                _ = AddLabel("Current color theme");
+                AddLabel("Current color theme");
                 colorList = new ColorButtonList(4, ypos, width - 8, 12, this);
                 saveTheme = new Button("Save As...", 4, colorList.y + colorList.height + 4, 55, this);
                 loadTheme = new Button("Load...", saveTheme.x + saveTheme.width + 4, colorList.y + colorList.height + 4, 55, this);
@@ -461,7 +461,7 @@ namespace WaveTracker.UI {
             public override void Update() {
                 base.Update();
                 if (openThemeFiles.Clicked) {
-                    _ = System.Diagnostics.Process.Start("explorer.exe", SaveLoad.ThemeFolderPath);
+                    System.Diagnostics.Process.Start("explorer.exe", SaveLoad.ThemeFolderPath);
                 }
                 if (loadTheme.Clicked) {
                     if (SaveLoad.GetThemePathThroughOpenDialog(out string filepath)) {
@@ -602,7 +602,6 @@ namespace WaveTracker.UI {
                 return Value + "";
             }
             public override void SetValue(string s) {
-                _ = Value;
                 if (bool.TryParse(s, out bool b)) {
                     Value = b;
                 }
