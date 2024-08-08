@@ -2109,7 +2109,7 @@ namespace WaveTracker.UI {
         /// </summary>
         public void InsertNewFrame() {
             App.CurrentSong.InsertNewFrame(cursorPosition.Frame + 1);
-            //MoveToFrame(cursorPosition.Frame + 1);
+            MoveToFrame(cursorPosition.Frame + 1);
         }
 
         /// <summary>
@@ -2117,10 +2117,13 @@ namespace WaveTracker.UI {
         /// </summary>
         public void DuplicateFrame() {
             App.CurrentSong.DuplicateFrame(cursorPosition.Frame);
-            //MoveToFrame(cursorPosition.Frame + 1);
+            MoveToFrame(cursorPosition.Frame + 1);
             App.CurrentModule.SetDirty();
         }
 
+        /// <summary>
+        /// Removes the current frame
+        /// </summary>
         public void RemoveFrame() {
             App.CurrentSong.RemoveFrame(cursorPosition.Frame);
             if (cursorPosition.Frame > 0) {
@@ -2128,18 +2131,30 @@ namespace WaveTracker.UI {
             }
         }
 
+        /// <summary>
+        /// Moves the current frame forward in the sequence
+        /// </summary>
         public void MoveFrameRight() {
             App.CurrentSong.SwapFrames(cursorPosition.Frame, cursorPosition.Frame + 1);
             MoveToFrame(cursorPosition.Frame + 1);
         }
+        /// <summary>
+        /// Moves the current frame backward in the sequence
+        /// </summary>
         public void MoveFrameLeft() {
             App.CurrentSong.SwapFrames(cursorPosition.Frame, cursorPosition.Frame - 1);
             MoveToFrame(cursorPosition.Frame - 1);
         }
+        /// <summary>
+        /// Increases the current frame's pattern
+        /// </summary>
         public void IncreaseFramePatternIndex() {
             CurrentFrame.PatternIndex++;
             AddToUndoHistory();
         }
+        /// <summary>
+        /// Decreases the current frame's pattern
+        /// </summary>
         public void DecreaseFramePatternIndex() {
             CurrentFrame.PatternIndex--;
             AddToUndoHistory();
