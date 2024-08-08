@@ -23,7 +23,6 @@ obj/Debug/net6.0-windows/
 Content/bin/
 .vs
 .vscode
-.editorconfig
 bin/
 AsepritePlanning/
 obj/
