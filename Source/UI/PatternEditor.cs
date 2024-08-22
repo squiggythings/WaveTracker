@@ -1828,35 +1828,92 @@ namespace WaveTracker.UI {
                     }
                 }
             }
+
             int columnStart = p.CellColumn;
             int patternHeight = 256;
             int patternWidth = CurrentPattern.Width;
-            for (int row = 0; row < clipboard.GetLength(0) - 1; row++) {
-                for (int column = 0; column < clipboard.GetLength(1); column++) {
+            for (int row = 0; row < clipboard.GetLength(0); row++) {
+                if (cursorPosition.Row + row >= patternHeight) {
+                    break;
+                }
+
+                for (int column = 0; column < clipboardWidth; column++) {
                     if (columnStart + column >= patternWidth) {
                         break;
                     }
-
-                    if (isOnlyEffects && WTPattern.GetCellTypeFromCellColumn(columnStart + column) == CellType.Note) {
-                        break;
+                    if (WTPattern.GetCellTypeFromCellColumn(columnStart + column) == CellType.Effect1 ||
+                        WTPattern.GetCellTypeFromCellColumn(columnStart + column) == CellType.Effect2 ||
+                        WTPattern.GetCellTypeFromCellColumn(columnStart + column) == CellType.Effect3 ||
+                        WTPattern.GetCellTypeFromCellColumn(columnStart + column) == CellType.Effect4) {
+                        if (CurrentPattern.CellIsEmpty(cursorPosition.Row + row, columnStart + column)) {
+                            CurrentPattern[cursorPosition.Row + row, columnStart + column] = clipboard[row, column];
+                            CurrentPattern[cursorPosition.Row + row, columnStart + column + 1] = clipboard[row, column + 1];
+                        }
                     }
-
-                    if (CurrentPattern.CellIsEmpty(cursorPosition.Row + row, columnStart + column)) {
+                    else if (CurrentPattern.CellIsEmpty(cursorPosition.Row + row, columnStart + column)) {
                         CurrentPattern[cursorPosition.Row + row, columnStart + column] = clipboard[row, column];
                     }
-                }
-                if (cursorPosition.Row + row >= patternHeight) {
-                    break;
                 }
             }
             selection.IsActive = true;
             SetSelectionStart(p);
             p.MoveToRow(Math.Clamp(p.Row + clipboard.GetLength(0) - 1, 0, CurrentPattern.GetModifiedLength() - 1), App.CurrentSong);
-            p.MoveToCellColumn(p.CellColumn + clipboard.GetLength(1) - 1);
+            p.MoveToCellColumn(p.CellColumn + clipboardWidth - 1);
             p.NormalizeHorizontally(App.CurrentSong);
             SetSelectionEnd(p);
             selection.Set(App.CurrentSong, selectionStart, selectionEnd);
             AddToUndoHistory();
+            //int clipboardWidth = clipboard.GetLength(1);
+            //bool isOnlyEffects = false;
+            //for (int i = 0; i < 4; ++i) {
+            //    if (clipboardStartCellType == CellType.Effect1 + i * 2 && clipboardWidth < 9 - i * 2) {
+            //        isOnlyEffects = true;
+            //    }
+            //}
+
+            //CursorPos p = cursorPosition;
+            //p.Column = clipboardStartCellType.ToNearestCursorColumn();
+            //if (isOnlyEffects) {
+            //    for (int i = 0; i < 4; ++i) {
+            //        if (cursorPosition.Column == CursorColumnType.Effect1 + i * 3 ||
+            //        cursorPosition.Column == CursorColumnType.Effect1Param1 + i * 3 ||
+            //        cursorPosition.Column == CursorColumnType.Effect1Param2 + i * 3) {
+            //            p.Column = CursorColumnType.Effect1 + i * 3;
+            //            if (clipboardWidth > 8 - i * 2) {
+            //                clipboardWidth = 8 - i * 2;
+            //            }
+            //        }
+            //    }
+            //}
+            //int columnStart = p.CellColumn;
+            //int patternHeight = 256;
+            //int patternWidth = CurrentPattern.Width;
+            //for (int row = 0; row < clipboard.GetLength(0) - 1; row++) {
+            //    for (int column = 0; column < clipboard.GetLength(1); column++) {
+            //        if (columnStart + column >= patternWidth) {
+            //            break;
+            //        }
+
+            //        if (isOnlyEffects && WTPattern.GetCellTypeFromCellColumn(columnStart + column) == CellType.Note) {
+            //            break;
+            //        }
+
+            //        if (CurrentPattern.CellIsEmpty(cursorPosition.Row + row, columnStart + column)) {
+            //            CurrentPattern[cursorPosition.Row + row, columnStart + column] = clipboard[row, column];
+            //        }
+            //    }
+            //    if (cursorPosition.Row + row >= patternHeight) {
+            //        break;
+            //    }
+            //}
+            //selection.IsActive = true;
+            //SetSelectionStart(p);
+            //p.MoveToRow(Math.Clamp(p.Row + clipboard.GetLength(0) - 1, 0, CurrentPattern.GetModifiedLength() - 1), App.CurrentSong);
+            //p.MoveToCellColumn(p.CellColumn + clipboard.GetLength(1) - 1);
+            //p.NormalizeHorizontally(App.CurrentSong);
+            //SetSelectionEnd(p);
+            //selection.Set(App.CurrentSong, selectionStart, selectionEnd);
+            //AddToUndoHistory();
         }
 
         /// <summary>
