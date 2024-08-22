@@ -27,36 +27,37 @@ namespace WaveTracker.UI {
         }
 
         public void Update() {
-            if (InFocus) {
-                title.Text = App.CurrentModule.Title;
-                title.Update();
-                if (title.ValueWasChangedInternally) {
-                    App.CurrentModule.Title = title.Text;
-                }
+            if (InFocus || selectedSong.InFocus) {
+                if (InFocus) {
+                    title.Text = App.CurrentModule.Title;
+                    title.Update();
+                    if (title.ValueWasChangedInternally) {
+                        App.CurrentModule.Title = title.Text;
+                    }
 
-                author.Text = App.CurrentModule.Author;
-                author.Update();
-                if (author.ValueWasChangedInternally) {
-                    App.CurrentModule.Author = author.Text;
-                }
+                    author.Text = App.CurrentModule.Author;
+                    author.Update();
+                    if (author.ValueWasChangedInternally) {
+                        App.CurrentModule.Author = author.Text;
+                    }
 
-                speed.Text = App.CurrentSong.GetTicksAsString();
-                speed.Update();
-                if (speed.ValueWasChangedInternally) {
-                    App.CurrentSong.LoadTicksFromString(speed.Text);
-                }
+                    speed.Text = App.CurrentSong.GetTicksAsString();
+                    speed.Update();
+                    if (speed.ValueWasChangedInternally) {
+                        App.CurrentSong.LoadTicksFromString(speed.Text);
+                    }
 
-                rows.Value = App.CurrentSong.RowsPerFrame;
-                rows.Update();
-                if (rows.ValueWasChangedInternally) {
-                    App.CurrentSong.RowsPerFrame = rows.Value;
-                    App.PatternEditor.cursorPosition.Normalize(App.CurrentSong);
+                    rows.Value = App.CurrentSong.RowsPerFrame;
+                    rows.Update();
+                    if (rows.ValueWasChangedInternally) {
+                        App.CurrentSong.RowsPerFrame = rows.Value;
+                        App.PatternEditor.cursorPosition.Normalize(App.CurrentSong);
 
+                    }
+                    if (editButton.Clicked || App.Shortcuts["General\\Module settings"].IsPressedDown) {
+                        Dialogs.moduleSettings.Open();
+                    }
                 }
-                if (editButton.Clicked || App.Shortcuts["General\\Module settings"].IsPressedDown) {
-                    Dialogs.moduleSettings.Open();
-                }
-
                 selectedSong.SetMenuItems(App.CurrentModule.GetSongNames());
                 selectedSong.Value = App.CurrentSongIndex;
                 selectedSong.Update();

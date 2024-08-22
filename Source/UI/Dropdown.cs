@@ -3,7 +3,7 @@ using System;
 
 namespace WaveTracker.UI {
     public class Dropdown : Clickable {
-        private static Dropdown currentlyOpen;
+        public static Dropdown currentlyOpen;
         /// <summary>
         /// Returns true if a dropdown is open
         /// </summary>
@@ -77,8 +77,7 @@ namespace WaveTracker.UI {
                 Value = ScrollWrap ? (Value + options.Length) % options.Length : Math.Clamp(Value, 0, options.Length - 1);
                 hoveredValue = Value;
             }
-            if (showMenu) {
-
+            if (currentlyOpen == this) {
                 for (int i = 0; i < options.Length; i++) {
                     int y = i * 11 + 14;
                     if (MouseX > 0 && MouseX < width) {
