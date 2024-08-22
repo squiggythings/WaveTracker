@@ -24,6 +24,7 @@ namespace WaveTracker.Audio {
             foreach (Channel channel in Channels) {
                 channel.Reset();
             }
+            PreviewChannel.Reset();
         }
 
         /// <summary>
