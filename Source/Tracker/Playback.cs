@@ -84,7 +84,6 @@ namespace WaveTracker.Tracker {
             if (App.PatternEditor.FollowMode && !AudioEngine.IsRendering) {
                 App.PatternEditor.SnapToPlaybackPosition();
             }
-
             Restore();
             PlayRow();
         }
@@ -103,7 +102,6 @@ namespace WaveTracker.Tracker {
             if (App.PatternEditor.FollowMode && !AudioEngine.IsRendering) {
                 App.PatternEditor.SnapToPlaybackPosition();
             }
-
             Restore();
             PlayRow();
         }
@@ -133,8 +131,8 @@ namespace WaveTracker.Tracker {
                     tickCounter = 0;
                     lastIsPlaying = true;
                     hasGotoTriggerFlag = false;
-                    PlayRow();
                     SetTicksPerRow();
+                    PlayRow();
                 }
 
                 if (tickCounter >= ticksPerRow) {
@@ -238,6 +236,7 @@ namespace WaveTracker.Tracker {
 
         private static void RestoreUntil(int frame, int row) {
             TicksPerRowOverride = -1;
+            SetTicksPerRow();
             for (int f = 0; f <= frame; f++) {
                 int frameLength = App.CurrentSong[f].GetModifiedLength();
                 for (int r = 0; r < frameLength; r++) {
