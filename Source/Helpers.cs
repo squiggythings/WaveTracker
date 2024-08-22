@@ -270,7 +270,7 @@ namespace WaveTracker {
         /// <returns></returns>
         public static bool IsEffectHex(char effectType) {
             return effectType switch {
-                '0' or '4' or '7' or 'Q' or 'R' or 'E' => true,
+                '0' or '4' or '7' or 'Q' or 'R' or 'H' => true,
                 _ => false,
             };
         }
