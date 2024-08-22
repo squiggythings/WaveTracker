@@ -2138,7 +2138,7 @@ namespace WaveTracker.UI {
         /// Moves to the next frame in the song
         /// </summary>
         public void NextFrame() {
-            if (Playback.IsPlaying) {
+            if (Playback.IsPlaying && FollowMode) {
                 Playback.GotoNextFrame();
             }
             else {
@@ -2151,7 +2151,7 @@ namespace WaveTracker.UI {
         /// Moves to the previous frame in the song
         /// </summary>
         public void PreviousFrame() {
-            if (Playback.IsPlaying) {
+            if (Playback.IsPlaying && FollowMode) {
                 Playback.GotoPreviousFrame();
             }
             else {

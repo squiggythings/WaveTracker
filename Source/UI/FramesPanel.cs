@@ -22,12 +22,6 @@ namespace WaveTracker.UI {
             bMoveRight = new SpriteButton(19, 25, 15, 15, 315, 0, this);
             bMoveRight.SetTooltip("Move Right", "Move this frame to be later in the song");
             scrollRegion = new MouseRegion(80, 12, 397, 28, this);
-            //increasePattern = new Button("+", 484, 12, this);
-            //increasePattern.width = 18;
-            //increasePattern.SetTooltip("Increase Pattern", "Increase this frame's pattern");
-            //decreasePattern = new Button("-", 484, 26, this);
-            //decreasePattern.width = 18;
-            //increasePattern.SetTooltip("Decrease Pattern", "Decrease this frame's pattern");
             frames = new FrameButton[25];
             for (int i = 0; i < frames.Length; ++i) {
                 frames[i] = new FrameButton(i - frames.Length / 2, this);
@@ -62,53 +56,29 @@ namespace WaveTracker.UI {
                     }
                     if (!Input.GetClick(KeyModifier._Any)) {
                         if (Input.MouseScrollWheel(KeyModifier.None) < 0) {
-                            if (Playback.IsPlaying && App.PatternEditor.FollowMode) {
-                                Playback.GotoNextFrame();
-                            }
-                            else {
-                                App.PatternEditor.NextFrame();
-                            }
+                            App.PatternEditor.NextFrame();
                         }
                         if (Input.MouseScrollWheel(KeyModifier.None) > 0) {
-                            if (Playback.IsPlaying && App.PatternEditor.FollowMode) {
-                                Playback.GotoPreviousFrame();
-                            }
-                            else {
-                                App.PatternEditor.PreviousFrame();
-                            }
+                            App.PatternEditor.PreviousFrame();
                         }
                     }
                 }
                 if (!Playback.IsPlaying) {
                     if (bNewFrame.Clicked) {
                         App.PatternEditor.InsertNewFrame();
-                        //FrameEditor.thisSong.frames.Insert(++FrameEditor.currentFrame, new Frame());
-                        //FrameEditor.Goto(FrameEditor.currentFrame, FrameEditor.currentRow);
                     }
                     if (bDuplicateFrame.Clicked || App.Shortcuts["Frame\\Duplicate frame"].IsPressedRepeat) {
                         App.PatternEditor.DuplicateFrame();
-                        //FrameEditor.thisSong.frames.Insert(FrameEditor.currentFrame + 1, FrameEditor.thisFrame.Clone());
-                        //FrameEditor.Goto(FrameEditor.currentFrame, FrameEditor.currentRow);
-
                     }
                     if (bDeleteFrame.Clicked || App.Shortcuts["Frame\\Remove frame"].IsPressedRepeat) {
                         App.PatternEditor.RemoveFrame();
-                        //FrameEditor.thisSong.frames.RemoveAt(FrameEditor.currentFrame);
-                        //FrameEditor.currentFrame--;
-                        //if (FrameEditor.currentFrame < 0)
-                        //    FrameEditor.currentFrame = 0;
-                        //FrameEditor.Goto(FrameEditor.currentFrame, FrameEditor.currentRow);
                     }
 
                     if (bMoveRight.Clicked) {
                         App.PatternEditor.MoveFrameRight();
-                        //FrameEditor.thisSong.frames.Reverse(FrameEditor.currentFrame++, 2);
-                        //FrameEditor.Goto(FrameEditor.currentFrame, FrameEditor.currentRow);
                     }
                     if (bMoveLeft.Clicked) {
                         App.PatternEditor.MoveFrameLeft();
-                        //FrameEditor.thisSong.frames.Reverse(--FrameEditor.currentFrame, 2);
-                        //FrameEditor.Goto(FrameEditor.currentFrame, FrameEditor.currentRow);
                     }
                     if (App.Shortcuts["Frame\\Increase pattern value"].IsPressedRepeat) {
                         App.PatternEditor.IncreaseFramePatternIndex();
@@ -116,12 +86,6 @@ namespace WaveTracker.UI {
                     if (App.Shortcuts["Frame\\Decrease pattern value"].IsPressedRepeat) {
                         App.PatternEditor.DecreaseFramePatternIndex();
                     }
-                    //if (increasePattern.Clicked) {
-                    //    patternEditor.IncreaseFramePatternIndex();
-                    //}
-                    //if (decreasePattern.Clicked) {
-                    //    patternEditor.DecreaseFramePatternIndex();
-                    //}
                 }
             }
         }
@@ -140,7 +104,6 @@ namespace WaveTracker.UI {
             bMoveLeft.Draw();
             bMoveRight.Draw();
             DrawRect(67, 11, 423, 29, new Color(32, 37, 64));
-            //DrawSprite(arrow, 275, 15, new Rectangle(0, 0, 7, 4));
             foreach (FrameButton button in frames) {
                 button.Draw();
             }
