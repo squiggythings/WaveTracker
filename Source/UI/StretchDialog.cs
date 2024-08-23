@@ -59,7 +59,6 @@ namespace WaveTracker.UI {
             if (WindowIsOpen) {
                 base.Draw();
                 stretchText.Draw();
-                
 
                 int r = 0;
                 int index = 0;

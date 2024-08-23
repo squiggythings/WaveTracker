@@ -51,7 +51,7 @@ namespace WaveTracker.UI {
             importSample.SetTooltip("", "Import an audio file into the instrument");
 
             resamplingMode = new Dropdown(242, 237, this);
-            resamplingMode.SetMenuItems(new string[] { "Harsh (None)", "Smooth (Linear)", "Mix (None + Linear)" });
+            resamplingMode.SetMenuItems(["Harsh (None)", "Smooth (Linear)", "Mix (None + Linear)"]);
 
             baseKey = new NumberBox("Base Key", 0, 220, 100, 56, this);
             baseKey.SetValueLimits(12, 131);
@@ -67,7 +67,7 @@ namespace WaveTracker.UI {
             loopPoint.SetTooltip("", "Set the position in audio samples where the sound loops back to");
 
             loopMode = new Dropdown(282, 188, this, false);
-            loopMode.SetMenuItems(new string[] { "One-shot", "Forward", "Ping-pong" });
+            loopMode.SetMenuItems(["One-shot", "Forward", "Ping-pong"]);
 
             int buttonsX = 357;
             int buttonsY = 188;
@@ -407,7 +407,7 @@ namespace WaveTracker.UI {
             }
         }
 
-        private int GetXPositionOfSample(int sampleIndex, int dataLength, int maxWidth) {
+        private static int GetXPositionOfSample(int sampleIndex, int dataLength, int maxWidth) {
             return (int)((float)sampleIndex / dataLength * maxWidth);
         }
     }
