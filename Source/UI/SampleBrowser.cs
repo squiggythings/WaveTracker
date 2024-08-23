@@ -199,6 +199,9 @@ namespace WaveTracker.UI {
 
         private void GetFileEntries(bool overrideOptimization) {
             if (currentPath != lastPath || overrideOptimization) {
+                if (!Path.Exists(currentPath)) {
+                    currentPath = "";
+                }
                 // the topmost in the tree, choosing a drive
                 lastPath = currentPath;
                 List<string> entries = [];
@@ -261,6 +264,7 @@ namespace WaveTracker.UI {
             x = (App.WindowWidth - width) / 2;
             y = (App.WindowHeight - height) / 2;
             Input.focus = this;
+            GetFileEntries(true);
         }
 
         public void Close() {

@@ -373,13 +373,14 @@ namespace WaveTracker {
                 Thread t = new Thread(() => {
                     Input.DialogStarted();
                     Input.CancelClick();
-                    OpenFileDialog openFileDialog = new OpenFileDialog();
-                    openFileDialog.InitialDirectory = ReadPath("openwtm", Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments));
-                    openFileDialog.Filter = "WaveTracker modules (*wtm)|*.wtm";
-                    openFileDialog.Multiselect = false;
-                    openFileDialog.Title = "Open";
-                    openFileDialog.ValidateNames = true;
-                    openFileDialog.CheckPathExists = true;
+                    OpenFileDialog openFileDialog = new OpenFileDialog {
+                        InitialDirectory = ReadPath("openwtm", Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments)),
+                        Filter = "WaveTracker modules (*wtm)|*.wtm",
+                        Multiselect = false,
+                        Title = "Open",
+                        ValidateNames = true,
+                        CheckPathExists = true
+                    };
 
                     if (openFileDialog.ShowDialog() == DialogResult.OK) {
                         ret = openFileDialog.FileName;
