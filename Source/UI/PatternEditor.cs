@@ -140,39 +140,37 @@ namespace WaveTracker.UI {
         }
 
         public Menu CreateEditMenu() {
-            return new Menu(
-                    [
-                        new MenuOption("Undo", Undo, CanUndo),
-                        new MenuOption("Redo", Redo, CanRedo),
+            return new Menu([
+                        new MenuOption("Undo", Undo, CanUndo && !App.VisualizerMode),
+                        new MenuOption("Redo", Redo, CanRedo && !App.VisualizerMode),
                         null,
-                        new MenuOption("Cut", Cut, SelectionIsActive),
-                        new MenuOption("Copy", CopyToClipboard, SelectionIsActive),
-                        new MenuOption("Paste", PasteFromClipboard, HasClipboard),
-                        new MenuOption("Delete", Delete, SelectionIsActive),
-                        new MenuOption("Select All", SelectAll),
+                        new MenuOption("Cut", Cut, SelectionIsActive && !App.VisualizerMode),
+                        new MenuOption("Copy", CopyToClipboard, SelectionIsActive && !App.VisualizerMode),
+                        new MenuOption("Paste", PasteFromClipboard, HasClipboard && !App.VisualizerMode),
+                        new MenuOption("Delete", Delete, SelectionIsActive && !App.VisualizerMode),
+                        new MenuOption("Select All", SelectAll, !App.VisualizerMode),
                         null,
                         new SubMenu("Pattern", [
-                            new MenuOption("Interpolate", InterpolateSelection, SelectionIsActive),
-                            new MenuOption("Reverse", ReverseSelection, SelectionIsActive),
-                            new MenuOption("Replace Instrument", ReplaceInstrument, SelectionIsActive),
-                            new MenuOption("Humanize Volumes", Humanize, SelectionIsActive),
+                            new MenuOption("Interpolate", InterpolateSelection, SelectionIsActive && !App.VisualizerMode),
+                            new MenuOption("Reverse", ReverseSelection, SelectionIsActive && !App.VisualizerMode),
+                            new MenuOption("Replace Instrument", ReplaceInstrument, SelectionIsActive && !App.VisualizerMode),
+                            new MenuOption("Humanize Volumes", Humanize, SelectionIsActive && !App.VisualizerMode),
                             null,
-                            new MenuOption("Expand", ExpandSelection, SelectionIsActive),
-                            new MenuOption("Shrink", ShrinkSelection, SelectionIsActive),
-                            new MenuOption("Stretch...", OpenStretchDialog, SelectionIsActive),
+                            new MenuOption("Expand", ExpandSelection, SelectionIsActive && !App.VisualizerMode),
+                            new MenuOption("Shrink", ShrinkSelection, SelectionIsActive && !App.VisualizerMode),
+                            new MenuOption("Stretch...", OpenStretchDialog, SelectionIsActive && !App.VisualizerMode),
                             null,
                             new SubMenu("Transpose",[
-                                new MenuOption("Increase note", IncreaseNote),
-                                new MenuOption("Decrease note", DecreaseNote),
-                                new MenuOption("Increase octave", IncreaseOctave),
-                                new MenuOption("Decrease octave", DecreaseOctave),
+                                new MenuOption("Increase note", IncreaseNote, !App.VisualizerMode),
+                                new MenuOption("Decrease note", DecreaseNote, !App.VisualizerMode),
+                                new MenuOption("Increase octave", IncreaseOctave, !App.VisualizerMode),
+                                new MenuOption("Decrease octave", DecreaseOctave, !App.VisualizerMode),
                             ])
 
                         ]),
                         null,
                         new MenuOption("Preferences...", Dialogs.configurationDialog.Open),
-                    ]
-                );
+                    ]);
         }
         public void Update() {
 
@@ -1841,10 +1839,10 @@ namespace WaveTracker.UI {
                     if (columnStart + column >= patternWidth) {
                         break;
                     }
-                    if (WTPattern.GetCellTypeFromCellColumn(columnStart + column) == CellType.Effect1 ||
-                        WTPattern.GetCellTypeFromCellColumn(columnStart + column) == CellType.Effect2 ||
-                        WTPattern.GetCellTypeFromCellColumn(columnStart + column) == CellType.Effect3 ||
-                        WTPattern.GetCellTypeFromCellColumn(columnStart + column) == CellType.Effect4) {
+                    if (WTPattern.GetCellTypeFromCellColumn(columnStart + column) is CellType.Effect1 or
+                        CellType.Effect2 or
+                        CellType.Effect3 or
+                        CellType.Effect4) {
                         if (CurrentPattern.CellIsEmpty(cursorPosition.Row + row, columnStart + column)) {
                             CurrentPattern[cursorPosition.Row + row, columnStart + column] = clipboard[row, column];
                             CurrentPattern[cursorPosition.Row + row, columnStart + column + 1] = clipboard[row, column + 1];

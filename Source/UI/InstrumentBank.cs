@@ -51,19 +51,19 @@ namespace WaveTracker.UI {
 
         public Menu CreateInstrumentMenu() {
             return new Menu([
-                        new MenuOption("Add wave instrument",AddWave, App.CurrentModule.Instruments.Count < 100),
-                        new MenuOption("Add sample instrument",AddSample,App.CurrentModule.Instruments.Count < 100),
-                        new MenuOption("Duplicate",DuplicateInstrument,App.CurrentModule.Instruments.Count < 100),
-                        new MenuOption("Remove",RemoveInstrument,App.CurrentModule.Instruments.Count > 1),
+                        new MenuOption("Add wave instrument",AddWave, App.CurrentModule.Instruments.Count < 100 && !App.VisualizerMode),
+                        new MenuOption("Add sample instrument",AddSample,App.CurrentModule.Instruments.Count < 100 && !App.VisualizerMode),
+                        new MenuOption("Duplicate",DuplicateInstrument,App.CurrentModule.Instruments.Count < 100 && !App.VisualizerMode),
+                        new MenuOption("Remove",RemoveInstrument,App.CurrentModule.Instruments.Count > 1 && !App.VisualizerMode),
                         null,
-                        new MenuOption("Move up", MoveUp, CurrentInstrumentIndex > 0),
-                        new MenuOption("Move down", MoveDown, CurrentInstrumentIndex < App.CurrentModule.Instruments.Count - 1),
+                        new MenuOption("Move up", MoveUp, CurrentInstrumentIndex > 0 && !App.VisualizerMode),
+                        new MenuOption("Move down", MoveDown, CurrentInstrumentIndex < App.CurrentModule.Instruments.Count - 1 && !App.VisualizerMode),
                         null,
                         //new MenuOption("Load from file...", null),
                         //new MenuOption("Save to file...", null),
                         null,
-                        new MenuOption("Rename...", Rename),
-                        new MenuOption("Edit...", Edit)
+                        new MenuOption("Rename...", Rename, !App.VisualizerMode),
+                        new MenuOption("Edit...", Edit, !App.VisualizerMode)
                    ]);
         }
 

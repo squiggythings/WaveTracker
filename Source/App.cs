@@ -184,6 +184,16 @@ namespace WaveTracker {
                     ])
                 ]);
         }
+        private Menu CreateSongMenu() {
+            return new Menu([
+                new MenuOption("Insert frame", PatternEditor.InsertNewFrame, !VisualizerMode),
+                new MenuOption("Remove frame", PatternEditor.RemoveFrame, !VisualizerMode),
+                new MenuOption("Duplicate frame", PatternEditor.DuplicateFrame, !VisualizerMode),
+                null,
+                new MenuOption("Move frame left", PatternEditor.MoveFrameLeft, !VisualizerMode),
+                new MenuOption("Move frame right", PatternEditor.MoveFrameRight, !VisualizerMode),
+            ]);
+        }
 
         protected override void Initialize() {
 
@@ -207,14 +217,7 @@ namespace WaveTracker {
             MenuStrip = new MenuStrip(0, 0, 960, null);
             MenuStrip.AddButton("File", SaveLoad.CreateFileMenu);
             MenuStrip.AddButton("Edit", PatternEditor.CreateEditMenu);
-            MenuStrip.AddButton("Song", new Menu([
-                new MenuOption("Insert frame", PatternEditor.InsertNewFrame),
-                new MenuOption("Remove frame", PatternEditor.RemoveFrame),
-                new MenuOption("Duplicate frame", PatternEditor.DuplicateFrame),
-                null,
-                new MenuOption("Move frame left", PatternEditor.MoveFrameLeft),
-                new MenuOption("Move frame right", PatternEditor.MoveFrameRight),
-            ]));
+            MenuStrip.AddButton("Song", CreateSongMenu);
             MenuStrip.AddButton("Module", CreateModuleMenu);
             MenuStrip.AddButton("Instrument", InstrumentBank.CreateInstrumentMenu);
             MenuStrip.AddButton("Tracker", new Menu([
