@@ -280,9 +280,10 @@ namespace WaveTracker {
         public static void WriteToDisk(SettingsProfile profileToSave) {
             Directory.CreateDirectory(SaveLoad.SettingsFolderPath);
             using (StreamWriter outputFile = new StreamWriter(SaveLoad.SettingsPath)) {
-                JsonSerializerOptions options = new JsonSerializerOptions() {
+                JsonSerializerOptions jsonSerializerOptions = new JsonSerializerOptions() {
                     IncludeFields = true,
                 };
+                JsonSerializerOptions options = jsonSerializerOptions;
                 outputFile.Write(JsonSerializer.Serialize(profileToSave, typeof(SettingsProfile), options));
             }
         }
@@ -295,9 +296,10 @@ namespace WaveTracker {
             SettingsProfile ret = Default;
             try {
                 jsonString = File.ReadAllText(SaveLoad.SettingsPath);
-                JsonSerializerOptions options = new JsonSerializerOptions() {
+                JsonSerializerOptions jsonSerializerOptions = new JsonSerializerOptions() {
                     IncludeFields = true,
                 };
+                JsonSerializerOptions options = jsonSerializerOptions;
                 ret = JsonSerializer.Deserialize<SettingsProfile>(jsonString, options);
             } catch {
                 WriteToDisk(Default);

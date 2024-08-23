@@ -91,7 +91,6 @@ namespace WaveTracker.Audio {
         private int channelNote; // notes column
         public Instrument CurrentInstrument { get; private set; } // instrument column
         private float lastNote;
-        private SampleInstrument instrumentAsSample;
         public Sample CurrentSample { get; private set; }
 
         public Dictionary<Envelope.EnvelopeType, EnvelopePlayer> envelopePlayers;
