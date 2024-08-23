@@ -484,6 +484,46 @@ namespace WaveTracker {
         /// Opens a file browser and asks the user to choose a path to export to. (Export .wav)
         /// </summary>
         /// <returns>Returns true if they choose a file and accept, false otherwise.</returns>
+        public static bool ChooseSampleExportPath(out string filepath) {
+            string ret = "";
+            bool didIt = false;
+            if (Input.dialogOpenCooldown == 0) {
+                Thread t = new Thread(() => {
+                    Input.DialogStarted();
+                    Input.CancelClick();
+                    SaveFileDialog saveFileDialog = new SaveFileDialog();
+                    saveFileDialog.DefaultExt = "wav";
+                    saveFileDialog.InitialDirectory = ReadPath("sample_export", Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments));
+                    saveFileDialog.OverwritePrompt = true;
+                    saveFileDialog.FileName = App.InstrumentBank.GetCurrentInstrument.name;
+                    saveFileDialog.Title = "Export .wav";
+                    saveFileDialog.Filter = "Waveform Audio File Format (*.wav)|*.wav|All files (*.*)|*.*";
+                    saveFileDialog.AddExtension = true;
+                    saveFileDialog.CheckPathExists = true;
+                    saveFileDialog.ValidateNames = true;
+
+                    if (saveFileDialog.ShowDialog() == DialogResult.OK) {
+                        ret = saveFileDialog.FileName;
+                        SavePath("sample_export", Directory.GetParent(ret).FullName + "");
+
+                        didIt = true;
+                    }
+
+                });
+
+                t.SetApartmentState(ApartmentState.STA);
+                App.ForceUpdate();
+                t.Start();
+                t.Join();
+            }
+            filepath = ret;
+            return didIt;
+        }
+
+        /// <summary>
+        /// Opens a file browser and asks the user to choose a path to export to. (Export .wav)
+        /// </summary>
+        /// <returns>Returns true if they choose a file and accept, false otherwise.</returns>
         public static bool ChooseThemeSaveLocation(out string filepath) {
             string ret = "";
             bool didIt = false;

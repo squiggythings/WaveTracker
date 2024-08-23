@@ -296,6 +296,12 @@ namespace WaveTracker {
             return a - b * MathF.Floor(a / b);
         }
 
+        /// <summary>
+        /// Slightly faster version of getting the Math.Pow curve, not as accurate but maintains a smoother curve than the other approximations.
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="n"></param>
+        /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static double MoreAccuratePower(double x, double n) {
             return x * Math.Exp((x - 1) * (n - 1));

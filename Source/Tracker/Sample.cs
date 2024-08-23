@@ -329,7 +329,7 @@ namespace WaveTracker.Tracker {
         }
 
         public void SaveToDisk() {
-            if (!SaveLoad.ChooseExportPath(out string filepath)) {
+            if (!SaveLoad.ChooseSampleExportPath(out string filepath)) {
                 return;
             }
 

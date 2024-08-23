@@ -133,7 +133,7 @@ namespace WaveTracker.UI {
                                 new MenuOption("Amplify-", AmplifyDown),
                             }),
                             null,
-                            new MenuOption("Save as...", Sample.SaveToDisk),
+                            new MenuOption("Export...", Sample.SaveToDisk),
                         }));
                     }
                 }
