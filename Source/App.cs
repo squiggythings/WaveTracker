@@ -393,6 +393,7 @@ namespace WaveTracker {
             DropdownButton.DrawCurrentMenu();
             ContextMenu.Draw();
             Tooltip.Draw();
+
             if (VisualizerMode && Input.focus == null && Settings.Visualizer.DrawInHighResolution) {
                 Visualizer.DrawTracker();
             }

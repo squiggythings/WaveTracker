@@ -239,7 +239,7 @@ namespace WaveTracker {
                 }
             }
             if (midiEvent is NoteEvent noteEvent) {
-                if (noteEvent.Velocity == 0) {
+                if (noteEvent.Velocity == 0 || midiEvent.CommandCode == MidiCommandCode.NoteOff) {
                     MIDINoteOff(noteEvent.NoteNumber + App.Settings.MIDI.MIDITranspose + (App.Settings.MIDI.ApplyOctaveTranspose ? (App.PatternEditor.CurrentOctave - 4) * 12 : 0));
                 }
                 else {
