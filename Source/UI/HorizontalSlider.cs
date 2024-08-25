@@ -62,7 +62,7 @@ namespace WaveTracker.UI {
                     }
                 }
                 if (IsHovered) {
-                    Value -= Input.MouseScrollWheel(KeyModifier.None) * FineAdjustAmount;
+                    Value += Input.MouseScrollWheel(KeyModifier.None) * FineAdjustAmount;
                 }
             }
 
