@@ -316,8 +316,8 @@ namespace WaveTracker.Audio {
         }
 
         public void Reset() {
-            CurrentInstrument = new WaveInstrument();
-            currentInstrumentID = 0;
+            currentInstrumentID = -1;
+            SetMacro(0);
             tickEvents.Clear();
             noteOn = false;
             _state = VoiceState.Off;
