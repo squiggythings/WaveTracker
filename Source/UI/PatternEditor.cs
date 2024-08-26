@@ -116,6 +116,11 @@ namespace WaveTracker.UI {
                 return CurrentFrame.GetPattern();
             }
         }
+        private WTPattern SelectionPattern {
+            get {
+                return App.CurrentSong[selection.min.Frame];
+            }
+        }
 
         private ScrollbarHorizontal channelScrollbar;
         private int playbackFrame;
@@ -743,10 +748,10 @@ namespace WaveTracker.UI {
                             for (int c = selection.min.CellColumn; c <= selection.max.CellColumn; ++c) {
                                 CellType cellType = WTPattern.GetCellTypeFromCellColumn(c);
                                 if (cellType == CellType.Note &&
-                                    CurrentPattern[r, c] != WTPattern.EVENT_NOTE_RELEASE &&
-                                    CurrentPattern[r, c] != WTPattern.EVENT_NOTE_CUT &&
-                                    CurrentPattern[r, c] != WTPattern.EVENT_EMPTY) {
-                                    CurrentPattern[r, c] += Input.MouseScrollWheel(KeyModifier.Ctrl);
+                                    SelectionPattern[r, c] != WTPattern.EVENT_NOTE_RELEASE &&
+                                    SelectionPattern[r, c] != WTPattern.EVENT_NOTE_CUT &&
+                                    SelectionPattern[r, c] != WTPattern.EVENT_EMPTY) {
+                                    SelectionPattern[r, c] += Input.MouseScrollWheel(KeyModifier.Ctrl);
                                     performedTask = true;
                                 }
                             }
@@ -755,14 +760,14 @@ namespace WaveTracker.UI {
                     if (Input.MouseScrollWheel(KeyModifier.Shift) != 0) {
                         for (int r = selection.min.Row; r <= selection.max.Row; ++r) {
                             for (int c = selection.min.CellColumn; c <= selection.max.CellColumn; ++c) {
-                                if (CurrentPattern[r, c] != WTPattern.EVENT_EMPTY) {
+                                if (SelectionPattern[r, c] != WTPattern.EVENT_EMPTY) {
                                     CellType cellType = WTPattern.GetCellTypeFromCellColumn(c);
                                     if (cellType is not CellType.Note and
                                         not CellType.Effect1 and
                                         not CellType.Effect2 and
                                         not CellType.Effect3 and
                                         not CellType.Effect4) {
-                                        CurrentPattern[r, c] += Input.MouseScrollWheel(KeyModifier.Shift);
+                                        SelectionPattern[r, c] += Input.MouseScrollWheel(KeyModifier.Shift);
                                         performedTask = true;
                                     }
                                 }
@@ -821,8 +826,8 @@ namespace WaveTracker.UI {
                             not CellType.Effect2 and
                             not CellType.Effect3 and
                             not CellType.Effect4) {
-                            if (!CurrentPattern.CellIsEmptyOrNoteCutRelease(r, c)) {
-                                CurrentPattern[r, c] -= 1;
+                            if (!SelectionPattern.CellIsEmptyOrNoteCutRelease(r, c)) {
+                                SelectionPattern[r, c] -= 1;
                                 didSomething = true;
                             }
                         }
@@ -842,8 +847,8 @@ namespace WaveTracker.UI {
                             not CellType.Effect2 and
                             not CellType.Effect3 and
                             not CellType.Effect4) {
-                            if (!CurrentPattern.CellIsEmptyOrNoteCutRelease(r, c)) {
-                                CurrentPattern[r, c] += 1;
+                            if (!SelectionPattern.CellIsEmptyOrNoteCutRelease(r, c)) {
+                                SelectionPattern[r, c] += 1;
                                 didSomething = true;
                             }
                         }
@@ -863,16 +868,16 @@ namespace WaveTracker.UI {
                             not CellType.Effect2 and
                             not CellType.Effect3 and
                             not CellType.Effect4) {
-                            if (!CurrentPattern.CellIsEmptyOrNoteCutRelease(r, c)) {
+                            if (!SelectionPattern.CellIsEmptyOrNoteCutRelease(r, c)) {
                                 if (WTPattern.GetCellTypeFromCellColumn(c) == CellType.Effect1Parameter ||
                                     WTPattern.GetCellTypeFromCellColumn(c) == CellType.Effect2Parameter ||
                                     WTPattern.GetCellTypeFromCellColumn(c) == CellType.Effect3Parameter ||
                                     WTPattern.GetCellTypeFromCellColumn(c) == CellType.Effect4Parameter &&
-                                    Helpers.IsEffectHex((char)CurrentPattern[r, c - 1])) {
-                                    CurrentPattern[r, c] -= 16;
+                                    Helpers.IsEffectHex((char)SelectionPattern[r, c - 1])) {
+                                    SelectionPattern[r, c] -= 16;
                                 }
                                 else {
-                                    CurrentPattern[r, c] -= 10;
+                                    SelectionPattern[r, c] -= 10;
                                 }
 
                                 didSomething = true;
@@ -894,16 +899,16 @@ namespace WaveTracker.UI {
                             not CellType.Effect2 and
                             not CellType.Effect3 and
                             not CellType.Effect4) {
-                            if (!CurrentPattern.CellIsEmptyOrNoteCutRelease(r, c)) {
+                            if (!SelectionPattern.CellIsEmptyOrNoteCutRelease(r, c)) {
                                 if (WTPattern.GetCellTypeFromCellColumn(c) == CellType.Effect1Parameter ||
                                     WTPattern.GetCellTypeFromCellColumn(c) == CellType.Effect2Parameter ||
                                     WTPattern.GetCellTypeFromCellColumn(c) == CellType.Effect3Parameter ||
                                     WTPattern.GetCellTypeFromCellColumn(c) == CellType.Effect4Parameter &&
-                                    Helpers.IsEffectHex((char)CurrentPattern[r, c - 1])) {
-                                    CurrentPattern[r, c] += 16;
+                                    Helpers.IsEffectHex((char)SelectionPattern[r, c - 1])) {
+                                    SelectionPattern[r, c] += 16;
                                 }
                                 else {
-                                    CurrentPattern[r, c] += 10;
+                                    SelectionPattern[r, c] += 10;
                                 }
 
                                 didSomething = true;
@@ -1427,9 +1432,6 @@ namespace WaveTracker.UI {
             selection = new PatternSelection(App.CurrentSong, cursorPosition, cursorPosition);
             selection.IsActive = false;
             scaleClipboard = null;
-            //currentSelection.minPosition = cursorPosition;
-            //currentSelection.maxPosition = cursorPosition;
-            //CreateSelectionBounds();
         }
 
         /// <summary>
@@ -1463,7 +1465,7 @@ namespace WaveTracker.UI {
             //clipboardStartCellType = selection.min.Column.ToCellType();
             for (int row = 0; row < selection.Height; row++) {
                 for (int column = 0; column < selection.Width; column++) {
-                    scaleClipboard[row, column] = (byte)CurrentPattern[selection.min.Row + row, selection.min.CellColumn + column];
+                    scaleClipboard[row, column] = (byte)SelectionPattern[selection.min.Row + row, selection.min.CellColumn + column];
                 }
             }
         }
@@ -1480,9 +1482,9 @@ namespace WaveTracker.UI {
         /// <param name="pos"></param>
         private void PullCellsUp(int row, int cellColumn) {
             for (int i = row; i < 255; i++) {
-                CurrentPattern.SetCellRaw(i, cellColumn, (byte)CurrentPattern[i + 1, cellColumn]);
+                SelectionPattern.SetCellRaw(i, cellColumn, (byte)SelectionPattern[i + 1, cellColumn]);
             }
-            CurrentPattern.SetCellRaw(255, cellColumn, WTPattern.EVENT_EMPTY);
+            SelectionPattern.SetCellRaw(255, cellColumn, WTPattern.EVENT_EMPTY);
         }
 
         /// <summary>
@@ -1491,9 +1493,9 @@ namespace WaveTracker.UI {
         /// <param name="pos"></param>
         private void PushCellsDown(int row, int cellColumn) {
             for (int i = 255; i > row; i--) {
-                CurrentPattern.SetCellRaw(i, cellColumn, (byte)CurrentPattern[i - 1, cellColumn]);
+                SelectionPattern.SetCellRaw(i, cellColumn, (byte)SelectionPattern[i - 1, cellColumn]);
             }
-            CurrentPattern.SetCellRaw(row, cellColumn, WTPattern.EVENT_EMPTY);
+            SelectionPattern.SetCellRaw(row, cellColumn, WTPattern.EVENT_EMPTY);
         }
 
         /// <summary>
@@ -1515,7 +1517,7 @@ namespace WaveTracker.UI {
                 selY = 0;
                 for (int r = selection.min.Row; r <= selection.max.Row; ++r) {
                     if (cellType != CellType.Volume) {
-                        if (Helpers.IsEffectHex((char)CurrentPattern[r, c - 1])) {
+                        if (Helpers.IsEffectHex((char)SelectionPattern[r, c - 1])) {
                             continue;
                         }
                     }
@@ -1532,13 +1534,13 @@ namespace WaveTracker.UI {
                 selY = 0;
                 for (int r = selection.min.Row; r <= selection.max.Row; ++r) {
                     if (cellType != CellType.Volume) {
-                        if (Helpers.IsEffectHex((char)CurrentPattern[r, c - 1])) {
+                        if (Helpers.IsEffectHex((char)SelectionPattern[r, c - 1])) {
                             continue;
                         }
                     }
-                    if (CurrentPattern[r, c] != WTPattern.EVENT_EMPTY) {
+                    if (SelectionPattern[r, c] != WTPattern.EVENT_EMPTY) {
                         scaleClipboard[selY, selX] *= factor;
-                        CurrentPattern[r, c] = (int)scaleClipboard[selY, selX];
+                        SelectionPattern[r, c] = (int)scaleClipboard[selY, selX];
                     }
                     selY++;
                 }
@@ -1554,7 +1556,7 @@ namespace WaveTracker.UI {
         private void ScaleSelection(float factor) {
             for (int r = selection.min.Row; r <= selection.max.Row; ++r) {
                 for (int c = selection.min.CellColumn; c <= selection.max.CellColumn; ++c) {
-                    if (CurrentPattern[r, c] != WTPattern.EVENT_EMPTY) {
+                    if (SelectionPattern[r, c] != WTPattern.EVENT_EMPTY) {
                         CellType cellType = WTPattern.GetCellTypeFromCellColumn(c);
                         if (cellType is CellType.Volume or
                             CellType.Effect1Parameter or
@@ -1562,11 +1564,11 @@ namespace WaveTracker.UI {
                             CellType.Effect3Parameter or
                             CellType.Effect4Parameter) {
                             if (cellType != CellType.Volume) {
-                                if (Helpers.IsEffectHex((char)CurrentPattern[r, c - 1])) {
+                                if (Helpers.IsEffectHex((char)SelectionPattern[r, c - 1])) {
                                     continue;
                                 }
                             }
-                            CurrentPattern[r, c] = (int)(CurrentPattern[r, c] * factor + 0.5f);
+                            SelectionPattern[r, c] = (int)(SelectionPattern[r, c] * factor + 0.5f);
                         }
                     }
                 }
@@ -1679,15 +1681,15 @@ namespace WaveTracker.UI {
             if (SelectionIsActive) {
                 for (int row = selection.min.Row; row <= selection.max.Row; ++row) {
                     for (int column = selection.min.CellColumn; column <= selection.max.CellColumn; ++column) {
-                        CurrentPattern[row, column] = WTPattern.EVENT_EMPTY;
+                        SelectionPattern[row, column] = WTPattern.EVENT_EMPTY;
                     }
                 }
             }
             else {
                 for (int column = selection.min.CellColumn; column <= selection.max.CellColumn; ++column) {
-                    CurrentPattern[cursorPosition.Row, column] = WTPattern.EVENT_EMPTY;
+                    SelectionPattern[cursorPosition.Row, column] = WTPattern.EVENT_EMPTY;
                     if (WTPattern.GetCellTypeFromCellColumn(column) == CellType.Note) {
-                        CurrentPattern[cursorPosition.Row, column + 1] = WTPattern.EVENT_EMPTY;
+                        SelectionPattern[cursorPosition.Row, column + 1] = WTPattern.EVENT_EMPTY;
                     }
                 }
                 MoveToRow(cursorPosition.Row + 1);
@@ -1741,7 +1743,7 @@ namespace WaveTracker.UI {
             clipboardStartCellType = selection.min.Column.ToCellType();
             for (int row = 0; row < selection.Height; row++) {
                 for (int column = 0; column < selection.Width; column++) {
-                    clipboard[row, column] = (byte)CurrentPattern[selection.min.Row + row, selection.min.CellColumn + column];
+                    clipboard[row, column] = (byte)SelectionPattern[selection.min.Row + row, selection.min.CellColumn + column];
                 }
             }
         }
@@ -1861,57 +1863,6 @@ namespace WaveTracker.UI {
             SetSelectionEnd(p);
             selection.Set(App.CurrentSong, selectionStart, selectionEnd);
             AddToUndoHistory();
-            //int clipboardWidth = clipboard.GetLength(1);
-            //bool isOnlyEffects = false;
-            //for (int i = 0; i < 4; ++i) {
-            //    if (clipboardStartCellType == CellType.Effect1 + i * 2 && clipboardWidth < 9 - i * 2) {
-            //        isOnlyEffects = true;
-            //    }
-            //}
-
-            //CursorPos p = cursorPosition;
-            //p.Column = clipboardStartCellType.ToNearestCursorColumn();
-            //if (isOnlyEffects) {
-            //    for (int i = 0; i < 4; ++i) {
-            //        if (cursorPosition.Column == CursorColumnType.Effect1 + i * 3 ||
-            //        cursorPosition.Column == CursorColumnType.Effect1Param1 + i * 3 ||
-            //        cursorPosition.Column == CursorColumnType.Effect1Param2 + i * 3) {
-            //            p.Column = CursorColumnType.Effect1 + i * 3;
-            //            if (clipboardWidth > 8 - i * 2) {
-            //                clipboardWidth = 8 - i * 2;
-            //            }
-            //        }
-            //    }
-            //}
-            //int columnStart = p.CellColumn;
-            //int patternHeight = 256;
-            //int patternWidth = CurrentPattern.Width;
-            //for (int row = 0; row < clipboard.GetLength(0) - 1; row++) {
-            //    for (int column = 0; column < clipboard.GetLength(1); column++) {
-            //        if (columnStart + column >= patternWidth) {
-            //            break;
-            //        }
-
-            //        if (isOnlyEffects && WTPattern.GetCellTypeFromCellColumn(columnStart + column) == CellType.Note) {
-            //            break;
-            //        }
-
-            //        if (CurrentPattern.CellIsEmpty(cursorPosition.Row + row, columnStart + column)) {
-            //            CurrentPattern[cursorPosition.Row + row, columnStart + column] = clipboard[row, column];
-            //        }
-            //    }
-            //    if (cursorPosition.Row + row >= patternHeight) {
-            //        break;
-            //    }
-            //}
-            //selection.IsActive = true;
-            //SetSelectionStart(p);
-            //p.MoveToRow(Math.Clamp(p.Row + clipboard.GetLength(0) - 1, 0, CurrentPattern.GetModifiedLength() - 1), App.CurrentSong);
-            //p.MoveToCellColumn(p.CellColumn + clipboard.GetLength(1) - 1);
-            //p.NormalizeHorizontally(App.CurrentSong);
-            //SetSelectionEnd(p);
-            //selection.Set(App.CurrentSong, selectionStart, selectionEnd);
-            //AddToUndoHistory();
         }
 
         /// <summary>
@@ -1923,7 +1874,7 @@ namespace WaveTracker.UI {
             if (p.Column is CursorColumnType.Effect1 or CursorColumnType.Effect2 or CursorColumnType.Effect3 or CursorColumnType.Effect4) {
                 col++;
             }
-            WTPattern pattern = App.CurrentSong[selection.min.Frame];
+            WTPattern pattern = SelectionPattern;
             int val1 = pattern[selection.min.Row, col];
             int val2 = pattern[selection.max.Row, col];
             if (pattern.CellIsEmptyOrNoteCutRelease(selection.min.Row, col)) {
@@ -1953,10 +1904,10 @@ namespace WaveTracker.UI {
             int endRow = selection.max.Row;
             for (int r = 0; r < selection.Height / 2; ++r) {
                 for (int col = selection.min.CellColumn; col <= selection.max.CellColumn; ++col) {
-                    int val1 = CurrentPattern[startRow + r, col];
-                    int val2 = CurrentPattern[endRow - r, col];
-                    CurrentPattern.SetCellRaw(startRow + r, col, (byte)val2);
-                    CurrentPattern.SetCellRaw(endRow - r, col, (byte)val1);
+                    int val1 = SelectionPattern[startRow + r, col];
+                    int val2 = SelectionPattern[endRow - r, col];
+                    SelectionPattern.SetCellRaw(startRow + r, col, (byte)val2);
+                    SelectionPattern.SetCellRaw(endRow - r, col, (byte)val1);
                 }
             }
             AddToUndoHistory();
@@ -1968,8 +1919,8 @@ namespace WaveTracker.UI {
         public void ReplaceInstrument() {
             for (int row = selection.min.Row; row <= selection.max.Row; ++row) {
                 for (int column = selection.min.CellColumn; column <= selection.max.CellColumn; ++column) {
-                    if (WTPattern.GetCellTypeFromCellColumn(column) == CellType.Instrument && !CurrentPattern.CellIsEmpty(row, column)) {
-                        CurrentPattern[row, column] = (byte)App.InstrumentBank.CurrentInstrumentIndex;
+                    if (WTPattern.GetCellTypeFromCellColumn(column) == CellType.Instrument && !SelectionPattern.CellIsEmpty(row, column)) {
+                        SelectionPattern[row, column] = (byte)App.InstrumentBank.CurrentInstrumentIndex;
                     }
                 }
             }
@@ -1986,8 +1937,8 @@ namespace WaveTracker.UI {
                 Random r = new Random();
                 for (int row = selection.min.Row; row <= selection.max.Row; ++row) {
                     for (int column = selection.min.CellColumn; column <= selection.max.CellColumn; ++column) {
-                        if (WTPattern.GetCellTypeFromCellColumn(column) == CellType.Volume && !CurrentPattern.CellIsEmpty(row, column)) {
-                            CurrentPattern[row, column] = (byte)Math.Clamp(CurrentPattern[row, column] + r.Next(-randomOffset, randomOffset), 0, 99);
+                        if (WTPattern.GetCellTypeFromCellColumn(column) == CellType.Volume && !SelectionPattern.CellIsEmpty(row, column)) {
+                            SelectionPattern[row, column] = (byte)Math.Clamp(SelectionPattern[row, column] + r.Next(-randomOffset, randomOffset), 0, 99);
                         }
                     }
                 }
@@ -2017,7 +1968,7 @@ namespace WaveTracker.UI {
                     byte[,] selectClip = new byte[selection.Height, selection.Width];
                     for (int row = 0; row < selection.Height; row++) {
                         for (int column = 0; column < selection.Width; column++) {
-                            selectClip[row, column] = (byte)CurrentPattern[selection.min.Row + row, selection.min.CellColumn + column];
+                            selectClip[row, column] = (byte)SelectionPattern[selection.min.Row + row, selection.min.CellColumn + column];
                         }
                     }
 
@@ -2026,7 +1977,7 @@ namespace WaveTracker.UI {
                     for (int row = selection.min.Row; row <= selection.max.Row; ++row) {
                         int c = 0;
                         for (int column = selection.min.CellColumn; column <= selection.max.CellColumn; ++column) {
-                            CurrentPattern[row, column] = values[valueIndex] == 0 || rowIndex >= selectClip.GetLength(0) ? WTPattern.EVENT_EMPTY : selectClip[rowIndex, c];
+                            SelectionPattern[row, column] = values[valueIndex] == 0 || rowIndex >= selectClip.GetLength(0) ? WTPattern.EVENT_EMPTY : selectClip[rowIndex, c];
                             c++;
                         }
                         rowIndex += values[valueIndex];
@@ -2061,8 +2012,8 @@ namespace WaveTracker.UI {
             for (int r = selection.min.Row; r <= selection.max.Row; ++r) {
                 for (int c = selection.min.CellColumn; c <= selection.max.CellColumn; ++c) {
                     if (WTPattern.GetCellTypeFromCellColumn(c) == CellType.Note) {
-                        if (!CurrentPattern.CellIsEmptyOrNoteCutRelease(r, c)) {
-                            CurrentPattern[r, c] += 1;
+                        if (!SelectionPattern.CellIsEmptyOrNoteCutRelease(r, c)) {
+                            SelectionPattern[r, c] += 1;
                             didSomething = true;
                         }
                     }
@@ -2078,8 +2029,8 @@ namespace WaveTracker.UI {
             for (int r = selection.min.Row; r <= selection.max.Row; ++r) {
                 for (int c = selection.min.CellColumn; c <= selection.max.CellColumn; ++c) {
                     if (WTPattern.GetCellTypeFromCellColumn(c) == CellType.Note) {
-                        if (!CurrentPattern.CellIsEmptyOrNoteCutRelease(r, c)) {
-                            CurrentPattern[r, c] -= 1;
+                        if (!SelectionPattern.CellIsEmptyOrNoteCutRelease(r, c)) {
+                            SelectionPattern[r, c] -= 1;
                             didSomething = true;
                         }
                     }
@@ -2095,8 +2046,8 @@ namespace WaveTracker.UI {
             for (int r = selection.min.Row; r <= selection.max.Row; ++r) {
                 for (int c = selection.min.CellColumn; c <= selection.max.CellColumn; ++c) {
                     if (WTPattern.GetCellTypeFromCellColumn(c) == CellType.Note) {
-                        if (!CurrentPattern.CellIsEmptyOrNoteCutRelease(r, c)) {
-                            CurrentPattern[r, c] += 12;
+                        if (!SelectionPattern.CellIsEmptyOrNoteCutRelease(r, c)) {
+                            SelectionPattern[r, c] += 12;
                             didSomething = true;
                         }
                     }
@@ -2112,8 +2063,8 @@ namespace WaveTracker.UI {
             for (int r = selection.min.Row; r <= selection.max.Row; ++r) {
                 for (int c = selection.min.CellColumn; c <= selection.max.CellColumn; ++c) {
                     if (WTPattern.GetCellTypeFromCellColumn(c) == CellType.Note) {
-                        if (!CurrentPattern.CellIsEmptyOrNoteCutRelease(r, c)) {
-                            CurrentPattern[r, c] -= 12;
+                        if (!SelectionPattern.CellIsEmptyOrNoteCutRelease(r, c)) {
+                            SelectionPattern[r, c] -= 12;
                             didSomething = true;
                         }
                     }

@@ -59,7 +59,7 @@ namespace WaveTracker {
             public MoveToNextRowBehavior StepAfterNumericInput { get; set; } = MoveToNextRowBehavior.Always;
             public bool WrapCursorHorizontally { get; set; } = true;
             public bool KeyRepeat { get; set; } = true;
-            public int PageJumpAmount { get; set; } = 2;
+            public int PageJumpAmount { get; set; } = 4;
             public bool RestoreChannelState { get; set; } = true;
 
         }

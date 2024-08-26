@@ -234,6 +234,9 @@ dotnet_naming_style.begins_with_i.capitalization = pascal_case
 dotnet_diagnostic.IDE0058.severity = none
 csharp_prefer_static_anonymous_function = true:suggestion
 
+# CA2211: Non-constant fields should not be visible
+dotnet_diagnostic.CA2211.severity = none
+
 [*.{cs,vb}]
 dotnet_style_operator_placement_when_wrapping = beginning_of_line
 tab_width = 4
@@ -253,7 +256,7 @@ dotnet_style_prefer_inferred_tuple_names = true:suggestion
 dotnet_style_prefer_inferred_anonymous_type_member_names = true:suggestion
 dotnet_style_prefer_compound_assignment = true:suggestion
 dotnet_style_prefer_simplified_interpolation = true:suggestion
-dotnet_style_namespace_match_folder = true:suggestion
+dotnet_style_namespace_match_folder = false:suggestion
 dotnet_style_prefer_collection_expression = never:suggestion
 dotnet_style_readonly_field = false:suggestion
 dotnet_style_predefined_type_for_member_access = true:silent
