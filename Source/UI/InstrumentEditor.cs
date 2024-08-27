@@ -95,6 +95,8 @@ namespace WaveTracker.UI {
                 // draw window
                 base.Draw();
 
+                Write(" (" + App.CurrentModule.Instruments[currentInstrumentID].name + ")", 6 + Helpers.GetWidthOfText(name), 1, UIColors.labelLight);
+
                 DrawRoundedRect(8, 28, width - 16, 270, Color.White);
                 tabGroup.Draw();
                 DrawRect(9, 28, 280, 1, Color.White);

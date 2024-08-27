@@ -698,7 +698,7 @@ namespace WaveTracker.Audio {
                         }
                     }
                     else {
-                        CurrentSample?.SampleTick((float)_time, (int)(stereoPhaseOffset * 100), SampleStartOffset / 100f, out sampleL, out sampleR);
+                        CurrentSample?.SampleTick((float)_time, stereoPhaseOffset, SampleStartOffset / 100f, out sampleL, out sampleR);
                         sampleL *= 1.25f;
                         sampleR *= 1.25f;
                         SamplePlaybackPosition = CurrentSample?.currentPlaybackPosition ?? 0;
