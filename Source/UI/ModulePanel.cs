@@ -33,18 +33,21 @@ namespace WaveTracker.UI {
                     title.Update();
                     if (title.ValueWasChangedInternally) {
                         App.CurrentModule.Title = title.Text;
+                        App.CurrentModule.SetDirty();
                     }
 
                     author.Text = App.CurrentModule.Author;
                     author.Update();
                     if (author.ValueWasChangedInternally) {
                         App.CurrentModule.Author = author.Text;
+                        App.CurrentModule.SetDirty();
                     }
 
                     speed.Text = App.CurrentSong.GetTicksAsString();
                     speed.Update();
                     if (speed.ValueWasChangedInternally) {
                         App.CurrentSong.LoadTicksFromString(speed.Text);
+                        App.CurrentModule.SetDirty();
                     }
 
                     rows.Value = App.CurrentSong.RowsPerFrame;
@@ -52,6 +55,7 @@ namespace WaveTracker.UI {
                     if (rows.ValueWasChangedInternally) {
                         App.CurrentSong.RowsPerFrame = rows.Value;
                         App.PatternEditor.cursorPosition.Normalize(App.CurrentSong);
+                        App.CurrentModule.SetDirty();
 
                     }
                     if (editButton.Clicked || App.Shortcuts["General\\Module settings"].IsPressedDown) {
