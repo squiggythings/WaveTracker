@@ -296,8 +296,14 @@ namespace WaveTracker.UI {
             if (Sample == null) {
                 return;
             }
-
-            Write(Sample.Length + " samples", waveformRegion.x, waveformRegion.y - 9, UIColors.label);
+            string name;
+            if (Sample.name == null || Sample.name.Length == 0) {
+                name = "";
+            }
+            else {
+                name = Sample.name + "  ";
+            }
+            Write(name + "(" + Sample.Length + " samples)", waveformRegion.x, waveformRegion.y - 9, UIColors.label);
             WriteRightAlign((Sample.Length / (float)AudioEngine.SampleRate).ToString("F5") + " seconds", waveformRegion.x + waveformRegion.width, waveformRegion.y - 9, UIColors.label);
 
             if (Sample.IsStereo && Sample.Length > 0) {

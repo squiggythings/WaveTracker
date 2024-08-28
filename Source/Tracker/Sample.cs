@@ -36,6 +36,9 @@ namespace WaveTracker.Tracker {
         public bool IsStereo { get { return sampleDataAccessR.Length > 0; } }
         [ProtoMember(10)]
         public int sampleRate;
+        [ProtoMember(11)]
+        public string name;
+
 
         public Sample() {
             loopPoint = 0;

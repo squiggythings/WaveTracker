@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using WaveTracker.Audio;
 using WaveTracker.Tracker;
 
 namespace WaveTracker.UI {
@@ -189,6 +190,7 @@ namespace WaveTracker.UI {
                         previewOut.Init(reader);
                     }
                     if (App.Settings.SamplesWaves.PreviewSamplesInBrowser) {
+                        previewOut.Volume = 0.75f * App.Settings.Audio.MasterVolume / 100f;
                         previewOut.Play();
                     }
                 } catch {
@@ -279,13 +281,14 @@ namespace WaveTracker.UI {
         }
 
         public static void LoadSampleFromFile(string path, Sample sample) {
-            bool successfulReadWAV = Helpers.ReadAudioFile(path, out sample.sampleDataAccessL, out sample.sampleDataAccessR, out sample.sampleRate);
+            bool successfulRead = Helpers.ReadAudioFile(path, out sample.sampleDataAccessL, out sample.sampleDataAccessR, out sample.sampleRate);
             sample.SetBaseKey(App.Settings.SamplesWaves.DefaultSampleBaseKey);
             sample.SetDetune(0);
             sample.loopPoint = 0;
             sample.loopType = sample.Length < 1000 ? Sample.LoopType.Forward : Sample.LoopType.OneShot;
             sample.resampleMode = App.Settings.SamplesWaves.DefaultResampleModeSample;
-            if (successfulReadWAV) {
+            sample.name = Path.GetFileName(path);
+            if (successfulRead) {
                 if (App.Settings.SamplesWaves.AutomaticallyTrimSamples) {
                     sample.TrimSilence();
                 }
@@ -377,7 +380,6 @@ namespace WaveTracker.UI {
                         Write(reader.WaveFormat.Channels == 1 ? "Mono" : "Stereo", width - 106, 95, UIColors.label);
                         Write(reader.WaveFormat.SampleRate + " Hz", width - 106, 105, UIColors.label);
                         Write(reader.TotalTime.TotalSeconds + " sec", width - 106, 115, UIColors.label);
-                        //Write(Math.Round(reader.TotalTime.TotalMilliseconds * (reader.WaveFormat.SampleRate / 1000.0)) + " samples", width - 106, 125, UIColors.label);
                     }
                 }
             }
