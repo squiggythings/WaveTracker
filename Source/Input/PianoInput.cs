@@ -179,6 +179,7 @@ namespace WaveTracker {
         /// <param name="note"></param>
         /// <param name="velocity"></param>
         public static void MIDINoteOn(int note, int velocity) {
+            note = Math.Clamp(note, 12, 131);
             if (!midiNotes.Contains(note)) {
                 midiNotes.Add(note);
                 OnNoteOnEvent(note, (int)Math.Ceiling(velocity / 127f * 99), true);
@@ -189,11 +190,13 @@ namespace WaveTracker {
         /// </summary>
         /// <param name="note"></param>
         public static void MIDINoteOff(int note) {
+            note = Math.Clamp(note, 12, 131);
             OnNoteOffEvent(note);
             midiNotes.Remove(note);
         }
 
         private static void KeyboardNoteOn(int note) {
+            note = Math.Clamp(note, 12, 131);
             if (!keyboardNotes.Contains(note)) {
                 keyboardNotes.Add(note);
                 OnNoteOnEvent(note, null, true);
@@ -201,6 +204,7 @@ namespace WaveTracker {
         }
 
         private static void KeyboardNoteOff(int note) {
+            note = Math.Clamp(note, 12, 131);
             keyboardNotes.Remove(note);
             if (!midiNotes.Contains(note)) {
                 OnNoteOffEvent(note);
