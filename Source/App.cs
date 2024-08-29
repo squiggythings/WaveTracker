@@ -1,7 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-//using System.Windows.Forms;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -337,13 +336,17 @@ namespace WaveTracker {
             GraphicsDevice.SetRenderTarget(target);
             GraphicsDevice.Clear(UIColors.black);
 
-            // TODO: Add your drawing code here
-            targetBatch.Begin(SpriteSortMode.Deferred, new BlendState {
-                ColorSourceBlend = Blend.SourceAlpha,
-                ColorDestinationBlend = Blend.InverseSourceAlpha,
-                AlphaSourceBlend = Blend.One,
-                AlphaDestinationBlend = Blend.InverseSourceAlpha,
-            }, SamplerState.PointClamp, DepthStencilState.Default, RasterizerState.CullNone);
+            targetBatch.Begin(SpriteSortMode.Deferred,
+                new BlendState {
+                    ColorSourceBlend = Blend.SourceAlpha,
+                    ColorDestinationBlend = Blend.InverseSourceAlpha,
+                    AlphaSourceBlend = Blend.One,
+                    AlphaDestinationBlend = Blend.InverseSourceAlpha,
+                },
+                SamplerState.PointClamp,
+                DepthStencilState.Default,
+                RasterizerState.CullNone
+            );
 
             Graphics.batch = targetBatch;
 
@@ -402,6 +405,7 @@ namespace WaveTracker {
 
             //set rendering back to the back buffer
             GraphicsDevice.SetRenderTarget(null);
+
             //render target to back buffer
             targetBatch.Begin(SpriteSortMode.Deferred, BlendState.NonPremultiplied, Settings.General.ScreenScale % 1 == 0 ? SamplerState.PointClamp : SamplerState.LinearClamp, DepthStencilState.Default, RasterizerState.CullNone);
             targetBatch.Draw(target, new Rectangle(0, 0, GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width * Settings.General.ScreenScale, GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height * Settings.General.ScreenScale), Color.White);
@@ -445,7 +449,7 @@ namespace WaveTracker {
         }
 
         /// <summary>
-        /// Called
+        /// Called after the unsaved changes dialog is finished
         /// </summary>
         /// <param name="result"></param>
         private void UnsavedChangesCallback(string result) {
