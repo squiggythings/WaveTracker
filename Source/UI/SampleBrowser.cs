@@ -287,7 +287,7 @@ namespace WaveTracker.UI {
             sample.loopPoint = 0;
             sample.loopType = sample.Length < 1000 ? Sample.LoopType.Forward : Sample.LoopType.OneShot;
             sample.resampleMode = App.Settings.SamplesWaves.DefaultResampleModeSample;
-            sample.name = Path.GetFileName(path);
+            sample.name = Path.GetFileNameWithoutExtension(path);
             if (successfulRead) {
                 if (App.Settings.SamplesWaves.AutomaticallyTrimSamples) {
                     sample.TrimSilence();
