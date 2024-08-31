@@ -496,8 +496,13 @@ namespace WaveTracker {
                     saveFileDialog.DefaultExt = "wav";
                     saveFileDialog.InitialDirectory = ReadPath("sample_export", Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments));
                     saveFileDialog.OverwritePrompt = true;
-                    saveFileDialog.FileName = App.InstrumentBank.GetCurrentInstrument.name;
-                    saveFileDialog.Title = "Export .wav";
+                    if (((SampleInstrument)App.InstrumentBank.GetCurrentInstrument).sample.name != null) {
+                        saveFileDialog.FileName = ((SampleInstrument)App.InstrumentBank.GetCurrentInstrument).sample.name;
+                    }
+                    else {
+                        saveFileDialog.FileName = App.InstrumentBank.GetCurrentInstrument.name;
+                    }
+                    saveFileDialog.Title = "Export sample...";
                     saveFileDialog.Filter = "Waveform Audio File Format (*.wav)|*.wav|All files (*.*)|*.*";
                     saveFileDialog.AddExtension = true;
                     saveFileDialog.CheckPathExists = true;
