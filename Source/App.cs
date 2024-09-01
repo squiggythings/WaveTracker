@@ -462,7 +462,7 @@ namespace WaveTracker {
             Exit();
         }
 
-        protected override void OnExiting(object sender, ExitingEventArgs args) {
+        protected override void OnExiting(object sender, EventArgs args) {
             Debug.WriteLine("Closing WaveTracker...");
             AudioEngine.Stop();
             PianoInput.StopMIDI();
