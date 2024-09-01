@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Input;
 using WaveTracker.Audio;
 using WaveTracker.Tracker;
 
@@ -30,7 +31,7 @@ namespace WaveTracker.UI {
 
         public void Update() {
             if (WindowIsOpen) {
-                if (ExitButton.Clicked) {
+                if (InFocus && (ExitButton.Clicked || Input.GetKeyDown(Keys.Escape, KeyModifier.None))) {
                     Close();
                 }
 
