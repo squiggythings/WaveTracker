@@ -282,13 +282,14 @@ namespace WaveTracker.UI {
 
         public static void LoadSampleFromFile(string path, Sample sample) {
             bool successfulRead = Helpers.ReadAudioFile(path, out sample.sampleDataAccessL, out sample.sampleDataAccessR, out sample.sampleRate);
+            sample.resampleMode = App.Settings.SamplesWaves.DefaultResampleModeSample;
             sample.SetBaseKey(App.Settings.SamplesWaves.DefaultSampleBaseKey);
             sample.SetDetune(0);
             sample.loopPoint = 0;
-            sample.loopType = sample.Length < 1000 ? Sample.LoopType.Forward : Sample.LoopType.OneShot;
-            sample.resampleMode = App.Settings.SamplesWaves.DefaultResampleModeSample;
-            sample.name = Path.GetFileNameWithoutExtension(path);
+            sample.loopType = Sample.LoopType.OneShot;
             if (successfulRead) {
+                sample.name = Path.GetFileNameWithoutExtension(path);
+
                 if (App.Settings.SamplesWaves.AutomaticallyTrimSamples) {
                     sample.TrimSilence();
                 }
@@ -298,13 +299,13 @@ namespace WaveTracker.UI {
                 }
 
                 sample.resampleMode = App.Settings.SamplesWaves.DefaultResampleModeSample;
-                App.CurrentModule.SetDirty();
             }
             else {
+                sample.name = null;
                 sample.sampleDataAccessL = [];
                 sample.sampleDataAccessR = [];
-                App.CurrentModule.SetDirty();
             }
+            App.CurrentModule.SetDirty();
         }
 
         public void DrawList() {
@@ -323,12 +324,10 @@ namespace WaveTracker.UI {
                         Write(Helpers.FlushString(Path.GetFileName(entriesInDirectory[i])), 20, 31 + y * 11, Color.White);
                     }
 
-                    if (Directory.Exists(entriesInDirectory[i])) // draw folder icon
-{
+                    if (Directory.Exists(entriesInDirectory[i])) { // draw folder icon
                         DrawSprite(5, 29 + y * 11, new Rectangle(72, 80, 12, 11));
                     }
-                    else if (File.Exists(entriesInDirectory[i])) // draw audio file icon
-{
+                    else if (File.Exists(entriesInDirectory[i])) { // draw audio file icon
                         DrawSprite(5, 29 + y * 11, new Rectangle(72, 91, 12, 11));
                     }
                 }
