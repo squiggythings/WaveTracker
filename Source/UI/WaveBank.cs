@@ -35,8 +35,11 @@ namespace WaveTracker.UI {
             if (width > MAX_WIDTH) {
                 width = MAX_WIDTH;
             }
+            if (width < 30) {
+                width = 30;
+            }
             scrollbar.width = width - 4;
-            scrollbar.SetSize(20, (width - 8) / 22);
+            scrollbar.SetSize(20, (width - 7) / 22);
             scrollbar.Update();
             int i = 0;
             foreach (WaveBankElement waveButton in waveBankElements) {

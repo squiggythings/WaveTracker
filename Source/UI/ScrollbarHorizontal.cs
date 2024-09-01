@@ -29,7 +29,8 @@ namespace WaveTracker.UI {
             this.totalSize = totalSize;
             bar.Height = 6;
             bar.Y = height - bar.Height;
-            bar.Width = (int)(width * (viewportSize / (float)totalSize));
+            bar.Width = Math.Max((int)(width * (viewportSize / (float)totalSize)), 4);
+            UpdateScrollValue();
         }
 
         public void Update() {
@@ -56,7 +57,7 @@ namespace WaveTracker.UI {
                                 }
                             }
                         }
-                        if (BarisPressed) {
+                        if (BarIsPressed) {
                             bar.X = MouseX + barClickOffset;
                             ScrollValue = (int)Math.Round(BarValFromPos() * (totalSize - viewportSize));
                         }
@@ -78,11 +79,10 @@ namespace WaveTracker.UI {
                     Color barDefault = ButtonColors.Round.backgroundColor;
                     Color barHover = UIColors.labelDark;
                     Color barPressed = UIColors.black;
-                    //DrawRect(0, 0, width, height, new Color(255, 0, 0, 40));
 
                     DrawRect(0, bar.Y, width, bar.Height, background);
                     DrawRoundedRect(1, bar.Y + 1, width - 2, bar.Height - 2, barSpace);
-                    if (BarisPressed && !Input.internalDialogIsOpen) {
+                    if (BarIsPressed && !Input.internalDialogIsOpen) {
                         DrawRoundedRect(bar.X, bar.Y + 1, bar.Width, bar.Height - 2, barPressed);
                     }
                     else if (BarisHovered && !Input.internalDialogIsOpen) {
@@ -103,6 +103,9 @@ namespace WaveTracker.UI {
                 ScrollValue = Math.Clamp(ScrollValue, 0, totalSize - viewportSize);
                 bar.X = (int)Math.Round(BarPosFromVal() * (width - 2) + 1);
             }
+            else {
+                ScrollValue = 0;
+            }
         }
 
         private float BarValFromPos() {
@@ -119,7 +122,7 @@ namespace WaveTracker.UI {
             }
         }
 
-        private bool BarisPressed {
+        private bool BarIsPressed {
             get {
                 return InFocus && Input.GetClick(KeyModifier._Any) && lastClickWasOnScrollbar;
             }

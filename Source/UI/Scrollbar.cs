@@ -71,15 +71,6 @@ namespace WaveTracker.UI {
             }
         }
 
-        /// <summary>
-        /// Clamps the scroll value if the scroll value is out of range
-        /// </summary>
-        public void UpdateScrollValue() {
-            if (viewportSize < totalSize) {
-                ScrollValue = Math.Clamp(ScrollValue, 0, totalSize - viewportSize);
-                bar.Y = (int)Math.Round(BarPosFromVal() * (height - 2) + 1);
-            }
-        }
 
         public void Draw() {
             if (viewportSize < totalSize) {
@@ -101,6 +92,16 @@ namespace WaveTracker.UI {
                 else {
                     DrawRoundedRect(bar.X + 1, bar.Y, bar.Width - 2, bar.Height, barDefault);
                 }
+            }
+        }
+
+        /// <summary>
+        /// Clamps the scroll value if the scroll value is out of range
+        /// </summary>
+        public void UpdateScrollValue() {
+            if (viewportSize < totalSize) {
+                ScrollValue = Math.Clamp(ScrollValue, 0, totalSize - viewportSize);
+                bar.Y = (int)Math.Round(BarPosFromVal() * (height - 2) + 1);
             }
         }
 
