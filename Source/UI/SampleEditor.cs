@@ -139,6 +139,7 @@ namespace WaveTracker.UI {
                 }
                 if (waveformRegion.DidClickInRegionM(KeyModifier.Shift)) {
                     SetLoopPoint();
+                    App.CurrentModule.SetDirty();
                 }
 
                 if (importSample.Clicked) {
@@ -152,27 +153,32 @@ namespace WaveTracker.UI {
                 baseKey.Update();
                 if (baseKey.ValueWasChangedInternally) {
                     Sample.SetBaseKey(baseKey.Value);
+                    App.CurrentModule.SetDirty();
                 }
                 fineTune.Value = Sample.Detune;
                 fineTune.Update();
                 if (fineTune.ValueWasChangedInternally) {
                     Sample.SetDetune(fineTune.Value);
+                    App.CurrentModule.SetDirty();
                 }
                 resamplingMode.Value = (int)Sample.resampleMode;
                 resamplingMode.Update();
                 if (resamplingMode.ValueWasChangedInternally) {
                     Sample.resampleMode = (ResamplingMode)resamplingMode.Value;
+                    App.CurrentModule.SetDirty();
                 }
                 loopMode.Value = (int)Sample.loopType;
                 loopMode.Update();
                 if (loopMode.ValueWasChangedInternally) {
                     Sample.loopType = (Sample.LoopType)loopMode.Value;
+                    App.CurrentModule.SetDirty();
                 }
                 loopPoint.enabled = Sample.loopType != Sample.LoopType.OneShot;
                 loopPoint.Value = Sample.loopPoint;
                 loopPoint.Update();
                 if (loopPoint.ValueWasChangedInternally) {
                     Sample.loopPoint = loopPoint.Value;
+                    App.CurrentModule.SetDirty();
                 }
 
                 if (normalize.Clicked) {
@@ -219,6 +225,7 @@ namespace WaveTracker.UI {
             else {
                 Sample.Normalize();
             }
+            App.CurrentModule.SetDirty();
         }
 
         private void FadeIn() {
@@ -228,6 +235,7 @@ namespace WaveTracker.UI {
             else {
                 Sample.FadeIn();
             }
+            App.CurrentModule.SetDirty();
         }
 
         private void FadeOut() {
@@ -237,6 +245,7 @@ namespace WaveTracker.UI {
             else {
                 Sample.FadeOut();
             }
+            App.CurrentModule.SetDirty();
         }
 
         private void Invert() {
@@ -246,6 +255,7 @@ namespace WaveTracker.UI {
             else {
                 Sample.Invert();
             }
+            App.CurrentModule.SetDirty();
         }
 
         private void AmplifyUp() {
@@ -255,6 +265,7 @@ namespace WaveTracker.UI {
             else {
                 Sample.Amplify(1.1f);
             }
+            App.CurrentModule.SetDirty();
         }
 
         private void AmplifyDown() {
@@ -264,6 +275,7 @@ namespace WaveTracker.UI {
             else {
                 Sample.Amplify(0.9f);
             }
+            App.CurrentModule.SetDirty();
         }
 
         private void Reverse() {
@@ -273,6 +285,7 @@ namespace WaveTracker.UI {
             else {
                 Sample.Reverse();
             }
+            App.CurrentModule.SetDirty();
         }
 
         private void Deselect() {
@@ -290,6 +303,7 @@ namespace WaveTracker.UI {
             if (Sample.loopType == Sample.LoopType.OneShot) {
                 Sample.loopType = Sample.LoopType.Forward;
             }
+            App.CurrentModule.SetDirty();
         }
 
         public void Draw() {

@@ -503,6 +503,7 @@ namespace WaveTracker {
                         saveFileDialog.FileName = App.InstrumentBank.GetCurrentInstrument.name;
                     }
                     saveFileDialog.Title = "Export sample...";
+                    saveFileDialog.Title = "Export .wav";
                     saveFileDialog.Filter = "Waveform Audio File Format (*.wav)|*.wav|All files (*.*)|*.*";
                     saveFileDialog.AddExtension = true;
                     saveFileDialog.CheckPathExists = true;

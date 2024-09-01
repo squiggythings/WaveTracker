@@ -414,6 +414,9 @@ namespace WaveTracker {
             List<short> RChannel = [];
             try {
                 AudioFileReader Nreader = new AudioFileReader(filepath);
+                if (Nreader.Length == 0) {
+                    throw new Exception("Failed to read audio file");
+                }
                 int bytesPerSample = Nreader.WaveFormat.BitsPerSample / 8;
                 bool isMono = Nreader.WaveFormat.Channels == 1;
                 fileSampleRate = Nreader.WaveFormat.SampleRate;
