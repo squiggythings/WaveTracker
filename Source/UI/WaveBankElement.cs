@@ -3,7 +3,7 @@ using WaveTracker.Tracker;
 
 namespace WaveTracker.UI {
     public class WaveBankElement : Clickable {
-        private Wave wave {
+        private Wave Wave {
             get {
                 return App.CurrentModule.WaveBank[id];
             }
@@ -41,7 +41,7 @@ namespace WaveTracker.UI {
             }
 
             bool isEmpty = true;
-            foreach (int sample in wave.samples) {
+            foreach (int sample in Wave.samples) {
                 if (sample != 16) {
                     isEmpty = false;
                 }
@@ -51,8 +51,8 @@ namespace WaveTracker.UI {
             if (!isEmpty) {
                 int wx = 3;
                 int wy;
-                for (int i = 0; i < wave.samples.Length; i += 4) {
-                    int sum = wave.GetSample((int)(i + phase + 0));
+                for (int i = 0; i < Wave.samples.Length; i += 4) {
+                    int sum = Wave.GetSample((int)(i + phase + 0));
 
                     wy = (31 - sum) / 4;
 

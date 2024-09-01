@@ -4,10 +4,13 @@ using WaveTracker.Tracker;
 
 namespace WaveTracker.UI {
     public class WaveBank : Panel {
+        const int MAX_WIDTH = 448;
         private WaveBankElement[] waveBankElements;
         public static int currentWaveID;
         public static int lastSelectedWave;
-        public WaveBank(int x, int y) : base("Wave Bank", x, y, 448, 130) {
+        private int maxVisibleWaves;
+        private ScrollbarHorizontal scrollbar;
+        public WaveBank(int x, int y) : base("Wave Bank", x, y, MAX_WIDTH, 130) {
             waveBankElements = new WaveBankElement[100];
             lastSelectedWave = 0;
             int index = 0;
@@ -20,23 +23,29 @@ namespace WaveTracker.UI {
                     index++;
                 }
             }
-        }
-        public Wave GetWave(int num) {
-            return App.CurrentModule.WaveBank[num];
-        }
-        public void Initialize() {
-
+            scrollbar = new ScrollbarHorizontal(2, 11, width - 4, height - 11, this);
         }
 
         public void Update() {
-            int i = 0;
             if (Input.focus == null) {
                 currentWaveID = -1;
             }
 
-            foreach (WaveBankElement e in waveBankElements) {
-                e.Update();
-                if (e.Clicked) {
+            width = App.WindowWidth - x - 2;
+            if (width > MAX_WIDTH) {
+                width = MAX_WIDTH;
+            }
+            scrollbar.width = width - 4;
+            scrollbar.SetSize(20, (width - 8) / 22);
+            scrollbar.Update();
+            int i = 0;
+            foreach (WaveBankElement waveButton in waveBankElements) {
+                waveButton.x = (i % 20 - scrollbar.ScrollValue) * 22 + 4;
+
+                if (waveButton.x > 0 && waveButton.BoundsRight < width - 4) {
+                    waveButton.Update();
+                }
+                if (waveButton.Clicked) {
                     currentWaveID = i;
                     lastSelectedWave = i;
                     App.WaveEditor.Open(i);
@@ -44,7 +53,7 @@ namespace WaveTracker.UI {
                         ChannelManager.PreviewChannel.SetWave(i);
                     }
                 }
-                ++i;
+                i++;
             }
             if (InFocus) {
                 if (App.Shortcuts["General\\Edit wave"].IsPressedDown) {
@@ -52,15 +61,17 @@ namespace WaveTracker.UI {
                     App.WaveEditor.Open(currentWaveID);
                 }
             }
-
         }
 
         public new void Draw() {
             base.Draw();
-            DrawRect(2, 11, 444, 114, new Color(43, 49, 81));
-            foreach (WaveBankElement e in waveBankElements) {
-                e.Draw();
+            DrawRect(2, 11, width - 4, 114, new Color(43, 49, 81));
+            foreach (WaveBankElement waveButton in waveBankElements) {
+                if (waveButton.x > 0 && waveButton.x < width - 24) {
+                    waveButton.Draw();
+                }
             }
+            scrollbar.Draw();
         }
     }
 }
