@@ -17,14 +17,13 @@ namespace WaveTracker.UI {
         private SpriteButton backButton;
         private Scrollbar scrollbar;
         private Button ok, cancel;
+        private CheckboxLabeled loopPreview;
         private string currentPath = @"C:\";
         private string lastPath;
         private int listLength = 24;
         public string[] entriesInDirectory;
         private Element opened;
         private SampleEditor launched;
-
-        //InstrumentEditor launched;
         private int width = 500;
         private int height = 320;
         private WaveOutEvent previewOut;
@@ -52,6 +51,7 @@ namespace WaveTracker.UI {
             cancel.width = 51;
             sortName = new Toggle("Name", width - 65, 30, this);
             sortType = new Toggle("Type", width - 36, 30, this);
+            loopPreview = new CheckboxLabeled("Loop", width - 105, 125, 40, this);
             entriesInDirectory = [];
             previewOut = new WaveOutEvent();
             currentPath = SaveLoad.ReadPath("sample", Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments));
@@ -159,6 +159,12 @@ namespace WaveTracker.UI {
                 scrollbar.ScrollValue = Math.Clamp(scrollbar.ScrollValue, 0, Math.Clamp(entriesInDirectory.Length - listLength, 0, 999999));
                 scrollbar.UpdateScrollValue();
                 scrollbar.Update();
+                if (SelectedAnAudioFile) {
+                    loopPreview.Update();
+                    if (loopPreview.Clicked) {
+                        SelectedANewEntry();
+                    }
+                }
                 ok.enabled = SelectedAnAudioFile;
             }
         }
@@ -178,23 +184,24 @@ namespace WaveTracker.UI {
 
         private void SelectedANewEntry() {
             previewOut.Stop();
-            if (File.Exists(entriesInDirectory[selectedFileIndex])) {
-                //Thread.Sleep(1);
-                try {
-                    reader = new AudioFileReader(entriesInDirectory[selectedFileIndex]);
-                    if (reader.TotalTime.TotalSeconds * reader.WaveFormat.SampleRate <= 400) {
-                        LoopStream loop = new LoopStream(reader);
-                        previewOut.Init(loop);
-                    }
-                    else {
-                        previewOut.Init(reader);
-                    }
-                    if (App.Settings.SamplesWaves.PreviewSamplesInBrowser) {
+            if (App.Settings.SamplesWaves.PreviewSamplesInBrowser) {
+                if (File.Exists(entriesInDirectory[selectedFileIndex])) {
+                    try {
+                        reader = new AudioFileReader(entriesInDirectory[selectedFileIndex]);
+                        if (loopPreview.Value) {
+                            LoopStream loop = new LoopStream(reader);
+                            previewOut.Init(loop);
+                        }
+                        else {
+                            previewOut.Init(reader);
+                        }
+
                         previewOut.Volume = 0.75f * App.Settings.Audio.MasterVolume / 100f;
                         previewOut.Play();
-                    }
-                } catch {
 
+                    } catch {
+
+                    }
                 }
             }
         }
@@ -280,13 +287,13 @@ namespace WaveTracker.UI {
             previewOut.Stop();
         }
 
-        public static void LoadSampleFromFile(string path, Sample sample) {
+        private void LoadSampleFromFile(string path, Sample sample) {
             bool successfulRead = Helpers.ReadAudioFile(path, out sample.sampleDataAccessL, out sample.sampleDataAccessR, out sample.sampleRate);
             sample.resampleMode = App.Settings.SamplesWaves.DefaultResampleModeSample;
             sample.SetBaseKey(App.Settings.SamplesWaves.DefaultSampleBaseKey);
             sample.SetDetune(0);
             sample.loopPoint = 0;
-            sample.loopType = Sample.LoopType.OneShot;
+            sample.loopType = loopPreview.Value ? Sample.LoopType.Forward : Sample.LoopType.OneShot;
             if (successfulRead) {
                 sample.name = Path.GetFileNameWithoutExtension(path);
 
@@ -308,7 +315,7 @@ namespace WaveTracker.UI {
             App.CurrentModule.SetDirty();
         }
 
-        public void DrawList() {
+        private void DrawList() {
             Color odd = new Color(43, 49, 81);
             Color even = new Color(59, 68, 107);
             Color selected = UIColors.selection;
@@ -369,16 +376,18 @@ namespace WaveTracker.UI {
                 ok.Draw();
                 cancel.Draw();
                 Write(Helpers.FlushString(GetNicePathString(currentPath)), 20, 15, UIColors.label);
-                Write("Sort by:", width - 104, 31, UIColors.labelDark);
+                Write("Sort by:", width - 104, 32, UIColors.labelDark);
                 sortName.Draw();
                 sortType.Draw();
+
                 if (SelectedAnAudioFile) {
                     // write file name
                     if (reader != null) {
-                        Write(Helpers.FlushString(Helpers.TrimTextToWidth(105, Path.GetFileName(reader.FileName))), width - 106, 85, UIColors.label);
-                        Write(reader.WaveFormat.Channels == 1 ? "Mono" : "Stereo", width - 106, 95, UIColors.label);
-                        Write(reader.WaveFormat.SampleRate + " Hz", width - 106, 105, UIColors.label);
-                        Write(reader.TotalTime.TotalSeconds + " sec", width - 106, 115, UIColors.label);
+                        Write(Helpers.FlushString(Helpers.TrimTextToWidth(105, Path.GetFileName(reader.FileName))), width - 104, 85, UIColors.label);
+                        Write(reader.WaveFormat.Channels == 1 ? "Mono" : "Stereo", width - 104, 95, UIColors.label);
+                        Write(reader.WaveFormat.SampleRate + " Hz", width - 104, 105, UIColors.label);
+                        Write(reader.TotalTime.TotalSeconds + " sec", width - 104, 115, UIColors.label);
+                        loopPreview.Draw();
                     }
                 }
             }
