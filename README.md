@@ -24,8 +24,8 @@ WaveTracker and its source code are licensed under the MIT license.
 ### Links
 
 - [wavetracker.org](https://www.wavetracker.org)
+- [documentation](https://www.wavetracker.org/documentation)
 - [itch.io page](https://squiggygames.itch.io/wavetracker)
-- Visit my website: [eliasananiadis.com](https://eliasananiadis.com)
 
 ## Contributing
 

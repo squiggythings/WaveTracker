@@ -3,10 +3,12 @@ using Microsoft.Xna.Framework.Input;
 using NAudio.Wave;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Runtime.CompilerServices;
 using System.Text;
 using WaveTracker.Rendering;
 using WaveTracker.Tracker;
+using WaveTracker.UI;
 
 namespace WaveTracker {
     public class Helpers {
@@ -415,6 +417,7 @@ namespace WaveTracker {
             try {
                 AudioFileReader Nreader = new AudioFileReader(filepath);
                 if (Nreader.Length == 0) {
+                    Dialogs.messageDialog.Open("Could not load sample: " + Path.GetFileName(filepath), MessageDialog.Icon.Error, "OK");
                     throw new Exception("Failed to read audio file");
                 }
                 int bytesPerSample = Nreader.WaveFormat.BitsPerSample / 8;
