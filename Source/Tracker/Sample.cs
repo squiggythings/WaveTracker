@@ -9,11 +9,12 @@ using WaveTracker.Audio;
 
 namespace WaveTracker.Tracker {
     [Serializable]
-    [ProtoContract(SkipConstructor = false)]
+    [ProtoContract(SkipConstructor = true)]
     public class Sample {
         public enum LoopType { OneShot, Forward, PingPong }
 
         [ProtoMember(1)]
+        private int resampleInt;
         public ResamplingMode resampleMode;
         [ProtoMember(2)]
         public LoopType loopType;
@@ -53,10 +54,17 @@ namespace WaveTracker.Tracker {
             SetDetune(0);
         }
 
+        [ProtoBeforeSerialization]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "<Pending>")]
+        private void BeforeDeserialized() {
+            resampleInt = (int)resampleMode;
+        }
+
         [ProtoAfterDeserialization]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "<Pending>")]
         private void AfterDeserialized() {
             SetBaseFrequency();
+            resampleMode = (ResamplingMode)resampleInt;
         }
 
         public void SetDetune(int value) {

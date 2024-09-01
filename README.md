@@ -29,7 +29,7 @@ WaveTracker and its source code are licensed under the MIT license.
 
 ## Contributing
 
-First, thank you so much for wanting to contribute to WaveTracker! If you would like to contribute I suggest opening a feature request or getting in contact with me first to discuss and come up with a roadmap, this way we avoid wasting both our time.
+First, thank you so much for wanting to contribute to WaveTracker! If you would like to contribute I suggest opening a feature request or getting in contact with me first so we can discuss and come up with a roadmap, this way we avoid wasting both our time.
 
 ## Contact
 
