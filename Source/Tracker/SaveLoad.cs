@@ -5,7 +5,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
-using System.Windows.Forms;
 using WaveTracker.Audio;
 using WaveTracker.Tracker;
 using WaveTracker.UI;
@@ -373,25 +372,25 @@ namespace WaveTracker {
                 Thread t = new Thread(() => {
                     Input.DialogStarted();
                     Input.CancelClick();
-                    OpenFileDialog openFileDialog = new OpenFileDialog {
-                        InitialDirectory = ReadPath("openwtm", Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments)),
-                        Filter = "WaveTracker modules (*wtm)|*.wtm",
-                        Multiselect = false,
-                        Title = "Open",
-                        ValidateNames = true,
-                        CheckPathExists = true
-                    };
+                    // OpenFileDialog openFileDialog = new OpenFileDialog {
+                    //     InitialDirectory = ReadPath("openwtm", Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments)),
+                    //     Filter = "WaveTracker modules (*wtm)|*.wtm",
+                    //     Multiselect = false,
+                    //     Title = "Open",
+                    //     ValidateNames = true,
+                    //     CheckPathExists = true
+                    // };
 
-                    if (openFileDialog.ShowDialog() == DialogResult.OK) {
-                        ret = openFileDialog.FileName;
-                        SavePath("openwtm", Directory.GetParent(ret).FullName + "");
+                    // if (openFileDialog.ShowDialog() == DialogResult.OK) {
+                    //     ret = openFileDialog.FileName;
+                    //     SavePath("openwtm", Directory.GetParent(ret).FullName + "");
 
-                        didIt = true;
-                    }
+                    //     didIt = true;
+                    // }
 
                 });
 
-                t.SetApartmentState(ApartmentState.STA);
+                // t.SetApartmentState(ApartmentState.STA);
                 App.ForceUpdate();
                 t.Start();
                 t.Join();
@@ -413,27 +412,27 @@ namespace WaveTracker {
                 Thread t = new Thread(() => {
                     Input.DialogStarted();
                     Input.CancelClick();
-                    SaveFileDialog saveFileDialog = new SaveFileDialog();
-                    saveFileDialog.InitialDirectory = ReadPath("savewtm", Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments));
-                    saveFileDialog.DefaultExt = "wtm";
-                    saveFileDialog.Filter = "WaveTracker modules (*.wtm)|*.wtm|All files (*.*)|*.*";
-                    saveFileDialog.OverwritePrompt = true;
-                    saveFileDialog.FileName = FileName;
-                    saveFileDialog.Title = "Save As";
-                    saveFileDialog.AddExtension = true;
-                    saveFileDialog.CheckPathExists = true;
-                    saveFileDialog.ValidateNames = true;
+                    // SaveFileDialog saveFileDialog = new SaveFileDialog();
+                    // saveFileDialog.InitialDirectory = ReadPath("savewtm", Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments));
+                    // saveFileDialog.DefaultExt = "wtm";
+                    // saveFileDialog.Filter = "WaveTracker modules (*.wtm)|*.wtm|All files (*.*)|*.*";
+                    // saveFileDialog.OverwritePrompt = true;
+                    // saveFileDialog.FileName = FileName;
+                    // saveFileDialog.Title = "Save As";
+                    // saveFileDialog.AddExtension = true;
+                    // saveFileDialog.CheckPathExists = true;
+                    // saveFileDialog.ValidateNames = true;
 
-                    if (saveFileDialog.ShowDialog() == DialogResult.OK) {
-                        ret = saveFileDialog.FileName;
-                        SavePath("savewtm", Directory.GetParent(ret).FullName + "");
-                        AddPathToRecentFiles(ret);
-                        didIt = true;
-                    }
+                    // if (saveFileDialog.ShowDialog() == DialogResult.OK) {
+                    //     ret = saveFileDialog.FileName;
+                    //     SavePath("savewtm", Directory.GetParent(ret).FullName + "");
+                    //     AddPathToRecentFiles(ret);
+                    //     didIt = true;
+                    // }
 
                 });
 
-                t.SetApartmentState(ApartmentState.STA);
+                // t.SetApartmentState(ApartmentState.STA);
                 App.ForceUpdate();
                 t.Start();
                 t.Join();
@@ -452,27 +451,27 @@ namespace WaveTracker {
                 Thread t = new Thread(() => {
                     Input.DialogStarted();
                     Input.CancelClick();
-                    SaveFileDialog saveFileDialog = new SaveFileDialog();
-                    saveFileDialog.DefaultExt = "wav";
-                    saveFileDialog.InitialDirectory = ReadPath("export", Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments));
-                    saveFileDialog.OverwritePrompt = true;
-                    saveFileDialog.FileName = FileNameWithoutExtension;
-                    saveFileDialog.Title = "Export .wav";
-                    saveFileDialog.Filter = "Waveform Audio File Format (*.wav)|*.wav|All files (*.*)|*.*";
-                    saveFileDialog.AddExtension = true;
-                    saveFileDialog.CheckPathExists = true;
-                    saveFileDialog.ValidateNames = true;
+                    // SaveFileDialog saveFileDialog = new SaveFileDialog();
+                    // saveFileDialog.DefaultExt = "wav";
+                    // saveFileDialog.InitialDirectory = ReadPath("export", Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments));
+                    // saveFileDialog.OverwritePrompt = true;
+                    // saveFileDialog.FileName = FileNameWithoutExtension;
+                    // saveFileDialog.Title = "Export .wav";
+                    // saveFileDialog.Filter = "Waveform Audio File Format (*.wav)|*.wav|All files (*.*)|*.*";
+                    // saveFileDialog.AddExtension = true;
+                    // saveFileDialog.CheckPathExists = true;
+                    // saveFileDialog.ValidateNames = true;
 
-                    if (saveFileDialog.ShowDialog() == DialogResult.OK) {
-                        ret = saveFileDialog.FileName;
-                        SavePath("export", Directory.GetParent(ret).FullName + "");
+                    // if (saveFileDialog.ShowDialog() == DialogResult.OK) {
+                    //     ret = saveFileDialog.FileName;
+                    //     SavePath("export", Directory.GetParent(ret).FullName + "");
 
-                        didIt = true;
-                    }
+                    //     didIt = true;
+                    // }
 
                 });
 
-                t.SetApartmentState(ApartmentState.STA);
+                // t.SetApartmentState(ApartmentState.STA);
                 App.ForceUpdate();
                 t.Start();
                 t.Join();
@@ -492,33 +491,33 @@ namespace WaveTracker {
                 Thread t = new Thread(() => {
                     Input.DialogStarted();
                     Input.CancelClick();
-                    SaveFileDialog saveFileDialog = new SaveFileDialog();
-                    saveFileDialog.DefaultExt = "wav";
-                    saveFileDialog.InitialDirectory = ReadPath("sample_export", Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments));
-                    saveFileDialog.OverwritePrompt = true;
-                    if (((SampleInstrument)App.InstrumentBank.GetCurrentInstrument).sample.name != null) {
-                        saveFileDialog.FileName = ((SampleInstrument)App.InstrumentBank.GetCurrentInstrument).sample.name;
-                    }
-                    else {
-                        saveFileDialog.FileName = App.InstrumentBank.GetCurrentInstrument.name;
-                    }
-                    saveFileDialog.Title = "Export sample...";
-                    saveFileDialog.Title = "Export .wav";
-                    saveFileDialog.Filter = "Waveform Audio File Format (*.wav)|*.wav|All files (*.*)|*.*";
-                    saveFileDialog.AddExtension = true;
-                    saveFileDialog.CheckPathExists = true;
-                    saveFileDialog.ValidateNames = true;
+                    // SaveFileDialog saveFileDialog = new SaveFileDialog();
+                    // saveFileDialog.DefaultExt = "wav";
+                    // saveFileDialog.InitialDirectory = ReadPath("sample_export", Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments));
+                    // saveFileDialog.OverwritePrompt = true;
+                    // if (((SampleInstrument)App.InstrumentBank.GetCurrentInstrument).sample.name != null) {
+                    //     saveFileDialog.FileName = ((SampleInstrument)App.InstrumentBank.GetCurrentInstrument).sample.name;
+                    // }
+                    // else {
+                    //     saveFileDialog.FileName = App.InstrumentBank.GetCurrentInstrument.name;
+                    // }
+                    // saveFileDialog.Title = "Export sample...";
+                    // saveFileDialog.Title = "Export .wav";
+                    // saveFileDialog.Filter = "Waveform Audio File Format (*.wav)|*.wav|All files (*.*)|*.*";
+                    // saveFileDialog.AddExtension = true;
+                    // saveFileDialog.CheckPathExists = true;
+                    // saveFileDialog.ValidateNames = true;
 
-                    if (saveFileDialog.ShowDialog() == DialogResult.OK) {
-                        ret = saveFileDialog.FileName;
-                        SavePath("sample_export", Directory.GetParent(ret).FullName + "");
+                    // if (saveFileDialog.ShowDialog() == DialogResult.OK) {
+                    //     ret = saveFileDialog.FileName;
+                    //     SavePath("sample_export", Directory.GetParent(ret).FullName + "");
 
-                        didIt = true;
-                    }
+                    //     didIt = true;
+                    // }
 
                 });
 
-                t.SetApartmentState(ApartmentState.STA);
+                // t.SetApartmentState(ApartmentState.STA);
                 App.ForceUpdate();
                 t.Start();
                 t.Join();
@@ -538,26 +537,26 @@ namespace WaveTracker {
                 Thread t = new Thread(() => {
                     Input.DialogStarted();
                     Input.CancelClick();
-                    SaveFileDialog saveFileDialog = new SaveFileDialog();
-                    saveFileDialog.DefaultExt = "wttheme";
-                    saveFileDialog.OverwritePrompt = true;
-                    saveFileDialog.InitialDirectory = ThemeFolderPath;
-                    saveFileDialog.CheckPathExists = true;
-                    saveFileDialog.FileName = "New theme";
-                    saveFileDialog.Title = "Save theme";
-                    saveFileDialog.Filter = "WaveTracker Theme (*.wttheme)|*.wttheme|All files (*.*)|*.*";
-                    saveFileDialog.AddExtension = true;
-                    saveFileDialog.CheckPathExists = true;
-                    saveFileDialog.ValidateNames = true;
+                    // SaveFileDialog saveFileDialog = new SaveFileDialog();
+                    // saveFileDialog.DefaultExt = "wttheme";
+                    // saveFileDialog.OverwritePrompt = true;
+                    // saveFileDialog.InitialDirectory = ThemeFolderPath;
+                    // saveFileDialog.CheckPathExists = true;
+                    // saveFileDialog.FileName = "New theme";
+                    // saveFileDialog.Title = "Save theme";
+                    // saveFileDialog.Filter = "WaveTracker Theme (*.wttheme)|*.wttheme|All files (*.*)|*.*";
+                    // saveFileDialog.AddExtension = true;
+                    // saveFileDialog.CheckPathExists = true;
+                    // saveFileDialog.ValidateNames = true;
 
-                    if (saveFileDialog.ShowDialog() == DialogResult.OK) {
-                        ret = saveFileDialog.FileName;
-                        didIt = true;
-                    }
+                    // if (saveFileDialog.ShowDialog() == DialogResult.OK) {
+                    //     ret = saveFileDialog.FileName;
+                    //     didIt = true;
+                    // }
 
                 });
 
-                t.SetApartmentState(ApartmentState.STA);
+                // t.SetApartmentState(ApartmentState.STA);
                 App.ForceUpdate();
                 t.Start();
                 t.Join();
@@ -578,22 +577,22 @@ namespace WaveTracker {
                 Thread t = new Thread(() => {
                     Input.DialogStarted();
                     Input.CancelClick();
-                    OpenFileDialog openFileDialog = new OpenFileDialog();
-                    openFileDialog.InitialDirectory = ThemeFolderPath;
-                    openFileDialog.CheckPathExists = true;
-                    openFileDialog.Filter = "WaveTracker Theme (*.wttheme)|*.wttheme";
-                    openFileDialog.Multiselect = false;
-                    openFileDialog.Title = "Open";
-                    openFileDialog.ValidateNames = true;
+                    // OpenFileDialog openFileDialog = new OpenFileDialog();
+                    // openFileDialog.InitialDirectory = ThemeFolderPath;
+                    // openFileDialog.CheckPathExists = true;
+                    // openFileDialog.Filter = "WaveTracker Theme (*.wttheme)|*.wttheme";
+                    // openFileDialog.Multiselect = false;
+                    // openFileDialog.Title = "Open";
+                    // openFileDialog.ValidateNames = true;
 
-                    if (openFileDialog.ShowDialog() == DialogResult.OK) {
-                        ret = openFileDialog.FileName;
-                        didIt = true;
-                    }
+                    // if (openFileDialog.ShowDialog() == DialogResult.OK) {
+                    //     ret = openFileDialog.FileName;
+                    //     didIt = true;
+                    // }
 
                 });
 
-                t.SetApartmentState(ApartmentState.STA);
+                // t.SetApartmentState(ApartmentState.STA);
                 App.ForceUpdate();
                 t.Start();
                 t.Join();

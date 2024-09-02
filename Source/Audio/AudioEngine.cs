@@ -32,10 +32,10 @@ namespace WaveTracker.Audio {
         public static int RenderTotalRows { get; private set; }
 
         private static int _tickCounter;
-        private static WasapiOut wasapiOut;
+        // private static WasapiOut wasapiOut;
         public static bool IsRendering { get; private set; }
         public static bool CancelRenderFlag { get; set; }
-        public static MMDeviceCollection OutputDevices { get; private set; }
+        // public static MMDeviceCollection OutputDevices { get; private set; }
         public static string[] OutputDeviceNames { get; private set; }
 
         private static AudioProvider audioProvider;
@@ -49,11 +49,11 @@ namespace WaveTracker.Audio {
             CurrentBuffer = new float[2, PREVIEW_BUFFER_LENGTH];
             audioProvider = new AudioProvider();
             SetSampleRate(App.Settings.Audio.SampleRate, App.Settings.Audio.Oversampling);
-            GetAudioOutputDevices();
-            int index = Array.IndexOf(OutputDeviceNames, App.Settings.Audio.OutputDevice);
-            wasapiOut = index < 1 ? new WasapiOut() : new WasapiOut(OutputDevices[index], AudioClientShareMode.Shared, false, 0);
-            wasapiOut.Init(audioProvider);
-            wasapiOut.Play();
+            // GetAudioOutputDevices();
+            // int index = Array.IndexOf(OutputDeviceNames, App.Settings.Audio.OutputDevice);
+            // wasapiOut = index < 1 ? new WasapiOut() : new WasapiOut(OutputDevices[index], AudioClientShareMode.Shared, false, 0);
+            // wasapiOut.Init(audioProvider);
+            // wasapiOut.Play();
         }
 
         /// <summary>
@@ -76,14 +76,14 @@ namespace WaveTracker.Audio {
         /// This is an expensive operation, only call when needed.
         /// </summary>
         public static void GetAudioOutputDevices() {
-            MMDeviceEnumerator enumerator = new MMDeviceEnumerator();
-            OutputDevices = enumerator.EnumerateAudioEndPoints(DataFlow.Render, DeviceState.Active);
-            OutputDeviceNames = new string[OutputDevices.Count];
-            List<string> names = [];
-            foreach (MMDevice device in OutputDevices) {
-                names.Add(device.FriendlyName);
-            }
-            OutputDeviceNames = names.ToArray();
+            // MMDeviceEnumerator enumerator = new MMDeviceEnumerator();
+            // OutputDevices = enumerator.EnumerateAudioEndPoints(DataFlow.Render, DeviceState.Active);
+            // OutputDeviceNames = new string[OutputDevices.Count];
+            // List<string> names = [];
+            // foreach (MMDevice device in OutputDevices) {
+            //     names.Add(device.FriendlyName);
+            // }
+            // OutputDeviceNames = names.ToArray();
         }
 
         /// <summary>
@@ -94,18 +94,18 @@ namespace WaveTracker.Audio {
                 File.Delete(Dialogs.exportingDialog.Path + ".temp");
             }
 
-            wasapiOut.Stop();
+            // wasapiOut.Stop();
         }
 
         public static void Reset() {
             PianoInput.ClearAllNotes();
-            wasapiOut.Stop();
+            // wasapiOut.Stop();
             SetSampleRate(App.Settings.Audio.SampleRate, App.Settings.Audio.Oversampling);
             Thread.Sleep(1);
-            int index = Array.IndexOf(OutputDeviceNames, App.Settings.Audio.OutputDevice);
-            wasapiOut = index < 1 ? new WasapiOut() : new WasapiOut(OutputDevices[index], AudioClientShareMode.Shared, false, 0);
-            wasapiOut.Init(audioProvider);
-            wasapiOut.Play();
+            // int index = Array.IndexOf(OutputDeviceNames, App.Settings.Audio.OutputDevice);
+            // wasapiOut = index < 1 ? new WasapiOut() : new WasapiOut(OutputDevices[index], AudioClientShareMode.Shared, false, 0);
+            // wasapiOut.Init(audioProvider);
+            // wasapiOut.Play();
         }
 
         public static async void RenderTo(string filepath, int maxloops) {
@@ -132,7 +132,7 @@ namespace WaveTracker.Audio {
         }
 
         private static bool WriteToWaveFile(string path, IWaveProvider source) {
-            wasapiOut.Stop();
+            // wasapiOut.Stop();
             IsRendering = true;
             CancelRenderFlag = false;
             _tickCounter = 0;
@@ -141,7 +141,7 @@ namespace WaveTracker.Audio {
             ChannelManager.Reset();
             Playback.PlayFromBeginning();
             WaveFileWriter.CreateWaveFile(path, source);
-            wasapiOut.Play();
+            // wasapiOut.Play();
             return !CancelRenderFlag;
         }
 

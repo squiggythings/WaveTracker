@@ -149,9 +149,9 @@ namespace WaveTracker {
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
 
-            System.Windows.Forms.Form form = (System.Windows.Forms.Form)System.Windows.Forms.Control.FromHandle(Window.Handle);
-            form.WindowState = System.Windows.Forms.FormWindowState.Maximized;
-            form.FormClosing += ClosingForm;
+            // System.Windows.Forms.Form form = (System.Windows.Forms.Form)System.Windows.Forms.Control.FromHandle(Window.Handle);
+            // form.WindowState = System.Windows.Forms.FormWindowState.Maximized;
+            // form.FormClosing += ClosingForm;
             if (!Directory.Exists(SaveLoad.ThemeFolderPath)) {
                 Directory.CreateDirectory(SaveLoad.ThemeFolderPath);
                 File.WriteAllText(Path.Combine(SaveLoad.ThemeFolderPath, "Default.wttheme"), ColorTheme.CreateString(ColorTheme.Default));
@@ -430,9 +430,9 @@ namespace WaveTracker {
         /// Closes WaveTracker
         /// </summary>
         public static void ExitApplication() {
-            System.Windows.Forms.Form form = (System.Windows.Forms.Form)System.Windows.Forms.Control.FromHandle(instance.Window.Handle);
+            // System.Windows.Forms.Form form = (System.Windows.Forms.Form)System.Windows.Forms.Control.FromHandle(instance.Window.Handle);
 
-            form.Close();
+            // form.Close();
         }
 
         /// <summary>

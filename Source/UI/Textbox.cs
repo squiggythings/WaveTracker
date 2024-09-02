@@ -1,5 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
-using System.Windows.Forms;
+// using System.Windows.Forms;
 
 namespace WaveTracker.UI {
     public class Textbox : Clickable {
@@ -83,14 +83,14 @@ namespace WaveTracker.UI {
 
         public void StartDialog() {
             Input.DialogStarted();
-            dialog = new Forms.EnterText();
-            dialog.textBox.Text = Text;
-            dialog.label.Text = label;
-            dialog.textBox.MaxLength = MaxLength;
-            if (dialog.ShowDialog() == DialogResult.OK) {
-                Text = Helpers.FlushString(dialog.textBox.Text);
-                ValueWasChangedInternally = true;
-            }
+            // dialog = new Forms.EnterText();
+            // dialog.textBox.Text = Text;
+            // dialog.label.Text = label;
+            // dialog.textBox.MaxLength = MaxLength;
+            // if (dialog.ShowDialog() == DialogResult.OK) {
+            //     Text = Helpers.FlushString(dialog.textBox.Text);
+            //     ValueWasChangedInternally = true;
+            // }
         }
     }
 }

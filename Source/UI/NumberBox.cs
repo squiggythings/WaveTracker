@@ -1,6 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
 using System;
-using System.Windows.Forms;
 
 namespace WaveTracker.UI {
     public class NumberBox : Clickable {
@@ -158,14 +157,14 @@ namespace WaveTracker.UI {
 
         public void StartDialog() {
             Input.DialogStarted();
-            dialog = new Forms.EnterText();
-            dialog.textBox.Text = Value + "";
-            dialog.label.Text = label;
-            if (dialog.ShowDialog() == DialogResult.OK) {
-                if (int.TryParse(dialog.textBox.Text, out int a)) {
-                    Value = a;
-                }
-            }
+            // dialog = new Forms.EnterText();
+            // dialog.textBox.Text = Value + "";
+            // dialog.label.Text = label;
+            // if (dialog.ShowDialog() == DialogResult.OK) {
+            //     if (int.TryParse(dialog.textBox.Text, out int a)) {
+            //         Value = a;
+            //     }
+            // }
         }
     }
 }

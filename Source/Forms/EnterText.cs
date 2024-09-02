@@ -1,13 +1,12 @@
 ﻿using System;
-using System.Windows.Forms;
 
 namespace WaveTracker.Forms {
-    public partial class EnterText : Form {
+    public partial class EnterText {
 
         public string result;
         public EnterText() {
-            Application.EnableVisualStyles();
-            InitializeComponent();
+            // Application.EnableVisualStyles();
+            // InitializeComponent();
         }
 
         private void textBox_TextChanged(object sender, EventArgs e) {
@@ -15,17 +14,17 @@ namespace WaveTracker.Forms {
         }
 
         private void okButton_Click(object sender, EventArgs e) {
-            result = textBox.Text + "";
-            Close();
+            // result = textBox.Text + "";
+            // Close();
         }
 
         private void cancelButton_Click(object sender, EventArgs e) {
-            result = "\tcanceled";
-            Close();
+            // result = "\tcanceled";
+            // Close();
         }
 
-        private void tbKeyDown(object sender, KeyEventArgs e) {
+        // private void tbKeyDown(object sender, KeyEventArgs e) {
 
-        }
+        // }
     }
 }

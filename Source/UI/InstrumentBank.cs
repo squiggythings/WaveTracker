@@ -1,6 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
 using System;
-using System.Windows.Forms;
 using WaveTracker.Tracker;
 
 namespace WaveTracker.UI {
@@ -275,14 +274,14 @@ namespace WaveTracker.UI {
 
         public void StartRenameDialog() {
             Input.DialogStarted();
-            renameDialog = new Forms.EnterText();
-            renameDialog.textBox.Text = GetCurrentInstrument.name;
-            renameDialog.Text = "Rename Instrument " + CurrentInstrumentIndex.ToString("D2");
-            renameDialog.label.Text = "";
-            if (renameDialog.ShowDialog() == DialogResult.OK) {
-                App.CurrentModule.Instruments[CurrentInstrumentIndex].SetName(Helpers.FlushString(renameDialog.textBox.Text));
-                App.CurrentModule.SetDirty();
-            }
+            // renameDialog = new Forms.EnterText();
+            // renameDialog.textBox.Text = GetCurrentInstrument.name;
+            // renameDialog.Text = "Rename Instrument " + CurrentInstrumentIndex.ToString("D2");
+            // renameDialog.label.Text = "";
+            // if (renameDialog.ShowDialog() == DialogResult.OK) {
+            //     App.CurrentModule.Instruments[CurrentInstrumentIndex].SetName(Helpers.FlushString(renameDialog.textBox.Text));
+            //     App.CurrentModule.SetDirty();
+            // }
         }
 
     }

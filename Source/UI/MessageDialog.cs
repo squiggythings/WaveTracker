@@ -31,18 +31,18 @@ namespace WaveTracker.UI {
                 buttons[i] = AddNewBottomButton(buttonNames[i], this);
             }
             OnDialogExit = onExitCallback;
-            if (icon == Icon.Information) {
-                System.Media.SystemSounds.Asterisk.Play();
-            }
-            else if (icon == Icon.Error) {
-                System.Media.SystemSounds.Hand.Play();
-            }
-            else if (icon == Icon.Warning) {
-                System.Media.SystemSounds.Exclamation.Play();
-            }
-            else if (icon == Icon.Question) {
-                System.Media.SystemSounds.Question.Play();
-            }
+            // if (icon == Icon.Information) {
+            //     System.Media.SystemSounds.Asterisk.Play();
+            // }
+            // else if (icon == Icon.Error) {
+            //     System.Media.SystemSounds.Hand.Play();
+            // }
+            // else if (icon == Icon.Warning) {
+            //     System.Media.SystemSounds.Exclamation.Play();
+            // }
+            // else if (icon == Icon.Question) {
+            //     System.Media.SystemSounds.Question.Play();
+            // }
 
             textWidth = width - (icon == Icon.None ? 16 : 64);
             textHeight = Helpers.GetHeightOfMultilineText(Message, textWidth);
@@ -64,18 +64,7 @@ namespace WaveTracker.UI {
 
             OnDialogExit = null;
             if (playSound) {
-                if (icon == Icon.Information) {
-                    System.Media.SystemSounds.Asterisk.Play();
-                }
-                else if (icon == Icon.Error) {
-                    System.Media.SystemSounds.Hand.Play();
-                }
-                else if (icon == Icon.Warning) {
-                    System.Media.SystemSounds.Exclamation.Play();
-                }
-                else if (icon == Icon.Question) {
-                    System.Media.SystemSounds.Question.Play();
-                }
+
             }
             textWidth = width - (icon == Icon.None ? 16 : 64);
             textHeight = Helpers.GetHeightOfMultilineText(Message, textWidth);
