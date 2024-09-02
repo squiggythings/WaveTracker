@@ -1,5 +1,4 @@
-﻿using NAudio.Midi;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -24,7 +23,7 @@ namespace WaveTracker {
         /// The current note pressed, -1 if none are held down
         /// </summary>
         public static int CurrentNote { get; private set; }
-        private static MidiIn MidiIn_ { get; set; }
+        // private static MidiIn MidiIn_ { get; set; }
         /// <summary>
         /// The names of all midi devices detected. The first item is reserved for "(none)"
         /// </summary>
@@ -74,25 +73,25 @@ namespace WaveTracker {
         /// <returns></returns>
         public static bool SetMIDIDevice(string name) {
             Debug.WriteLine("Set midi device to: " + name);
-            if (MidiIn_ != null) {
-                MidiIn_.Close();
-                MidiIn_.Dispose();
-            }
+            // if (MidiIn_ != null) {
+            //     MidiIn_.Close();
+            //     MidiIn_.Dispose();
+            // }
             try {
                 if (name == "(none)") {
-                    MidiIn_ = null;
+                    // MidiIn_ = null;
                     CurrentMidiDeviceName = name;
                 }
                 else {
                     int index = Array.IndexOf(MIDIDevicesNames, name);
-                    MidiIn_ = new MidiIn(index - 1);
+                    // MidiIn_ = new MidiIn(index - 1);
                     CurrentMidiDeviceName = name;
-                    MidiIn_.MessageReceived += OnMIDIMessageReceived;
-                    MidiIn_.ErrorReceived += OnMIDIErrorReceived;
-                    MidiIn_.Start();
+                    // MidiIn_.MessageReceived += OnMIDIMessageReceived;
+                    // MidiIn_.ErrorReceived += OnMIDIErrorReceived;
+                    // MidiIn_.Start();
                 }
             } catch {
-                MidiIn_ = null;
+                // MidiIn_ = null;
                 CurrentMidiDeviceName = "(none)";
                 Dialogs.messageDialog.Open(
                     "Error opening MIDI device \"" + name + "\"!",
@@ -108,11 +107,11 @@ namespace WaveTracker {
         /// Reads connected midi devices into MIDIDevicesNames
         /// </summary>
         public static void ReadMidiDevices() {
-            MIDIDevicesNames = new string[MidiIn.NumberOfDevices + 1];
+            MIDIDevicesNames = new string[1]; // new string[MidiIn.NumberOfDevices + 1];
             MIDIDevicesNames[0] = "(none)";
-            for (int deviceIndex = 0; deviceIndex < MidiIn.NumberOfDevices; deviceIndex++) {
-                MIDIDevicesNames[deviceIndex + 1] = MidiIn.DeviceInfo(deviceIndex).ProductName;
-            }
+            // for (int deviceIndex = 0; deviceIndex < MidiIn.NumberOfDevices; deviceIndex++) {
+            //     MIDIDevicesNames[deviceIndex + 1] = MidiIn.DeviceInfo(deviceIndex).ProductName;
+            // }
             if (!MIDIDevicesNames.Contains(CurrentMidiDeviceName)) {
                 SetMIDIDevice("(none)");
             }
@@ -212,45 +211,45 @@ namespace WaveTracker {
         }
 
         public static void StopMIDI() {
-            if (MidiIn_ != null) {
-                MidiIn_.Stop();
-                MidiIn_.Dispose();
-            }
+            // if (MidiIn_ != null) {
+            //     MidiIn_.Stop();
+            //     MidiIn_.Dispose();
+            // }
         }
 
-        private static void OnMIDIErrorReceived(object sender, MidiInMessageEventArgs e) {
-            Dialogs.messageDialog.Open(string.Format("Time {0} Message 0x{1:X8} Event {2}", e.Timestamp, e.RawMessage, e.MidiEvent), MessageDialog.Icon.Error, "OK");
-        }
+        // private static void OnMIDIErrorReceived(object sender, MidiInMessageEventArgs e) {
+        //     Dialogs.messageDialog.Open(string.Format("Time {0} Message 0x{1:X8} Event {2}", e.Timestamp, e.RawMessage, e.MidiEvent), MessageDialog.Icon.Error, "OK");
+        // }
 
-        private static void OnMIDIMessageReceived(object sender, MidiInMessageEventArgs e) {
-            MidiEvent midiEvent = e.MidiEvent;
-            if (App.Settings.MIDI.UseProgramChangeToSelectInstrument) {
-                if (midiEvent is PatchChangeEvent patchEvent) {
-                    if (!App.InstrumentEditor.IsOpen && !Menu.IsAMenuOpen) {
-                        App.InstrumentBank.CurrentInstrumentIndex = Math.Clamp(patchEvent.Patch, 0, App.CurrentModule.Instruments.Count - 1);
-                    }
-                }
-            }
-            if (App.Settings.MIDI.ReceivePlayStopMessages) {
-                if (midiEvent.CommandCode == MidiCommandCode.ContinueSequence) {
-                    Playback.PlayFromCursor();
-                }
-                if (midiEvent.CommandCode == MidiCommandCode.StartSequence) {
-                    Playback.Play();
-                }
-                if (midiEvent.CommandCode == MidiCommandCode.StopSequence) {
-                    Playback.Stop();
-                }
-            }
-            if (midiEvent is NoteEvent noteEvent) {
-                if (noteEvent.Velocity == 0 || midiEvent.CommandCode == MidiCommandCode.NoteOff) {
-                    MIDINoteOff(noteEvent.NoteNumber + App.Settings.MIDI.MIDITranspose + (App.Settings.MIDI.ApplyOctaveTranspose ? (App.PatternEditor.CurrentOctave - 4) * 12 : 0));
-                }
-                else {
-                    MIDINoteOn(noteEvent.NoteNumber + App.Settings.MIDI.MIDITranspose + (App.Settings.MIDI.ApplyOctaveTranspose ? (App.PatternEditor.CurrentOctave - 4) * 12 : 0), noteEvent.Velocity);
-                }
-            }
-        }
+        // private static void OnMIDIMessageReceived(object sender, MidiInMessageEventArgs e) {
+        //     MidiEvent midiEvent = e.MidiEvent;
+        //     if (App.Settings.MIDI.UseProgramChangeToSelectInstrument) {
+        //         if (midiEvent is PatchChangeEvent patchEvent) {
+        //             if (!App.InstrumentEditor.IsOpen && !Menu.IsAMenuOpen) {
+        //                 App.InstrumentBank.CurrentInstrumentIndex = Math.Clamp(patchEvent.Patch, 0, App.CurrentModule.Instruments.Count - 1);
+        //             }
+        //         }
+        //     }
+        //     if (App.Settings.MIDI.ReceivePlayStopMessages) {
+        //         if (midiEvent.CommandCode == MidiCommandCode.ContinueSequence) {
+        //             Playback.PlayFromCursor();
+        //         }
+        //         if (midiEvent.CommandCode == MidiCommandCode.StartSequence) {
+        //             Playback.Play();
+        //         }
+        //         if (midiEvent.CommandCode == MidiCommandCode.StopSequence) {
+        //             Playback.Stop();
+        //         }
+        //     }
+        //     if (midiEvent is NoteEvent noteEvent) {
+        //         if (noteEvent.Velocity == 0 || midiEvent.CommandCode == MidiCommandCode.NoteOff) {
+        //             MIDINoteOff(noteEvent.NoteNumber + App.Settings.MIDI.MIDITranspose + (App.Settings.MIDI.ApplyOctaveTranspose ? (App.PatternEditor.CurrentOctave - 4) * 12 : 0));
+        //         }
+        //         else {
+        //             MIDINoteOn(noteEvent.NoteNumber + App.Settings.MIDI.MIDITranspose + (App.Settings.MIDI.ApplyOctaveTranspose ? (App.PatternEditor.CurrentOctave - 4) * 12 : 0), noteEvent.Velocity);
+        //         }
+        //     }
+        // }
 
         private static readonly Dictionary<string, int> PianoKeyInputs = new Dictionary<string, int>() {
             { "Piano\\Lower C-1", 0 },

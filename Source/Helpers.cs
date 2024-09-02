@@ -1,6 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
-using NAudio.Wave;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -415,38 +414,39 @@ namespace WaveTracker {
             List<short> LChannel = [];
             List<short> RChannel = [];
             try {
-                AudioFileReader Nreader = new AudioFileReader(filepath);
-                if (Nreader.Length == 0) {
-                    Dialogs.messageDialog.Open("Could not load sample: " + Path.GetFileName(filepath), MessageDialog.Icon.Error, "OK");
-                    throw new Exception("Failed to read audio file");
-                }
-                int bytesPerSample = Nreader.WaveFormat.BitsPerSample / 8;
-                bool isMono = Nreader.WaveFormat.Channels == 1;
-                fileSampleRate = Nreader.WaveFormat.SampleRate;
-                ISampleProvider isp;
-                WaveFormat desiredFormat = new WaveFormat(fileSampleRate, 16, Nreader.WaveFormat.Channels);
-                IWaveProvider waveProvider = Nreader.ToWaveProvider();
-                using (MediaFoundationResampler resampler = new MediaFoundationResampler(Nreader, desiredFormat)) {
-                    isp = resampler.ToSampleProvider();
-                }
-                float[] buffer = new float[Nreader.Length / bytesPerSample];
-                isp.Read(buffer, 0, buffer.Length);
-                for (int s = 0, v = 0; v < buffer.Length; s++) {
-                    if (s > 16777216) {
-                        break;
-                    }
+                // AudioFileReader Nreader = new AudioFileReader(filepath);
+                // if (Nreader.Length == 0) {
+                //     Dialogs.messageDialog.Open("Could not load sample: " + Path.GetFileName(filepath), MessageDialog.Icon.Error, "OK");
+                //     throw new Exception("Failed to read audio file");
+                // }
+                // int bytesPerSample = Nreader.WaveFormat.BitsPerSample / 8;
+                // bool isMono = Nreader.WaveFormat.Channels == 1;
+                // fileSampleRate = Nreader.WaveFormat.SampleRate;
+                // ISampleProvider isp;
+                // WaveFormat desiredFormat = new WaveFormat(fileSampleRate, 16, Nreader.WaveFormat.Channels);
+                // IWaveProvider waveProvider = Nreader.ToWaveProvider();
+                // using (MediaFoundationResampler resampler = new MediaFoundationResampler(Nreader, desiredFormat)) {
+                //     isp = resampler.ToSampleProvider();
+                // }
+                // float[] buffer = new float[Nreader.Length / bytesPerSample];
+                // isp.Read(buffer, 0, buffer.Length);
+                // for (int s = 0, v = 0; v < buffer.Length; s++) {
+                //     if (s > 16777216) {
+                //         break;
+                //     }
 
-                    LChannel.Add((short)(buffer[v++] * short.MaxValue));
-                    if (!isMono) {
-                        RChannel.Add((short)(buffer[v++] * short.MaxValue));
-                    }
-                }
-                if (isMono) {
-                    RChannel.Clear();
-                }
+                //     LChannel.Add((short)(buffer[v++] * short.MaxValue));
+                //     if (!isMono) {
+                //         RChannel.Add((short)(buffer[v++] * short.MaxValue));
+                //     }
+                // }
+                // if (isMono) {
+                //     RChannel.Clear();
+                // }
 
                 L = LChannel.ToArray();
                 R = RChannel.ToArray();
+                fileSampleRate = 44100;
                 return true;
             } catch {
                 L = [];

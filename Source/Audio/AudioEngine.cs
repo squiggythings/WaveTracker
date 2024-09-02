@@ -1,6 +1,4 @@
-﻿using NAudio.CoreAudioApi;
-using NAudio.Wave;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -38,7 +36,7 @@ namespace WaveTracker.Audio {
         // public static MMDeviceCollection OutputDevices { get; private set; }
         public static string[] OutputDeviceNames { get; private set; }
 
-        private static AudioProvider audioProvider;
+        // private static AudioProvider audioProvider;
 
         public static void ResetTicks() {
             _tickCounter = 0;
@@ -47,7 +45,7 @@ namespace WaveTracker.Audio {
         public static void Initialize() {
             Dialogs.exportingDialog = new ExportingDialog();
             CurrentBuffer = new float[2, PREVIEW_BUFFER_LENGTH];
-            audioProvider = new AudioProvider();
+            // audioProvider = new AudioProvider();
             SetSampleRate(App.Settings.Audio.SampleRate, App.Settings.Audio.Oversampling);
             // GetAudioOutputDevices();
             // int index = Array.IndexOf(OutputDeviceNames, App.Settings.Audio.OutputDevice);
@@ -64,7 +62,7 @@ namespace WaveTracker.Audio {
         public static void SetSampleRate(SampleRate rate, int oversampling) {
             SampleRate = SampleRateToInt(rate);
             TrueSampleRate = SampleRate * oversampling;
-            audioProvider.SetWaveFormat(SampleRate, 2);
+            // audioProvider.SetWaveFormat(SampleRate, 2);
             foreach (Channel chan in ChannelManager.Channels) {
                 chan.UpdateFilter();
             }
@@ -119,7 +117,8 @@ namespace WaveTracker.Audio {
             bool overwriting = File.Exists(filepath);
 
             bool b = await Task.Run(() => {
-                return WriteToWaveFile(filepath + ".temp", audioProvider);
+                // return WriteToWaveFile(filepath + ".temp", audioProvider);
+                return true;
             });
             Debug.WriteLine("Exported!");
             if (b) {
@@ -131,90 +130,90 @@ namespace WaveTracker.Audio {
             File.Delete(filepath + ".temp");
         }
 
-        private static bool WriteToWaveFile(string path, IWaveProvider source) {
-            // wasapiOut.Stop();
-            IsRendering = true;
-            CancelRenderFlag = false;
-            _tickCounter = 0;
-            RenderProcessedRows = 0;
+        // private static bool WriteToWaveFile(string path, IWaveProvider source) {
+        //     // wasapiOut.Stop();
+        //     IsRendering = true;
+        //     CancelRenderFlag = false;
+        //     _tickCounter = 0;
+        //     RenderProcessedRows = 0;
 
-            ChannelManager.Reset();
-            Playback.PlayFromBeginning();
-            WaveFileWriter.CreateWaveFile(path, source);
-            // wasapiOut.Play();
-            return !CancelRenderFlag;
-        }
+        //     ChannelManager.Reset();
+        //     Playback.PlayFromBeginning();
+        //     WaveFileWriter.CreateWaveFile(path, source);
+        //     // wasapiOut.Play();
+        //     return !CancelRenderFlag;
+        // }
 
-        public class AudioProvider : WaveProvider32 {
-            public override int Read(float[] buffer, int offset, int sampleCount) {
-                if (IsRendering) {
-                    if (RenderProcessedRows >= RenderTotalRows || CancelRenderFlag) {
-                        Playback.Stop();
-                        IsRendering = false;
-                        return 0;
-                    }
-                }
+        // public class AudioProvider : WaveProvider32 {
+        //     public override int Read(float[] buffer, int offset, int sampleCount) {
+        //         if (IsRendering) {
+        //             if (RenderProcessedRows >= RenderTotalRows || CancelRenderFlag) {
+        //                 Playback.Stop();
+        //                 IsRendering = false;
+        //                 return 0;
+        //             }
+        //         }
 
-                int OVERSAMPLE = App.Settings.Audio.Oversampling;
-                float delta = 1f / TrueSampleRate * (TickSpeed / 60f);
+        //         int OVERSAMPLE = App.Settings.Audio.Oversampling;
+        //         float delta = 1f / TrueSampleRate * (TickSpeed / 60f);
 
-                for (int n = 0; n < sampleCount; n += 2) {
-                    buffer[n + offset] = buffer[n + offset + 1] = 0;
-                    float leftSum;
-                    float rightSum;
-                    for (int j = 0; j < OVERSAMPLE; ++j) {
-                        float l;
-                        float r;
-                        leftSum = 0;
-                        rightSum = 0;
-                        for (int c = 0; c < ChannelManager.Channels.Count; ++c) {
-                            ChannelManager.Channels[c].ProcessSingleSample(out l, out r, delta);
-                            leftSum += l;
-                            rightSum += r;
-                        }
+        //         for (int n = 0; n < sampleCount; n += 2) {
+        //             buffer[n + offset] = buffer[n + offset + 1] = 0;
+        //             float leftSum;
+        //             float rightSum;
+        //             for (int j = 0; j < OVERSAMPLE; ++j) {
+        //                 float l;
+        //                 float r;
+        //                 leftSum = 0;
+        //                 rightSum = 0;
+        //                 for (int c = 0; c < ChannelManager.Channels.Count; ++c) {
+        //                     ChannelManager.Channels[c].ProcessSingleSample(out l, out r, delta);
+        //                     leftSum += l;
+        //                     rightSum += r;
+        //                 }
 
-                        ChannelManager.PreviewChannel.ProcessSingleSample(out l, out r, delta);
-                        leftSum += l;
-                        rightSum += r;
-                        buffer[n + offset] = leftSum;
-                        buffer[n + offset + 1] = rightSum;
-                    }
+        //                 ChannelManager.PreviewChannel.ProcessSingleSample(out l, out r, delta);
+        //                 leftSum += l;
+        //                 rightSum += r;
+        //                 buffer[n + offset] = leftSum;
+        //                 buffer[n + offset + 1] = rightSum;
+        //             }
 
-                    buffer[n + offset] = Math.Clamp(buffer[n + offset] * (App.Settings.Audio.MasterVolume / 100f), -1, 1);
-                    buffer[n + offset + 1] = Math.Clamp(buffer[n + offset + 1] * (App.Settings.Audio.MasterVolume / 100f), -1, 1);
-                    if (!IsRendering) {
-                        CurrentBuffer[0, currBufferPosition] = buffer[n + offset];
-                        CurrentBuffer[1, currBufferPosition] = buffer[n + offset + 1];
-                        currBufferPosition++;
-                        if (currBufferPosition >= CurrentBuffer.Length / 2) {
-                            currBufferPosition = 0;
-                        }
-                    }
+        //             buffer[n + offset] = Math.Clamp(buffer[n + offset] * (App.Settings.Audio.MasterVolume / 100f), -1, 1);
+        //             buffer[n + offset + 1] = Math.Clamp(buffer[n + offset + 1] * (App.Settings.Audio.MasterVolume / 100f), -1, 1);
+        //             if (!IsRendering) {
+        //                 CurrentBuffer[0, currBufferPosition] = buffer[n + offset];
+        //                 CurrentBuffer[1, currBufferPosition] = buffer[n + offset + 1];
+        //                 currBufferPosition++;
+        //                 if (currBufferPosition >= CurrentBuffer.Length / 2) {
+        //                     currBufferPosition = 0;
+        //                 }
+        //             }
 
-                    if (App.VisualizerMode && !IsRendering) {
-                        if (_tickCounter % (int)(SamplesPerTick / ((float)App.Settings.Visualizer.PianoSpeed / (App.Settings.Visualizer.DrawInHighResolution ? 1 : App.Settings.General.ScreenScale))) == 0) {
-                            App.Visualizer.RecordChannelStates();
-                        }
-                    }
+        //             if (App.VisualizerMode && !IsRendering) {
+        //                 if (_tickCounter % (int)(SamplesPerTick / ((float)App.Settings.Visualizer.PianoSpeed / (App.Settings.Visualizer.DrawInHighResolution ? 1 : App.Settings.General.ScreenScale))) == 0) {
+        //                     App.Visualizer.RecordChannelStates();
+        //                 }
+        //             }
 
-                    _tickCounter++;
-                    if (_tickCounter >= SamplesPerTick) {
-                        _tickCounter = 0;
-                        Playback.Tick();
-                        foreach (Channel c in ChannelManager.Channels) {
-                            c.NextTick();
-                        }
-                        ChannelManager.PreviewChannel.NextTick();
-                    }
-                    if (IsRendering) {
-                        if (RenderProcessedRows >= RenderTotalRows || CancelRenderFlag) {
-                            return n;
-                        }
-                    }
-                }
-                return sampleCount;
-            }
-        }
+        //             _tickCounter++;
+        //             if (_tickCounter >= SamplesPerTick) {
+        //                 _tickCounter = 0;
+        //                 Playback.Tick();
+        //                 foreach (Channel c in ChannelManager.Channels) {
+        //                     c.NextTick();
+        //                 }
+        //                 ChannelManager.PreviewChannel.NextTick();
+        //             }
+        //             if (IsRendering) {
+        //                 if (RenderProcessedRows >= RenderTotalRows || CancelRenderFlag) {
+        //                     return n;
+        //                 }
+        //             }
+        //         }
+        //         return sampleCount;
+        //     }
+        // }
 
         /// <summary>
         /// Converts a sample rate enum into its actual numerical sample rate in Hz.
