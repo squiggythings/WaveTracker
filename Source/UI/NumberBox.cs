@@ -3,7 +3,6 @@ using System;
 
 namespace WaveTracker.UI {
     public class NumberBox : Clickable {
-        private Forms.EnterText dialog;
         private bool dialogOpen;
 
         public SpriteButton bUp;
@@ -87,7 +86,7 @@ namespace WaveTracker.UI {
                                 valueSaved = Value;
                             }
 
-                            if (Input.GetClick(KeyModifier.None)) {
+                            if (Input.GetClick(KeyModifier.None) && !ValueWasChangedInternally) {
                                 Value = valueSaved - (MouseY - LastClickPos.Y) / 2;
                                 App.MouseCursorArrow = 2;
                             }
@@ -157,14 +156,26 @@ namespace WaveTracker.UI {
 
         public void StartDialog() {
             Input.DialogStarted();
-            // dialog = new Forms.EnterText();
-            // dialog.textBox.Text = Value + "";
-            // dialog.label.Text = label;
-            // if (dialog.ShowDialog() == DialogResult.OK) {
-            //     if (int.TryParse(dialog.textBox.Text, out int a)) {
-            //         Value = a;
-            //     }
-            // }
+
+            Console.WriteLine("starting number box dialog");
+
+            Dialogs.enterTextDialog.Open(
+                label,
+                Value + "",
+                dialogCallback
+            );
+        }
+
+        private void dialogCallback(string input) {
+            Console.WriteLine("ending number box dialog with " + input);
+            if (input != null) {
+                if (int.TryParse(input, out int a)) {
+                    Console.WriteLine("prev Value = " + Value);
+                    Value = a;
+                    ValueWasChangedInternally = true;
+                    Console.WriteLine("Value = " + Value);
+                }
+            }
         }
     }
 }

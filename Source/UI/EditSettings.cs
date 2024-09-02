@@ -26,10 +26,13 @@ namespace WaveTracker.UI {
         }
 
         public void Update() {
-            octave.Update();
-            step.Update();
-            highlightPrimary.Update();
-            highlightSecondary.Update();
+            if (App.Shortcuts["General\\Increase step"].IsPressedDown) {
+                App.PatternEditor.InputStep = Math.Clamp(App.PatternEditor.InputStep + 1, 0, 256);
+            }
+            if (App.Shortcuts["General\\Decrease step"].IsPressedDown) {
+                App.PatternEditor.InputStep = Math.Clamp(App.PatternEditor.InputStep - 1, 0, 256);
+            }
+
             if (octave.ValueWasChangedInternally) {
                 App.PatternEditor.CurrentOctave = octave.Value;
                 PianoInput.ClearAllNotes();
@@ -37,19 +40,15 @@ namespace WaveTracker.UI {
             else {
                 octave.Value = App.PatternEditor.CurrentOctave;
             }
+            octave.Update();
 
-            if (App.Shortcuts["General\\Increase step"].IsPressedDown) {
-                App.PatternEditor.InputStep = Math.Clamp(App.PatternEditor.InputStep + 1, 0, 256);
-            }
-            if (App.Shortcuts["General\\Decrease step"].IsPressedDown) {
-                App.PatternEditor.InputStep = Math.Clamp(App.PatternEditor.InputStep - 1, 0, 256);
-            }
             if (step.ValueWasChangedInternally) {
                 App.PatternEditor.InputStep = step.Value;
             }
             else {
                 step.Value = App.PatternEditor.InputStep;
             }
+            step.Update();
 
             if (highlightPrimary.ValueWasChangedInternally) {
                 App.CurrentSong.RowHighlightPrimary = highlightPrimary.Value;
@@ -57,6 +56,7 @@ namespace WaveTracker.UI {
             else {
                 highlightPrimary.Value = App.CurrentSong.RowHighlightPrimary;
             }
+            highlightPrimary.Update();
 
             if (highlightSecondary.ValueWasChangedInternally) {
                 App.CurrentSong.RowHighlightSecondary = highlightSecondary.Value;
@@ -64,6 +64,7 @@ namespace WaveTracker.UI {
             else {
                 highlightSecondary.Value = App.CurrentSong.RowHighlightSecondary;
             }
+            highlightSecondary.Update();
 
             instrumentMask.Update();
             App.PatternEditor.InstrumentMask = instrumentMask.Value;

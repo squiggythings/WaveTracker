@@ -3,7 +3,6 @@ using System;
 
 namespace WaveTracker.UI {
     public class NumberBoxDecimal : Clickable {
-        private Forms.EnterText dialog;
         private bool dialogOpen;
 
         public SpriteButton bUp;
@@ -137,14 +136,22 @@ namespace WaveTracker.UI {
 
         public void StartDialog() {
             Input.DialogStarted();
-            // dialog = new Forms.EnterText();
-            // dialog.textBox.Text = Value + "";
-            // dialog.label.Text = label;
-            // if (dialog.ShowDialog() == DialogResult.OK) {
-            //     if (float.TryParse(dialog.textBox.Text, out float a)) {
-            //         Value = a;
-            //     }
-            // }
+
+            Dialogs.enterTextDialog.Open(
+                label,
+                Value + "",
+                dialogCallback
+            );
+        }
+
+        private void dialogCallback(string input) {
+            if (input != null) {
+                if (float.TryParse(input, out float a)) {
+                    Value = a;
+                    ValueWasChangedInternally = true;
+                    App.CurrentModule.SetDirty();
+                }
+            }
         }
     }
 }

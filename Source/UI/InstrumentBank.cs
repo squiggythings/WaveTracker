@@ -4,7 +4,6 @@ using WaveTracker.Tracker;
 
 namespace WaveTracker.UI {
     public class InstrumentBank : Panel {
-        private Forms.EnterText renameDialog;
         private bool dialogOpen;
         private int lastIndex;
         private int listLength = 32;
@@ -274,15 +273,19 @@ namespace WaveTracker.UI {
 
         public void StartRenameDialog() {
             Input.DialogStarted();
-            // renameDialog = new Forms.EnterText();
-            // renameDialog.textBox.Text = GetCurrentInstrument.name;
-            // renameDialog.Text = "Rename Instrument " + CurrentInstrumentIndex.ToString("D2");
-            // renameDialog.label.Text = "";
-            // if (renameDialog.ShowDialog() == DialogResult.OK) {
-            //     App.CurrentModule.Instruments[CurrentInstrumentIndex].SetName(Helpers.FlushString(renameDialog.textBox.Text));
-            //     App.CurrentModule.SetDirty();
-            // }
+
+            Dialogs.enterTextDialog.Open(
+                "Rename Instrument " + CurrentInstrumentIndex.ToString("D2"),
+                GetCurrentInstrument.name,
+                dialogCallback
+            );
         }
 
+        private void dialogCallback(string input) {
+            if (input != null) {
+                App.CurrentModule.Instruments[CurrentInstrumentIndex].SetName(Helpers.FlushString(input));
+                App.CurrentModule.SetDirty();
+            }
+        }
     }
 }

@@ -339,7 +339,7 @@ namespace WaveTracker {
                     MessageDialog.Icon.Question,
                     ["Yes", "No", "Cancel"],
                     callback
-                    );
+            );
         }
 
         /// <summary>

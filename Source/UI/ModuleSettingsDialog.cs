@@ -147,12 +147,15 @@ namespace WaveTracker.UI {
                 }
 
                 songsList.Update();
-                songTitle.Text = songsList.SelectedItem.Name;
-                songTitle.Update();
+
                 if (songTitle.ValueWasChangedInternally) {
                     songsList.SelectedItem.Name = songTitle.Text;
                     App.CurrentModule.SetDirty();
                 }
+                else {
+                    songTitle.Text = songsList.SelectedItem.Name;
+                }
+                songTitle.Update();
 
                 numberOfChannels.Update();
                 tickSpeedMode.Update();

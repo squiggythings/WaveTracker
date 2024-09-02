@@ -3,7 +3,6 @@
 
 namespace WaveTracker.UI {
     public class Textbox : Clickable {
-        private Forms.EnterText dialog;
         public bool canEdit = true;
         private string label;
         private string textPrefix = "";
@@ -83,14 +82,20 @@ namespace WaveTracker.UI {
 
         public void StartDialog() {
             Input.DialogStarted();
-            // dialog = new Forms.EnterText();
-            // dialog.textBox.Text = Text;
-            // dialog.label.Text = label;
+
             // dialog.textBox.MaxLength = MaxLength;
-            // if (dialog.ShowDialog() == DialogResult.OK) {
-            //     Text = Helpers.FlushString(dialog.textBox.Text);
-            //     ValueWasChangedInternally = true;
-            // }
+            Dialogs.enterTextDialog.Open(
+                label,
+                Text,
+                dialogCallback
+            );
+        }
+
+        private void dialogCallback(string input) {
+            if (input != null) {
+                Text = Helpers.FlushString(input);
+                ValueWasChangedInternally = true;
+            }
         }
     }
 }

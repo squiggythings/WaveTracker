@@ -1,4 +1,6 @@
-﻿namespace WaveTracker.UI {
+﻿using WaveTracker.Forms;
+
+namespace WaveTracker.UI {
     public static class Dialogs {
         public static ModuleSettingsDialog moduleSettings;
         public static ColorPickerDialog colorPicker;
@@ -14,6 +16,7 @@
         public static ConfigurationDialog configurationDialog;
 
         public static MessageDialog messageDialog;
+        public static EnterText enterTextDialog;
 
         public static void Initialize() {
             moduleSettings = new ModuleSettingsDialog();
@@ -30,6 +33,7 @@
             configurationDialog = new ConfigurationDialog();
 
             messageDialog = new MessageDialog();
+            enterTextDialog = new EnterText("hmmm");
         }
 
         public static void Update() {
@@ -47,6 +51,7 @@
             colorPicker.Update();
 
             messageDialog.Update();
+            enterTextDialog.Update();
         }
 
         public static void Draw() {
@@ -64,6 +69,7 @@
             colorPicker.Draw();
 
             messageDialog.Draw();
+            enterTextDialog.Draw();
         }
     }
 }
