@@ -58,6 +58,7 @@ namespace WaveTracker.UI {
         public void SetValueLimits(int min, int max) {
             this.min = min;
             this.max = max;
+            ArgumentOutOfRangeException.ThrowIfLessThan(max, min);
             if (Value < min) {
                 Value = min;
             }
