@@ -58,7 +58,6 @@ namespace WaveTracker.UI {
                         }
                         else {
                             App.PatternEditor.MoveToFrame(App.PatternEditor.cursorPosition.Frame + Offset);
-                            App.PatternEditor.GoToTopOfFrame();
                         }
                     }
                     if (ThisFrameIndex < FrameSequence.Count && ThisFrameIndex >= 0) {
