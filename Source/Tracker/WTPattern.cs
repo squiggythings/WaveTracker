@@ -84,7 +84,7 @@ namespace WaveTracker.Tracker {
                         return;
                     }
                     if ((char)this[lastRow, channel, CellType.Effect1 + effectColumn * 2] == 'D') {
-                        nextFrame = currentFrame + 1;
+                        nextFrame = (currentFrame + 1) % ParentSong.FrameSequence.Count;
                         nextRow = this[lastRow, channel, CellType.Effect1Parameter + effectColumn * 2];
                         return;
                     }
