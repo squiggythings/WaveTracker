@@ -52,7 +52,6 @@ namespace WaveTracker.Audio {
         private float pitchFallOffset; // 1xx and 2xx commands
         private float pitchFallSpeed; // 1xx and 2xx commands
         private float portaSpeed; // 3xx command (in samples)
-        private float portaTime;
         private float bendSpeed; // Qxy/Rxy command (in samples)
         private float bendOffset;
         private int targetBendAmt;
@@ -349,7 +348,6 @@ namespace WaveTracker.Audio {
             lastNote = channelNote;
             channelNotePorta = channelNote;
             portaSpeed = 0;
-            portaTime = 0;
             SampleStartOffset = 0;
             waveSyncAmt.Reset(0);
             bendSpeed = 0;
@@ -406,8 +404,6 @@ namespace WaveTracker.Audio {
                 if (portaSpeed == 0) {
                     channelNotePorta = channelNote;
                 }
-
-                portaTime = 0;
                 noteOn = true;
                 _state = VoiceState.On;
             }
@@ -498,10 +494,6 @@ namespace WaveTracker.Audio {
 
             if (pitchFallSpeed != 0) {
                 pitchFallOffset += pitchFallSpeed * deltaTime * 2;
-            }
-
-            if (portaTime < 2) {
-                portaTime += deltaTime * (portaSpeed == 0 ? AudioEngine.SampleRate : portaSpeed);
             }
 
             if (channelNotePorta > channelNote) {
