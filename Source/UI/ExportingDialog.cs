@@ -46,7 +46,7 @@ namespace WaveTracker.UI {
                 int procRow = Math.Clamp(Audio.AudioEngine.RenderProcessedRows, 0, maxRow);
 
                 float fraction = (float)procRow / maxRow;
-                WriteCenter(Helpers.TrimTextToWidth(width - 20, "Saving to " + Path), width / 2, 16, UIColors.label); ;
+                WriteCenter(Helpers.TrimTextToWidth(width - 20, "Saving to " + Path), width / 2, 16, UIColors.label);
                 DrawRect(10, 29, barwidth, 1, UIColors.labelLight);
                 WriteCenter("Row " + procRow + "/" + maxRow + ": (" + (int)(fraction * 100) + "% done)", width / 2, 35, UIColors.label);
                 Color shadow = new Color(126, 133, 168);

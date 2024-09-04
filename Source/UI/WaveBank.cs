@@ -4,7 +4,7 @@ using WaveTracker.Tracker;
 
 namespace WaveTracker.UI {
     public class WaveBank : Panel {
-        const int MAX_WIDTH = 448;
+        private const int MAX_WIDTH = 448;
         private WaveBankElement[] waveBankElements;
         public static int currentWaveID;
         public static int lastSelectedWave;

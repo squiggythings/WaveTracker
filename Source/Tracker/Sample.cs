@@ -40,7 +40,6 @@ namespace WaveTracker.Tracker {
         [ProtoMember(11)]
         public string name;
 
-
         public Sample() {
             loopPoint = 0;
 

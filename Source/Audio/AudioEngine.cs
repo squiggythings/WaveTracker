@@ -1,5 +1,6 @@
 ﻿using NAudio.CoreAudioApi;
 using NAudio.Wave;
+using ProtoBuf;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -8,8 +9,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using WaveTracker.Tracker;
 using WaveTracker.UI;
-using ProtoBuf;
-
 
 namespace WaveTracker.Audio {
     public static class AudioEngine {

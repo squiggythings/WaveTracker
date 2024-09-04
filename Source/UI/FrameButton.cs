@@ -110,7 +110,6 @@ namespace WaveTracker.UI {
             enabled = ThisFrameIndex >= 0 && ThisFrameIndex <= FrameSequence.Count;
         }
 
-
         private void InsertFrameAfterThis() {
             if (ThisFrameIndex == App.PatternEditor.cursorPosition.Frame) {
                 App.PatternEditor.InsertNewFrame();
@@ -161,7 +160,6 @@ namespace WaveTracker.UI {
         private void SetThisPatternIndex() {
             Dialogs.setFramePatternDialog.Open(ThisFrame);
         }
-
 
         private Color GetTextColor() {
             bool matchesPatternIndex = ThisFrame.PatternIndex == App.CurrentSong.FrameSequence[App.PatternEditor.cursorPosition.Frame].PatternIndex;

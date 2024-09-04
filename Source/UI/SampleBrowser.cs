@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using WaveTracker.Audio;
 using WaveTracker.Tracker;
 
 namespace WaveTracker.UI {
