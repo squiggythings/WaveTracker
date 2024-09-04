@@ -42,7 +42,7 @@ namespace WaveTracker.UI {
 
         public void Update() {
             if (Input.focus == null) {
-                if (RightClicked &&) {
+                if (RightClicked && ThisFrameIndex < FrameSequence.Count && ThisFrameIndex >= 0) {
                     ContextMenu.Open(new Menu([
                     new MenuOption("Insert Frame",InsertFrameAfterThis, App.CurrentSong.FrameSequence.Count < 100),
                         new MenuOption("Remove Frame",RemoveThisFrame, App.CurrentSong.FrameSequence.Count > 1),
@@ -53,7 +53,7 @@ namespace WaveTracker.UI {
                         null,
                         new MenuOption("Increase Pattern",IncreaseThisFramePattern, ThisFrame.PatternIndex < 99),
                         new MenuOption("Decrease Pattern",DecreaseThisFramePattern, ThisFrame.PatternIndex > 0),
-                        new MenuOption("Make unique", MakeThisFrameUnique),
+                        new MenuOption("Make unique", MakeThisFrameUnique, !ThisFrame.GetPattern().IsEmpty),
                         new MenuOption("Set pattern...", SetThisPatternIndex)
                 ]));
                 }
@@ -64,7 +64,7 @@ namespace WaveTracker.UI {
                         App.CurrentSong.AddNewFrame();
                     }
                 }
-                else if (Clicked && Offset < 12) {
+                else if (Offset < 12 && Offset < 12) {
                     SetTooltip("Frame " + ThisFrameIndex.ToString("D2"), "Click+Drag or Shift+Scroll to change pattern number");
                     if (Clicked && !isDragging) {
                         if (Playback.IsPlaying && App.PatternEditor.FollowMode) {

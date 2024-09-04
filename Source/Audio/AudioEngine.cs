@@ -8,6 +8,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using WaveTracker.Tracker;
 using WaveTracker.UI;
+using ProtoBuf;
+
 
 namespace WaveTracker.Audio {
     public static class AudioEngine {
@@ -50,10 +52,7 @@ namespace WaveTracker.Audio {
             audioProvider = new AudioProvider();
             SetSampleRate(App.Settings.Audio.SampleRate, App.Settings.Audio.Oversampling);
             GetAudioOutputDevices();
-            int index = Array.IndexOf(OutputDeviceNames, App.Settings.Audio.OutputDevice);
-            wasapiOut = index < 1 ? new WasapiOut() : new WasapiOut(OutputDevices[index], AudioClientShareMode.Shared, false, 0);
-            wasapiOut.Init(audioProvider);
-            wasapiOut.Play();
+            Reset();
         }
 
         /// <summary>
@@ -99,11 +98,16 @@ namespace WaveTracker.Audio {
 
         public static void Reset() {
             PianoInput.ClearAllNotes();
-            wasapiOut.Stop();
+            wasapiOut?.Stop();
             SetSampleRate(App.Settings.Audio.SampleRate, App.Settings.Audio.Oversampling);
             Thread.Sleep(1);
             int index = Array.IndexOf(OutputDeviceNames, App.Settings.Audio.OutputDevice);
-            wasapiOut = index < 1 ? new WasapiOut() : new WasapiOut(OutputDevices[index], AudioClientShareMode.Shared, false, 0);
+            if (index < 1) {
+                wasapiOut = new WasapiOut(AudioClientShareMode.Shared, true, App.Settings.Audio.DesiredLatency);
+            }
+            else {
+                wasapiOut = new WasapiOut(OutputDevices[index], AudioClientShareMode.Shared, true, App.Settings.Audio.DesiredLatency);
+            }
             wasapiOut.Init(audioProvider);
             wasapiOut.Play();
         }
@@ -232,12 +236,13 @@ namespace WaveTracker.Audio {
             };
         }
     }
+
+    [ProtoContract]
     public enum ResamplingMode {
         None,
         Linear,
         Mix,
     }
-
     public enum SampleRate {
         _11025,
         _22050,
