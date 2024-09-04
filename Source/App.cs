@@ -443,6 +443,7 @@ namespace WaveTracker {
         public void ClosingForm(object sender, System.ComponentModel.CancelEventArgs e) {
             if (!SaveLoad.IsSaved) {
                 e.Cancel = true;
+                ContextMenu.CloseCurrent();
                 SaveLoad.DoSaveChangesDialog(UnsavedChangesCallback);
             }
 
