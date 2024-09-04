@@ -184,9 +184,12 @@ namespace WaveTracker.UI {
             }
             // responsive height
             int bottomMargin = 8;
-            height = channelScrollbar.IsVisible
-                ? App.WindowHeight - y - bottomMargin - channelScrollbar.height
-                : App.WindowHeight - y - bottomMargin;
+            if (channelScrollbar.IsVisible) {
+                height = App.WindowHeight - y - bottomMargin - channelScrollbar.height;
+            }
+            else {
+                height = App.WindowHeight - y - bottomMargin;
+            }
 
             // responsive width
             int rightMargin = 156;

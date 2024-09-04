@@ -209,8 +209,7 @@ namespace WaveTracker {
 
         public static bool GetKeyRepeat(Keys key, KeyModifier modifier) {
 
-            return ModifierMatches(modifier)
-&& (currentKeyState.IsKeyDown(key) && !previousKeyState.IsKeyDown(key) || keyTimePairs[key] > KEY_REPEAT_DELAY);
+            return ModifierMatches(modifier) && (currentKeyState.IsKeyDown(key) && !previousKeyState.IsKeyDown(key) || keyTimePairs[key] > KEY_REPEAT_DELAY);
         }
 
         public static bool GetKeyUp(Keys key, KeyModifier modifier) {
@@ -220,8 +219,7 @@ namespace WaveTracker {
 
         public static bool GetClickUp(KeyModifier modifier) {
 
-            return ModifierMatches(modifier) && !cancelClick
-&& currentMouseState.LeftButton == ButtonState.Released && previousMouseState.LeftButton == ButtonState.Pressed;
+            return ModifierMatches(modifier) && !cancelClick && currentMouseState.LeftButton == ButtonState.Released && previousMouseState.LeftButton == ButtonState.Pressed;
         }
 
         public static bool GetSingleClickUp(KeyModifier modifier) {
@@ -230,8 +228,7 @@ namespace WaveTracker {
         }
         public static bool GetClickDown(KeyModifier modifier) {
 
-            return ModifierMatches(modifier) && !cancelClick
-&& currentMouseState.LeftButton == ButtonState.Pressed && previousMouseState.LeftButton == ButtonState.Released;
+            return ModifierMatches(modifier) && !cancelClick && currentMouseState.LeftButton == ButtonState.Pressed && previousMouseState.LeftButton == ButtonState.Released;
         }
         public static bool GetClick(KeyModifier modifier) {
 
@@ -245,13 +242,11 @@ namespace WaveTracker {
 
         public static bool GetRightClickUp(KeyModifier modifier) {
 
-            return ModifierMatches(modifier) && !cancelClick
-&& currentMouseState.RightButton == ButtonState.Released && previousMouseState.RightButton == ButtonState.Pressed;
+            return ModifierMatches(modifier) && !cancelClick && currentMouseState.RightButton == ButtonState.Released && previousMouseState.RightButton == ButtonState.Pressed;
         }
         public static bool GetRightClickDown(KeyModifier modifier) {
 
-            return ModifierMatches(modifier) && !cancelClick
-&& currentMouseState.RightButton == ButtonState.Pressed && previousMouseState.RightButton == ButtonState.Released;
+            return ModifierMatches(modifier) && !cancelClick && currentMouseState.RightButton == ButtonState.Pressed && previousMouseState.RightButton == ButtonState.Released;
         }
 
         public static bool GetDoubleClick(KeyModifier modifier) {
