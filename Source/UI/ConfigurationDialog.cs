@@ -49,6 +49,7 @@ namespace WaveTracker.UI {
             pages["Pattern Editor"].AddCheckbox("Fade volume column", "Fades the numbers in the volume column according to their value");
             pages["Pattern Editor"].AddCheckbox("Show previous/next frames", "Displays the next and previous frames as greyed out in the pattern editor");
             pages["Pattern Editor"].AddCheckbox("Ignore step when moving", "Ignore the step value in edit settings when moving the cursor. Only use it when inputting values");
+            pages["Pattern Editor"].AddCheckbox("Ignore step when deleting", "Ignore the step value in edit settings when deleting a note.");
             pages["Pattern Editor"].AddDropdown("Step after numeric input", "Defines cursor movement behavior when inputting numbers", ["Always", "At the end of a cell", "After cell, including effect", "Never"]);
             pages["Pattern Editor"].AddCheckbox("Wrap cursor horizontally", "Moving the cursor past the first or last channel will wrap around to the other side");
             pages["Pattern Editor"].AddCheckbox("Key repeat", "Enable key repetition when inputting notes and values");
@@ -146,6 +147,7 @@ namespace WaveTracker.UI {
             pages["Pattern Editor"]["Fade volume column"].ValueBool = App.Settings.PatternEditor.FadeVolumeColumn;
             pages["Pattern Editor"]["Show previous/next frames"].ValueBool = App.Settings.PatternEditor.ShowPreviousNextFrames;
             pages["Pattern Editor"]["Ignore step when moving"].ValueBool = App.Settings.PatternEditor.IgnoreStepWhenMoving;
+            pages["Pattern Editor"]["Ignore step when deleting"].ValueBool = App.Settings.PatternEditor.IgnoreStepWhenDeleting;
             pages["Pattern Editor"]["Step after numeric input"].ValueInt = (int)App.Settings.PatternEditor.StepAfterNumericInput;
             pages["Pattern Editor"]["Wrap cursor horizontally"].ValueBool = App.Settings.PatternEditor.WrapCursorHorizontally;
             pages["Pattern Editor"]["Key repeat"].ValueBool = App.Settings.PatternEditor.KeyRepeat;
@@ -216,6 +218,7 @@ namespace WaveTracker.UI {
             App.Settings.PatternEditor.FadeVolumeColumn = pages["Pattern Editor"]["Fade volume column"].ValueBool;
             App.Settings.PatternEditor.ShowPreviousNextFrames = pages["Pattern Editor"]["Show previous/next frames"].ValueBool;
             App.Settings.PatternEditor.IgnoreStepWhenMoving = pages["Pattern Editor"]["Ignore step when moving"].ValueBool;
+            App.Settings.PatternEditor.IgnoreStepWhenDeleting = pages["Pattern Editor"]["Ignore step when deleting"].ValueBool;
             App.Settings.PatternEditor.StepAfterNumericInput = (SettingsProfile.MoveToNextRowBehavior)pages["Pattern Editor"]["Step after numeric input"].ValueInt;
             App.Settings.PatternEditor.WrapCursorHorizontally = pages["Pattern Editor"]["Wrap cursor horizontally"].ValueBool;
             App.Settings.PatternEditor.KeyRepeat = pages["Pattern Editor"]["Key repeat"].ValueBool;

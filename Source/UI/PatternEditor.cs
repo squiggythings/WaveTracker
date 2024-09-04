@@ -1692,7 +1692,7 @@ namespace WaveTracker.UI {
                         SelectionPattern[cursorPosition.Row, column + 1] = WTPattern.EVENT_EMPTY;
                     }
                 }
-                MoveToRow(cursorPosition.Row + 1);
+                MoveToRow(cursorPosition.Row + (App.Settings.PatternEditor.IgnoreStepWhenDeleting ? 1 : InputStep));
             }
             AddToUndoHistory();
         }
