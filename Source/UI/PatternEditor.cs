@@ -397,7 +397,7 @@ namespace WaveTracker.UI {
             }
             #endregion
             #region selection with mouse
-            if (Input.GetClick(KeyModifier.None) && Input.MouseIsDragging && GlobalPointIsInBounds(Input.LastClickLocation)) {
+            if (Input.GetClick(KeyModifier.None) && Input.MouseIsDragging && GlobalPointIsInBounds(Input.LastClickLocation) && MouseX < App.WindowWidth - 12 && MouseY < App.WindowHeight - 12) {
                 if (!SelectionIsActive) {
                     SetSelectionStart(GetCursorPositionFromPoint(LastClickPos.X, LastClickPos.Y));
                     selection.IsActive = true;
@@ -1073,9 +1073,6 @@ namespace WaveTracker.UI {
             DrawRect(ROW_COLUMN_WIDTH - 1, -32, 1, height + 32, App.Settings.Colors.Theme["Channel separator"]);
             for (int i = FirstVisibleChannel; i <= LastVisibleChannel; ++i) {
                 ChannelHeaders[i].Draw();
-                //DrawRect(channelHeaders[i].x + channelHeaders[i].width - 1, -32, 3, 1, App.Settings.Appearance.Theme.rowSeparator);
-                //DrawRect(channelHeaders[i].x - 2, -32, 3, 1, App.Settings.Appearance.Theme.rowSeparator);
-                //DrawRect(channelHeaders[i].x + channelHeaders[i].width + 1, -32, 1, 1, App.Settings.Appearance.Theme.rowSeparator);
                 DrawRect(ChannelHeaders[i].x + ChannelHeaders[i].width, -32, 1, height + 32, App.Settings.Colors.Theme["Channel separator"]);
             }
             // DrawRect(channelHeaders[LastVisibleChannel].x + channelHeaders[LastVisibleChannel].x - 2, -32, 3, 1, App.Settings.Appearance.Theme.rowSeparator);
@@ -1124,17 +1121,8 @@ namespace WaveTracker.UI {
             Color emptyColor;
             if (isCursorOnThisRow) {
                 emptyColor = App.Settings.Colors.Theme["Empty dashes tint"].MultiplyWith(rowTextColor);
-                //emptyColor = EditMode ? App.Settings.Appearance.Theme["Current row empty dashes (editing)"] : App.Settings.Appearance.Theme["Current row empty dashes (default)"];
             }
             else {
-                //if (Playback.IsPlaying && Playback.position.Frame == frame && Playback.position.Row == row)
-                //    emptyColor = App.Settings.Appearance.Theme["Playback row empty dashes"];
-                //else if (row % App.CurrentSong.RowHighlightPrimary == 0)
-                //    emptyColor = App.Settings.Appearance.Theme["Empty dashes (primary highlight)"];
-                //else if (row % App.CurrentSong.RowHighlightSecondary == 0)
-                //    emptyColor = App.Settings.Appearance.Theme["Empty dashes (secondary highlight)"];
-                //else
-                //    emptyColor = App.Settings.Appearance.Theme["Empty dashes tint"].MultiplyWith(rowTextColor);
                 emptyColor = App.Settings.Colors.Theme["Empty dashes tint"].MultiplyWith(rowTextColor);
             }
             // draw note
@@ -1175,11 +1163,19 @@ namespace WaveTracker.UI {
                 WriteMonospaced("··", x + 22, y, emptyColor, 4);
             }
             else {
-                Color instrumentColor = instrumentValue < App.CurrentModule.Instruments.Count
-                    ? App.CurrentModule.Instruments[instrumentValue] is WaveInstrument
-                        ? App.Settings.Colors.Theme["Instrument (wave)"]
-                        : App.Settings.Colors.Theme["Instrument (sample)"]
-                    : Color.Red;
+                Color instrumentColor;
+                if (instrumentValue < App.CurrentModule.Instruments.Count) {
+                    if (App.CurrentModule.Instruments[instrumentValue] is WaveInstrument) {
+                        instrumentColor = App.Settings.Colors.Theme["Instrument (wave)"];
+                    }
+                    else {
+                        instrumentColor = App.Settings.Colors.Theme["Instrument (sample)"];
+                    }
+                }
+                else {
+                    instrumentColor = Color.Red;
+                }
+
                 WriteMonospaced(instrumentValue.ToString("D2"), x + 21, y, instrumentColor, 4);
             }
 
@@ -1452,7 +1448,7 @@ namespace WaveTracker.UI {
                 selectionEnd.Row = CurrentPattern.GetModifiedLength() - 1;
                 selectionEnd.Column = App.CurrentSong.GetLastCursorColumnOfChannel(selectionEnd.Channel);
             }
-            else {
+            else { // full channel
                 selection.IsActive = true;
                 SetSelectionStart(cursorPosition);
                 selectionStart.Row = 0;
@@ -1482,7 +1478,6 @@ namespace WaveTracker.UI {
         /// <summary>
         /// Pulls all cells below the given position up one, leaving a blank cell at the end.
         /// </summary>
-        /// <param name="pos"></param>
         private void PullCellsUp(int row, int cellColumn) {
             for (int i = row; i < 255; i++) {
                 SelectionPattern.SetCellRaw(i, cellColumn, (byte)SelectionPattern[i + 1, cellColumn]);
@@ -1493,7 +1488,6 @@ namespace WaveTracker.UI {
         /// <summary>
         /// Pushes all cell starting from pos down one. Creating a blank cell at pos
         /// </summary>
-        /// <param name="pos"></param>
         private void PushCellsDown(int row, int cellColumn) {
             for (int i = 255; i > row; i--) {
                 SelectionPattern.SetCellRaw(i, cellColumn, (byte)SelectionPattern[i - 1, cellColumn]);
