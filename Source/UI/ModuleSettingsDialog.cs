@@ -42,10 +42,10 @@ namespace WaveTracker.UI {
             numberOfChannels.SetTooltip("", "Change the number of channels in this module (1-24)");
 
             tickSpeedMode = new Dropdown(58, 192, this, scrollWrap: false);
-            tickSpeedMode.SetMenuItems(new string[] { "Default (60 Hz)", "Custom" });
+            tickSpeedMode.SetMenuItems(["Default (60 Hz)", "Custom"]);
 
-            tickRateSlider = new HorizontalSlider(width - 10 - 112, 212, 112, 14, this);
-            tickRateSlider.SetValueLimits(16, 240);
+            tickRateSlider = new HorizontalSlider(width - 122, 212, 96, 16, this);
+            tickRateSlider.SetValueLimits(16, 400);
             tickRateSlider.CoarseAdjustAmount = 16;
             tickRateSlider.FineAdjustAmount = 4;
 
