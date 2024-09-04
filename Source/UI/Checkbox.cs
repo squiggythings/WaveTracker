@@ -25,7 +25,7 @@ namespace WaveTracker.UI {
         }
 
         private Rectangle GetBounds(int num) {
-            return new Rectangle(440, num * 9, 9, 9);
+            return new Rectangle(400, 144 + num * 9, 9, 9);
         }
 
         public void DrawAsTabToggle() {

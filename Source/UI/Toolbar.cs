@@ -18,6 +18,7 @@ namespace WaveTracker.UI {
 
         public SpriteButton playback_play;
         public SpriteButton playback_playFromBeginning;
+        public SpriteButton playback_loopFrame;
         public SpriteButton playback_stop;
         public SpriteToggle playback_record;
 
@@ -71,6 +72,9 @@ namespace WaveTracker.UI {
             px += 15;
             playback_playFromBeginning = new SpriteButton(px, 0, 15, 15, 135, 0, this);
             playback_playFromBeginning.SetTooltip("Play From Beginning", "Play the song from the first frame");
+            px += 15;
+            playback_loopFrame = new SpriteButton(px, 0, 15, 15, 435, 0, this);
+            playback_loopFrame.SetTooltip("Loop current frame", "Play and loop the current frame");
             px += 15;
             playback_stop = new SpriteButton(px, 0, 15, 15, 150, 0, this);
             playback_stop.SetTooltip("Stop", "Stop playing");
@@ -134,6 +138,7 @@ namespace WaveTracker.UI {
 
             if (playback_play.Clicked) { Tracker.Playback.Play(); }
             if (playback_playFromBeginning.Clicked) { Tracker.Playback.PlayFromBeginning(); }
+            if (playback_loopFrame.Clicked) { Tracker.Playback.PlayAndLoopPattern(); }
             if (playback_stop.Clicked) { Tracker.Playback.Stop(); }
             playback_record.Value = App.PatternEditor.EditMode;
             playback_record.Update();
@@ -189,6 +194,7 @@ namespace WaveTracker.UI {
 
             playback_play.Draw();
             playback_playFromBeginning.Draw();
+            playback_loopFrame.Draw();
             playback_stop.Draw();
             playback_record.Draw();
 

@@ -114,6 +114,7 @@ namespace WaveTracker {
                 {"General\\Decrease octave", new KeyboardShortcut(Keys.OemOpenBrackets) },
                 {"General\\Play/Stop", new KeyboardShortcut(Keys.Enter) },
                 {"General\\Play from beginning", new KeyboardShortcut(Keys.F5) },
+                {"General\\Play and loop pattern", new KeyboardShortcut(Keys.Enter, KeyModifier.Shift) },
                 {"General\\Play from cursor", new KeyboardShortcut(Keys.Enter, KeyModifier.Alt) },
                 {"General\\Play row", new KeyboardShortcut(Keys.Enter, KeyModifier.Ctrl) },
                 {"General\\Stop", new KeyboardShortcut(Keys.F8) },
