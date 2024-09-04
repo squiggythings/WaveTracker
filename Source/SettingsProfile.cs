@@ -91,6 +91,7 @@ namespace WaveTracker {
             public int MasterVolume { get; set; } = 100;
             public SampleRate SampleRate { get; set; } = SampleRate._44100;
             public int Oversampling { get; set; } = 2;
+            public int DesiredLatency { get; set; } = 120;
         }
         public class CategoryVisualizer {
             public int PianoSpeed { get; set; } = 8;

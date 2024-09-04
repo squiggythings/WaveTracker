@@ -87,6 +87,7 @@ namespace WaveTracker.UI {
             pages["Audio"].AddBreak();
             pages["Audio"].AddLabel("Advanced");
             pages["Audio"].AddDropdown("Oversampling", "Higher values will reduce high frequency aliasing artefacts, at the expense of higher CPU usage \n Turn this down if audio is stuttering", ["1x", "2x (recommended)", "4x", "8x"], false);
+            pages["Audio"].AddNumberBox("Desired latency", "The desired delay of audio output. This is only a request. \n Lower latencies will be more responsive but run the risk of audio pops and higher CPU usage. \n Raise this to a higher value if you hear audio stutters or glitches.", 0, 500, displayMode: NumberBox.NumberDisplayMode.Milliseconds, boxWidth: 50);
 
             pages["Visualizer"].AddLabel("Piano");
             pages["Visualizer"].AddSlider("Note speed", "How fast notes scroll by in the piano roll, lower values are slower", 18, 95, 0, 1, 20);
@@ -171,6 +172,7 @@ namespace WaveTracker.UI {
             pages["Audio"]["Volume"].ValueInt = App.Settings.Audio.MasterVolume;
             pages["Audio"]["Sample rate"].ValueInt = (int)App.Settings.Audio.SampleRate;
             pages["Audio"]["Oversampling"].ValueInt = (int)Math.Log2(App.Settings.Audio.Oversampling);
+            pages["Audio"]["Desired latency"].ValueInt = App.Settings.Audio.DesiredLatency;
 
             pages["Visualizer"]["Note speed"].ValueInt = App.Settings.Visualizer.PianoSpeed;
             pages["Visualizer"]["Change note width by volume"].ValueBool = App.Settings.Visualizer.ChangeNoteWidthByVolume;
@@ -243,11 +245,14 @@ namespace WaveTracker.UI {
             App.Settings.Audio.MasterVolume = pages["Audio"]["Volume"].ValueInt;
             if (App.Settings.Audio.OutputDevice != pages["Audio"]["Output device"].ValueString ||
                 App.Settings.Audio.SampleRate != (Audio.SampleRate)pages["Audio"]["Sample rate"].ValueInt ||
-                App.Settings.Audio.Oversampling != (int)Math.Pow(2, pages["Audio"]["Oversampling"].ValueInt)) {
+                App.Settings.Audio.Oversampling != (int)Math.Pow(2, pages["Audio"]["Oversampling"].ValueInt) ||
+                App.Settings.Audio.DesiredLatency != pages["Audio"]["Desired latency"].ValueInt
+                ) {
 
                 App.Settings.Audio.OutputDevice = pages["Audio"]["Output device"].ValueString;
                 App.Settings.Audio.SampleRate = (Audio.SampleRate)pages["Audio"]["Sample rate"].ValueInt;
                 App.Settings.Audio.Oversampling = (int)Math.Pow(2, pages["Audio"]["Oversampling"].ValueInt);
+                App.Settings.Audio.DesiredLatency = pages["Audio"]["Desired latency"].ValueInt;
                 Audio.AudioEngine.Reset();
             }
 
