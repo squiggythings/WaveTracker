@@ -36,7 +36,7 @@ namespace WaveTracker.UI {
                 }
             }
             // draw the pressed note
-            if (pressedNote is >= 12 and < 132) {
+            if (pressedNote >= 12 && pressedNote < 132)
                 if (Helpers.IsNoteBlackKey(pressedNote)) {
                     DrawSprite((pressedNote - 12) * 4, 0, new Rectangle(52, 80, 4, 24));
                 }

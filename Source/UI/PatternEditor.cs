@@ -225,7 +225,7 @@ namespace WaveTracker.UI {
             if (RightClicked) {
                 ContextMenu.Open(CreateEditMenu());
             }
-            if (MouseY is < 0 and >= (-32)) {
+            if (MouseY < 0 && MouseY >= -32) {
                 if (MouseX < ROW_COLUMN_WIDTH || MouseX > LastChannelEndPos) {
                     if (MouseX < width) {
                         if (Input.GetClick(KeyModifier.None)) {
@@ -762,11 +762,11 @@ namespace WaveTracker.UI {
                             for (int c = selection.min.CellColumn; c <= selection.max.CellColumn; ++c) {
                                 if (SelectionPattern[r, c] != WTPattern.EVENT_EMPTY) {
                                     CellType cellType = WTPattern.GetCellTypeFromCellColumn(c);
-                                    if (cellType is not CellType.Note and
-                                        not CellType.Effect1 and
-                                        not CellType.Effect2 and
-                                        not CellType.Effect3 and
-                                        not CellType.Effect4) {
+                                    if (cellType != CellType.Note &&
+                                        cellType != CellType.Effect1 &&
+                                        cellType != CellType.Effect2 &&
+                                        cellType != CellType.Effect3 &&
+                                        cellType != CellType.Effect4) {
                                         SelectionPattern[r, c] += Input.MouseScrollWheel(KeyModifier.Shift);
                                         performedTask = true;
                                     }
@@ -821,11 +821,11 @@ namespace WaveTracker.UI {
                 for (int r = selection.min.Row; r <= selection.max.Row; ++r) {
                     for (int c = selection.min.CellColumn; c <= selection.max.CellColumn; ++c) {
                         CellType cellType = WTPattern.GetCellTypeFromCellColumn(c);
-                        if (cellType is not CellType.Note and
-                            not CellType.Effect1 and
-                            not CellType.Effect2 and
-                            not CellType.Effect3 and
-                            not CellType.Effect4) {
+                        if (cellType != CellType.Note &&
+                            cellType != CellType.Effect1 &&
+                            cellType != CellType.Effect2 &&
+                            cellType != CellType.Effect3 &&
+                            cellType != CellType.Effect4) {
                             if (!SelectionPattern.CellIsEmptyOrNoteCutRelease(r, c)) {
                                 SelectionPattern[r, c] -= 1;
                                 didSomething = true;
@@ -842,11 +842,11 @@ namespace WaveTracker.UI {
                 for (int r = selection.min.Row; r <= selection.max.Row; ++r) {
                     for (int c = selection.min.CellColumn; c <= selection.max.CellColumn; ++c) {
                         CellType cellType = WTPattern.GetCellTypeFromCellColumn(c);
-                        if (cellType is not CellType.Note and
-                            not CellType.Effect1 and
-                            not CellType.Effect2 and
-                            not CellType.Effect3 and
-                            not CellType.Effect4) {
+                        if (cellType != CellType.Note &&
+                            cellType != CellType.Effect1 &&
+                            cellType != CellType.Effect2 &&
+                            cellType != CellType.Effect3 &&
+                            cellType != CellType.Effect4) {
                             if (!SelectionPattern.CellIsEmptyOrNoteCutRelease(r, c)) {
                                 SelectionPattern[r, c] += 1;
                                 didSomething = true;
@@ -863,11 +863,11 @@ namespace WaveTracker.UI {
                 for (int r = selection.min.Row; r <= selection.max.Row; ++r) {
                     for (int c = selection.min.CellColumn; c <= selection.max.CellColumn; ++c) {
                         CellType cellType = WTPattern.GetCellTypeFromCellColumn(c);
-                        if (cellType is not CellType.Note and
-                            not CellType.Effect1 and
-                            not CellType.Effect2 and
-                            not CellType.Effect3 and
-                            not CellType.Effect4) {
+                        if (cellType != CellType.Note &&
+                            cellType != CellType.Effect1 &&
+                            cellType != CellType.Effect2 &&
+                            cellType != CellType.Effect3 &&
+                            cellType != CellType.Effect4) {
                             if (!SelectionPattern.CellIsEmptyOrNoteCutRelease(r, c)) {
                                 if (WTPattern.GetCellTypeFromCellColumn(c) == CellType.Effect1Parameter ||
                                     WTPattern.GetCellTypeFromCellColumn(c) == CellType.Effect2Parameter ||
@@ -894,11 +894,11 @@ namespace WaveTracker.UI {
                 for (int r = selection.min.Row; r <= selection.max.Row; ++r) {
                     for (int c = selection.min.CellColumn; c <= selection.max.CellColumn; ++c) {
                         CellType cellType = WTPattern.GetCellTypeFromCellColumn(c);
-                        if (cellType is not CellType.Note and
-                            not CellType.Effect1 and
-                            not CellType.Effect2 and
-                            not CellType.Effect3 and
-                            not CellType.Effect4) {
+                        if (cellType != CellType.Note &&
+                            cellType != CellType.Effect1 &&
+                            cellType != CellType.Effect2 &&
+                            cellType != CellType.Effect3 &&
+                            cellType != CellType.Effect4) {
                             if (!SelectionPattern.CellIsEmptyOrNoteCutRelease(r, c)) {
                                 if (WTPattern.GetCellTypeFromCellColumn(c) == CellType.Effect1Parameter ||
                                     WTPattern.GetCellTypeFromCellColumn(c) == CellType.Effect2Parameter ||
@@ -2124,7 +2124,6 @@ namespace WaveTracker.UI {
         public void DuplicateFrame() {
             App.CurrentSong.DuplicateFrame(cursorPosition.Frame);
             MoveToFrame(cursorPosition.Frame + 1);
-            App.CurrentModule.SetDirty();
         }
 
         /// <summary>

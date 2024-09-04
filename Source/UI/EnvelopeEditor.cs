@@ -496,9 +496,9 @@ namespace WaveTracker.UI {
             get { return (int)Math.Floor(drawingRegion.MouseX / (float)ColumnWidth); }
         }
 
-        private bool MouseIsInLoopRibbon { get { return MouseY is >= 0 and <= 8; } }
+        private bool MouseIsInLoopRibbon { get { return MouseY >= 0 && MouseY <= 8; } }
 
-        private bool MouseIsInReleaseRibbon { get { return MouseY is >= 10 and <= 18; } }
+        private bool MouseIsInReleaseRibbon { get { return MouseY >= 10 && MouseY <= 18; } }
 
         private bool PointIsInCanvas(Point p) {
             if (currentEnvelope.IsActive) {
@@ -544,7 +544,7 @@ namespace WaveTracker.UI {
                     break;
                 case Envelope.EnvelopeType.Arpeggio:
                 case Envelope.EnvelopeType.Wave:
-                    if (GetYPositionOfValue(val) is > 20 and < 219) {
+                    if (GetYPositionOfValue(val) > 20 && GetYPositionOfValue(val) < 219) {
                         DrawRect(GetXPositionOfColumn(i), GetYPositionOfValue(val), ColumnWidth, arpHeight, c);
                         if (shadow && ColumnWidth > 1) {
                             DrawRect(GetXPositionOfColumn(i) + ColumnWidth - 1, GetYPositionOfValue(val), 1, arpHeight, Color.LightGray);
