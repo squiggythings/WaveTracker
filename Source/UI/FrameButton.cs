@@ -42,13 +42,29 @@ namespace WaveTracker.UI {
 
         public void Update() {
             if (Input.focus == null) {
+                if (RightClicked &&) {
+                    ContextMenu.Open(new Menu([
+                    new MenuOption("Insert Frame",InsertFrameAfterThis, App.CurrentSong.FrameSequence.Count < 100),
+                        new MenuOption("Remove Frame",RemoveThisFrame, App.CurrentSong.FrameSequence.Count > 1),
+                        new MenuOption("Duplicate Frame",DuplicateThisFrame, App.CurrentSong.FrameSequence.Count < 100),
+                        null,
+                        new MenuOption("Move Left", MoveThisFrameLeft, ThisFrameIndex > 0),
+                        new MenuOption("Move Right", MoveThisFrameRight, ThisFrameIndex < App.CurrentSong.FrameSequence.Count - 1),
+                        null,
+                        new MenuOption("Increase Pattern",IncreaseThisFramePattern, ThisFrame.PatternIndex < 99),
+                        new MenuOption("Decrease Pattern",DecreaseThisFramePattern, ThisFrame.PatternIndex > 0),
+                        new MenuOption("Make unique", MakeThisFrameUnique),
+                        new MenuOption("Set pattern...", SetThisPatternIndex)
+                ]));
+                }
+
                 if (App.PatternEditor.cursorPosition.Frame + Offset == FrameSequence.Count && FrameSequence.Count < 100) {
                     SetTooltip("Add frame", "Add a new frame at the end of the song");
                     if (Clicked && Offset < 12) {
                         App.CurrentSong.AddNewFrame();
                     }
                 }
-                else if (Offset is < 12 and > (-12)) {
+                else if (Clicked && Offset < 12) {
                     SetTooltip("Frame " + ThisFrameIndex.ToString("D2"), "Click+Drag or Shift+Scroll to change pattern number");
                     if (Clicked && !isDragging) {
                         if (Playback.IsPlaying && App.PatternEditor.FollowMode) {
@@ -94,25 +110,95 @@ namespace WaveTracker.UI {
             enabled = ThisFrameIndex >= 0 && ThisFrameIndex <= FrameSequence.Count;
         }
 
-        public Color GetTextColor() {
+
+        private void InsertFrameAfterThis() {
+            if (ThisFrameIndex == App.PatternEditor.cursorPosition.Frame) {
+                App.PatternEditor.InsertNewFrame();
+            }
+            else {
+                App.CurrentSong.InsertNewFrame(ThisFrameIndex + 1);
+            }
+        }
+        private void DuplicateThisFrame() {
+            if (ThisFrameIndex == App.PatternEditor.cursorPosition.Frame) {
+                App.PatternEditor.DuplicateFrame();
+            }
+            else {
+                App.CurrentSong.DuplicateFrame(ThisFrameIndex);
+            }
+        }
+        private void RemoveThisFrame() {
+            App.CurrentSong.RemoveFrame(ThisFrameIndex);
+            if (App.PatternEditor.cursorPosition.Frame >= ThisFrameIndex && App.PatternEditor.cursorPosition.Frame > 0) {
+                App.PatternEditor.PreviousFrame();
+            }
+        }
+        private void MoveThisFrameRight() {
+            if (ThisFrameIndex == App.PatternEditor.cursorPosition.Frame) {
+                App.PatternEditor.MoveFrameRight();
+            }
+            else {
+                App.CurrentSong.SwapFrames(ThisFrameIndex, ThisFrameIndex + 1);
+            }
+        }
+        private void MoveThisFrameLeft() {
+            if (ThisFrameIndex == App.PatternEditor.cursorPosition.Frame) {
+                App.PatternEditor.MoveFrameLeft();
+            }
+            else {
+                App.CurrentSong.SwapFrames(ThisFrameIndex, ThisFrameIndex - 1);
+            }
+        }
+        private void IncreaseThisFramePattern() {
+            ThisFrame.PatternIndex++;
+        }
+        private void DecreaseThisFramePattern() {
+            ThisFrame.PatternIndex--;
+        }
+        private void MakeThisFrameUnique() {
+            App.CurrentSong.MakeFrameUnique(ThisFrameIndex);
+        }
+        private void SetThisPatternIndex() {
+            Dialogs.setFramePatternDialog.Open(ThisFrame);
+        }
+
+
+        private Color GetTextColor() {
             bool matchesPatternIndex = ThisFrame.PatternIndex == App.CurrentSong.FrameSequence[App.PatternEditor.cursorPosition.Frame].PatternIndex;
-            return Offset is < 12 and > (-12)
-                ? Offset == 0
-                    ? Color.White
-                    : IsHovered || isDragging
-                    ? matchesPatternIndex ? Color.White : new Color(147, 152, 178).Lerp(Color.White, 0.75f)
-                    : matchesPatternIndex ? new Color(147, 152, 178).Lerp(Color.White, 0.55f) : new Color(147, 152, 178)
-                : new Color(174, 176, 199);
+            if (Offset < 12 && Offset > -12) {
+                if (Offset == 0) {
+                    return Color.White;
+                }
+                else {
+                    if (IsHovered || isDragging) {
+                        return matchesPatternIndex ? Color.White : new Color(147, 152, 178).Lerp(Color.White, 0.75f);
+                    }
+                    else {
+                        return matchesPatternIndex ? new Color(147, 152, 178).Lerp(Color.White, 0.55f) : new Color(147, 152, 178);
+                    }
+                }
+            }
+            else {
+                return new Color(174, 176, 199);
+            }
         }
 
         public void Draw() {
             if (ThisFrameIndex >= 0 && ThisFrameIndex < FrameSequence.Count) {
                 // regular button
-                Color buttonColor = Offset == 0
-                    ? new Color(8, 124, 232)
-                    : !App.PatternEditor.FollowMode && Playback.IsPlaying && Playback.position.Frame - App.PatternEditor.cursorPosition.Frame == Offset
-                        ? App.Settings.Colors.Theme["Playback row"].AddTo(new Color(40, 20, 40))
-                        : IsPressed && Offset > -12 && Offset < 12 && !isDragging ? new Color(89, 96, 138) : new Color(64, 73, 115);
+                Color buttonColor;
+                if (Offset == 0) {
+                    buttonColor = new Color(8, 124, 232);
+                }
+                else {
+                    if (!App.PatternEditor.FollowMode && Playback.IsPlaying && Playback.position.Frame - App.PatternEditor.cursorPosition.Frame == Offset) {
+                        buttonColor = App.Settings.Colors.Theme["Playback row"].AddTo(new Color(40, 20, 40));
+                    }
+                    else {
+                        buttonColor = IsPressed && Offset > -12 && Offset < 12 && !isDragging ? new Color(89, 96, 138) : new Color(64, 73, 115);
+                    }
+                }
+
                 DrawRoundedRect(0, 0, width, height, buttonColor);
                 if (IsHovered && Input.CurrentModifier == KeyModifier.Shift) {
                     DrawRect(1, 0, width - 2, 1, Helpers.Alpha(Color.White, 70));

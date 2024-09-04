@@ -17,12 +17,17 @@ namespace WaveTracker.Tracker {
         public int Width { get { return cells[0].Length; } }
 
         /// <summary>
+        /// The height of this pattern in rows
+        /// </summary>
+        public int Height { get { return cells.Length; } }
+
+        /// <summary>
         /// Returns true if this pattern is empty
         /// </summary>
         public bool IsEmpty {
             get {
-                for (int row = 0; row < cells.Length; ++row) {
-                    for (int column = 0; column < cells[row].Length; ++column) {
+                for (int row = 0; row < Height; ++row) {
+                    for (int column = 0; column < Width; ++column) {
                         if (cells[row][column] != EVENT_EMPTY) {
                             return false;
                         }
@@ -39,7 +44,7 @@ namespace WaveTracker.Tracker {
         public WTPattern(WTSong parentSong) {
             ParentSong = parentSong;
             cells = new byte[256][];
-            for (int row = 0; row < cells.Length; row++) {
+            for (int row = 0; row < Height; row++) {
                 cells[row] = new byte[parentSong.ParentModule.ChannelCount * 11];
                 for (int column = 0; column < cells[row].Length; ++column) {
                     cells[row][column] = EVENT_EMPTY;
@@ -55,7 +60,7 @@ namespace WaveTracker.Tracker {
         public WTPattern Clone() {
             WTPattern clone = new WTPattern(ParentSong);
             clone.ParentSong = ParentSong;
-            for (int r = 0; r < cells.Length; r++) {
+            for (int r = 0; r < Height; r++) {
                 for (int c = 0; c < cells[r].Length; c++) {
                     clone.cells[r][c] = cells[r][c];
                 }
@@ -122,10 +127,10 @@ namespace WaveTracker.Tracker {
         /// </summary>
         /// <returns></returns>
         public string GetCellDataAsString() {
-            byte[] data = new byte[cells.Length * cells[0].Length];
+            byte[] data = new byte[Height * Width];
             int index = 0;
-            for (int column = 0; column < cells[0].Length; ++column) {
-                for (int row = 0; row < cells.Length; ++row) {
+            for (int column = 0; column < Width; ++column) {
+                for (int row = 0; row < Height; ++row) {
                     data[index] = cells[row][column];
                     index++;
                 }
@@ -141,7 +146,7 @@ namespace WaveTracker.Tracker {
             if (cellData == "") {
                 for (int row = 0; row < 256; ++row) {
                     cells[row] = new byte[ParentSong.ParentModule.ChannelCount * 11];
-                    for (int column = 0; column < cells[0].Length; ++column) {
+                    for (int column = 0; column < Width; ++column) {
                         cells[row][column] = WTPattern.EVENT_EMPTY;
                     }
                 }
@@ -168,7 +173,7 @@ namespace WaveTracker.Tracker {
         /// </summary>
         /// <param name="channelCount"></param>
         public void Resize() {
-            for (int row = 0; row < cells.Length; ++row) {
+            for (int row = 0; row < Height; ++row) {
                 byte[] resizedRow = new byte[ParentSong.ParentModule.ChannelCount * 11];
                 for (int column = 0; column < resizedRow.Length; ++column) {
                     resizedRow[column] = column < cells[row].Length ? cells[row][column] : WTPattern.EVENT_EMPTY;

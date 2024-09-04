@@ -40,20 +40,21 @@ namespace WaveTracker.UI {
                 bMoveRight.enabled = App.PatternEditor.cursorPosition.Frame < App.CurrentSong.FrameSequence.Count - 1;
                 bMoveLeft.enabled = App.PatternEditor.cursorPosition.Frame > 0;
                 if (scrollRegion.IsHovered && Input.focus == null) {
-                    if (scrollRegion.RightClicked) {
-                        ContextMenu.Open(new Menu([
-                        new MenuOption("Insert Frame",App.PatternEditor.InsertNewFrame, bNewFrame.enabled),
-                        new MenuOption("Remove Frame",App.PatternEditor.RemoveFrame, bDeleteFrame.enabled),
-                        new MenuOption("Duplicate Frame",App.PatternEditor.DuplicateFrame, bDuplicateFrame.enabled),
-                        null,
-                        new MenuOption("Move Left", App.PatternEditor.MoveFrameLeft, bMoveLeft.enabled),
-                        new MenuOption("Move Right", App.PatternEditor.MoveFrameRight, bMoveRight.enabled),
-                        null,
-                        new MenuOption("Increase Pattern",App.PatternEditor.IncreaseFramePatternIndex),
-                        new MenuOption("Decrease Pattern",App.PatternEditor.DecreaseFramePatternIndex),
-                        new MenuOption("Set pattern...",SetPatternIndex)
-                    ]));
-                    }
+                    //if (scrollRegion.RightClicked) {
+                    //    ContextMenu.Open(new Menu([
+                    //    new MenuOption("Insert Frame",App.PatternEditor.InsertNewFrame, bNewFrame.enabled),
+                    //    new MenuOption("Remove Frame",App.PatternEditor.RemoveFrame, bDeleteFrame.enabled),
+                    //    new MenuOption("Duplicate Frame",App.PatternEditor.DuplicateFrame, bDuplicateFrame.enabled),
+                    //    null,
+                    //    new MenuOption("Move Left", App.PatternEditor.MoveFrameLeft, bMoveLeft.enabled),
+                    //    new MenuOption("Move Right", App.PatternEditor.MoveFrameRight, bMoveRight.enabled),
+                    //    null,
+                    //    new MenuOption("Increase Pattern",App.PatternEditor.IncreaseFramePatternIndex),
+                    //    new MenuOption("Decrease Pattern",App.PatternEditor.DecreaseFramePatternIndex),
+                    //    new MenuOption("Make unique",App.PatternEditor.IncreaseFramePatternIndex),
+                    //    new MenuOption("Set pattern...",SetPatternIndex)
+                    //]));
+                    //}
                     if (!Input.GetClick(KeyModifier._Any)) {
                         if (Input.MouseScrollWheel(KeyModifier.None) < 0) {
                             App.PatternEditor.NextFrame();
@@ -88,10 +89,6 @@ namespace WaveTracker.UI {
                     }
                 }
             }
-        }
-
-        private void SetPatternIndex() {
-            Dialogs.setFramePatternDialog.Open(App.CurrentSong.FrameSequence[App.PatternEditor.cursorPosition.Frame]);
         }
 
         public new void Draw() {
