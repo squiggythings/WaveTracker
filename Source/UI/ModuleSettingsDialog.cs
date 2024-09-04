@@ -82,6 +82,9 @@ namespace WaveTracker.UI {
             if (tickRateSlider.Value == 60) {
                 tickSpeedMode.Value = 0;
             }
+            else {
+                tickSpeedMode.Value = 1;
+            }
             base.Open();
         }
 
