@@ -38,7 +38,7 @@ namespace WaveTracker.UI {
             if (DrawBorder) {
                 DrawRect(0, 0, width, height, ButtonColors.Round.backgroundColor);
             }
-            DrawSprite(1, 1, width - 2, height - 2, new Rectangle(400, 192, 4, 2), Color.White);
+            DrawSprite(1, 1, width - 2, height - 2, new Rectangle(416, 208, 4, 2), Color.White);
 
             // draw color
             DrawRect(1, 1, width - 2, height - 2, displayColor);
