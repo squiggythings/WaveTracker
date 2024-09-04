@@ -263,11 +263,11 @@ namespace WaveTracker.UI {
 
             #region home/end navigation
             // On home key press
-            if (App.Shortcuts["Pattern\\Jump to top of frame"].IsPressedRepeat) {
+            if (Input.GetKeyRepeat(App.Shortcuts["Pattern\\Jump to top of frame"].Key, KeyModifier.None)) {
                 GoToTopOfFrame();
             }
             // On end key press
-            if (App.Shortcuts["Pattern\\Jump to bottom of frame"].IsPressedRepeat) {
+            if (Input.GetKeyRepeat(App.Shortcuts["Pattern\\Jump to bottom of frame"].Key, KeyModifier.None)) {
                 GoToBottomOfFrame();
             }
             #endregion
@@ -394,6 +394,39 @@ namespace WaveTracker.UI {
                 else {
                     SetSelectionEnd(cursorPosition);
                 }
+            }
+            if (Input.GetKeyRepeat(Keys.PageUp, KeyModifier.Shift)) {
+                if (!SelectionIsActive) {
+                    SetSelectionStart(cursorPosition);
+                    selection.IsActive = true;
+                }
+                MoveToRow(cursorPosition.Row - App.Settings.PatternEditor.PageJumpAmount);
+                SetSelectionEnd(cursorPosition);
+            }
+            if (Input.GetKeyRepeat(Keys.PageDown, KeyModifier.Shift)) {
+                if (!SelectionIsActive) {
+                    SetSelectionStart(cursorPosition);
+                    selection.IsActive = true;
+                }
+                MoveToRow(cursorPosition.Row + App.Settings.PatternEditor.PageJumpAmount);
+                SetSelectionEnd(cursorPosition);
+            }
+            if (Input.GetKeyRepeat(App.Shortcuts["Pattern\\Jump to top of frame"].Key, KeyModifier.Shift)) {
+                if (!SelectionIsActive) {
+                    SetSelectionStart(cursorPosition);
+                    selection.IsActive = true;
+                }
+                GoToTopOfFrame();
+                SetSelectionEnd(cursorPosition);
+            }
+            // On end key press
+            if (Input.GetKeyRepeat(App.Shortcuts["Pattern\\Jump to bottom of frame"].Key, KeyModifier.Shift)) {
+                if (!SelectionIsActive) {
+                    SetSelectionStart(cursorPosition);
+                    selection.IsActive = true;
+                }
+                GoToBottomOfFrame();
+                SetSelectionEnd(cursorPosition);
             }
             #endregion
             #region selection with mouse
