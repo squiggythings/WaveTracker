@@ -1,9 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using WaveTracker.Audio.Native;
 using WaveTracker.Tracker;
 using WaveTracker.UI;
 
@@ -36,7 +36,9 @@ namespace WaveTracker.Audio {
         // public static MMDeviceCollection OutputDevices { get; private set; }
         public static string[] OutputDeviceNames { get; private set; }
 
-        // private static AudioProvider audioProvider;
+        private static AudioProvider audioProvider;
+        private static Thread audioOutThread;
+        private static bool stopAudioThread = false;
 
         public static void ResetTicks() {
             _tickCounter = 0;
@@ -45,7 +47,10 @@ namespace WaveTracker.Audio {
         public static void Initialize() {
             Dialogs.exportingDialog = new ExportingDialog();
             CurrentBuffer = new float[2, PREVIEW_BUFFER_LENGTH];
-            // audioProvider = new AudioProvider();
+            audioProvider = new AudioProvider();
+            audioOutThread = new Thread(audioOutLoop);
+            audioOutThread.Start();
+
             SetSampleRate(App.Settings.Audio.SampleRate, App.Settings.Audio.Oversampling);
             // GetAudioOutputDevices();
             // int index = Array.IndexOf(OutputDeviceNames, App.Settings.Audio.OutputDevice);
@@ -92,7 +97,8 @@ namespace WaveTracker.Audio {
                 File.Delete(Dialogs.exportingDialog.Path + ".temp");
             }
 
-            // wasapiOut.Stop();
+            stopAudioThread = true;
+            audioOutThread.Join();
         }
 
         public static void Reset() {
@@ -144,76 +150,93 @@ namespace WaveTracker.Audio {
         //     return !CancelRenderFlag;
         // }
 
-        // public class AudioProvider : WaveProvider32 {
-        //     public override int Read(float[] buffer, int offset, int sampleCount) {
-        //         if (IsRendering) {
-        //             if (RenderProcessedRows >= RenderTotalRows || CancelRenderFlag) {
-        //                 Playback.Stop();
-        //                 IsRendering = false;
-        //                 return 0;
-        //             }
-        //         }
+        private static void audioOutLoop() {
+            AudioLinuxContext audioCtx = new AudioLinuxContext() {
+                latency = 15_000,
+            };
 
-        //         int OVERSAMPLE = App.Settings.Audio.Oversampling;
-        //         float delta = 1f / TrueSampleRate * (TickSpeed / 60f);
+            audioCtx.Open();
 
-        //         for (int n = 0; n < sampleCount; n += 2) {
-        //             buffer[n + offset] = buffer[n + offset + 1] = 0;
-        //             float leftSum;
-        //             float rightSum;
-        //             for (int j = 0; j < OVERSAMPLE; ++j) {
-        //                 float l;
-        //                 float r;
-        //                 leftSum = 0;
-        //                 rightSum = 0;
-        //                 for (int c = 0; c < ChannelManager.Channels.Count; ++c) {
-        //                     ChannelManager.Channels[c].ProcessSingleSample(out l, out r, delta);
-        //                     leftSum += l;
-        //                     rightSum += r;
-        //                 }
+            float[] buffer = new float[256];
 
-        //                 ChannelManager.PreviewChannel.ProcessSingleSample(out l, out r, delta);
-        //                 leftSum += l;
-        //                 rightSum += r;
-        //                 buffer[n + offset] = leftSum;
-        //                 buffer[n + offset + 1] = rightSum;
-        //             }
+            while (!stopAudioThread) {
+                audioProvider.Read(buffer, 0, buffer.Length);
+                audioCtx.Write(buffer);
+            }
 
-        //             buffer[n + offset] = Math.Clamp(buffer[n + offset] * (App.Settings.Audio.MasterVolume / 100f), -1, 1);
-        //             buffer[n + offset + 1] = Math.Clamp(buffer[n + offset + 1] * (App.Settings.Audio.MasterVolume / 100f), -1, 1);
-        //             if (!IsRendering) {
-        //                 CurrentBuffer[0, currBufferPosition] = buffer[n + offset];
-        //                 CurrentBuffer[1, currBufferPosition] = buffer[n + offset + 1];
-        //                 currBufferPosition++;
-        //                 if (currBufferPosition >= CurrentBuffer.Length / 2) {
-        //                     currBufferPosition = 0;
-        //                 }
-        //             }
+            audioCtx.Close();
+        }
 
-        //             if (App.VisualizerMode && !IsRendering) {
-        //                 if (_tickCounter % (int)(SamplesPerTick / ((float)App.Settings.Visualizer.PianoSpeed / (App.Settings.Visualizer.DrawInHighResolution ? 1 : App.Settings.General.ScreenScale))) == 0) {
-        //                     App.Visualizer.RecordChannelStates();
-        //                 }
-        //             }
+        public class AudioProvider {
+            public int Read(float[] buffer, int offset, int sampleCount) {
+                if (IsRendering) {
+                    if (RenderProcessedRows >= RenderTotalRows || CancelRenderFlag) {
+                        Playback.Stop();
+                        IsRendering = false;
+                        return 0;
+                    }
+                }
 
-        //             _tickCounter++;
-        //             if (_tickCounter >= SamplesPerTick) {
-        //                 _tickCounter = 0;
-        //                 Playback.Tick();
-        //                 foreach (Channel c in ChannelManager.Channels) {
-        //                     c.NextTick();
-        //                 }
-        //                 ChannelManager.PreviewChannel.NextTick();
-        //             }
-        //             if (IsRendering) {
-        //                 if (RenderProcessedRows >= RenderTotalRows || CancelRenderFlag) {
-        //                     return n;
-        //                 }
-        //             }
-        //         }
-        //         return sampleCount;
-        //     }
-        // }
+                int OVERSAMPLE = App.Settings.Audio.Oversampling;
+                float delta = 1f / TrueSampleRate * (TickSpeed / 60f);
+
+                for (int n = 0; n < sampleCount; n += 2) {
+                    buffer[n + offset] = buffer[n + offset + 1] = 0;
+                    float leftSum;
+                    float rightSum;
+                    for (int j = 0; j < OVERSAMPLE; ++j) {
+                        float l;
+                        float r;
+                        leftSum = 0;
+                        rightSum = 0;
+                        for (int c = 0; c < ChannelManager.Channels.Count; ++c) {
+                            ChannelManager.Channels[c].ProcessSingleSample(out l, out r, delta);
+                            leftSum += l;
+                            rightSum += r;
+                        }
+
+                        ChannelManager.PreviewChannel.ProcessSingleSample(out l, out r, delta);
+                        leftSum += l;
+                        rightSum += r;
+                        buffer[n + offset] = leftSum;
+                        buffer[n + offset + 1] = rightSum;
+                    }
+
+                    buffer[n + offset] = Math.Clamp(buffer[n + offset] * (App.Settings.Audio.MasterVolume / 100f), -1, 1);
+                    buffer[n + offset + 1] = Math.Clamp(buffer[n + offset + 1] * (App.Settings.Audio.MasterVolume / 100f), -1, 1);
+                    if (!IsRendering) {
+                        CurrentBuffer[0, currBufferPosition] = buffer[n + offset];
+                        CurrentBuffer[1, currBufferPosition] = buffer[n + offset + 1];
+                        currBufferPosition++;
+                        if (currBufferPosition >= CurrentBuffer.Length / 2) {
+                            currBufferPosition = 0;
+                        }
+                    }
+
+                    if (App.VisualizerMode && !IsRendering) {
+                        if (_tickCounter % (int)(SamplesPerTick / ((float)App.Settings.Visualizer.PianoSpeed / (App.Settings.Visualizer.DrawInHighResolution ? 1 : App.Settings.General.ScreenScale))) == 0) {
+                            App.Visualizer.RecordChannelStates();
+                        }
+                    }
+
+                    _tickCounter++;
+                    if (_tickCounter >= SamplesPerTick) {
+                        _tickCounter = 0;
+                        Playback.Tick();
+                        foreach (Channel c in ChannelManager.Channels) {
+                            c.NextTick();
+                        }
+                        ChannelManager.PreviewChannel.NextTick();
+                    }
+                    if (IsRendering) {
+                        if (RenderProcessedRows >= RenderTotalRows || CancelRenderFlag) {
+                            return n;
+                        }
+                    }
+                }
+                return sampleCount;
+            }
+        }
 
         /// <summary>
         /// Converts a sample rate enum into its actual numerical sample rate in Hz.
