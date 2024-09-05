@@ -240,7 +240,11 @@ namespace WaveTracker {
 
         protected override void LoadContent() {
 
-            Graphics.font = Content.Load<SpriteFont>("custom_font");
+            Graphics.defaultFont = Content.Load<SpriteFont>("custom_font");
+            Graphics.highResFonts = new SpriteFont[5];
+            for (int i = 0; i < 5; ++i) {
+                Graphics.highResFonts[i] = Content.Load<SpriteFont>("highres_font_" + (i + 1));
+            }
             Graphics.img = Content.Load<Texture2D>("img");
             Graphics.pixel = new Texture2D(GraphicsDevice, 1, 1);
             Graphics.pixel.SetData(new[] { Color.White });
@@ -333,7 +337,7 @@ namespace WaveTracker {
             graphics.PreferredBackBufferHeight = Window.ClientBounds.Height;
             graphics.ApplyChanges();
 
-            GraphicsDevice.SetRenderTarget(target);
+            GraphicsDevice.SetRenderTarget(null);
             GraphicsDevice.Clear(UIColors.black);
 
             targetBatch.Begin(SpriteSortMode.Deferred,
@@ -349,6 +353,18 @@ namespace WaveTracker {
             );
 
             Graphics.batch = targetBatch;
+            Graphics.Scale = Settings.General.ScreenScale;
+
+            if (Settings.General.UseHighResolutionText) {
+                Graphics.currentFont = Graphics.highResFonts[Settings.General.ScreenScale - 1];
+                Graphics.fontOffsetY = 2;
+                Graphics.fontScale = 1;
+            }
+            else {
+                Graphics.currentFont = Graphics.defaultFont;
+                Graphics.fontOffsetY = 5;
+                Graphics.fontScale = Settings.General.ScreenScale;
+            }
 
             if (!VisualizerMode) {
                 // draw pattern editor
@@ -404,15 +420,16 @@ namespace WaveTracker {
             targetBatch.End();
 
             //set rendering back to the back buffer
-            GraphicsDevice.SetRenderTarget(null);
+            //GraphicsDevice.SetRenderTarget(null);
 
             //render target to back buffer
-            targetBatch.Begin(SpriteSortMode.Deferred, BlendState.NonPremultiplied, Settings.General.ScreenScale % 1 == 0 ? SamplerState.PointClamp : SamplerState.LinearClamp, DepthStencilState.Default, RasterizerState.CullNone);
-            targetBatch.Draw(target, new Rectangle(0, 0, GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width * Settings.General.ScreenScale, GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height * Settings.General.ScreenScale), Color.White);
-            if (VisualizerMode && Input.focus == null && Settings.Visualizer.DrawInHighResolution) {
-                Visualizer.DrawPianoAndScopes();
-            }
-            targetBatch.End();
+            //targetBatch.Begin(SpriteSortMode.Deferred, BlendState.NonPremultiplied, SamplerState.AnisotropicClamp, DepthStencilState.Default, RasterizerState.CullNone);
+            //targetBatch.Draw(target, new Rectangle(0, 0, GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width * 1, GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height * 1), Color.White);
+            //Graphics.Scale = 1;
+            //if (VisualizerMode && Input.focus == null && Settings.Visualizer.DrawInHighResolution) {
+            //    Visualizer.DrawPianoAndScopes();
+            //}
+            //targetBatch.End();
 
             base.Draw(gameTime);
         }

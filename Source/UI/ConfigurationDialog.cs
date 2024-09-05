@@ -28,6 +28,7 @@ namespace WaveTracker.UI {
 
             pages["General"].AddLabel("General");
             pages["General"].AddDropdown("Screen scale", "The pixel scaling of WaveTracker's interface", ["100%", "200% (recommended)", "300%", "400%", "500%"]);
+            pages["General"].AddCheckbox("Use high resolution text", "Replaces the default stylized text with a more legible font");
             pages["General"].AddBreak();
             pages["General"].AddLabel("Metering");
             pages["General"].AddDropdown("Oscilloscope mode", "Mono: Display a single oscilloscope. \n Stereo-split: Display 2 oscilloscopes for left and right. \n Stereo-overlap: Overlap left and right in a single oscilloscope, highlighting the difference between them", ["Mono", "Stereo: split", "Stereo: overlap"], width: 88);
@@ -129,6 +130,8 @@ namespace WaveTracker.UI {
         private void ReadSettings() {
             // (pages["Audio"]["Output device:"] as ConfigurationOption.Dropdown).SetMenuItems(Audio.AudioEngine.dev);
             pages["General"]["Screen scale"].ValueInt = App.Settings.General.ScreenScale - 1;
+            pages["General"]["Use high resolution text"].ValueBool = App.Settings.General.UseHighResolutionText;
+
             pages["General"]["Oscilloscope mode"].ValueInt = App.Settings.General.OscilloscopeMode;
             pages["General"]["Meter decay rate"].ValueInt = App.Settings.General.MeterDecayRate;
             pages["General"]["Meter color mode"].ValueInt = App.Settings.General.MeterColorMode;
@@ -200,6 +203,7 @@ namespace WaveTracker.UI {
             }
             pages["General"]["Screen scale"].ValueInt = App.Settings.General.ScreenScale - 1;
 
+            App.Settings.General.UseHighResolutionText = pages["General"]["Use high resolution text"].ValueBool;
             App.Settings.General.OscilloscopeMode = pages["General"]["Oscilloscope mode"].ValueInt;
             App.Settings.General.MeterDecayRate = pages["General"]["Meter decay rate"].ValueInt;
             App.Settings.General.MeterColorMode = pages["General"]["Meter color mode"].ValueInt;
