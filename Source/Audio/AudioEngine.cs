@@ -192,7 +192,9 @@ namespace WaveTracker.Audio {
             }
 
             Wav wav = new Wav(Wav.FloatToPCM16(wavSamples.ToArray()), 2, (uint)SampleRate);
-            wav.Write(File.OpenWrite(path));
+
+            using (var file = File.OpenWrite(path))
+                wav.Write(file);
 
             resumeAudioThread();
             return !CancelRenderFlag;
