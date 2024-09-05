@@ -455,7 +455,9 @@ namespace WaveTracker {
                     }
                 });
 
-                // t.SetApartmentState(ApartmentState.STA);
+                if (OperatingSystem.IsWindows())
+                    t.SetApartmentState(ApartmentState.STA);
+
                 App.ForceUpdate();
                 t.Start();
                 t.Join();
@@ -496,7 +498,9 @@ namespace WaveTracker {
                     }
                 });
 
-                // t.SetApartmentState(ApartmentState.STA);
+                if (OperatingSystem.IsWindows())
+                    t.SetApartmentState(ApartmentState.STA);
+
                 App.ForceUpdate();
                 t.Start();
                 t.Join();
@@ -532,7 +536,9 @@ namespace WaveTracker {
                     }
                 });
 
-                // t.SetApartmentState(ApartmentState.STA);
+                if (OperatingSystem.IsWindows())
+                    t.SetApartmentState(ApartmentState.STA);
+
                 App.ForceUpdate();
                 t.Start();
                 t.Join();
@@ -568,7 +574,9 @@ namespace WaveTracker {
 
                 });
 
-                // t.SetApartmentState(ApartmentState.STA);
+                if (OperatingSystem.IsWindows())
+                    t.SetApartmentState(ApartmentState.STA);
+
                 App.ForceUpdate();
                 t.Start();
                 t.Join();
