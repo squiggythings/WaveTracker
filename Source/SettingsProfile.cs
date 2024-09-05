@@ -31,6 +31,8 @@ namespace WaveTracker {
         }
         public class CategoryGeneral {
             public int ScreenScale { get; set; } = 2;
+            public bool UseHighResolutionText { get; set; } = false;
+
             public int OscilloscopeMode { get; set; } = 2;
             public int MeterDecayRate { get; set; } = 2;
             public int MeterColorMode { get; set; } = 1;
