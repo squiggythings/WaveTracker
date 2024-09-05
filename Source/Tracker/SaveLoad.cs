@@ -361,9 +361,16 @@ namespace WaveTracker {
             }
         }
 
-        private static Dictionary<string, string> fileDialogFilters = new()
-        {
+        private static Dictionary<string, string> fileDialogFilters = new() {
             {"WaveTracker modules", "wtm"},
+        };
+
+        private static Dictionary<string, string> wavDialogFilters = new() {
+            {"Waveform Audio File Format", "wav"},
+        };
+
+        private static Dictionary<string, string> themeDialogFilters = new() {
+            {"WaveTraker Theme", "wttheme"},
         };
 
         /// <summary>
@@ -445,7 +452,7 @@ namespace WaveTracker {
                     Input.CancelClick();
 
                     string defaultPath = ReadPath("export", Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments));
-                    NfdStatus status = Nfd.SaveDialog(out string exportPath, fileDialogFilters, FileNameWithoutExtension, defaultPath);
+                    NfdStatus status = Nfd.SaveDialog(out string exportPath, wavDialogFilters, FileNameWithoutExtension, defaultPath);
 
                     if (status == NfdStatus.Ok) {
                         ret = exportPath;
@@ -483,11 +490,6 @@ namespace WaveTracker {
                     var instrumentName = ((SampleInstrument)App.InstrumentBank.GetCurrentInstrument).sample.name;
                     var fileName = instrumentName != null ? instrumentName : App.InstrumentBank.GetCurrentInstrument.name;
 
-                    Dictionary<string, string> wavDialogFilters = new()
-                    {
-                        {"Waveform Audio File Format", "wav"},
-                    };
-
                     NfdStatus status = Nfd.SaveDialog(out string exportPath, wavDialogFilters, fileName, defaultPath);
 
                     if (status == NfdStatus.Ok) {
@@ -522,11 +524,6 @@ namespace WaveTracker {
                     Input.CancelClick();
 
                     string defaultPath = ReadPath("wttheme", Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments));
-
-                    Dictionary<string, string> themeDialogFilters = new()
-                    {
-                        {"WaveTraker Theme", "wttheme"},
-                    };
 
                     NfdStatus status = Nfd.SaveDialog(out string themePath, themeDialogFilters, "New Theme", defaultPath);
 
