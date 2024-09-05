@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Threading;
@@ -38,7 +39,8 @@ namespace WaveTracker.Audio {
 
         private static AudioProvider audioProvider;
         private static Thread audioOutThread;
-        private static bool stopAudioThread = false;
+        private static bool doPauseAudioThread = false;
+        private static bool doStopAudioThread = false;
 
         public static void ResetTicks() {
             _tickCounter = 0;
@@ -48,15 +50,15 @@ namespace WaveTracker.Audio {
             Dialogs.exportingDialog = new ExportingDialog();
             CurrentBuffer = new float[2, PREVIEW_BUFFER_LENGTH];
             audioProvider = new AudioProvider();
-            audioOutThread = new Thread(audioOutLoop);
-            audioOutThread.Start();
 
             SetSampleRate(App.Settings.Audio.SampleRate, App.Settings.Audio.Oversampling);
+
             // GetAudioOutputDevices();
             // int index = Array.IndexOf(OutputDeviceNames, App.Settings.Audio.OutputDevice);
             // wasapiOut = index < 1 ? new WasapiOut() : new WasapiOut(OutputDevices[index], AudioClientShareMode.Shared, false, 0);
             // wasapiOut.Init(audioProvider);
-            // wasapiOut.Play();
+
+            startAudioThread();
         }
 
         /// <summary>
@@ -90,6 +92,37 @@ namespace WaveTracker.Audio {
         }
 
         /// <summary>
+        /// Resume outputting sound to the audio thread
+        /// </summary>
+        private static void resumeAudioThread() {
+            doPauseAudioThread = false;
+        }
+
+        /// <summary>
+        /// Pause outputting sound to the audio thread
+        /// </summary>
+        private static void pauseAudioThread() {
+            doPauseAudioThread = true;
+        }
+
+        /// <summary>
+        /// Open the audio thread and start outputting sound to it
+        /// </summary>
+        private static void startAudioThread() {
+            audioOutThread = new Thread(audioOutLoop);
+            audioOutThread.Name = "Audio Output";
+            audioOutThread.Start();
+        }
+
+        /// <summary>
+        /// Stop outputting sound to the audio thread and close it
+        /// </summary>
+        private static void stopAudioThread() {
+            doStopAudioThread = true;
+            audioOutThread.Join();
+        }
+
+        /// <summary>
         /// Stops the audio output connection
         /// </summary>
         public static void Stop() {
@@ -97,19 +130,20 @@ namespace WaveTracker.Audio {
                 File.Delete(Dialogs.exportingDialog.Path + ".temp");
             }
 
-            stopAudioThread = true;
-            audioOutThread.Join();
+            stopAudioThread();
         }
 
         public static void Reset() {
             PianoInput.ClearAllNotes();
-            // wasapiOut.Stop();
+            stopAudioThread();
+
             SetSampleRate(App.Settings.Audio.SampleRate, App.Settings.Audio.Oversampling);
             Thread.Sleep(1);
             // int index = Array.IndexOf(OutputDeviceNames, App.Settings.Audio.OutputDevice);
             // wasapiOut = index < 1 ? new WasapiOut() : new WasapiOut(OutputDevices[index], AudioClientShareMode.Shared, false, 0);
             // wasapiOut.Init(audioProvider);
-            // wasapiOut.Play();
+
+            startAudioThread();
         }
 
         public static async void RenderTo(string filepath, int maxloops) {
@@ -123,8 +157,7 @@ namespace WaveTracker.Audio {
             bool overwriting = File.Exists(filepath);
 
             bool b = await Task.Run(() => {
-                // return WriteToWaveFile(filepath + ".temp", audioProvider);
-                return true;
+                return WriteToWaveFile(filepath + ".temp", audioProvider);
             });
             Debug.WriteLine("Exported!");
             if (b) {
@@ -136,19 +169,34 @@ namespace WaveTracker.Audio {
             File.Delete(filepath + ".temp");
         }
 
-        // private static bool WriteToWaveFile(string path, IWaveProvider source) {
-        //     // wasapiOut.Stop();
-        //     IsRendering = true;
-        //     CancelRenderFlag = false;
-        //     _tickCounter = 0;
-        //     RenderProcessedRows = 0;
+        private static bool WriteToWaveFile(string path, AudioProvider source) {
+            pauseAudioThread();
 
-        //     ChannelManager.Reset();
-        //     Playback.PlayFromBeginning();
-        //     WaveFileWriter.CreateWaveFile(path, source);
-        //     // wasapiOut.Play();
-        //     return !CancelRenderFlag;
-        // }
+            IsRendering = true;
+            CancelRenderFlag = false;
+            _tickCounter = 0;
+            RenderProcessedRows = 0;
+
+            ChannelManager.Reset();
+            Playback.PlayFromBeginning();
+
+            List<float> wavSamples = new List<float>();
+
+            float[] buffer = new float[4096];
+            while (true) {
+                int count = audioProvider.Read(buffer, 0, buffer.Length);
+                if (count == 0)
+                    break;
+
+                wavSamples.AddRange(buffer[..count]);
+            }
+
+            Wav wav = new Wav(Wav.FloatToPCM16(wavSamples.ToArray()), 2, (uint)SampleRate);
+            wav.Write(File.OpenWrite(path));
+
+            resumeAudioThread();
+            return !CancelRenderFlag;
+        }
 
         private static void audioOutLoop() {
             AudioLinuxContext audioCtx = new AudioLinuxContext() {
@@ -159,9 +207,14 @@ namespace WaveTracker.Audio {
 
             float[] buffer = new float[256];
 
-            while (!stopAudioThread) {
-                audioProvider.Read(buffer, 0, buffer.Length);
-                audioCtx.Write(buffer);
+            while (!doStopAudioThread) {
+                if (doPauseAudioThread) {
+                    Thread.Sleep(10);
+                }
+                else {
+                    int sampleCount = audioProvider.Read(buffer, 0, buffer.Length);
+                    audioCtx.Write(buffer[..sampleCount]);
+                }
             }
 
             audioCtx.Close();
