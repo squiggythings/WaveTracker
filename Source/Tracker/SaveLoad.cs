@@ -361,12 +361,9 @@ namespace WaveTracker {
             }
         }
 
-
-
         private static Dictionary<string, string> fileDialogFilters = new()
         {
-            {"wtm", "WaveTracker modules"},
-            {"*", "All files"}
+            {"WaveTracker modules", "wtm"},
         };
 
         /// <summary>
@@ -486,8 +483,7 @@ namespace WaveTracker {
 
                     Dictionary<string, string> wavDialogFilters = new()
                     {
-                        {"wav", "Waveform Audio File Format"},
-                        {"*", "All files"}
+                        {"Waveform Audio File Format", "wav"},
                     };
 
                     NfdStatus status = Nfd.SaveDialog(out string exportPath, wavDialogFilters, fileName, defaultPath);
@@ -525,8 +521,7 @@ namespace WaveTracker {
 
                     Dictionary<string, string> themeDialogFilters = new()
                     {
-                        {"wttheme", "WaveTraker Theme"},
-                        {"*", "All files"}
+                        {"WaveTraker Theme", "wttheme"},
                     };
 
                     NfdStatus status = Nfd.SaveDialog(out string themePath, themeDialogFilters, "New Theme", defaultPath);
