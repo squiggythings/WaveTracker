@@ -13,12 +13,11 @@ using WaveTracker.UI;
 namespace WaveTracker {
     public class App : Game {
 
-        public const string VERSION = "1.0.1";
+        public const string VERSION = "1.0.2";
         private static App instance;
 
         private GraphicsDeviceManager graphics;
         private SpriteBatch targetBatch;
-        private RenderTarget2D target;
 
         /// <summary>
         /// The height of the app in scaled pixels
@@ -249,7 +248,6 @@ namespace WaveTracker {
             Graphics.pixel = new Texture2D(GraphicsDevice, 1, 1);
             Graphics.pixel.SetData(new[] { Color.White });
             targetBatch = new SpriteBatch(GraphicsDevice);
-            target = new RenderTarget2D(GraphicsDevice, GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width, GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height);
             SaveLoad.NewFile();
             SaveLoad.LoadFile(inputFilepath);
         }
