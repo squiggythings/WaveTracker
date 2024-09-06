@@ -352,13 +352,7 @@ namespace WaveTracker.UI {
                             }
                         }
                         Color labelColor = Channel.IsMuted ? new Color(126, 133, 168, 128) : new Color(126, 133, 168);
-                        if (App.Settings.Visualizer.DrawInHighResolution) {
-                            WriteTwiceAsBig(channelID + 1 + "", 4, -2, labelColor);
-                        }
-                        else {
-                            Write(channelID + 1 + "", 2, 1, labelColor);
-
-                        }
+                        Write(channelID + 1 + "", 2, 1, labelColor);
                         if (Channel.IsMuted) {
                             return;
                         }
