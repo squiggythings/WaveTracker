@@ -37,7 +37,7 @@ namespace WaveTracker.UI {
         private Dropdown loopMode;
         private NumberBox loopPoint;
         private SampleBrowser browser;
-        private Button normalize, reverse, fadeIn, fadeOut, amplifyUp, amplifyDown, invert, cut;
+        private Button normalize, reverse, fadeIn, fadeOut, amplifyUp, amplifyDown, invert, cut, removeDC;
         private CheckboxLabeled showInVisualizer;
         private int lastMouseHoverSample;
 
@@ -88,6 +88,10 @@ namespace WaveTracker.UI {
             amplifyDown = new Button("Amplify-", buttonsX, buttonsY, buttonsWidth, this);
             buttonsX += buttonsWidth + 1;
             cut = new Button("Cut", buttonsX, buttonsY, buttonsWidth, this);
+            buttonsX = 357;
+            buttonsY += 14;
+            removeDC = new Button("Remove DC", buttonsX, buttonsY, buttonsWidth, this);
+
 
             showInVisualizer = new CheckboxLabeled("Show in visualizer", 480, 245, 88, this);
             showInVisualizer.ShowCheckboxOnRight = true;
@@ -131,6 +135,7 @@ namespace WaveTracker.UI {
                                 new MenuOption("Fade Out", FadeOut),
                                 new MenuOption("Amplify+", AmplifyUp),
                                 new MenuOption("Amplify-", AmplifyDown),
+                                new MenuOption("Remove DC", RemoveDC),
                             }),
                             null,
                             new MenuOption("Export...", Sample.SaveToDisk),
@@ -202,6 +207,9 @@ namespace WaveTracker.UI {
                 }
                 if (reverse.Clicked) {
                     Reverse();
+                }
+                if(removeDC.Clicked) {
+                    RemoveDC();
                 }
                 cut.enabled = SelectionIsActive;
                 if (cut.Clicked) {
@@ -289,6 +297,11 @@ namespace WaveTracker.UI {
             App.CurrentModule.SetDirty();
         }
 
+        private void RemoveDC() {
+            Sample.RemoveDC();
+            App.CurrentModule.SetDirty();
+        }
+
         private void Deselect() {
             SelectionIsActive = false;
         }
@@ -355,6 +368,7 @@ namespace WaveTracker.UI {
             amplifyDown.Draw();
             amplifyUp.Draw();
             reverse.Draw();
+            removeDC.Draw();
             showInVisualizer.Draw();
             browser.Draw();
         }

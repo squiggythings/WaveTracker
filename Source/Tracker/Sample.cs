@@ -168,6 +168,31 @@ namespace WaveTracker.Tracker {
             }
         }
 
+        public void RemoveDC() {
+            if(Length > 0) {
+                // Calculate and subtract left channel avg
+                short avgL = (short)sampleDataAccessL.Average(x => {
+                    return x;
+                });
+
+                for (int i = 0; i < Length; i++) {
+                    sampleDataAccessL[i] -= avgL;
+                }
+
+                // Calculate and subtract right channel avg if stereo
+                if (IsStereo) {
+                    short avgR = (short)sampleDataAccessR.Average(x => {
+                        return x;
+                    });
+
+                    for (int i = 0; i < Length; i++) {
+                        sampleDataAccessR[i] -= avgR;
+                    }
+                }
+
+            }
+        }
+
         public void MixToMono() {
             for (int i = 0; i < Length; ++i) {
                 sampleDataAccessL[i] = (short)(sampleDataAccessL[i] / 2 + sampleDataAccessR[i] / 2);
