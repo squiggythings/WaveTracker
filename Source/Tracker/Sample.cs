@@ -1,11 +1,13 @@
 ﻿using Microsoft.Xna.Framework;
 using NAudio.Wave;
 using ProtoBuf;
+using SharpDX.MediaFoundation;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using WaveTracker.Audio;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace WaveTracker.Tracker {
     [Serializable]
@@ -83,7 +85,6 @@ namespace WaveTracker.Tracker {
         public void Normalize() {
             Normalize(0, Length);
         }
-
         public void Normalize(int start, int end) {
             float maxAmplitude = 0;
             for (int i = start; i < end; ++i) {
@@ -109,6 +110,7 @@ namespace WaveTracker.Tracker {
                 }
             }
         }
+
         public void Reverse() {
             Reverse(0, Length);
         }
@@ -118,6 +120,7 @@ namespace WaveTracker.Tracker {
                 Array.Reverse(sampleDataAccessR, start, end - start);
             }
         }
+
         public void FadeIn() {
             FadeIn(0, Length);
         }
@@ -130,6 +133,7 @@ namespace WaveTracker.Tracker {
                 }
             }
         }
+
         public void FadeOut() {
             FadeOut(0, Length);
         }
@@ -158,7 +162,6 @@ namespace WaveTracker.Tracker {
         public void Amplify(float factor) {
             Amplify(factor, 0, Length);
         }
-
         public void Amplify(float factor, int start, int end) {
             for (int i = start; i < end; i++) {
                 sampleDataAccessL[i] = (short)Math.Clamp(sampleDataAccessL[i] * factor, short.MinValue, short.MaxValue);
@@ -191,6 +194,23 @@ namespace WaveTracker.Tracker {
                 }
 
             }
+        }
+
+        public void ChangeBitDepth(int depth) {
+            for (int i = 0; i < Length; i++) {
+                sampleDataAccessL[i] = QuantizeSample(depth, sampleDataAccessL[i]);
+            }
+
+            if (IsStereo) {
+                for (int i = 0; i < Length; i++) {
+                    sampleDataAccessR[i] = QuantizeSample(depth, sampleDataAccessR[i]);
+                }
+            }
+        }
+        private short QuantizeSample(int bitDepth, short sample) {
+
+            int newDepthMax = (int)Math.Pow(2, bitDepth) - 1;
+            return (short)(Math.Floor(sample / (double)short.MaxValue * newDepthMax) * (short.MaxValue / newDepthMax));
         }
 
         public void MixToMono() {
@@ -380,4 +400,3 @@ namespace WaveTracker.Tracker {
         }
     }
 }
-

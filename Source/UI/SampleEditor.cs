@@ -38,6 +38,8 @@ namespace WaveTracker.UI {
         private NumberBox loopPoint;
         private SampleBrowser browser;
         private Button normalize, reverse, fadeIn, fadeOut, amplifyUp, amplifyDown, invert, cut, removeDC;
+        private Button bitCrush;
+        private HorizontalSlider bitCrushDepth;
         private CheckboxLabeled showInVisualizer;
         private int lastMouseHoverSample;
 
@@ -92,6 +94,9 @@ namespace WaveTracker.UI {
             buttonsY += 14;
             removeDC = new Button("Remove DC", buttonsX, buttonsY, buttonsWidth, this);
 
+            bitCrush = new Button("Bit Crush", 357, 245, buttonsWidth, this);
+            bitCrushDepth = new(357 + buttonsWidth + 10, 245, 48, 16, this);
+            bitCrushDepth.SetValueLimits(1, 16);
 
             showInVisualizer = new CheckboxLabeled("Show in visualizer", 480, 245, 88, this);
             showInVisualizer.ShowCheckboxOnRight = true;
@@ -136,6 +141,7 @@ namespace WaveTracker.UI {
                                 new MenuOption("Amplify+", AmplifyUp),
                                 new MenuOption("Amplify-", AmplifyDown),
                                 new MenuOption("Remove DC", RemoveDC),
+                                //new MenuOption("Bit Crush", BitCrush), This might need a popup
                             }),
                             null,
                             new MenuOption("Export...", Sample.SaveToDisk),
@@ -210,6 +216,10 @@ namespace WaveTracker.UI {
                 }
                 if(removeDC.Clicked) {
                     RemoveDC();
+                }
+                bitCrushDepth.Update();
+                if (bitCrush.Clicked) {
+                    BitCrush();
                 }
                 cut.enabled = SelectionIsActive;
                 if (cut.Clicked) {
@@ -302,6 +312,11 @@ namespace WaveTracker.UI {
             App.CurrentModule.SetDirty();
         }
 
+        private void BitCrush() {
+            Sample.ChangeBitDepth(bitCrushDepth.Value);
+            App.CurrentModule.SetDirty();
+        }
+
         private void Deselect() {
             SelectionIsActive = false;
         }
@@ -340,13 +355,16 @@ namespace WaveTracker.UI {
             Write(name + "(" + Sample.Length + " samples)", waveformRegion.x, waveformRegion.y - 9, UIColors.label);
             WriteRightAlign((Sample.Length / (float)AudioEngine.SampleRate).ToString("F5") + " seconds", waveformRegion.x + waveformRegion.width, waveformRegion.y - 9, UIColors.label);
 
-            if (Sample.IsStereo && Sample.Length > 0) {
-                DrawWaveform(waveformRegion.x, waveformRegion.y, Sample.sampleDataAccessL, waveformRegion.width, waveformRegion.height / 2);
-                DrawWaveform(waveformRegion.x, waveformRegion.y + waveformRegion.height / 2 + 1, Sample.sampleDataAccessR, waveformRegion.width, waveformRegion.height / 2);
+            if(Sample.Length > 0) {
+                if (Sample.IsStereo) {
+                    DrawWaveform(waveformRegion.x, waveformRegion.y, Sample.sampleDataAccessL, waveformRegion.width, waveformRegion.height / 2);
+                    DrawWaveform(waveformRegion.x, waveformRegion.y + waveformRegion.height / 2 + 1, Sample.sampleDataAccessR, waveformRegion.width, waveformRegion.height / 2);
+                }
+                else {
+                    DrawWaveform(waveformRegion.x, waveformRegion.y, Sample.sampleDataAccessL, waveformRegion.width, waveformRegion.height);
+                }
             }
-            else {
-                DrawWaveform(waveformRegion.x, waveformRegion.y, Sample.sampleDataAccessL, waveformRegion.width, waveformRegion.height);
-            }
+
             importSample.Draw();
             DrawSprite(importSample.x + importSample.width - 14, importSample.y + (importSample.IsPressed ? 3 : 2), new Rectangle(72, 81, 12, 9));
             loopMode.Draw();
@@ -369,6 +387,8 @@ namespace WaveTracker.UI {
             amplifyUp.Draw();
             reverse.Draw();
             removeDC.Draw();
+            bitCrush.Draw();
+            bitCrushDepth.Draw();
             showInVisualizer.Draw();
             browser.Draw();
         }
