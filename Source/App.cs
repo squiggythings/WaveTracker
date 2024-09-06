@@ -13,7 +13,7 @@ using WaveTracker.UI;
 namespace WaveTracker {
     public class App : Game {
 
-        public const string VERSION = "1.0.2";
+        public const string VERSION = "1.0.3";
         private static App instance;
 
         private GraphicsDeviceManager graphics;
@@ -392,8 +392,11 @@ namespace WaveTracker {
                     Visualizer.DrawPianoAndScopes();
                     Visualizer.DrawTracker();
                 }
-                else if (Input.focus == null) {
+                else {
                     Visualizer.DrawTracker();
+                    Graphics.Scale = 1;
+                    Visualizer.DrawPianoAndScopes();
+                    Graphics.Scale = Settings.General.ScreenScale;
                 }
             }
 
@@ -411,23 +414,7 @@ namespace WaveTracker {
             ContextMenu.Draw();
             Tooltip.Draw();
 
-            if (VisualizerMode && Input.focus == null && Settings.Visualizer.DrawInHighResolution) {
-                Visualizer.DrawTracker();
-            }
-
             targetBatch.End();
-
-            //set rendering back to the back buffer
-            //GraphicsDevice.SetRenderTarget(null);
-
-            //render target to back buffer
-            //targetBatch.Begin(SpriteSortMode.Deferred, BlendState.NonPremultiplied, SamplerState.AnisotropicClamp, DepthStencilState.Default, RasterizerState.CullNone);
-            //targetBatch.Draw(target, new Rectangle(0, 0, GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width * 1, GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height * 1), Color.White);
-            //Graphics.Scale = 1;
-            //if (VisualizerMode && Input.focus == null && Settings.Visualizer.DrawInHighResolution) {
-            //    Visualizer.DrawPianoAndScopes();
-            //}
-            //targetBatch.End();
 
             base.Draw(gameTime);
         }
