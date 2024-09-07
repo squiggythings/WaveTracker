@@ -426,11 +426,6 @@ namespace WaveTracker.Tracker {
                 if (frame < 0) { // CXX command
                     break;
                 }
-                //if (frame >= FrameSequence.Count) {
-                //    frame = 0;
-                //    row = 0;
-                //    loops--;
-                //}
             }
             return rows;
         }

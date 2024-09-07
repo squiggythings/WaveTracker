@@ -64,29 +64,27 @@ namespace WaveTracker.UI {
                         }
                     }
                 }
-                if (!Playback.IsPlaying) {
-                    if (bNewFrame.Clicked) {
-                        App.PatternEditor.InsertNewFrame();
-                    }
-                    if (bDuplicateFrame.Clicked || App.Shortcuts["Frame\\Duplicate frame"].IsPressedRepeat) {
-                        App.PatternEditor.DuplicateFrame();
-                    }
-                    if (bDeleteFrame.Clicked || App.Shortcuts["Frame\\Remove frame"].IsPressedRepeat) {
-                        App.PatternEditor.RemoveFrame();
-                    }
+                if (bNewFrame.Clicked) {
+                    App.PatternEditor.InsertNewFrame();
+                }
+                if (bDuplicateFrame.Clicked || App.Shortcuts["Frame\\Duplicate frame"].IsPressedRepeat) {
+                    App.PatternEditor.DuplicateFrame();
+                }
+                if (bDeleteFrame.Clicked || App.Shortcuts["Frame\\Remove frame"].IsPressedRepeat) {
+                    App.PatternEditor.RemoveFrame();
+                }
 
-                    if (bMoveRight.Clicked) {
-                        App.PatternEditor.MoveFrameRight();
-                    }
-                    if (bMoveLeft.Clicked) {
-                        App.PatternEditor.MoveFrameLeft();
-                    }
-                    if (App.Shortcuts["Frame\\Increase pattern value"].IsPressedRepeat) {
-                        App.PatternEditor.IncreaseFramePatternIndex();
-                    }
-                    if (App.Shortcuts["Frame\\Decrease pattern value"].IsPressedRepeat) {
-                        App.PatternEditor.DecreaseFramePatternIndex();
-                    }
+                if (bMoveRight.Clicked) {
+                    App.PatternEditor.MoveFrameRight();
+                }
+                if (bMoveLeft.Clicked) {
+                    App.PatternEditor.MoveFrameLeft();
+                }
+                if (App.Shortcuts["Frame\\Increase pattern value"].IsPressedRepeat) {
+                    App.PatternEditor.IncreaseFramePatternIndex();
+                }
+                if (App.Shortcuts["Frame\\Decrease pattern value"].IsPressedRepeat) {
+                    App.PatternEditor.DecreaseFramePatternIndex();
                 }
             }
         }

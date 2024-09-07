@@ -27,6 +27,13 @@ namespace WaveTracker.UI {
             }
         }
 
+        /// <summary>
+        /// Stores the frame that this button represented when its context menu was opened.
+        /// </summary>
+        private WTFrame contextMenuFrame;
+        private int contextMenuFrameIndex;
+
+
         private static List<WTFrame> FrameSequence {
             get {
                 return App.CurrentSong.FrameSequence;
@@ -43,17 +50,19 @@ namespace WaveTracker.UI {
         public void Update() {
             if (Input.focus == null) {
                 if (RightClicked && ThisFrameIndex < FrameSequence.Count && ThisFrameIndex >= 0) {
+                    contextMenuFrame = ThisFrame;
+                    contextMenuFrameIndex = ThisFrameIndex;
                     ContextMenu.Open(new Menu([
                     new MenuOption("Insert Frame",InsertFrameAfterThis, App.CurrentSong.FrameSequence.Count < 100),
                         new MenuOption("Remove Frame",RemoveThisFrame, App.CurrentSong.FrameSequence.Count > 1),
                         new MenuOption("Duplicate Frame",DuplicateThisFrame, App.CurrentSong.FrameSequence.Count < 100),
                         null,
-                        new MenuOption("Move Left", MoveThisFrameLeft, ThisFrameIndex > 0),
-                        new MenuOption("Move Right", MoveThisFrameRight, ThisFrameIndex < App.CurrentSong.FrameSequence.Count - 1),
+                        new MenuOption("Move Left", MoveThisFrameLeft, contextMenuFrameIndex > 0),
+                        new MenuOption("Move Right", MoveThisFrameRight, contextMenuFrameIndex < App.CurrentSong.FrameSequence.Count - 1),
                         null,
-                        new MenuOption("Increase Pattern",IncreaseThisFramePattern, ThisFrame.PatternIndex < 99),
-                        new MenuOption("Decrease Pattern",DecreaseThisFramePattern, ThisFrame.PatternIndex > 0),
-                        new MenuOption("Make unique", MakeThisFrameUnique, !ThisFrame.GetPattern().IsEmpty),
+                        new MenuOption("Increase Pattern",IncreaseThisFramePattern, contextMenuFrame.PatternIndex < 99),
+                        new MenuOption("Decrease Pattern",DecreaseThisFramePattern, contextMenuFrame.PatternIndex > 0),
+                        new MenuOption("Make unique", MakeThisFrameUnique, !contextMenuFrame.GetPattern().IsEmpty),
                         new MenuOption("Set pattern...", SetThisPatternIndex)
                 ]));
                 }
@@ -111,54 +120,56 @@ namespace WaveTracker.UI {
         }
 
         private void InsertFrameAfterThis() {
-            if (ThisFrameIndex == App.PatternEditor.cursorPosition.Frame) {
-                App.PatternEditor.InsertNewFrame();
-            }
-            else {
-                App.CurrentSong.InsertNewFrame(ThisFrameIndex + 1);
+            App.CurrentSong.InsertNewFrame(contextMenuFrameIndex + 1);
+            if (App.PatternEditor.cursorPosition.Frame <= contextMenuFrameIndex && App.PatternEditor.cursorPosition.Frame > 0) {
+                App.PatternEditor.NextFrame();
+                if (Playback.IsPlaying && App.PatternEditor.FollowMode) {
+                    Playback.GotoNextFrame();
+                }
             }
         }
         private void DuplicateThisFrame() {
-            if (ThisFrameIndex == App.PatternEditor.cursorPosition.Frame) {
-                App.PatternEditor.DuplicateFrame();
-            }
-            else {
-                App.CurrentSong.DuplicateFrame(ThisFrameIndex);
+            App.CurrentSong.DuplicateFrame(contextMenuFrameIndex);
+            if (App.PatternEditor.cursorPosition.Frame <= contextMenuFrameIndex && App.PatternEditor.cursorPosition.Frame > 0) {
+                App.PatternEditor.NextFrame();
+                if (Playback.IsPlaying && App.PatternEditor.FollowMode) {
+                    Playback.GotoNextFrame();
+                }
             }
         }
         private void RemoveThisFrame() {
-            App.CurrentSong.RemoveFrame(ThisFrameIndex);
-            if (App.PatternEditor.cursorPosition.Frame >= ThisFrameIndex && App.PatternEditor.cursorPosition.Frame > 0) {
+            App.CurrentSong.RemoveFrame(contextMenuFrameIndex);
+            if (App.PatternEditor.cursorPosition.Frame >= contextMenuFrameIndex && App.PatternEditor.cursorPosition.Frame > 0) {
                 App.PatternEditor.PreviousFrame();
             }
         }
         private void MoveThisFrameRight() {
-            if (ThisFrameIndex == App.PatternEditor.cursorPosition.Frame) {
+            if (contextMenuFrameIndex == App.PatternEditor.cursorPosition.Frame) {
                 App.PatternEditor.MoveFrameRight();
             }
             else {
-                App.CurrentSong.SwapFrames(ThisFrameIndex, ThisFrameIndex + 1);
+                App.CurrentSong.SwapFrames(contextMenuFrameIndex, contextMenuFrameIndex + 1);
             }
         }
         private void MoveThisFrameLeft() {
-            if (ThisFrameIndex == App.PatternEditor.cursorPosition.Frame) {
+            if (contextMenuFrameIndex == App.PatternEditor.cursorPosition.Frame) {
                 App.PatternEditor.MoveFrameLeft();
             }
             else {
-                App.CurrentSong.SwapFrames(ThisFrameIndex, ThisFrameIndex - 1);
+                App.CurrentSong.SwapFrames(contextMenuFrameIndex, contextMenuFrameIndex - 1);
             }
         }
         private void IncreaseThisFramePattern() {
-            ThisFrame.PatternIndex++;
+            contextMenuFrame.PatternIndex++;
         }
         private void DecreaseThisFramePattern() {
-            ThisFrame.PatternIndex--;
+            contextMenuFrame.PatternIndex--;
         }
         private void MakeThisFrameUnique() {
-            App.CurrentSong.MakeFrameUnique(ThisFrameIndex);
+            App.CurrentSong.MakeFrameUnique(contextMenuFrameIndex);
         }
         private void SetThisPatternIndex() {
-            Dialogs.setFramePatternDialog.Open(ThisFrame);
+            Dialogs.setFramePatternDialog.Open(contextMenuFrame);
         }
 
         private Color GetTextColor() {

@@ -1013,6 +1013,7 @@ namespace WaveTracker.UI {
                 SnapToPlaybackPosition();
             }
             renderCursorPos = cursorPosition;
+            renderCursorPos.Normalize(App.CurrentSong);
             DrawRect(0, 0, width, height, App.Settings.Colors.Theme["Row background"]);
 
             DrawHeaderRect(0, -32, width);
@@ -1054,7 +1055,7 @@ namespace WaveTracker.UI {
             }
 
             // draw cursor behind text if the cursor cel is not empty
-            if (!CurrentPattern.CellIsEmpty(renderCursorPos.Row, renderCursorPos.Channel, renderCursorPos.Column.ToCellType())) {
+            if (!App.CurrentSong[renderCursorPos.Frame].CellIsEmpty(renderCursorPos.Row, renderCursorPos.Channel, renderCursorPos.Column.ToCellType())) {
                 DrawCursor(ref renderCursorPos);
             }
 
@@ -1099,7 +1100,7 @@ namespace WaveTracker.UI {
             }
 
             // draw cursor infront of text if the cursor cel is empty
-            if (CurrentPattern.CellIsEmpty(renderCursorPos.Row, renderCursorPos.Channel, renderCursorPos.Column.ToCellType())) {
+            if (App.CurrentSong[renderCursorPos.Frame].CellIsEmpty(renderCursorPos.Row, renderCursorPos.Channel, renderCursorPos.Column.ToCellType())) {
                 DrawCursor(ref renderCursorPos);
             }
 
@@ -2201,6 +2202,7 @@ namespace WaveTracker.UI {
         /// </summary>
         public void SnapToPlaybackPosition() {
             if (FollowMode) {
+                Playback.position.Normalize(App.CurrentSong);
                 cursorPosition.Frame = Playback.position.Frame;
                 cursorPosition.Row = Playback.position.Row;
             }
@@ -2511,42 +2513,6 @@ namespace WaveTracker.UI {
         private readonly Dictionary<string, int> KeyInputs_Piano = new Dictionary<string, int>() {
             { "Piano\\Note off", WTPattern.EVENT_NOTE_CUT },
             { "Piano\\Note release", WTPattern.EVENT_NOTE_RELEASE },
-
-            { "Piano\\Lower C-1", 0 },
-            { "Piano\\Lower C#1", 1 },
-            {"Piano\\Lower D-1", 2 },
-            { "Piano\\Lower D#1", 3 },
-            { "Piano\\Lower E-1", 4 },
-            { "Piano\\Lower F-1", 5 },
-            { "Piano\\Lower F#1", 6 },
-            { "Piano\\Lower G-1", 7 },
-            { "Piano\\Lower G#1", 8 },
-            { "Piano\\Lower A-1", 9 },
-            { "Piano\\Lower A#1", 10 },
-            { "Piano\\Lower B-1", 11 },
-            { "Piano\\Lower C-2", 12 },
-            { "Piano\\Lower C#2", 13 },
-            { "Piano\\Lower D-2", 14 },
-            { "Piano\\Lower D#2", 15 },
-            { "Piano\\Lower E-2", 16 },
-
-            { "Piano\\Upper C-2", 12 },
-            { "Piano\\Upper C#2", 13 },
-            { "Piano\\Upper D-2", 14 },
-            { "Piano\\Upper D#2", 15 },
-            { "Piano\\Upper E-2", 16 },
-            { "Piano\\Upper F-2", 17 },
-            { "Piano\\Upper F#2", 18 },
-            { "Piano\\Upper G-2", 19 },
-            { "Piano\\Upper G#2", 20 },
-            { "Piano\\Upper A-2", 21 },
-            { "Piano\\Upper A#2", 22 },
-            { "Piano\\Upper B-2", 23 },
-            { "Piano\\Upper C-3", 24 },
-            { "Piano\\Upper C#3", 25 },
-            { "Piano\\Upper D-3", 26 },
-            { "Piano\\Upper D#3", 27 },
-            { "Piano\\Upper E-3", 28 },
         };
         private readonly Dictionary<Keys, char> KeyInputs_Effect = new Dictionary<Keys, char>() {
             {Keys.D0, '0'},
