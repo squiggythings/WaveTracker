@@ -288,6 +288,32 @@ namespace WaveTracker {
             { "Piano\\Upper D-3", 26 },
             { "Piano\\Upper D#3", 27 },
             { "Piano\\Upper E-3", 28 },
+
+            { "Piano\\3rd octave C", 24 },
+            { "Piano\\3rd octave C#", 25 },
+            { "Piano\\3rd octave D", 26 },
+            { "Piano\\3rd octave D#", 27 },
+            { "Piano\\3rd octave E", 28 },
+            { "Piano\\3rd octave F", 29 },
+            { "Piano\\3rd octave F#", 30 },
+            { "Piano\\3rd octave G", 31 },
+            { "Piano\\3rd octave G#", 32 },
+            { "Piano\\3rd octave A", 33 },
+            { "Piano\\3rd octave A#", 34 },
+            { "Piano\\3rd octave B", 35 },
+
+            { "Piano\\4th octave C", 36 },
+            { "Piano\\4th octave C#", 37 },
+            { "Piano\\4th octave D", 38 },
+            { "Piano\\4th octave D#", 39 },
+            { "Piano\\4th octave E", 40 },
+            { "Piano\\4th octave F", 41 },
+            { "Piano\\4th octave F#", 42 },
+            { "Piano\\4th octave G", 43 },
+            { "Piano\\4th octave G#", 44 },
+            { "Piano\\4th octave A", 45 },
+            { "Piano\\4th octave A#", 46 },
+            { "Piano\\4th octave B", 47 },
         };
     }
 }

@@ -203,6 +203,12 @@ namespace WaveTracker.UI {
                 CurrentOctave++;
                 PianoInput.ClearAllNotes();
             }
+            for (int i = 0; i < 9; ++i) {
+                if (App.Shortcuts["General\\Set octave " + i].IsPressedRepeat) {
+                    CurrentOctave = i;
+                    PianoInput.ClearAllNotes();
+                }
+            }
             CurrentOctave = Math.Clamp(CurrentOctave, 0, 9);
             #endregion
 
