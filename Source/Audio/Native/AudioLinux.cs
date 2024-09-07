@@ -1,9 +1,11 @@
 using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
 
 namespace WaveTracker.Audio.Native {
-    // [SupportedOSPlatform("Linux")]
+    [SupportedOSPlatform("Linux")]
     internal static class Alsa {
         private const string alsa_library = "asound";
 
@@ -135,6 +137,15 @@ namespace WaveTracker.Audio.Native {
         };
 
         [DllImport(alsa_library)]
+        public unsafe static extern int snd_device_name_hint(int card, string iface, sbyte*** hints);
+
+        [DllImport(alsa_library)]
+        public unsafe static extern int snd_device_name_free_hint(sbyte** hints);
+
+        [DllImport(alsa_library)]
+        public unsafe static extern sbyte* snd_device_name_get_hint(sbyte* hint, string id);
+
+        [DllImport(alsa_library)]
         public unsafe static extern int snd_pcm_open(nint* pcm, string name, snd_pcm_stream_t stream, int mode);
 
         [DllImport(alsa_library)]
@@ -153,8 +164,8 @@ namespace WaveTracker.Audio.Native {
         public unsafe static extern int snd_pcm_close(nint pcm);
     }
 
-    // [SupportedOSPlatform("Linux")]
-    internal class AudioLinuxContext {
+    [SupportedOSPlatform("Linux")]
+    internal class AudioLinuxContext : IAudioContext {
         private nint _pcm = 0;
         public Alsa.snd_pcm_format_t sample_format = Alsa.snd_pcm_format_t.FLOAT_LE;
         public Alsa.snd_pcm_access_t access = Alsa.snd_pcm_access_t.RW_INTERLEAVED;
@@ -165,28 +176,98 @@ namespace WaveTracker.Audio.Native {
         /// required overall latency in us 
         public uint latency = 10_000;
 
-        public bool Open() {
+        private bool isOpen;
+
+        public bool Open(AudioDevice device) {
+            if (isOpen)
+                Close();
+
+            Console.Error.WriteLine($"opening {device.Name}");
+
             nint pcm;
             unsafe {
-                int status = Alsa.snd_pcm_open(&pcm, "default", Alsa.snd_pcm_stream_t.PLAYBACK, 0);
+                int status = Alsa.snd_pcm_open(&pcm, device.ID, Alsa.snd_pcm_stream_t.PLAYBACK, 0);
                 if (status != 0)
-                    return false;
+                    throw new IOException($"Cannot open PCM audio device ({device.Name})");
 
                 _pcm = pcm;
+                isOpen = true;
+                Console.Error.WriteLine($"{device.Name} is opened as {_pcm}");
 
                 return Alsa.snd_pcm_set_params(pcm, sample_format, access, channels,
                                           sample_rate, soft_resample ? 1 : 0, latency) == 0;
             }
         }
 
+        public List<AudioDevice> EnumerateAudioDevices() {
+            List<AudioDevice> devices = [];
+
+            unsafe {
+                // Enumerate sound devices
+                sbyte** deviceNameHints;
+                int err = Alsa.snd_device_name_hint(-1, "pcm", &deviceNameHints);
+                if (err != 0)
+                    return devices;
+
+                sbyte** hint = deviceNameHints;
+                while (*hint != null) {
+                    sbyte* namePtr = Alsa.snd_device_name_get_hint(*hint, "NAME");
+                    sbyte* descPtr = Alsa.snd_device_name_get_hint(*hint, "DESC");
+
+                    string name = new string(namePtr);
+                    string desc = new string(descPtr);
+
+                    if (name == "null")
+                        desc = "Null";
+
+                    if (namePtr != null)
+                        Marshal.FreeHGlobal((nint)namePtr);
+                    if (descPtr != null)
+                        Marshal.FreeHGlobal((nint)descPtr);
+
+                    devices.Add(new AudioDevice {
+                        ID = name,
+                        Name = desc.Split('\n')[0],
+                    });
+
+                    hint++;
+                }
+
+                // Free hint buffer
+                Alsa.snd_device_name_free_hint(deviceNameHints);
+            }
+
+            return devices;
+        }
+
+        public bool SetSampleRate(int sampleRate) {
+            sample_rate = (uint)sampleRate;
+
+            if (isOpen) {
+                return Alsa.snd_pcm_set_params(_pcm, sample_format, access, channels,
+                                              sample_rate, soft_resample ? 1 : 0, latency) == 0;
+            }
+            else {
+                return true;
+            }
+        }
+
         public bool IsAvailable() {
-            long frame_count = Alsa.snd_pcm_avail(_pcm);
-            if (frame_count < 0)
-                Alsa.snd_pcm_recover(_pcm, (int)frame_count, 0);
-            return frame_count > 0;
+            if (isOpen) {
+                long frame_count = Alsa.snd_pcm_avail(_pcm);
+                if (frame_count < 0)
+                    Alsa.snd_pcm_recover(_pcm, (int)frame_count, 0);
+                return frame_count > 0;
+            }
+            else {
+                return false;
+            }
         }
 
         public void Write(float[] buffer) {
+            if (!isOpen)
+                return;
+
             unsafe {
                 fixed (float* bufferPtr = buffer) {
                     long frame_count = Alsa.snd_pcm_writei(_pcm, bufferPtr, (ulong)buffer.Length / channels);
@@ -197,7 +278,12 @@ namespace WaveTracker.Audio.Native {
         }
 
         public void Close() {
+            if (!isOpen)
+                return;
+
+            Console.Error.WriteLine($"closing device {_pcm}");
             Alsa.snd_pcm_close(_pcm);
+            isOpen = false;
         }
     };
 }

@@ -226,7 +226,7 @@ namespace WaveTracker.Audio.Native {
             return pcm32Samples;
         }
 
-        internal static void PlayFloatSamples(AudioLinuxContext audioCtx, float[] samples) {
+        internal static void PlayFloatSamples(IAudioContext audioCtx, float[] samples) {
             const int advance = 480;
             for (int i = 0; i < samples.Length; i += advance) {
                 float[] currSamples = samples[i..Math.Min(i + advance, samples.Length)];

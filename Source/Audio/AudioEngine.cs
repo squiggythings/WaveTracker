@@ -31,12 +31,13 @@ namespace WaveTracker.Audio {
         public static int RenderTotalRows { get; private set; }
 
         private static int _tickCounter;
-        // private static WasapiOut wasapiOut;
         public static bool IsRendering { get; private set; }
         public static bool CancelRenderFlag { get; set; }
-        // public static MMDeviceCollection OutputDevices { get; private set; }
+        public static AudioDevice CurrentOutputDevice { get; private set; }
+        public static List<AudioDevice> OutputDevices { get; private set; }
         public static string[] OutputDeviceNames { get; private set; }
 
+        private static IAudioContext audioCtx;
         private static AudioProvider audioProvider;
         private static Thread audioOutThread;
         private static bool doPauseAudioThread = false;
@@ -49,14 +50,26 @@ namespace WaveTracker.Audio {
         public static void Initialize() {
             Dialogs.exportingDialog = new ExportingDialog();
             CurrentBuffer = new float[2, PREVIEW_BUFFER_LENGTH];
+
+            if (OperatingSystem.IsWindows()) {
+                throw new NotImplementedException();
+            }
+            else if (OperatingSystem.IsLinux()) {
+                audioCtx = new AudioLinuxContext() {
+                    latency = 15_000,
+                };
+            }
+            else if (OperatingSystem.IsMacOS()) {
+                throw new NotImplementedException();
+            }
+            else
+                throw new PlatformNotSupportedException("This platform has no audio context");
+
             audioProvider = new AudioProvider();
 
             SetSampleRate(App.Settings.Audio.SampleRate, App.Settings.Audio.Oversampling);
 
-            // GetAudioOutputDevices();
-            // int index = Array.IndexOf(OutputDeviceNames, App.Settings.Audio.OutputDevice);
-            // wasapiOut = index < 1 ? new WasapiOut() : new WasapiOut(OutputDevices[index], AudioClientShareMode.Shared, false, 0);
-            // wasapiOut.Init(audioProvider);
+            UpdateAudioOutputDevices();
 
             startAudioThread();
         }
@@ -69,7 +82,7 @@ namespace WaveTracker.Audio {
         public static void SetSampleRate(SampleRate rate, int oversampling) {
             SampleRate = SampleRateToInt(rate);
             TrueSampleRate = SampleRate * oversampling;
-            // audioProvider.SetWaveFormat(SampleRate, 2);
+            audioCtx.SetSampleRate(SampleRate);
             foreach (Channel chan in ChannelManager.Channels) {
                 chan.UpdateFilter();
             }
@@ -77,18 +90,18 @@ namespace WaveTracker.Audio {
         }
 
         /// <summary>
-        /// Populates OutputDevices and OutputDeviceNames with all the connected audio devices. <br></br>
-        /// This is an expensive operation, only call when needed.
+        /// Populates OutputDevices and OutputDeviceNames with all the connected
+        /// audio devices, and updates the CurrentOutputDevice.
+        /// <br></br>This is an expensive operation, only call when needed.
         /// </summary>
-        public static void GetAudioOutputDevices() {
-            // MMDeviceEnumerator enumerator = new MMDeviceEnumerator();
-            // OutputDevices = enumerator.EnumerateAudioEndPoints(DataFlow.Render, DeviceState.Active);
-            // OutputDeviceNames = new string[OutputDevices.Count];
-            // List<string> names = [];
-            // foreach (MMDevice device in OutputDevices) {
-            //     names.Add(device.FriendlyName);
-            // }
-            // OutputDeviceNames = names.ToArray();
+        public static void UpdateAudioOutputDevices() {
+            OutputDevices = audioCtx.EnumerateAudioDevices();
+            OutputDeviceNames = new string[OutputDevices.Count];
+            for (int i = 0; i < OutputDeviceNames.Length; i++)
+                OutputDeviceNames[i] = OutputDevices[i].Name;
+
+            int index = Array.IndexOf(OutputDeviceNames, App.Settings.Audio.OutputDevice);
+            CurrentOutputDevice = index < 1 ? AudioDevice.DefaultOutputDevice : OutputDevices[index];
         }
 
         /// <summary>
@@ -109,6 +122,7 @@ namespace WaveTracker.Audio {
         /// Open the audio thread and start outputting sound to it
         /// </summary>
         private static void startAudioThread() {
+            doStopAudioThread = false;
             audioOutThread = new Thread(audioOutLoop);
             audioOutThread.Name = "Audio Output";
             audioOutThread.Start();
@@ -139,9 +153,8 @@ namespace WaveTracker.Audio {
 
             SetSampleRate(App.Settings.Audio.SampleRate, App.Settings.Audio.Oversampling);
             Thread.Sleep(1);
-            // int index = Array.IndexOf(OutputDeviceNames, App.Settings.Audio.OutputDevice);
-            // wasapiOut = index < 1 ? new WasapiOut() : new WasapiOut(OutputDevices[index], AudioClientShareMode.Shared, false, 0);
-            // wasapiOut.Init(audioProvider);
+
+            UpdateAudioOutputDevices();
 
             startAudioThread();
         }
@@ -201,25 +214,36 @@ namespace WaveTracker.Audio {
         }
 
         private static void audioOutLoop() {
-            AudioLinuxContext audioCtx = new AudioLinuxContext() {
-                latency = 15_000,
-            };
-
-            audioCtx.Open();
-
             float[] buffer = new float[256];
 
-            while (!doStopAudioThread) {
-                if (doPauseAudioThread) {
-                    Thread.Sleep(10);
+            try {
+                audioCtx.Open(CurrentOutputDevice);
+
+                while (!doStopAudioThread) {
+                    if (doPauseAudioThread) {
+                        Thread.Sleep(10);
+                    }
+                    else {
+                        int sampleCount = audioProvider.Read(buffer, 0, buffer.Length);
+                        audioCtx.Write(buffer[..sampleCount]);
+                    }
                 }
-                else {
-                    int sampleCount = audioProvider.Read(buffer, 0, buffer.Length);
-                    audioCtx.Write(buffer[..sampleCount]);
+
+                audioCtx.Close();
+            } catch (Exception e) {
+                Console.Error.WriteLine("Audio context error: " + e.Message);
+
+                // make sure audio is still read even when audio context is not present
+                while (!doStopAudioThread) {
+                    if (doPauseAudioThread) {
+                        Thread.Sleep(10);
+                    }
+                    else {
+                        audioProvider.Read(buffer, 0, buffer.Length);
+                        Thread.Sleep(10);
+                    }
                 }
             }
-
-            audioCtx.Close();
         }
 
         public class AudioProvider {

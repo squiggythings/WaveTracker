@@ -113,11 +113,10 @@ namespace WaveTracker.UI {
             (pages["MIDI"]["Input device"] as ConfigurationOption.Dropdown).SetMenuItems(PianoInput.MIDIDevicesNames);
             (pages["Keyboard"] as KeyboardPage).Initialize();
             (pages["Colors"] as AppearancePage).Initialize();
-            string[] audioDeviceOptions = new string[] { "nope" }; // new string[Audio.AudioEngine.OutputDevices.Count + 1];
-            // audioDeviceOptions[0] = "(default)";
-            // for (int i = 0; i < Audio.AudioEngine.OutputDevices.Count; i++) {
-            //     audioDeviceOptions[i + 1] = Audio.AudioEngine.OutputDeviceNames[i];
-            // }
+            string[] audioDeviceOptions = new string[Audio.AudioEngine.OutputDevices.Count];
+            for (int i = 0; i < Audio.AudioEngine.OutputDevices.Count; i++) {
+                audioDeviceOptions[i] = Audio.AudioEngine.OutputDeviceNames[i];
+            }
             (pages["Audio"]["Output device"] as ConfigurationOption.Dropdown).SetMenuItems(audioDeviceOptions);
             ReadSettings();
         }
