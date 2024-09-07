@@ -120,20 +120,27 @@ namespace WaveTracker.UI {
         }
 
         private void InsertFrameAfterThis() {
-            App.CurrentSong.InsertNewFrame(contextMenuFrameIndex + 1);
-            if (App.PatternEditor.cursorPosition.Frame <= contextMenuFrameIndex && App.PatternEditor.cursorPosition.Frame > 0) {
-                App.PatternEditor.NextFrame();
+            if (App.PatternEditor.cursorPosition.Frame >= contextMenuFrameIndex) {
+                App.CurrentSong.InsertNewFrame(contextMenuFrameIndex + 1);
                 if (Playback.IsPlaying && App.PatternEditor.FollowMode) {
                     Playback.GotoNextFrame();
                 }
+                else {
+                    App.PatternEditor.NextFrame();
+                }
+            }
+            else {
+                App.CurrentSong.InsertNewFrame(contextMenuFrameIndex);
             }
         }
         private void DuplicateThisFrame() {
             App.CurrentSong.DuplicateFrame(contextMenuFrameIndex);
-            if (App.PatternEditor.cursorPosition.Frame <= contextMenuFrameIndex && App.PatternEditor.cursorPosition.Frame > 0) {
-                App.PatternEditor.NextFrame();
+            if (App.PatternEditor.cursorPosition.Frame >= contextMenuFrameIndex) {
                 if (Playback.IsPlaying && App.PatternEditor.FollowMode) {
                     Playback.GotoNextFrame();
+                }
+                else {
+                    App.PatternEditor.NextFrame();
                 }
             }
         }

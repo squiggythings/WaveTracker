@@ -2152,7 +2152,12 @@ namespace WaveTracker.UI {
         /// </summary>
         public void InsertNewFrame() {
             App.CurrentSong.InsertNewFrame(cursorPosition.Frame + 1);
-            MoveToFrame(cursorPosition.Frame + 1);
+            if (Playback.IsPlaying && App.PatternEditor.FollowMode) {
+                Playback.GotoNextFrame();
+            }
+            else {
+                MoveToFrame(cursorPosition.Frame + 1);
+            }
         }
 
         /// <summary>
@@ -2160,7 +2165,12 @@ namespace WaveTracker.UI {
         /// </summary>
         public void DuplicateFrame() {
             App.CurrentSong.DuplicateFrame(cursorPosition.Frame);
-            MoveToFrame(cursorPosition.Frame + 1);
+            if (Playback.IsPlaying && App.PatternEditor.FollowMode) {
+                Playback.GotoNextFrame();
+            }
+            else {
+                MoveToFrame(cursorPosition.Frame + 1);
+            }
         }
 
         /// <summary>
@@ -2170,6 +2180,9 @@ namespace WaveTracker.UI {
             App.CurrentSong.RemoveFrame(cursorPosition.Frame);
             if (cursorPosition.Frame > 0) {
                 MoveToFrame(cursorPosition.Frame - 1);
+                if (Playback.IsPlaying && App.PatternEditor.FollowMode) {
+                    Playback.GotoPreviousFrame();
+                }
             }
         }
 
