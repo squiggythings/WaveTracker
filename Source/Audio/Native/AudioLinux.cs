@@ -213,22 +213,30 @@ namespace WaveTracker.Audio.Native {
                 while (*hint != null) {
                     sbyte* namePtr = Alsa.snd_device_name_get_hint(*hint, "NAME");
                     sbyte* descPtr = Alsa.snd_device_name_get_hint(*hint, "DESC");
+                    sbyte* ioidPtr = Alsa.snd_device_name_get_hint(*hint, "IOID");
 
                     string name = new string(namePtr);
                     string desc = new string(descPtr);
-
-                    if (name == "null")
-                        desc = "Null";
+                    string ioid = new string(ioidPtr);
 
                     if (namePtr != null)
                         Marshal.FreeHGlobal((nint)namePtr);
                     if (descPtr != null)
                         Marshal.FreeHGlobal((nint)descPtr);
+                    if (ioidPtr != null)
+                        Marshal.FreeHGlobal((nint)ioidPtr);
 
-                    devices.Add(new AudioDevice {
-                        ID = name,
-                        Name = desc.Split('\n')[0],
-                    });
+                    if (name == "null")
+                        desc = "Null (discard all samples)";
+
+                    // IOID is either Input, Output or a null string. Null means both.
+                    // Output-only devices seem to be duplicates.
+                    if (ioid == "") {
+                        devices.Add(new AudioDevice {
+                            ID = name,
+                            Name = desc.Split('\n')[0],
+                        });
+                    }
 
                     hint++;
                 }
