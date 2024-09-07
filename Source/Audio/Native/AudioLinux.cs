@@ -231,7 +231,8 @@ namespace WaveTracker.Audio.Native {
 
                     // IOID is either Input, Output or a null string. Null means both.
                     // Output-only devices seem to be duplicates.
-                    if (ioid == "") {
+                    // Devices that start with "sysdefault:" are also duplicating another listed device.
+                    if (ioid == "" && !name.StartsWith("sysdefault:")) {
                         devices.Add(new AudioDevice {
                             ID = name,
                             Name = desc.Split('\n')[0],
