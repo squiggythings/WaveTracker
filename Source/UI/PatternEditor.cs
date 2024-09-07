@@ -320,7 +320,7 @@ namespace WaveTracker.UI {
             if (ClickedDown) {
                 CancelSelection();
             }
-            if (SingleClickedM(KeyModifier._Any) && Input.CurrentModifier != KeyModifier.Shift && MouseX <= LastChannelEndPos && !Input.MouseJustEndedDragging) {
+            if (ClickedM(KeyModifier._Any) && Input.CurrentModifier != KeyModifier.Shift && MouseX <= LastChannelEndPos && !Input.MouseJustEndedDragging) {
                 if (MouseX > ROW_COLUMN_WIDTH && MouseX < width) {
                     cursorPosition = GetCursorPositionFromPoint(MouseX, MouseY);
                     MakeCursorVisibleInBounds();
@@ -462,7 +462,7 @@ namespace WaveTracker.UI {
                 }
                 SetSelectionEnd(GetCursorPositionFromPointClampedToFrame(MouseX, MouseY, cursorPosition.Frame, GetMouseLineNumber() > NumVisibleLines / 2));
             }
-            if (DoubleClicked) {
+            if (DoubleClicked && GetMouseLineNumber() == NumVisibleLines / 2) {
                 selection.IsActive = true;
                 SetSelectionStart(cursorPosition);
                 selectionStart.Row = 0;
