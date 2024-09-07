@@ -101,7 +101,7 @@ namespace WaveTracker.Audio {
                 OutputDeviceNames[i] = OutputDevices[i].Name;
 
             int index = Array.IndexOf(OutputDeviceNames, App.Settings.Audio.OutputDevice);
-            CurrentOutputDevice = index < 1 ? AudioDevice.DefaultOutputDevice : OutputDevices[index];
+            CurrentOutputDevice = index < 0 ? AudioDevice.DefaultOutputDevice : OutputDevices[index];
         }
 
         /// <summary>
