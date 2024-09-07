@@ -13,7 +13,7 @@ using WaveTracker.UI;
 namespace WaveTracker {
     public class App : Game {
 
-        public const string VERSION = "1.0.3";
+        public const string VERSION = "1.0.4";
         private static App instance;
 
         private GraphicsDeviceManager graphics;
