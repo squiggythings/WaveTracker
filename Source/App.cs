@@ -193,6 +193,21 @@ namespace WaveTracker {
             ]);
         }
 
+        private void OpenHelp() {
+            try {
+                Process.Start("explorer", "https://wavetracker.org/documentation");
+            } catch {
+                Dialogs.messageDialog.Open("Could not open help!", MessageDialog.Icon.Error, "OK");
+            }
+        }
+
+        private void OpenEffectList() {
+            try {
+                Process.Start("explorer", "https://wavetracker.org/documentation/effect-list");
+            } catch {
+                Dialogs.messageDialog.Open("Could not open help!", MessageDialog.Icon.Error, "OK");
+            }
+        }
         protected override void Initialize() {
 
             CurrentModule = new WTModule();
@@ -228,9 +243,12 @@ namespace WaveTracker {
                 null,
                 new MenuOption("Toggle channel", ChannelManager.ToggleCurrentChannel),
                 new MenuOption("Solo channel", ChannelManager.SoloCurrentChannel),
+            ]));
+            MenuStrip.AddButton("Help", new Menu([
+                new MenuOption("Open manual...", OpenHelp),
+                new MenuOption("Effect list...", OpenEffectList),
                 null,
                 new MenuOption("Reset audio", ResetAudio),
-
             ]));
 
             base.Initialize();
