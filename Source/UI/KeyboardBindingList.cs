@@ -126,7 +126,6 @@ namespace WaveTracker.UI {
             Color selectedColor = new Color(59, 68, 107);
             Color errorColor = new Color(120, 29, 79);
             int rowNum = numRows - 1;
-            resetToDefaultButton.Draw();
             for (int i = numRows + scrollbar.ScrollValue - 1; i >= scrollbar.ScrollValue; i--) {
                 List<string> conflicts = ["Conflicts with:"];
                 int maxConflictLength = Helpers.GetWidthOfText("Conflicts with:");
@@ -213,6 +212,7 @@ namespace WaveTracker.UI {
                 }
             }
             editButton.Draw();
+            resetToDefaultButton.Draw();
 
         }
 

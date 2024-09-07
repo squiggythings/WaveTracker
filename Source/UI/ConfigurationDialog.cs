@@ -444,8 +444,8 @@ namespace WaveTracker.UI {
 
             public override void Draw() {
                 base.Draw();
-                bindingList.Draw();
                 resetAll.Draw();
+                bindingList.Draw();
             }
         }
 
