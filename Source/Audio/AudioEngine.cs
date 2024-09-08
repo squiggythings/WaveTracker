@@ -38,7 +38,6 @@ namespace WaveTracker.Audio {
         public static string[] OutputDeviceNames { get; private set; }
 
         private static IAudioContext audioCtx;
-        private static AudioProvider audioProvider;
         private static Thread audioOutThread;
         private static bool doPauseAudioThread = false;
         private static bool doStopAudioThread = false;
@@ -64,8 +63,6 @@ namespace WaveTracker.Audio {
             }
             else
                 throw new PlatformNotSupportedException("This platform has no audio context");
-
-            audioProvider = new AudioProvider();
 
             SetSampleRate(App.Settings.Audio.SampleRate, App.Settings.Audio.Oversampling);
 
@@ -170,7 +167,7 @@ namespace WaveTracker.Audio {
             bool overwriting = File.Exists(filepath);
 
             bool b = await Task.Run(() => {
-                return WriteToWaveFile(filepath + ".temp", audioProvider);
+                return WriteToWaveFile(filepath + ".temp");
             });
             Debug.WriteLine("Exported!");
             if (b) {
@@ -182,7 +179,7 @@ namespace WaveTracker.Audio {
             File.Delete(filepath + ".temp");
         }
 
-        private static bool WriteToWaveFile(string path, AudioProvider source) {
+        private static bool WriteToWaveFile(string path) {
             pauseAudioThread();
 
             IsRendering = true;
@@ -197,7 +194,7 @@ namespace WaveTracker.Audio {
 
             float[] buffer = new float[4096];
             while (true) {
-                int count = audioProvider.Read(buffer, 0, buffer.Length);
+                int count = readSamples(buffer, 0, buffer.Length);
                 if (count == 0)
                     break;
 
@@ -224,7 +221,7 @@ namespace WaveTracker.Audio {
                         Thread.Sleep(10);
                     }
                     else {
-                        int sampleCount = audioProvider.Read(buffer, 0, buffer.Length);
+                        int sampleCount = readSamples(buffer, 0, buffer.Length);
                         audioCtx.Write(buffer[..sampleCount]);
                     }
                 }
@@ -239,82 +236,80 @@ namespace WaveTracker.Audio {
                         Thread.Sleep(10);
                     }
                     else {
-                        audioProvider.Read(buffer, 0, buffer.Length);
+                        readSamples(buffer, 0, buffer.Length);
                         Thread.Sleep(10);
                     }
                 }
             }
         }
 
-        public class AudioProvider {
-            public int Read(float[] buffer, int offset, int sampleCount) {
-                if (IsRendering) {
-                    if (RenderProcessedRows >= RenderTotalRows || CancelRenderFlag) {
-                        Playback.Stop();
-                        IsRendering = false;
-                        return 0;
-                    }
+        private static int readSamples(float[] buffer, int offset, int sampleCount) {
+            if (IsRendering) {
+                if (RenderProcessedRows >= RenderTotalRows || CancelRenderFlag) {
+                    Playback.Stop();
+                    IsRendering = false;
+                    return 0;
                 }
+            }
 
-                int OVERSAMPLE = App.Settings.Audio.Oversampling;
-                float delta = 1f / TrueSampleRate * (TickSpeed / 60f);
+            int OVERSAMPLE = App.Settings.Audio.Oversampling;
+            float delta = 1f / TrueSampleRate * (TickSpeed / 60f);
 
-                for (int n = 0; n < sampleCount; n += 2) {
-                    buffer[n + offset] = buffer[n + offset + 1] = 0;
-                    float leftSum;
-                    float rightSum;
-                    for (int j = 0; j < OVERSAMPLE; ++j) {
-                        float l;
-                        float r;
-                        leftSum = 0;
-                        rightSum = 0;
-                        for (int c = 0; c < ChannelManager.Channels.Count; ++c) {
-                            ChannelManager.Channels[c].ProcessSingleSample(out l, out r, delta);
-                            leftSum += l;
-                            rightSum += r;
-                        }
-
-                        ChannelManager.PreviewChannel.ProcessSingleSample(out l, out r, delta);
+            for (int n = 0; n < sampleCount; n += 2) {
+                buffer[n + offset] = buffer[n + offset + 1] = 0;
+                float leftSum;
+                float rightSum;
+                for (int j = 0; j < OVERSAMPLE; ++j) {
+                    float l;
+                    float r;
+                    leftSum = 0;
+                    rightSum = 0;
+                    for (int c = 0; c < ChannelManager.Channels.Count; ++c) {
+                        ChannelManager.Channels[c].ProcessSingleSample(out l, out r, delta);
                         leftSum += l;
                         rightSum += r;
-                        buffer[n + offset] = leftSum;
-                        buffer[n + offset + 1] = rightSum;
                     }
 
-                    buffer[n + offset] = Math.Clamp(buffer[n + offset] * (App.Settings.Audio.MasterVolume / 100f), -1, 1);
-                    buffer[n + offset + 1] = Math.Clamp(buffer[n + offset + 1] * (App.Settings.Audio.MasterVolume / 100f), -1, 1);
-                    if (!IsRendering) {
-                        CurrentBuffer[0, currBufferPosition] = buffer[n + offset];
-                        CurrentBuffer[1, currBufferPosition] = buffer[n + offset + 1];
-                        currBufferPosition++;
-                        if (currBufferPosition >= CurrentBuffer.Length / 2) {
-                            currBufferPosition = 0;
-                        }
-                    }
+                    ChannelManager.PreviewChannel.ProcessSingleSample(out l, out r, delta);
+                    leftSum += l;
+                    rightSum += r;
+                    buffer[n + offset] = leftSum;
+                    buffer[n + offset + 1] = rightSum;
+                }
 
-                    if (App.VisualizerMode && !IsRendering) {
-                        if (_tickCounter % (int)(SamplesPerTick / ((float)App.Settings.Visualizer.PianoSpeed / (App.Settings.Visualizer.DrawInHighResolution ? 1 : App.Settings.General.ScreenScale))) == 0) {
-                            App.Visualizer.RecordChannelStates();
-                        }
-                    }
-
-                    _tickCounter++;
-                    if (_tickCounter >= SamplesPerTick) {
-                        _tickCounter = 0;
-                        Playback.Tick();
-                        foreach (Channel c in ChannelManager.Channels) {
-                            c.NextTick();
-                        }
-                        ChannelManager.PreviewChannel.NextTick();
-                    }
-                    if (IsRendering) {
-                        if (RenderProcessedRows >= RenderTotalRows || CancelRenderFlag) {
-                            return n;
-                        }
+                buffer[n + offset] = Math.Clamp(buffer[n + offset] * (App.Settings.Audio.MasterVolume / 100f), -1, 1);
+                buffer[n + offset + 1] = Math.Clamp(buffer[n + offset + 1] * (App.Settings.Audio.MasterVolume / 100f), -1, 1);
+                if (!IsRendering) {
+                    CurrentBuffer[0, currBufferPosition] = buffer[n + offset];
+                    CurrentBuffer[1, currBufferPosition] = buffer[n + offset + 1];
+                    currBufferPosition++;
+                    if (currBufferPosition >= CurrentBuffer.Length / 2) {
+                        currBufferPosition = 0;
                     }
                 }
-                return sampleCount;
+
+                if (App.VisualizerMode && !IsRendering) {
+                    if (_tickCounter % (int)(SamplesPerTick / ((float)App.Settings.Visualizer.PianoSpeed / (App.Settings.Visualizer.DrawInHighResolution ? 1 : App.Settings.General.ScreenScale))) == 0) {
+                        App.Visualizer.RecordChannelStates();
+                    }
+                }
+
+                _tickCounter++;
+                if (_tickCounter >= SamplesPerTick) {
+                    _tickCounter = 0;
+                    Playback.Tick();
+                    foreach (Channel c in ChannelManager.Channels) {
+                        c.NextTick();
+                    }
+                    ChannelManager.PreviewChannel.NextTick();
+                }
+                if (IsRendering) {
+                    if (RenderProcessedRows >= RenderTotalRows || CancelRenderFlag) {
+                        return n;
+                    }
+                }
             }
+            return sampleCount;
         }
 
         /// <summary>
