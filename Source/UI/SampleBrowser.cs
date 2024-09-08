@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using WaveTracker.Audio;
 using WaveTracker.Audio.Native;
 using WaveTracker.Tracker;
 
@@ -25,7 +26,6 @@ namespace WaveTracker.UI {
         private SampleEditor launched;
         private int width = 500;
         private int height = 320;
-        // private WaveOutEvent previewOut;
 
         private string wavFilePath;
         private Wav wav;
@@ -54,7 +54,6 @@ namespace WaveTracker.UI {
             sortType = new Toggle("Type", width - 36, 30, this);
             loopPreview = new CheckboxLabeled("Loop", width - 105, 125, 40, this);
             entriesInDirectory = [];
-            // previewOut = new WaveOutEvent();
             currentPath = SaveLoad.ReadPath("sample", Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments));
         }
 
@@ -67,14 +66,14 @@ namespace WaveTracker.UI {
                     GetFileEntries(true);
                     selectedFileIndex = -1;
                     scrollbar.ScrollValue = 0;
-                    // previewOut.Stop();
+                    AudioEngine.PreviewStream = null;
                 }
                 if (sortType.Clicked) {
                     sortMethod = SortingMethod.ByType;
                     GetFileEntries(true);
                     selectedFileIndex = -1;
                     scrollbar.ScrollValue = 0;
-                    // previewOut.Stop();
+                    AudioEngine.PreviewStream = null;
                 }
                 sortName.Value = sortMethod == SortingMethod.ByName;
                 sortType.Value = sortMethod == SortingMethod.ByType;
@@ -84,7 +83,7 @@ namespace WaveTracker.UI {
                     selectedFileIndex = -1;
                     currentPath = Directory.GetParent(currentPath) == null ? "" : Directory.GetParent(currentPath).ToString();
                     scrollbar.ScrollValue = 0;
-                    // previewOut.Stop();
+                    AudioEngine.PreviewStream = null;
                 }
                 if (ok.Clicked) {
                     selectedFilePath = entriesInDirectory[selectedFileIndex];
@@ -192,16 +191,10 @@ namespace WaveTracker.UI {
                         wav = new Wav(wavFile);
                         wavFilePath = entriesInDirectory[selectedFileIndex];
 
-                        if (loopPreview.Value) {
-                            LoopStream loop = new LoopStream(wav);
-                            // previewOut.Init(loop);
-                        }
-                        else {
-                            // previewOut.Init(wavFile);
-                        }
-
-                        // previewOut.Volume = 0.75f * App.Settings.Audio.MasterVolume / 100f;
-                        // previewOut.Play();
+                        if (loopPreview.Value)
+                            AudioEngine.PreviewStream = new LoopStream(wav);
+                        else
+                            AudioEngine.PreviewStream = new WaveStream(wav);
                     } catch {
 
                     }

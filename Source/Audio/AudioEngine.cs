@@ -37,6 +37,19 @@ namespace WaveTracker.Audio {
         public static List<AudioDevice> OutputDevices { get; private set; }
         public static string[] OutputDeviceNames { get; private set; }
 
+        private static WaveStream previewStream = null;
+        public static WaveStream PreviewStream {
+            get => previewStream;
+            set {
+                if (value != null)
+                    SetSampleRate((int)value.SourceWav.SampleRate, App.Settings.Audio.Oversampling);
+                else
+                    SetSampleRate(SampleRateToInt(App.Settings.Audio.SampleRate), App.Settings.Audio.Oversampling);
+
+                previewStream = value;
+            }
+        }
+
         private static IAudioContext audioCtx;
         private static Thread audioOutThread;
         private static bool doPauseAudioThread = false;
@@ -64,7 +77,7 @@ namespace WaveTracker.Audio {
             else
                 throw new PlatformNotSupportedException("This platform has no audio context");
 
-            SetSampleRate(App.Settings.Audio.SampleRate, App.Settings.Audio.Oversampling);
+            SetSampleRate(SampleRateToInt(App.Settings.Audio.SampleRate), App.Settings.Audio.Oversampling);
 
             UpdateAudioOutputDevices();
 
@@ -74,10 +87,10 @@ namespace WaveTracker.Audio {
         /// <summary>
         /// Sets the sample rate and oversampling factor. Updates antialiasing filters accordingly.
         /// </summary>
-        /// <param name="rate"></param>
+        /// <param name="sampleRate"></param>
         /// <param name="oversampling"></param>
-        public static void SetSampleRate(SampleRate rate, int oversampling) {
-            SampleRate = SampleRateToInt(rate);
+        public static void SetSampleRate(int sampleRate, int oversampling) {
+            SampleRate = sampleRate;
             TrueSampleRate = SampleRate * oversampling;
             audioCtx.SetSampleRate(SampleRate);
             foreach (Channel chan in ChannelManager.Channels) {
@@ -148,7 +161,7 @@ namespace WaveTracker.Audio {
             PianoInput.ClearAllNotes();
             stopAudioThread();
 
-            SetSampleRate(App.Settings.Audio.SampleRate, App.Settings.Audio.Oversampling);
+            SetSampleRate(SampleRateToInt(App.Settings.Audio.SampleRate), App.Settings.Audio.Oversampling);
             Thread.Sleep(1);
 
             UpdateAudioOutputDevices();
@@ -212,6 +225,7 @@ namespace WaveTracker.Audio {
 
         private static void audioOutLoop() {
             float[] buffer = new float[256];
+            float[] previewBuffer = new float[256];
 
             try {
                 audioCtx.Open(CurrentOutputDevice);
@@ -221,8 +235,35 @@ namespace WaveTracker.Audio {
                         Thread.Sleep(10);
                     }
                     else {
-                        int sampleCount = readSamples(buffer, 0, buffer.Length);
-                        audioCtx.Write(buffer[..sampleCount]);
+                        int samplesCount;
+
+                        if (PreviewStream != null) {
+                            float previewVolume = 0.75f * App.Settings.Audio.MasterVolume / 100f;
+
+                            if (PreviewStream.SourceWav.NumChannels == 1) {
+                                int previewSamplesCount = PreviewStream.ReadSamples(previewBuffer, previewBuffer.Length / 2);
+
+                                for (int i = 0; i < previewSamplesCount; i++) {
+                                    buffer[2 * i] = previewVolume * previewBuffer[i];
+                                    buffer[2 * i + 1] = previewVolume * previewBuffer[i];
+                                }
+
+                                samplesCount = previewSamplesCount * 2;
+                            }
+                            else {
+                                samplesCount = PreviewStream.ReadSamples(previewBuffer, previewBuffer.Length);
+                                for (int i = 0; i < samplesCount; i++)
+                                    buffer[i] = previewVolume * previewBuffer[i];
+                            }
+                        }
+                        else {
+                            samplesCount = readSamples(buffer, 0, buffer.Length);
+                            if (samplesCount == 0) {
+                                PreviewStream = null;
+                            }
+                        }
+
+                        audioCtx.Write(buffer[..samplesCount]);
                     }
                 }
 

@@ -20,10 +20,25 @@ namespace WaveTracker.Audio.Native {
     }
 
     public class WaveStream : MemoryStream {
-        public readonly Wav Wav;
+        public readonly Wav SourceWav;
+
+        private byte[] byteBuffer = new byte[4096];
+        private short[] pcm16Buffer = new short[2048];
 
         public WaveStream(Wav wav) : base(wav.SoundData) {
-            Wav = wav;
+            SourceWav = wav;
+        }
+
+        public int ReadSamples(float[] buffer, int sampleCount) {
+            int byteCount = sampleCount * SourceWav.BytesPerSample;
+            if (byteBuffer.Length < byteCount)
+                byteBuffer = new byte[byteCount];
+
+            int bytesRead = Read(byteBuffer, 0, byteCount);
+            int samplesRead = Wav.ReadPCM16Samples(byteBuffer[..bytesRead], pcm16Buffer);
+
+            Wav.ReadPCM16ToFloat(pcm16Buffer[..samplesRead], buffer);
+            return samplesRead;
         }
     }
 
@@ -37,6 +52,7 @@ namespace WaveTracker.Audio.Native {
         public readonly byte[] SoundData;
 
         public double TotalSecs => SoundData.Length / (double)ByteRate;
+        public int BytesPerSample => BitsPerSample / 8;
 
         private static readonly char[] MAGIC_RIFF = ['R', 'I', 'F', 'F'];
         private static readonly char[] MAGIC_WAVE = ['W', 'A', 'V', 'E'];
@@ -180,6 +196,16 @@ namespace WaveTracker.Audio.Native {
             return pcm16Samples;
         }
 
+        public static int ReadPCM16Samples(byte[] soundData, short[] outPCM16Samples) {
+            BinaryReader reader = new BinaryReader(new MemoryStream(soundData));
+
+            int samplesRead = Math.Min(outPCM16Samples.Length, soundData.Length / 2);
+            for (int i = 0; i < samplesRead; i++)
+                outPCM16Samples[i] = reader.ReadInt16();
+
+            return samplesRead;
+        }
+
         public int[] GetPCM32Samples() {
             if (Format != WavFormat.PCMInteger || BitsPerSample != 32)
                 throw new WavFormatException("wav sample format is not PCM32");
@@ -215,6 +241,15 @@ namespace WaveTracker.Audio.Native {
                 floatSamples[i] = (float)pcm16Samples[i] / (1 << 15);
 
             return floatSamples;
+        }
+
+        public static int ReadPCM16ToFloat(short[] pcm16Samples, float[] outFloatSamples) {
+            int samplesRead = Math.Min(pcm16Samples.Length, outFloatSamples.Length);
+
+            for (int i = 0; i < samplesRead; i++)
+                outFloatSamples[i] = (float)pcm16Samples[i] / (1 << 15);
+
+            return samplesRead;
         }
 
         public static float[] PCM32ToFloat(int[] pcm32Samples) {
