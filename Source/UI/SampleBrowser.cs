@@ -183,7 +183,7 @@ namespace WaveTracker.UI {
         }
 
         private void SelectedANewEntry() {
-            // previewOut.Stop();
+            AudioEngine.PreviewStream = null;
             if (App.Settings.SamplesWaves.PreviewSamplesInBrowser) {
                 if (File.Exists(entriesInDirectory[selectedFileIndex])) {
                     try {
@@ -260,7 +260,7 @@ namespace WaveTracker.UI {
             return val == 0 ? a.CompareTo(b) : val;
         }
         public void Open(SampleEditor launched) {
-            // previewOut.Stop();
+            AudioEngine.PreviewStream = null;
             opened = Input.focus;
             this.launched = launched;
             selectedFileIndex = -1;
@@ -280,7 +280,7 @@ namespace WaveTracker.UI {
             }
 
             SaveLoad.SavePath("sample", currentPath);
-            // previewOut.Stop();
+            AudioEngine.PreviewStream = null;
         }
 
         private void LoadSampleFromFile(string path, Sample sample) {
