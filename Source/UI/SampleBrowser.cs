@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using WaveTracker.Audio;
+using WaveTracker.Audio.Native;
 using WaveTracker.Tracker;
 
 namespace WaveTracker.UI {
@@ -26,7 +26,9 @@ namespace WaveTracker.UI {
         private int width = 500;
         private int height = 320;
         // private WaveOutEvent previewOut;
-        // private AudioFileReader reader;
+
+        private string wavFilePath;
+        private Wav wav;
 
         private enum SortingMethod { ByName, ByType };
 
@@ -34,8 +36,7 @@ namespace WaveTracker.UI {
 
         private bool SelectedAnAudioFile {
             get {
-                return false;
-                // return reader != null && selectedFileIndex >= 0 && selectedFileIndex < entriesInDirectory.Length && File.Exists(entriesInDirectory[selectedFileIndex]);
+                return wav != null && selectedFileIndex >= 0 && selectedFileIndex < entriesInDirectory.Length && File.Exists(entriesInDirectory[selectedFileIndex]);
             }
         }
 
@@ -187,18 +188,20 @@ namespace WaveTracker.UI {
             if (App.Settings.SamplesWaves.PreviewSamplesInBrowser) {
                 if (File.Exists(entriesInDirectory[selectedFileIndex])) {
                     try {
-                        // reader = new AudioFileReader(entriesInDirectory[selectedFileIndex]);
-                        // if (loopPreview.Value) {
-                        //     LoopStream loop = new LoopStream(reader);
-                        //     previewOut.Init(loop);
-                        // }
-                        // else {
-                        //     previewOut.Init(reader);
-                        // }
+                        using FileStream wavFile = File.OpenRead(entriesInDirectory[selectedFileIndex]);
+                        wav = new Wav(wavFile);
+                        wavFilePath = entriesInDirectory[selectedFileIndex];
+
+                        if (loopPreview.Value) {
+                            LoopStream loop = new LoopStream(wav);
+                            // previewOut.Init(loop);
+                        }
+                        else {
+                            // previewOut.Init(wavFile);
+                        }
 
                         // previewOut.Volume = 0.75f * App.Settings.Audio.MasterVolume / 100f;
                         // previewOut.Play();
-
                     } catch {
 
                     }
@@ -382,73 +385,47 @@ namespace WaveTracker.UI {
 
                 if (SelectedAnAudioFile) {
                     // write file name
-                    // if (reader != null) {
-                    //     Write(Helpers.FlushString(Helpers.TrimTextToWidth(105, Path.GetFileName(reader.FileName))), width - 104, 85, UIColors.label);
-                    //     Write(reader.WaveFormat.Channels == 1 ? "Mono" : "Stereo", width - 104, 95, UIColors.label);
-                    //     Write(reader.WaveFormat.SampleRate + " Hz", width - 104, 105, UIColors.label);
-                    //     Write(reader.TotalTime.TotalSeconds + " sec", width - 104, 115, UIColors.label);
-                    //     loopPreview.Draw();
-                    // }
+                    if (wav != null) {
+                        Write(Helpers.FlushString(Helpers.TrimTextToWidth(105, Path.GetFileName(wavFilePath))), width - 104, 85, UIColors.label);
+                        Write(wav.NumChannels == 1 ? "Mono" : "Stereo", width - 104, 95, UIColors.label);
+                        Write(wav.SampleRate + " Hz", width - 104, 105, UIColors.label);
+                        Write(wav.TotalSecs + " sec", width - 104, 115, UIColors.label);
+                        loopPreview.Draw();
+                    }
                 }
             }
         }
     }
 
-    // public class LoopStream : WaveStream {
-    //     private WaveStream sourceStream;
-    //     /// <summary>
-    //     /// Creates a new Loop stream
-    //     /// </summary>
-    //     /// <param name="sourceStream">The stream to read from. Note: the Read method of this stream should return 0 when it reaches the end
-    //     /// or else we will not loop to the start again.</param>
-    //     public LoopStream(WaveStream sourceStream) {
-    //         this.sourceStream = sourceStream;
-    //         EnableLooping = true;
-    //     }
+    public class LoopStream : WaveStream {
+        /// <summary>
+        /// Creates a new Loop stream
+        /// </summary>
+        public LoopStream(Wav wav) : base(wav) {
+            EnableLooping = true;
+        }
 
-    //     /// <summary>
-    //     /// Use this to turn looping on or off
-    //     /// </summary>
-    //     public bool EnableLooping { get; set; }
+        /// <summary>
+        /// Use this to turn looping on or off
+        /// </summary>
+        public bool EnableLooping { get; set; }
 
-    //     /// <summary>
-    //     /// Return source stream's wave format
-    //     /// </summary>
-    //     public override WaveFormat WaveFormat {
-    //         get { return sourceStream.WaveFormat; }
-    //     }
+        public override int Read(byte[] buffer, int offset, int count) {
+            int totalBytesRead = 0;
 
-    //     /// <summary>
-    //     /// LoopStream simply returns
-    //     /// </summary>
-    //     public override long Length {
-    //         get { return sourceStream.Length; }
-    //     }
-
-    //     /// <summary>
-    //     /// LoopStream simply passes on positioning to source stream
-    //     /// </summary>
-    //     public override long Position {
-    //         get { return sourceStream.Position; }
-    //         set { sourceStream.Position = value; }
-    //     }
-
-    //     public override int Read(byte[] buffer, int offset, int count) {
-    //         int totalBytesRead = 0;
-
-    //         while (totalBytesRead < count) {
-    //             int bytesRead = sourceStream.Read(buffer, offset + totalBytesRead, count - totalBytesRead);
-    //             if (bytesRead == 0) {
-    //                 if (sourceStream.Position == 0 || !EnableLooping) {
-    //                     // something wrong with the source stream
-    //                     break;
-    //                 }
-    //                 // loop
-    //                 sourceStream.Position = 0;
-    //             }
-    //             totalBytesRead += bytesRead;
-    //         }
-    //         return totalBytesRead;
-    //     }
-    // }
+            while (totalBytesRead < count) {
+                int bytesRead = base.Read(buffer, offset + totalBytesRead, count - totalBytesRead);
+                if (bytesRead == 0) {
+                    if (Position == 0 || !EnableLooping) {
+                        // something wrong with the source stream
+                        break;
+                    }
+                    // loop
+                    Position = 0;
+                }
+                totalBytesRead += bytesRead;
+            }
+            return totalBytesRead;
+        }
+    }
 }

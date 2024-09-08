@@ -19,14 +19,24 @@ namespace WaveTracker.Audio.Native {
         public WavFormatException(string message) : base(message) { }
     }
 
+    public class WaveStream : MemoryStream {
+        public readonly Wav Wav;
+
+        public WaveStream(Wav wav) : base(wav.SoundData) {
+            Wav = wav;
+        }
+    }
+
     public class Wav {
         public readonly WavFormat Format;
         public readonly ushort NumChannels;
         public readonly uint SampleRate;
-        public readonly uint AvgByteRate;
+        public readonly uint ByteRate;
         public readonly ushort BlockAlign;
         public readonly ushort BitsPerSample;
         public readonly byte[] SoundData;
+
+        public double TotalSecs => SoundData.Length / (double)ByteRate;
 
         private static readonly char[] MAGIC_RIFF = ['R', 'I', 'F', 'F'];
         private static readonly char[] MAGIC_WAVE = ['W', 'A', 'V', 'E'];
@@ -79,7 +89,7 @@ namespace WaveTracker.Audio.Native {
 
             NumChannels = reader.ReadUInt16();
             SampleRate = reader.ReadUInt32();
-            AvgByteRate = reader.ReadUInt32();
+            ByteRate = reader.ReadUInt32();
             BlockAlign = reader.ReadUInt16();
             BitsPerSample = reader.ReadUInt16();
 
@@ -99,7 +109,7 @@ namespace WaveTracker.Audio.Native {
             Format = WavFormat.PCMInteger;
             NumChannels = numChannels;
             SampleRate = sampleRate;
-            AvgByteRate = sampleRate * numChannels * 2;
+            ByteRate = sampleRate * numChannels * 2;
             BlockAlign = (ushort)(numChannels * 2);
             BitsPerSample = 16;
 
@@ -111,7 +121,7 @@ namespace WaveTracker.Audio.Native {
             Format = WavFormat.PCMInteger;
             NumChannels = numChannels;
             SampleRate = sampleRate;
-            AvgByteRate = sampleRate * numChannels * 4;
+            ByteRate = sampleRate * numChannels * 4;
             BlockAlign = (ushort)(numChannels * 4);
             BitsPerSample = 32;
 
@@ -141,7 +151,7 @@ namespace WaveTracker.Audio.Native {
             writer.Write((ushort)Format);
             writer.Write(NumChannels);
             writer.Write(SampleRate);
-            writer.Write(AvgByteRate);
+            writer.Write(ByteRate);
             writer.Write(BlockAlign);
             writer.Write(BitsPerSample);
 
@@ -157,9 +167,13 @@ namespace WaveTracker.Audio.Native {
             if (Format != WavFormat.PCMInteger || BitsPerSample != 16)
                 throw new WavFormatException("wav sample format is not PCM16");
 
-            BinaryReader reader = new BinaryReader(new MemoryStream(SoundData));
+            return GetPCM16Samples(SoundData);
+        }
 
-            short[] pcm16Samples = new short[SoundData.Length / 2];
+        public static short[] GetPCM16Samples(byte[] soundData) {
+            BinaryReader reader = new BinaryReader(new MemoryStream(soundData));
+
+            short[] pcm16Samples = new short[soundData.Length / 2];
             for (int i = 0; i < pcm16Samples.Length; i++)
                 pcm16Samples[i] = reader.ReadInt16();
 
@@ -170,9 +184,13 @@ namespace WaveTracker.Audio.Native {
             if (Format != WavFormat.PCMInteger || BitsPerSample != 32)
                 throw new WavFormatException("wav sample format is not PCM32");
 
-            BinaryReader reader = new BinaryReader(new MemoryStream(SoundData));
+            return GetPCM32Samples(SoundData);
+        }
 
-            int[] pcm32Samples = new int[SoundData.Length / 4];
+        public int[] GetPCM32Samples(byte[] soundData) {
+            BinaryReader reader = new BinaryReader(new MemoryStream(soundData));
+
+            int[] pcm32Samples = new int[soundData.Length / 4];
             for (int i = 0; i < pcm32Samples.Length; i++)
                 pcm32Samples[i] = reader.ReadInt32();
 
