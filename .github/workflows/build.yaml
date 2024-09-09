@@ -1,0 +1,50 @@
+name: Build
+
+on:
+  push:
+    branches:
+      - main
+
+  pull_request:
+
+env:
+  SOLUTION_FILE_PATH: WaveTracker.sln
+  BUILD_CONFIGURATION: Release
+  BUILD_PLATFORM: x64
+
+jobs:
+  build:
+    name: Build
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Add MSBuild to PATH
+        uses: microsoft/setup-msbuild@v2
+        with:
+          msbuild-architecture: ${{ env.BUILD_PLATFORM }}
+
+      - name: Setup dotnet
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8'
+
+      - name: Add error matcher
+        run: |
+          echo ::add-matcher::.github\csc.json
+
+      - run: dotnet restore
+
+      - name: Build
+        run: |
+          msbuild ${{env.SOLUTION_FILE_PATH}} /m /p:Configuration=${{env.BUILD_CONFIGURATION}} /p:Platform=${{env.BUILD_PLATFORM}}
+
+      - name: Upload
+        uses: actions/upload-artifact@v4
+        if: ${{ github.event_name != 'pull_request' }}
+        with:
+          name: WaveTracker-win-${{ env.BUILD_PLATFORM }}
+          if-no-files-found: error
+          path: |
+            bin/${{ env.BUILD_PLATFORM }}/${{ env.BUILD_CONFIGURATION }}/net8.0-windows7.0/*
+          retention-days: 7
