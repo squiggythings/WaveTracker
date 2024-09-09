@@ -5,6 +5,8 @@ VisualStudioVersion = 17.0.31912.275
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WaveTracker", "WaveTracker.csproj", "{995C202E-DB23-4B5C-AC04-DFCA0D67E319}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WaveTracker.Midi", "WaveTracker.Midi\WaveTracker.Midi.csproj", "{7D409CDB-40AF-4D18-865C-0D7408CB8D96}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,18 @@ Global
 		{995C202E-DB23-4B5C-AC04-DFCA0D67E319}.Release|x64.Build.0 = Release|x64
 		{995C202E-DB23-4B5C-AC04-DFCA0D67E319}.Release|x86.ActiveCfg = Release|x86
 		{995C202E-DB23-4B5C-AC04-DFCA0D67E319}.Release|x86.Build.0 = Release|x86
+		{7D409CDB-40AF-4D18-865C-0D7408CB8D96}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7D409CDB-40AF-4D18-865C-0D7408CB8D96}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7D409CDB-40AF-4D18-865C-0D7408CB8D96}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{7D409CDB-40AF-4D18-865C-0D7408CB8D96}.Debug|x64.Build.0 = Debug|Any CPU
+		{7D409CDB-40AF-4D18-865C-0D7408CB8D96}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{7D409CDB-40AF-4D18-865C-0D7408CB8D96}.Debug|x86.Build.0 = Debug|Any CPU
+		{7D409CDB-40AF-4D18-865C-0D7408CB8D96}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7D409CDB-40AF-4D18-865C-0D7408CB8D96}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7D409CDB-40AF-4D18-865C-0D7408CB8D96}.Release|x64.ActiveCfg = Release|Any CPU
+		{7D409CDB-40AF-4D18-865C-0D7408CB8D96}.Release|x64.Build.0 = Release|Any CPU
+		{7D409CDB-40AF-4D18-865C-0D7408CB8D96}.Release|x86.ActiveCfg = Release|Any CPU
+		{7D409CDB-40AF-4D18-865C-0D7408CB8D96}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
