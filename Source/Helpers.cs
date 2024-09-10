@@ -73,7 +73,6 @@ namespace WaveTracker {
             return (int)Graphics.defaultFont.MeasureString(text).X;
         }
 
-
         /// <summary>
         /// Gets the height of <c>text</c>, a string separated by <c>\n</c> characters
         /// </summary>
