@@ -182,7 +182,8 @@ namespace WaveTracker {
             note = Math.Clamp(note, 12, 131);
             if (!midiNotes.Contains(note)) {
                 midiNotes.Add(note);
-                OnNoteOnEvent(note, (int)Math.Ceiling(velocity / 127f * 99), true);
+                int? noteVelocity = App.Settings.MIDI.RecordNoteVelocity ? (int?)Math.Ceiling(velocity / 127f * 99) : null;
+                OnNoteOnEvent(note, noteVelocity, true);
             }
         }
         /// <summary>

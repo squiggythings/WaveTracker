@@ -1622,7 +1622,7 @@ namespace WaveTracker.UI {
                 if (!InstrumentMask) {
                     CurrentPattern[cursorPosition.Row, cursorPosition.Channel, CellType.Instrument] = (byte)App.InstrumentBank.CurrentInstrumentIndex;
                 }
-                if (volume.HasValue && App.Settings.MIDI.RecordNoteVelocity) {
+                if (volume.HasValue) {
                     CurrentPattern[cursorPosition.Row, cursorPosition.Channel, CellType.Volume] = (byte)volume.Value;
                 }
                 MoveToRow(cursorPosition.Row + InputStep);
