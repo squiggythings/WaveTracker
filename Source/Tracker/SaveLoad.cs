@@ -62,8 +62,7 @@ namespace WaveTracker {
         /// </summary>
         public static string FileNameWithoutExtension { get { return CurrentFilepath == "" ? "Untitled" : Path.GetFileNameWithoutExtension(CurrentFilepath); } }
         public static int savecooldown = 0;
-        static float autosaveTimer;
-        static bool performedAutosave;
+        private static bool performedAutosave;
 
         /// <summary>
         /// Writes the current module to <c>path</c>
@@ -87,11 +86,11 @@ namespace WaveTracker {
         public static void CheckCrashPath() {
             string crashflagPath = Path.Combine(SettingsFolderPath, "crashflag");
             if (File.Exists(crashflagPath)) {
-                Dialogs.OpenMessageDialog("WaveTracker quit unexpectedly last time.", MessageDialog.Icon.Warning, [ "Locate autosaves folder", "Close" ], CrashDialogResult);
+                Dialogs.OpenMessageDialog("WaveTracker quit unexpectedly last time.", MessageDialog.Icon.Warning, ["Locate autosaves folder", "Close"], CrashDialogResult);
             }
         }
 
-        static void CrashDialogResult(string result) {
+        private static void CrashDialogResult(string result) {
             if (result == "Locate autosaves folder") {
                 Process.Start("explorer.exe", AutosavesFolderPath);
             }
@@ -107,14 +106,14 @@ namespace WaveTracker {
             }
         }
 
-        static void Autosave() {
+        private static void Autosave() {
             if (!Path.Exists(AutosavesFolderPath)) {
                 Directory.CreateDirectory(AutosavesFolderPath);
             }
             string[] files = Directory.GetFiles(AutosavesFolderPath);
 
             // delete any autosaves older than 3 hours ago.
-            if (files.Length > 36) { 
+            if (files.Length > 36) {
                 File.Delete(files[36]);
             }
             WriteTo(Path.Combine(AutosavesFolderPath, FileNameWithoutExtension + "_autosave_" + string.Format("{0:yyyy-MM-dd_HH-mm-ss-fff}", DateTime.Now) + ".wtm"));

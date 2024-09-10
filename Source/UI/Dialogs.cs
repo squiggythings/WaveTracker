@@ -15,9 +15,8 @@ namespace WaveTracker.UI {
         public static WaveSmoothDialog waveSmoothDialog;
         public static WaveSyncDialog waveSyncDialog;
         public static ConfigurationDialog configurationDialog;
-
-        static MessageDialog currentMessageDialog;
-        static Queue<MessageDialog> messageDialogs;
+        private static MessageDialog currentMessageDialog;
+        private static Queue<MessageDialog> messageDialogs;
 
         public static void Initialize() {
             moduleSettings = new ModuleSettingsDialog();
@@ -49,7 +48,6 @@ namespace WaveTracker.UI {
                 currentMessageDialog.Open();
             }
         }
-
 
         /// <summary>
         /// Opens a message dialog

@@ -33,7 +33,6 @@ namespace WaveTracker.UI {
         private WTFrame contextMenuFrame;
         private int contextMenuFrameIndex;
 
-
         private static List<WTFrame> FrameSequence {
             get {
                 return App.CurrentSong.FrameSequence;

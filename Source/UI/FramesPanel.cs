@@ -1,5 +1,4 @@
 ﻿using Microsoft.Xna.Framework;
-using WaveTracker.Tracker;
 
 namespace WaveTracker.UI {
     public class FramesPanel : Panel {

@@ -142,7 +142,6 @@ namespace WaveTracker {
                 }
             }
 
-
             graphics = new GraphicsDeviceManager(this);
             graphics.ApplyChanges();
             Window.Position = new Point(-8, 0);
