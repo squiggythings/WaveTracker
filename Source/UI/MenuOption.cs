@@ -7,27 +7,27 @@ namespace WaveTracker.UI {
     /// </summary>
     public class MenuOption : MenuItemBase {
 
-        public string Name { get; set; }
+        private string Name { get; set; }
         public Action OnClick { get; set; }
         public Action<string> OnClickArg { get; set; }
 
         private string args;
         public MenuOption(string name, Action onClick) {
-            Name = name;
+            Name = Helpers.FlushString(name);
             OnClick = onClick;
             height = OPTION_HEIGHT;
             width = Math.Min(Helpers.GetWidthOfText(name) + MARGIN_LEFT + MARGIN_RIGHT + PADDING_LEFT + PADDING_RIGHT, MAX_WIDTH);
         }
 
         public MenuOption(string name, Action onClick, string tooltip) {
-            Name = name;
+            Name = Helpers.FlushString(name);
             OnClick = onClick;
             height = OPTION_HEIGHT;
             width = Math.Min(Helpers.GetWidthOfText(name) + MARGIN_LEFT + MARGIN_RIGHT + PADDING_LEFT + PADDING_RIGHT, MAX_WIDTH);
             SetTooltip("", tooltip);
         }
         public MenuOption(string name, Action onClick, bool enabledOrNot, string tooltip) {
-            Name = name;
+            Name = Helpers.FlushString(name);
             OnClick = onClick;
             height = OPTION_HEIGHT;
             enabled = enabledOrNot;
@@ -35,21 +35,21 @@ namespace WaveTracker.UI {
             SetTooltip("", tooltip);
         }
         public MenuOption(string name, Action onClick, bool enabledOrNot) {
-            Name = name;
+            Name = Helpers.FlushString(name);
             OnClick = onClick;
             height = OPTION_HEIGHT;
             enabled = enabledOrNot;
             width = Math.Min(Helpers.GetWidthOfText(name) + MARGIN_LEFT + MARGIN_RIGHT + PADDING_LEFT + PADDING_RIGHT, MAX_WIDTH);
         }
         public MenuOption(string name, Action<string> onClick, string arg) {
-            Name = name;
+            Name = Name = Helpers.FlushString(name);
             OnClickArg = onClick;
             args = arg;
             height = OPTION_HEIGHT;
             width = Math.Min(Helpers.GetWidthOfText(name) + MARGIN_LEFT + MARGIN_RIGHT + PADDING_LEFT + PADDING_RIGHT, MAX_WIDTH);
         }
         public MenuOption(string name, Action<string> onClick, string arg, string tooltip) {
-            Name = name;
+            Name = Helpers.FlushString(name);
             OnClickArg = onClick;
             args = arg;
             height = OPTION_HEIGHT;
@@ -57,7 +57,7 @@ namespace WaveTracker.UI {
             SetTooltip("", tooltip);
         }
         public MenuOption(string name, Action<string> onClick, string arg, bool enabledOrNot, string tooltip) {
-            Name = name;
+            Name = Helpers.FlushString(name);
             OnClickArg = onClick;
             args = arg;
             height = OPTION_HEIGHT;
@@ -66,7 +66,7 @@ namespace WaveTracker.UI {
             SetTooltip("", tooltip);
         }
         public MenuOption(string name, Action<string> onClick, string arg, bool enabledOrNot) {
-            Name = name;
+            Name = Helpers.FlushString(name);
             OnClickArg = onClick;
             args = arg;
             height = OPTION_HEIGHT;

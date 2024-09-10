@@ -272,6 +272,9 @@ namespace WaveTracker.UI {
             x = (App.WindowWidth - width) / 2;
             y = (App.WindowHeight - height) / 2;
             Input.focus = this;
+            if (!Path.Exists(currentPath)) {
+                SaveLoad.ReadPath("sample", Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments));
+            }
             GetFileEntries(true);
         }
 
@@ -324,7 +327,7 @@ namespace WaveTracker.UI {
                 DrawRect(2, 29 + y * 11, width - 111, 11, row);
                 if (entriesInDirectory.Length > i && i >= 0) {
                     if (currentPath == "") {
-                        Write(entriesInDirectory[i], 20, 31 + y * 11, Color.White);
+                        Write(Helpers.FlushString(entriesInDirectory[i]), 20, 31 + y * 11, Color.White);
                     }
                     else {
                         Write(Helpers.FlushString(Path.GetFileName(entriesInDirectory[i])), 20, 31 + y * 11, Color.White);
