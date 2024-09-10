@@ -137,8 +137,11 @@ namespace WaveTracker {
         public App(string[] args) {
             instance = this;
             if (args.Length > 0) {
-                inputFilepath = args[0];
+                if (Path.Exists(inputFilepath)) {
+                    inputFilepath = args[0];
+                }
             }
+
 
             graphics = new GraphicsDeviceManager(this);
             graphics.ApplyChanges();
@@ -197,7 +200,7 @@ namespace WaveTracker {
             try {
                 Process.Start("explorer", "https://wavetracker.org/documentation");
             } catch {
-                Dialogs.messageDialog.Open("Could not open help!", MessageDialog.Icon.Error, "OK");
+                Dialogs.OpenMessageDialog("Could not open help!", MessageDialog.Icon.Error, "OK");
             }
         }
 
@@ -205,7 +208,7 @@ namespace WaveTracker {
             try {
                 Process.Start("explorer", "https://wavetracker.org/documentation/effect-list");
             } catch {
-                Dialogs.messageDialog.Open("Could not open help!", MessageDialog.Icon.Error, "OK");
+                Dialogs.OpenMessageDialog("Could not open help!", MessageDialog.Icon.Error, "OK");
             }
         }
         protected override void Initialize() {
@@ -270,14 +273,16 @@ namespace WaveTracker {
             SaveLoad.LoadFile(inputFilepath);
         }
 
-        private int midiDelay = 0;
+        private int dialogDelay = 0;
         protected override void Update(GameTime gameTime) {
             Window.Title = SaveLoad.FileNameWithoutExtension + (SaveLoad.IsSaved ? "" : "*") + " [#" + (CurrentSongIndex + 1) + " " + CurrentSong.ToString() + "] - WaveTracker " + VERSION;
             WindowHeight = Window.ClientBounds.Height / Settings.General.ScreenScale;
             WindowWidth = Window.ClientBounds.Width / Settings.General.ScreenScale;
-            if (midiDelay < 2) {
-                midiDelay++;
-                if (midiDelay == 2) {
+            if (dialogDelay < 2) {
+                dialogDelay++;
+                if (dialogDelay == 2) {
+                    SaveLoad.CheckCrashPath();
+                    SaveLoad.SetCrashFlag(true);
                     PianoInput.Initialize();
                 }
             }
@@ -290,7 +295,7 @@ namespace WaveTracker {
                 Input.windowFocusTimer = 5;
                 Input.dialogOpenCooldown = 3;
             }
-
+            SaveLoad.AutosaveTick(gameTime);
             if (Input.dialogOpenCooldown == 0) {
                 if (Input.MousePositionX > 1 && Input.MousePositionX < WindowWidth - 1) {
                     if (Input.MousePositionY > 1 && Input.MousePositionY < WindowHeight - 1) {
@@ -451,7 +456,6 @@ namespace WaveTracker {
         /// </summary>
         public static void ExitApplication() {
             System.Windows.Forms.Form form = (System.Windows.Forms.Form)System.Windows.Forms.Control.FromHandle(instance.Window.Handle);
-
             form.Close();
         }
 
@@ -461,9 +465,10 @@ namespace WaveTracker {
         /// <param name="sender"></param>
         /// <param name="e"></param>
         public void ClosingForm(object sender, System.ComponentModel.CancelEventArgs e) {
+            ContextMenu.CloseCurrent();
+
             if (!SaveLoad.IsSaved) {
                 e.Cancel = true;
-                ContextMenu.CloseCurrent();
                 SaveLoad.DoSaveChangesDialog(UnsavedChangesCallback);
             }
 
@@ -485,6 +490,7 @@ namespace WaveTracker {
 
         protected override void OnExiting(object sender, EventArgs args) {
             Debug.WriteLine("Closing WaveTracker...");
+            SaveLoad.SetCrashFlag(false);
             AudioEngine.Stop();
             PianoInput.StopMIDI();
             SettingsProfile.WriteToDisk(Settings);
