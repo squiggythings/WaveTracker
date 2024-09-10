@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using WaveTracker.Audio;
@@ -133,7 +134,6 @@ namespace WaveTracker {
         /// If the application is being opened to edit a file, this is that filepath.
         /// </summary>
         private string inputFilepath;
-
         public App(string[] args) {
             instance = this;
             if (args.Length > 0) {
@@ -162,8 +162,20 @@ namespace WaveTracker {
                 File.WriteAllText(Path.Combine(SaveLoad.ThemeFolderPath, "Neon.wttheme"), ColorTheme.CreateString(ColorTheme.Neon));
             }
             Input.Intialize();
-
+            Graphics.defaultFont = Content.Load<SpriteFont>("custom_font");
+            Graphics.highResFonts = new SpriteFont[5];
+            for (int i = 0; i < 5; ++i) {
+                Graphics.highResFonts[i] = Content.Load<SpriteFont>("highres_font_" + (i + 1));
+            }
             Settings = SettingsProfile.ReadFromDisk();
+            if (Settings.General.UseHighResolutionText) {
+                Graphics.currentFont = Graphics.highResFonts[Settings.General.ScreenScale - 1];
+                Graphics.fontScale = 1;
+            }
+            else {
+                Graphics.currentFont = Graphics.defaultFont;
+                Graphics.fontScale = Settings.General.ScreenScale;
+            }
             SaveLoad.ReadRecentFiles();
         }
 
@@ -211,7 +223,6 @@ namespace WaveTracker {
             }
         }
         protected override void Initialize() {
-
             CurrentModule = new WTModule();
             WaveBank = new WaveBank(510, 18 + MENUSTRIP_HEIGHT);
             ChannelManager.Initialize(WTModule.MAX_CHANNEL_COUNT);
@@ -258,12 +269,6 @@ namespace WaveTracker {
         }
 
         protected override void LoadContent() {
-
-            Graphics.defaultFont = Content.Load<SpriteFont>("custom_font");
-            Graphics.highResFonts = new SpriteFont[5];
-            for (int i = 0; i < 5; ++i) {
-                Graphics.highResFonts[i] = Content.Load<SpriteFont>("highres_font_" + (i + 1));
-            }
             Graphics.img = Content.Load<Texture2D>("img");
             Graphics.pixel = new Texture2D(GraphicsDevice, 1, 1);
             Graphics.pixel.SetData(new[] { Color.White });
@@ -377,12 +382,10 @@ namespace WaveTracker {
 
             if (Settings.General.UseHighResolutionText) {
                 Graphics.currentFont = Graphics.highResFonts[Settings.General.ScreenScale - 1];
-                Graphics.fontOffsetY = 2;
                 Graphics.fontScale = 1;
             }
             else {
                 Graphics.currentFont = Graphics.defaultFont;
-                Graphics.fontOffsetY = 5;
                 Graphics.fontScale = Settings.General.ScreenScale;
             }
 
@@ -435,7 +438,6 @@ namespace WaveTracker {
             DropdownButton.DrawCurrentMenu();
             ContextMenu.Draw();
             Tooltip.Draw();
-
             targetBatch.End();
 
             base.Draw(gameTime);

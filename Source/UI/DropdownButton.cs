@@ -49,7 +49,7 @@ namespace WaveTracker.UI {
             int maxlength = 0;
             options = new string[items.Length];
             for (int i = 0; i < items.Length; i++) {
-                options[i] = Helpers.FlushString(items[i]);
+                options[i] = items[i];
                 if (Helpers.GetWidthOfText(options[i]) > maxlength) {
                     maxlength = Helpers.GetWidthOfText(options[i]);
                 }
@@ -109,24 +109,33 @@ namespace WaveTracker.UI {
             Input.focus = previousFocus;
         }
 
-        private Color getBackgroundColor() {
-            return !enabled
-                ? ButtonColors.Round.backgroundColorDisabled
-                : IsPressed
-                ? ButtonColors.Round.backgroundColorPressed
-                : IsHovered || showMenu ? ButtonColors.Round.backgroundColorHover : ButtonColors.Round.backgroundColor;
+        private Color GetBackgroundColor() {
+            if (!enabled) {
+                return ButtonColors.Round.backgroundColorDisabled;
+            }
+            else {
+                if (IsPressed) {
+                    return ButtonColors.Round.backgroundColorPressed;
+                }
+                else {
+                    return IsHovered || showMenu ? ButtonColors.Round.backgroundColorHover : ButtonColors.Round.backgroundColor;
+                }
+            }
         }
 
-        private Color getTextColor() {
-            return !enabled
-                ? ButtonColors.Round.textColorDisabled
-                : IsPressed ? ButtonColors.Round.textColorPressed : ButtonColors.Round.textColor;
+        private Color GetTextColor() {
+            if (!enabled) {
+                return ButtonColors.Round.textColorDisabled;
+            }
+            else {
+                return IsPressed ? ButtonColors.Round.textColorPressed : ButtonColors.Round.textColor;
+            }
         }
         public void Draw() {
 
             int textOffset = IsPressed && enabled ? 1 : 0;
 
-            DrawRoundedRect(0, 0, width, height, getBackgroundColor());
+            DrawRoundedRect(0, 0, width, height, GetBackgroundColor());
 
             if (LabelIsCentered) {
                 Write(label, (width - labelWidth) / 2, (height + 1) / 2 - 4 + textOffset, ButtonColors.Round.textColor);
@@ -135,9 +144,9 @@ namespace WaveTracker.UI {
                 Write(label, 4, (height + 1) / 2 - 4 + textOffset, ButtonColors.Round.textColor);
             }
 
-            DrawRect(width - 9, 5 + textOffset, 5, 1, getTextColor());
-            DrawRect(width - 8, 6 + textOffset, 3, 1, getTextColor());
-            DrawRect(width - 7, 7 + textOffset, 1, 1, getTextColor());
+            DrawRect(width - 9, 5 + textOffset, 5, 1, GetTextColor());
+            DrawRect(width - 8, 6 + textOffset, 3, 1, GetTextColor());
+            DrawRect(width - 7, 7 + textOffset, 1, 1, GetTextColor());
         }
 
         public static void DrawCurrentMenu() {

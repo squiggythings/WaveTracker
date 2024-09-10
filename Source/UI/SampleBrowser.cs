@@ -327,10 +327,10 @@ namespace WaveTracker.UI {
                 DrawRect(2, 29 + y * 11, width - 111, 11, row);
                 if (entriesInDirectory.Length > i && i >= 0) {
                     if (currentPath == "") {
-                        Write(Helpers.FlushString(entriesInDirectory[i]), 20, 31 + y * 11, Color.White);
+                        Write(entriesInDirectory[i], 20, 31 + y * 11, Color.White);
                     }
                     else {
-                        Write(Helpers.FlushString(Path.GetFileName(entriesInDirectory[i])), 20, 31 + y * 11, Color.White);
+                        Write(Path.GetFileName(entriesInDirectory[i]), 20, 31 + y * 11, Color.White);
                     }
 
                     if (Directory.Exists(entriesInDirectory[i])) { // draw folder icon
@@ -377,7 +377,7 @@ namespace WaveTracker.UI {
                 backButton.Draw();
                 ok.Draw();
                 cancel.Draw();
-                Write(Helpers.FlushString(GetNicePathString(currentPath)), 20, 15, UIColors.label);
+                Write(GetNicePathString(currentPath), 20, 15, UIColors.label);
                 Write("Sort by:", width - 104, 32, UIColors.labelDark);
                 sortName.Draw();
                 sortType.Draw();
@@ -385,7 +385,7 @@ namespace WaveTracker.UI {
                 if (SelectedAnAudioFile) {
                     // write file name
                     if (reader != null) {
-                        Write(Helpers.FlushString(Helpers.TrimTextToWidth(105, Path.GetFileName(reader.FileName))), width - 104, 85, UIColors.label);
+                        Write(Helpers.TrimTextToWidth(105, Path.GetFileName(reader.FileName)), width - 104, 85, UIColors.label);
                         Write(reader.WaveFormat.Channels == 1 ? "Mono" : "Stereo", width - 104, 95, UIColors.label);
                         Write(reader.WaveFormat.SampleRate + " Hz", width - 104, 105, UIColors.label);
                         Write(reader.TotalTime.TotalSeconds + " sec", width - 104, 115, UIColors.label);

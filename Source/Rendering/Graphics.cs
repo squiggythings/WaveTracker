@@ -12,7 +12,7 @@ namespace WaveTracker.Rendering {
         public static Texture2D img;
         public static int Scale { get; set; }
         public static float fontScale = 2;
-        public static float fontOffsetY = /*5*/ 2;
+        public static float fontOffsetY = 2;
 
         public static void DrawRect(int x, int y, int width, int height, Color color) {
             batch.Draw(pixel, new Rectangle(x * Scale, y * Scale, width * Scale, height * Scale), color);

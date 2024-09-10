@@ -72,7 +72,7 @@ namespace WaveTracker.UI {
                 DrawRect(width - textboxWidth + 1, 1, textboxWidth - 2, 1, new Color(193, 196, 213));
             }
 
-            string t = textPrefix + Helpers.FlushString(Text) + "";
+            string t = textPrefix + Text + "";
             if (t.Length > 0) {
                 Write(Helpers.TrimTextToWidth(textboxWidth, t), width - textboxWidth + 4, height / 2 - 3, text);
             }
@@ -88,7 +88,7 @@ namespace WaveTracker.UI {
             dialog.label.Text = label;
             dialog.textBox.MaxLength = MaxLength;
             if (dialog.ShowDialog() == DialogResult.OK) {
-                Text = Helpers.FlushString(dialog.textBox.Text);
+                Text = dialog.textBox.Text;
                 ValueWasChangedInternally = true;
             }
         }

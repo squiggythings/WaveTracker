@@ -70,37 +70,9 @@ namespace WaveTracker {
         /// <param name="text"></param>
         /// <returns></returns>
         public static int GetWidthOfText(string text) {
-            int ret = 0;
-            string alphabet = " 0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz!@#$%^&*()_+-={}[]\\|'\":;?/>.<,~`©àèìòùÀÈÌÒÙáéíóúýÁÉÍÓÚÝâêîôûÂÊÎÔÛãñõÃÑÕäëïöüÿÄËÏÖÜŸæçÇ";
-            string chars5 = "WX&%#@~YM«»mw";
-            string chars3 = "kI 1-crtT<>{}+\"^\\/?=";
-            string chars2 = "(),[]*j";
-            string chars1 = "li.'!";
-
-            foreach (char c in text) {
-                if (alphabet.Contains(c)) {
-                    if (chars5.Contains(c)) {
-                        ret += 6;
-                    }
-                    else if (chars3.Contains(c)) {
-                        ret += 4;
-                    }
-                    else if (chars2.Contains(c)) {
-                        ret += 3;
-                    }
-                    else if (chars1.Contains(c)) {
-                        ret += 2;
-                    }
-                    else {
-                        ret += 5;
-                    }
-                }
-                else {
-                    ret += 0;
-                }
-            }
-            return ret - 1;
+            return (int)Graphics.defaultFont.MeasureString(text).X;
         }
+
 
         /// <summary>
         /// Gets the height of <c>text</c>, a string separated by <c>\n</c> characters
@@ -145,7 +117,7 @@ namespace WaveTracker {
             if (GetWidthOfText(t) > width - 6) {
                 while (GetWidthOfText(t + "...") > width - 6) {
                     t = t.Remove(t.Length - 1, 1);
-                    if (t[t.Length - 1] == ' ') {
+                    if (t.Length > 0 && t[t.Length - 1] == ' ') {
                         t = t.Remove(t.Length - 1, 1);
                     }
                 }
@@ -228,31 +200,11 @@ namespace WaveTracker {
         }
 
         /// <summary>
-        /// Ensures that a string will not contain any characters that the font does not support
-        /// </summary>
-        /// <param name="original"></param>
-        /// <returns></returns>
-        public static string FlushString(string original) {
-            if (original == null) {
-                return "";
-            }
-
-            string alphabet = " 0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz!@#$%^&*()_+-={}[]\\|'\":;?/>.<,~`©àèìòùÀÈÌÒÙáéíóúýÁÉÍÓÚÝâêîôûÂÊÎÔÛãñõÃÑÕäëïöüÿÄËÏÖÜŸæçÇ";
-            string ret = "";
-            foreach (char c in original) {
-                if (alphabet.Contains(c)) {
-                    ret += c;
-                }
-            }
-            return ret;
-        }
-
-        /// <summary>
         /// Ensures that a string will not contain any characters that arent in the allowed characters
         /// </summary>
         /// <param name="original"></param>
         /// <returns></returns>
-        public static string FlushString(string original, string allowedCharacters) {
+        public static string FlushString(string original, string allowedCharacters, bool omitMissing = true) {
             if (original == null) {
                 return "";
             }
@@ -261,6 +213,9 @@ namespace WaveTracker {
             foreach (char c in original) {
                 if (allowedCharacters.Contains(c)) {
                     ret += c;
+                }
+                else if (!omitMissing) {
+                    ret += '□';
                 }
             }
             return ret;

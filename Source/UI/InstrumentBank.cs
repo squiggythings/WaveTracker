@@ -280,7 +280,7 @@ namespace WaveTracker.UI {
             renameDialog.Text = "Rename Instrument " + CurrentInstrumentIndex.ToString("D2");
             renameDialog.label.Text = "";
             if (renameDialog.ShowDialog() == DialogResult.OK) {
-                App.CurrentModule.Instruments[CurrentInstrumentIndex].SetName(Helpers.FlushString(renameDialog.textBox.Text));
+                App.CurrentModule.Instruments[CurrentInstrumentIndex].SetName(renameDialog.textBox.Text);
                 App.CurrentModule.SetDirty();
             }
         }

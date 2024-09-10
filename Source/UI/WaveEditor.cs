@@ -45,10 +45,10 @@ namespace WaveTracker.UI {
             PasteButton.SetTooltip("", "Paste wave settings");
             buttonY += 18;
 
-            PhaseRButton = new Button("Phase »", buttonX, buttonY, buttonWidth, this);
+            PhaseRButton = new Button("Phase →", buttonX, buttonY, buttonWidth, this);
             PhaseRButton.SetTooltip("", "Shift phase once to the right");
             buttonY += 14;
-            PhaseLButton = new Button("Phase «", buttonX, buttonY, buttonWidth, this);
+            PhaseLButton = new Button("Phase ←", buttonX, buttonY, buttonWidth, this);
             PhaseLButton.SetTooltip("", "Shift phase once to the left");
             buttonY += 14;
             MoveUpButton = new Button("Shift Up", buttonX, buttonY, buttonWidth, this);

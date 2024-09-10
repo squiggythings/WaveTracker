@@ -515,7 +515,7 @@ namespace WaveTracker.UI {
 
                         if (thisEffectType != WTPattern.EVENT_EMPTY) {
                             wroteAnEffect = true;
-                            Write(Helpers.FlushString((char)thisEffectType + ""), x + 2, y, Helpers.Alpha(App.Settings.Colors.Theme["Effect"], alpha));
+                            Write((char)thisEffectType + "", x + 2, y, Helpers.Alpha(App.Settings.Colors.Theme["Effect"], alpha));
                             if (Helpers.IsEffectHex((char)thisEffectType)) {
                                 WriteMonospaced(thisEffectParameter.ToString("X2"), x + 7, y, Helpers.Alpha(App.Settings.Colors.Theme["Effect parameter"], alpha), 4);
                             }
@@ -626,7 +626,7 @@ namespace WaveTracker.UI {
                     int thisEffectParameter = App.CurrentSong[frame][row, channel, CellType.Effect1Parameter + i * 2];
 
                     if (thisEffectType != WTPattern.EVENT_EMPTY) {
-                        Write(Helpers.FlushString((char)thisEffectType + ""), x + 47, y, Helpers.Alpha(App.Settings.Colors.Theme["Effect"], alpha));
+                        Write((char)thisEffectType + "", x + 47, y, Helpers.Alpha(App.Settings.Colors.Theme["Effect"], alpha));
                         if (Helpers.IsEffectHex((char)thisEffectType)) {
                             WriteMonospaced(thisEffectParameter.ToString("X2"), x + 52, y, Helpers.Alpha(App.Settings.Colors.Theme["Effect parameter"], alpha), 4);
                         }

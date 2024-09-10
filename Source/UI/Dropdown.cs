@@ -56,7 +56,7 @@ namespace WaveTracker.UI {
             int maxlength = 0;
             options = new string[items.Length];
             for (int i = 0; i < items.Length; i++) {
-                options[i] = Helpers.FlushString(items[i]);
+                options[i] = items[i];
                 if (Helpers.GetWidthOfText(options[i]) > maxlength) {
                     maxlength = Helpers.GetWidthOfText(options[i]);
                 }
