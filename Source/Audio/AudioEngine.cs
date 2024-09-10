@@ -3,6 +3,7 @@ using NAudio.Wave;
 using ProtoBuf;
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Diagnostics;
 using System.IO;
 using System.Threading;
@@ -148,6 +149,62 @@ namespace WaveTracker.Audio {
             return !CancelRenderFlag;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void ProcessSingleSample(out float left, out float right) {
+            int OVERSAMPLE = App.Settings.Audio.Oversampling;
+            float delta = 1f / TrueSampleRate * (TickSpeed / 60f);
+
+
+            left = right = 0;
+            float leftSum;
+            float rightSum;
+            for (int j = 0; j < OVERSAMPLE; ++j) {
+                float l;
+                float r;
+                leftSum = 0;
+                rightSum = 0;
+                for (int c = 0; c < ChannelManager.Channels.Count; ++c) {
+                    ChannelManager.Channels[c].ProcessSingleSample(out l, out r, delta);
+                    leftSum += l;
+                    rightSum += r;
+                }
+
+                ChannelManager.PreviewChannel.ProcessSingleSample(out l, out r, delta);
+                leftSum += l;
+                rightSum += r;
+                left = leftSum;
+                right = rightSum;
+            }
+
+            left = Math.Clamp(left * (App.Settings.Audio.MasterVolume / 100f), -1, 1);
+            right = Math.Clamp(right * (App.Settings.Audio.MasterVolume / 100f), -1, 1);
+            if (!IsRendering) {
+                CurrentBuffer[0, currBufferPosition] = left;
+                CurrentBuffer[1, currBufferPosition] = right;
+                currBufferPosition++;
+                if (currBufferPosition >= CurrentBuffer.Length / 2) {
+                    currBufferPosition = 0;
+                }
+            }
+
+            if (App.VisualizerMode && !IsRendering) {
+                if (_tickCounter % (int)(SamplesPerTick / ((float)App.Settings.Visualizer.PianoSpeed / (App.Settings.Visualizer.DrawInHighResolution ? 1 : App.Settings.General.ScreenScale))) == 0) {
+                    App.Visualizer.RecordChannelStates();
+                }
+            }
+
+            _tickCounter++;
+            if (_tickCounter >= SamplesPerTick) {
+                _tickCounter = 0;
+                Playback.Tick();
+                foreach (Channel c in ChannelManager.Channels) {
+                    c.NextTick();
+                }
+                ChannelManager.PreviewChannel.NextTick();
+            }
+
+        }
+
         public class AudioProvider : WaveProvider32 {
             public override int Read(float[] buffer, int offset, int sampleCount) {
                 if (IsRendering) {
@@ -157,64 +214,18 @@ namespace WaveTracker.Audio {
                         return 0;
                     }
                 }
-
-                int OVERSAMPLE = App.Settings.Audio.Oversampling;
-                float delta = 1f / TrueSampleRate * (TickSpeed / 60f);
-
                 for (int n = 0; n < sampleCount; n += 2) {
-                    buffer[n + offset] = buffer[n + offset + 1] = 0;
-                    float leftSum;
-                    float rightSum;
-                    for (int j = 0; j < OVERSAMPLE; ++j) {
-                        float l;
-                        float r;
-                        leftSum = 0;
-                        rightSum = 0;
-                        for (int c = 0; c < ChannelManager.Channels.Count; ++c) {
-                            ChannelManager.Channels[c].ProcessSingleSample(out l, out r, delta);
-                            leftSum += l;
-                            rightSum += r;
-                        }
 
-                        ChannelManager.PreviewChannel.ProcessSingleSample(out l, out r, delta);
-                        leftSum += l;
-                        rightSum += r;
-                        buffer[n + offset] = leftSum;
-                        buffer[n + offset + 1] = rightSum;
-                    }
 
-                    buffer[n + offset] = Math.Clamp(buffer[n + offset] * (App.Settings.Audio.MasterVolume / 100f), -1, 1);
-                    buffer[n + offset + 1] = Math.Clamp(buffer[n + offset + 1] * (App.Settings.Audio.MasterVolume / 100f), -1, 1);
-                    if (!IsRendering) {
-                        CurrentBuffer[0, currBufferPosition] = buffer[n + offset];
-                        CurrentBuffer[1, currBufferPosition] = buffer[n + offset + 1];
-                        currBufferPosition++;
-                        if (currBufferPosition >= CurrentBuffer.Length / 2) {
-                            currBufferPosition = 0;
-                        }
-                    }
-
-                    if (App.VisualizerMode && !IsRendering) {
-                        if (_tickCounter % (int)(SamplesPerTick / ((float)App.Settings.Visualizer.PianoSpeed / (App.Settings.Visualizer.DrawInHighResolution ? 1 : App.Settings.General.ScreenScale))) == 0) {
-                            App.Visualizer.RecordChannelStates();
-                        }
-                    }
-
-                    _tickCounter++;
-                    if (_tickCounter >= SamplesPerTick) {
-                        _tickCounter = 0;
-                        Playback.Tick();
-                        foreach (Channel c in ChannelManager.Channels) {
-                            c.NextTick();
-                        }
-                        ChannelManager.PreviewChannel.NextTick();
-                    }
+                    ProcessSingleSample(out buffer[n + offset], out buffer[n + offset + 1]);
+                    
                     if (IsRendering) {
                         if (RenderProcessedRows >= RenderTotalRows || CancelRenderFlag) {
                             return n;
                         }
                     }
                 }
+
                 return sampleCount;
             }
         }
