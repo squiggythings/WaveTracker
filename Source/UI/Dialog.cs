@@ -28,7 +28,15 @@ namespace WaveTracker.UI {
 
             Button ret = new Button(name, width - 54 * (bottomButtons.Count + 1), height - 16, parent);
             ret.width = 51;
+            if (Helpers.GetWidthOfText(name) > ret.width - 6) {
+                ret.width = Helpers.GetWidthOfText(name) + 6;
+            }
             bottomButtons.Add(ret);
+            int x = width;
+            foreach (Button button in bottomButtons) {
+                x -= button.width + 3;
+            }
+            ret.x = x;
             return ret;
         }
 

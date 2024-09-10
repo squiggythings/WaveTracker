@@ -417,7 +417,7 @@ namespace WaveTracker {
             try {
                 AudioFileReader Nreader = new AudioFileReader(filepath);
                 if (Nreader.Length == 0) {
-                    Dialogs.messageDialog.Open("Could not load sample: " + Path.GetFileName(filepath), MessageDialog.Icon.Error, "OK");
+                    Dialogs.OpenMessageDialog("Could not load sample: " + Path.GetFileName(filepath), MessageDialog.Icon.Error, "OK");
                     throw new Exception("Failed to read audio file");
                 }
                 int bytesPerSample = Nreader.WaveFormat.BitsPerSample / 8;

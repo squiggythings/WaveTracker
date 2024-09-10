@@ -102,7 +102,7 @@ namespace WaveTracker.UI {
                 }
                 if (ok.Clicked) {
                     if (numberOfChannels.Value < App.CurrentModule.ChannelCount) {
-                        Dialogs.messageDialog.Open(
+                        Dialogs.OpenMessageDialog(
                         "Remove " + (App.CurrentModule.ChannelCount - numberOfChannels.Value) + " channels? There is no undo.",
                         MessageDialog.Icon.Warning,
                         ["Yes", "No"],
@@ -130,7 +130,7 @@ namespace WaveTracker.UI {
                     songsList.SelectedIndex++;
                 }
                 if (removeSong.Clicked) {
-                    Dialogs.messageDialog.Open(
+                    Dialogs.OpenMessageDialog(
                         "Do you want to remove this song from the module? There is no undo.",
                         MessageDialog.Icon.Warning,
                         ["Yes", "No"],

@@ -94,7 +94,7 @@ namespace WaveTracker {
             } catch {
                 MidiIn_ = null;
                 CurrentMidiDeviceName = "(none)";
-                Dialogs.messageDialog.Open(
+                Dialogs.OpenMessageDialog(
                     "Error opening MIDI device \"" + name + "\"!",
                     MessageDialog.Icon.Error,
                     "OK"
@@ -219,7 +219,7 @@ namespace WaveTracker {
         }
 
         private static void OnMIDIErrorReceived(object sender, MidiInMessageEventArgs e) {
-            Dialogs.messageDialog.Open(string.Format("Time {0} Message 0x{1:X8} Event {2}", e.Timestamp, e.RawMessage, e.MidiEvent), MessageDialog.Icon.Error, "OK");
+            Dialogs.OpenMessageDialog(string.Format("Time {0} Message 0x{1:X8} Event {2}", e.Timestamp, e.RawMessage, e.MidiEvent), MessageDialog.Icon.Error, "OK");
         }
 
         private static void OnMIDIMessageReceived(object sender, MidiInMessageEventArgs e) {
