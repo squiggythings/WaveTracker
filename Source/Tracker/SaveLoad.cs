@@ -87,7 +87,7 @@ namespace WaveTracker {
         public static void CheckCrashPath() {
             string crashflagPath = Path.Combine(SettingsFolderPath, "crashflag");
             if (File.Exists(crashflagPath)) {
-                Dialogs.OpenMessageDialog("WaveTracker quit unexpectedly.", MessageDialog.Icon.Warning, [ "Locate autosaves folder", "Close" ], CrashDialogResult);
+                Dialogs.OpenMessageDialog("WaveTracker quit unexpectedly last time.", MessageDialog.Icon.Warning, [ "Locate autosaves folder", "Close" ], CrashDialogResult);
             }
         }
 
