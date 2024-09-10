@@ -2,7 +2,7 @@ using System;
 using System.Runtime.InteropServices;
 
 namespace WaveTracker.Midi.Interop.Windows {
-    internal class MidiInterop {
+    internal class Winmm {
 
         public enum MidiInMessage {
             /// <summary>

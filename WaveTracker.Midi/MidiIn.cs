@@ -10,7 +10,7 @@ namespace WaveTracker.Midi {
         private IntPtr hMidiIn = IntPtr.Zero;
         private bool disposeIsRunning = false; // true while the Dispose() method run.
         private bool disposed = false;
-        private MidiInterop.MidiInCallback callback;
+        private Winmm.MidiInCallback callback;
 
         //  Buffer headers created and marshalled to recive incoming Sysex mesages
         private IntPtr[] SysexBufferHeaders = new IntPtr[0];
@@ -35,7 +35,7 @@ namespace WaveTracker.Midi {
         /// </summary>
         public static int NumberOfDevices {
             get {
-                return MidiInterop.midiInGetNumDevs();
+                return Winmm.midiInGetNumDevs();
             }
         }
 
@@ -44,8 +44,8 @@ namespace WaveTracker.Midi {
         /// </summary>
         /// <param name="deviceNo">The device number</param>
         public MidiIn(int deviceNo) {
-            this.callback = new MidiInterop.MidiInCallback(Callback);
-            MmException.Try(MidiInterop.midiInOpen(out hMidiIn, (IntPtr)deviceNo, this.callback, IntPtr.Zero, MidiInterop.CALLBACK_FUNCTION), "midiInOpen");
+            this.callback = new Winmm.MidiInCallback(Callback);
+            MmException.Try(Winmm.midiInOpen(out hMidiIn, (IntPtr)deviceNo, this.callback, IntPtr.Zero, Winmm.CALLBACK_FUNCTION), "midiInOpen");
         }
 
         /// <summary>
@@ -68,21 +68,21 @@ namespace WaveTracker.Midi {
         /// Start the MIDI in device
         /// </summary>
         public void Start() {
-            MmException.Try(MidiInterop.midiInStart(hMidiIn), "midiInStart");
+            MmException.Try(Winmm.midiInStart(hMidiIn), "midiInStart");
         }
 
         /// <summary>
         /// Stop the MIDI in device
         /// </summary>
         public void Stop() {
-            MmException.Try(MidiInterop.midiInStop(hMidiIn), "midiInStop");
+            MmException.Try(Winmm.midiInStop(hMidiIn), "midiInStop");
         }
 
         /// <summary>
         /// Reset the MIDI in device
         /// </summary>
         public void Reset() {
-            MmException.Try(MidiInterop.midiInReset(hMidiIn), "midiInReset");
+            MmException.Try(Winmm.midiInReset(hMidiIn), "midiInReset");
         }
 
         /// <summary>
@@ -93,9 +93,9 @@ namespace WaveTracker.Midi {
         public void CreateSysexBuffers(int bufferSize, int numberOfBuffers) {
             SysexBufferHeaders = new IntPtr[numberOfBuffers];
 
-            var hdrSize = Marshal.SizeOf(typeof(MidiInterop.MIDIHDR));
+            var hdrSize = Marshal.SizeOf(typeof(Winmm.MIDIHDR));
             for (var i = 0; i < numberOfBuffers; i++) {
-                var hdr = new MidiInterop.MIDIHDR();
+                var hdr = new Winmm.MIDIHDR();
 
                 hdr.dwBufferLength = bufferSize;
                 hdr.dwBytesRecorded = 0;
@@ -105,38 +105,38 @@ namespace WaveTracker.Midi {
                 var lpHeader = Marshal.AllocHGlobal(hdrSize);
                 Marshal.StructureToPtr(hdr, lpHeader, false);
 
-                MmException.Try(MidiInterop.midiInPrepareHeader(hMidiIn, lpHeader, Marshal.SizeOf(typeof(MidiInterop.MIDIHDR))), "midiInPrepareHeader");
-                MmException.Try(MidiInterop.midiInAddBuffer(hMidiIn, lpHeader, Marshal.SizeOf(typeof(MidiInterop.MIDIHDR))), "midiInAddBuffer");
+                MmException.Try(Winmm.midiInPrepareHeader(hMidiIn, lpHeader, Marshal.SizeOf(typeof(Winmm.MIDIHDR))), "midiInPrepareHeader");
+                MmException.Try(Winmm.midiInAddBuffer(hMidiIn, lpHeader, Marshal.SizeOf(typeof(Winmm.MIDIHDR))), "midiInAddBuffer");
                 SysexBufferHeaders[i] = lpHeader;
             }
         }
 
-        private void Callback(IntPtr midiInHandle, MidiInterop.MidiInMessage message, IntPtr userData, IntPtr messageParameter1, IntPtr messageParameter2) {
+        private void Callback(IntPtr midiInHandle, Winmm.MidiInMessage message, IntPtr userData, IntPtr messageParameter1, IntPtr messageParameter2) {
             switch (message) {
-                case MidiInterop.MidiInMessage.Open:
+                case Winmm.MidiInMessage.Open:
                     // message Parameter 1 & 2 are not used
                     break;
-                case MidiInterop.MidiInMessage.Data:
+                case Winmm.MidiInMessage.Data:
                     // parameter 1 is packed MIDI message
                     // parameter 2 is milliseconds since MidiInStart
                     if (MessageReceived != null) {
                         MessageReceived(this, new MidiInMessageEventArgs(messageParameter1.ToInt32(), messageParameter2.ToInt32()));
                     }
                     break;
-                case MidiInterop.MidiInMessage.Error:
+                case Winmm.MidiInMessage.Error:
                     // parameter 1 is invalid MIDI message
                     if (ErrorReceived != null) {
                         ErrorReceived(this, new MidiInMessageEventArgs(messageParameter1.ToInt32(), messageParameter2.ToInt32()));
                     }
                     break;
-                case MidiInterop.MidiInMessage.Close:
+                case Winmm.MidiInMessage.Close:
                     // message Parameter 1 & 2 are not used
                     break;
-                case MidiInterop.MidiInMessage.LongData:
+                case Winmm.MidiInMessage.LongData:
                     // parameter 1 is pointer to MIDI header
                     // parameter 2 is milliseconds since MidiInStart
                     if (SysexMessageReceived != null) {
-                        MidiInterop.MIDIHDR hdr = (MidiInterop.MIDIHDR)Marshal.PtrToStructure(messageParameter1, typeof(MidiInterop.MIDIHDR));
+                        Winmm.MIDIHDR hdr = (Winmm.MIDIHDR)Marshal.PtrToStructure(messageParameter1, typeof(Winmm.MIDIHDR));
 
                         //  Copy the bytes received into an array so that the buffer is immediately available for re-use
                         var sysexBytes = new byte[hdr.dwBytesRecorded];
@@ -149,14 +149,14 @@ namespace WaveTracker.Midi {
                         //  BUT When disposing the (resetting the MidiIn port), LONGDATA midi message are fired with a zero length.
                         //  In that case, buffer should no be ReAdd to avoid an inifinite loop of callback as buffer are reused forever.
                         if (!disposeIsRunning)
-                            MidiInterop.midiInAddBuffer(hMidiIn, messageParameter1, Marshal.SizeOf(typeof(MidiInterop.MIDIHDR)));
+                            Winmm.midiInAddBuffer(hMidiIn, messageParameter1, Marshal.SizeOf(typeof(Winmm.MIDIHDR)));
                     }
                     break;
-                case MidiInterop.MidiInMessage.LongError:
+                case Winmm.MidiInMessage.LongError:
                     // parameter 1 is pointer to MIDI header
                     // parameter 2 is milliseconds since MidiInStart
                     break;
-                case MidiInterop.MidiInMessage.MoreData:
+                case Winmm.MidiInMessage.MoreData:
                     // parameter 1 is packed MIDI message
                     // parameter 2 is milliseconds since MidiInStart
                     break;
@@ -169,7 +169,7 @@ namespace WaveTracker.Midi {
         public static MidiInCapabilities DeviceInfo(int midiInDeviceNumber) {
             MidiInCapabilities caps = new MidiInCapabilities();
             int structSize = Marshal.SizeOf(caps);
-            MmException.Try(MidiInterop.midiInGetDevCaps((IntPtr)midiInDeviceNumber, out caps, structSize), "midiInGetDevCaps");
+            MmException.Try(Winmm.midiInGetDevCaps((IntPtr)midiInDeviceNumber, out caps, structSize), "midiInGetDevCaps");
             return caps;
         }
 
@@ -188,12 +188,12 @@ namespace WaveTracker.Midi {
 
                     //  Reset in order to release any Sysex buffers
                     //  We can't Unprepare and free them until they are flushed out. Neither can we close the handle.
-                    MmException.Try(MidiInterop.midiInReset(hMidiIn), "midiInReset");
+                    MmException.Try(Winmm.midiInReset(hMidiIn), "midiInReset");
 
                     //  Free up all created and allocated buffers for incoming Sysex messages
                     foreach (var lpHeader in SysexBufferHeaders) {
-                        MidiInterop.MIDIHDR hdr = (MidiInterop.MIDIHDR)Marshal.PtrToStructure(lpHeader, typeof(MidiInterop.MIDIHDR));
-                        MmException.Try(MidiInterop.midiInUnprepareHeader(hMidiIn, lpHeader, Marshal.SizeOf(typeof(MidiInterop.MIDIHDR))), "midiInPrepareHeader");
+                        Winmm.MIDIHDR hdr = (Winmm.MIDIHDR)Marshal.PtrToStructure(lpHeader, typeof(Winmm.MIDIHDR));
+                        MmException.Try(Winmm.midiInUnprepareHeader(hMidiIn, lpHeader, Marshal.SizeOf(typeof(Winmm.MIDIHDR))), "midiInPrepareHeader");
                         Marshal.FreeHGlobal(hdr.lpData);
                         Marshal.FreeHGlobal(lpHeader);
                     }
@@ -201,7 +201,7 @@ namespace WaveTracker.Midi {
                     //  Defensive protection against double disposal
                     SysexBufferHeaders = new IntPtr[0];
                 }
-                MidiInterop.midiInClose(hMidiIn);
+                Winmm.midiInClose(hMidiIn);
             }
             disposed = true;
             disposeIsRunning = false;

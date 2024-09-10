@@ -9,14 +9,14 @@ namespace WaveTracker.Midi {
     public class MidiOut : IDisposable {
         private IntPtr hMidiOut = IntPtr.Zero;
         private bool disposed = false;
-        MidiInterop.MidiOutCallback callback;
+        Winmm.MidiOutCallback callback;
 
         /// <summary>
         /// Gets the number of MIDI devices available in the system
         /// </summary>
         public static int NumberOfDevices {
             get {
-                return MidiInterop.midiOutGetNumDevs();
+                return Winmm.midiOutGetNumDevs();
             }
         }
 
@@ -26,7 +26,7 @@ namespace WaveTracker.Midi {
         public static MidiOutCapabilities DeviceInfo(int midiOutDeviceNumber) {
             MidiOutCapabilities caps = new MidiOutCapabilities();
             int structSize = Marshal.SizeOf(caps);
-            MmException.Try(MidiInterop.midiOutGetDevCaps((IntPtr)midiOutDeviceNumber, out caps, structSize), "midiOutGetDevCaps");
+            MmException.Try(Winmm.midiOutGetDevCaps((IntPtr)midiOutDeviceNumber, out caps, structSize), "midiOutGetDevCaps");
             return caps;
         }
 
@@ -36,8 +36,8 @@ namespace WaveTracker.Midi {
         /// </summary>
         /// <param name="deviceNo">The device number</param>
         public MidiOut(int deviceNo) {
-            this.callback = new MidiInterop.MidiOutCallback(Callback);
-            MmException.Try(MidiInterop.midiOutOpen(out hMidiOut, (IntPtr)deviceNo, callback, IntPtr.Zero, MidiInterop.CALLBACK_FUNCTION), "midiOutOpen");
+            this.callback = new Winmm.MidiOutCallback(Callback);
+            MmException.Try(Winmm.midiOutOpen(out hMidiOut, (IntPtr)deviceNo, callback, IntPtr.Zero, Winmm.CALLBACK_FUNCTION), "midiOutOpen");
         }
 
         /// <summary>
@@ -63,11 +63,11 @@ namespace WaveTracker.Midi {
             // TODO: Volume can be accessed by device ID
             get {
                 int volume = 0;
-                MmException.Try(MidiInterop.midiOutGetVolume(hMidiOut, ref volume), "midiOutGetVolume");
+                MmException.Try(Winmm.midiOutGetVolume(hMidiOut, ref volume), "midiOutGetVolume");
                 return volume;
             }
             set {
-                MmException.Try(MidiInterop.midiOutSetVolume(hMidiOut, value), "midiOutSetVolume");
+                MmException.Try(Winmm.midiOutSetVolume(hMidiOut, value), "midiOutSetVolume");
             }
         }
 
@@ -75,7 +75,7 @@ namespace WaveTracker.Midi {
         /// Resets the MIDI out device
         /// </summary>
         public void Reset() {
-            MmException.Try(MidiInterop.midiOutReset(hMidiOut), "midiOutReset");
+            MmException.Try(Winmm.midiOutReset(hMidiOut), "midiOutReset");
         }
 
         /// <summary>
@@ -85,7 +85,7 @@ namespace WaveTracker.Midi {
         /// <param name="param1">Parameter 1</param>
         /// <param name="param2">Parameter 2</param>
         public void SendDriverMessage(int message, int param1, int param2) {
-            MmException.Try(MidiInterop.midiOutMessage(hMidiOut, message, (IntPtr)param1, (IntPtr)param2), "midiOutMessage");
+            MmException.Try(Winmm.midiOutMessage(hMidiOut, message, (IntPtr)param1, (IntPtr)param2), "midiOutMessage");
         }
 
         /// <summary>
@@ -93,7 +93,7 @@ namespace WaveTracker.Midi {
         /// </summary>
         /// <param name="message">The message to send</param>
         public void Send(int message) {
-            MmException.Try(MidiInterop.midiOutShortMsg(hMidiOut, message), "midiOutShortMsg");
+            MmException.Try(Winmm.midiOutShortMsg(hMidiOut, message), "midiOutShortMsg");
         }
 
         /// <summary>
@@ -103,12 +103,12 @@ namespace WaveTracker.Midi {
         protected virtual void Dispose(bool disposing) {
             if (!this.disposed) {
                 //if(disposing) Components.Dispose();
-                MidiInterop.midiOutClose(hMidiOut);
+                Winmm.midiOutClose(hMidiOut);
             }
             disposed = true;
         }
 
-        private void Callback(IntPtr midiInHandle, MidiInterop.MidiOutMessage message, IntPtr userData, IntPtr messageParameter1, IntPtr messageParameter2) {
+        private void Callback(IntPtr midiInHandle, Winmm.MidiOutMessage message, IntPtr userData, IntPtr messageParameter1, IntPtr messageParameter2) {
         }
 
         /// <summary>
@@ -116,17 +116,17 @@ namespace WaveTracker.Midi {
         /// </summary>
         /// <param name="byteBuffer">The bytes to send.</param>
         public void SendBuffer(byte[] byteBuffer) {
-            var header = new MidiInterop.MIDIHDR();
+            var header = new Winmm.MIDIHDR();
             header.lpData = Marshal.AllocHGlobal(byteBuffer.Length);
             Marshal.Copy(byteBuffer, 0, header.lpData, byteBuffer.Length);
 
             header.dwBufferLength = byteBuffer.Length;
             header.dwBytesRecorded = byteBuffer.Length;
             int size = Marshal.SizeOf(header);
-            MidiInterop.midiOutPrepareHeader(this.hMidiOut, ref header, size);
-            var errcode = MidiInterop.midiOutLongMsg(this.hMidiOut, ref header, size);
+            Winmm.midiOutPrepareHeader(this.hMidiOut, ref header, size);
+            var errcode = Winmm.midiOutLongMsg(this.hMidiOut, ref header, size);
             if (errcode != MmResult.NoError) {
-                MidiInterop.midiOutUnprepareHeader(this.hMidiOut, ref header, size);
+                Winmm.midiOutUnprepareHeader(this.hMidiOut, ref header, size);
             }
             Marshal.FreeHGlobal(header.lpData);
         }
