@@ -261,6 +261,10 @@ namespace WaveTracker.Audio.Native {
             }
         }
 
+        public void SetLatency(int latency) {
+            this.latency = (uint)latency;
+        }
+
         public bool IsAvailable() {
             if (isOpen) {
                 long frame_count = Alsa.snd_pcm_avail(_pcm);

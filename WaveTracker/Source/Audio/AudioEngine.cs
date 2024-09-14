@@ -69,9 +69,7 @@ namespace WaveTracker.Audio {
                 throw new NotImplementedException();
             }
             else if (OperatingSystem.IsLinux()) {
-                audioCtx = new AudioLinuxContext() {
-                    latency = 15_000,
-                };
+                audioCtx = new AudioLinuxContext();
             }
             else if (OperatingSystem.IsMacOS()) {
                 throw new NotImplementedException();
@@ -160,6 +158,7 @@ namespace WaveTracker.Audio {
             stopAudioThread();
 
             SetSampleRate(SampleRateToInt(App.Settings.Audio.SampleRate), App.Settings.Audio.Oversampling);
+            audioCtx.SetLatency(App.Settings.Audio.DesiredLatency * 1000);
             Thread.Sleep(1);
 
             UpdateAudioOutputDevices();
