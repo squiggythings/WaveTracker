@@ -1,7 +1,9 @@
 using System;
 using System.Runtime.InteropServices;
+using System.Runtime.Versioning;
 
 namespace WaveTracker.Midi.Interop.Windows {
+    [SupportedOSPlatform("Windows")]
     internal class Winmm {
 
         public enum MidiInMessage {
