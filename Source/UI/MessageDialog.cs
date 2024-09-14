@@ -29,22 +29,9 @@ namespace WaveTracker.UI {
         /// <summary>
         /// Displays a message to the user
         /// </summary>
-        /// <param name="message">The message to display to the user</param>
-        /// <param name="icon">The icon to display alongside the message</param>
-        /// <param name="buttonNames">A list of buttons to add to close the message</param>
-        /// <param name="onExitCallback">Callback where the name of the pressed button is passed in as a parameter</param>
         public new void Open() {
-            if (icon == Icon.Information) {
-                System.Media.SystemSounds.Asterisk.Play();
-            }
-            else if (icon == Icon.Error) {
-                System.Media.SystemSounds.Hand.Play();
-            }
-            else if (icon == Icon.Warning) {
-                System.Media.SystemSounds.Exclamation.Play();
-            }
-            else if (icon == Icon.Question) {
-                System.Media.SystemSounds.Question.Play();
+            if (playSound) {
+                UISoundsManager.PlaySound(icon);
             }
             base.Open();
         }
