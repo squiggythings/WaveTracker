@@ -49,11 +49,6 @@ namespace WaveTracker.UI {
         public void Update() {
             if (enabled) {
                 ValueWasChangedInternally = false;
-                //if (Clicked && canEdit) {
-                //    if (Input.dialogOpenCooldown == 0) {
-                //        StartDialog();
-                //    }
-                //}
                 if (InputField.Clicked && canEdit) {
                     InputField.Open(Text);
                 }

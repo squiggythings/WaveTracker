@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using WaveTracker.UI;
 
 namespace WaveTracker {
@@ -70,6 +71,7 @@ namespace WaveTracker {
         public static int windowFocusTimer;
 
         public static Keys[] currentPressedKeys;
+        static List<Keys> cancelledKeys;
         public static Keys CurrentPressedKey { get; private set; }
         public static KeyboardShortcut CurrentPressedShortcut { get; private set; }
         public static void Intialize() {
@@ -77,7 +79,7 @@ namespace WaveTracker {
             foreach (Keys k in Enum.GetValues(typeof(Keys))) {
                 keyTimePairs.Add(k, 0);
             }
-
+            cancelledKeys = new List<Keys>();
             TimeSinceLastClick = 1000;
         }
 
@@ -88,6 +90,7 @@ namespace WaveTracker {
         public static void GetState() {
             deltaTime = App.GameTime.ElapsedGameTime.Milliseconds;
             cancelClick = false;
+
             if (windowFocusTimer > 0) {
                 windowFocusTimer--;
             }
@@ -113,6 +116,13 @@ namespace WaveTracker {
             previousKeyState = currentKeyState;
             currentKeyState = Microsoft.Xna.Framework.Input.Keyboard.GetState();
             currentPressedKeys = currentKeyState.GetPressedKeys();
+
+            for (int i = cancelledKeys.Count - 1; i >= 0; i--) {
+                if (!currentPressedKeys.Contains(cancelledKeys[i])) {
+                    cancelledKeys.RemoveAt(i);
+                }
+            }
+
             CurrentModifier = GetCurrentModifier();
             foreach (Keys k in Enum.GetValues(typeof(Keys))) {
                 if (currentKeyState.IsKeyDown(k)) {
@@ -198,18 +208,21 @@ namespace WaveTracker {
             cancelClick = true;
         }
 
+        public static void CancelKey(Keys key) {
+            cancelledKeys.Add(key);
+        }
+
         public static bool GetKey(Keys key, KeyModifier modifier) {
-            return ModifierMatches(modifier) && currentKeyState.IsKeyDown(key);
+            return ModifierMatches(modifier) && currentKeyState.IsKeyDown(key) && !cancelledKeys.Contains(key);
         }
 
         public static bool GetKeyDown(Keys key, KeyModifier modifier) {
-
-            return ModifierMatches(modifier) && currentKeyState.IsKeyDown(key) && !previousKeyState.IsKeyDown(key);
+            return ModifierMatches(modifier) && currentKeyState.IsKeyDown(key) && !previousKeyState.IsKeyDown(key) && !cancelledKeys.Contains(key);
         }
 
         public static bool GetKeyRepeat(Keys key, KeyModifier modifier) {
 
-            return ModifierMatches(modifier) && (currentKeyState.IsKeyDown(key) && !previousKeyState.IsKeyDown(key) || keyTimePairs[key] > KEY_REPEAT_DELAY);
+            return ModifierMatches(modifier) && (currentKeyState.IsKeyDown(key) && !previousKeyState.IsKeyDown(key) || keyTimePairs[key] > KEY_REPEAT_DELAY) && !cancelledKeys.Contains(key);
         }
 
         public static bool GetKeyUp(Keys key, KeyModifier modifier) {

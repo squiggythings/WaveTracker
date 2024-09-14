@@ -3,44 +3,62 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
 using System.Diagnostics;
-using WaveTracker.Rendering;
-
 
 namespace WaveTracker.UI {
     public class InputField : Clickable {
 
+        /// <summary>
+        /// The text as it is being edited.
+        /// </summary>
         public string EditedText { get; set; }
 
-        string TruncatedText { get; set; }
-        string lastText;
-        public bool IsEditing { get; private set; }
+        /// <summary>
+        /// The characters that are allowed to be input. Leave blank to allow any characters
+        /// </summary>
+        public string AllowedCharacters { get; set; }
 
         /// <summary>
-        /// Should ValueWasChangedInternally be flagged every time the edited text changes or only when editing finishes
+        /// The maximum amount of characters allowed to be input
+        /// </summary>
+        public int MaximumLength { get; set; }
+
+        private string lastText;
+
+        /// <summary>
+        /// Is this InputField currently being edited
+        /// </summary>
+        public bool IsBeingEdited { get; private set; }
+
+        /// <summary>
+        /// Should ValueWasChangedInternally be flagged every time the edited text changes or only when the input field is closed
         /// </summary>
         public bool UpdateLive { get; set; }
 
-        int selectionStart;
-        int selectionEnd;
+        private int selectionStart;
+        private int selectionEnd;
+        private int selectionMin;
+        private int selectionMax;
 
-        int selectionMin;
-        int selectionMax;
-        bool SelectionIsActive { get; set; }
+        private bool SelectionIsActive { get; set; }
 
-        int caretPosition;
-        int lastCaretPosition;
-        int mouseCursorCaret;
+        private int caretPosition;
+        private int lastCaretPosition;
+        private int mouseCursorCaret;
 
         public int ScrollPosition { get; set; }
 
         public bool ValueWasChangedInternally { get; private set; }
         private Element previousFocus;
-        static InputField currentlyEditing;
+
+        /// <summary>
+        /// The inputfield that is being currently edited, if any.
+        /// </summary>
+        private static InputField currentlyEditing;
+
         public static bool IsAnInputFieldBeingEdited { get { return currentlyEditing != null; } }
 
-        float caretFlashTimer;
-
-        static RasterizerState scissorOn;
+        private float caretFlashTimer;
+        private static RasterizerState scissorOn;
 
         public InputField(int x, int y, int width, Element parent) {
             this.x = x;
@@ -50,17 +68,20 @@ namespace WaveTracker.UI {
             scissorOn = new RasterizerState();
             scissorOn.CullMode = CullMode.None;
             scissorOn.ScissorTestEnable = true;
+            MaximumLength = 128;
+            AllowedCharacters = "";
             SetParent(parent);
 
         }
 
         public void Update() {
             ValueWasChangedInternally = false;
-            if (IsEditing) {
+            if (IsBeingEdited) {
                 caretFlashTimer += (float)App.GameTime.ElapsedGameTime.TotalSeconds;
                 mouseCursorCaret = GetMouseCaretPosition();
                 int maxScrollPosition = Helpers.GetWidthOfText(EditedText) - width + 8;
                 if (Input.GetKeyDown(Keys.Enter, KeyModifier.None) || Input.GetClickDown(KeyModifier.None) && !IsHovered) {
+                    Input.CancelKey(Keys.Enter);
                     Close();
                 }
 
@@ -96,21 +117,7 @@ namespace WaveTracker.UI {
 
                         if (Input.IsCtrlPressed()) {
                             caretFlashTimer = 0;
-                            caretPosition--;
-                            while (IsWhitespace(EditedText[caretPosition])) {
-                                caretPosition--;
-                                if (caretPosition == 0) {
-                                    break;
-                                }
-                            }
-                            if (caretPosition > 0) {
-                                while (!IsWhitespace(EditedText[caretPosition - 1])) {
-                                    caretPosition--;
-                                    if (caretPosition == 0) {
-                                        break;
-                                    }
-                                }
-                            }
+                            GotoPreviousWord();
 
                         }
                     }
@@ -136,21 +143,7 @@ namespace WaveTracker.UI {
 
                         if (Input.IsCtrlPressed()) {
                             caretFlashTimer = 0;
-                            if (caretPosition == 0) {
-                                caretPosition++;
-                            }
-                            while (!IsWhitespace(EditedText[caretPosition - 1])) {
-                                if (caretPosition == EditedText.Length) {
-                                    break;
-                                }
-                                caretPosition++;
-                            }
-                            while (IsWhitespace(EditedText[caretPosition - 1])) {
-                                if (caretPosition == EditedText.Length) {
-                                    break;
-                                }
-                                caretPosition++;
-                            }
+                            GotoNextWord();
                         }
                     }
                     if (Input.IsShiftPressed()) {
@@ -213,7 +206,7 @@ namespace WaveTracker.UI {
                 previousFocus = Input.focus;
                 currentlyEditing = this;
                 Input.focus = this;
-                IsEditing = true;
+                IsBeingEdited = true;
                 App.ClientWindow.TextInput += OnInput;
                 caretPosition = GetMouseCaretPosition();
                 caretFlashTimer = 0;
@@ -221,44 +214,108 @@ namespace WaveTracker.UI {
         }
 
         public void Close() {
-            IsEditing = false;
+            IsBeingEdited = false;
             currentlyEditing = null;
             App.ClientWindow.TextInput -= OnInput;
             Input.focus = previousFocus;
             previousFocus = null;
             ValueWasChangedInternally = true;
-            IsEditing = false;
+            IsBeingEdited = false;
         }
         private void OnInput(object sender, TextInputEventArgs e) {
             switch (e.Key) {
                 case Keys.Back:
                     if (SelectionIsActive) {
-                        EditedText = EditedText.Remove(selectionMin, selectionMax - selectionMin);
-                        caretPosition = selectionMin;
-                        SelectionIsActive = false;
+                        DeleteSelection();
                     }
                     else if (caretPosition > 0) {
-                        EditedText = EditedText.Remove(caretPosition - 1, 1);
+                        int startPosition = caretPosition;
                         caretPosition--;
+                        if (Input.IsCtrlPressed()) {
+                            GotoPreviousWord();
+                        }
+                        EditedText = EditedText.Remove(caretPosition, startPosition - caretPosition);
                     }
                     break;
                 default:
-                    if (SelectionIsActive) {
-                        EditedText = EditedText.Remove(selectionMin, selectionMax - selectionMin);
-                        caretPosition = selectionMin;
-                        SelectionIsActive = false;
+                    if (e.Character >= 32) {
+                        if (SelectionIsActive) {
+                            DeleteSelection();
+                        }
+                        Insert(e.Character + "");
                     }
-                    EditedText = EditedText.Insert(caretPosition, e.Character + "");
-                    caretPosition++;
+                    else {
+                        switch ((int)e.Character) {
+                            case 1: // CTRL-A
+                                SelectionIsActive = true;
+                                selectionStart = 0;
+                                selectionEnd = EditedText.Length;
+                                selectionMin = 0;
+                                selectionMax = EditedText.Length;
+                                break;
+                            case 3: // CTRL-C
+                                if (SelectionIsActive) {
+                                    SystemClipboard.SetText(EditedText.Substring(selectionMin, selectionMax - selectionMin));
+                                }
+                                break;
+                            case 22: // CTRL-V
+                                if (SelectionIsActive) {
+                                    DeleteSelection();
+                                }
+                                Insert(SystemClipboard.GetText());
+                                break;
+                            case 24: // CTRL-X
+                                if (SelectionIsActive) {
+                                    SystemClipboard.SetText(EditedText.Substring(selectionMin, selectionMax - selectionMin));
+                                    DeleteSelection();
+                                }
+                                break;
+                        }
+                        Debug.WriteLine("unrecognized character " + (int)e.Character);
+                    }
                     break;
             }
         }
-
-        bool IsWhitespace(char c) {
-            return c is ' ';
+        private void GotoPreviousWord() {
+            while (caretPosition > 0 && IsWhitespace(EditedText[caretPosition])) {
+                caretPosition--;
+            }
+            while (caretPosition > 0 && !IsWhitespace(EditedText[caretPosition - 1])) {
+                caretPosition--;
+            }
+        }
+        private void GotoNextWord() {
+            while (caretPosition < EditedText.Length && !IsWhitespace(EditedText[caretPosition])) {
+                caretPosition++;
+            }
+            while (caretPosition < EditedText.Length && IsWhitespace(EditedText[caretPosition])) {
+                caretPosition++;
+            }
         }
 
-        int GetMouseCaretPosition() {
+        private void Insert(string text) {
+            if (AllowedCharacters != "") {
+                text = Helpers.FlushString(text, AllowedCharacters);
+            }
+            EditedText = EditedText.Insert(caretPosition, text);
+            caretPosition += text.Length;
+            if (EditedText.Length > MaximumLength) {
+                EditedText = EditedText.Substring(0, MaximumLength);
+                caretPosition = EditedText.Length;
+            }
+        }
+
+        private void DeleteSelection() {
+            EditedText = EditedText.Remove(selectionMin, selectionMax - selectionMin);
+            caretPosition = selectionMin;
+            SelectionIsActive = false;
+        }
+
+        private static bool IsWhitespace(char c) {
+            return " !?-|\\[]".Contains(c);
+        }
+
+        private int GetMouseCaretPosition() {
             if (MouseY < 0) {
                 return 0;
             }
@@ -270,10 +327,12 @@ namespace WaveTracker.UI {
                 int dist2 = Helpers.GetWidthOfText(EditedText.Substring(0, i - 1)) + 4 - ScrollPosition;
                 if (MouseX >= dist2) {
                     if (MouseX < dist1) {
-                        if (Math.Abs(MouseX - dist2) < Math.Abs(MouseX - dist1))
+                        if (Math.Abs(MouseX - dist2) < Math.Abs(MouseX - dist1)) {
                             return i - 1;
-                        else
+                        }
+                        else {
                             return i;
+                        }
                     }
                 }
                 else {
@@ -283,7 +342,6 @@ namespace WaveTracker.UI {
             return EditedText.Length;
         }
 
-
         public void Draw(string defaultText) {
 
             Color borderColor = UIColors.labelDark;
@@ -292,7 +350,7 @@ namespace WaveTracker.UI {
             if (IsHovered) {
                 borderColor = UIColors.black;
             }
-            if (IsEditing) {
+            if (IsBeingEdited) {
                 borderColor = UIColors.selection;
             }
 
@@ -305,7 +363,7 @@ namespace WaveTracker.UI {
             // draw shadow
             DrawRect(1, 1, width - 2, 1, new Color(193, 196, 213));
 
-            if (IsEditing) {
+            if (IsBeingEdited) {
 
                 StartRectangleMask(2, 0, width - 4, height);
 
