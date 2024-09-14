@@ -31,6 +31,8 @@ namespace WaveTracker {
         }
         public class CategoryGeneral {
             public int ScreenScale { get; set; } = 2;
+            public bool UseHighResolutionText { get; set; } = false;
+
             public int OscilloscopeMode { get; set; } = 2;
             public int MeterDecayRate { get; set; } = 2;
             public int MeterColorMode { get; set; } = 1;
@@ -91,6 +93,7 @@ namespace WaveTracker {
             public int MasterVolume { get; set; } = 100;
             public SampleRate SampleRate { get; set; } = SampleRate._44100;
             public int Oversampling { get; set; } = 2;
+            public int DesiredLatency { get; set; } = 120;
         }
         public class CategoryVisualizer {
             public int PianoSpeed { get; set; } = 8;
@@ -109,14 +112,25 @@ namespace WaveTracker {
             public Dictionary<string, KeyboardShortcut> Shortcuts { get; set; }
 
             public static readonly Dictionary<string, KeyboardShortcut> defaultShortcuts = new Dictionary<string, KeyboardShortcut>() {
-                {"General\\Increase octave", new KeyboardShortcut(Keys.OemCloseBrackets) },
-                {"General\\Decrease octave", new KeyboardShortcut(Keys.OemOpenBrackets) },
                 {"General\\Play/Stop", new KeyboardShortcut(Keys.Enter) },
                 {"General\\Play from beginning", new KeyboardShortcut(Keys.F5) },
+                {"General\\Play and loop pattern", new KeyboardShortcut(Keys.Enter, KeyModifier.Shift) },
                 {"General\\Play from cursor", new KeyboardShortcut(Keys.Enter, KeyModifier.Alt) },
                 {"General\\Play row", new KeyboardShortcut(Keys.Enter, KeyModifier.Ctrl) },
                 {"General\\Stop", new KeyboardShortcut(Keys.F8) },
                 {"General\\Toggle edit mode", new KeyboardShortcut(Keys.Space) },
+                {"General\\Increase octave", new KeyboardShortcut(Keys.OemCloseBrackets) },
+                {"General\\Decrease octave", new KeyboardShortcut(Keys.OemOpenBrackets) },
+                {"General\\Set octave 0", new KeyboardShortcut(Keys.NumPad0) },
+                {"General\\Set octave 1", new KeyboardShortcut(Keys.NumPad1) },
+                {"General\\Set octave 2", new KeyboardShortcut(Keys.NumPad2) },
+                {"General\\Set octave 3", new KeyboardShortcut(Keys.NumPad3) },
+                {"General\\Set octave 4", new KeyboardShortcut(Keys.NumPad4) },
+                {"General\\Set octave 5", new KeyboardShortcut(Keys.NumPad5) },
+                {"General\\Set octave 6", new KeyboardShortcut(Keys.NumPad6) },
+                {"General\\Set octave 7", new KeyboardShortcut(Keys.NumPad7) },
+                {"General\\Set octave 8", new KeyboardShortcut(Keys.NumPad8) },
+                {"General\\Set octave 9", new KeyboardShortcut(Keys.NumPad9) },
                 {"General\\Increase step", new KeyboardShortcut() },
                 {"General\\Decrease step", new KeyboardShortcut() },
                 {"General\\Next instrument", new KeyboardShortcut(Keys.Down, KeyModifier.Ctrl) },
@@ -200,6 +214,30 @@ namespace WaveTracker {
                 {"Piano\\Upper D-3", new KeyboardShortcut(Keys.O) },
                 {"Piano\\Upper D#3", new KeyboardShortcut(Keys.D0) },
                 {"Piano\\Upper E-3", new KeyboardShortcut(Keys.P) },
+                {"Piano\\3rd octave C", new KeyboardShortcut() },
+                {"Piano\\3rd octave C#", new KeyboardShortcut() },
+                {"Piano\\3rd octave D", new KeyboardShortcut() },
+                {"Piano\\3rd octave D#", new KeyboardShortcut() },
+                {"Piano\\3rd octave E", new KeyboardShortcut() },
+                {"Piano\\3rd octave F", new KeyboardShortcut() },
+                {"Piano\\3rd octave F#", new KeyboardShortcut() },
+                {"Piano\\3rd octave G", new KeyboardShortcut() },
+                {"Piano\\3rd octave G#", new KeyboardShortcut() },
+                {"Piano\\3rd octave A", new KeyboardShortcut() },
+                {"Piano\\3rd octave A#", new KeyboardShortcut() },
+                {"Piano\\3rd octave B", new KeyboardShortcut() },
+                {"Piano\\4th octave C", new KeyboardShortcut() },
+                {"Piano\\4th octave C#", new KeyboardShortcut() },
+                {"Piano\\4th octave D", new KeyboardShortcut() },
+                {"Piano\\4th octave D#", new KeyboardShortcut() },
+                {"Piano\\4th octave E", new KeyboardShortcut() },
+                {"Piano\\4th octave F", new KeyboardShortcut() },
+                {"Piano\\4th octave F#", new KeyboardShortcut() },
+                {"Piano\\4th octave G", new KeyboardShortcut() },
+                {"Piano\\4th octave G#", new KeyboardShortcut() },
+                {"Piano\\4th octave A", new KeyboardShortcut() },
+                {"Piano\\4th octave A#", new KeyboardShortcut(Keys.None) },
+                {"Piano\\4th octave B", new KeyboardShortcut(Keys.None) },
             };
             public CategoryKeyboard() {
                 Initialize();

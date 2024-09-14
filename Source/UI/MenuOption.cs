@@ -7,7 +7,7 @@ namespace WaveTracker.UI {
     /// </summary>
     public class MenuOption : MenuItemBase {
 
-        public string Name { get; set; }
+        private string Name { get; set; }
         public Action OnClick { get; set; }
         public Action<string> OnClickArg { get; set; }
 
@@ -42,7 +42,7 @@ namespace WaveTracker.UI {
             width = Math.Min(Helpers.GetWidthOfText(name) + MARGIN_LEFT + MARGIN_RIGHT + PADDING_LEFT + PADDING_RIGHT, MAX_WIDTH);
         }
         public MenuOption(string name, Action<string> onClick, string arg) {
-            Name = name;
+            Name = Name = name;
             OnClickArg = onClick;
             args = arg;
             height = OPTION_HEIGHT;

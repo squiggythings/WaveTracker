@@ -62,7 +62,7 @@ namespace WaveTracker.UI {
                     if (deleteButton.IsHovered) {
                         DrawRoundedRect(78, 1, 13, 13, new Color(122, 167, 255));
                     }
-                    DrawSprite(82, 5, new Rectangle(472, 48, 5, 5), Color.White);
+                    DrawSprite(82, 5, new Rectangle(400, 272, 5, 5), Color.White);
                 }
                 else {
                     DrawRoundedRect(0, 0, width, height, Color.White);
@@ -72,7 +72,7 @@ namespace WaveTracker.UI {
                         DrawRoundedRect(78, 1, 13, 13, UIColors.panel);
                     }
                     if (IsHovered) {
-                        DrawSprite(82, 5, new Rectangle(472, 48, 5, 5), UIColors.label);
+                        DrawSprite(82, 5, new Rectangle(400, 272, 5, 5), UIColors.label);
                     }
                 }
             }

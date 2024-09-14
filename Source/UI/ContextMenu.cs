@@ -12,6 +12,11 @@ namespace WaveTracker.UI {
             contextMenu.SetPositionClamped(Input.MousePositionX, Input.MousePositionY);
             contextMenu.Open();
         }
+
+        public static void CloseCurrent() {
+            contextMenu?.Close();
+        }
+
         public static void Update() {
             if (contextMenu != null) {
                 if (Input.GetKeyDown(Keys.Escape, KeyModifier.None)) {

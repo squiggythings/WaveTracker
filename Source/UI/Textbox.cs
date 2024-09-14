@@ -93,7 +93,7 @@ namespace WaveTracker.UI {
 
         private void dialogCallback(string input) {
             if (input != null) {
-                Text = Helpers.FlushString(input);
+                Text = input;
                 ValueWasChangedInternally = true;
             }
         }

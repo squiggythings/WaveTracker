@@ -23,11 +23,11 @@ namespace WaveTracker {
                 hoverTime = 0;
                 lasttooltip = TooltipText;
             }
-            if (TooltipTextLong is not "" and not null) {
+            if (TooltipTextLong != "" && TooltipTextLong != null) {
                 Graphics.Write(TooltipTextLong, 2, y, new Color(58, 63, 94));
             }
 
-            if (TooltipText is not "" and not null) {
+            if (TooltipText != "" && TooltipText != null) {
                 hoverTime += elapsedMS;
                 if (hoverTime > 500) {
                     if (show == false) {

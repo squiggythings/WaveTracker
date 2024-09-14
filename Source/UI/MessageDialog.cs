@@ -11,8 +11,19 @@ namespace WaveTracker.UI {
         protected Button[] buttons;
         private int textHeight;
         private int textWidth;
-        public MessageDialog() : base("WaveTracker", 240, 80, hasExitButton: false) {
-
+        private bool playSound;
+        public MessageDialog(string message, Icon icon, string[] buttonNames, Action<string> onExitCallback, bool playSound = true) : base("WaveTracker", 240, 80, hasExitButton: false) {
+            Message = message;
+            this.icon = icon;
+            this.playSound = playSound;
+            ClearBottomButtons();
+            buttons = new Button[buttonNames.Length];
+            for (int i = buttonNames.Length - 1; i >= 0; --i) {
+                buttons[i] = AddNewBottomButton(buttonNames[i], this);
+            }
+            OnDialogExit = onExitCallback;
+            textWidth = width - (icon == Icon.None ? 16 : 64);
+            textHeight = Helpers.GetHeightOfMultilineText(Message, textWidth);
         }
 
         /// <summary>
@@ -22,15 +33,7 @@ namespace WaveTracker.UI {
         /// <param name="icon">The icon to display alongside the message</param>
         /// <param name="buttonNames">A list of buttons to add to close the message</param>
         /// <param name="onExitCallback">Callback where the name of the pressed button is passed in as a parameter</param>
-        public void Open(string message, Icon icon, string[] buttonNames, Action<string> onExitCallback, bool playSound = true) {
-            Message = message;
-            this.icon = icon;
-            ClearBottomButtons();
-            buttons = new Button[buttonNames.Length];
-            for (int i = buttonNames.Length - 1; i >= 0; --i) {
-                buttons[i] = AddNewBottomButton(buttonNames[i], this);
-            }
-            OnDialogExit = onExitCallback;
+        public new void Open() {
             // if (icon == Icon.Information) {
             //     System.Media.SystemSounds.Asterisk.Play();
             // }
@@ -43,32 +46,7 @@ namespace WaveTracker.UI {
             // else if (icon == Icon.Question) {
             //     System.Media.SystemSounds.Question.Play();
             // }
-
-            textWidth = width - (icon == Icon.None ? 16 : 64);
-            textHeight = Helpers.GetHeightOfMultilineText(Message, textWidth);
-            Open();
-        }
-
-        /// <summary>
-        /// Displays a message to the user
-        /// </summary>
-        /// <param name="message">The message to display to the user</param>
-        /// <param name="icon">The icon to display alongside the message</param>
-        /// <param name="buttonNames">A list of buttons to add to close the message</param>
-        public void Open(string message, Icon icon, string buttonName, bool playSound = true) {
-            Message = message;
-            this.icon = icon;
-            ClearBottomButtons();
-            buttons = new Button[1];
-            buttons[0] = AddNewBottomButton(buttonName, this);
-
-            OnDialogExit = null;
-            if (playSound) {
-
-            }
-            textWidth = width - (icon == Icon.None ? 16 : 64);
-            textHeight = Helpers.GetHeightOfMultilineText(Message, textWidth);
-            Open();
+            base.Open();
         }
 
         public override void Update() {

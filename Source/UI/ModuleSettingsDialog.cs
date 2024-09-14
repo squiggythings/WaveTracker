@@ -42,10 +42,10 @@ namespace WaveTracker.UI {
             numberOfChannels.SetTooltip("", "Change the number of channels in this module (1-24)");
 
             tickSpeedMode = new Dropdown(58, 192, this, scrollWrap: false);
-            tickSpeedMode.SetMenuItems(new string[] { "Default (60 Hz)", "Custom" });
+            tickSpeedMode.SetMenuItems(["Default (60 Hz)", "Custom"]);
 
-            tickRateSlider = new HorizontalSlider(width - 10 - 112, 212, 112, 14, this);
-            tickRateSlider.SetValueLimits(16, 240);
+            tickRateSlider = new HorizontalSlider(width - 122, 212, 96, 16, this);
+            tickRateSlider.SetValueLimits(16, 400);
             tickRateSlider.CoarseAdjustAmount = 16;
             tickRateSlider.FineAdjustAmount = 4;
 
@@ -82,6 +82,9 @@ namespace WaveTracker.UI {
             if (tickRateSlider.Value == 60) {
                 tickSpeedMode.Value = 0;
             }
+            else {
+                tickSpeedMode.Value = 1;
+            }
             base.Open();
         }
 
@@ -99,7 +102,7 @@ namespace WaveTracker.UI {
                 }
                 if (ok.Clicked) {
                     if (numberOfChannels.Value < App.CurrentModule.ChannelCount) {
-                        Dialogs.messageDialog.Open(
+                        Dialogs.OpenMessageDialog(
                         "Remove " + (App.CurrentModule.ChannelCount - numberOfChannels.Value) + " channels? There is no undo.",
                         MessageDialog.Icon.Warning,
                         ["Yes", "No"],
@@ -127,7 +130,7 @@ namespace WaveTracker.UI {
                     songsList.SelectedIndex++;
                 }
                 if (removeSong.Clicked) {
-                    Dialogs.messageDialog.Open(
+                    Dialogs.OpenMessageDialog(
                         "Do you want to remove this song from the module? There is no undo.",
                         MessageDialog.Icon.Warning,
                         ["Yes", "No"],

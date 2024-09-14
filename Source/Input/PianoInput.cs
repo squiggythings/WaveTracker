@@ -93,7 +93,7 @@ namespace WaveTracker {
             } catch {
                 // MidiIn_ = null;
                 CurrentMidiDeviceName = "(none)";
-                Dialogs.messageDialog.Open(
+                Dialogs.OpenMessageDialog(
                     "Error opening MIDI device \"" + name + "\"!",
                     MessageDialog.Icon.Error,
                     "OK"
@@ -181,7 +181,8 @@ namespace WaveTracker {
             note = Math.Clamp(note, 12, 131);
             if (!midiNotes.Contains(note)) {
                 midiNotes.Add(note);
-                OnNoteOnEvent(note, (int)Math.Ceiling(velocity / 127f * 99), true);
+                int? noteVelocity = App.Settings.MIDI.RecordNoteVelocity ? (int?)Math.Ceiling(velocity / 127f * 99) : null;
+                OnNoteOnEvent(note, noteVelocity, true);
             }
         }
         /// <summary>
@@ -218,7 +219,7 @@ namespace WaveTracker {
         }
 
         // private static void OnMIDIErrorReceived(object sender, MidiInMessageEventArgs e) {
-        //     Dialogs.messageDialog.Open(string.Format("Time {0} Message 0x{1:X8} Event {2}", e.Timestamp, e.RawMessage, e.MidiEvent), MessageDialog.Icon.Error, "OK");
+        //     Dialogs.OpenMessageDialog(string.Format("Time {0} Message 0x{1:X8} Event {2}", e.Timestamp, e.RawMessage, e.MidiEvent), MessageDialog.Icon.Error, "OK");
         // }
 
         // private static void OnMIDIMessageReceived(object sender, MidiInMessageEventArgs e) {
@@ -287,6 +288,32 @@ namespace WaveTracker {
             { "Piano\\Upper D-3", 26 },
             { "Piano\\Upper D#3", 27 },
             { "Piano\\Upper E-3", 28 },
+
+            { "Piano\\3rd octave C", 24 },
+            { "Piano\\3rd octave C#", 25 },
+            { "Piano\\3rd octave D", 26 },
+            { "Piano\\3rd octave D#", 27 },
+            { "Piano\\3rd octave E", 28 },
+            { "Piano\\3rd octave F", 29 },
+            { "Piano\\3rd octave F#", 30 },
+            { "Piano\\3rd octave G", 31 },
+            { "Piano\\3rd octave G#", 32 },
+            { "Piano\\3rd octave A", 33 },
+            { "Piano\\3rd octave A#", 34 },
+            { "Piano\\3rd octave B", 35 },
+
+            { "Piano\\4th octave C", 36 },
+            { "Piano\\4th octave C#", 37 },
+            { "Piano\\4th octave D", 38 },
+            { "Piano\\4th octave D#", 39 },
+            { "Piano\\4th octave E", 40 },
+            { "Piano\\4th octave F", 41 },
+            { "Piano\\4th octave F#", 42 },
+            { "Piano\\4th octave G", 43 },
+            { "Piano\\4th octave G#", 44 },
+            { "Piano\\4th octave A", 45 },
+            { "Piano\\4th octave A#", 46 },
+            { "Piano\\4th octave B", 47 },
         };
     }
 }

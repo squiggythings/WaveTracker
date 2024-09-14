@@ -20,6 +20,41 @@
 /processorParam:TextureFormat=Compressed
 /build:custom_font.spritefont
 
+#begin highres_font_1.spritefont
+/importer:FontDescriptionImporter
+/processor:FontDescriptionProcessor
+/processorParam:PremultiplyAlpha=True
+/processorParam:TextureFormat=Compressed
+/build:highres_font_1.spritefont
+
+#begin highres_font_2.spritefont
+/importer:FontDescriptionImporter
+/processor:FontDescriptionProcessor
+/processorParam:PremultiplyAlpha=True
+/processorParam:TextureFormat=Compressed
+/build:highres_font_2.spritefont
+
+#begin highres_font_3.spritefont
+/importer:FontDescriptionImporter
+/processor:FontDescriptionProcessor
+/processorParam:PremultiplyAlpha=True
+/processorParam:TextureFormat=Compressed
+/build:highres_font_3.spritefont
+
+#begin highres_font_4.spritefont
+/importer:FontDescriptionImporter
+/processor:FontDescriptionProcessor
+/processorParam:PremultiplyAlpha=True
+/processorParam:TextureFormat=Compressed
+/build:highres_font_4.spritefont
+
+#begin highres_font_5.spritefont
+/importer:FontDescriptionImporter
+/processor:FontDescriptionProcessor
+/processorParam:PremultiplyAlpha=True
+/processorParam:TextureFormat=Compressed
+/build:highres_font_5.spritefont
+
 #begin img.png
 /importer:TextureImporter
 /processor:TextureProcessor

@@ -66,11 +66,11 @@ namespace WaveTracker.Tracker {
         /// <returns></returns>
         public bool IsValid(WTSong song) {
             return Frame >= 0
-&& Frame < song.FrameSequence.Count
-&& Row >= 0
-&& Row < song.FrameSequence[Frame].GetPattern().GetModifiedLength()
-&& Channel >= 0
-&& Channel < song.NumEffectColumns.Length && Column >= 0 && (int)Column <= 2 + song.NumEffectColumns[Channel] * 2;
+                    && Frame < song.FrameSequence.Count
+                    && Row >= 0
+                    && Row < song.FrameSequence[Frame].GetPattern().GetModifiedLength()
+                    && Channel >= 0
+                    && Channel < song.NumEffectColumns.Length && Column >= 0 && (int)Column <= 2 + song.NumEffectColumns[Channel] * 2;
         }
 
         /// <summary>
@@ -160,6 +160,8 @@ namespace WaveTracker.Tracker {
         /// </summary>
         /// <param name="row"></param>
         public void MoveToRow(int row, WTSong song, ref int frameWrapCount) {
+            Frame = Math.Clamp(Frame, 0, song.FrameSequence.Count - 1);
+
             while (row < 0) {
                 MoveToFrame(Frame - 1, song);
                 row += song.FrameSequence[Frame].GetLength();
@@ -200,23 +202,6 @@ namespace WaveTracker.Tracker {
         public void MoveToRowClampedToFrame(int row, int frame, WTSong song) {
             Frame = frame;
             Row = Math.Clamp(row, 0, song[Frame].GetModifiedLength() - 1);
-        }
-
-        /// <summary>
-        /// Returns true if this position in song is empty
-        /// </summary>
-        /// <param name="song"></param>
-        /// <returns></returns>
-        public bool IsPositionEmpty(WTSong song) {
-            return Column is CursorColumnType.Effect1Param1 or CursorColumnType.Effect1Param2
-                ? song[Frame][Row, Channel, CellType.Effect1] == WTPattern.EVENT_EMPTY
-                : Column is CursorColumnType.Effect2Param1 or CursorColumnType.Effect2Param2
-                    ? song[Frame][Row, Channel, CellType.Effect2] == WTPattern.EVENT_EMPTY
-                    : Column is CursorColumnType.Effect3Param1 or CursorColumnType.Effect3Param2
-                                    ? song[Frame][Row, Channel, CellType.Effect3] == WTPattern.EVENT_EMPTY
-                                    : Column is CursorColumnType.Effect4Param1 or CursorColumnType.Effect4Param2
-                                                    ? song[Frame][Row, Channel, CellType.Effect4] == WTPattern.EVENT_EMPTY
-                                                    : song[Frame][Row, Channel, Column.ToCellType()] == WTPattern.EVENT_EMPTY;
         }
 
         /// <summary>

@@ -174,6 +174,7 @@ namespace WaveTracker.UI {
                     App.CurrentModule.SetDirty();
                 }
                 loopPoint.enabled = Sample.loopType != Sample.LoopType.OneShot;
+                loopPoint.SetValueLimits(0, Math.Max(0, Sample.Length - 1));
                 loopPoint.Value = Sample.loopPoint;
                 loopPoint.Update();
                 if (loopPoint.ValueWasChangedInternally) {
@@ -299,7 +300,13 @@ namespace WaveTracker.UI {
         }
 
         private void SetLoopPoint() {
-            Sample.loopPoint = SelectionIsActive ? SelectionMin : lastMouseHoverSample;
+            if (SelectionIsActive) {
+                Sample.loopPoint = Math.Clamp(SelectionMin, 0, Math.Max(0, Sample.Length - 1));
+            }
+            else {
+                Sample.loopPoint = Math.Clamp(lastMouseHoverSample, 0, Math.Max(0, Sample.Length - 1));
+            }
+
             if (Sample.loopType == Sample.LoopType.OneShot) {
                 Sample.loopType = Sample.LoopType.Forward;
             }
@@ -332,7 +339,6 @@ namespace WaveTracker.UI {
             loopMode.Draw();
             WriteRightAlign("Loop Mode", loopMode.x - 4, loopMode.y + 4, UIColors.label);
             if (Sample.loopType != Sample.LoopType.OneShot) {
-
                 loopPoint.Draw();
             }
             baseKey.Draw();

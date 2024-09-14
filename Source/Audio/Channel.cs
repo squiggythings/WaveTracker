@@ -52,7 +52,6 @@ namespace WaveTracker.Audio {
         private float pitchFallOffset; // 1xx and 2xx commands
         private float pitchFallSpeed; // 1xx and 2xx commands
         private float portaSpeed; // 3xx command (in samples)
-        private float portaTime;
         private float bendSpeed; // Qxy/Rxy command (in samples)
         private float bendOffset;
         private int targetBendAmt;
@@ -349,7 +348,6 @@ namespace WaveTracker.Audio {
             lastNote = channelNote;
             channelNotePorta = channelNote;
             portaSpeed = 0;
-            portaTime = 0;
             SampleStartOffset = 0;
             waveSyncAmt.Reset(0);
             bendSpeed = 0;
@@ -406,8 +404,6 @@ namespace WaveTracker.Audio {
                 if (portaSpeed == 0) {
                     channelNotePorta = channelNote;
                 }
-
-                portaTime = 0;
                 noteOn = true;
                 _state = VoiceState.On;
             }
@@ -477,14 +473,20 @@ namespace WaveTracker.Audio {
         private void ContinuousTick(float deltaTime) {
             if (tremoloIntensity > 0) {
                 tremoloTime += deltaTime * tremoloSpeed * 6f;
-                tremoloMultiplier = 1f + (float)(Math.Sin(tremoloTime * 1) / 2 - 0.5f) * tremoloIntensity / 16f;
+                if (tremoloTime > MathF.PI * 2) {
+                    tremoloTime -= MathF.PI * 2;
+                }
+                tremoloMultiplier = 1f + (float)(Math.Sin(tremoloTime) / 2 - 0.5f) * tremoloIntensity / 16f;
             }
             else {
                 tremoloMultiplier = 1;
             }
             if (vibratoIntensity > 0) {
-                vibratoTime += deltaTime * vibratoSpeed * 3f;
-                vibratoOffset = (float)Math.Sin(vibratoTime * 2) * vibratoIntensity / 5f;
+                vibratoTime += deltaTime * vibratoSpeed * 6f;
+                if (vibratoTime > MathF.PI * 2) {
+                    vibratoTime -= MathF.PI * 2;
+                }
+                vibratoOffset = (float)Math.Sin(vibratoTime) * vibratoIntensity / 5f;
             }
             else {
                 vibratoOffset = 0;
@@ -492,10 +494,6 @@ namespace WaveTracker.Audio {
 
             if (pitchFallSpeed != 0) {
                 pitchFallOffset += pitchFallSpeed * deltaTime * 2;
-            }
-
-            if (portaTime < 2) {
-                portaTime += deltaTime * (portaSpeed == 0 ? AudioEngine.SampleRate : portaSpeed);
             }
 
             if (channelNotePorta > channelNote) {

@@ -203,6 +203,24 @@ namespace WaveTracker.Tracker {
         }
 
         /// <summary>
+        /// Copies a frames pattern into an empty pattern and updates the frame's pattern index to the newly copied one.
+        /// </summary>
+        /// <param name="index"></param>
+        public void MakeFrameUnique(int index) {
+            int newPatternIndex = GetNextFreePattern();
+            WTPattern newPattern = Patterns[newPatternIndex];
+            WTPattern currentPattern = FrameSequence[index].GetPattern();
+            for (int row = 0; row < currentPattern.Height; ++row) {
+                for (int column = 0; column < currentPattern.Width; ++column) {
+                    newPattern[row, column] = currentPattern[row, column];
+                }
+            }
+            FrameSequence[index].PatternIndex = newPatternIndex;
+            App.PatternEditor.AddToUndoHistory();
+            App.CurrentModule.SetDirty();
+        }
+
+        /// <summary>
         /// Gets the index of the next free pattern in the pattern bank
         /// </summary>
         /// <returns></returns>
@@ -221,6 +239,23 @@ namespace WaveTracker.Tracker {
                 }
             }
             return 99;
+        }
+
+        public bool HasFreePattern() {
+            for (int i = 0; i < 100; ++i) {
+                if (Patterns[i].IsEmpty) {
+                    bool containedInSongAlready = false;
+                    foreach (WTFrame frame in FrameSequence) {
+                        if (frame.PatternIndex == i) {
+                            containedInSongAlready = true;
+                        }
+                    }
+                    if (!containedInSongAlready) {
+                        return true;
+                    }
+                }
+            }
+            return false;
         }
 
         public void SetPatternsDirty() {
@@ -391,11 +426,6 @@ namespace WaveTracker.Tracker {
                 if (frame < 0) { // CXX command
                     break;
                 }
-                //if (frame >= FrameSequence.Count) {
-                //    frame = 0;
-                //    row = 0;
-                //    loops--;
-                //}
             }
             return rows;
         }

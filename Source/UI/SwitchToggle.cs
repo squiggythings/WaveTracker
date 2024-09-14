@@ -14,7 +14,7 @@ namespace WaveTracker.UI {
         }
 
         private Rectangle GetSpriteBounds(int index) {
-            return new Rectangle(HasContrastOutline ? 473 : 456, 64 + index * 9, 12, 9);
+            return new Rectangle(HasContrastOutline ? 448 : 432, 144 + index * 9, 12, 9);
         }
 
         public void Update() {

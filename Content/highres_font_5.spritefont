@@ -11,13 +11,13 @@ with.
     <!--
     Modify this string to change the font that will be imported.
     -->
-    <FontName>WaveTracker.ttf</FontName>
+    <FontName>Inter_28pt-Bold.ttf</FontName>
 
     <!--
     Size is a float value, measured in points. Modify this value to change
     the size of the font.
     -->
-    <Size>8</Size>
+    <Size>30</Size>
 
     <!--
     Spacing is a float value, measured in pixels. Modify this value to change

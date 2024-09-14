@@ -184,9 +184,12 @@ namespace WaveTracker.UI {
             }
             // responsive height
             int bottomMargin = 8;
-            height = channelScrollbar.IsVisible
-                ? App.WindowHeight - y - bottomMargin - channelScrollbar.height
-                : App.WindowHeight - y - bottomMargin;
+            if (channelScrollbar.IsVisible) {
+                height = App.WindowHeight - y - bottomMargin - channelScrollbar.height;
+            }
+            else {
+                height = App.WindowHeight - y - bottomMargin;
+            }
 
             // responsive width
             int rightMargin = 156;
@@ -199,6 +202,12 @@ namespace WaveTracker.UI {
             if (App.Shortcuts["General\\Increase octave"].IsPressedRepeat) {
                 CurrentOctave++;
                 PianoInput.ClearAllNotes();
+            }
+            for (int i = 0; i < 9; ++i) {
+                if (App.Shortcuts["General\\Set octave " + i].IsPressedRepeat) {
+                    CurrentOctave = i;
+                    PianoInput.ClearAllNotes();
+                }
             }
             CurrentOctave = Math.Clamp(CurrentOctave, 0, 9);
             #endregion
@@ -225,7 +234,7 @@ namespace WaveTracker.UI {
             if (RightClicked) {
                 ContextMenu.Open(CreateEditMenu());
             }
-            if (MouseY is < 0 and >= (-32)) {
+            if (MouseY < 0 && MouseY >= -32) {
                 if (MouseX < ROW_COLUMN_WIDTH || MouseX > LastChannelEndPos) {
                     if (MouseX < width) {
                         if (Input.GetClick(KeyModifier.None)) {
@@ -260,11 +269,11 @@ namespace WaveTracker.UI {
 
             #region home/end navigation
             // On home key press
-            if (App.Shortcuts["Pattern\\Jump to top of frame"].IsPressedRepeat) {
+            if (Input.GetKeyRepeat(App.Shortcuts["Pattern\\Jump to top of frame"].Key, KeyModifier.None)) {
                 GoToTopOfFrame();
             }
             // On end key press
-            if (App.Shortcuts["Pattern\\Jump to bottom of frame"].IsPressedRepeat) {
+            if (Input.GetKeyRepeat(App.Shortcuts["Pattern\\Jump to bottom of frame"].Key, KeyModifier.None)) {
                 GoToBottomOfFrame();
             }
             #endregion
@@ -311,7 +320,7 @@ namespace WaveTracker.UI {
             if (ClickedDown) {
                 CancelSelection();
             }
-            if (SingleClickedM(KeyModifier._Any) && Input.CurrentModifier != KeyModifier.Shift && MouseX <= LastChannelEndPos && !Input.MouseJustEndedDragging) {
+            if (ClickedM(KeyModifier._Any) && Input.CurrentModifier != KeyModifier.Shift && MouseX <= LastChannelEndPos && !Input.MouseJustEndedDragging) {
                 if (MouseX > ROW_COLUMN_WIDTH && MouseX < width) {
                     cursorPosition = GetCursorPositionFromPoint(MouseX, MouseY);
                     MakeCursorVisibleInBounds();
@@ -392,9 +401,42 @@ namespace WaveTracker.UI {
                     SetSelectionEnd(cursorPosition);
                 }
             }
+            if (Input.GetKeyRepeat(Keys.PageUp, KeyModifier.Shift)) {
+                if (!SelectionIsActive) {
+                    SetSelectionStart(cursorPosition);
+                    selection.IsActive = true;
+                }
+                MoveToRow(cursorPosition.Row - App.Settings.PatternEditor.PageJumpAmount);
+                SetSelectionEnd(cursorPosition);
+            }
+            if (Input.GetKeyRepeat(Keys.PageDown, KeyModifier.Shift)) {
+                if (!SelectionIsActive) {
+                    SetSelectionStart(cursorPosition);
+                    selection.IsActive = true;
+                }
+                MoveToRow(cursorPosition.Row + App.Settings.PatternEditor.PageJumpAmount);
+                SetSelectionEnd(cursorPosition);
+            }
+            if (Input.GetKeyRepeat(App.Shortcuts["Pattern\\Jump to top of frame"].Key, KeyModifier.Shift)) {
+                if (!SelectionIsActive) {
+                    SetSelectionStart(cursorPosition);
+                    selection.IsActive = true;
+                }
+                GoToTopOfFrame();
+                SetSelectionEnd(cursorPosition);
+            }
+            // On end key press
+            if (Input.GetKeyRepeat(App.Shortcuts["Pattern\\Jump to bottom of frame"].Key, KeyModifier.Shift)) {
+                if (!SelectionIsActive) {
+                    SetSelectionStart(cursorPosition);
+                    selection.IsActive = true;
+                }
+                GoToBottomOfFrame();
+                SetSelectionEnd(cursorPosition);
+            }
             #endregion
             #region selection with mouse
-            if (Input.GetClick(KeyModifier.None) && Input.MouseIsDragging && GlobalPointIsInBounds(Input.LastClickLocation)) {
+            if (Input.GetClick(KeyModifier.None) && Input.MouseIsDragging && GlobalPointIsInBounds(Input.LastClickLocation) && MouseX < App.WindowWidth - 12 && MouseY < App.WindowHeight - 12) {
                 if (!SelectionIsActive) {
                     SetSelectionStart(GetCursorPositionFromPoint(LastClickPos.X, LastClickPos.Y));
                     selection.IsActive = true;
@@ -420,7 +462,7 @@ namespace WaveTracker.UI {
                 }
                 SetSelectionEnd(GetCursorPositionFromPointClampedToFrame(MouseX, MouseY, cursorPosition.Frame, GetMouseLineNumber() > NumVisibleLines / 2));
             }
-            if (DoubleClicked) {
+            if (DoubleClicked && GetMouseLineNumber() == NumVisibleLines / 2) {
                 selection.IsActive = true;
                 SetSelectionStart(cursorPosition);
                 selectionStart.Row = 0;
@@ -762,11 +804,11 @@ namespace WaveTracker.UI {
                             for (int c = selection.min.CellColumn; c <= selection.max.CellColumn; ++c) {
                                 if (SelectionPattern[r, c] != WTPattern.EVENT_EMPTY) {
                                     CellType cellType = WTPattern.GetCellTypeFromCellColumn(c);
-                                    if (cellType is not CellType.Note and
-                                        not CellType.Effect1 and
-                                        not CellType.Effect2 and
-                                        not CellType.Effect3 and
-                                        not CellType.Effect4) {
+                                    if (cellType != CellType.Note &&
+                                        cellType != CellType.Effect1 &&
+                                        cellType != CellType.Effect2 &&
+                                        cellType != CellType.Effect3 &&
+                                        cellType != CellType.Effect4) {
                                         SelectionPattern[r, c] += Input.MouseScrollWheel(KeyModifier.Shift);
                                         performedTask = true;
                                     }
@@ -821,11 +863,11 @@ namespace WaveTracker.UI {
                 for (int r = selection.min.Row; r <= selection.max.Row; ++r) {
                     for (int c = selection.min.CellColumn; c <= selection.max.CellColumn; ++c) {
                         CellType cellType = WTPattern.GetCellTypeFromCellColumn(c);
-                        if (cellType is not CellType.Note and
-                            not CellType.Effect1 and
-                            not CellType.Effect2 and
-                            not CellType.Effect3 and
-                            not CellType.Effect4) {
+                        if (cellType != CellType.Note &&
+                            cellType != CellType.Effect1 &&
+                            cellType != CellType.Effect2 &&
+                            cellType != CellType.Effect3 &&
+                            cellType != CellType.Effect4) {
                             if (!SelectionPattern.CellIsEmptyOrNoteCutRelease(r, c)) {
                                 SelectionPattern[r, c] -= 1;
                                 didSomething = true;
@@ -842,11 +884,11 @@ namespace WaveTracker.UI {
                 for (int r = selection.min.Row; r <= selection.max.Row; ++r) {
                     for (int c = selection.min.CellColumn; c <= selection.max.CellColumn; ++c) {
                         CellType cellType = WTPattern.GetCellTypeFromCellColumn(c);
-                        if (cellType is not CellType.Note and
-                            not CellType.Effect1 and
-                            not CellType.Effect2 and
-                            not CellType.Effect3 and
-                            not CellType.Effect4) {
+                        if (cellType != CellType.Note &&
+                            cellType != CellType.Effect1 &&
+                            cellType != CellType.Effect2 &&
+                            cellType != CellType.Effect3 &&
+                            cellType != CellType.Effect4) {
                             if (!SelectionPattern.CellIsEmptyOrNoteCutRelease(r, c)) {
                                 SelectionPattern[r, c] += 1;
                                 didSomething = true;
@@ -863,11 +905,11 @@ namespace WaveTracker.UI {
                 for (int r = selection.min.Row; r <= selection.max.Row; ++r) {
                     for (int c = selection.min.CellColumn; c <= selection.max.CellColumn; ++c) {
                         CellType cellType = WTPattern.GetCellTypeFromCellColumn(c);
-                        if (cellType is not CellType.Note and
-                            not CellType.Effect1 and
-                            not CellType.Effect2 and
-                            not CellType.Effect3 and
-                            not CellType.Effect4) {
+                        if (cellType != CellType.Note &&
+                            cellType != CellType.Effect1 &&
+                            cellType != CellType.Effect2 &&
+                            cellType != CellType.Effect3 &&
+                            cellType != CellType.Effect4) {
                             if (!SelectionPattern.CellIsEmptyOrNoteCutRelease(r, c)) {
                                 if (WTPattern.GetCellTypeFromCellColumn(c) == CellType.Effect1Parameter ||
                                     WTPattern.GetCellTypeFromCellColumn(c) == CellType.Effect2Parameter ||
@@ -894,11 +936,11 @@ namespace WaveTracker.UI {
                 for (int r = selection.min.Row; r <= selection.max.Row; ++r) {
                     for (int c = selection.min.CellColumn; c <= selection.max.CellColumn; ++c) {
                         CellType cellType = WTPattern.GetCellTypeFromCellColumn(c);
-                        if (cellType is not CellType.Note and
-                            not CellType.Effect1 and
-                            not CellType.Effect2 and
-                            not CellType.Effect3 and
-                            not CellType.Effect4) {
+                        if (cellType != CellType.Note &&
+                            cellType != CellType.Effect1 &&
+                            cellType != CellType.Effect2 &&
+                            cellType != CellType.Effect3 &&
+                            cellType != CellType.Effect4) {
                             if (!SelectionPattern.CellIsEmptyOrNoteCutRelease(r, c)) {
                                 if (WTPattern.GetCellTypeFromCellColumn(c) == CellType.Effect1Parameter ||
                                     WTPattern.GetCellTypeFromCellColumn(c) == CellType.Effect2Parameter ||
@@ -977,6 +1019,7 @@ namespace WaveTracker.UI {
                 SnapToPlaybackPosition();
             }
             renderCursorPos = cursorPosition;
+            renderCursorPos.Normalize(App.CurrentSong);
             DrawRect(0, 0, width, height, App.Settings.Colors.Theme["Row background"]);
 
             DrawHeaderRect(0, -32, width);
@@ -1018,7 +1061,7 @@ namespace WaveTracker.UI {
             }
 
             // draw cursor behind text if the cursor cel is not empty
-            if (!CurrentPattern.CellIsEmpty(renderCursorPos.Row, renderCursorPos.Channel, renderCursorPos.Column.ToCellType())) {
+            if (!App.CurrentSong[renderCursorPos.Frame].CellIsEmpty(renderCursorPos.Row, renderCursorPos.Channel, renderCursorPos.Column.ToCellType())) {
                 DrawCursor(ref renderCursorPos);
             }
 
@@ -1063,16 +1106,13 @@ namespace WaveTracker.UI {
             }
 
             // draw cursor infront of text if the cursor cel is empty
-            if (CurrentPattern.CellIsEmpty(renderCursorPos.Row, renderCursorPos.Channel, renderCursorPos.Column.ToCellType())) {
+            if (App.CurrentSong[renderCursorPos.Frame].CellIsEmpty(renderCursorPos.Row, renderCursorPos.Channel, renderCursorPos.Column.ToCellType())) {
                 DrawCursor(ref renderCursorPos);
             }
 
             DrawRect(ROW_COLUMN_WIDTH - 1, -32, 1, height + 32, App.Settings.Colors.Theme["Channel separator"]);
             for (int i = FirstVisibleChannel; i <= LastVisibleChannel; ++i) {
                 ChannelHeaders[i].Draw();
-                //DrawRect(channelHeaders[i].x + channelHeaders[i].width - 1, -32, 3, 1, App.Settings.Appearance.Theme.rowSeparator);
-                //DrawRect(channelHeaders[i].x - 2, -32, 3, 1, App.Settings.Appearance.Theme.rowSeparator);
-                //DrawRect(channelHeaders[i].x + channelHeaders[i].width + 1, -32, 1, 1, App.Settings.Appearance.Theme.rowSeparator);
                 DrawRect(ChannelHeaders[i].x + ChannelHeaders[i].width, -32, 1, height + 32, App.Settings.Colors.Theme["Channel separator"]);
             }
             // DrawRect(channelHeaders[LastVisibleChannel].x + channelHeaders[LastVisibleChannel].x - 2, -32, 3, 1, App.Settings.Appearance.Theme.rowSeparator);
@@ -1121,17 +1161,8 @@ namespace WaveTracker.UI {
             Color emptyColor;
             if (isCursorOnThisRow) {
                 emptyColor = App.Settings.Colors.Theme["Empty dashes tint"].MultiplyWith(rowTextColor);
-                //emptyColor = EditMode ? App.Settings.Appearance.Theme["Current row empty dashes (editing)"] : App.Settings.Appearance.Theme["Current row empty dashes (default)"];
             }
             else {
-                //if (Playback.IsPlaying && Playback.position.Frame == frame && Playback.position.Row == row)
-                //    emptyColor = App.Settings.Appearance.Theme["Playback row empty dashes"];
-                //else if (row % App.CurrentSong.RowHighlightPrimary == 0)
-                //    emptyColor = App.Settings.Appearance.Theme["Empty dashes (primary highlight)"];
-                //else if (row % App.CurrentSong.RowHighlightSecondary == 0)
-                //    emptyColor = App.Settings.Appearance.Theme["Empty dashes (secondary highlight)"];
-                //else
-                //    emptyColor = App.Settings.Appearance.Theme["Empty dashes tint"].MultiplyWith(rowTextColor);
                 emptyColor = App.Settings.Colors.Theme["Empty dashes tint"].MultiplyWith(rowTextColor);
             }
             // draw note
@@ -1172,11 +1203,19 @@ namespace WaveTracker.UI {
                 WriteMonospaced("··", x + 22, y, emptyColor, 4);
             }
             else {
-                Color instrumentColor = instrumentValue < App.CurrentModule.Instruments.Count
-                    ? App.CurrentModule.Instruments[instrumentValue] is WaveInstrument
-                        ? App.Settings.Colors.Theme["Instrument (wave)"]
-                        : App.Settings.Colors.Theme["Instrument (sample)"]
-                    : Color.Red;
+                Color instrumentColor;
+                if (instrumentValue < App.CurrentModule.Instruments.Count) {
+                    if (App.CurrentModule.Instruments[instrumentValue] is WaveInstrument) {
+                        instrumentColor = App.Settings.Colors.Theme["Instrument (wave)"];
+                    }
+                    else {
+                        instrumentColor = App.Settings.Colors.Theme["Instrument (sample)"];
+                    }
+                }
+                else {
+                    instrumentColor = Color.Red;
+                }
+
                 WriteMonospaced(instrumentValue.ToString("D2"), x + 21, y, instrumentColor, 4);
             }
 
@@ -1202,7 +1241,7 @@ namespace WaveTracker.UI {
                     WriteMonospaced("···", x + 48 + 18 * i, y, emptyColor, 4);
                 }
                 else {
-                    Write(Helpers.FlushString((char)thisEffectType + ""), x + 47 + 18 * i, y, App.Settings.Colors.Theme["Effect"]);
+                    Write((char)thisEffectType + "", x + 47 + 18 * i, y, App.Settings.Colors.Theme["Effect"]);
                     if (Helpers.IsEffectHex((char)thisEffectType)) {
                         WriteMonospaced(thisEffectParameter.ToString("X2"), x + 52 + 18 * i, y, App.Settings.Colors.Theme["Effect parameter"], 4);
                     }
@@ -1449,7 +1488,7 @@ namespace WaveTracker.UI {
                 selectionEnd.Row = CurrentPattern.GetModifiedLength() - 1;
                 selectionEnd.Column = App.CurrentSong.GetLastCursorColumnOfChannel(selectionEnd.Channel);
             }
-            else {
+            else { // full channel
                 selection.IsActive = true;
                 SetSelectionStart(cursorPosition);
                 selectionStart.Row = 0;
@@ -1479,7 +1518,6 @@ namespace WaveTracker.UI {
         /// <summary>
         /// Pulls all cells below the given position up one, leaving a blank cell at the end.
         /// </summary>
-        /// <param name="pos"></param>
         private void PullCellsUp(int row, int cellColumn) {
             for (int i = row; i < 255; i++) {
                 SelectionPattern.SetCellRaw(i, cellColumn, (byte)SelectionPattern[i + 1, cellColumn]);
@@ -1490,7 +1528,6 @@ namespace WaveTracker.UI {
         /// <summary>
         /// Pushes all cell starting from pos down one. Creating a blank cell at pos
         /// </summary>
-        /// <param name="pos"></param>
         private void PushCellsDown(int row, int cellColumn) {
             for (int i = 255; i > row; i--) {
                 SelectionPattern.SetCellRaw(i, cellColumn, (byte)SelectionPattern[i - 1, cellColumn]);
@@ -1585,7 +1622,7 @@ namespace WaveTracker.UI {
                 if (!InstrumentMask) {
                     CurrentPattern[cursorPosition.Row, cursorPosition.Channel, CellType.Instrument] = (byte)App.InstrumentBank.CurrentInstrumentIndex;
                 }
-                if (volume.HasValue && App.Settings.MIDI.RecordNoteVelocity) {
+                if (volume.HasValue) {
                     CurrentPattern[cursorPosition.Row, cursorPosition.Channel, CellType.Volume] = (byte)volume.Value;
                 }
                 MoveToRow(cursorPosition.Row + InputStep);
@@ -1692,7 +1729,7 @@ namespace WaveTracker.UI {
                         SelectionPattern[cursorPosition.Row, column + 1] = WTPattern.EVENT_EMPTY;
                     }
                 }
-                MoveToRow(cursorPosition.Row + 1);
+                MoveToRow(cursorPosition.Row + InputStep);
             }
             AddToUndoHistory();
         }
@@ -2115,7 +2152,12 @@ namespace WaveTracker.UI {
         /// </summary>
         public void InsertNewFrame() {
             App.CurrentSong.InsertNewFrame(cursorPosition.Frame + 1);
-            MoveToFrame(cursorPosition.Frame + 1);
+            if (Playback.IsPlaying && App.PatternEditor.FollowMode) {
+                Playback.GotoNextFrame();
+            }
+            else {
+                MoveToFrame(cursorPosition.Frame + 1);
+            }
         }
 
         /// <summary>
@@ -2123,8 +2165,12 @@ namespace WaveTracker.UI {
         /// </summary>
         public void DuplicateFrame() {
             App.CurrentSong.DuplicateFrame(cursorPosition.Frame);
-            MoveToFrame(cursorPosition.Frame + 1);
-            App.CurrentModule.SetDirty();
+            if (Playback.IsPlaying && App.PatternEditor.FollowMode) {
+                Playback.GotoNextFrame();
+            }
+            else {
+                MoveToFrame(cursorPosition.Frame + 1);
+            }
         }
 
         /// <summary>
@@ -2134,6 +2180,9 @@ namespace WaveTracker.UI {
             App.CurrentSong.RemoveFrame(cursorPosition.Frame);
             if (cursorPosition.Frame > 0) {
                 MoveToFrame(cursorPosition.Frame - 1);
+                if (Playback.IsPlaying && App.PatternEditor.FollowMode) {
+                    Playback.GotoPreviousFrame();
+                }
             }
         }
 
@@ -2172,6 +2221,7 @@ namespace WaveTracker.UI {
         /// </summary>
         public void SnapToPlaybackPosition() {
             if (FollowMode) {
+                Playback.position.Normalize(App.CurrentSong);
                 cursorPosition.Frame = Playback.position.Frame;
                 cursorPosition.Row = Playback.position.Row;
             }
@@ -2482,42 +2532,6 @@ namespace WaveTracker.UI {
         private readonly Dictionary<string, int> KeyInputs_Piano = new Dictionary<string, int>() {
             { "Piano\\Note off", WTPattern.EVENT_NOTE_CUT },
             { "Piano\\Note release", WTPattern.EVENT_NOTE_RELEASE },
-
-            { "Piano\\Lower C-1", 0 },
-            { "Piano\\Lower C#1", 1 },
-            {"Piano\\Lower D-1", 2 },
-            { "Piano\\Lower D#1", 3 },
-            { "Piano\\Lower E-1", 4 },
-            { "Piano\\Lower F-1", 5 },
-            { "Piano\\Lower F#1", 6 },
-            { "Piano\\Lower G-1", 7 },
-            { "Piano\\Lower G#1", 8 },
-            { "Piano\\Lower A-1", 9 },
-            { "Piano\\Lower A#1", 10 },
-            { "Piano\\Lower B-1", 11 },
-            { "Piano\\Lower C-2", 12 },
-            { "Piano\\Lower C#2", 13 },
-            { "Piano\\Lower D-2", 14 },
-            { "Piano\\Lower D#2", 15 },
-            { "Piano\\Lower E-2", 16 },
-
-            { "Piano\\Upper C-2", 12 },
-            { "Piano\\Upper C#2", 13 },
-            { "Piano\\Upper D-2", 14 },
-            { "Piano\\Upper D#2", 15 },
-            { "Piano\\Upper E-2", 16 },
-            { "Piano\\Upper F-2", 17 },
-            { "Piano\\Upper F#2", 18 },
-            { "Piano\\Upper G-2", 19 },
-            { "Piano\\Upper G#2", 20 },
-            { "Piano\\Upper A-2", 21 },
-            { "Piano\\Upper A#2", 22 },
-            { "Piano\\Upper B-2", 23 },
-            { "Piano\\Upper C-3", 24 },
-            { "Piano\\Upper C#3", 25 },
-            { "Piano\\Upper D-3", 26 },
-            { "Piano\\Upper D#3", 27 },
-            { "Piano\\Upper E-3", 28 },
         };
         private readonly Dictionary<Keys, char> KeyInputs_Effect = new Dictionary<Keys, char>() {
             {Keys.D0, '0'},

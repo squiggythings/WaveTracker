@@ -14,7 +14,7 @@ namespace WaveTracker.UI {
         public Button CopyButton, PasteButton, PhaseLButton, PhaseRButton, MoveUpButton, MoveDownButton, InvertButton, MutateButton, bSmooth, NormalizeButton;
         public DropdownButton ModifyButton;
         public Textbox waveText;
-        public Dropdown ResampleDropdown;
+        public Dropdown resampleDropdown;
         public int id;
         private int holdPosY, holdPosX;
         private static string clipboardWave = "";
@@ -45,10 +45,10 @@ namespace WaveTracker.UI {
             PasteButton.SetTooltip("", "Paste wave settings");
             buttonY += 18;
 
-            PhaseRButton = new Button("Phase »", buttonX, buttonY, buttonWidth, this);
+            PhaseRButton = new Button("Phase →", buttonX, buttonY, buttonWidth, this);
             PhaseRButton.SetTooltip("", "Shift phase once to the right");
             buttonY += 14;
-            PhaseLButton = new Button("Phase «", buttonX, buttonY, buttonWidth, this);
+            PhaseLButton = new Button("Phase ←", buttonX, buttonY, buttonWidth, this);
             PhaseLButton.SetTooltip("", "Shift phase once to the left");
             buttonY += 14;
             MoveUpButton = new Button("Shift Up", buttonX, buttonY, buttonWidth, this);
@@ -100,8 +100,8 @@ namespace WaveTracker.UI {
             waveText.canEdit = true;
             waveText.MaxLength = 192;
 
-            ResampleDropdown = new Dropdown(385, 215, this);
-            ResampleDropdown.SetMenuItems(["Harsh (None)", "Smooth (Linear)", "Mix (None + Linear)"]);
+            resampleDropdown = new Dropdown(385, 215, this);
+            resampleDropdown.SetMenuItems(["Harsh (None)", "Smooth (Linear)", "Mix (None + Linear)"]);
             piano = new PreviewPiano(10, 240, this);
 
         }
@@ -174,7 +174,7 @@ namespace WaveTracker.UI {
                     ChannelManager.PreviewChannel.SetWave(WaveBank.currentWaveID);
                 }
 
-                ResampleDropdown.Value = (int)CurrentWave.resamplingMode;
+                resampleDropdown.Value = (int)CurrentWave.resamplingMode;
                 if (startcooldown > 0) {
                     waveText.Text = CurrentWave.ToNumberString();
                     startcooldown--;
@@ -194,11 +194,11 @@ namespace WaveTracker.UI {
                         waveText.Text = CurrentWave.ToNumberString();
                     }
 
-                    ResampleDropdown.Update();
-                    if (ResampleDropdown.ValueWasChangedInternally) {
+                    resampleDropdown.Update();
+                    if (resampleDropdown.ValueWasChangedInternally) {
                         App.CurrentModule.SetDirty();
                     }
-                    CurrentWave.resamplingMode = (ResamplingMode)ResampleDropdown.Value;
+                    CurrentWave.resamplingMode = (ResamplingMode)resampleDropdown.Value;
 
                     if (presetSine.Clicked) {
                         CurrentWave.SetWaveformFromString("HJKMNOQRSTUUVVVVVVVUUTSRQONMKJHGECB9875432110000000112345789BCEF");
@@ -421,8 +421,8 @@ namespace WaveTracker.UI {
                     }
                 }
                 piano.Draw(PianoInput.CurrentNote);
-                Write("Resampling Filter", 413, 214, UIColors.label);
-                ResampleDropdown.Draw();
+                WriteRightAlign("Resampling Mode", resampleDropdown.x - 4, resampleDropdown.y + 4, UIColors.label);
+                resampleDropdown.Draw();
             }
         }
     }

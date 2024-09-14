@@ -13,7 +13,7 @@ namespace WaveTracker.UI {
         private int max = int.MaxValue;
         private int valueSaved;
         private bool canScroll = true;
-        public enum NumberDisplayMode { Number, Note, NoteOnly, PlusMinus, Percent }
+        public enum NumberDisplayMode { Number, Note, NoteOnly, PlusMinus, Percent, Milliseconds }
         public NumberDisplayMode DisplayMode { get; set; }
         public bool ValueWasChanged { get; private set; }
         public bool ValueWasChangedInternally { get; private set; }
@@ -32,8 +32,8 @@ namespace WaveTracker.UI {
             height = 13;
             canScroll = true;
             SetParent(parent);
-            bUp = new SpriteButton(width - 10, 0, 10, 6, 456, 0, this);
-            bDown = new SpriteButton(width - 10, 7, 10, 6, 456, 32, this);
+            bUp = new SpriteButton(width - 10, 0, 10, 6, 416, 144, this);
+            bDown = new SpriteButton(width - 10, 7, 10, 6, 416, 176, this);
         }
 
         public NumberBox(string label, int x, int y, Element parent) {
@@ -46,8 +46,8 @@ namespace WaveTracker.UI {
             height = 13;
             canScroll = true;
             SetParent(parent);
-            bUp = new SpriteButton(width - 10, 0, 10, 6, 456, 0, this);
-            bDown = new SpriteButton(width - 10, 7, 10, 6, 456, 32, this);
+            bUp = new SpriteButton(width - 10, 0, 10, 6, 416, 144, this);
+            bDown = new SpriteButton(width - 10, 7, 10, 6, 416, 176, this);
         }
 
         public void EnableScrolling() { canScroll = true; }
@@ -56,6 +56,7 @@ namespace WaveTracker.UI {
         public void SetValueLimits(int min, int max) {
             this.min = min;
             this.max = max;
+            ArgumentOutOfRangeException.ThrowIfLessThan(max, min);
             if (Value < min) {
                 Value = min;
             }
@@ -134,20 +135,25 @@ namespace WaveTracker.UI {
             DrawRect(boxStart + 1, boxStartY + 1, bWidth - 2, boxHeight - 2, Color.White);
             DrawRect(boxStart + 1, boxStartY + 1, bWidth - 2, 1, new Color(193, 196, 213));
             DrawRect(width, boxStartY + 6, -10, 1, ButtonColors.Round.backgroundColor);
-            if (DisplayMode == NumberDisplayMode.Number) {
-                Write(Value + "", boxStart + 4, height / 2 - 3, text);
-            }
-            else if (DisplayMode == NumberDisplayMode.Note) {
-                Write(Value + " (" + Helpers.MIDINoteToText(Value) + ")", boxStart + 4, height / 2 - 3, text);
-            }
-            else if (DisplayMode == NumberDisplayMode.NoteOnly) {
-                Write(Helpers.MIDINoteToText(Value), boxStart + 4, height / 2 - 3, text);
-            }
-            else if (DisplayMode == NumberDisplayMode.PlusMinus) {
-                Write((Value <= 0 ? Value : "+" + Value) + "", boxStart + 4, height / 2 - 3, text);
-            }
-            else if (DisplayMode == NumberDisplayMode.Percent) {
-                Write(Value + "%", boxStart + 4, height / 2 - 3, text);
+            switch (DisplayMode) {
+                case NumberDisplayMode.Number:
+                    Write(Value + "", boxStart + 4, height / 2 - 3, text);
+                    break;
+                case NumberDisplayMode.Note:
+                    Write(Value + " (" + Helpers.MIDINoteToText(Value) + ")", boxStart + 4, height / 2 - 3, text);
+                    break;
+                case NumberDisplayMode.NoteOnly:
+                    Write(Helpers.MIDINoteToText(Value), boxStart + 4, height / 2 - 3, text);
+                    break;
+                case NumberDisplayMode.PlusMinus:
+                    Write((Value <= 0 ? Value : "+" + Value) + "", boxStart + 4, height / 2 - 3, text);
+                    break;
+                case NumberDisplayMode.Percent:
+                    Write(Value + "%", boxStart + 4, height / 2 - 3, text);
+                    break;
+                case NumberDisplayMode.Milliseconds:
+                    Write(Value + "ms", boxStart + 4, height / 2 - 3, text);
+                    break;
             }
 
             bUp.Draw();

@@ -269,6 +269,9 @@ namespace WaveTracker.UI {
             x = (App.WindowWidth - width) / 2;
             y = (App.WindowHeight - height) / 2;
             Input.focus = this;
+            if (!Path.Exists(currentPath)) {
+                SaveLoad.ReadPath("sample", Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments));
+            }
             GetFileEntries(true);
         }
 
@@ -324,7 +327,7 @@ namespace WaveTracker.UI {
                         Write(entriesInDirectory[i], 20, 31 + y * 11, Color.White);
                     }
                     else {
-                        Write(Helpers.FlushString(Path.GetFileName(entriesInDirectory[i])), 20, 31 + y * 11, Color.White);
+                        Write(Path.GetFileName(entriesInDirectory[i]), 20, 31 + y * 11, Color.White);
                     }
 
                     if (Directory.Exists(entriesInDirectory[i])) { // draw folder icon
@@ -371,7 +374,7 @@ namespace WaveTracker.UI {
                 backButton.Draw();
                 ok.Draw();
                 cancel.Draw();
-                Write(Helpers.FlushString(GetNicePathString(currentPath)), 20, 15, UIColors.label);
+                Write(GetNicePathString(currentPath), 20, 15, UIColors.label);
                 Write("Sort by:", width - 104, 32, UIColors.labelDark);
                 sortName.Draw();
                 sortType.Draw();
@@ -379,7 +382,7 @@ namespace WaveTracker.UI {
                 if (SelectedAnAudioFile) {
                     // write file name
                     if (wav != null) {
-                        Write(Helpers.FlushString(Helpers.TrimTextToWidth(105, Path.GetFileName(wavFilePath))), width - 104, 85, UIColors.label);
+                        Write(Helpers.TrimTextToWidth(105, Path.GetFileName(wavFilePath)), width - 104, 85, UIColors.label);
                         Write(wav.NumChannels == 1 ? "Mono" : "Stereo", width - 104, 95, UIColors.label);
                         Write(wav.SampleRate + " Hz", width - 104, 105, UIColors.label);
                         Write(wav.TotalSecs + " sec", width - 104, 115, UIColors.label);

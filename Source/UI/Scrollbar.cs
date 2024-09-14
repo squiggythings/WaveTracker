@@ -71,7 +71,6 @@ namespace WaveTracker.UI {
             }
         }
 
-
         public void Draw() {
             if (viewportSize < totalSize) {
                 Color background = UIColors.panel;

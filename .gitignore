@@ -13,9 +13,6 @@ bld/
 [Bb]in/
 [Oo]bj/
 [Ll]og/
-Content/
-/Content
-/Content/bin
 /obj/Debug
 /obj/Debug/net6.0-windows
 obj/Debug/

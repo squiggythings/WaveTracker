@@ -100,7 +100,7 @@ namespace WaveTracker.Forms {
                 }
 
                 default: {
-                    charBuffer = Helpers.FlushString(charBuffer + c);
+                    charBuffer = charBuffer + c;
                     break;
                 }
             }

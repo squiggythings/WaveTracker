@@ -103,7 +103,7 @@ namespace WaveTracker.UI {
                     return;
                 }
 
-                if (MouseX is > 1 and < 162) {
+                if (MouseX > 1 && MouseX < 162) {
                     if (MouseY > 28) {
                         if (Input.GetRightClickUp(KeyModifier._Any)) {
                             CurrentInstrumentIndex = Math.Clamp((MouseY - 28) / 11 + scrollbar.ScrollValue, 0, App.CurrentModule.Instruments.Count - 1);
@@ -283,7 +283,7 @@ namespace WaveTracker.UI {
 
         private void dialogCallback(string input) {
             if (input != null) {
-                App.CurrentModule.Instruments[CurrentInstrumentIndex].SetName(Helpers.FlushString(input));
+                App.CurrentModule.Instruments[CurrentInstrumentIndex].SetName(input);
                 App.CurrentModule.SetDirty();
             }
         }

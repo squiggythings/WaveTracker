@@ -180,7 +180,7 @@ namespace WaveTracker.Tracker {
                 Instruments.Add(new WaveInstrument());
             }
             App.InstrumentBank.CurrentInstrumentIndex = 0;
-            Dialogs.messageDialog.Open("Removed " + unusedInstruments.Count + " instruments.", MessageDialog.Icon.Information, "OK");
+            Dialogs.OpenMessageDialog("Removed " + unusedInstruments.Count + " instruments.", MessageDialog.Icon.Information, "OK");
         }
 
         public void RemoveUnusedWaves() {
@@ -216,7 +216,7 @@ namespace WaveTracker.Tracker {
             foreach (int i in unusedWaves) {
                 WaveBank[i] = new Wave();
             }
-            Dialogs.messageDialog.Open("Removed " + unusedWaves.Count + " waves.", MessageDialog.Icon.Information, "OK");
+            Dialogs.OpenMessageDialog("Removed " + unusedWaves.Count + " waves.", MessageDialog.Icon.Information, "OK");
         }
 
         /// <summary>
