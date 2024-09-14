@@ -70,7 +70,7 @@ namespace WaveTracker {
         /// <param name="text"></param>
         /// <returns></returns>
         public static int GetWidthOfText(string text) {
-            return Math.Max(0, (int)Graphics.defaultFont.MeasureString(text).X - 1);
+            return (int)Graphics.defaultFont.MeasureString(text).X - 1;
         }
 
         /// <summary>

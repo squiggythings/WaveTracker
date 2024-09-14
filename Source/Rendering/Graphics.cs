@@ -8,6 +8,8 @@ namespace WaveTracker.Rendering {
         public static SpriteFont defaultFont;
         public static SpriteFont[] highResFonts;
 
+        public static RasterizerState scissorRasterizer;
+
         public static Texture2D pixel;
         public static Texture2D img;
         public static int Scale { get; set; }

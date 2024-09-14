@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using WaveTracker.Rendering;
 
 namespace WaveTracker.UI {
@@ -94,6 +95,53 @@ namespace WaveTracker.UI {
         }
         protected void DrawSprite(int x, int y, int width, int height, Rectangle spriteBounds, Color col) {
             Graphics.DrawSprite(this.x + x + OffX, this.y + y + OffY, width, height, spriteBounds, col);
+        }
+
+        /// <summary>
+        /// Sets drawing to be inside a rectangular mask, anything outside will be clipped.
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <param name="width"></param>
+        /// <param name="height"></param>
+        protected void StartRectangleMask(int x, int y, int width, int height) {
+            // end the batch before this
+            Graphics.batch.End();
+
+            // begin a new batch using the scissor test masking feature
+            Graphics.batch.Begin(SpriteSortMode.Deferred,
+                new BlendState {
+                    ColorSourceBlend = Blend.SourceAlpha,
+                    ColorDestinationBlend = Blend.InverseSourceAlpha,
+                    AlphaSourceBlend = Blend.One,
+                    AlphaDestinationBlend = Blend.InverseSourceAlpha,
+                },
+                SamplerState.PointClamp,
+                DepthStencilState.Default,
+                Graphics.scissorRasterizer);
+
+            // set the scissor rectangle to the bounds of this element on the screen, anything drawn beyond it will be clipped
+            Graphics.batch.GraphicsDevice.ScissorRectangle = new Rectangle((this.x + x + OffX) * Graphics.Scale, (this.y + y + OffY) * Graphics.Scale, width * Graphics.Scale, height * Graphics.Scale);
+        }
+
+        /// <summary>
+        /// Ends rectangular clipping and resumes regular drawing
+        /// </summary>
+        protected static void EndRectangleMask() {
+            // end the clipped batch
+            Graphics.batch.End();
+
+            // begin another batch without scissor clipping to resume regular drawing
+            Graphics.batch.Begin(SpriteSortMode.Deferred,
+                new BlendState {
+                    ColorSourceBlend = Blend.SourceAlpha,
+                    ColorDestinationBlend = Blend.InverseSourceAlpha,
+                    AlphaSourceBlend = Blend.One,
+                    AlphaDestinationBlend = Blend.InverseSourceAlpha,
+                },
+                SamplerState.PointClamp,
+                DepthStencilState.Default,
+                RasterizerState.CullNone);
         }
 
         public Point GlobalPointToLocalPoint(Point p) {

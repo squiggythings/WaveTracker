@@ -146,7 +146,7 @@ namespace WaveTracker.UI {
             }
         }
 
-        private float Lerp(float firstFloat, float secondFloat, float by) {
+        private static float Lerp(float firstFloat, float secondFloat, float by) {
             return firstFloat * (1 - by) + secondFloat * by;
         }
 

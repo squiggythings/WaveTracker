@@ -36,6 +36,7 @@ namespace WaveTracker.UI {
             moveSongDown.SetTooltip("", "Move the currently selected song down one space in the list");
 
             songTitle = new Textbox("Title", 8, songsList.y + songsList.height + 4, songsList.width, this);
+            songTitle.InputField.UpdateLive = true;
 
             numberOfChannels = new NumberBox("Channels", 8, 174, this);
             numberOfChannels.SetValueLimits(1, 24);

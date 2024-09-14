@@ -114,6 +114,12 @@ namespace WaveTracker {
             }
         }
 
+        public static GraphicsDevice GameGraphicsDevice {
+            get {
+                return instance.GraphicsDevice;
+            }
+        }
+
         /// <summary>
         /// Height of the menustrip
         /// </summary>
@@ -133,6 +139,9 @@ namespace WaveTracker {
         /// If the application is being opened to edit a file, this is that filepath.
         /// </summary>
         private string inputFilepath;
+
+        public static GameTime GameTime { get; private set; }
+
         public App(string[] args) {
             instance = this;
             if (args.Length > 0) {
@@ -166,6 +175,7 @@ namespace WaveTracker {
             for (int i = 0; i < 5; ++i) {
                 Graphics.highResFonts[i] = Content.Load<SpriteFont>("highres_font_" + (i + 1));
             }
+
             Settings = SettingsProfile.ReadFromDisk();
             if (Settings.General.UseHighResolutionText) {
                 Graphics.currentFont = Graphics.highResFonts[Settings.General.ScreenScale - 1];
@@ -271,6 +281,10 @@ namespace WaveTracker {
             Graphics.img = Content.Load<Texture2D>("img");
             Graphics.pixel = new Texture2D(GraphicsDevice, 1, 1);
             Graphics.pixel.SetData(new[] { Color.White });
+            Graphics.scissorRasterizer = new RasterizerState();
+            Graphics.scissorRasterizer.CullMode = CullMode.None;
+            Graphics.scissorRasterizer.ScissorTestEnable = true;
+
             targetBatch = new SpriteBatch(GraphicsDevice);
             SaveLoad.NewFile();
             SaveLoad.LoadFile(inputFilepath);
@@ -278,6 +292,7 @@ namespace WaveTracker {
 
         private int dialogDelay = 0;
         protected override void Update(GameTime gameTime) {
+            GameTime = gameTime;
             Window.Title = SaveLoad.FileNameWithoutExtension + (SaveLoad.IsSaved ? "" : "*") + " [#" + (CurrentSongIndex + 1) + " " + CurrentSong.ToString() + "] - WaveTracker " + VERSION;
             WindowHeight = Window.ClientBounds.Height / Settings.General.ScreenScale;
             WindowWidth = Window.ClientBounds.Width / Settings.General.ScreenScale;
@@ -291,14 +306,14 @@ namespace WaveTracker {
             }
 
             if (IsActive) {
-                Input.GetState(gameTime);
+                Input.GetState();
                 PianoInput.Update();
             }
             else {
                 Input.windowFocusTimer = 5;
                 Input.dialogOpenCooldown = 3;
             }
-            SaveLoad.AutosaveTick(gameTime);
+            SaveLoad.AutosaveTick();
             if (Input.dialogOpenCooldown == 0) {
                 if (Input.MousePositionX > 1 && Input.MousePositionX < WindowWidth - 1) {
                     if (Input.MousePositionY > 1 && Input.MousePositionY < WindowHeight - 1) {
@@ -312,8 +327,8 @@ namespace WaveTracker {
                     }
                 }
             }
-
-            Tooltip.Update(gameTime);
+            
+            Tooltip.Update();
             if (Shortcuts["General\\Reset audio"].IsPressedDown) {
                 ResetAudio();
             }
@@ -357,6 +372,7 @@ namespace WaveTracker {
         }
 
         protected override void Draw(GameTime gameTime) {
+            GameTime = gameTime;
             graphics.PreferredBackBufferWidth = Window.ClientBounds.Width;
             graphics.PreferredBackBufferHeight = Window.ClientBounds.Height;
             graphics.ApplyChanges();
@@ -437,6 +453,9 @@ namespace WaveTracker {
             DropdownButton.DrawCurrentMenu();
             ContextMenu.Draw();
             Tooltip.Draw();
+
+            Graphics.Write("focus: " + Input.focus, 2, 200, Color.Red);
+
             targetBatch.End();
 
             base.Draw(gameTime);

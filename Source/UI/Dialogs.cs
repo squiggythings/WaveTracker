@@ -39,7 +39,7 @@ namespace WaveTracker.UI {
         /// </summary>
         /// <param name="message"></param>
         /// <param name="icon"></param>
-        /// <param name="buttonName"></param>
+        /// <param name="buttonNames"></param>
         /// <param name="playSound"></param>
         public static void OpenMessageDialog(string message, MessageDialog.Icon icon, string[] buttonNames, Action<string> onExitCallback, bool playSound = true) {
             messageDialogs.Enqueue(new MessageDialog(message, icon, buttonNames, onExitCallback, playSound));
