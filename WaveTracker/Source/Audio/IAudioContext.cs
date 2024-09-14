@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace WaveTracker.Audio.Native {
+namespace WaveTracker.Audio {
     public interface IAudioContext {
         public bool Open(AudioDevice device);
         public List<AudioDevice> EnumerateAudioDevices();

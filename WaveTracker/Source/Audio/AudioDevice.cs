@@ -1,7 +1,7 @@
 using System;
 using System.Runtime.Versioning;
 
-namespace WaveTracker.Audio.Native {
+namespace WaveTracker.Audio {
     public class AudioDevice {
         public static AudioDevice DefaultOutputDevice {
             get {
