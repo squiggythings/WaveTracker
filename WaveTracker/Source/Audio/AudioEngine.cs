@@ -141,7 +141,7 @@ namespace WaveTracker.Audio {
         /// </summary>
         private static void stopAudioThread() {
             doStopAudioThread = true;
-            audioOutThread.Join();
+            audioOutThread?.Join();
         }
 
         /// <summary>
