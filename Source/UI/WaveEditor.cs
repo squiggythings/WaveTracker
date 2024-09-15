@@ -30,7 +30,7 @@ namespace WaveTracker.UI {
             }
         }
 
-        private int phase;
+        private double phase;
 
         public WaveEditor() : base("Wave Editor", 500, 270) {
 
@@ -98,7 +98,7 @@ namespace WaveTracker.UI {
 
             waveText = new Textbox("", 17, 188, 384, 384, this);
             waveText.canEdit = true;
-            waveText.MaxLength = 192;
+            waveText.InputField.MaximumLength = 192;
 
             resampleDropdown = new Dropdown(385, 215, this);
             resampleDropdown.SetMenuItems(["Harsh (None)", "Smooth (Linear)", "Mix (None + Linear)"]);
@@ -393,11 +393,14 @@ namespace WaveTracker.UI {
                         DrawRect(drawingRegion.x + i * 6, drawingRegion.y + drawingRegion.height - samp * 5, 6, -5, waveColor);
                     }
                 }
-                phase++;
+                phase += App.GameTime.ElapsedGameTime.TotalMilliseconds / 16f;
+                if (phase > 128) {
+                    phase -= 64;
+                }
                 // draw mini wave
                 for (int i = 0; i < 64; ++i) {
-                    DrawRect(419 + i, 185, 1, 16 - CurrentWave.GetSample(i + phase), new Color(190, 192, 211));
-                    DrawRect(419 + i, 201 - CurrentWave.GetSample(i + phase), 1, 1, new Color(118, 124, 163));
+                    DrawRect(419 + i, 185, 1, 16 - CurrentWave.GetSample(i + (int)phase), new Color(190, 192, 211));
+                    DrawRect(419 + i, 201 - CurrentWave.GetSample(i + (int)phase), 1, 1, new Color(118, 124, 163));
                 }
 
                 if (IsMouseInCanvasBounds() && InFocus) {
