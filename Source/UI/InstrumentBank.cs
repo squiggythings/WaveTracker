@@ -52,16 +52,16 @@ namespace WaveTracker.UI {
 
         public Menu CreateInstrumentMenu() {
             return new Menu([
-                        new MenuOption("Add wave instrument",AddWave, App.CurrentModule.Instruments.Count < 100 && !App.VisualizerMode),
-                        new MenuOption("Add sample instrument",AddSample,App.CurrentModule.Instruments.Count < 100 && !App.VisualizerMode),
-                        new MenuOption("Duplicate",DuplicateInstrument,App.CurrentModule.Instruments.Count < 100 && !App.VisualizerMode),
-                        new MenuOption("Remove",RemoveInstrument,App.CurrentModule.Instruments.Count > 1 && !App.VisualizerMode),
+                        new MenuOption("Rename...", Rename, !App.VisualizerMode),
+                        new MenuOption("Edit...", Edit, !App.VisualizerMode),
                         null,
                         new MenuOption("Move up", MoveUp, CurrentInstrumentIndex > 0 && !App.VisualizerMode),
                         new MenuOption("Move down", MoveDown, CurrentInstrumentIndex < App.CurrentModule.Instruments.Count - 1 && !App.VisualizerMode),
                         null,
-                        new MenuOption("Rename...", Rename, !App.VisualizerMode),
-                        new MenuOption("Edit...", Edit, !App.VisualizerMode)
+                        new MenuOption("Add wave instrument",AddWave, App.CurrentModule.Instruments.Count < 100 && !App.VisualizerMode),
+                        new MenuOption("Add sample instrument",AddSample,App.CurrentModule.Instruments.Count < 100 && !App.VisualizerMode),
+                        new MenuOption("Duplicate",DuplicateInstrument,App.CurrentModule.Instruments.Count < 100 && !App.VisualizerMode),
+                        new MenuOption("Remove",RemoveInstrument,App.CurrentModule.Instruments.Count > 1 && !App.VisualizerMode)
                    ]);
         }
 
