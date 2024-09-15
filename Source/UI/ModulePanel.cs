@@ -19,6 +19,7 @@ namespace WaveTracker.UI {
             selectedSong.width = 125;
 
             speed = new Textbox("Speed (ticks/row)", 167, 12, 132, 40, this);
+            speed.InputField.AllowedCharacters = "0123456789 ";
             rows = new NumberBox("Frame Length", 167, 26, 132, 40, this);
             rows.SetValueLimits(1, 256);
 

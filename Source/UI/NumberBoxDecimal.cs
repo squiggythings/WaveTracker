@@ -4,7 +4,6 @@ using System.Windows.Forms;
 
 namespace WaveTracker.UI {
     public class NumberBoxDecimal : Clickable {
-        private Forms.EnterText dialog;
         private bool dialogOpen;
 
         public SpriteButton bUp;
@@ -68,10 +67,7 @@ namespace WaveTracker.UI {
             if (enabled && InFocus) {
                 int valueBeforeUpdate = _value;
                 if (DoubleClicked && MouseX < width - 10) {
-                    if (!dialogOpen) {
-                        dialogOpen = true;
-                        StartDialog();
-                    }
+                    // edit text 
                 }
                 else {
                     dialogOpen = false;
@@ -134,18 +130,6 @@ namespace WaveTracker.UI {
             Write(Value.ToString("D" + DecimalPlaces), boxStart + 4, height / 2 - 3, text);
             bUp.Draw();
             bDown.Draw();
-        }
-
-        public void StartDialog() {
-            Input.DialogStarted();
-            dialog = new Forms.EnterText();
-            dialog.textBox.Text = Value + "";
-            dialog.label.Text = label;
-            if (dialog.ShowDialog() == DialogResult.OK) {
-                if (float.TryParse(dialog.textBox.Text, out float a)) {
-                    Value = a;
-                }
-            }
         }
     }
 }

@@ -3,7 +3,6 @@ using System.Windows.Forms;
 
 namespace WaveTracker.UI {
     public class Textbox : Clickable {
-        private Forms.EnterText dialog;
         public bool canEdit = true;
         private string label;
         private string textPrefix = "";
@@ -81,18 +80,6 @@ namespace WaveTracker.UI {
 
             string t = textPrefix + Text + "";
             InputField.Draw(t);
-        }
-
-        public void StartDialog() {
-            Input.DialogStarted();
-            dialog = new Forms.EnterText();
-            dialog.textBox.Text = Text;
-            dialog.label.Text = label;
-            dialog.textBox.MaxLength = MaxLength;
-            if (dialog.ShowDialog() == DialogResult.OK) {
-                Text = dialog.textBox.Text;
-                ValueWasChangedInternally = true;
-            }
         }
     }
 }

@@ -21,8 +21,13 @@ namespace WaveTracker.UI {
             }
         }
 
-        public bool IsInHierarchy(Element element) {
-            return element == this || (parent == null ? element == null : parent.IsInHierarchy(element));
+        public bool IsMeOrAParent(Element element) {
+            if (parent == null) {
+                return element == this || element == null;
+            }
+            else {
+                return element == this || parent.IsMeOrAParent(element);
+            }
         }
 
         public void SetParent(Element parent) {

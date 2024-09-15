@@ -198,7 +198,7 @@ namespace WaveTracker.UI {
             }
         }
 
-        public void Open(string originalText) {
+        public void Open(string originalText, bool selectAll = false) {
             if (currentlyEditing == null) {
                 originalText ??= "";
                 EditedText = originalText;
@@ -207,6 +207,9 @@ namespace WaveTracker.UI {
                 currentlyEditing = this;
                 Input.focus = this;
                 IsBeingEdited = true;
+                if (selectAll) {
+                    SelectAll();
+                }
                 App.ClientWindow.TextInput += OnInput;
                 caretPosition = GetMouseCaretPosition();
                 caretFlashTimer = 0;
@@ -247,11 +250,7 @@ namespace WaveTracker.UI {
                     else {
                         switch ((int)e.Character) {
                             case 1: // CTRL-A
-                                SelectionIsActive = true;
-                                selectionStart = 0;
-                                selectionEnd = EditedText.Length;
-                                selectionMin = 0;
-                                selectionMax = EditedText.Length;
+                                SelectAll();
                                 break;
                             case 3: // CTRL-C
                                 if (SelectionIsActive) {
@@ -276,6 +275,15 @@ namespace WaveTracker.UI {
                     break;
             }
         }
+        private void SelectAll() {
+            SelectionIsActive = true;
+            selectionStart = 0;
+            selectionEnd = EditedText.Length;
+            selectionMin = 0;
+            selectionMax = EditedText.Length;
+            caretPosition = selectionEnd;
+        }
+
         private void GotoPreviousWord() {
             while (caretPosition > 0 && IsWhitespace(EditedText[caretPosition])) {
                 caretPosition--;
@@ -363,10 +371,9 @@ namespace WaveTracker.UI {
             // draw shadow
             DrawRect(1, 1, width - 2, 1, new Color(193, 196, 213));
 
+            StartRectangleMask(2, 0, width - 4, height);
+
             if (IsBeingEdited) {
-
-                StartRectangleMask(2, 0, width - 4, height);
-
                 int textX = -ScrollPosition;
                 for (int i = 0; i < EditedText.Length; i++) {
                     int widthOfCharacter = Helpers.GetWidthOfText(EditedText[i] + "");
@@ -389,16 +396,11 @@ namespace WaveTracker.UI {
                     Write("|", 4 + Helpers.GetWidthOfText(EditedText.Substring(0, caretPosition)) - ScrollPosition, 3, textColor);
                 }
 
-                EndRectangleMask();
             }
             else {
-                if (defaultText.Length > 0) {
-                    Write(Helpers.TrimTextToWidth(width, defaultText), 4, 3, textColor);
-                }
-                else {
-                    Write(Helpers.TrimTextToWidth(width, defaultText), 4, 3, textColor);
-                }
+                Write(Helpers.TrimTextToWidth(width, defaultText), 4, 3, textColor);
             }
+            EndRectangleMask();
         }
     }
 }

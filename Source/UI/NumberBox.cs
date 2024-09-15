@@ -4,8 +4,6 @@ using System.Windows.Forms;
 
 namespace WaveTracker.UI {
     public class NumberBox : Clickable {
-        private Forms.EnterText dialog;
-        private bool dialogOpen;
 
         public SpriteButton bUp;
         public SpriteButton bDown;
@@ -24,6 +22,10 @@ namespace WaveTracker.UI {
         private int _value;
         public int Value { get { return _value; } set { _value = Math.Clamp(value, min, max); } }
 
+        private InputField InputField { get; set; }
+        public new bool InFocus => base.InFocus || InputField.InFocus;
+
+
         public NumberBox(string label, int x, int y, int width, int boxWidth, Element parent) {
             this.label = label;
             DisplayMode = NumberDisplayMode.Number;
@@ -34,6 +36,8 @@ namespace WaveTracker.UI {
             height = 13;
             canScroll = true;
             SetParent(parent);
+            InputField = new InputField(width - boxWidth, 0, boxWidth - 10, this);
+            InputField.AllowedCharacters = "-0123456789";
             bUp = new SpriteButton(width - 10, 0, 10, 6, 416, 144, this);
             bDown = new SpriteButton(width - 10, 7, 10, 6, 416, 176, this);
         }
@@ -48,6 +52,8 @@ namespace WaveTracker.UI {
             height = 13;
             canScroll = true;
             SetParent(parent);
+            InputField = new InputField(width - boxWidth, 0, boxWidth, this);
+            InputField.AllowedCharacters = "-0123456789";
             bUp = new SpriteButton(width - 10, 0, 10, 6, 416, 144, this);
             bDown = new SpriteButton(width - 10, 7, 10, 6, 416, 176, this);
         }
@@ -73,16 +79,20 @@ namespace WaveTracker.UI {
             bDown.enabled = enabled && Value > min;
             if (enabled && InFocus) {
                 int valueBeforeUpdate = Value;
-                if (DoubleClicked && MouseX < width - 10) {
-                    if (!dialogOpen) {
-                        dialogOpen = true;
-                        StartDialog();
+                if (InputField.DoubleClicked) {
+                    InputField.Open(Value + "", selectAll: true);
+                }
+                InputField.Update();
+                if (InputField.ValueWasChangedInternally) {
+                    if (int.TryParse(InputField.EditedText, out int num)) {
+                        Value = num;
                     }
                 }
-                else {
-                    dialogOpen = false;
+                if (IsHovered && canScroll) {
+                    Value += Input.MouseScrollWheel(KeyModifier.None);
                 }
-                if (IsInHierarchy(Input.lastClickFocus)) {
+
+                if (IsMeOrAParent(Input.lastClickFocus)) {
                     if (LastClickPos.X >= 0 && LastClickPos.Y >= 0) {
                         if (LastClickPos.X <= width - 10 && LastClickPos.Y <= height) {
                             if (Input.GetClickDown(KeyModifier.None)) {
@@ -96,9 +106,7 @@ namespace WaveTracker.UI {
                         }
                     }
                 }
-                if (IsHovered && canScroll) {
-                    Value += Input.MouseScrollWheel(KeyModifier.None);
-                }
+
 
                 if (bUp.Clicked) {
                     Value++;
@@ -107,7 +115,6 @@ namespace WaveTracker.UI {
                 if (bDown.Clicked) {
                     Value--;
                 }
-
                 if (Value != lastValue) {
                     ValueWasChanged = true;
                     lastValue = Value;
@@ -115,63 +122,51 @@ namespace WaveTracker.UI {
                 else {
                     ValueWasChanged = false;
                 }
-
-                ValueWasChangedInternally = Value != valueBeforeUpdate;
+                if (valueBeforeUpdate != Value) {
+                    ValueWasChangedInternally = true;
+                }
             }
         }
 
         public void Draw() {
-            Color dark = UIColors.label;
-            Color text = UIColors.black;
-            Color labelCol = UIColors.labelDark;
+            Color labelColor = UIColors.labelDark;
             if (IsHovered && enabled) {
-                labelCol = UIColors.black;
-                dark = UIColors.label;
+                labelColor = UIColors.black;
             }
-            int bWidth = boxWidth - 10;
-            int boxStart = width - boxWidth;
+
             int boxHeight = 13;
             int boxStartY = (height - boxHeight) / 2;
-            Write(label + "", 0, height / 2 - 3, labelCol);
-            DrawRect(boxStart, boxStartY, bWidth, boxHeight, dark);
-            DrawRect(boxStart + 1, boxStartY + 1, bWidth - 2, boxHeight - 2, Color.White);
-            DrawRect(boxStart + 1, boxStartY + 1, bWidth - 2, 1, new Color(193, 196, 213));
+            Write(label + "", 0, height / 2 - 3, labelColor);
+
+            // draw little strip in between the up down buttons to fill the gap
             DrawRect(width, boxStartY + 6, -10, 1, ButtonColors.Round.backgroundColor);
+
+
+            string text = "";
             switch (DisplayMode) {
                 case NumberDisplayMode.Number:
-                    Write(Value + "", boxStart + 4, height / 2 - 3, text);
+                    text = Value + "";
                     break;
                 case NumberDisplayMode.Note:
-                    Write(Value + " (" + Helpers.MIDINoteToText(Value) + ")", boxStart + 4, height / 2 - 3, text);
+                    text = Value + " (" + Helpers.MIDINoteToText(Value) + ")";
                     break;
                 case NumberDisplayMode.NoteOnly:
-                    Write(Helpers.MIDINoteToText(Value), boxStart + 4, height / 2 - 3, text);
+                    text = Helpers.MIDINoteToText(Value);
                     break;
                 case NumberDisplayMode.PlusMinus:
-                    Write((Value <= 0 ? Value : "+" + Value) + "", boxStart + 4, height / 2 - 3, text);
+                    text = (Value <= 0 ? Value : "+" + Value) + "";
                     break;
                 case NumberDisplayMode.Percent:
-                    Write(Value + "%", boxStart + 4, height / 2 - 3, text);
+                    text = Value + "%";
                     break;
                 case NumberDisplayMode.Milliseconds:
-                    Write(Value + "ms", boxStart + 4, height / 2 - 3, text);
+                    text = Value + "ms";
                     break;
             }
+            InputField.Draw(text);
 
             bUp.Draw();
             bDown.Draw();
-        }
-
-        public void StartDialog() {
-            Input.DialogStarted();
-            dialog = new Forms.EnterText();
-            dialog.textBox.Text = Value + "";
-            dialog.label.Text = label;
-            if (dialog.ShowDialog() == DialogResult.OK) {
-                if (int.TryParse(dialog.textBox.Text, out int a)) {
-                    Value = a;
-                }
-            }
         }
     }
 }
