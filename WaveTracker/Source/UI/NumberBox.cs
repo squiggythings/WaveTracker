@@ -163,8 +163,6 @@ namespace WaveTracker.UI {
         public void StartDialog() {
             Input.DialogStarted();
 
-            Console.WriteLine("starting number box dialog");
-
             Dialogs.enterTextDialog.Open(
                 label,
                 Value + "",
@@ -173,13 +171,10 @@ namespace WaveTracker.UI {
         }
 
         private void dialogCallback(string input) {
-            Console.WriteLine("ending number box dialog with " + input);
             if (input != null) {
                 if (int.TryParse(input, out int a)) {
-                    Console.WriteLine("prev Value = " + Value);
                     Value = a;
                     ValueWasChangedInternally = true;
-                    Console.WriteLine("Value = " + Value);
                 }
             }
         }

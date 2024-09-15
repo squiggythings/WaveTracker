@@ -112,7 +112,7 @@ namespace WaveTracker.UI {
             base.Open();
             pageSelector.SelectedItemIndex = 0;
             PianoInput.ReadMidiDevices();
-            (pages["MIDI"]["Input device"] as ConfigurationOption.Dropdown).SetMenuItems(PianoInput.MIDIDevicesNames);
+            (pages["MIDI"]["Input device"] as ConfigurationOption.Dropdown).SetMenuItems(PianoInput.GetMidiDeviceNames());
             (pages["Keyboard"] as KeyboardPage).Initialize();
             (pages["Colors"] as AppearancePage).Initialize();
             string[] audioDeviceOptions = new string[Audio.AudioEngine.OutputDevices.Count];
@@ -163,7 +163,7 @@ namespace WaveTracker.UI {
             pages["Samples/Waves"]["Default sample resample mode"].ValueInt = (int)App.Settings.SamplesWaves.DefaultResampleModeSample;
 
             pages["MIDI"]["Input device"].ValueInt = 0; // reset to none incase the one from settings is not found
-            pages["MIDI"]["Input device"].ValueString = App.Settings.MIDI.InputDevice;
+            pages["MIDI"]["Input device"].ValueString = App.Settings.MIDI.InputDevice == null ? "(none)" : App.Settings.MIDI.InputDevice.Name;
             pages["MIDI"]["MIDI transpose"].ValueInt = App.Settings.MIDI.MIDITranspose;
             pages["MIDI"]["Apply octave transpose"].ValueBool = App.Settings.MIDI.ApplyOctaveTranspose;
             pages["MIDI"]["Record note velocity"].ValueBool = App.Settings.MIDI.RecordNoteVelocity;
@@ -234,10 +234,13 @@ namespace WaveTracker.UI {
             App.Settings.SamplesWaves.DefaultResampleModeWave = (Audio.ResamplingMode)pages["Samples/Waves"]["Default wave resample mode"].ValueInt;
             App.Settings.SamplesWaves.DefaultResampleModeSample = (Audio.ResamplingMode)pages["Samples/Waves"]["Default sample resample mode"].ValueInt;
 
-            if (!PianoInput.SetMIDIDevice((pages["MIDI"]["Input device"] as ConfigurationOption.Dropdown).ValueString)) {
+            int midiDeviceIndex = (pages["MIDI"]["Input device"] as ConfigurationOption.Dropdown).Value;
+            if (!PianoInput.SetMIDIDevice(PianoInput.MidiDevices[midiDeviceIndex])) {
                 pages["MIDI"]["Input device"].ValueInt = 0;
+                midiDeviceIndex = 0;
             }
-            App.Settings.MIDI.InputDevice = pages["MIDI"]["Input device"].ValueString;
+            App.Settings.MIDI.InputDevice = PianoInput.MidiDevices[midiDeviceIndex];
+
             App.Settings.MIDI.MIDITranspose = pages["MIDI"]["MIDI transpose"].ValueInt;
             App.Settings.MIDI.ApplyOctaveTranspose = pages["MIDI"]["Apply octave transpose"].ValueBool;
             App.Settings.MIDI.RecordNoteVelocity = pages["MIDI"]["Record note velocity"].ValueBool;

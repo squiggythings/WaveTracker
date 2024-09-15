@@ -12,6 +12,7 @@
     <RepositoryUrl>https://github.com/naudio/NAudio</RepositoryUrl>
     <Copyright>© Mark Heath 2023</Copyright>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
 </Project>

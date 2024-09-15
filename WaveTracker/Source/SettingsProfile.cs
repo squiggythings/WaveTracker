@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text.Json;
 using WaveTracker.Audio;
+using WaveTracker.Midi;
 
 namespace WaveTracker {
     public class SettingsProfile {
@@ -79,7 +80,7 @@ namespace WaveTracker {
         }
 
         public class CategoryMIDI {
-            public string InputDevice { get; set; } = "(none)";
+            public MidiInDeviceID InputDevice { get; set; } = null;
             public bool RecordNoteVelocity { get; set; } = true;
             public int MIDITranspose { get; set; } = 0;
             public bool ApplyOctaveTranspose { get; set; } = false;

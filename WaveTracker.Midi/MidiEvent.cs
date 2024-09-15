@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Runtime.Versioning;
 
 namespace WaveTracker.Midi {
     /// <summary>
@@ -19,7 +20,8 @@ namespace WaveTracker.Midi {
         /// </summary>
         /// <param name="rawMessage">The short MIDI message</param>
         /// <returns>A new MIDI Event</returns>
-        public static MidiEvent FromRawMessage(int rawMessage) {
+        [SupportedOSPlatform("Windows")]
+        public static MidiEvent FromRawMMEMessage(int rawMessage) {
             long absoluteTime = 0;
             int b = rawMessage & 0xFF;
             int data1 = (rawMessage >> 8) & 0xFF;

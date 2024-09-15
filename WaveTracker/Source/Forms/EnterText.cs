@@ -104,8 +104,6 @@ namespace WaveTracker.Forms {
                     break;
                 }
             }
-
-            Console.WriteLine(charBuffer);
         }
 
         public new void Draw() {

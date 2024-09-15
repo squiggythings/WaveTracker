@@ -37,28 +37,8 @@ namespace WaveTracker.Midi.Interop.Windows {
             MoreData = 0x3CC,
         }
 
-
-
-        public enum MidiOutMessage {
-            /// <summary>
-            /// MOM_OPEN
-            /// </summary>
-            Open = 0x3C7,
-            /// <summary>
-            /// MOM_CLOSE
-            /// </summary>
-            Close = 0x3C8,
-            /// <summary>
-            /// MOM_DONE
-            /// </summary>
-            Done = 0x3C9
-        }
-
         // http://msdn.microsoft.com/en-us/library/dd798460%28VS.85%29.aspx
         public delegate void MidiInCallback(IntPtr midiInHandle, MidiInMessage message, IntPtr userData, IntPtr messageParameter1, IntPtr messageParameter2);
-
-        // http://msdn.microsoft.com/en-us/library/dd798478%28VS.85%29.aspx
-        public delegate void MidiOutCallback(IntPtr midiInHandle, MidiOutMessage message, IntPtr userData, IntPtr messageParameter1, IntPtr messageParameter2);
 
         // http://msdn.microsoft.com/en-us/library/dd798446%28VS.85%29.aspx
         [DllImport("winmm.dll")]
@@ -124,103 +104,6 @@ namespace WaveTracker.Midi.Interop.Windows {
         // http://msdn.microsoft.com/en-us/library/dd798464%28VS.85%29.aspx
         [DllImport("winmm.dll")]
         public static extern MmResult midiInUnprepareHeader(IntPtr hMidiIn, IntPtr lpMidiInHdr, int uSize);
-
-        // http://msdn.microsoft.com/en-us/library/dd798465%28VS.85%29.aspx
-        [DllImport("winmm.dll")]
-        public static extern MmResult midiOutCacheDrumPatches(IntPtr hMidiOut, int uPatch, IntPtr lpKeyArray, int uFlags);
-
-        // http://msdn.microsoft.com/en-us/library/dd798466%28VS.85%29.aspx
-        [DllImport("winmm.dll")]
-        public static extern MmResult midiOutCachePatches(IntPtr hMidiOut, int uBank, IntPtr lpPatchArray, int uFlags);
-
-        // http://msdn.microsoft.com/en-us/library/dd798468%28VS.85%29.aspx
-        [DllImport("winmm.dll")]
-        public static extern MmResult midiOutClose(IntPtr hMidiOut);
-
-        // http://msdn.microsoft.com/en-us/library/dd798469%28VS.85%29.aspx
-        [DllImport("winmm.dll", CharSet = CharSet.Auto)]
-        public static extern MmResult midiOutGetDevCaps(IntPtr deviceNumber, out MidiOutCapabilities caps, int uSize);
-
-        // http://msdn.microsoft.com/en-us/library/dd798470%28VS.85%29.aspx
-        // TODO: review, probably doesn't work
-        [DllImport("winmm.dll")]
-        public static extern MmResult midiOutGetErrorText(IntPtr err, string lpText, int uSize);
-
-        // http://msdn.microsoft.com/en-us/library/dd798471%28VS.85%29.aspx
-        [DllImport("winmm.dll")]
-        public static extern MmResult midiOutGetID(IntPtr hMidiOut, out int lpuDeviceID);
-
-        // http://msdn.microsoft.com/en-us/library/dd798472%28VS.85%29.aspx
-        [DllImport("winmm.dll")]
-        public static extern int midiOutGetNumDevs();
-
-        // http://msdn.microsoft.com/en-us/library/dd798473%28VS.85%29.aspx
-        [DllImport("winmm.dll")]
-        public static extern MmResult midiOutGetVolume(IntPtr uDeviceID, ref int lpdwVolume);
-
-        // http://msdn.microsoft.com/en-us/library/dd798474%28VS.85%29.aspx
-        [DllImport("winmm.dll")]
-        public static extern MmResult midiOutLongMsg(IntPtr hMidiOut, ref MIDIHDR lpMidiOutHdr, int uSize);
-
-        // http://msdn.microsoft.com/en-us/library/dd798475%28VS.85%29.aspx
-        [DllImport("winmm.dll")]
-        public static extern MmResult midiOutMessage(IntPtr hMidiOut, int msg, IntPtr dw1, IntPtr dw2);
-
-        // http://msdn.microsoft.com/en-us/library/dd798476%28VS.85%29.aspx
-        [DllImport("winmm.dll")]
-        public static extern MmResult midiOutOpen(out IntPtr lphMidiOut, IntPtr uDeviceID, MidiOutCallback dwCallback, IntPtr dwInstance, int dwFlags);
-
-        // http://msdn.microsoft.com/en-us/library/dd798477%28VS.85%29.aspx
-        [DllImport("winmm.dll")]
-        public static extern MmResult midiOutPrepareHeader(IntPtr hMidiOut, ref MIDIHDR lpMidiOutHdr, int uSize);
-
-        // http://msdn.microsoft.com/en-us/library/dd798479%28VS.85%29.aspx
-        [DllImport("winmm.dll")]
-        public static extern MmResult midiOutReset(IntPtr hMidiOut);
-
-        // http://msdn.microsoft.com/en-us/library/dd798480%28VS.85%29.aspx
-        [DllImport("winmm.dll")]
-        public static extern MmResult midiOutSetVolume(IntPtr hMidiOut, int dwVolume);
-
-        // http://msdn.microsoft.com/en-us/library/dd798481%28VS.85%29.aspx
-        [DllImport("winmm.dll")]
-        public static extern MmResult midiOutShortMsg(IntPtr hMidiOut, int dwMsg);
-
-        // http://msdn.microsoft.com/en-us/library/dd798482%28VS.85%29.aspx
-        [DllImport("winmm.dll")]
-        public static extern MmResult midiOutUnprepareHeader(IntPtr hMidiOut, ref MIDIHDR lpMidiOutHdr, int uSize);
-
-        // http://msdn.microsoft.com/en-us/library/dd798485%28VS.85%29.aspx
-        [DllImport("winmm.dll")]
-        public static extern MmResult midiStreamClose(IntPtr hMidiStream);
-
-        // http://msdn.microsoft.com/en-us/library/dd798486%28VS.85%29.aspx
-        [DllImport("winmm.dll")]
-        public static extern MmResult midiStreamOpen(out IntPtr hMidiStream, IntPtr puDeviceID, int cMidi, IntPtr dwCallback, IntPtr dwInstance, int fdwOpen);
-
-        // http://msdn.microsoft.com/en-us/library/dd798487%28VS.85%29.aspx
-        [DllImport("winmm.dll")]
-        public static extern MmResult midiStreamOut(IntPtr hMidiStream, ref MIDIHDR pmh, int cbmh);
-
-        // http://msdn.microsoft.com/en-us/library/dd798488%28VS.85%29.aspx
-        [DllImport("winmm.dll")]
-        public static extern MmResult midiStreamPause(IntPtr hMidiStream);
-
-        // http://msdn.microsoft.com/en-us/library/dd798489%28VS.85%29.aspx
-        [DllImport("winmm.dll")]
-        public static extern MmResult midiStreamPosition(IntPtr hMidiStream, ref MMTIME lpmmt, int cbmmt);
-
-        // http://msdn.microsoft.com/en-us/library/dd798490%28VS.85%29.aspx
-        [DllImport("winmm.dll")]
-        public static extern MmResult midiStreamProperty(IntPtr hMidiStream, IntPtr lppropdata, int dwProperty);
-
-        // http://msdn.microsoft.com/en-us/library/dd798491%28VS.85%29.aspx
-        [DllImport("winmm.dll")]
-        public static extern MmResult midiStreamRestart(IntPtr hMidiStream);
-
-        // http://msdn.microsoft.com/en-us/library/dd798492%28VS.85%29.aspx
-        [DllImport("winmm.dll")]
-        public static extern MmResult midiStreamStop(IntPtr hMidiStream);
 
         // TODO: this is general MM interop
         public const int CALLBACK_FUNCTION = 0x30000;

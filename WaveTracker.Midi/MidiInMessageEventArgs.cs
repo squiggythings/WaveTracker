@@ -1,4 +1,5 @@
 using System;
+using System.Runtime.Versioning;
 
 namespace WaveTracker.Midi {
     /// <summary>
@@ -10,19 +11,27 @@ namespace WaveTracker.Midi {
         /// </summary>
         /// <param name="message"></param>
         /// <param name="timestamp"></param>
+        [SupportedOSPlatform("Windows")]
         public MidiInMessageEventArgs(int message, int timestamp) {
             this.RawMessage = message;
             this.Timestamp = timestamp;
             try {
-                this.MidiEvent = MidiEvent.FromRawMessage(message);
+                this.MidiEvent = MidiEvent.FromRawMMEMessage(message);
             } catch (Exception) {
                 // don't worry too much - might be an invalid message
             }
         }
 
+        [UnsupportedOSPlatform("Windows", "This doesn't set the RawMessage")]
+        internal MidiInMessageEventArgs(MidiEvent midiEvent, int timestamp) {
+            this.Timestamp = timestamp;
+            this.MidiEvent = midiEvent;
+        }
+
         /// <summary>
         /// The Raw message received from the MIDI In API
         /// </summary>
+        [SupportedOSPlatform("Windows")]
         public int RawMessage { get; private set; }
 
         /// <summary>

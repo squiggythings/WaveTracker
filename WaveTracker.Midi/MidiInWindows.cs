@@ -1,12 +1,14 @@
 using System;
 using System.Runtime.InteropServices;
+using System.Runtime.Versioning;
 using WaveTracker.Midi.Interop.Windows;
 
 namespace WaveTracker.Midi {
     /// <summary>
     /// Represents a MIDI in device
     /// </summary>
-    public class MidiIn : IDisposable {
+    [SupportedOSPlatform("Windows")]
+    public class MidiInWindows : IMidiIn, IDisposable {
         private IntPtr hMidiIn = IntPtr.Zero;
         private bool disposeIsRunning = false; // true while the Dispose() method run.
         private bool disposed = false;
@@ -43,16 +45,9 @@ namespace WaveTracker.Midi {
         /// Opens a specified MIDI in device
         /// </summary>
         /// <param name="deviceNo">The device number</param>
-        public MidiIn(int deviceNo) {
+        public MidiInWindows(int deviceNo) {
             this.callback = new Winmm.MidiInCallback(Callback);
             MmException.Try(Winmm.midiInOpen(out hMidiIn, (IntPtr)deviceNo, this.callback, IntPtr.Zero, Winmm.CALLBACK_FUNCTION), "midiInOpen");
-        }
-
-        /// <summary>
-        /// Closes this MIDI in device
-        /// </summary>
-        public void Close() {
-            Dispose();
         }
 
         /// <summary>
@@ -210,7 +205,7 @@ namespace WaveTracker.Midi {
         /// <summary>
         /// Cleanup
         /// </summary>
-        ~MidiIn() {
+        ~MidiInWindows() {
             System.Diagnostics.Debug.Assert(false, "MIDI In was not finalised");
             Dispose(false);
         }
