@@ -80,6 +80,7 @@ namespace WaveTracker.UI {
             if (enabled && InFocus) {
                 int valueBeforeUpdate = Value;
                 if (InputField.DoubleClicked) {
+                    Input.CancelClick();
                     InputField.Open(Value + "", selectAll: true);
                 }
                 InputField.Update();

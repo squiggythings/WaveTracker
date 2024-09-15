@@ -5,7 +5,7 @@ using System.Collections.Generic;
 namespace WaveTracker.Tracker {
     [ProtoContract(SkipConstructor = true)]
     public class Envelope {
-        public const int MAX_ENVELOPE_LENGTH = 255;
+        public const int MAX_ENVELOPE_LENGTH = 400;
         public enum EnvelopeType { Volume, Arpeggio, Pitch, Wave, WaveBlend, WaveStretch, WaveFM, WaveSync };
         [ProtoMember(1)]
         public EnvelopeType Type { get; private set; }
@@ -43,17 +43,7 @@ namespace WaveTracker.Tracker {
         }
 
         public string GetName() {
-            return Type switch {
-                EnvelopeType.Volume => "Volume",
-                EnvelopeType.Arpeggio => "Arpeggio",
-                EnvelopeType.Pitch => "Pitch",
-                EnvelopeType.Wave => "Wave",
-                EnvelopeType.WaveBlend => "Wave Blend",
-                EnvelopeType.WaveStretch => "Wave Stretch",
-                EnvelopeType.WaveSync => "Wave Sync",
-                EnvelopeType.WaveFM => "Wave FM",
-                _ => "--",
-            };
+            return GetName(Type);
         }
 
         public static string GetName(EnvelopeType type) {

@@ -90,7 +90,7 @@ namespace WaveTracker.UI {
 
         public bool DoubleClicked {
             get {
-                return enabled && IsHovered && Input.GetDoubleClick(KeyModifier._Any) && GlobalPointIsInBounds(Input.LastClickLocation) && GlobalPointIsInBounds(Input.LastClickReleaseLocation) && IsMeOrAParent(Input.lastClickFocus);
+                return enabled && IsHovered && Input.GetDoubleClickDown(KeyModifier._Any) && GlobalPointIsInBounds(Input.LastClickLocation) && GlobalPointIsInBounds(Input.LastClickReleaseLocation) && IsMeOrAParent(Input.lastClickFocus);
             }
         }
 
@@ -110,7 +110,7 @@ namespace WaveTracker.UI {
         }
 
         public bool DoubleClickedM(KeyModifier modifier) {
-            return enabled && IsHovered && Input.GetDoubleClick(modifier) && IsMeOrAParent(Input.lastClickFocus);
+            return enabled && IsHovered && Input.GetDoubleClickDown(modifier) && IsMeOrAParent(Input.lastClickFocus);
         }
 
         public bool GlobalPointIsInBounds(Point p) {

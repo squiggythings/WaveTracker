@@ -11,6 +11,9 @@ namespace WaveTracker.UI {
             cancel = AddNewBottomButton("Cancel", this);
             ok = AddNewBottomButton("OK", this);
             stretchText = new Textbox("Stretch map: ", 6, 12, 200, this);
+            stretchText.InputField.AllowedCharacters = "0123456789 ";
+            stretchText.InputField.MaximumLength = 64;
+            stretchText.InputField.UpdateLive = true;
         }
 
         public void Open(PatternEditor parentEditor) {

@@ -139,6 +139,7 @@ namespace WaveTracker {
                 {"General\\Module settings", new KeyboardShortcut(Keys.P, KeyModifier.Alt) },
                 {"General\\Edit wave", new KeyboardShortcut(Keys.W, KeyModifier.Ctrl) },
                 {"General\\Edit instrument", new KeyboardShortcut(Keys.I, KeyModifier.Ctrl) },
+                {"General\\Rename instrument", new KeyboardShortcut(Keys.R, KeyModifier.Ctrl) },
                 {"General\\Toggle visualizer", new KeyboardShortcut(Keys.V, KeyModifier.Alt) },
                 {"General\\Toggle channel", new KeyboardShortcut(Keys.F9, KeyModifier.Alt) },
                 {"General\\Solo channel", new KeyboardShortcut(Keys.F10, KeyModifier.Alt) },

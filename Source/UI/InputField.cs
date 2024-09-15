@@ -85,29 +85,38 @@ namespace WaveTracker.UI {
                     Close();
                 }
 
-                if (Input.GetClick(KeyModifier._Any) && GlobalPointIsInBounds(Input.LastClickLocation)) {
-                    if (ClickedDown) {
-                        selectionStart = mouseCursorCaret;
-                    }
-
-                    caretPosition = mouseCursorCaret;
-                    if (Input.IsShiftPressed()) {
-                        if (!SelectionIsActive) {
-                            SelectionIsActive = true;
-                            selectionStart = lastCaretPosition;
+                if (Input.GetClick(KeyModifier._Any) && GlobalPointIsInBounds(Input.LastClickLocation) && Input.lastClickFocus == this) {
+                    if (!Input.GetDoubleClick(KeyModifier._Any)) {
+                        caretPosition = mouseCursorCaret;
+                        if (ClickedDown) {
+                            selectionStart = mouseCursorCaret;
                         }
-                        selectionEnd = caretPosition;
-                    }
-                    else {
-                        if (mouseCursorCaret != selectionStart) {
-                            selectionEnd = mouseCursorCaret;
-                            SelectionIsActive = true;
+                        if (Input.IsShiftPressed()) {
+                            if (!SelectionIsActive) {
+                                SelectionIsActive = true;
+                                selectionStart = lastCaretPosition;
+                            }
+                            selectionEnd = caretPosition;
                         }
                         else {
-                            SelectionIsActive = false;
+                            if (mouseCursorCaret != selectionStart) {
+                                selectionEnd = mouseCursorCaret;
+                                SelectionIsActive = true;
+                            }
+                            else {
+                                SelectionIsActive = false;
+                            }
+                            caretFlashTimer = 0;
                         }
                     }
-                    caretFlashTimer = 0;
+                    if (DoubleClicked) {
+                        SelectionIsActive = true;
+                        GotoPreviousWord();
+                        selectionStart = caretPosition;
+                        GotoNextWord();
+                        selectionEnd = caretPosition;
+                        caretFlashTimer = 0;
+                    }
                 }
 
                 if (Input.GetKeyRepeat(Keys.Left, KeyModifier._Any)) {
@@ -276,15 +285,18 @@ namespace WaveTracker.UI {
             }
         }
         private void SelectAll() {
-            SelectionIsActive = true;
             selectionStart = 0;
             selectionEnd = EditedText.Length;
             selectionMin = 0;
             selectionMax = EditedText.Length;
             caretPosition = selectionEnd;
+            SelectionIsActive = true;
         }
 
         private void GotoPreviousWord() {
+            if (caretPosition == EditedText.Length) {
+                caretPosition--;
+            }
             while (caretPosition > 0 && IsWhitespace(EditedText[caretPosition])) {
                 caretPosition--;
             }
@@ -320,7 +332,7 @@ namespace WaveTracker.UI {
         }
 
         private static bool IsWhitespace(char c) {
-            return " !?-|\\[]".Contains(c);
+            return " .!?-|\\[]".Contains(c);
         }
 
         private int GetMouseCaretPosition() {
@@ -352,11 +364,11 @@ namespace WaveTracker.UI {
 
         public void Draw(string defaultText) {
 
-            Color borderColor = UIColors.labelDark;
+            Color borderColor = UIColors.label;
             Color textColor = UIColors.black;
 
             if (IsHovered) {
-                borderColor = UIColors.black;
+                borderColor = UIColors.labelDark;
             }
             if (IsBeingEdited) {
                 borderColor = UIColors.selection;

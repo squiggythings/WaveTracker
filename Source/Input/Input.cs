@@ -262,8 +262,12 @@ namespace WaveTracker {
             return ModifierMatches(modifier) && !cancelClick && currentMouseState.RightButton == ButtonState.Pressed && previousMouseState.RightButton == ButtonState.Released;
         }
 
-        public static bool GetDoubleClick(KeyModifier modifier) {
+        public static bool GetDoubleClickDown(KeyModifier modifier) {
             return GetClickDown(modifier) && doubleClick;
+        }
+
+        public static bool GetDoubleClick(KeyModifier modifier) {
+            return GetClick(modifier) && doubleClick;
         }
 
         public static int MousePositionX { get { return currentMouseState.X / App.Settings.General.ScreenScale; } }

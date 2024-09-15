@@ -46,7 +46,7 @@ namespace WaveTracker.UI {
             bRename.SetTooltip("Rename Instrument", "Rename this instrument");
 
             scrollbar = new Scrollbar(1, 28, width - 1, 367, this);
-            InputField = new InputField(0, 0, width - 1, this);
+            InputField = new InputField(25, 0, width - 31, this);
             InputField.MaximumLength = 32;
         }
 
@@ -68,6 +68,8 @@ namespace WaveTracker.UI {
         public void Update() {
             x = App.WindowWidth - width;
             height = App.WindowHeight - y;
+            InputField.y = 27 + (-scrollbar.ScrollValue + CurrentInstrumentIndex) * 11;
+
             listLength = (App.WindowHeight - y - 28 - 8) / 11;
             scrollbar.height = listLength * 11;
             scrollbar.SetSize(App.CurrentModule.Instruments.Count, listLength);
@@ -101,9 +103,6 @@ namespace WaveTracker.UI {
                 if (Input.internalDialogIsOpen) {
                     return;
                 }
-                InputField.x = 25;
-                InputField.width = width - 31;
-                InputField.y = 27 + (-scrollbar.ScrollValue + CurrentInstrumentIndex) * 11;
                 if (InputField.IsBeingEdited) {
                     InputField.Update();
                     if (InputField.ValueWasChangedInternally) {
@@ -125,7 +124,7 @@ namespace WaveTracker.UI {
                         if (Input.GetClickDown(KeyModifier._Any) || Input.GetRightClickDown(KeyModifier._Any)) {
                             CurrentInstrumentIndex = Math.Clamp((MouseY - 28) / 11 + scrollbar.ScrollValue, 0, App.CurrentModule.Instruments.Count - 1);
                         }
-                        if (Input.GetDoubleClick(KeyModifier._Any)) {
+                        if (Input.GetDoubleClickDown(KeyModifier._Any)) {
                             int ix = (MouseY - 28) / 11 + scrollbar.ScrollValue;
                             if (ix < App.CurrentModule.Instruments.Count && ix >= 0) {
                                 App.InstrumentEditor.Open(GetCurrentInstrument, CurrentInstrumentIndex);
@@ -161,7 +160,7 @@ namespace WaveTracker.UI {
                     Edit();
                 }
 
-                if (bRename.Clicked) {
+                if (bRename.Clicked || App.Shortcuts["General\\Rename instrument"].IsPressedDown) {
                     Rename();
                 }
 

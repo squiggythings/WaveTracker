@@ -12,7 +12,6 @@ namespace WaveTracker.UI {
         public string Text { get; set; }
 
         private string lastText;
-        public int MaxLength { get; set; }
         public InputField InputField { get; private set; }
 
         public new bool InFocus => base.InFocus || InputField.InFocus;
@@ -24,7 +23,6 @@ namespace WaveTracker.UI {
             this.y = y;
             this.label = label;
             height = 13;
-            MaxLength = 32;
             InputField = new InputField(width - textBoxWidth, 0, textBoxWidth, this);
             SetParent(parent);
         }
@@ -36,7 +34,6 @@ namespace WaveTracker.UI {
             this.y = y;
             this.label = label;
             height = 13;
-            MaxLength = 32;
             InputField = new InputField(width - textBoxWidth, 0, textBoxWidth, this);
             SetParent(parent);
         }
@@ -67,19 +64,9 @@ namespace WaveTracker.UI {
         }
 
         public void Draw() {
-            Color borderColor = UIColors.labelDark;
-           
-
-
-            Write(label + "", 0, height / 2 - 3, borderColor);
-            //DrawRect(width - textBoxWidth, 0, textBoxWidth, height, borderColor);
-            //DrawRect(width - textBoxWidth + 1, 1, textBoxWidth - 2, height - 2, Color.White);
-            if (canEdit) {
-            //    DrawRect(width - textBoxWidth + 1, 1, textBoxWidth - 2, 1, new Color(193, 196, 213));
-            }
-
-            string t = textPrefix + Text + "";
-            InputField.Draw(t);
+            Write(label + "", 0, height / 2 - 3, UIColors.labelDark);
+            string text = textPrefix + Text + "";
+            InputField.Draw(text);
         }
     }
 }
