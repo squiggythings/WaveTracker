@@ -189,7 +189,6 @@ namespace WaveTracker.UI {
                         ScrollPosition -= 20;
                         caretXPosition = 4 + Helpers.GetWidthOfText(EditedText.Substring(0, caretPosition)) - ScrollPosition;
                     }
-
                 }
 
                 ScrollPosition = Math.Clamp(ScrollPosition, 0, Math.Max(0, maxScrollPosition));
@@ -279,7 +278,6 @@ namespace WaveTracker.UI {
                                 }
                                 break;
                         }
-                        Debug.WriteLine("unrecognized character " + (int)e.Character);
                     }
                     break;
             }
