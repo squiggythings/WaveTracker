@@ -30,6 +30,7 @@ namespace WaveTracker.Tracker {
 
             m.sample.loopType = sample.loopType;
             m.sample.loopPoint = sample.loopPoint;
+            m.sample.resampleMode = sample.resampleMode;
             m.sample.SetBaseKey(sample.BaseKey);
             m.sample.SetDetune(sample.Detune);
             m.sample.useInVisualization = sample.useInVisualization;
