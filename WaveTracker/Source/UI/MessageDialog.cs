@@ -34,18 +34,20 @@ namespace WaveTracker.UI {
         /// <param name="buttonNames">A list of buttons to add to close the message</param>
         /// <param name="onExitCallback">Callback where the name of the pressed button is passed in as a parameter</param>
         public new void Open() {
-            // if (icon == Icon.Information) {
-            //     System.Media.SystemSounds.Asterisk.Play();
-            // }
-            // else if (icon == Icon.Error) {
-            //     System.Media.SystemSounds.Hand.Play();
-            // }
-            // else if (icon == Icon.Warning) {
-            //     System.Media.SystemSounds.Exclamation.Play();
-            // }
-            // else if (icon == Icon.Question) {
-            //     System.Media.SystemSounds.Question.Play();
-            // }
+#if WINDOWS
+            if (icon == Icon.Information) {
+                System.Media.SystemSounds.Asterisk.Play();
+            }
+            else if (icon == Icon.Error) {
+                System.Media.SystemSounds.Hand.Play();
+            }
+            else if (icon == Icon.Warning) {
+                System.Media.SystemSounds.Exclamation.Play();
+            }
+            else if (icon == Icon.Question) {
+                System.Media.SystemSounds.Question.Play();
+            }
+#endif
             base.Open();
         }
 
