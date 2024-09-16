@@ -652,7 +652,13 @@ namespace WaveTracker {
         public static string ReadPath(string pathName, string defaultPath) {
             string filepath = Path.Combine(PathsFolderPath, pathName + ".path");
             if (File.Exists(filepath)) {
-                return File.ReadAllLines(filepath)[0];
+                string[] lines = File.ReadAllLines(filepath);
+                if (lines.Length > 0) {
+                    return lines[0];
+                }
+                else {
+                    return "";
+                }
             }
             else {
                 SavePath(pathName, defaultPath);
