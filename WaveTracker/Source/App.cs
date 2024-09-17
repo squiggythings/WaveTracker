@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Runtime.InteropServices;
 using WaveTracker.Audio;
 using WaveTracker.Rendering;
 using WaveTracker.Tracker;
@@ -222,6 +223,8 @@ namespace WaveTracker {
         }
 
         protected override void Initialize() {
+            SDL_MaximizeWindow(Window.Handle);
+
             CurrentModule = new WTModule();
             WaveBank = new WaveBank(510, 18 + MENUSTRIP_HEIGHT);
             ChannelManager.Initialize(WTModule.MAX_CHANNEL_COUNT);
@@ -496,5 +499,8 @@ namespace WaveTracker {
             SettingsProfile.WriteToDisk(Settings);
             base.OnExiting(sender, args);
         }
+
+        [DllImport("SDL2", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void SDL_MaximizeWindow(IntPtr window);
     }
 }

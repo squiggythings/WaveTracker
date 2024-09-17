@@ -15,7 +15,6 @@ namespace WaveTracker {
             using (App game = new App(args)) {
                 game.Run();
             }
-
         }
     }
 }
