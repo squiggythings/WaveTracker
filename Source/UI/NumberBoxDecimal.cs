@@ -1,6 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
 using System;
-using System.Windows.Forms;
 
 namespace WaveTracker.UI {
     public class NumberBoxDecimal : Clickable {

@@ -37,7 +37,7 @@ namespace WaveTracker.UI {
             Graphics.Write(text, this.x + x + OffX, this.y + y + OffY, color);
         }
         /// <summary>
-        /// Renders text in multicolor, <c>characterColors</c> indicates a color for each rendered character.
+        /// Renders text in multicolor, <c>colors</c> indicates a color for each character.
         /// </summary>
         /// <param name="text"></param>
         /// <param name="x"></param>

@@ -1,5 +1,4 @@
 ﻿using Microsoft.Xna.Framework;
-using System.Windows.Forms;
 
 namespace WaveTracker.UI {
     public class Textbox : Clickable {
