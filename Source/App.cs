@@ -17,7 +17,6 @@ namespace WaveTracker {
         private static App instance;
 
         private GraphicsDeviceManager graphics;
-        private SpriteBatch targetBatch;
 
         /// <summary>
         /// The height of the app in scaled pixels
@@ -140,6 +139,7 @@ namespace WaveTracker {
         /// </summary>
         private string inputFilepath;
 
+
         public static GameTime GameTime { get; private set; }
 
         public App(string[] args) {
@@ -170,21 +170,9 @@ namespace WaveTracker {
                 File.WriteAllText(Path.Combine(SaveLoad.ThemeFolderPath, "Neon.wttheme"), ColorTheme.CreateString(ColorTheme.Neon));
             }
             Input.Intialize();
-            Graphics.defaultFont = Content.Load<SpriteFont>("custom_font");
-            Graphics.highResFonts = new SpriteFont[5];
-            for (int i = 0; i < 5; ++i) {
-                Graphics.highResFonts[i] = Content.Load<SpriteFont>("highres_font_" + (i + 1));
-            }
-
             Settings = SettingsProfile.ReadFromDisk();
-            if (Settings.General.UseHighResolutionText) {
-                Graphics.currentFont = Graphics.highResFonts[Settings.General.ScreenScale - 1];
-                Graphics.fontScale = 1;
-            }
-            else {
-                Graphics.currentFont = Graphics.defaultFont;
-                Graphics.fontScale = Settings.General.ScreenScale;
-            }
+            Graphics.Initialize(Content, GraphicsDevice);
+
             SaveLoad.ReadRecentFiles();
         }
 
@@ -278,14 +266,6 @@ namespace WaveTracker {
         }
 
         protected override void LoadContent() {
-            Graphics.img = Content.Load<Texture2D>("img");
-            Graphics.pixel = new Texture2D(GraphicsDevice, 1, 1);
-            Graphics.pixel.SetData(new[] { Color.White });
-            Graphics.scissorRasterizer = new RasterizerState();
-            Graphics.scissorRasterizer.CullMode = CullMode.None;
-            Graphics.scissorRasterizer.ScissorTestEnable = true;
-
-            targetBatch = new SpriteBatch(GraphicsDevice);
             SaveLoad.NewFile();
             SaveLoad.LoadFile(inputFilepath);
         }
@@ -327,7 +307,7 @@ namespace WaveTracker {
                     }
                 }
             }
-            
+
             Tooltip.Update();
             if (Shortcuts["General\\Reset audio"].IsPressedDown) {
                 ResetAudio();
@@ -380,29 +360,16 @@ namespace WaveTracker {
             GraphicsDevice.SetRenderTarget(null);
             GraphicsDevice.Clear(UIColors.black);
 
-            targetBatch.Begin(SpriteSortMode.Deferred,
-                new BlendState {
-                    ColorSourceBlend = Blend.SourceAlpha,
-                    ColorDestinationBlend = Blend.InverseSourceAlpha,
-                    AlphaSourceBlend = Blend.One,
-                    AlphaDestinationBlend = Blend.InverseSourceAlpha,
-                },
-                SamplerState.PointClamp,
-                DepthStencilState.Default,
+            Graphics.spriteBatch.Begin(SpriteSortMode.Deferred,
+                Graphics.BlendState,
+                Graphics.SamplerState,
+                Graphics.DepthStencilState,
                 RasterizerState.CullNone
             );
-
-            Graphics.batch = targetBatch;
             Graphics.Scale = Settings.General.ScreenScale;
 
-            if (Settings.General.UseHighResolutionText) {
-                Graphics.currentFont = Graphics.highResFonts[Settings.General.ScreenScale - 1];
-                Graphics.fontScale = 1;
-            }
-            else {
-                Graphics.currentFont = Graphics.defaultFont;
-                Graphics.fontScale = Settings.General.ScreenScale;
-            }
+            Graphics.SetFont();
+
 
             if (!VisualizerMode) {
                 // draw pattern editor
@@ -456,7 +423,7 @@ namespace WaveTracker {
 
             Graphics.Write("focus: " + Input.focus, 2, 200, Color.Red);
 
-            targetBatch.End();
+            Graphics.spriteBatch.End();
 
             base.Draw(gameTime);
         }

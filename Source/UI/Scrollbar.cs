@@ -75,7 +75,7 @@ namespace WaveTracker.UI {
             if (viewportSize < totalSize) {
                 Color background = UIColors.panel;
                 Color barSpace = UIColors.labelLight;
-                Color barDefault = ButtonColors.Round.backgroundColor;
+                Color barDefault = ButtonColors.backgroundColor;
                 Color barHover = UIColors.labelDark;
                 Color barPressed = UIColors.black;
                 //DrawRect(0, 0, width, height, new Color(255, 0, 0, 40));

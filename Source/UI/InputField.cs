@@ -384,26 +384,34 @@ namespace WaveTracker.UI {
             StartRectangleMask(2, 0, width - 4, height);
 
             if (IsBeingEdited) {
-                int textX = -ScrollPosition;
+                Color[] characterColors = new Color[EditedText.Length];
+                int ci = 0;
                 for (int i = 0; i < EditedText.Length; i++) {
-                    int widthOfCharacter = Helpers.GetWidthOfText(EditedText[i] + "");
                     if (SelectionIsActive && i >= selectionMin && i < selectionMax) {
-                        if (i == selectionMax - 1) {
-                            DrawRect(4 + textX, 3, widthOfCharacter, height - 6, UIColors.selection);
-                        }
-                        else {
-                            DrawRect(4 + textX, 3, widthOfCharacter + 1, height - 6, UIColors.selection);
-                        }
-                        Write(EditedText[i] + "", 4 + textX, 3, Color.White);
+                        characterColors[ci] = Color.White;
                     }
                     else {
-                        Write(EditedText[i] + "", 4 + textX, 3, textColor);
+                        characterColors[ci] = textColor;
                     }
-                    textX += widthOfCharacter + 1;
+                    ci++;
                 }
+                if (SelectionIsActive) {
+                    int offset = Rendering.Graphics.IsUsingCustomFont ? 4 : 5;
+                    DrawRect(offset - ScrollPosition + Helpers.GetWidthOfText(EditedText.Substring(0, selectionMin)), 3, Helpers.GetWidthOfText(EditedText.Substring(selectionMin, selectionMax - selectionMin)) + 1, height - 6, UIColors.selection);
+                }
+                WriteWithHighlight(EditedText + "", 4 - ScrollPosition, 3, characterColors);
                 if (caretFlashTimer % 1 < 0.5f) {
                     // draw caret cursor
-                    Write("|", 4 + Helpers.GetWidthOfText(EditedText.Substring(0, caretPosition)) - ScrollPosition, 3, textColor);
+                    int caretPositionX = 4 + Helpers.GetWidthOfText(EditedText.Substring(0, caretPosition)) - ScrollPosition;
+                    if (Rendering.Graphics.IsUsingCustomFont) {
+                        Rendering.Graphics.Scale = 1;
+                        int scale = App.Settings.General.ScreenScale;
+                        Rendering.Graphics.DrawRect((GlobalX + caretPositionX) * scale, (GlobalY + 3) * scale, 1, (height - 6) * scale, textColor);
+                        Rendering.Graphics.Scale = scale;
+                    }
+                    else {
+                        Write("|", caretPositionX, 3, textColor);
+                    }
                 }
 
             }

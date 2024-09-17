@@ -111,24 +111,24 @@ namespace WaveTracker.UI {
 
         private Color GetBackgroundColor() {
             if (!enabled) {
-                return ButtonColors.Round.backgroundColorDisabled;
+                return ButtonColors.backgroundColorDisabled;
             }
             else {
                 if (IsPressed) {
-                    return ButtonColors.Round.backgroundColorPressed;
+                    return ButtonColors.backgroundColorPressed;
                 }
                 else {
-                    return IsHovered || showMenu ? ButtonColors.Round.backgroundColorHover : ButtonColors.Round.backgroundColor;
+                    return IsHovered || showMenu ? ButtonColors.backgroundColorHover : ButtonColors.backgroundColor;
                 }
             }
         }
 
         private Color GetTextColor() {
             if (!enabled) {
-                return ButtonColors.Round.textColorDisabled;
+                return ButtonColors.textColorDisabled;
             }
             else {
-                return IsPressed ? ButtonColors.Round.textColorPressed : ButtonColors.Round.textColor;
+                return IsPressed ? ButtonColors.textColorPressed : ButtonColors.textColor;
             }
         }
         public void Draw() {
@@ -138,10 +138,10 @@ namespace WaveTracker.UI {
             DrawRoundedRect(0, 0, width, height, GetBackgroundColor());
 
             if (LabelIsCentered) {
-                Write(label, (width - labelWidth) / 2, (height + 1) / 2 - 4 + textOffset, ButtonColors.Round.textColor);
+                Write(label, (width - labelWidth) / 2, (height + 1) / 2 - 4 + textOffset, ButtonColors.textColor);
             }
             else {
-                Write(label, 4, (height + 1) / 2 - 4 + textOffset, ButtonColors.Round.textColor);
+                Write(label, 4, (height + 1) / 2 - 4 + textOffset, ButtonColors.textColor);
             }
 
             DrawRect(width - 9, 5 + textOffset, 5, 1, GetTextColor());

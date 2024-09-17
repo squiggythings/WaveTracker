@@ -52,7 +52,7 @@ namespace WaveTracker.UI {
             height = 13;
             canScroll = true;
             SetParent(parent);
-            InputField = new InputField(width - boxWidth, 0, boxWidth, this);
+            InputField = new InputField(width - boxWidth, 0, boxWidth - 10, this);
             InputField.AllowedCharacters = "-0123456789";
             bUp = new SpriteButton(width - 10, 0, 10, 6, 416, 144, this);
             bDown = new SpriteButton(width - 10, 7, 10, 6, 416, 176, this);
@@ -140,7 +140,7 @@ namespace WaveTracker.UI {
             Write(label + "", 0, height / 2 - 3, labelColor);
 
             // draw little strip in between the up down buttons to fill the gap
-            DrawRect(width, boxStartY + 6, -10, 1, ButtonColors.Round.backgroundColor);
+            DrawRect(width, boxStartY + 6, -10, 1, ButtonColors.backgroundColor);
 
 
             string text = "";
