@@ -141,17 +141,16 @@ namespace WaveTracker {
                 }
             }
 
-            graphics = new GraphicsDeviceManager(this);
+            graphics = new GraphicsDeviceManager(this) {
+                PreferredBackBufferWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width,
+                PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height,
+            };
             graphics.ApplyChanges();
-            Window.Position = new Point(-8, 0);
             Window.AllowUserResizing = true;
             Window.AllowAltF4 = true;
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
 
-            // System.Windows.Forms.Form form = (System.Windows.Forms.Form)System.Windows.Forms.Control.FromHandle(Window.Handle);
-            // form.WindowState = System.Windows.Forms.FormWindowState.Maximized;
-            // form.FormClosing += ClosingForm;
             if (!Directory.Exists(SaveLoad.ThemeFolderPath)) {
                 Directory.CreateDirectory(SaveLoad.ThemeFolderPath);
                 File.WriteAllText(Path.Combine(SaveLoad.ThemeFolderPath, "Default.wttheme"), ColorTheme.CreateString(ColorTheme.Default));
@@ -221,6 +220,7 @@ namespace WaveTracker {
                 Dialogs.OpenMessageDialog("Could not open help!", MessageDialog.Icon.Error, "OK");
             }
         }
+
         protected override void Initialize() {
             CurrentModule = new WTModule();
             WaveBank = new WaveBank(510, 18 + MENUSTRIP_HEIGHT);
@@ -264,7 +264,6 @@ namespace WaveTracker {
             ]));
 
             base.Initialize();
-
         }
 
         protected override void LoadContent() {
