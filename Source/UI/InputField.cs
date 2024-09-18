@@ -2,7 +2,6 @@
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
-using System.Diagnostics;
 
 namespace WaveTracker.UI {
     public class InputField : Clickable {
@@ -76,7 +75,7 @@ namespace WaveTracker.UI {
 
         public void Update() {
             ValueWasChangedInternally = false;
-            if (IsBeingEdited) {
+            if (IsBeingEdited && InFocus) {
                 caretFlashTimer += (float)App.GameTime.ElapsedGameTime.TotalSeconds;
                 mouseCursorCaret = GetMouseCaretPosition();
                 int maxScrollPosition = Helpers.GetWidthOfText(EditedText) - width + 8;
@@ -84,7 +83,15 @@ namespace WaveTracker.UI {
                     Input.CancelKey(Keys.Enter);
                     Close();
                 }
+                if (RightClicked) {
+                    ContextMenu.Open(new Menu([
+                        new MenuOption("Cut", Cut, SelectionIsActive),
+                        new MenuOption("Copy", Copy, SelectionIsActive),
+                        new MenuOption("Paste", Paste, SystemClipboard.HasText()),
+                        new MenuOption("Select all", SelectAll),
 
+                   ]));
+                }
                 if (Input.GetClick(KeyModifier._Any) && GlobalPointIsInBounds(Input.LastClickLocation) && Input.lastClickFocus == this) {
                     if (!Input.GetDoubleClick(KeyModifier._Any)) {
                         caretPosition = mouseCursorCaret;
@@ -234,6 +241,9 @@ namespace WaveTracker.UI {
             IsBeingEdited = false;
         }
         private void OnInput(object sender, TextInputEventArgs e) {
+            if (!InFocus) {
+                return;
+            }
             switch (e.Key) {
                 case Keys.Back:
                     if (SelectionIsActive) {
@@ -261,25 +271,32 @@ namespace WaveTracker.UI {
                                 SelectAll();
                                 break;
                             case 3: // CTRL-C
-                                if (SelectionIsActive) {
-                                    SystemClipboard.SetText(EditedText.Substring(selectionMin, selectionMax - selectionMin));
-                                }
+                                Copy();
                                 break;
                             case 22: // CTRL-V
-                                if (SelectionIsActive) {
-                                    DeleteSelection();
-                                }
-                                Insert(SystemClipboard.GetText());
+                                Paste();
                                 break;
                             case 24: // CTRL-X
-                                if (SelectionIsActive) {
-                                    SystemClipboard.SetText(EditedText.Substring(selectionMin, selectionMax - selectionMin));
-                                    DeleteSelection();
-                                }
+                                Cut();
                                 break;
                         }
                     }
                     break;
+            }
+        }
+        private void Copy() {
+            SystemClipboard.SetText(EditedText.Substring(selectionMin, selectionMax - selectionMin));
+        }
+        private void Paste() {
+            if (SelectionIsActive) {
+                DeleteSelection();
+            }
+            Insert(SystemClipboard.GetText());
+        }
+        private void Cut() {
+            if (SelectionIsActive) {
+                SystemClipboard.SetText(EditedText.Substring(selectionMin, selectionMax - selectionMin));
+                DeleteSelection();
             }
         }
         private void SelectAll() {
