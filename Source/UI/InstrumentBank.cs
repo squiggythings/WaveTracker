@@ -192,18 +192,22 @@ namespace WaveTracker.UI {
         }
 
         public void MoveUp() {
-            App.CurrentModule.SwapInstrumentsInSongs(CurrentInstrumentIndex, CurrentInstrumentIndex - 1);
-            App.CurrentModule.Instruments.Reverse(CurrentInstrumentIndex - 1, 2);
-            App.CurrentModule.SetDirty();
-            CurrentInstrumentIndex--;
-            MoveBounds();
+            if (CurrentInstrumentIndex > 0) {
+                App.CurrentModule.SwapInstrumentsInSongs(CurrentInstrumentIndex, CurrentInstrumentIndex - 1);
+                App.CurrentModule.Instruments.Reverse(CurrentInstrumentIndex - 1, 2);
+                App.CurrentModule.SetDirty();
+                CurrentInstrumentIndex--;
+                MoveBounds();
+            }
         }
         public void MoveDown() {
-            App.CurrentModule.SwapInstrumentsInSongs(CurrentInstrumentIndex, CurrentInstrumentIndex + 1);
-            App.CurrentModule.Instruments.Reverse(CurrentInstrumentIndex, 2);
-            App.CurrentModule.SetDirty();
-            CurrentInstrumentIndex++;
-            MoveBounds();
+            if (CurrentInstrumentIndex < App.CurrentModule.Instruments.Count - 1) {
+                App.CurrentModule.SwapInstrumentsInSongs(CurrentInstrumentIndex, CurrentInstrumentIndex + 1);
+                App.CurrentModule.Instruments.Reverse(CurrentInstrumentIndex, 2);
+                App.CurrentModule.SetDirty();
+                CurrentInstrumentIndex++;
+                MoveBounds();
+            }
         }
 
         public void RemoveInstrument() {
