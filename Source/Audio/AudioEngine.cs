@@ -3,9 +3,9 @@ using NAudio.Wave;
 using ProtoBuf;
 using System;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 using System.Diagnostics;
 using System.IO;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using WaveTracker.Tracker;
@@ -154,7 +154,6 @@ namespace WaveTracker.Audio {
             int OVERSAMPLE = App.Settings.Audio.Oversampling;
             float delta = 1f / TrueSampleRate * (TickSpeed / 60f);
 
-
             left = right = 0;
             float leftSum;
             float rightSum;
@@ -216,9 +215,8 @@ namespace WaveTracker.Audio {
                 }
                 for (int n = 0; n < sampleCount; n += 2) {
 
-
                     ProcessSingleSample(out buffer[n + offset], out buffer[n + offset + 1]);
-                    
+
                     if (IsRendering) {
                         if (RenderProcessedRows >= RenderTotalRows || CancelRenderFlag) {
                             return n;

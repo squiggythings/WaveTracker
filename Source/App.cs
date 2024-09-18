@@ -139,7 +139,6 @@ namespace WaveTracker {
         /// </summary>
         private string inputFilepath;
 
-
         public static GameTime GameTime { get; private set; }
 
         public App(string[] args) {
@@ -370,7 +369,6 @@ namespace WaveTracker {
 
             Graphics.SetFont();
 
-
             if (!VisualizerMode) {
                 // draw pattern editor
                 PatternEditor.Draw();
@@ -420,8 +418,6 @@ namespace WaveTracker {
             DropdownButton.DrawCurrentMenu();
             ContextMenu.Draw();
             Tooltip.Draw();
-
-            Graphics.Write("focus: " + Input.focus, 2, 200, Color.Red);
 
             Graphics.spriteBatch.End();
 

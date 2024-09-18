@@ -1,10 +1,9 @@
-﻿using Microsoft.Xna.Framework;
+﻿using FontStashSharp;
+using FontStashSharp.RichText;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
-using FontStashSharp;
 using System.IO;
-using System.Drawing.Text;
-using FontStashSharp.RichText;
 
 namespace WaveTracker.Rendering {
     public static class Graphics {
@@ -71,11 +70,9 @@ namespace WaveTracker.Rendering {
             }
         }
 
-
         public static void DrawRect(int x, int y, int width, int height, Color color) {
             spriteBatch.Draw(pixel, new Rectangle(x * Scale, y * Scale, width * Scale, height * Scale), color);
         }
-
 
         public static void Write(string text, int x, int y, Color c) {
             if (IsUsingCustomFont) {
