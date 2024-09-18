@@ -148,10 +148,10 @@ namespace WaveTracker.UI {
                 if (bDuplicate.Clicked) {
                     DuplicateInstrument();
                 }
-                if (bMoveDown.Clicked) {
+                if (bMoveDown.Clicked || App.Shortcuts["General\\Move instrument down"].IsPressedDown) {
                     MoveDown();
                 }
-                if (bMoveUp.Clicked) {
+                if (bMoveUp.Clicked || App.Shortcuts["General\\Move instrument up"].IsPressedDown) {
                     MoveUp();
                 }
 
@@ -162,7 +162,6 @@ namespace WaveTracker.UI {
                 if (bRename.Clicked || App.Shortcuts["General\\Rename instrument"].IsPressedDown) {
                     Rename();
                 }
-
 
                 CurrentInstrumentIndex = Math.Clamp(CurrentInstrumentIndex, 0, App.CurrentModule.Instruments.Count - 1);
                 if (lastIndex != CurrentInstrumentIndex) {
@@ -218,10 +217,6 @@ namespace WaveTracker.UI {
 
         public void Rename() {
             InputField.Open(GetCurrentInstrument.name, true);
-            //if (!dialogOpen) {
-            //    dialogOpen = true;
-            //    StartRenameDialog();
-            //}
         }
 
         public void Edit() {
