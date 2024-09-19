@@ -71,7 +71,7 @@ namespace WaveTracker {
         public static int windowFocusTimer;
 
         public static Keys[] currentPressedKeys;
-        static List<Keys> cancelledKeys;
+        private static List<Keys> cancelledKeys;
         public static Keys CurrentPressedKey { get; private set; }
         public static KeyboardShortcut CurrentPressedShortcut { get; private set; }
         public static void Intialize() {
@@ -340,7 +340,6 @@ namespace WaveTracker {
             else {
                 return KeyModifier.None;
             }
-
 
         }
 

@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace WaveTracker.UI {
+﻿namespace WaveTracker.UI {
     public static class UISoundsManager {
         public static void PlaySound(MessageDialog.Icon icon) {
             if (icon == MessageDialog.Icon.Information) {

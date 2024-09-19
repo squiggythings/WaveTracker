@@ -1,6 +1,4 @@
-﻿using Microsoft.Xna.Framework;
-
-namespace WaveTracker.UI {
+﻿namespace WaveTracker.UI {
     public class Textbox : Clickable {
         public bool canEdit = true;
         private string label;

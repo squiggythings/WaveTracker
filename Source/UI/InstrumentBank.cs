@@ -149,10 +149,10 @@ namespace WaveTracker.UI {
                 if (bDuplicate.Clicked) {
                     DuplicateInstrument();
                 }
-                if (bMoveDown.Clicked) {
+                if (bMoveDown.Clicked || App.Shortcuts["General\\Move instrument down"].IsPressedDown) {
                     MoveDown();
                 }
-                if (bMoveUp.Clicked) {
+                if (bMoveUp.Clicked || App.Shortcuts["General\\Move instrument up"].IsPressedDown) {
                     MoveUp();
                 }
 
@@ -163,7 +163,6 @@ namespace WaveTracker.UI {
                 if (bRename.Clicked || App.Shortcuts["General\\Rename instrument"].IsPressedDown) {
                     Rename();
                 }
-
 
                 CurrentInstrumentIndex = Math.Clamp(CurrentInstrumentIndex, 0, App.CurrentModule.Instruments.Count - 1);
                 if (lastIndex != CurrentInstrumentIndex) {
@@ -201,18 +200,22 @@ namespace WaveTracker.UI {
         }
 
         public void MoveUp() {
-            App.CurrentModule.SwapInstrumentsInSongs(CurrentInstrumentIndex, CurrentInstrumentIndex - 1);
-            App.CurrentModule.Instruments.Reverse(CurrentInstrumentIndex - 1, 2);
-            App.CurrentModule.SetDirty();
-            CurrentInstrumentIndex--;
-            MoveBounds();
+            if (CurrentInstrumentIndex > 0) {
+                App.CurrentModule.SwapInstrumentsInSongs(CurrentInstrumentIndex, CurrentInstrumentIndex - 1);
+                App.CurrentModule.Instruments.Reverse(CurrentInstrumentIndex - 1, 2);
+                App.CurrentModule.SetDirty();
+                CurrentInstrumentIndex--;
+                MoveBounds();
+            }
         }
         public void MoveDown() {
-            App.CurrentModule.SwapInstrumentsInSongs(CurrentInstrumentIndex, CurrentInstrumentIndex + 1);
-            App.CurrentModule.Instruments.Reverse(CurrentInstrumentIndex, 2);
-            App.CurrentModule.SetDirty();
-            CurrentInstrumentIndex++;
-            MoveBounds();
+            if (CurrentInstrumentIndex < App.CurrentModule.Instruments.Count - 1) {
+                App.CurrentModule.SwapInstrumentsInSongs(CurrentInstrumentIndex, CurrentInstrumentIndex + 1);
+                App.CurrentModule.Instruments.Reverse(CurrentInstrumentIndex, 2);
+                App.CurrentModule.SetDirty();
+                CurrentInstrumentIndex++;
+                MoveBounds();
+            }
         }
 
         public void RemoveInstrument() {

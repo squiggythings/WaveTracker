@@ -1,5 +1,4 @@
-﻿using Microsoft.Xna.Framework;
-using ProtoBuf;
+﻿using ProtoBuf;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;

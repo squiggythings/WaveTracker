@@ -24,7 +24,6 @@ namespace WaveTracker.UI {
         private InputField InputField { get; set; }
         public new bool InFocus => base.InFocus || InputField.InFocus;
 
-
         public NumberBox(string label, int x, int y, int width, int boxWidth, Element parent) {
             this.label = label;
             DisplayMode = NumberDisplayMode.Number;
@@ -107,7 +106,6 @@ namespace WaveTracker.UI {
                     }
                 }
 
-
                 if (bUp.Clicked) {
                     Value++;
                 }
@@ -140,7 +138,6 @@ namespace WaveTracker.UI {
 
             // draw little strip in between the up down buttons to fill the gap
             DrawRect(width, boxStartY + 6, -10, 1, ButtonColors.backgroundColor);
-
 
             string text = "";
             switch (DisplayMode) {

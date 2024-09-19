@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TextCopy;
+﻿using TextCopy;
 
 namespace WaveTracker {
     /// <summary>
@@ -15,6 +10,9 @@ namespace WaveTracker {
         }
         public static string GetText() {
             return ClipboardService.GetText() ?? "";
+        }
+        public static bool HasText() {
+            return ClipboardService.GetText() != null;
         }
     }
 }
