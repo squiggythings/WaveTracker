@@ -58,6 +58,7 @@ namespace WaveTracker.UI {
                         new MenuOption("Move down", MoveDown, CurrentInstrumentIndex < App.CurrentModule.Instruments.Count - 1 && !App.VisualizerMode),
                         null,
                         new MenuOption("Add wave instrument",AddWave, App.CurrentModule.Instruments.Count < 100 && !App.VisualizerMode),
+                        new MenuOption("Add noise instrument",AddNoise,App.CurrentModule.Instruments.Count < 100 && !App.VisualizerMode),
                         new MenuOption("Add sample instrument",AddSample,App.CurrentModule.Instruments.Count < 100 && !App.VisualizerMode),
                         new MenuOption("Duplicate",DuplicateInstrument,App.CurrentModule.Instruments.Count < 100 && !App.VisualizerMode),
                         new MenuOption("Remove",RemoveInstrument,App.CurrentModule.Instruments.Count > 1 && !App.VisualizerMode)
@@ -179,6 +180,13 @@ namespace WaveTracker.UI {
             Goto(App.CurrentModule.Instruments.Count - 1);
         }
 
+        public void AddNoise() {
+            App.CurrentModule.Instruments.Add(new NoiseInstrument());
+            App.CurrentModule.SetDirty();
+            CurrentInstrumentIndex = App.CurrentModule.Instruments.Count - 1;
+            Goto(App.CurrentModule.Instruments.Count - 1);
+        }
+
         public void AddSample() {
             App.CurrentModule.Instruments.Add(new SampleInstrument());
             App.CurrentModule.SetDirty();
@@ -218,10 +226,6 @@ namespace WaveTracker.UI {
 
         public void Rename() {
             InputField.Open(GetCurrentInstrument.name, true);
-            //if (!dialogOpen) {
-            //    dialogOpen = true;
-            //    StartRenameDialog();
-            //}
         }
 
         public void Edit() {
@@ -243,7 +247,6 @@ namespace WaveTracker.UI {
             scrollbar.SetSize(App.CurrentModule.Instruments.Count, listLength);
             scrollbar.ScrollValue = Math.Clamp(scrollbar.ScrollValue, 0, Math.Clamp(App.CurrentModule.Instruments.Count - listLength, 0, 100));
             scrollbar.UpdateScrollValue();
-
         }
         public void DrawList() {
             Color odd = new Color(43, 49, 81);

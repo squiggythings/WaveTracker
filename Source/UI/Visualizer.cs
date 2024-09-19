@@ -151,20 +151,31 @@ namespace WaveTracker.UI {
                 Channel chan;
                 for (int c = 0; c < ChannelManager.Channels.Count; c++) {
                     chan = ChannelManager.Channels[c];
-
-                    if ((chan.CurrentInstrument is WaveInstrument || chan.CurrentInstrument is SampleInstrument inst && inst.sample.useInVisualization) && chan.CurrentAmplitude > 0.0001f && chan.CurrentPitch >= 12 && chan.CurrentPitch < 132 && ChannelManager.IsChannelOn(c)) {
-                        channelStates[writeIndex][c].Set(chan.CurrentPitch, chan.CurrentAmplitude, chan.CurrentInstrument is WaveInstrument ? GetColorOfWaveFromTable(chan.WaveIndex, chan.WaveMorphPosition) : Color.White);
-                    }
-                    else {
-                        channelStates[writeIndex][c].Clear();
+                    channelStates[writeIndex][c].Clear();
+                    if (ChannelManager.IsChannelOn(c) && !(chan.CurrentInstrument is SampleInstrument inst && !inst.sample.useInVisualization) && chan.CurrentAmplitude > 0.0001f) {
+                        if (chan.CurrentInstrument is WaveInstrument && chan.CurrentPitch >= 12 && chan.CurrentPitch <= 131) {
+                            channelStates[writeIndex][c].Set(chan.CurrentPitch, chan.CurrentAmplitude, GetColorOfWaveFromTable(chan.WaveIndex, chan.WaveMorphPosition));
+                        }
+                        else if (chan.CurrentInstrument is NoiseInstrument) {
+                            channelStates[writeIndex][c].Set((chan.CurrentPitch + 12) % 24 + 12, chan.CurrentAmplitude, Color.White);
+                        }
+                        else if (chan.CurrentPitch >= 12 && chan.CurrentPitch <= 131) {
+                            channelStates[writeIndex][c].Set(chan.CurrentPitch, chan.CurrentAmplitude, Color.White);
+                        }
                     }
                 }
                 chan = ChannelManager.PreviewChannel;
-                if (chan.CurrentAmplitude > 0.0001f) {
-                    channelStates[writeIndex][24].Set(chan.CurrentPitch, chan.CurrentAmplitude, chan.CurrentInstrument is WaveInstrument ? GetColorOfWaveFromTable(chan.WaveIndex, chan.WaveMorphPosition) : Color.White);
-                }
-                else {
-                    channelStates[writeIndex][24].Clear();
+                channelStates[writeIndex][24].Clear();
+                if (!(chan.CurrentInstrument is SampleInstrument inst1 && !inst1.sample.useInVisualization) && chan.CurrentAmplitude > 0.0001f) {
+                    if (chan.CurrentInstrument is WaveInstrument && chan.CurrentPitch >= 12 && chan.CurrentPitch <= 131) {
+                        channelStates[writeIndex][24].Set(chan.CurrentPitch, chan.CurrentAmplitude, GetColorOfWaveFromTable(chan.WaveIndex, chan.WaveMorphPosition));
+                    }
+                    else if (chan.CurrentInstrument is NoiseInstrument) {
+                        channelStates[writeIndex][24].Set((chan.CurrentPitch + 12) % 24 + 12, chan.CurrentAmplitude, Color.White);
+                    }
+                    else if (chan.CurrentPitch >= 12 && chan.CurrentPitch <= 131) {
+                        channelStates[writeIndex][24].Set(chan.CurrentPitch, chan.CurrentAmplitude, Color.White);
+                    }
                 }
                 Array.Sort(channelStates[writeIndex]);
                 writeIndex++;

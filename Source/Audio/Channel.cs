@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Xna.Framework;
+using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using WaveTracker.Tracker;
@@ -107,6 +108,14 @@ namespace WaveTracker.Audio {
         private float targetFilterCutoffFrequency;
         private float _filterCutoffFrequency;
         private int currentInstrumentID;
+
+        private static Random random = new Random();
+        private double _noiseTime;
+        private float noiseValueC;
+        private float noiseValueL;
+        private float noiseValueR;
+        private static float[] shortNoiseSample;
+        private int noiseLength;
         private enum VoiceState { On, Off, Release }
         private VoiceState _state;
         public bool IsPlaying {
@@ -129,6 +138,11 @@ namespace WaveTracker.Audio {
                 for (int i = 0; i < defaultEnvelopes.Length; i++) {
                     defaultEnvelopes[i] = new Envelope((Envelope.EnvelopeType)i);
                 }
+            }
+            shortNoiseSample = new float[44100*4];
+            noiseLength = shortNoiseSample.Length;
+            for (int i = 0; i < shortNoiseSample.Length; i++) {
+                shortNoiseSample[i] = random.Next() % 4 / 3f - 0.5f;
             }
             stereoBiQuadFilter = new StereoBiQuadFilter();
             Reset();
@@ -425,9 +439,12 @@ namespace WaveTracker.Audio {
         /// </summary>
         public float CurrentAmplitude {
             get {
-                return CurrentInstrument is WaveInstrument
-                    ? TotalAmplitude * (_state == VoiceState.Off ? 0 : 1)
-                    : TotalAmplitude * (_sampleVolume / 1.5f + 0.01f) * (_state == VoiceState.Off ? 0 : 1);
+                if (CurrentInstrument is SampleInstrument) {
+                    return (float)(TotalAmplitude * (_sampleVolume / 1.5f + 0.01f) * (_state == VoiceState.Off ? 0 : 1));
+                }
+                else {
+                    return (float)(TotalAmplitude * (_state == VoiceState.Off ? 0 : 1));
+                }
             }
         }
 
@@ -660,6 +677,16 @@ namespace WaveTracker.Audio {
                 ApplyEffect((char)t.value, t.value2);
             }
         }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private float GetNoiseValue(double sample) {
+            return shortNoiseSample[(int)sample % noiseLength];
+            int index1 = (int)sample;
+            int index2 = index1 + 1;
+            float lerp = (float)sample - index1;
+            float sample1 = shortNoiseSample[index1 % noiseLength];
+            float sample2 = shortNoiseSample[index2 % noiseLength];
+            return MathHelper.Lerp(sample1, sample2, lerp);
+        }
 
         public void ProcessSingleSample(out float left, out float right, float continuousDelta) {
             ContinuousTick(continuousDelta);
@@ -695,8 +722,41 @@ namespace WaveTracker.Audio {
                             sampleR = sampleL = EvaluateWave((float)_time);
                         }
                     }
-                    else {
+                    else if (CurrentInstrument is NoiseInstrument) {
+                        double pitchIndex = (CurrentPitch + 12) % 24 / 24f;
+                        double factor = (1 - pitchIndex) * 8 + 1;
+                        factor = Math.Pow(2.0, factor) - 1;
+                        _noiseTime += 88200f / AudioEngine.TrueSampleRate / factor;
+                        if (_noiseTime > noiseLength) {
+                            _noiseTime -= (int)(_noiseTime / noiseLength) * noiseLength;
+                        }
+                        //if (_noiseTime > noiseLength) {
+                        //    _noiseTime -= noiseLength;
+                        //}
+                        //    _noiseTime -= (int)(_noiseTime / factor) * factor;
+                        //    noiseValueL = random.Next() % 5 / 4f - 0.5f;
+                        //    noiseValueC = random.Next() % 5 / 4f - 0.5f;
+                        //    noiseValueR = random.Next() % 5 / 4f - 0.5f;
+                        //}
+                        //sampleL = noiseValueC * (1 - stereoPhaseOffset) + noiseValueL * stereoPhaseOffset;
+                        //sampleR = noiseValueC * (1 - stereoPhaseOffset) + noiseValueR * stereoPhaseOffset;
+                        noiseValueC = GetNoiseValue(_noiseTime);
+                        if (stereoPhaseOffset != 0) {
+                            noiseValueL = GetNoiseValue(_noiseTime + noiseLength * 0.666f);
+                            noiseValueR = GetNoiseValue(_noiseTime + noiseLength * 0.333f);
+                            sampleL = (noiseValueC * (1 - stereoPhaseOffset) + noiseValueL * stereoPhaseOffset) / bassBoost;
+                            sampleR = (noiseValueC * (1 - stereoPhaseOffset) + noiseValueR * stereoPhaseOffset) / bassBoost;
+                        }
+                        else {
+                            sampleL = sampleR = noiseValueC;
+                        }
+                        //noiseValueC = GetNoiseValue((int)(_noiseTime / factor), 0);
+                        //noiseValueL = GetNoiseValue((int)(_noiseTime / factor), 0.33f);
+                        //noiseValueR = GetNoiseValue((int)(_noiseTime / factor), -0.33f);
+                    }
+                    else if (CurrentInstrument is SampleInstrument) {
                         CurrentSample?.SampleTick((float)_time, stereoPhaseOffset, SampleStartOffset / 100f, out sampleL, out sampleR);
+
                         sampleL *= 1.25f;
                         sampleR *= 1.25f;
                         SamplePlaybackPosition = CurrentSample?.currentPlaybackPosition ?? 0;
