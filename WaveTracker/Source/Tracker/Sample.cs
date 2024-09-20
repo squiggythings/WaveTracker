@@ -2,9 +2,11 @@
 using ProtoBuf;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using WaveTracker.Audio;
+using WaveTracker.Audio.Native;
 
 namespace WaveTracker.Tracker {
     [Serializable]
@@ -341,16 +343,22 @@ namespace WaveTracker.Tracker {
                 return;
             }
 
-            // int channels = IsStereo ? 2 : 1;
-            // WaveFormat format = new WaveFormat(sampleRate, channels);
-            // using (WaveFileWriter writer = new WaveFileWriter(filepath, format)) {
-            //     for (int i = 0; i < Length; ++i) {
-            //         writer.WriteSample(sampleDataAccessL[i] / (float)short.MaxValue);
-            //         if (IsStereo) {
-            //             writer.WriteSample(sampleDataAccessR[i] / (float)short.MaxValue);
-            //         }
-            //     }
-            // }
+            short[] pcm16Samples = sampleDataAccessL;
+            if (IsStereo) {
+                pcm16Samples = new short[2 * sampleDataAccessL.Length];
+
+                for (int i = 0; i < sampleDataAccessL.Length; i++) {
+                    pcm16Samples[2 * i] = sampleDataAccessL[i];
+                    pcm16Samples[2 * i + 1] = sampleDataAccessR[i];
+                }
+            }
+
+            int channels = IsStereo ? 2 : 1;
+
+            Wav outWav = new Wav(pcm16Samples, (ushort)channels, (uint)sampleRate);
+            
+            using (FileStream file = File.OpenWrite(filepath))
+                outWav.Write(file);
         }
     }
 }
