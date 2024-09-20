@@ -457,24 +457,14 @@ namespace WaveTracker {
         /// Closes WaveTracker
         /// </summary>
         public static void ExitApplication() {
-            // System.Windows.Forms.Form form = (System.Windows.Forms.Form)System.Windows.Forms.Control.FromHandle(instance.Window.Handle);
-
-            // form.Close();
-        }
-
-        /// <summary>
-        /// Called before the app closes
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        public void ClosingForm(object sender, System.ComponentModel.CancelEventArgs e) {
             ContextMenu.CloseCurrent();
 
             if (!SaveLoad.IsSaved) {
-                e.Cancel = true;
-                SaveLoad.DoSaveChangesDialog(UnsavedChangesCallback);
+                SaveLoad.DoSaveChangesDialog(instance.UnsavedChangesCallback);
             }
-
+            else {
+                instance.Exit();
+            }
         }
 
         /// <summary>
