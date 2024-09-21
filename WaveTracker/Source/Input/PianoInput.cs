@@ -38,23 +38,24 @@ namespace WaveTracker {
         }
 
         public static void Update() {
-            foreach (KeyValuePair<string, int> binding in PianoKeyInputs) {
-                int midiNote = binding.Value + (App.PatternEditor.CurrentOctave + 1) * 12;
-                if (App.Shortcuts[binding.Key].IsPressedRepeat) {
-                    if (App.PatternEditor.cursorPosition.Column == CursorColumnType.Note || App.VisualizerMode || App.WaveEditor.IsOpen || App.InstrumentEditor.IsOpen) {
-                        if (App.Shortcuts[binding.Key].IsPressedDown) {
-                            KeyboardNoteOn(midiNote);
-                        }
-                        else if (App.Settings.PatternEditor.KeyRepeat) {
-                            App.PatternEditor.TryToEnterNote(midiNote, null);
+            if (!InputField.IsAnInputFieldBeingEdited) {
+                foreach (KeyValuePair<string, int> binding in PianoKeyInputs) {
+                    int midiNote = binding.Value + (App.PatternEditor.CurrentOctave + 1) * 12;
+                    if (App.Shortcuts[binding.Key].IsPressedRepeat) {
+                        if (App.PatternEditor.cursorPosition.Column == CursorColumnType.Note || App.VisualizerMode || App.WaveEditor.IsOpen || App.InstrumentEditor.IsOpen) {
+                            if (App.Shortcuts[binding.Key].IsPressedDown) {
+                                KeyboardNoteOn(midiNote);
+                            }
+                            else if (App.Settings.PatternEditor.KeyRepeat) {
+                                App.PatternEditor.TryToEnterNote(midiNote, null);
+                            }
                         }
                     }
-                }
-                if (App.Shortcuts[binding.Key].WasReleasedThisFrame) {
-                    KeyboardNoteOff(midiNote);
+                    if (App.Shortcuts[binding.Key].WasReleasedThisFrame) {
+                        KeyboardNoteOff(midiNote);
+                    }
                 }
             }
-
         }
 
         public static void ReceivePreviewPianoInput(int previewPianoCurrentNote) {

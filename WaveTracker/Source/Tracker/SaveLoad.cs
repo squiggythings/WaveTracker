@@ -1,4 +1,3 @@
-using Microsoft.Xna.Framework;
 using NativeFileDialogs.Net;
 using ProtoBuf;
 using System;
@@ -119,9 +118,9 @@ namespace WaveTracker {
             WriteTo(Path.Combine(AutosavesFolderPath, FileNameWithoutExtension + "_autosave_" + string.Format("{0:yyyy-MM-dd_HH-mm-ss-fff}", DateTime.Now) + ".wtm"));
         }
 
-        public static void AutosaveTick(GameTime gameTime) {
+        public static void AutosaveTick() {
             // Autosave every 5th minute
-            if ((gameTime.TotalGameTime.Minutes + 1) % 5 == 0) {
+            if ((App.GameTime.TotalGameTime.Minutes + 1) % 5 == 0) {
                 if (!performedAutosave) {
                     Autosave();
                     performedAutosave = true;

@@ -40,10 +40,12 @@
     <None Remove="Content\TrackerFont.ttf" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="FontStashSharp.MonoGame" Version="1.3.7" />
     <PackageReference Include="MonoGame.Framework.DesktopGL" Version="3.8.1.303" />
     <PackageReference Include="MonoGame.Content.Builder.Task" Version="3.8.1.303" />
     <PackageReference Include="NativeFileDialogs.NET" Version="1.2.1" />
     <PackageReference Include="protobuf-net" Version="3.2.26" />
+    <PackageReference Include="TextCopy" Version="6.2.1" />
     <PackageReference Include="System.Windows.Extensions" Version="8.0.0" Condition=" '$(OS)' == 'Windows_NT' " />
   </ItemGroup>
   <ItemGroup>

@@ -10,10 +10,10 @@ namespace WaveTracker {
         private static bool show;
         public static string TooltipText { get; set; }
         public static string TooltipTextLong { get; set; }
-        public static void Update(GameTime gameTime) {
+        public static void Update() {
             TooltipText = "";
             TooltipTextLong = "";
-            elapsedMS = gameTime.ElapsedGameTime.Milliseconds;
+            elapsedMS = App.GameTime.ElapsedGameTime.Milliseconds;
 
         }
         public static void Draw() {

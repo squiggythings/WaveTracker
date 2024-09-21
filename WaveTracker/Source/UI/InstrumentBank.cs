@@ -4,10 +4,10 @@ using WaveTracker.Tracker;
 
 namespace WaveTracker.UI {
     public class InstrumentBank : Panel {
-        private bool dialogOpen;
         private int lastIndex;
         private int listLength = 32;
         public Scrollbar scrollbar;
+        private InputField InputField { get; set; }
 
         public int CurrentInstrumentIndex { get; set; }
         public Instrument GetCurrentInstrument {
@@ -45,29 +45,30 @@ namespace WaveTracker.UI {
             bRename.SetTooltip("Rename Instrument", "Rename this instrument");
 
             scrollbar = new Scrollbar(1, 28, width - 1, 367, this);
+            InputField = new InputField(25, 0, width - 31, this);
+            InputField.MaximumLength = 32;
         }
 
         public Menu CreateInstrumentMenu() {
             return new Menu([
-                        new MenuOption("Add wave instrument",AddWave, App.CurrentModule.Instruments.Count < 100 && !App.VisualizerMode),
-                        new MenuOption("Add sample instrument",AddSample,App.CurrentModule.Instruments.Count < 100 && !App.VisualizerMode),
-                        new MenuOption("Duplicate",DuplicateInstrument,App.CurrentModule.Instruments.Count < 100 && !App.VisualizerMode),
-                        new MenuOption("Remove",RemoveInstrument,App.CurrentModule.Instruments.Count > 1 && !App.VisualizerMode),
+                        new MenuOption("Rename...", Rename, !App.VisualizerMode),
+                        new MenuOption("Edit...", Edit, !App.VisualizerMode),
                         null,
                         new MenuOption("Move up", MoveUp, CurrentInstrumentIndex > 0 && !App.VisualizerMode),
                         new MenuOption("Move down", MoveDown, CurrentInstrumentIndex < App.CurrentModule.Instruments.Count - 1 && !App.VisualizerMode),
                         null,
-                        //new MenuOption("Load from file...", null),
-                        //new MenuOption("Save to file...", null),
-                        null,
-                        new MenuOption("Rename...", Rename, !App.VisualizerMode),
-                        new MenuOption("Edit...", Edit, !App.VisualizerMode)
+                        new MenuOption("Add wave instrument",AddWave, App.CurrentModule.Instruments.Count < 100 && !App.VisualizerMode),
+                        new MenuOption("Add sample instrument",AddSample,App.CurrentModule.Instruments.Count < 100 && !App.VisualizerMode),
+                        new MenuOption("Duplicate",DuplicateInstrument,App.CurrentModule.Instruments.Count < 100 && !App.VisualizerMode),
+                        new MenuOption("Remove",RemoveInstrument,App.CurrentModule.Instruments.Count > 1 && !App.VisualizerMode)
                    ]);
         }
 
         public void Update() {
             x = App.WindowWidth - width;
             height = App.WindowHeight - y;
+            InputField.y = 27 + (-scrollbar.ScrollValue + CurrentInstrumentIndex) * 11;
+
             listLength = (App.WindowHeight - y - 28 - 8) / 11;
             scrollbar.height = listLength * 11;
             scrollbar.SetSize(App.CurrentModule.Instruments.Count, listLength);
@@ -75,7 +76,7 @@ namespace WaveTracker.UI {
                 listLength = 1;
             }
 
-            if (!Menu.IsAMenuOpen && !Dropdown.IsAnyDropdownOpen) {
+            if (!Menu.IsAMenuOpen && !Dropdown.IsAnyDropdownOpen && !InputField.IsAnInputFieldBeingEdited) {
                 if (App.Shortcuts["General\\Next instrument"].IsPressedRepeat) {
                     CurrentInstrumentIndex++;
                     CurrentInstrumentIndex = Math.Clamp(CurrentInstrumentIndex, 0, App.CurrentModule.Instruments.Count - 1);
@@ -94,15 +95,23 @@ namespace WaveTracker.UI {
                 }
             }
 
-            if (Input.focus == null) {
+            if (Input.focus == null || InputField.InFocus) {
                 scrollbar.Update();
-
                 scrollbar.height = listLength * 11;
                 scrollbar.SetSize(App.CurrentModule.Instruments.Count, listLength);
                 if (Input.internalDialogIsOpen) {
                     return;
                 }
-
+                if (InputField.IsBeingEdited) {
+                    InputField.Update();
+                    if (InputField.ValueWasChangedInternally) {
+                        if (InputField.EditedText.Length > 0) {
+                            App.CurrentModule.Instruments[CurrentInstrumentIndex].SetName(InputField.EditedText);
+                            App.CurrentModule.SetDirty();
+                        }
+                    }
+                    return;
+                }
                 if (MouseX > 1 && MouseX < 162) {
                     if (MouseY > 28) {
                         if (Input.GetRightClickUp(KeyModifier._Any)) {
@@ -114,7 +123,7 @@ namespace WaveTracker.UI {
                         if (Input.GetClickDown(KeyModifier._Any) || Input.GetRightClickDown(KeyModifier._Any)) {
                             CurrentInstrumentIndex = Math.Clamp((MouseY - 28) / 11 + scrollbar.ScrollValue, 0, App.CurrentModule.Instruments.Count - 1);
                         }
-                        if (Input.GetDoubleClick(KeyModifier._Any)) {
+                        if (Input.GetDoubleClickDown(KeyModifier._Any)) {
                             int ix = (MouseY - 28) / 11 + scrollbar.ScrollValue;
                             if (ix < App.CurrentModule.Instruments.Count && ix >= 0) {
                                 App.InstrumentEditor.Open(GetCurrentInstrument, CurrentInstrumentIndex);
@@ -139,10 +148,10 @@ namespace WaveTracker.UI {
                 if (bDuplicate.Clicked) {
                     DuplicateInstrument();
                 }
-                if (bMoveDown.Clicked) {
+                if (bMoveDown.Clicked || App.Shortcuts["General\\Move instrument down"].IsPressedDown) {
                     MoveDown();
                 }
-                if (bMoveUp.Clicked) {
+                if (bMoveUp.Clicked || App.Shortcuts["General\\Move instrument up"].IsPressedDown) {
                     MoveUp();
                 }
 
@@ -150,10 +159,10 @@ namespace WaveTracker.UI {
                     Edit();
                 }
 
-                if (bRename.Clicked) {
+                if (bRename.Clicked || App.Shortcuts["General\\Rename instrument"].IsPressedDown) {
                     Rename();
                 }
-                else { dialogOpen = false; }
+
                 CurrentInstrumentIndex = Math.Clamp(CurrentInstrumentIndex, 0, App.CurrentModule.Instruments.Count - 1);
                 if (lastIndex != CurrentInstrumentIndex) {
                     lastIndex = CurrentInstrumentIndex;
@@ -183,18 +192,22 @@ namespace WaveTracker.UI {
         }
 
         public void MoveUp() {
-            App.CurrentModule.SwapInstrumentsInSongs(CurrentInstrumentIndex, CurrentInstrumentIndex - 1);
-            App.CurrentModule.Instruments.Reverse(CurrentInstrumentIndex - 1, 2);
-            App.CurrentModule.SetDirty();
-            CurrentInstrumentIndex--;
-            MoveBounds();
+            if (CurrentInstrumentIndex > 0) {
+                App.CurrentModule.SwapInstrumentsInSongs(CurrentInstrumentIndex, CurrentInstrumentIndex - 1);
+                App.CurrentModule.Instruments.Reverse(CurrentInstrumentIndex - 1, 2);
+                App.CurrentModule.SetDirty();
+                CurrentInstrumentIndex--;
+                MoveBounds();
+            }
         }
         public void MoveDown() {
-            App.CurrentModule.SwapInstrumentsInSongs(CurrentInstrumentIndex, CurrentInstrumentIndex + 1);
-            App.CurrentModule.Instruments.Reverse(CurrentInstrumentIndex, 2);
-            App.CurrentModule.SetDirty();
-            CurrentInstrumentIndex++;
-            MoveBounds();
+            if (CurrentInstrumentIndex < App.CurrentModule.Instruments.Count - 1) {
+                App.CurrentModule.SwapInstrumentsInSongs(CurrentInstrumentIndex, CurrentInstrumentIndex + 1);
+                App.CurrentModule.Instruments.Reverse(CurrentInstrumentIndex, 2);
+                App.CurrentModule.SetDirty();
+                CurrentInstrumentIndex++;
+                MoveBounds();
+            }
         }
 
         public void RemoveInstrument() {
@@ -207,10 +220,7 @@ namespace WaveTracker.UI {
         }
 
         public void Rename() {
-            if (!dialogOpen) {
-                dialogOpen = true;
-                StartRenameDialog();
-            }
+            InputField.Open(GetCurrentInstrument.name, true);
         }
 
         public void Edit() {
@@ -244,7 +254,8 @@ namespace WaveTracker.UI {
                 DrawRect(1, 28 + y * 11, width - 7, 11, row);
                 if (App.CurrentModule.Instruments.Count > i && i >= 0) {
                     WriteMonospaced(i.ToString("D2"), 15, 30 + y * 11, Color.White, 4);
-                    Write(App.CurrentModule.Instruments[i].name, 29, 30 + y * 11, Color.White);
+                    Write(Helpers.TrimTextToWidth(InputField.width, App.CurrentModule.Instruments[i].name), 29, 30 + y * 11, Color.White);
+
                     if (App.CurrentModule.Instruments[i] is WaveInstrument) {
                         DrawSprite(3, 30 + y * 11, new Rectangle(88, 80, 8, 7));
                     }
@@ -253,6 +264,9 @@ namespace WaveTracker.UI {
                     }
                 }
                 ++y;
+            }
+            if (InputField.IsBeingEdited) {
+                InputField.Draw(GetCurrentInstrument.name);
             }
         }
 
@@ -269,23 +283,6 @@ namespace WaveTracker.UI {
             bRename.Draw();
             DrawList();
             scrollbar.Draw();
-        }
-
-        public void StartRenameDialog() {
-            Input.DialogStarted();
-
-            Dialogs.enterTextDialog.Open(
-                "Rename Instrument " + CurrentInstrumentIndex.ToString("D2"),
-                GetCurrentInstrument.name,
-                dialogCallback
-            );
-        }
-
-        private void dialogCallback(string input) {
-            if (input != null) {
-                App.CurrentModule.Instruments[CurrentInstrumentIndex].SetName(input);
-                App.CurrentModule.SetDirty();
-            }
         }
     }
 }

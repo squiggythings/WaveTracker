@@ -69,7 +69,12 @@ namespace WaveTracker {
         /// <param name="text"></param>
         /// <returns></returns>
         public static int GetWidthOfText(string text) {
-            return Math.Max(0, (int)Graphics.defaultFont.MeasureString(text).X - 1);
+            if (Graphics.IsUsingCustomFont) {
+                return (int)(Graphics.customFont.MeasureString(text).X / App.Settings.General.ScreenScale);
+            }
+            else {
+                return (int)Graphics.defaultFont.MeasureString(text).X - 1;
+            }
         }
 
         /// <summary>
@@ -258,7 +263,7 @@ namespace WaveTracker {
         /// <param name="n"></param>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static double MoreAccuratePower(double x, double n) {
+        public static double MoreAccurateFasterPower(double x, double n) {
             return x * Math.Exp((x - 1) * (n - 1));
         }
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -339,9 +344,12 @@ namespace WaveTracker {
         /// <param name="to2"></param>
         /// <returns></returns>
         public static float MapClamped(float value, float from1, float to1, float from2, float to2) {
-            return from2 < to2
-                ? Math.Clamp((value - from1) / (to1 - from1) * (to2 - from2) + from2, from2, to2)
-                : Math.Clamp((value - from1) / (to1 - from1) * (to2 - from2) + from2, to2, from2);
+            if (from2 < to2) {
+                return (float)Math.Clamp((value - from1) / (to1 - from1) * (to2 - from2) + from2, from2, to2);
+            }
+            else {
+                return (float)Math.Clamp((value - from1) / (to1 - from1) * (to2 - from2) + from2, to2, from2);
+            }
         }
 
         /// <summary>

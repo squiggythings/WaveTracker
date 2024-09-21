@@ -3,8 +3,6 @@ using System;
 
 namespace WaveTracker.UI {
     public class NumberBoxDecimal : Clickable {
-        private bool dialogOpen;
-
         public SpriteButton bUp;
         public SpriteButton bDown;
         private int boxWidth;
@@ -66,13 +64,7 @@ namespace WaveTracker.UI {
             if (enabled && InFocus) {
                 int valueBeforeUpdate = _value;
                 if (DoubleClicked && MouseX < width - 10) {
-                    if (!dialogOpen) {
-                        dialogOpen = true;
-                        StartDialog();
-                    }
-                }
-                else {
-                    dialogOpen = false;
+                    // edit text 
                 }
                 if (LastClickPos.X >= 0 && LastClickPos.Y >= 0) {
                     if (LastClickPos.X <= width - 10 && LastClickPos.Y <= height) {
@@ -128,30 +120,10 @@ namespace WaveTracker.UI {
             DrawRect(boxStart, boxStartY, bWidth, boxHeight, dark);
             DrawRect(boxStart + 1, boxStartY + 1, bWidth - 2, boxHeight - 2, Color.White);
             DrawRect(boxStart + 1, boxStartY + 1, bWidth - 2, 1, new Color(193, 196, 213));
-            DrawRect(width, boxStartY + 6, -10, 1, ButtonColors.Round.backgroundColor);
+            DrawRect(width, boxStartY + 6, -10, 1, ButtonColors.backgroundColor);
             Write(Value.ToString("D" + DecimalPlaces), boxStart + 4, height / 2 - 3, text);
             bUp.Draw();
             bDown.Draw();
-        }
-
-        public void StartDialog() {
-            Input.DialogStarted();
-
-            Dialogs.enterTextDialog.Open(
-                label,
-                Value + "",
-                dialogCallback
-            );
-        }
-
-        private void dialogCallback(string input) {
-            if (input != null) {
-                if (float.TryParse(input, out float a)) {
-                    Value = a;
-                    ValueWasChangedInternally = true;
-                    App.CurrentModule.SetDirty();
-                }
-            }
         }
     }
 }

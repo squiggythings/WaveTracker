@@ -24,6 +24,8 @@ namespace WaveTracker.UI {
         private MouseRegion drawingRegion;
         private const int MARGIN_WIDTH = 40;
 
+        protected new bool InFocus => base.InFocus || envLength.InFocus || envText.InFocus;
+
         //445
         //364
         private int ColumnWidth {
@@ -45,7 +47,7 @@ namespace WaveTracker.UI {
             envLength.SetValueLimits(0, Envelope.MAX_ENVELOPE_LENGTH);
 
             envText = new Textbox("", 0, 240, this.width, this);
-            envText.MaxLength = 256;
+            envText.InputField.MaximumLength = 800;
 
             SetParent(parent);
             ResetScrollbar();
@@ -146,7 +148,7 @@ namespace WaveTracker.UI {
             }
         }
 
-        private float Lerp(float firstFloat, float secondFloat, float by) {
+        private static float Lerp(float firstFloat, float secondFloat, float by) {
             return firstFloat * (1 - by) + secondFloat * by;
         }
 

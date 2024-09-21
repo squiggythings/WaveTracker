@@ -116,7 +116,7 @@ namespace WaveTracker.UI {
                                     }
 
                                 }
-                                if (Input.GetDoubleClick(KeyModifier.None)) {
+                                if (Input.GetDoubleClickDown(KeyModifier.None)) {
                                     if (Directory.Exists(entriesInDirectory[i])) {
                                         // double clicked on a folder
                                         currentPath = entriesInDirectory[i];

@@ -89,7 +89,7 @@ namespace WaveTracker.UI {
             }
             DrawTick(width, tickHeight);
             if (isDraggingHandle) {
-                DrawRect(handle.x, handle.y, handle.width, handle.height, ButtonColors.Default.backgroundColor);
+                DrawRect(handle.x, handle.y, handle.width, handle.height, new Color(190, 192, 211));
             }
             else if (handle.IsHovered) {
                 DrawRect(handle.x, handle.y, handle.width, handle.height, UIColors.selection.Lerp(Color.White, 0.2f));

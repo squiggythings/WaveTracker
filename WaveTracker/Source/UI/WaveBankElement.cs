@@ -21,7 +21,7 @@ namespace WaveTracker.UI {
 
         public void Update() {
             if (IsHovered || WaveBank.currentWaveID == id) {
-                phase += 4;
+                phase += 4 * App.GameTime.ElapsedGameTime.TotalMilliseconds / 16f;
             }
             else {
                 phase = 1;
@@ -35,7 +35,7 @@ namespace WaveTracker.UI {
             }
             if (IsHovered || WaveEditor.enabled && WaveBank.currentWaveID == id) {
                 if (WaveEditor.enabled) {
-                    phase -= 2;
+                    phase -= 2 * App.GameTime.ElapsedGameTime.TotalMilliseconds / 16f;
                 }
                 DrawRoundedRect(0, 0, 22, 22, new Color(104, 111, 153));
             }

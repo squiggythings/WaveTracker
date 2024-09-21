@@ -272,11 +272,11 @@ namespace WaveTracker.Tracker {
             float exp = 1 - 0.8f * bendAmt;
             if (t > 0.5f) {
                 t = 2 * t % 1;
-                return (float)Helpers.MoreAccuratePower(t, exp) / 2f + 0.5f;
+                return (float)Helpers.MoreAccurateFasterPower(t, exp) / 2f + 0.5f;
             }
             else {
                 t = 2 * (1 - t) % 1;
-                return 1 - (float)Helpers.MoreAccuratePower(t, exp) / 2f - 0.5f;
+                return 1 - (float)Helpers.MoreAccurateFasterPower(t, exp) / 2f - 0.5f;
             }
         }
 
