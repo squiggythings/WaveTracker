@@ -309,8 +309,8 @@ namespace WaveTracker.UI {
         }
 
         private void GotoPreviousWord() {
-            if (caretPosition == EditedText.Length) {
-                caretPosition--;
+            if (caretPosition >= EditedText.Length) {
+                caretPosition = EditedText.Length - 1;
             }
             while (caretPosition > 0 && IsWhitespace(EditedText[caretPosition])) {
                 caretPosition--;
@@ -320,6 +320,9 @@ namespace WaveTracker.UI {
             }
         }
         private void GotoNextWord() {
+            if (caretPosition < 0) {
+                caretPosition = 0;
+            }
             while (caretPosition < EditedText.Length && !IsWhitespace(EditedText[caretPosition])) {
                 caretPosition++;
             }
