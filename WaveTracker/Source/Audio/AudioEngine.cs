@@ -69,7 +69,7 @@ namespace WaveTracker.Audio {
                 throw new NotImplementedException();
             }
             else if (OperatingSystem.IsLinux()) {
-                audioCtx = new AudioLinuxContext();
+                audioCtx = new AudioContextLinux();
             }
             else if (OperatingSystem.IsMacOS()) {
                 throw new NotImplementedException();

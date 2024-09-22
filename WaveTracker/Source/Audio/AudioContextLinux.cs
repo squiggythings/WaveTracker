@@ -7,7 +7,7 @@ using WaveTracker.Audio.Interop;
 
 namespace WaveTracker.Audio {
     [SupportedOSPlatform("Linux")]
-    internal class AudioLinuxContext : IAudioContext {
+    internal class AudioContextLinux : IAudioContext {
         private nint _pcm = 0;
         public Alsa.snd_pcm_format_t sample_format = Alsa.snd_pcm_format_t.FLOAT_LE;
         public Alsa.snd_pcm_access_t access = Alsa.snd_pcm_access_t.RW_INTERLEAVED;
