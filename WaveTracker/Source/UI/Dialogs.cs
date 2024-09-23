@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using WaveTracker.Forms;
 
 namespace WaveTracker.UI {
     public static class Dialogs {
@@ -20,7 +19,6 @@ namespace WaveTracker.UI {
         private static Queue<MessageDialog> messageDialogs;
 
         public static MessageDialog messageDialog;
-        public static EnterText enterTextDialog;
 
         public static void Initialize() {
             moduleSettings = new ModuleSettingsDialog();
@@ -37,7 +35,6 @@ namespace WaveTracker.UI {
             configurationDialog = new ConfigurationDialog();
 
             messageDialogs = new Queue<MessageDialog>();
-            enterTextDialog = new EnterText("hmmm");
         }
         /// <summary>
         /// Opens a message dialog
@@ -94,8 +91,6 @@ namespace WaveTracker.UI {
                     currentMessageDialog = null;
                 }
             }
-
-            enterTextDialog.Update();
         }
 
         public static void Draw() {
@@ -113,7 +108,6 @@ namespace WaveTracker.UI {
             colorPicker.Draw();
 
             currentMessageDialog?.Draw();
-            enterTextDialog.Draw();
         }
     }
 }
