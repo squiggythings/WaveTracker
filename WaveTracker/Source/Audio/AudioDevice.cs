@@ -18,12 +18,15 @@ namespace WaveTracker.Audio {
 
         [SupportedOSPlatform("Linux")]
         internal static AudioDevice DefaultLinuxOutputDevice => new AudioDevice {
-            ID = "default",
             Name = "default",
+            ID = "default",
         };
 
         [SupportedOSPlatform("Windows")]
-        internal static AudioDevice DefaultWindowsOutputDevice => throw new NotImplementedException();
+        internal static AudioDevice DefaultWindowsOutputDevice => new AudioDevice {
+            Name = "default",
+            DeviceNumber = 0,
+        };
 
         [SupportedOSPlatform("Macos")]
         internal static AudioDevice DefaultMacosOutputDevice => throw new NotImplementedException();
@@ -32,5 +35,8 @@ namespace WaveTracker.Audio {
 
         [SupportedOSPlatform("Linux")]
         internal string ID;
+
+        [SupportedOSPlatform("Windows")]
+        internal uint DeviceNumber;
     }
 }

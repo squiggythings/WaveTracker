@@ -66,7 +66,7 @@ namespace WaveTracker.Audio {
             CurrentBuffer = new float[2, PREVIEW_BUFFER_LENGTH];
 
             if (OperatingSystem.IsWindows()) {
-                throw new NotImplementedException();
+                audioCtx = new AudioContextWindows();
             }
             else if (OperatingSystem.IsLinux()) {
                 audioCtx = new AudioContextLinux();
