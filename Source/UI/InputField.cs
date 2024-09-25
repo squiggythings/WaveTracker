@@ -222,6 +222,7 @@ namespace WaveTracker.UI {
                 currentlyEditing = this;
                 Input.focus = this;
                 IsBeingEdited = true;
+                SelectionIsActive = false;
                 App.ClientWindow.TextInput += OnInput;
                 caretPosition = GetMouseCaretPosition();
                 if (selectAll) {
