@@ -728,9 +728,9 @@ namespace WaveTracker.Audio {
                     }
                     else if (CurrentInstrument is NoiseInstrument) {
                         double pitchIndex = CurrentPitch / 24f;
-                        double factor = (1 - pitchIndex) * 8 + 1;
+                        double factor = (1 - pitchIndex) * 9 + 1;
                         factor = Math.Pow(2.0, factor) - 1;
-                        _noiseTime += 88200f / AudioEngine.TrueSampleRate / factor;
+                        _noiseTime += 192000f / AudioEngine.TrueSampleRate / factor;
                         if (_noiseTime > noiseLength) {
                             _noiseTime -= (int)(_noiseTime / noiseLength) * noiseLength;
                         }
