@@ -147,7 +147,7 @@ namespace WaveTracker.Audio {
             noiseSample = new float[44100 * 4];
             noiseLength = noiseSample.Length;
             for (int i = 0; i < noiseSample.Length; i++) {
-                noiseSample[i] = (random.Next() % 6 / 5f - 0.5f) * 1.5f;
+                noiseSample[i] = (random.Next() % 4 / 3f - 0.5f) * 1.5f;
             }
             stereoBiQuadFilter = new StereoBiQuadFilter();
             Reset();
@@ -735,16 +735,6 @@ namespace WaveTracker.Audio {
                         if (_noiseTime > noiseLength) {
                             _noiseTime -= (int)(_noiseTime / noiseLength) * noiseLength;
                         }
-                        //if (_noiseTime > noiseLength) {
-                        //    _noiseTime -= noiseLength;
-                        //}
-                        //    _noiseTime -= (int)(_noiseTime / factor) * factor;
-                        //    noiseValueL = random.Next() % 5 / 4f - 0.5f;
-                        //    noiseValueC = random.Next() % 5 / 4f - 0.5f;
-                        //    noiseValueR = random.Next() % 5 / 4f - 0.5f;
-                        //}
-                        //sampleL = noiseValueC * (1 - stereoPhaseOffset) + noiseValueL * stereoPhaseOffset;
-                        //sampleR = noiseValueC * (1 - stereoPhaseOffset) + noiseValueR * stereoPhaseOffset;
                         noiseValueC = GetNoiseSample(_noiseTime);
                         if (stereoPhaseOffset != 0) {
                             noiseValueL = GetNoiseSample(_noiseTime + noiseLength * 0.666f);
@@ -755,9 +745,6 @@ namespace WaveTracker.Audio {
                         else {
                             sampleL = sampleR = noiseValueC;
                         }
-                        //noiseValueC = GetNoiseValue((int)(_noiseTime / factor), 0);
-                        //noiseValueL = GetNoiseValue((int)(_noiseTime / factor), 0.33f);
-                        //noiseValueR = GetNoiseValue((int)(_noiseTime / factor), -0.33f);
                     }
                     else if (CurrentInstrument is SampleInstrument) {
                         CurrentSample?.SampleTick((float)_time, stereoPhaseOffset, SampleStartOffset / 100f, out sampleL, out sampleR);
