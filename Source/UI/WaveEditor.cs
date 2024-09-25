@@ -11,7 +11,8 @@ namespace WaveTracker.UI {
         public SpriteButton presetSine, presetTria, presetSaw, presetRect50, presetRect25, presetRect12, presetRand, presetClear;
         public Toggle filterNone, filterLinear, filterMix;
         public int startcooldown;
-        public Button CopyButton, PasteButton, PhaseLButton, PhaseRButton, MoveUpButton, MoveDownButton, InvertButton, MutateButton, bSmooth, NormalizeButton;
+        public Button CopyButton, PasteButton, PhaseLButton, PhaseRButton, MoveUpButton, MoveDownButton, InvertButton, MutateButton, bSmooth, NormalizeButton, GenerateMathButton;
+        public Textbox MathExpressionInput;
         public DropdownButton ModifyButton;
         public Textbox waveText;
         public Dropdown resampleDropdown;
@@ -91,6 +92,12 @@ namespace WaveTracker.UI {
             presetRand.SetTooltip("Random", "Create random noise");
             presetClear = new SpriteButton(150, 215, 18, 12, 230, 80, this);
             presetClear.SetTooltip("Clear", "Clear wave");
+
+            MathExpressionInput = new Textbox("Expr", 180, 205, 100, this);
+            MathExpressionInput.Text = "sin(t)";
+            MathExpressionInput.Update(); //Resets any flags like ValueWasChanged
+            GenerateMathButton = new Button("Generate", 209, 220, buttonWidth, this);
+            InvertButton.SetTooltip("", "Generate waveform from a maths expression");
 
             ExitButton.SetTooltip("Close", "Close wave editor");
 
@@ -264,7 +271,6 @@ namespace WaveTracker.UI {
                         CurrentWave.Invert();
                         App.CurrentModule.SetDirty();
                     }
-
                     if (MutateButton.Clicked) {
                         CurrentWave.MutateHarmonics();
                         App.CurrentModule.SetDirty();
@@ -293,6 +299,15 @@ namespace WaveTracker.UI {
                                 Dialogs.waveSampleAndHoldDialog.Open(CurrentWave);
                                 break;
                         }
+                        App.CurrentModule.SetDirty();
+                    }
+                    MathExpressionInput.Update();
+                    if (GenerateMathButton.Clicked) {
+                        CurrentWave.ApplyMathExpression(MathExpressionInput.Text);
+                        App.CurrentModule.SetDirty();
+                    }
+                    if(MathExpressionInput.ValueWasChanged) {
+                        CurrentWave.ApplyMathExpression(MathExpressionInput.Text);
                         App.CurrentModule.SetDirty();
                     }
                     if (IsMouseInCanvasBounds()) {
@@ -369,6 +384,9 @@ namespace WaveTracker.UI {
                 MutateButton.Draw();
                 NormalizeButton.Draw();
                 ModifyButton.Draw();
+
+                MathExpressionInput.Draw();
+                GenerateMathButton.Draw();
 
                 Color waveColor = new Color(200, 212, 93);
                 Color waveBG = new Color(59, 125, 79, 150);

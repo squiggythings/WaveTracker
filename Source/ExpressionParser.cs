@@ -79,8 +79,7 @@ namespace WaveTracker.Source {
             { "time", () => { return DateTime.UtcNow.Millisecond; } }, //TODO
         };
 
-        public static double Evaluate(string infix, Dictionary<string, double>? variables = null) {
-            variables ??= new();
+        public static double Evaluate(string infix, params (string, double)[] variables) {
             return EvaluateRPN(InfixTokensToRPN(TokenizeInfix(infix.Trim())), variables);
         }
 
@@ -223,8 +222,14 @@ namespace WaveTracker.Source {
             return rpnTokens;
         }
 
-        private static double EvaluateRPN(List<string> rpn, Dictionary<string, double> userVariables) {
+        private static double EvaluateRPN(List<string> rpn, params (string, double)[] userVariables) {
             Stack<double> stack = new();
+
+            Dictionary<string, double> variableDictionary = new();
+
+            foreach (var item in userVariables) {
+                variableDictionary.Add(item.Item1, item.Item2);
+            }
 
             foreach (var token in rpn) {
                 if (operators.ContainsKey(token[0])) {
@@ -246,7 +251,7 @@ namespace WaveTracker.Source {
                 else if (variablesAndConstants.TryGetValue(token, out var varconst)) {
                     stack.Push(varconst());
                 }
-                else if (userVariables.TryGetValue(token, out double userVariable)) {
+                else if (variableDictionary.TryGetValue(token, out double userVariable)) {
                     stack.Push(userVariable);
                 }
                 else {
