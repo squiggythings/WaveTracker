@@ -8,10 +8,9 @@ namespace WaveTracker.UI {
         private Dropdown selectedSong;
         private NumberBox rows;
         private SpriteButton editButton;
-        private NumberBox tempo;
         private float ampLeft, ampRight;
         private int ampL, ampR;
-        public new bool InFocus => base.InFocus || selectedSong.InFocus || title.InFocus || author.InFocus || speed.InFocus || rows.InFocus || tempo.InFocus;
+        public new bool InFocus => base.InFocus || selectedSong.InFocus || title.InFocus || author.InFocus || speed.InFocus || rows.InFocus;
 
         public ModulePanel(int x, int y) : base("Module", x, y, 306, 84) {
             title = new Textbox("Title", 4, 12, 155, 110, this);
@@ -20,7 +19,6 @@ namespace WaveTracker.UI {
 
             selectedSong = new Dropdown(34, 42, this, scrollWrap: false);
             selectedSong.width = 125;
-            tempo = new NumberBox("Tempo (BPM)", 167, 12, 132, 40, this);
             speed = new Textbox("Speed (ticks/row)", 167, 12, 132, 40, this);
             speed.InputField.AllowedCharacters = "0123456789 ";
             rows = new NumberBox("Frame Length", 167, 26, 132, 40, this);
@@ -45,22 +43,14 @@ namespace WaveTracker.UI {
                     App.CurrentModule.Author = author.Text;
                     App.CurrentModule.SetDirty();
                 }
-                tempo.Value = App.CurrentSong.Tempo;
                 speed.Text = App.CurrentSong.GetTicksAsString();
-                if (App.CurrentSong.UseTempoBPM) {
-                    tempo.Update();
-                    if (tempo.ValueWasChangedInternally) {
-                        App.CurrentSong.Tempo = tempo.Value;
-                        App.CurrentModule.SetDirty();
-                    }
+
+                speed.Update();
+                if (speed.ValueWasChangedInternally) {
+                    App.CurrentSong.LoadTicksFromString(speed.Text);
+                    App.CurrentModule.SetDirty();
                 }
-                else {
-                    speed.Update();
-                    if (speed.ValueWasChangedInternally) {
-                        App.CurrentSong.LoadTicksFromString(speed.Text);
-                        App.CurrentModule.SetDirty();
-                    }
-                }
+
 
                 rows.Value = App.CurrentSong.RowsPerFrame;
                 rows.Update();
@@ -104,12 +94,7 @@ namespace WaveTracker.UI {
             editButton.Draw();
             title.Draw();
             author.Draw();
-            if (App.CurrentSong.UseTempoBPM) {
-                tempo.Draw();
-            }
-            else {
-                speed.Draw();
-            }
+            speed.Draw();
             rows.Draw();
             if (Audio.AudioEngine.CurrentBuffer != null) {
                 if (Audio.AudioEngine.CurrentBuffer.Length > 0) {

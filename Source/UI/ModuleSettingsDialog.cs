@@ -8,7 +8,6 @@ namespace WaveTracker.UI {
         private Textbox songTitle;
         private Button addSong, insertSong, duplicateSong, removeSong, moveSongUp, moveSongDown;
         private NumberBox numberOfChannels;
-        private Dropdown tempoMode;
         private Dropdown tickSpeedMode;
         private HorizontalSlider tickRateSlider;
         public ModuleSettingsDialog() : base("Module Settings", 232, 256) {
@@ -44,8 +43,6 @@ namespace WaveTracker.UI {
 
             tickSpeedMode = new Dropdown(58, 192, this, scrollWrap: false);
             tickSpeedMode.SetMenuItems(["Default (60 Hz)", "Custom"]);
-            tempoMode = new Dropdown(songTitle.BoundsRight + 4, songTitle.y, this, false);
-            tempoMode.SetMenuItems(["Ticks/row", "Tempo BPM"]);
             tickRateSlider = new HorizontalSlider(width - 122, 212, 96, 16, this);
             tickRateSlider.SetValueLimits(16, 400);
             tickRateSlider.CoarseAdjustAmount = 16;
@@ -152,11 +149,6 @@ namespace WaveTracker.UI {
                 }
 
                 songsList.Update();
-                tempoMode.Value = songsList.SelectedItem.UseTempoBPM ? 1 : 0;
-                tempoMode.Update();
-                if (tempoMode.ValueWasChangedInternally) {
-                    songsList.SelectedItem.UseTempoBPM = tempoMode.Value == 1;
-                }
                 songTitle.Text = songsList.SelectedItem.Name;
                 songTitle.Update();
                 if (songTitle.ValueWasChangedInternally) {
@@ -199,7 +191,6 @@ namespace WaveTracker.UI {
                 removeSong.Draw();
                 moveSongUp.Draw();
                 moveSongDown.Draw();
-                tempoMode.Draw();
                 DrawHorizontalLabel("Module", 8, 165, width - 16);
                 numberOfChannels.Draw();
                 Write("Tick speed", 8, tickSpeedMode.y + 3, UIColors.label);

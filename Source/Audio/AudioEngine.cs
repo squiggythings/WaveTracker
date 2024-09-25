@@ -21,19 +21,9 @@ namespace WaveTracker.Audio {
                 return App.CurrentModule == null ? 60 : App.CurrentModule.TickRate;
             }
         }
-        public static double SamplesPerChannelTick {
+        public static double SamplesPerTick {
             get {
                 return SampleRate / (double)TickSpeed;
-            }
-        }
-        public static double SamplesPerPlaybackTick {
-            get {
-                if (App.CurrentSong.UseTempoBPM) {
-                    return 60.0 / App.CurrentSong.Tempo * SampleRate / App.CurrentSong.RowHighlightSecondary;
-                }
-                else {
-                    return SamplesPerChannelTick;
-                }
             }
         }
 
@@ -44,7 +34,6 @@ namespace WaveTracker.Audio {
         public static int RenderTotalRows { get; private set; }
 
         private static double _tickCounter;
-        private static double _playbackTickCounter;
         private static WasapiOut wasapiOut;
         public static bool IsRendering { get; private set; }
         public static bool CancelRenderFlag { get; set; }
@@ -55,7 +44,6 @@ namespace WaveTracker.Audio {
 
         public static void ResetTicks() {
             _tickCounter = 0;
-            _playbackTickCounter = 0;
         }
 
         public static void Initialize() {
@@ -151,8 +139,7 @@ namespace WaveTracker.Audio {
             wasapiOut.Stop();
             IsRendering = true;
             CancelRenderFlag = false;
-            _tickCounter = 0;
-            _playbackTickCounter = 0;
+            ResetTicks();
             RenderProcessedRows = 0;
 
             ChannelManager.Reset();
@@ -200,20 +187,15 @@ namespace WaveTracker.Audio {
             }
 
             if (App.VisualizerMode && !IsRendering) {
-                if ((int)_tickCounter % (int)(SamplesPerChannelTick / ((float)App.Settings.Visualizer.PianoSpeed / (App.Settings.Visualizer.DrawInHighResolution ? 1 : App.Settings.General.ScreenScale))) == 0) {
+                if ((int)_tickCounter % (int)(SamplesPerTick / ((float)App.Settings.Visualizer.PianoSpeed / (App.Settings.Visualizer.DrawInHighResolution ? 1 : App.Settings.General.ScreenScale))) == 0) {
                     App.Visualizer.RecordChannelStates();
                 }
             }
 
-            _playbackTickCounter++;
-            if (_playbackTickCounter > SamplesPerChannelTick) {
-                _playbackTickCounter -= SamplesPerPlaybackTick;
-                Playback.Tick();
-            }
-
             _tickCounter++;
-            if (_tickCounter > SamplesPerChannelTick) {
-                _tickCounter -= SamplesPerChannelTick;
+            if (_tickCounter > SamplesPerTick) {
+                _tickCounter -= SamplesPerTick;
+                Playback.Tick();
                 foreach (Channel c in ChannelManager.Channels) {
                     c.NextTick();
                 }

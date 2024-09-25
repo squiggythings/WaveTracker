@@ -150,9 +150,6 @@ namespace WaveTracker.Tracker {
         }
 
         private static void SetTicksPerRow() {
-            if (App.CurrentSong.UseTempoBPM) {
-                TicksPerRowOverride = 1;
-            }
             if (TicksPerRowOverride == -1) {
                 ticksPerRow = App.CurrentSong.TicksPerRow[position.Row % App.CurrentSong.TicksPerRow.Length];
             }
