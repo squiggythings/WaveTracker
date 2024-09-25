@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using System;
+using System.Diagnostics;
 
 namespace WaveTracker.UI {
     public class ModulePanel : Panel {
@@ -44,15 +45,16 @@ namespace WaveTracker.UI {
                     App.CurrentModule.Author = author.Text;
                     App.CurrentModule.SetDirty();
                 }
+                tempo.Value = App.CurrentSong.Tempo;
+                speed.Text = App.CurrentSong.GetTicksAsString();
                 if (App.CurrentSong.UseTempoBPM) {
-                    tempo.Value = App.CurrentSong.Tempo;
                     tempo.Update();
                     if (tempo.ValueWasChangedInternally) {
                         App.CurrentSong.Tempo = tempo.Value;
+                        App.CurrentModule.SetDirty();
                     }
                 }
                 else {
-                    speed.Text = App.CurrentSong.GetTicksAsString();
                     speed.Update();
                     if (speed.ValueWasChangedInternally) {
                         App.CurrentSong.LoadTicksFromString(speed.Text);
@@ -66,6 +68,7 @@ namespace WaveTracker.UI {
                     App.CurrentSong.RowsPerFrame = rows.Value;
                     App.PatternEditor.cursorPosition.Normalize(App.CurrentSong);
                     App.CurrentModule.SetDirty();
+                    Debug.WriteLine("set dirty from rows");
 
                 }
                 selectedSong.SetMenuItems(App.CurrentModule.GetSongNames());

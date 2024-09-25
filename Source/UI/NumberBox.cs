@@ -74,6 +74,7 @@ namespace WaveTracker.UI {
         }
 
         public void Update() {
+            ValueWasChangedInternally = false;
             bUp.enabled = enabled && Value < max;
             bDown.enabled = enabled && Value > min;
             if (enabled && InFocus) {
