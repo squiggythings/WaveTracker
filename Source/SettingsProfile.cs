@@ -139,7 +139,7 @@ namespace WaveTracker {
                 {"General\\Module settings", new KeyboardShortcut(Keys.P, KeyModifier.Alt) },
                 {"General\\Edit wave", new KeyboardShortcut(Keys.W, KeyModifier.Ctrl) },
                 {"General\\Edit instrument", new KeyboardShortcut(Keys.I, KeyModifier.Ctrl) },
-                {"General\\Rename instrument", new KeyboardShortcut(Keys.R, KeyModifier.Ctrl) },
+                {"General\\Rename instrument", new KeyboardShortcut(Keys.R, KeyModifier.CtrlShift) },
                 {"General\\Move instrument up", new KeyboardShortcut(Keys.Up, KeyModifier.CtrlShift) },
                 {"General\\Move instrument down", new KeyboardShortcut(Keys.Down, KeyModifier.CtrlShift) },
                 {"General\\Toggle visualizer", new KeyboardShortcut(Keys.V, KeyModifier.Alt) },
