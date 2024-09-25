@@ -51,6 +51,15 @@ namespace WaveTracker.UI {
                 step.Value = App.PatternEditor.InputStep;
             }
 
+            if (App.CurrentSong.UseTempoBPM) {
+                highlightPrimary.SetLabel("Measure");
+                highlightSecondary.SetLabel("Beat");
+            }
+            else {
+                highlightPrimary.SetLabel("Primary");
+                highlightSecondary.SetLabel("Secondary");
+            }
+
             if (highlightPrimary.ValueWasChangedInternally) {
                 App.CurrentSong.RowHighlightPrimary = highlightPrimary.Value;
             }

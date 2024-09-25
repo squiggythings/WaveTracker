@@ -77,7 +77,8 @@ namespace WaveTracker.Tracker {
             }
 
             Restore();
-            PlayRow();
+            AudioEngine.ResetTicks();
+            //PlayRow();
         }
 
         /// <summary>
@@ -93,7 +94,8 @@ namespace WaveTracker.Tracker {
                 App.PatternEditor.SnapToPlaybackPosition();
             }
             Restore();
-            PlayRow();
+            AudioEngine.ResetTicks();
+            //PlayRow();
         }
 
         /// <summary>
@@ -101,6 +103,7 @@ namespace WaveTracker.Tracker {
         /// </summary>
         public static void PlayAndLoopPattern() {
             Stop();
+
             loopCurrentPattern = true;
             IsPlaying = true;
             ChannelManager.Reset();
@@ -111,7 +114,8 @@ namespace WaveTracker.Tracker {
                 App.PatternEditor.SnapToPlaybackPosition();
             }
             Restore();
-            PlayRow();
+            AudioEngine.ResetTicks();
+            //PlayRow();
         }
 
         /// <summary>
@@ -129,6 +133,7 @@ namespace WaveTracker.Tracker {
                 App.PatternEditor.SnapToPlaybackPosition();
             }
             Restore();
+            AudioEngine.ResetTicks();
             PlayRow();
         }
 
@@ -145,6 +150,9 @@ namespace WaveTracker.Tracker {
         }
 
         private static void SetTicksPerRow() {
+            if (App.CurrentSong.UseTempoBPM) {
+                TicksPerRowOverride = 1;
+            }
             if (TicksPerRowOverride == -1) {
                 ticksPerRow = App.CurrentSong.TicksPerRow[position.Row % App.CurrentSong.TicksPerRow.Length];
             }
@@ -229,12 +237,14 @@ namespace WaveTracker.Tracker {
         public static void GotoNextFrame() {
             position.MoveToFrame(position.Frame + 1, App.CurrentSong);
             position.Row = 0;
+            AudioEngine.ResetTicks();
             PlayRow();
         }
 
         public static void GotoPreviousFrame() {
             position.MoveToFrame(position.Frame - 1, App.CurrentSong);
             position.Row = 0;
+            AudioEngine.ResetTicks();
             PlayRow();
         }
 

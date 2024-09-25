@@ -63,11 +63,18 @@ namespace WaveTracker.Tracker {
         /// </summary>
         [ProtoMember(8)]
         public int RowHighlightSecondary { get; set; }
+        [ProtoMember(9)]
+
+        public int Tempo { get; set; } = 120;
+        [ProtoMember(10)]
+        public bool UseTempoBPM { get; set; } = false;
+
 
         /// <summary>
         /// The module that this song belongs to
         /// </summary>
         public WTModule ParentModule { get; set; }
+
 
         /// <summary>
         /// Initializes a new song with empty patterns and default settings
