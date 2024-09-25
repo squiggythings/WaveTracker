@@ -415,7 +415,7 @@ namespace WaveTracker.UI {
                     }
                     ci++;
                 }
-                if (SelectionIsActive) {
+                if (SelectionIsActive && EditedText.Length > 0) {
                     int offset = Rendering.Graphics.IsUsingCustomFont ? 4 : 5;
                     DrawRect(offset - ScrollPosition + Helpers.GetWidthOfText(EditedText.Substring(0, selectionMin)), 3, Helpers.GetWidthOfText(EditedText.Substring(selectionMin, selectionMax - selectionMin)) + 1, height - 6, UIColors.selection);
                 }
