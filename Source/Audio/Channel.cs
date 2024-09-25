@@ -23,7 +23,12 @@ namespace WaveTracker.Audio {
 
         private float TotalPitch {
             get {
-                return Math.Clamp(channelNotePorta + bendOffset + vibratoOffset + pitchFallOffset + arpeggioOffset + detuneOffset + envelopePlayers[Envelope.EnvelopeType.Arpeggio].Value, -12, 131);
+                if (CurrentInstrument is NoiseInstrument) {
+                    return Helpers.Mod(channelNotePorta + bendOffset + vibratoOffset + pitchFallOffset + arpeggioOffset + detuneOffset + envelopePlayers[Envelope.EnvelopeType.Arpeggio].Value + 12, 24);
+                }
+                else {
+                    return Math.Clamp(channelNotePorta + bendOffset + vibratoOffset + pitchFallOffset + arpeggioOffset + detuneOffset + envelopePlayers[Envelope.EnvelopeType.Arpeggio].Value, -12, 131);
+                }
             }
         }
 
@@ -114,7 +119,7 @@ namespace WaveTracker.Audio {
         private float noiseValueC;
         private float noiseValueL;
         private float noiseValueR;
-        private static float[] shortNoiseSample;
+        private static float[] noiseSample;
         private int noiseLength;
         private enum VoiceState { On, Off, Release }
         private VoiceState _state;
@@ -139,10 +144,10 @@ namespace WaveTracker.Audio {
                     defaultEnvelopes[i] = new Envelope((Envelope.EnvelopeType)i);
                 }
             }
-            shortNoiseSample = new float[44100*4];
-            noiseLength = shortNoiseSample.Length;
-            for (int i = 0; i < shortNoiseSample.Length; i++) {
-                shortNoiseSample[i] = random.Next() % 4 / 3f - 0.5f;
+            noiseSample = new float[44100 * 4];
+            noiseLength = noiseSample.Length;
+            for (int i = 0; i < noiseSample.Length; i++) {
+                noiseSample[i] = (random.Next() % 6 / 5f - 0.5f) * 1.5f;
             }
             stereoBiQuadFilter = new StereoBiQuadFilter();
             Reset();
@@ -151,6 +156,11 @@ namespace WaveTracker.Audio {
         public float SampleTime {
             get {
                 return (float)_time;
+            }
+        }
+        public float NoiseTime {
+            get {
+                return (float)_noiseTime;
             }
         }
 
@@ -294,12 +304,13 @@ namespace WaveTracker.Audio {
 
         }
 
-        public void Release() {
+        private void Release() {
             if (_state == VoiceState.On) {
                 foreach (Envelope envelope in CurrentInstrument.envelopes) {
                     envelopePlayers[envelope.Type].Release();
                 }
                 _state = VoiceState.Release;
+                
             }
         }
 
@@ -541,7 +552,6 @@ namespace WaveTracker.Audio {
             if (envelopePlayers[Envelope.EnvelopeType.Pitch].HasActiveEnvelopeData && !envelopePlayers[Envelope.EnvelopeType.Pitch].EnvelopeEnded) {
                 pitchFallOffset += envelopePlayers[Envelope.EnvelopeType.Pitch].Value * deltaTime * 4;
             }
-
             if (lastPitch != TotalPitch) {
                 lastPitch = TotalPitch;
                 CurrentFrequency = Helpers.NoteToFrequency(lastPitch);
@@ -550,7 +560,6 @@ namespace WaveTracker.Audio {
         }
 
         public void NextTick() {
-
             tickNum++;
             // step envelopes
             foreach (Envelope envelope in CurrentInstrument.envelopes) {
@@ -602,7 +611,6 @@ namespace WaveTracker.Audio {
             if (channelVolume > 99) {
                 channelVolume = 99;
             }
-
             if (channelVolume < 0) {
                 channelVolume = 0;
             }
@@ -678,14 +686,11 @@ namespace WaveTracker.Audio {
             }
         }
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private float GetNoiseValue(double sample) {
-            return shortNoiseSample[(int)sample % noiseLength];
-            int index1 = (int)sample;
-            int index2 = index1 + 1;
-            float lerp = (float)sample - index1;
-            float sample1 = shortNoiseSample[index1 % noiseLength];
-            float sample2 = shortNoiseSample[index2 % noiseLength];
-            return MathHelper.Lerp(sample1, sample2, lerp);
+        public float GetNoiseSample(double sample) {
+            if (sample < 0) {
+                sample = Helpers.Mod((float)sample, noiseLength);
+            }
+            return noiseSample[(int)sample % noiseLength];
         }
 
         public void ProcessSingleSample(out float left, out float right, float continuousDelta) {
@@ -723,7 +728,7 @@ namespace WaveTracker.Audio {
                         }
                     }
                     else if (CurrentInstrument is NoiseInstrument) {
-                        double pitchIndex = (CurrentPitch + 12) % 24 / 24f;
+                        double pitchIndex = CurrentPitch / 24f;
                         double factor = (1 - pitchIndex) * 8 + 1;
                         factor = Math.Pow(2.0, factor) - 1;
                         _noiseTime += 88200f / AudioEngine.TrueSampleRate / factor;
@@ -740,10 +745,10 @@ namespace WaveTracker.Audio {
                         //}
                         //sampleL = noiseValueC * (1 - stereoPhaseOffset) + noiseValueL * stereoPhaseOffset;
                         //sampleR = noiseValueC * (1 - stereoPhaseOffset) + noiseValueR * stereoPhaseOffset;
-                        noiseValueC = GetNoiseValue(_noiseTime);
+                        noiseValueC = GetNoiseSample(_noiseTime);
                         if (stereoPhaseOffset != 0) {
-                            noiseValueL = GetNoiseValue(_noiseTime + noiseLength * 0.666f);
-                            noiseValueR = GetNoiseValue(_noiseTime + noiseLength * 0.333f);
+                            noiseValueL = GetNoiseSample(_noiseTime + noiseLength * 0.666f);
+                            noiseValueR = GetNoiseSample(_noiseTime + noiseLength * 0.333f);
                             sampleL = (noiseValueC * (1 - stereoPhaseOffset) + noiseValueL * stereoPhaseOffset) / bassBoost;
                             sampleR = (noiseValueC * (1 - stereoPhaseOffset) + noiseValueR * stereoPhaseOffset) / bassBoost;
                         }

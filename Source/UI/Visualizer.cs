@@ -157,7 +157,7 @@ namespace WaveTracker.UI {
                             channelStates[writeIndex][c].Set(chan.CurrentPitch, chan.CurrentAmplitude, GetColorOfWaveFromTable(chan.WaveIndex, chan.WaveMorphPosition));
                         }
                         else if (chan.CurrentInstrument is NoiseInstrument) {
-                            channelStates[writeIndex][c].Set((chan.CurrentPitch + 12) % 24 + 12, chan.CurrentAmplitude, Color.White);
+                            channelStates[writeIndex][c].Set((chan.CurrentPitch) % 24 + 12, chan.CurrentAmplitude, Color.White);
                         }
                         else if (chan.CurrentPitch >= 12 && chan.CurrentPitch <= 131) {
                             channelStates[writeIndex][c].Set(chan.CurrentPitch, chan.CurrentAmplitude, Color.White);
@@ -171,7 +171,7 @@ namespace WaveTracker.UI {
                         channelStates[writeIndex][24].Set(chan.CurrentPitch, chan.CurrentAmplitude, GetColorOfWaveFromTable(chan.WaveIndex, chan.WaveMorphPosition));
                     }
                     else if (chan.CurrentInstrument is NoiseInstrument) {
-                        channelStates[writeIndex][24].Set((chan.CurrentPitch + 12) % 24 + 12, chan.CurrentAmplitude, Color.White);
+                        channelStates[writeIndex][24].Set((chan.CurrentPitch) % 24 + 12, chan.CurrentAmplitude, Color.White);
                     }
                     else if (chan.CurrentPitch >= 12 && chan.CurrentPitch <= 131) {
                         channelStates[writeIndex][24].Set(chan.CurrentPitch, chan.CurrentAmplitude, Color.White);
@@ -339,7 +339,12 @@ namespace WaveTracker.UI {
 
                 private Channel Channel {
                     get {
-                        return ChannelManager.Channels[channelID];
+                        if (App.PatternEditor.cursorPosition.Channel == channelID && !ChannelManager.Channels[channelID].IsPlaying && !Playback.IsPlaying) {
+                            return ChannelManager.PreviewChannel;
+                        }
+                        else {
+                            return ChannelManager.Channels[channelID];
+                        }
                     }
                 }
 
@@ -392,7 +397,7 @@ namespace WaveTracker.UI {
                                 lastSample = sample;
                             }
                         }
-                        else {
+                        else if (Channel.CurrentInstrument is WaveInstrument) {
                             for (float i = -width / 2; i < width / 2; i += 0.0625f) {
                                 position = i / width * Channel.CurrentFrequency / scopezoom;
                                 sample = (-Channel.EvaluateWave(position) * Channel.CurrentAmplitude * 0.5f + 0.5f) * height;
@@ -403,6 +408,21 @@ namespace WaveTracker.UI {
                                 int px = (int)Math.Round(i + width / 2);
                                 if (px <= width - 1) {
                                     DrawOscCol(px, 0, lastSample, sample, waveColor, App.Settings.Visualizer.OscilloscopeThickness + 1);
+                                }
+                                lastSample = sample;
+                            }
+                        }
+                        else {
+                            float freq = Channel.CurrentFrequency * Channel.CurrentFrequency * Channel.CurrentFrequency * Channel.CurrentFrequency / 4f;
+                            for (float i = -width / 2; i < width / 2; i += 0.0625f) {
+                                sample = Channel.GetNoiseSample(i / width * freq / scopezoom + Channel.NoiseTime) * (height / 2f) * Channel.CurrentAmplitudeAsWave / 1.5f + height / 2f;
+                                if (first) {
+                                    lastSample = sample;
+                                    first = false;
+                                }
+                                int px = (int)Math.Round(i + width / 2);
+                                if (px <= width - 1) {
+                                    DrawOscCol(px, 0, lastSample, sample, Color.White, App.Settings.Visualizer.OscilloscopeThickness + 1);
                                 }
                                 lastSample = sample;
                             }
