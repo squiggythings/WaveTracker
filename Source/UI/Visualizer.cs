@@ -157,7 +157,7 @@ namespace WaveTracker.UI {
                             channelStates[writeIndex][c].Set(chan.CurrentPitch, chan.CurrentAmplitude, GetColorOfWaveFromTable(chan.WaveIndex, chan.WaveMorphPosition));
                         }
                         else if (chan.CurrentInstrument is NoiseInstrument) {
-                            channelStates[writeIndex][c].Set((chan.CurrentPitch) % 24 + 12, chan.CurrentAmplitude, Color.White);
+                            channelStates[writeIndex][c].Set(chan.CurrentPitch % 24 + 12, chan.CurrentAmplitude, Color.White);
                         }
                         else if (chan.CurrentPitch >= 12 && chan.CurrentPitch <= 131) {
                             channelStates[writeIndex][c].Set(chan.CurrentPitch, chan.CurrentAmplitude, Color.White);
@@ -171,7 +171,7 @@ namespace WaveTracker.UI {
                         channelStates[writeIndex][24].Set(chan.CurrentPitch, chan.CurrentAmplitude, GetColorOfWaveFromTable(chan.WaveIndex, chan.WaveMorphPosition));
                     }
                     else if (chan.CurrentInstrument is NoiseInstrument) {
-                        channelStates[writeIndex][24].Set((chan.CurrentPitch) % 24 + 12, chan.CurrentAmplitude, Color.White);
+                        channelStates[writeIndex][24].Set(chan.CurrentPitch % 24 + 12, chan.CurrentAmplitude, Color.White);
                     }
                     else if (chan.CurrentPitch >= 12 && chan.CurrentPitch <= 131) {
                         channelStates[writeIndex][24].Set(chan.CurrentPitch, chan.CurrentAmplitude, Color.White);

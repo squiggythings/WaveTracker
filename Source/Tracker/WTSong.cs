@@ -69,12 +69,10 @@ namespace WaveTracker.Tracker {
         [ProtoMember(10)]
         public bool UseTempoBPM { get; set; } = false;
 
-
         /// <summary>
         /// The module that this song belongs to
         /// </summary>
         public WTModule ParentModule { get; set; }
-
 
         /// <summary>
         /// Initializes a new song with empty patterns and default settings

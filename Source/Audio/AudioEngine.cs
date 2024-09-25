@@ -37,8 +37,6 @@ namespace WaveTracker.Audio {
             }
         }
 
-
-
         public static float[,] CurrentBuffer { get; private set; }
         public const int PREVIEW_BUFFER_LENGTH = 1000;
         private static int currBufferPosition;

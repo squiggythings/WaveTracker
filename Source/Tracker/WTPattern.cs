@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Text;
 
 namespace WaveTracker.Tracker {
@@ -31,7 +30,6 @@ namespace WaveTracker.Tracker {
                     for (int column = 0; column < Width; ++column) {
                         if (cells[row][column] != EVENT_EMPTY) {
                             if (GetCellTypeFromCellColumn(column) is not CellType.Effect1Parameter and not CellType.Effect2Parameter and not CellType.Effect3Parameter and not CellType.Effect4Parameter) {
-                                Debug.WriteLine("Frame not empty: " + row + ", " + column + " = " + cells[row][column]);
                                 return false;
                             }
                         }

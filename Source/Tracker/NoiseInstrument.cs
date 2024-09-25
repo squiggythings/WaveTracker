@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace WaveTracker.Tracker {
+﻿namespace WaveTracker.Tracker {
     public class NoiseInstrument : Instrument {
         public NoiseInstrument() : base() {
             name = "New Noise Instrument";

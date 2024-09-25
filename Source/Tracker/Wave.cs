@@ -8,8 +8,8 @@ namespace WaveTracker.Tracker {
     [ProtoContract(SkipConstructor = true)]
     [Serializable]
     public class Wave {
-        const byte MinSampleValue = byte.MinValue;
-        const byte MaxSampleValue = 31;
+        private const byte MinSampleValue = byte.MinValue;
+        private const byte MaxSampleValue = 31;
 
         [ProtoMember(31)]
         public ResamplingMode resamplingMode;
@@ -317,7 +317,7 @@ namespace WaveTracker.Tracker {
 
             float sampDifference = MathF.Abs(samples[index1] - samples[index2]);
 
-            return MathHelper.Lerp(lerpedSample, nearestSample, sampDifference / (float)MaxSampleValue);
+            return MathHelper.Lerp(lerpedSample, nearestSample, sampDifference / MaxSampleValue);
         }
 
         private static byte ConvertCharToDecimal(char c) { return (byte)"0123456789ABCDEFGHIJKLMNOPQRSTUV".IndexOf(c); }
