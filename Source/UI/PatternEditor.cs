@@ -1189,7 +1189,12 @@ namespace WaveTracker.UI {
             }
             else {
                 string noteName = Helpers.MIDINoteToText(noteValue);
-                if (noteName.Contains('#')) {
+                if (instrumentValue < App.CurrentModule.Instruments.Count && App.CurrentModule.Instruments[instrumentValue] is NoiseInstrument) {
+                    noteName = ((noteValue + 12) % 24).ToString("D2");
+                    WriteMonospaced("#", x + 2, y, rowTextColor, 4);
+                    WriteMonospaced(noteName, x + 8, y, rowTextColor, 4);
+                }
+                else if (noteName.Contains('#')) {
                     Write(noteName, x + 2, y, rowTextColor);
                 }
                 else {
@@ -1207,6 +1212,9 @@ namespace WaveTracker.UI {
                 if (instrumentValue < App.CurrentModule.Instruments.Count) {
                     if (App.CurrentModule.Instruments[instrumentValue] is WaveInstrument) {
                         instrumentColor = App.Settings.Colors.Theme["Instrument (wave)"];
+                    }
+                    else if (App.CurrentModule.Instruments[instrumentValue] is NoiseInstrument) {
+                        instrumentColor = App.Settings.Colors.Theme["Instrument (noise)"];
                     }
                     else {
                         instrumentColor = App.Settings.Colors.Theme["Instrument (sample)"];

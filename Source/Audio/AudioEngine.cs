@@ -21,9 +21,9 @@ namespace WaveTracker.Audio {
                 return App.CurrentModule == null ? 60 : App.CurrentModule.TickRate;
             }
         }
-        public static int SamplesPerTick {
+        public static double SamplesPerTick {
             get {
-                return SampleRate / TickSpeed;
+                return SampleRate / (double)TickSpeed;
             }
         }
 
@@ -33,7 +33,7 @@ namespace WaveTracker.Audio {
         public static int RenderProcessedRows { get; set; }
         public static int RenderTotalRows { get; private set; }
 
-        private static int _tickCounter;
+        private static double _tickCounter;
         private static WasapiOut wasapiOut;
         public static bool IsRendering { get; private set; }
         public static bool CancelRenderFlag { get; set; }
@@ -139,7 +139,7 @@ namespace WaveTracker.Audio {
             wasapiOut.Stop();
             IsRendering = true;
             CancelRenderFlag = false;
-            _tickCounter = 0;
+            ResetTicks();
             RenderProcessedRows = 0;
 
             ChannelManager.Reset();
@@ -187,14 +187,14 @@ namespace WaveTracker.Audio {
             }
 
             if (App.VisualizerMode && !IsRendering) {
-                if (_tickCounter % (int)(SamplesPerTick / ((float)App.Settings.Visualizer.PianoSpeed / (App.Settings.Visualizer.DrawInHighResolution ? 1 : App.Settings.General.ScreenScale))) == 0) {
+                if ((int)_tickCounter % (int)(SamplesPerTick / ((float)App.Settings.Visualizer.PianoSpeed / (App.Settings.Visualizer.DrawInHighResolution ? 1 : App.Settings.General.ScreenScale))) == 0) {
                     App.Visualizer.RecordChannelStates();
                 }
             }
 
             _tickCounter++;
-            if (_tickCounter >= SamplesPerTick) {
-                _tickCounter = 0;
+            if (_tickCounter > SamplesPerTick) {
+                _tickCounter -= SamplesPerTick;
                 Playback.Tick();
                 foreach (Channel c in ChannelManager.Channels) {
                     c.NextTick();

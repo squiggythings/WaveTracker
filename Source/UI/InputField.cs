@@ -222,6 +222,7 @@ namespace WaveTracker.UI {
                 currentlyEditing = this;
                 Input.focus = this;
                 IsBeingEdited = true;
+                SelectionIsActive = false;
                 App.ClientWindow.TextInput += OnInput;
                 caretPosition = GetMouseCaretPosition();
                 if (selectAll) {
@@ -309,8 +310,8 @@ namespace WaveTracker.UI {
         }
 
         private void GotoPreviousWord() {
-            if (caretPosition == EditedText.Length) {
-                caretPosition--;
+            if (caretPosition >= EditedText.Length) {
+                caretPosition = EditedText.Length - 1;
             }
             while (caretPosition > 0 && IsWhitespace(EditedText[caretPosition])) {
                 caretPosition--;
@@ -320,6 +321,9 @@ namespace WaveTracker.UI {
             }
         }
         private void GotoNextWord() {
+            if (caretPosition < 0) {
+                caretPosition = 0;
+            }
             while (caretPosition < EditedText.Length && !IsWhitespace(EditedText[caretPosition])) {
                 caretPosition++;
             }
@@ -412,7 +416,7 @@ namespace WaveTracker.UI {
                     }
                     ci++;
                 }
-                if (SelectionIsActive) {
+                if (SelectionIsActive && EditedText.Length > 0) {
                     int offset = Rendering.Graphics.IsUsingCustomFont ? 4 : 5;
                     DrawRect(offset - ScrollPosition + Helpers.GetWidthOfText(EditedText.Substring(0, selectionMin)), 3, Helpers.GetWidthOfText(EditedText.Substring(selectionMin, selectionMax - selectionMin)) + 1, height - 6, UIColors.selection);
                 }

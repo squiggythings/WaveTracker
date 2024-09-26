@@ -26,6 +26,7 @@ namespace WaveTracker {
                 { "Row text", Helpers.HexCodeToColor("ffffff") },
                 { "Empty dashes tint", Helpers.HexCodeToColor("ffffff12") },
                 { "Instrument (wave)", Helpers.HexCodeToColor("5aea3d") },
+                { "Instrument (noise)", Helpers.HexCodeToColor("e535ff") },
                 { "Instrument (sample)", Helpers.HexCodeToColor("ff9932") },
                 { "Volume", Helpers.HexCodeToColor("50e7e5") },
                 { "Effect", Helpers.HexCodeToColor("ff5277") },
@@ -86,6 +87,7 @@ namespace WaveTracker {
                 ret["Empty dashes tint"] = Helpers.HexCodeToColor("ffffff50");
 
                 ret["Instrument (wave)"] = Helpers.HexCodeToColor("80ff80");
+                ret["Instrument (noise)"] = Helpers.HexCodeToColor("80ff80");
                 ret["Instrument (sample)"] = Helpers.HexCodeToColor("80ff80");
                 ret["Volume"] = Helpers.HexCodeToColor("8080ff");
                 ret["Effect"] = Helpers.HexCodeToColor("ff8080");
@@ -116,6 +118,7 @@ namespace WaveTracker {
                 ret["Empty dashes tint"] = Helpers.HexCodeToColor("ffffff18");
 
                 ret["Instrument (wave)"] = Helpers.HexCodeToColor("ffe239");
+                ret["Instrument (noise)"] = Helpers.HexCodeToColor("ff860d");
                 ret["Instrument (sample)"] = Helpers.HexCodeToColor("ff860d");
                 ret["Volume"] = Helpers.HexCodeToColor("00fdff");
                 ret["Effect"] = Helpers.HexCodeToColor("ff7af6");
@@ -147,6 +150,7 @@ namespace WaveTracker {
                 ret["Empty dashes tint"] = Helpers.HexCodeToColor("ffffff80");
 
                 ret["Instrument (wave)"] = Helpers.HexCodeToColor("008080");
+                ret["Instrument (noise)"] = Helpers.HexCodeToColor("008080");
                 ret["Instrument (sample)"] = Helpers.HexCodeToColor("008080");
                 ret["Volume"] = Helpers.HexCodeToColor("008000");
                 ret["Effect"] = Helpers.HexCodeToColor("800000");
@@ -178,6 +182,7 @@ namespace WaveTracker {
                 ret["Empty dashes tint"] = Helpers.HexCodeToColor("ffffff0c");
 
                 ret["Instrument (wave)"] = Helpers.HexCodeToColor("d4c1a0");
+                ret["Instrument (noise)"] = Helpers.HexCodeToColor("d4c1a0");
                 ret["Instrument (sample)"] = Helpers.HexCodeToColor("d6afa2");
                 ret["Volume"] = Helpers.HexCodeToColor("a8a7de");
                 ret["Effect"] = Helpers.HexCodeToColor("d28bcb");
