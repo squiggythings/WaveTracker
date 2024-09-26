@@ -9,8 +9,8 @@ namespace WaveTracker.Tracker {
     [ProtoContract(SkipConstructor = true)]
     [Serializable]
     public class Wave {
-        private const byte MinSampleValue = byte.MinValue;
-        private const byte MaxSampleValue = 31;
+        public const byte MinSampleValue = byte.MinValue;
+        public const byte MaxSampleValue = 31;
 
         [ProtoMember(31)]
         public ResamplingMode resamplingMode;
@@ -205,23 +205,6 @@ namespace WaveTracker.Tracker {
             }
         }
 
-        /// <summary>
-        /// Generate wavefrom from a maths expression
-        /// </summary>
-        public void ApplyMathExpression(string expression) {
-            for (int i = 0; i < samples.Length; i++) {
-                //Converts i to a radian so that sampleRadian=2pi when i=samples.Length
-                double sampleRadian = (i << 1) * Math.PI / samples.Length;
-
-                try {
-                    samples[i] = RemapExpressionOutputToByte(ExpressionParser.Evaluate(expression, ("t", sampleRadian)));
-                } 
-                catch (Exception) {
-                    break;
-                }
-            }
-        }
-
         public void SetWaveformFromString(string s) {
             for (int i = 0; i < s.Length && i < 64; i++) {
                 samples[i] = ConvertCharToDecimal(s[i]);
@@ -341,12 +324,5 @@ namespace WaveTracker.Tracker {
         private static byte ConvertCharToDecimal(char c) { return (byte)"0123456789ABCDEFGHIJKLMNOPQRSTUV".IndexOf(c); }
 
         private static char ConvertDecimalToChar(int i) { return "0123456789ABCDEFGHIJKLMNOPQRSTUV"[Math.Clamp(i, MinSampleValue, MaxSampleValue)]; }
-
-        /// <summary>
-        /// Maps the range of sin(t) [-1, 1] -> [0, 31]
-        /// </summary>
-        private static byte RemapExpressionOutputToByte(double d) {
-            return (byte)((d + 1) * (MaxSampleValue / 2f)); //31 is the largest value for a wave sample
-        }
     }
 }

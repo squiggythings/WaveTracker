@@ -28,7 +28,7 @@ namespace WaveTracker.Source {
         public const char START_EXPR = '(';
         public const char END_EXPR = ')';
         public const char SEP_EXPR = ',';
-        public const char DECIMAL_SEPERATOR = '.';
+        public const char DECIMAL = '.';
 
         private static readonly Dictionary<char, Operator> operators = new() {
             { '^', new(Math.Pow, 4, Associativity.Right) },
@@ -79,11 +79,105 @@ namespace WaveTracker.Source {
             { "time", () => { return DateTime.UtcNow.Millisecond; } }, //TODO
         };
 
+        //Public Functions
+        /// <summary>
+        /// Evaluates an infix mathematical expression
+        /// </summary>
+        /// <param name="infix"></param>
+        /// <returns></returns>
         public static double Evaluate(string infix, params (string, double)[] variables) {
-            return EvaluateRPN(InfixTokensToRPN(TokenizeInfix(infix.Trim())), variables);
+            return EvaluateRPNTokens(CompileInfixToRPN(infix), variables);
         }
 
-        private static List<string> TokenizeInfix(string infix) {
+        //Public Functions
+        /// <summary>
+        /// Evaluates a list of RPN tokens
+        /// </summary>
+        /// <param name="infix"></param>
+        /// <returns></returns>
+        public static double EvaluateRPNTokens(List<string> rpn, params (string, double)[] userVariables) {
+            Stack<double> stack = new();
+
+            Dictionary<string, double> variableDictionary = new();
+
+            foreach (var item in userVariables) {
+                variableDictionary.Add(item.Item1, item.Item2);
+            }
+
+            foreach (var token in rpn) {
+                if (operators.ContainsKey(token[0])) {
+                    double rhs = stack.Pop();
+                    double lhs = stack.Pop(); //lhs must be second pop
+
+                    stack.Push(operators[token[0]].func(lhs, rhs));
+                }
+                else if (functions.TryGetValue(token, out var function)) {
+                    double[] args = new double[function.Item2];
+
+                    //Reversed loop due to ordering of parameters in RPN (consistency reasons)
+                    for (int i = function.Item2 - 1; i >= 0; i--) {
+                        args[i] = stack.Pop();
+                    }
+
+                    stack.Push(function.Item1(args.ToArray())); //evaluate function
+                }
+                else if (variablesAndConstants.TryGetValue(token, out var varconst)) {
+                    stack.Push(varconst());
+                }
+                else if (variableDictionary.TryGetValue(token, out double userVariable)) {
+                    stack.Push(userVariable);
+                }
+                else if (double.TryParse(token, out double value)) {
+                    stack.Push(value);
+                }
+                else {
+                    throw new Exception($"\"{token}\" is not a valid symbol");
+                }
+            }
+
+            return stack.Pop();
+        }
+
+        /// <summary>
+        /// Produces an RPN token list ready to be evaluated. 
+        /// Useful for repeatedly evaluating the same expression without the parser overhead
+        /// </summary>
+        /// <param name="infix"></param>
+        /// <returns></returns>
+        public static List<string> CompileInfixToRPN(string infix) {
+            return InfixTokensToRPN(TokenizeInfix(FormatInfix(infix)));
+        }
+
+        //Internal Functions
+        internal static string FormatInfix(string infix) {
+            if (string.IsNullOrEmpty(infix)) {
+                throw new Exception("Empty expression");
+            }
+
+            StringBuilder output = new();
+            int bracketDifference = 0;
+
+            for (int i = 0; i < infix.Length; i++) {
+                if (char.IsWhiteSpace(infix[i])) {
+                    continue;
+                }
+                else if (infix[i] == '(') {
+                    bracketDifference++;
+                }
+                else if (infix[i] ==  ')') {
+                    bracketDifference--;
+                }
+                output.Append(infix[i]);
+            }
+
+            if(bracketDifference != 0) {
+                throw new Exception("Unequal number of opening and closing parentheses");
+            }
+
+            return output.ToString();
+        }
+
+        internal static List<string> TokenizeInfix(string infix) {
             List<string> tokens = new();
 
             int pos = 0;
@@ -99,7 +193,7 @@ namespace WaveTracker.Source {
             return tokens;
         }
 
-        private static string ReadNextToken(string expr, ref int pos) {
+        internal static string ReadNextToken(string expr, ref int pos) {
             StringBuilder token = new();
             token.Append(expr[pos]);
 
@@ -136,7 +230,7 @@ namespace WaveTracker.Source {
                 //Token must be a user defined variable
                 return token.ToString(); //The validity of this token will be checked later down the chain
             }
-            else if (char.IsDigit(token[0]) || token[0] == DECIMAL_SEPERATOR) {
+            else if (char.IsDigit(token[0]) || token[0] == DECIMAL) {
                 // Read the whole part of number
                 if (char.IsDigit(token[0])) {
                     while (++pos < expr.Length && char.IsDigit(expr[pos])) {
@@ -146,9 +240,9 @@ namespace WaveTracker.Source {
 
                 // Read the fractional part of number
                 if (pos < expr.Length
-                    && expr[pos] == DECIMAL_SEPERATOR) {
+                    && expr[pos] == DECIMAL) {
                     // Add current system specific decimal separator
-                    token.Append(DECIMAL_SEPERATOR);
+                    token.Append(DECIMAL);
 
                     while (++pos < expr.Length && char.IsDigit(expr[pos])) {
                         token.Append(expr[pos]);
@@ -161,7 +255,7 @@ namespace WaveTracker.Source {
         }
 
         //Reference: https://en.wikipedia.org/wiki/Shunting_yard_algorithm#The_algorithm_in_detail
-        private static List<string> InfixTokensToRPN(List<string> infixTokens) {
+        internal static List<string> InfixTokensToRPN(List<string> infixTokens) {
             Stack<string> stack = new(); //RPN tokens
             List<string> rpnTokens = new(); //RPN tokens
 
@@ -220,46 +314,6 @@ namespace WaveTracker.Source {
             }
 
             return rpnTokens;
-        }
-
-        private static double EvaluateRPN(List<string> rpn, params (string, double)[] userVariables) {
-            Stack<double> stack = new();
-
-            Dictionary<string, double> variableDictionary = new();
-
-            foreach (var item in userVariables) {
-                variableDictionary.Add(item.Item1, item.Item2);
-            }
-
-            foreach (var token in rpn) {
-                if (operators.ContainsKey(token[0])) {
-                    double rhs = stack.Pop();
-                    double lhs = stack.Pop(); //lhs must be second pop
-
-                    stack.Push(operators[token[0]].func(lhs, rhs));
-                }
-                else if (functions.TryGetValue(token, out var function)) {
-                    double[] args = new double[function.Item2];
-
-                    //Reversed loop due to ordering of parameters in RPN (consistency reasons)
-                    for (int i = function.Item2 - 1; i >= 0; i--) {
-                        args[i] = stack.Pop();
-                    }
-
-                    stack.Push(function.Item1(args.ToArray())); //evaluate function
-                }
-                else if (variablesAndConstants.TryGetValue(token, out var varconst)) {
-                    stack.Push(varconst());
-                }
-                else if (variableDictionary.TryGetValue(token, out double userVariable)) {
-                    stack.Push(userVariable);
-                }
-                else {
-                    stack.Push(double.Parse(token));
-                }
-            }
-
-            return stack.Pop();
         }
     }
 }
