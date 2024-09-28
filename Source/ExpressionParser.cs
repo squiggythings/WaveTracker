@@ -30,12 +30,12 @@ namespace WaveTracker.Source {
         public const char SEP_EXPR = ',';
         public const char DECIMAL = '.';
 
-        private static readonly Dictionary<char, Operator> operators = new() {
-            { '^', new(Math.Pow, 4, Associativity.Right) },
-            { '/', new((lhs, rhs) => { return lhs / rhs; }, 3, Associativity.Left)},
-            { '*', new((lhs, rhs) => { return lhs * rhs; }, 3, Associativity.Left) },
-            { '+', new((lhs, rhs) => { return lhs + rhs; }, 2, Associativity.Left) },
-            { '-', new((lhs, rhs) => { return lhs - rhs; }, 2, Associativity.Left) },
+        private static readonly Dictionary<string, Operator> operators = new() {
+            { "^", new(Math.Pow, 4, Associativity.Right) },
+            { "/", new((lhs, rhs) => { return lhs / rhs; }, 3, Associativity.Left)},
+            { "*", new((lhs, rhs) => { return lhs * rhs; }, 3, Associativity.Left) },
+            { "+", new((lhs, rhs) => { return lhs + rhs; }, 2, Associativity.Left) },
+            { "-", new((lhs, rhs) => { return lhs - rhs; }, 2, Associativity.Left) },
         };
 
         //Name of function -> delegate & expected parameter count
@@ -96,25 +96,24 @@ namespace WaveTracker.Source {
         /// <param name="infix"></param>
         /// <returns></returns>
         public static double EvaluateRPNTokens(List<string> rpn, params (string, double)[] userVariables) {
-            Stack<double> stack = new();
-
-            Dictionary<string, double> variableDictionary = new();
-
-            foreach (var item in userVariables) {
-                variableDictionary.Add(item.Item1, item.Item2);
+            if(rpn.Count  == 0) {
+                throw new Exception("Empty token list");
             }
 
+            Stack<double> stack = new();
+            Dictionary<string, double> variableDictionary = userVariables.ToDictionary();
+
             foreach (var token in rpn) {
-                if (operators.ContainsKey(token[0])) {
+                if (operators.TryGetValue(token, out Operator op)) {
                     double rhs = stack.Pop();
                     double lhs = stack.Pop(); //lhs must be second pop
 
-                    stack.Push(operators[token[0]].func(lhs, rhs));
+                    stack.Push(op.func(lhs, rhs));
                 }
                 else if (functions.TryGetValue(token, out var function)) {
                     double[] args = new double[function.Item2];
 
-                    //Reversed loop due to ordering of parameters in RPN (consistency reasons)
+                    //Reversed loop due to ordering of parameters in RPN (also consistency reasons)
                     for (int i = function.Item2 - 1; i >= 0; i--) {
                         args[i] = stack.Pop();
                     }
@@ -197,15 +196,12 @@ namespace WaveTracker.Source {
             StringBuilder token = new();
             token.Append(expr[pos]);
 
-            if (operators.ContainsKey(expr[pos])) {
-                bool isUnary = pos == 0 || expr[pos - 1] == '(';
-                pos++;
+            if (operators.ContainsKey(expr[pos].ToString())) {
 
-                return expr[pos] switch {
-                    '+' => isUnary ? "n-" : "+",
-                    '-' => isUnary ? "n+" : "-",
-                    _ => token.ToString(),
-                };
+                if(IsUnaryOperator(expr, pos++)) {
+                    token.Append(ReadNumberToken(expr, ref pos));
+                }
+                return token.ToString();
             }
             else if (expr[pos] == '(' || expr[pos] == ')') {
                 pos++;
@@ -228,45 +224,62 @@ namespace WaveTracker.Source {
                 }
 
                 //Token must be a user defined variable
-                return token.ToString(); //The validity of this token will be checked later down the chain
-            }
-            else if (char.IsDigit(token[0]) || token[0] == DECIMAL) {
-                // Read the whole part of number
-                if (char.IsDigit(token[0])) {
-                    while (++pos < expr.Length && char.IsDigit(expr[pos])) {
-                        token.Append(expr[pos]);
-                    }
-                }
-
-                // Read the fractional part of number
-                if (pos < expr.Length
-                    && expr[pos] == DECIMAL) {
-                    // Add current system specific decimal separator
-                    token.Append(DECIMAL);
-
-                    while (++pos < expr.Length && char.IsDigit(expr[pos])) {
-                        token.Append(expr[pos]);
-                    }
-                }
-
+                //If no value is supplied during evaluation, an exception will be thrown
                 return token.ToString();
             }
+            else if (char.IsDigit(expr[pos]) || IsUnaryOperator(expr, pos) || expr[pos] == DECIMAL) {
+                return ReadNumberToken(expr, ref pos);
+            }
+
             throw new ArgumentException("Invalid Token");
+        }
+
+        internal static string ReadNumberToken(string expr, ref int pos) {
+            StringBuilder number = new();
+            number.Append(expr[pos]);
+
+            // Read the whole part of number
+            if (char.IsDigit(expr[pos])) {
+                while (++pos < expr.Length && char.IsDigit(expr[pos])) {
+                    number.Append(expr[pos]);
+                }
+            }
+
+            // Read the fractional part of number
+            if (pos < expr.Length
+                && expr[pos] == DECIMAL) {
+                // Add current system specific decimal separator
+                number.Append(DECIMAL);
+
+                while (++pos < expr.Length && char.IsDigit(expr[pos])) {
+                    number.Append(expr[pos]);
+                }
+            }
+
+            return number.ToString();
+        }
+
+        internal static bool IsUnaryOperator(string expr, int pos) {
+
+            if(expr[pos] == '+' || expr[pos] == '-') {
+                return pos == 0 || expr[pos - 1] == '(' || operators.ContainsKey(expr[pos - 1].ToString());
+            }
+            return false;
         }
 
         //Reference: https://en.wikipedia.org/wiki/Shunting_yard_algorithm#The_algorithm_in_detail
         internal static List<string> InfixTokensToRPN(List<string> infixTokens) {
-            Stack<string> stack = new(); //RPN tokens
+            Stack<string> stack = new(); //Operator stack
             List<string> rpnTokens = new(); //RPN tokens
 
             foreach (string token in infixTokens) {
-                if (operators.ContainsKey(token[0])) {
-                    // Token is an operator
-                    while (stack.Count != 0 && operators.ContainsKey(stack.Peek()[0])) {
-                        Operator currentOp = operators[token[0]];
-                        Operator topOp = operators[stack.Peek()[0]];
+                if (operators.TryGetValue(token, out Operator op)) { // Token is an operator
+                    while (stack.Count != 0 && operators.ContainsKey(stack.Peek())) {
+                        Operator currentOp = op;
+                        Operator topOp = operators[stack.Peek()]; // Null if the top element is a function
 
-                        if (topOp.priority > currentOp.priority
+                        if (topOp == null
+                            || topOp.priority > currentOp.priority
                             || (currentOp.associativity == Associativity.Left && currentOp.priority == topOp.priority)) {
                             rpnTokens.Add(stack.Pop());
                             continue;
@@ -277,13 +290,7 @@ namespace WaveTracker.Source {
                     // Push operator onto the stack
                     stack.Push(token);
                 }
-                else if (functions.ContainsKey(token)) {
-                    // Token is an function
-                    while (stack.Count != 0 && functions.TryGetValue(stack.Peek(), out var func)) {
-                        for (int i = 0; i < func.Item2; i++) {
-                            rpnTokens.Add(stack.Pop()); //This may need to be reversed for corrent param ordering
-                        }
-                    }
+                else if (functions.ContainsKey(token)) { // Token is an function
 
                     // Push function onto the stack
                     stack.Push(token);
@@ -298,10 +305,13 @@ namespace WaveTracker.Source {
                         rpnTokens.Add(stack.Pop());
                     }
 
-                    Debug.Assert(stack.Peek() == "(");
-
                     // Remove the "("
                     stack.Pop();
+
+                    //If the parenthesis belongs to a function, pop it
+                    if (functions.ContainsKey(stack.Peek())) {
+                        rpnTokens.Add(stack.Pop());
+                    }
                 }
                 else {
                     rpnTokens.Add(token);

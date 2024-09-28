@@ -2,7 +2,9 @@
 using SharpDX.MediaFoundation;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq.Expressions;
+using System.Windows.Forms;
 using WaveTracker.Source;
 using WaveTracker.Tracker;
 
@@ -10,7 +12,7 @@ namespace WaveTracker.UI {
     public class WaveMathExpressionDialog : WaveModifyDialog {
         public Textbox MathExpressionInput;
         public CheckboxLabeled WaveFoldCheckbox;
-        private List<string> compiledExpression = [];
+        private List<string> compiledExpression = ["0"];
 
         private bool exprParseSuccess = true;
         private string lastParseError = string.Empty;
@@ -50,6 +52,8 @@ namespace WaveTracker.UI {
         protected override byte GetSampleValue(int index) {
             //Applying expression
             double sampleRadian = (index << 1) * Math.PI / originalData.Length;
+
+            //I don't like the two exception handlers ASA and here, but I can't see a better way
             try {
                 return RemapExpressionOutputToByte(
                     ExpressionParser.EvaluateRPNTokens(compiledExpression, ("t", sampleRadian)),
