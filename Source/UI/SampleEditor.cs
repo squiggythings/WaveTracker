@@ -37,8 +37,7 @@ namespace WaveTracker.UI {
         private Dropdown loopMode;
         private NumberBox loopPoint;
         private SampleBrowser browser;
-        private Button normalize, reverse, fadeIn, fadeOut, amplifyUp, amplifyDown, invert, cut, removeDC;
-        private Button bitCrush;
+        private Button normalize, reverse, fadeIn, fadeOut, amplifyUp, amplifyDown, invert, cut, removeDC, bitCrush;
         private HorizontalSlider bitCrushDepth;
         private CheckboxLabeled showInVisualizer;
         private int lastMouseHoverSample;
