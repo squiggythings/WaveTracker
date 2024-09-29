@@ -55,7 +55,7 @@ namespace WaveTracker.UI {
 
             //I don't like the two exception handlers ASA and here, but I can't see a better way
             try {
-                return RemapExpressionOutputToByte(
+                return NormalizeExpressionOutput(
                     ExpressionParser.EvaluateRPNTokens(compiledExpression, ("t", sampleRadian)),
                     WaveFoldCheckbox.Value);
             } catch (Exception e) {
@@ -68,14 +68,18 @@ namespace WaveTracker.UI {
         /// <summary>
         /// Maps the range of sin(t) [-1, 1] -> [0, 31]
         /// </summary>
-        private  static byte RemapExpressionOutputToByte(double d, bool fold = false) {
-            double dValue = Math.Round((d + 1) * (Wave.MaxSampleValue / 2f));
+        private  static byte NormalizeExpressionOutput(double d, bool fold = false) {
             if (fold) {
-                return (byte)(dValue % (Wave.MaxSampleValue + 1));
+                // Thanks to https://www.kvraudio.com/forum/viewtopic.php?t=501471 for the dFolded code
+                double dFolded = 4.0 * (Math.Abs(0.25 * d + 0.25 - Math.Round(0.25 * d + 0.25)) - 0.25);
+                double dScaled = Math.Round((dFolded + 1) * (Wave.MaxSampleValue / 2f));
+
+                return (byte)dScaled;
             }
             else {
+                double dScaled = Math.Round((d + 1) * (Wave.MaxSampleValue / 2f));
                 return (byte)Math.Clamp(
-                dValue,
+                dScaled,
                 Wave.MinSampleValue,
                 Wave.MaxSampleValue);
             }
