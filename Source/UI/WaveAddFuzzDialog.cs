@@ -57,7 +57,7 @@ namespace WaveTracker.UI {
             int samp = originalData[index];
             int sign = Math.Sign(randomValues[index]);
             for (int j = 0; j < Math.Abs((int)(randomValues[index] * fuzzAmt.Value / 100f * 32)); ++j) {
-                if (samp + sign is > 31 or < 0) {
+                if (samp + sign is > Wave.MaxSampleValue or < Wave.MinSampleValue) {
                     if (wrapAround.Value) {
                         sign *= -1;
                     }
