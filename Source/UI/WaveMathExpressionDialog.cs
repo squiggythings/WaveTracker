@@ -44,7 +44,6 @@ namespace WaveTracker.UI {
                     } catch (Exception e) {
                         exprParseSuccess = false;
                         lastParseError = e.Message;
-                        throw;
                     }
                 }
             }
@@ -53,7 +52,7 @@ namespace WaveTracker.UI {
         protected override byte GetSampleValue(int index) {
             //Applying expression
             double sampleRadian = (index << 1) * Math.PI / originalData.Length;
-            ExpressionParser.symbols["t"] = sampleRadian;
+            ExpressionParser.symbols["x"] = sampleRadian;
 
             return NormalizeExpressionOutput(
                     ExpressionParser.EvaluateRPNTokens(compiledExpression),

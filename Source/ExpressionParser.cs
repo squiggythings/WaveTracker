@@ -78,7 +78,7 @@ namespace WaveTracker.Source {
             { "pi", Math.PI },
             { "e", Math.E },
             { "tau", Math.Tau },
-            { "t", 0 }, //Updated when waveform gets evaluated
+            { "x", 0 }, //Updated when waveform gets evaluated
         };
 
         //Public Functions
