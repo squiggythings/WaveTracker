@@ -283,6 +283,7 @@ namespace WaveTracker.UI {
             Input.focus = opened;
             if (File.Exists(selectedFilePath)) {
                 LoadSampleFromFile(selectedFilePath, launched.Sample);
+                launched.ClearHistory();
             }
 
             SaveLoad.SavePath("sample", currentPath);
@@ -290,7 +291,7 @@ namespace WaveTracker.UI {
         }
 
         private void LoadSampleFromFile(string path, Sample sample) {
-            bool successfulRead = Helpers.ReadAudioFile(path, out sample.sampleDataAccessL, out sample.sampleDataAccessR, out sample.sampleRate);
+            bool successfulRead = Helpers.ReadAudioFile(path, out sample.sampleDataL, out sample.sampleDataR, out sample.sampleRate);
             sample.resampleMode = App.Settings.SamplesWaves.DefaultResampleModeSample;
             sample.SetBaseKey(App.Settings.SamplesWaves.DefaultSampleBaseKey);
             sample.SetDetune(0);
@@ -311,8 +312,8 @@ namespace WaveTracker.UI {
             }
             else {
                 sample.name = null;
-                sample.sampleDataAccessL = [];
-                sample.sampleDataAccessR = [];
+                sample.sampleDataL = [];
+                sample.sampleDataR = [];
             }
             App.CurrentModule.SetDirty();
         }

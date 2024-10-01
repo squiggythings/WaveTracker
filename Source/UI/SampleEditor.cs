@@ -2,6 +2,8 @@
 using System;
 using WaveTracker.Audio;
 using WaveTracker.Tracker;
+using System.Collections.Generic;
+using SharpDX.DirectWrite;
 
 namespace WaveTracker.UI {
     public class SampleEditor : Element {
@@ -11,10 +13,19 @@ namespace WaveTracker.UI {
         public Sample Sample { get; set; }
 
         private MouseRegion waveformRegion;
-        private int mouseSampleIndex;
-        private int mouseSampleIndexClamped;
+
+        private int MouseSampleIndex { get { return (int)(waveformRegion.MouseXPercentage * ViewportSize + 0.5f) + ViewportOffset; } }
+
+        private int MouseSampleIndexClamped { get { return Math.Clamp((int)(waveformRegion.MouseXPercentage * ViewportSize + 0.5f) + ViewportOffset, 0, Sample.Length); } }
         private int selectionStartIndex;
         private int selectionEndIndex;
+
+        private List<SampleEditorState> history;
+        private int historyIndex;
+
+        float zoomLevel = 1;
+        int ViewportSize => (int)(Sample.Length / zoomLevel);
+        int ViewportOffset { get; set; }
 
         private bool SelectionIsActive { get; set; }
 
@@ -40,12 +51,17 @@ namespace WaveTracker.UI {
         private Button normalize, reverse, fadeIn, fadeOut, amplifyUp, amplifyDown, invert, cut;
         private CheckboxLabeled showInVisualizer;
         private int lastMouseHoverSample;
+        private ScrollbarHorizontal viewportScrollbar;
+
 
         public SampleEditor(int x, int y, Element parent) {
             this.x = x;
             this.y = y;
             SetParent(parent);
-            waveformRegion = new MouseRegion(0, 10, 568, 175, this);
+            history = new List<SampleEditorState>();
+
+            waveformRegion = new MouseRegion(0, 10, 568, 175 - 4, this);
+
 
             importSample = new Button("Import Sample    ", 0, 188, this);
             importSample.SetTooltip("", "Import an audio file into the instrument");
@@ -92,21 +108,36 @@ namespace WaveTracker.UI {
             showInVisualizer = new CheckboxLabeled("Show in visualizer", 480, 245, 88, this);
             showInVisualizer.ShowCheckboxOnRight = true;
             browser = new SampleBrowser();
+            viewportScrollbar = new ScrollbarHorizontal(waveformRegion.x, waveformRegion.BoundsBottom, waveformRegion.width, 6, this);
+        }
+
+        public void Reset() {
+            zoomLevel = 1;
+            ViewportOffset = 0;
+            selectionStartIndex = 0;
+            selectionEndIndex = 0;
+            SelectionIsActive = false;
+            ClearHistory();
         }
 
         public void Update() {
-            mouseSampleIndex = waveformRegion.IsHovered ? (int)(waveformRegion.MouseXClamped * Sample.Length + 0.5f) : -1;
-            mouseSampleIndexClamped = (int)(waveformRegion.MouseXClamped * Sample.Length + 0.5f);
             if (InFocus) {
-                lastMouseHoverSample = mouseSampleIndexClamped;
+                lastMouseHoverSample = MouseSampleIndexClamped;
             }
             if (!browser.InFocus && Input.focusTimer > 2) {
                 if (Input.CurrentModifier == KeyModifier.None && Sample.Length > 0) {
                     if (waveformRegion.DidClickInRegionM(KeyModifier.None)) {
                         if (waveformRegion.ClickedDown) {
-                            selectionStartIndex = mouseSampleIndexClamped;
+                            selectionStartIndex = MouseSampleIndexClamped;
                         }
-                        selectionEndIndex = mouseSampleIndexClamped;
+                        if (waveformRegion.MouseXPercentage < 0) {
+                            ViewportOffset -= Math.Max(1, (int)(Sample.Length / 100 / zoomLevel));
+                        }
+                        if (waveformRegion.MouseXPercentage > 1f) {
+                            ViewportOffset += Math.Max(1, (int)(Sample.Length / 100 / zoomLevel));
+                        }
+                        ViewportOffset = Math.Clamp(ViewportOffset, 0, Sample.Length - ViewportSize);
+                        selectionEndIndex = MouseSampleIndexClamped;
                         SelectionIsActive = selectionStartIndex != selectionEndIndex;
                     }
                     if (waveformRegion.Clicked) {
@@ -137,16 +168,13 @@ namespace WaveTracker.UI {
                         }));
                     }
                 }
-                if (waveformRegion.DidClickInRegionM(KeyModifier.Shift)) {
+                if (waveformRegion.DidClickInRegionM(KeyModifier.Alt)) {
                     SetLoopPoint();
-                    App.CurrentModule.SetDirty();
                 }
 
                 if (importSample.Clicked) {
                     browser.Open(this);
-                    selectionStartIndex = 0;
-                    selectionEndIndex = 0;
-                    SelectionIsActive = false;
+                    Reset();
                 }
 
                 baseKey.Value = Sample.BaseKey;
@@ -171,7 +199,7 @@ namespace WaveTracker.UI {
                 loopMode.Update();
                 if (loopMode.ValueWasChangedInternally) {
                     Sample.loopType = (Sample.LoopType)loopMode.Value;
-                    App.CurrentModule.SetDirty();
+                    AddToUndoHistory();
                 }
                 loopPoint.enabled = Sample.loopType != Sample.LoopType.OneShot;
                 loopPoint.SetValueLimits(0, Math.Max(0, Sample.Length - 1));
@@ -179,7 +207,7 @@ namespace WaveTracker.UI {
                 loopPoint.Update();
                 if (loopPoint.ValueWasChangedInternally) {
                     Sample.loopPoint = loopPoint.Value;
-                    App.CurrentModule.SetDirty();
+                    AddToUndoHistory();
                 }
 
                 if (normalize.Clicked) {
@@ -207,6 +235,46 @@ namespace WaveTracker.UI {
                 if (cut.Clicked) {
                     Cut();
                 }
+
+                if (App.Shortcuts["Edit\\Undo"].IsPressedDown) {
+                    Undo();
+                }
+                if (App.Shortcuts["Edit\\Redo"].IsPressedDown) {
+                    Redo();
+                }
+                if (waveformRegion.IsHovered) {
+                    float oldZoomlevel = zoomLevel;
+                    int oldMouse = MouseSampleIndex;
+                    if (Input.MouseScrollWheel(KeyModifier.Ctrl) > 0) {
+                        zoomLevel *= 1.1f;
+                    }
+                    else if (Input.MouseScrollWheel(KeyModifier.Ctrl) < 0) {
+                        zoomLevel /= 1.1f;
+                    }
+                    if (zoomLevel < 1f) {
+                        zoomLevel = 1f;
+                    }
+                    if (zoomLevel > Math.Max(Sample.Length / (float)waveformRegion.width * 25, 1)) {
+                        zoomLevel = Math.Max(Sample.Length / (float)waveformRegion.width * 25, 1);
+                    }
+                    float delta = zoomLevel - oldZoomlevel;
+                    //ViewportOffset += (int)(delta * waveformRegion.MouseXClamped);
+                    ViewportOffset -= MouseSampleIndex - oldMouse;
+                    // panning
+                    ViewportOffset -= (int)(Input.MouseScrollWheel(KeyModifier.Shift) * (Sample.Length / 100 / zoomLevel));
+                }
+                if (zoomLevel < 1f) {
+                    zoomLevel = 1f;
+                }
+                if (zoomLevel > Math.Max(Sample.Length / (float)waveformRegion.width * 25, 1)) {
+                    zoomLevel = Math.Max(Sample.Length / (float)waveformRegion.width * 25, 1);
+                }
+                viewportScrollbar.SetSize(Sample.Length, ViewportSize);
+                viewportScrollbar.CoarseStepAmount = (int)(Sample.Length / 100 / zoomLevel);
+                viewportScrollbar.ScrollValue = ViewportOffset;
+                viewportScrollbar.Update();
+                ViewportOffset = Math.Clamp(viewportScrollbar.ScrollValue, 0, Sample.Length - ViewportSize);
+
                 showInVisualizer.Value = Sample.useInVisualization;
                 showInVisualizer.Update();
                 Sample.useInVisualization = showInVisualizer.Value;
@@ -217,6 +285,7 @@ namespace WaveTracker.UI {
         private void Cut() {
             Sample.Cut(SelectionMin, SelectionMax);
             SelectionIsActive = false;
+            AddToUndoHistory();
         }
 
         private void Normalize() {
@@ -226,7 +295,7 @@ namespace WaveTracker.UI {
             else {
                 Sample.Normalize();
             }
-            App.CurrentModule.SetDirty();
+            AddToUndoHistory();
         }
 
         private void FadeIn() {
@@ -236,7 +305,7 @@ namespace WaveTracker.UI {
             else {
                 Sample.FadeIn();
             }
-            App.CurrentModule.SetDirty();
+            AddToUndoHistory();
         }
 
         private void FadeOut() {
@@ -246,7 +315,7 @@ namespace WaveTracker.UI {
             else {
                 Sample.FadeOut();
             }
-            App.CurrentModule.SetDirty();
+            AddToUndoHistory();
         }
 
         private void Invert() {
@@ -256,7 +325,7 @@ namespace WaveTracker.UI {
             else {
                 Sample.Invert();
             }
-            App.CurrentModule.SetDirty();
+            AddToUndoHistory();
         }
 
         private void AmplifyUp() {
@@ -266,17 +335,17 @@ namespace WaveTracker.UI {
             else {
                 Sample.Amplify(1.1f);
             }
-            App.CurrentModule.SetDirty();
+            AddToUndoHistory();
         }
 
         private void AmplifyDown() {
             if (SelectionIsActive) {
-                Sample.Amplify(0.9f, SelectionMin, SelectionMax);
+                Sample.Amplify(0.9090909f, SelectionMin, SelectionMax);
             }
             else {
-                Sample.Amplify(0.9f);
+                Sample.Amplify(0.9090909f);
             }
-            App.CurrentModule.SetDirty();
+            AddToUndoHistory();
         }
 
         private void Reverse() {
@@ -286,7 +355,7 @@ namespace WaveTracker.UI {
             else {
                 Sample.Reverse();
             }
-            App.CurrentModule.SetDirty();
+            AddToUndoHistory();
         }
 
         private void Deselect() {
@@ -310,6 +379,7 @@ namespace WaveTracker.UI {
             if (Sample.loopType == Sample.LoopType.OneShot) {
                 Sample.loopType = Sample.LoopType.Forward;
             }
+            AddToUndoHistory();
             App.CurrentModule.SetDirty();
         }
 
@@ -328,12 +398,13 @@ namespace WaveTracker.UI {
             WriteRightAlign((Sample.Length / (float)AudioEngine.SampleRate).ToString("F5") + " seconds", waveformRegion.x + waveformRegion.width, waveformRegion.y - 9, UIColors.label);
 
             if (Sample.IsStereo && Sample.Length > 0) {
-                DrawWaveform(waveformRegion.x, waveformRegion.y, Sample.sampleDataAccessL, waveformRegion.width, waveformRegion.height / 2);
-                DrawWaveform(waveformRegion.x, waveformRegion.y + waveformRegion.height / 2 + 1, Sample.sampleDataAccessR, waveformRegion.width, waveformRegion.height / 2);
+                DrawWaveform(waveformRegion.x, waveformRegion.y, Sample.sampleDataL, waveformRegion.width, waveformRegion.height / 2);
+                DrawWaveform(waveformRegion.x, waveformRegion.y + waveformRegion.height / 2 + 1, Sample.sampleDataR, waveformRegion.width, waveformRegion.height / 2);
             }
             else {
-                DrawWaveform(waveformRegion.x, waveformRegion.y, Sample.sampleDataAccessL, waveformRegion.width, waveformRegion.height);
+                DrawWaveform(waveformRegion.x, waveformRegion.y, Sample.sampleDataL, waveformRegion.width, waveformRegion.height);
             }
+            viewportScrollbar.Draw();
             importSample.Draw();
             DrawSprite(importSample.x + importSample.width - 14, importSample.y + (importSample.IsPressed ? 3 : 2), new Rectangle(72, 81, 12, 9));
             loopMode.Draw();
@@ -365,29 +436,36 @@ namespace WaveTracker.UI {
             uint sampleIndex;
             Color sampleColor = new Color(207, 117, 43);
             DrawRect(x, y, width, height, UIColors.black);
-
             if (data.Length > 0) {
+                DrawRect(x, startY, width, 1, UIColors.labelDark);
                 if (SelectionIsActive) {
-                    int x1 = GetXPositionOfSample(SelectionMin, data.Length, width);
-                    int x2 = GetXPositionOfSample(SelectionMax, data.Length, width);
-                    DrawRect(x + x1 + 1, y, x2 - x1 - 1, height, Helpers.Alpha(UIColors.selection, 128));
-
+                    int x1 = GetXPositionOfSample(SelectionMin, width);
+                    int x2 = GetXPositionOfSample(SelectionMax, width);
+                    DrawRect(x + x1, y, x2 - x1, height, Helpers.Alpha(UIColors.selection, 128));
                 }
-                int loopPosition = GetXPositionOfSample(Sample.loopPoint, data.Length, width);
+                int loopPosition = GetXPositionOfSample(Sample.loopPoint, width);
                 if (Sample.loopType != Sample.LoopType.OneShot) {
                     DrawRect(x + loopPosition, y, width - loopPosition, height, Helpers.Alpha(Color.Yellow, 50));
                 }
-                for (int i = 0; i < width - 1; i++) {
 
-                    sampleIndex = (uint)((long)i * data.Length / width);
-                    nextSampleIndex = (uint)((long)(i + 1) * data.Length / width);
-
+                for (int wx = 0; wx < width; wx++) {
+                    sampleIndex = (uint)(ViewportOffset + wx / (double)width * ViewportSize);
+                    nextSampleIndex = (uint)(ViewportOffset + (wx + 1) / (double)width * ViewportSize);
+                    if (nextSampleIndex >= data.Length) {
+                        nextSampleIndex = sampleIndex;
+                    }
                     float min = 1;
                     float max = -1;
                     float average = 0;
                     uint underflowSkip = (uint)((nextSampleIndex - sampleIndex) / (width * 2));
                     for (uint j = sampleIndex; j <= nextSampleIndex; ++j) {
-                        float value = data[j] / (float)short.MaxValue;
+                        float value;
+                        if (j >= 0 && j < data.Length) {
+                            value = data[j] / (float)short.MaxValue;
+                        }
+                        else {
+                            value = 0;
+                        }
                         average += MathF.Abs(value);
                         if (value < min) {
                             min = value;
@@ -407,34 +485,117 @@ namespace WaveTracker.UI {
                     int rectEnd = (int)(min * height / 2);
                     int avgStart = (int)(average * height / -2);
                     int avgEnd = (int)(average * height / 2);
-                    if (SelectionIsActive && sampleIndex + 1 > SelectionMin && nextSampleIndex < SelectionMax) {
-                        DrawRect(x + i, startY - rectStart, 1, rectStart - rectEnd + 1, Color.LightGray);
+                    if (SelectionIsActive && sampleIndex >= SelectionMin && nextSampleIndex < SelectionMax) {
+                        DrawRect(x + wx, startY - rectStart, 1, rectStart - rectEnd + 1, Color.LightGray);
                     }
                     else {
-                        DrawRect(x + i, startY - rectStart, 1, rectStart - rectEnd + 1, sampleColor);
+                        DrawRect(x + wx, startY - rectStart, 1, rectStart - rectEnd + 1, sampleColor);
                     }
                     avgStart = Math.Clamp(avgStart, rectEnd, rectStart);
                     avgEnd = Math.Clamp(avgEnd, rectEnd, rectStart);
-                    DrawRect(x + i, startY - avgStart, 1, avgStart - avgEnd + 1, Helpers.Alpha(Color.White, 90));
+                    DrawRect(x + wx, startY - avgStart, 1, avgStart - avgEnd + 1, Helpers.Alpha(Color.White, 90));
+
                 }
+
 
                 if (Sample.loopType != Sample.LoopType.OneShot) {
                     DrawRect(x + loopPosition, y, 1, height, Color.Yellow);
                 }
                 if (Sample.currentPlaybackPosition < data.Length && Audio.ChannelManager.PreviewChannel.IsPlaying) {
-                    DrawRect(x + GetXPositionOfSample(Sample.currentPlaybackPosition, data.Length, width), y, 1, height, Color.Aqua);
+                    DrawRect(x + GetXPositionOfSample(Sample.currentPlaybackPosition, width), y, 1, height, Color.Aqua);
                 }
-                if (mouseSampleIndex > 0) {
-                    DrawRect(x + GetXPositionOfSample(mouseSampleIndex, data.Length, width), y, 1, height, Helpers.Alpha(Color.White, 128));
+                if (waveformRegion.IsHovered) {
+                    DrawRect(x + GetXPositionOfSample(MouseSampleIndex, width), y, 1, height, Helpers.Alpha(Color.White, 128));
                 }
                 else if (!InFocus && !browser.InFocus) {
-                    DrawRect(x + GetXPositionOfSample(lastMouseHoverSample, data.Length, width), y, 1, height, Helpers.Alpha(Color.White, 64));
+                    DrawRect(x + GetXPositionOfSample(lastMouseHoverSample, width), y, 1, height, Helpers.Alpha(Color.White, 64));
                 }
             }
         }
 
-        private static int GetXPositionOfSample(int sampleIndex, int dataLength, int maxWidth) {
-            return (int)((float)sampleIndex / dataLength * maxWidth);
+        private int GetXPositionOfSample(int sampleIndex, int windowWidth) {
+            return (int)Math.Clamp((float)(sampleIndex - ViewportOffset) / (ViewportSize) * windowWidth, 0, windowWidth);
+        }
+
+        public void ClearHistory() {
+            history.Clear();
+            history.Add(new SampleEditorState(Sample));
+            historyIndex = 0;
+        }
+
+        public void AddToUndoHistory() {
+            // initialize 
+            if (history.Count == 0) {
+                history.Add(new SampleEditorState(Sample));
+                historyIndex = 0;
+                return;
+            }
+
+            while (history.Count - 1 > historyIndex) {
+                history.RemoveAt(history.Count - 1);
+            }
+            history.Add(new SampleEditorState(Sample));
+            historyIndex++;
+            if (history.Count > 64) {
+                history.RemoveAt(0);
+                historyIndex--;
+            }
+            App.CurrentModule.SetDirty();
+        }
+
+        public void Undo() {
+            // set selection
+
+            historyIndex--;
+            if (historyIndex < 0) {
+                historyIndex = 0;
+            }
+
+            history[historyIndex].RestoreIntoSample(Sample);
+
+            App.CurrentModule.SetDirty();
+        }
+        public void Redo() {
+
+            historyIndex++;
+            if (historyIndex >= history.Count) {
+                historyIndex = history.Count - 1;
+            }
+
+            history[historyIndex].RestoreIntoSample(Sample);
+
+            // set selection
+
+            App.CurrentModule.SetDirty();
+        }
+
+
+
+
+        public record SampleEditorState {
+            short[] channelLeft;
+            short[] channelRight;
+            Sample.LoopType loopType;
+            int loopPoint;
+
+            public SampleEditorState(Sample sample) {
+                channelLeft = new short[sample.sampleDataL.Length];
+                Array.Copy(sample.sampleDataL, channelLeft, sample.sampleDataL.Length);
+                channelRight = new short[sample.sampleDataR.Length];
+                Array.Copy(sample.sampleDataR, channelRight, sample.sampleDataR.Length);
+                loopPoint = sample.loopPoint;
+                loopType = sample.loopType;
+            }
+
+            public void RestoreIntoSample(Sample sample) {
+                sample.sampleDataL = new short[channelLeft.Length];
+                Array.Copy(channelLeft, sample.sampleDataL, channelLeft.Length);
+                sample.sampleDataR = new short[channelRight.Length];
+                Array.Copy(channelRight, sample.sampleDataR, channelRight.Length);
+                sample.loopPoint = loopPoint;
+                sample.loopType = loopType;
+            }
         }
     }
+
 }
