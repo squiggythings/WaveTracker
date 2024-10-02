@@ -266,13 +266,9 @@ namespace WaveTracker.Source {
             List<string> rpnTokens = new(); //RPN tokens
 
             foreach (string token in infixTokens) {
-                if (TryGetOperatorAll(token, out Operator op)) { // Token is an operator
-                    while (stack.Count != 0 && OperatorExistsAll(token)) {
-                        Operator currentOp = op;
-                        Operator topOp = GetOperatorAll(token); // Null if the top element is a function
-
-                        if (topOp == null
-                            || topOp.priority > currentOp.priority
+                if (TryGetOperatorAll(token, out Operator currentOp)) { // Token is an operator
+                    while (stack.Count != 0 && TryGetOperatorAll(stack.Peek(), out Operator topOp)) {
+                        if (topOp.priority > currentOp.priority
                             || (currentOp.associativity == Associativity.Left && currentOp.priority == topOp.priority)) {
                             rpnTokens.Add(stack.Pop());
                             continue;
