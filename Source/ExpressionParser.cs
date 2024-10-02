@@ -46,9 +46,11 @@ namespace WaveTracker.Source {
 
         //Name of function -> delegate & expected parameter count
         private static readonly Dictionary<string, (Function, int)> functions = new() {
-            { "rand",       ((double[] parameters) => { return Random.Shared.Next(byte.MinValue, byte.MaxValue + 1) / 255.0; }, 0)},
-            { "randbyte",   ((double[] parameters) => { return Random.Shared.Next(byte.MinValue, byte.MaxValue + 1); },         0)},
-            { "randuc",     ((double[] parameters) => { return Random.Shared.Next(); },                                         0)},
+            { "rand",       ((double[] parameters) => { return Random.Shared.Next(-byte.MaxValue, byte.MaxValue + 1) / 255.0; },    0)},
+            { "randb",      ((double[] parameters) => { return Random.Shared.Next(byte.MinValue, byte.MaxValue + 1); },             0)},
+            { "randuc",     ((double[] parameters) => { return Random.Shared.Next(); },                                             0)},
+            { "ticks",      ((double[] parameters) => { return App.CurrentModule.TickRate; },                                       0)},
+            { "time",       ((double[] parameters) => { return DateTime.UtcNow.Second; },                                           0)},
 
             { "deg2rad",    ((double[] parameters) => { return Math.PI * parameters[0] / 180.0; },          1) },
             { "rad2deg",    ((double[] parameters) => { return parameters[0] * (180.0 / Math.PI); },        1) },
@@ -68,7 +70,7 @@ namespace WaveTracker.Source {
             { "trunc",      ((double[] parameters) => { return Math.Truncate(parameters[0]); },             1) },
             { "sqrt",       ((double[] parameters) => { return Math.Sqrt(parameters[0]); },                 1) },
             { "cbrt",       ((double[] parameters) => { return Math.Cbrt(parameters[0]); },                 1) },
-            { "loge",       ((double[] parameters) => { return Math.Log(parameters[0]); },                  1) },
+            { "ln",       ((double[] parameters) => { return Math.Log(parameters[0]); },                  1) },
             { "log10",      ((double[] parameters) => { return Math.Log10(parameters[0]); },                1) },
             { "log2",       ((double[] parameters) => { return Math.Log2(parameters[0]); },                 1) },
 
@@ -122,8 +124,7 @@ namespace WaveTracker.Source {
             Stack<double> stack = new();
 
             foreach (var token in rpn) {
-                if (operators.TryGetValue(token, out Operator op)
-                        || internalOperators.TryGetValue(token, out op)) {
+                if (TryGetOperatorAll(token, out Operator op)) {
                     double rhs = stack.Pop();
 
                     //Handle unary operators
@@ -323,7 +324,7 @@ namespace WaveTracker.Source {
         }
 
         internal static Operator GetOperatorAll(string token) {
-            if(TryGetOperatorAll(token, out var op)) {
+            if (TryGetOperatorAll(token, out var op)) {
                 return op;
             }
             return null;

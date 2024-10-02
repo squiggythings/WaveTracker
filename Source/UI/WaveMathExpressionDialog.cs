@@ -14,11 +14,12 @@ namespace WaveTracker.UI {
         public CheckboxLabeled WaveFoldCheckbox;
         private List<string> compiledExpression = ["0"];
 
+        private double parseTime = 0;
         private bool exprParseSuccess = true;
         private string lastParseError = string.Empty;
 
-        public WaveMathExpressionDialog() : base("Generate from maths expression...") {
-            MathExpressionInput = new Textbox("", 8, 25, 100, this);
+        public WaveMathExpressionDialog() : base("Generate from maths expression...", 300) {
+            MathExpressionInput = new Textbox("", 8, 25, 145, this);
             MathExpressionInput.Text = "0";
 
             WaveFoldCheckbox = new CheckboxLabeled("Wave folding", 7, 42, 40, this);
@@ -39,8 +40,10 @@ namespace WaveTracker.UI {
                 if (MathExpressionInput.ValueWasChanged || WaveFoldCheckbox.Clicked) {
                     exprParseSuccess = true; //Set to true as a catch-all
                     try {
+                        Stopwatch sw = Stopwatch.StartNew();
                         compiledExpression = ExpressionParser.CompileInfixToRPN(MathExpressionInput.Text);
                         Apply();
+                        parseTime = sw.Elapsed.TotalMilliseconds;
                     } catch (Exception e) {
                         exprParseSuccess = false;
                         lastParseError = e.Message;
@@ -86,10 +89,10 @@ namespace WaveTracker.UI {
                 WaveFoldCheckbox.Draw();
 
                 if (exprParseSuccess) {
-                    Write("Compilation successful", 8, 59, Color.Green);
+                    Write($"Compilation successful ({Math.Round(parseTime, 3)} ms)", 8, 59, Color.Green);
                 }
                 else {
-                    WriteMultiline("Compilation failed: " + lastParseError, 8, 59, 100, Color.OrangeRed);
+                    WriteMultiline("Compilation failed: " + lastParseError, 8, 59, 145, Color.OrangeRed);
                 }
             }
         }
