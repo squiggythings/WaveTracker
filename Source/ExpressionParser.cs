@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -36,6 +37,9 @@ namespace WaveTracker.Source {
             { "*", new((lhs, rhs) => { return lhs * rhs; }, 3, Associativity.Left)  },
             { "+", new((lhs, rhs) => { return lhs + rhs; }, 2, Associativity.Left)  },
             { "-", new((lhs, rhs) => { return lhs - rhs; }, 2, Associativity.Left)  },
+        };
+
+        private static readonly Dictionary<string, Operator> internalOperators = new() {
             { "p", new((lhs, _) => { return +lhs; },        5, Associativity.Right) },
             { "n", new((lhs, _) => { return -lhs; },        5, Associativity.Right) },
         };
@@ -118,10 +122,12 @@ namespace WaveTracker.Source {
             Stack<double> stack = new();
 
             foreach (var token in rpn) {
-                if (operators.TryGetValue(token, out Operator op)) {
+                if (operators.TryGetValue(token, out Operator op)
+                        || internalOperators.TryGetValue(token, out op)) {
                     double rhs = stack.Pop();
 
-                    if(token == "p" || token == "n") {
+                    //Handle unary operators
+                    if (token == "p" || token == "n") {
                         stack.Push(op.func(rhs, 0));
                     }
                     else {
@@ -259,10 +265,10 @@ namespace WaveTracker.Source {
             List<string> rpnTokens = new(); //RPN tokens
 
             foreach (string token in infixTokens) {
-                if (operators.TryGetValue(token, out Operator op)) { // Token is an operator
-                    while (stack.Count != 0 && operators.ContainsKey(stack.Peek())) {
+                if (TryGetOperatorAll(token, out Operator op)) { // Token is an operator
+                    while (stack.Count != 0 && OperatorExistsAll(token)) {
                         Operator currentOp = op;
-                        Operator topOp = operators[stack.Peek()]; // Null if the top element is a function
+                        Operator topOp = GetOperatorAll(token); // Null if the top element is a function
 
                         if (topOp == null
                             || topOp.priority > currentOp.priority
@@ -310,6 +316,21 @@ namespace WaveTracker.Source {
             }
 
             return rpnTokens;
+        }
+
+        internal static bool OperatorExistsAll(string token) {
+            return operators.ContainsKey(token) || internalOperators.ContainsKey(token);
+        }
+
+        internal static Operator GetOperatorAll(string token) {
+            if(TryGetOperatorAll(token, out var op)) {
+                return op;
+            }
+            return null;
+        }
+
+        internal static bool TryGetOperatorAll(string token, out Operator op) {
+            return operators.TryGetValue(token, out op) || internalOperators.TryGetValue(token, out op);
         }
     }
 }
