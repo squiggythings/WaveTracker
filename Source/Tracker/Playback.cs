@@ -11,6 +11,7 @@ namespace WaveTracker.Tracker {
         private static int nextPlaybackRow;
         private static bool hasGotoTriggerFlag;
         private static int tickCounter;
+        private static ulong tickCounterContinuous;
         private static bool loopCurrentPattern;
         public static int TicksPerRowOverride { get; set; }
 
@@ -67,7 +68,7 @@ namespace WaveTracker.Tracker {
         public static void Play() {
             Stop();
             IsPlaying = true;
-            tickCounter = 0;
+            ResetPlaybackTickCounters();
             ChannelManager.Reset();
             ChannelManager.PreviewChannel.Reset();
             position.Frame = App.PatternEditor.cursorPosition.Frame;
@@ -88,7 +89,7 @@ namespace WaveTracker.Tracker {
             Stop();
             IsPlaying = true;
             ChannelManager.Reset();
-            tickCounter = 0;
+            ResetPlaybackTickCounters();
             position = App.PatternEditor.cursorPosition;
             if (App.PatternEditor.FollowMode && !AudioEngine.IsRendering) {
                 App.PatternEditor.SnapToPlaybackPosition();
@@ -107,7 +108,7 @@ namespace WaveTracker.Tracker {
             loopCurrentPattern = true;
             IsPlaying = true;
             ChannelManager.Reset();
-            tickCounter = 0;
+            ResetPlaybackTickCounters();
             position.Frame = App.PatternEditor.cursorPosition.Frame;
             position.Row = 0;
             if (App.PatternEditor.FollowMode && !AudioEngine.IsRendering) {
@@ -123,7 +124,7 @@ namespace WaveTracker.Tracker {
         /// </summary>
         public static void PlayFromBeginning() {
             Stop();
-            tickCounter = 0;
+            ResetPlaybackTickCounters();
             IsPlaying = true;
             ChannelManager.Reset();
 
@@ -162,7 +163,7 @@ namespace WaveTracker.Tracker {
             if (IsPlaying) {
                 if (!lastIsPlaying) {
                     // start playback
-                    tickCounter = 0;
+                    ResetPlaybackTickCounters();
                     lastIsPlaying = true;
                     hasGotoTriggerFlag = false;
                     SetTicksPerRow();
@@ -200,7 +201,7 @@ namespace WaveTracker.Tracker {
                     SetTicksPerRow();
 
                 }
-
+                tickCounterContinuous++;
                 tickCounter++;
             }
             else {
@@ -293,6 +294,23 @@ namespace WaveTracker.Tracker {
                     }
                 }
             }
+        }
+
+        private static void ResetPlaybackTickCounters() {
+            tickCounter = 0;
+            tickCounterContinuous = 0;
+        }
+
+        /// <summary>
+        /// Returns the number of ticks that have pass since the song started
+        /// </summary>
+        /// <returns></returns>
+        public static ulong GetTicksFromStart() {
+            return tickCounterContinuous;
+
+            //Would love to do somthing like:
+            //return (ulong)(position.Row * ticksPerRow + tickCounter);
+            //But TicksPerRowOverride...
         }
     }
 }

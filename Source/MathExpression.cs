@@ -9,7 +9,7 @@ using WaveTracker.Tracker;
 
 namespace WaveTracker.Source {
     public class EvaluationContext {
-        //These values are used by NCalc but have been made private as const members don't work
+        //NCalc can't find const fields so the next best option was to make them private
 #pragma warning disable CS0414 // The field is assigned but its value is never used
 #pragma warning disable IDE0051 // Remove unused private members
         private double pi = Math.PI;
@@ -19,12 +19,14 @@ namespace WaveTracker.Source {
 #pragma warning restore CS0414 // The field is assigned but its value is never used
 
         public double x; //"wave radian" maps the waves domain (0-64) to (0-2pi)
-        public double ticks = App.CurrentModule.TickRate;
+        public double ticks = Playback.GetTicksFromStart();
         public double frame = Playback.position.Frame;
         public double row = Playback.position.Row;
         public double dtime = DateTime.UtcNow.Second;
         //public double t = Playback.GetTimeFromStart();
 
+        //NCalc can't find static functions so they must be left as member functions
+#pragma warning disable CA1822 // Mark members as static
         public double Rand() {
             return Random.Shared.Next(-byte.MaxValue, byte.MaxValue + 1) / 255.0;
         }
@@ -43,6 +45,7 @@ namespace WaveTracker.Source {
         public double Mod(double a, double b) {
             return a - b * Math.Floor(a / b);
         }
+#pragma warning restore CA1822 // Mark members as static
     }
 
     [ProtoContract(SkipConstructor = true)]
