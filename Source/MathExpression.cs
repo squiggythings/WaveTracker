@@ -1,4 +1,5 @@
 ﻿using NCalc;
+using ProtoBuf;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,12 +20,20 @@ namespace WaveTracker.Source {
 
         public double x; //"wave radian" maps the waves domain (0-64) to (0-2pi)
         public double ticks = App.CurrentModule.TickRate;
-
+        public double frame = Playback.position.Frame;
+        public double row = Playback.position.Row;
+        //public double t = Playback.GetTimeFromStart();
     }
 
+    [ProtoContract(SkipConstructor = true)]
+    [Serializable]
     public class MathExpression {
+        [ProtoIgnore]
         private Func<EvaluationContext, double> func;
+
+        [ProtoMember(1)]
         private string _expression;
+        [ProtoMember(2)]
         public string Expression {
             get {
                 return _expression; 
@@ -34,6 +43,7 @@ namespace WaveTracker.Source {
                 RebuildExpression(); 
             }
         }
+        [ProtoMember(3)]
         public bool WaveFold = false;
 
         public MathExpression() {

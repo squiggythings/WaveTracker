@@ -17,6 +17,7 @@ namespace WaveTracker.UI {
 
         public EnvelopeEditor envelopeEditor;
         public SampleEditor sampleEditor;
+        public ExpressionEditor expressionEditor;
         public EnvelopeListBox envelopeList;
         private PreviewPiano piano;
         private TabGroup tabGroup;
@@ -24,6 +25,7 @@ namespace WaveTracker.UI {
         public InstrumentEditor() : base("Instrument Editor", 600, 340) {
             ExitButton.SetTooltip("Close", "Close instrument editor");
             sampleEditor = new SampleEditor(16, 36, this);
+            expressionEditor = new ExpressionEditor(16, 36, this);
             envelopeEditor = new EnvelopeEditor(118, 36, 464, this);
             envelopeList = new EnvelopeListBox(16, 48, 132, this);
             piano = new PreviewPiano(60, 306, this);
@@ -40,6 +42,21 @@ namespace WaveTracker.UI {
                 if (CurrentInstrument is SampleInstrument) {
                     if (tabGroup.SelectedTabIndex == 0) {
                         sampleEditor.Update();
+                    }
+                    else {
+                        envelopeList.Update();
+                        if (envelopeList.SelectedIndex >= 0) {
+                            envelopeEditor.SetEnvelope(CurrentInstrument.envelopes[envelopeList.SelectedIndex], ChannelManager.PreviewChannel.envelopePlayers[CurrentInstrument.envelopes[envelopeList.SelectedIndex].Type]);
+                            envelopeEditor.Update();
+                        }
+                        else {
+                            envelopeEditor.SetEnvelope(null, null);
+                        }
+                    }
+                }
+                else if (CurrentInstrument is MathInstrument) {
+                    if (tabGroup.SelectedTabIndex == 0) {
+                        expressionEditor.Update();
                     }
                     else {
                         envelopeList.Update();
@@ -69,10 +86,16 @@ namespace WaveTracker.UI {
             Open();
             currentInstrumentID = instrumentIndex;
             tabGroup = new TabGroup(8, 15, this);
-            if (instrumentToEdit is SampleInstrument instrument) {
+            if (instrumentToEdit is SampleInstrument sampleInstrument) {
                 tabGroup.AddTab("Sample", false);
                 tabGroup.AddTab("Envelopes", false);
-                sampleEditor.Sample = instrument.sample;
+                sampleEditor.Sample = sampleInstrument.sample;
+            }
+            else if (instrumentToEdit is MathInstrument mathInstrument) {
+                tabGroup.AddTab("Expression", false);
+                tabGroup.AddTab("Envelopes", false);
+                expressionEditor.MathExpression = mathInstrument.MathExpression;
+                expressionEditor.MathWave = mathInstrument.MathWave;
             }
             else {
                 tabGroup.AddTab("Envelopes", false);
@@ -107,10 +130,13 @@ namespace WaveTracker.UI {
                 else {
                     piano.Draw();
                 }
-                if (CurrentInstrument is SampleInstrument instrument && tabGroup.SelectedTabIndex == 0) {
+                if (CurrentInstrument is SampleInstrument sampleInstrument && tabGroup.SelectedTabIndex == 0) {
                     sampleEditor.Draw();
                     piano.ShowBaseKey = true;
-                    piano.BaseKeyIndex = instrument.sample.BaseKey;
+                    piano.BaseKeyIndex = sampleInstrument.sample.BaseKey;
+                }
+                else if (CurrentInstrument is MathInstrument && tabGroup.SelectedTabIndex == 0) {
+                    expressionEditor.Draw();
                 }
                 else {
                     piano.ShowBaseKey = false;
