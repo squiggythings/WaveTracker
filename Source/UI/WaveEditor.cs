@@ -175,8 +175,8 @@ namespace WaveTracker.UI {
                 }
 
                 //Temp fix for PreviewChannel wave being changed when song is played
-                if(ChannelManager.PreviewChannel.WaveIndex != WaveBank.currentWaveID) {
-                    ChannelManager.PreviewChannel.SetWave(WaveBank.currentWaveID);
+                if(ChannelManager.PreviewChannel.WaveIndex != id) {
+                    ChannelManager.PreviewChannel.SetWave(id);
                 }
 
                 resampleDropdown.Value = (int)CurrentWave.resamplingMode;
