@@ -368,7 +368,7 @@ namespace WaveTracker.UI {
         public void Draw() {
             if (enabled) {
                 // black box across screen behind window
-                DrawRect(-x, -y, 960, 600, Helpers.Alpha(Color.Black, 90));
+                DrawRect(-x, -y, App.WindowWidth, App.WindowHeight, Helpers.Alpha(Color.Black, 90));
 
                 DrawRoundedRect(0, 0, width, height, UIColors.panel);
                 DrawRect(1, 0, width - 2, 1, Color.White);
