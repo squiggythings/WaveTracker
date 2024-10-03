@@ -2,7 +2,6 @@
 using WaveTracker.Tracker;
 
 namespace WaveTracker.UI {
-
     public abstract class WaveModifyDialog : Dialog {
         protected Wave waveToEdit;
         protected byte[] originalData;

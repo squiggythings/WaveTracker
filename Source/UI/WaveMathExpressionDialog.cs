@@ -3,20 +3,34 @@ using SharpDX.MediaFoundation;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq.Expressions;
+using NCalc;
 using System.Windows.Forms;
-using WaveTracker.Source;
 using WaveTracker.Tracker;
 
 namespace WaveTracker.UI {
     public class WaveMathExpressionDialog : WaveModifyDialog {
+        internal class EvaluationContext {
+            //These values are used by NCalc but have been made private as const members don't work
+#pragma warning disable CS0414 // The field is assigned but its value is never used
+#pragma warning disable IDE0051 // Remove unused private members
+            private double pi = Math.PI;
+            private double e = Math.E;
+            private double tau = Math.Tau;
+#pragma warning restore IDE0051 // Remove unused private members
+#pragma warning restore CS0414 // The field is assigned but its value is never used
+
+            public double x; //"wave radian" maps the waves domain (0-64) to (0-2pi)
+            public double ticks = App.CurrentModule.TickRate;
+
+        }
+
         public Textbox MathExpressionInput;
         public CheckboxLabeled WaveFoldCheckbox;
-        private List<string> compiledExpression = ["0"];
 
-        private double parseTime = 0;
-        private bool exprParseSuccess = true;
-        private string lastParseError = string.Empty;
+        private Func<EvaluationContext, double> compiledExpression = (_) => { return 0; };
+        private double compileTime = 0;
+        private bool compileSuccess = true;
+        private string lastCompileError = string.Empty;
 
         public WaveMathExpressionDialog() : base("Generate from maths expression...", 300) {
             MathExpressionInput = new Textbox("", 8, 25, 145, this);
@@ -37,33 +51,44 @@ namespace WaveTracker.UI {
                 MathExpressionInput.Update();
                 WaveFoldCheckbox.Update();
 
-                if (MathExpressionInput.ValueWasChanged || WaveFoldCheckbox.Clicked) {
-                    exprParseSuccess = true; //Set to true as a catch-all
+                if (MathExpressionInput.ValueWasChanged) {
+                    compileSuccess = true; //Set to true as a catch-all
                     try {
                         Stopwatch sw = Stopwatch.StartNew();
-                        compiledExpression = ExpressionParser.CompileInfixToRPN(MathExpressionInput.Text);
+
+                        Expression expression = new Expression(MathExpressionInput.Text);
+                        if (expression.HasErrors()) {
+                            throw expression.Error;
+                        }
+                        compiledExpression = expression.ToLambda<EvaluationContext, double>();
+
+                        compileTime = sw.Elapsed.TotalMilliseconds;
                         Apply();
-                        parseTime = sw.Elapsed.TotalMilliseconds;
                     } catch (Exception e) {
-                        exprParseSuccess = false;
-                        lastParseError = e.Message;
+                        compileSuccess = false;
+                        if(e.InnerException != null) {
+                            lastCompileError = e.InnerException.Message;
+                        }
+                        else {
+                            lastCompileError = e.Message;
+                        }
                     }
+                }
+                if (WaveFoldCheckbox.Clicked) {
+                    Apply();
                 }
             }
         }
 
         protected override byte GetSampleValue(int index) {
-            //Applying expression
-            double sampleRadian = (index << 1) * Math.PI / originalData.Length;
-            ExpressionParser.symbols["x"] = sampleRadian;
-
-            return NormalizeExpressionOutput(
-                    ExpressionParser.EvaluateRPNTokens(compiledExpression),
-                    WaveFoldCheckbox.Value);
+            EvaluationContext context = new() {
+                x = (index << 1) * Math.PI / originalData.Length
+            };
+            return NormalizeExpressionOutput(compiledExpression.Invoke(context));
         }
 
         /// <summary>
-        /// Maps the range of sin(t) [-1, 1] -> [0, 31]
+        /// Maps the range of sin(x) [-1, 1] -> [0, 31]
         /// </summary>
         private  static byte NormalizeExpressionOutput(double d, bool fold = false) {
             if (fold) {
@@ -74,7 +99,7 @@ namespace WaveTracker.UI {
                 return (byte)dScaled;
             }
             else {
-                double dScaled = Math.Round((d + 1) * (Wave.MaxSampleValue / 2f));
+                double dScaled = Math.Round((d + 1) * (Wave.MaxSampleValue / 2f), MidpointRounding.AwayFromZero);
                 return (byte)Math.Clamp(
                 dScaled,
                 Wave.MinSampleValue,
@@ -88,11 +113,11 @@ namespace WaveTracker.UI {
                 MathExpressionInput.Draw();
                 WaveFoldCheckbox.Draw();
 
-                if (exprParseSuccess) {
-                    Write($"Compilation successful ({Math.Round(parseTime, 3)} ms)", 8, 59, Color.Green);
+                if (compileSuccess) {
+                    Write($"Compilation successful ({Math.Round(compileTime, 3)} ms)", 8, 59, Color.Green);
                 }
                 else {
-                    WriteMultiline("Compilation failed: " + lastParseError, 8, 59, 145, Color.OrangeRed);
+                    WriteMultiline("Compilation failed: " + lastCompileError, 8, 59, 145, Color.OrangeRed);
                 }
             }
         }
