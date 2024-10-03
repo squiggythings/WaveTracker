@@ -28,6 +28,7 @@ namespace WaveTracker {
                 { "Instrument (wave)", Helpers.HexCodeToColor("5aea3d") },
                 { "Instrument (noise)", Helpers.HexCodeToColor("e535ff") },
                 { "Instrument (sample)", Helpers.HexCodeToColor("ff9932") },
+                { "Instrument (math)", Helpers.HexCodeToColor("079fff") },
                 { "Volume", Helpers.HexCodeToColor("50e7e5") },
                 { "Effect", Helpers.HexCodeToColor("ff5277") },
                 { "Effect parameter", Helpers.HexCodeToColor("ffd0d0") },

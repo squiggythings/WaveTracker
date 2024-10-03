@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using WaveTracker.Source;
 using WaveTracker.Tracker;
 
 namespace WaveTracker.Audio {
@@ -9,7 +10,12 @@ namespace WaveTracker.Audio {
         public bool IsMuted { get; set; }
         public Wave CurrentWave {
             get {
-                return App.CurrentModule.WaveBank[(WaveIndex + 100) % 100];
+                if (CurrentInstrument is MathInstrument) {
+                    return MathWave;
+                }
+                else {
+                    return App.CurrentModule.WaveBank[(WaveIndex + 100) % 100];
+                }
             }
         }
 
@@ -120,6 +126,10 @@ namespace WaveTracker.Audio {
         private float noiseValueR;
         private static float[] noiseSample;
         private int noiseLength;
+
+        public MathExpression MathExpression { get; private set; }
+        public Wave MathWave { get; private set; }
+
         private enum VoiceState { On, Off, Release }
         private VoiceState _state;
         public bool IsPlaying {
@@ -283,6 +293,12 @@ namespace WaveTracker.Audio {
                         _time = 0;
                         CurrentSample = sampleInstrument.sample;
                     }
+                    else if (instrument is MathInstrument mathInstrument) {
+                        _time = 0;
+                        MathExpression = mathInstrument.MathExpression;
+                        MathWave = mathInstrument.MathWave;
+                    }
+
                 }
                 foreach (Envelope envelope in instrument.envelopes) {
                     envelopePlayers[envelope.Type].Start();
@@ -492,8 +508,13 @@ namespace WaveTracker.Audio {
             }
             else {
                 return CurrentWave.GetSampleMorphed(time, App.CurrentModule.WaveBank[(WaveIndex + 1) % 100], WaveMorphPosition, _waveStretchSmooth / 100f);
-
             }
+        }
+        public float EvaluateWaveNoEffects(float time) {
+            if (time is < 0 or >= 1) {
+                time = Helpers.Mod(time, 1);
+            }
+            return CurrentWave.GetSampleAtPosition(time);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -756,6 +777,21 @@ namespace WaveTracker.Audio {
                         }
                         if (Math.Abs(sampleR) > _sampleVolume) {
                             _sampleVolume = Math.Abs(sampleR);
+                        }
+                    }
+                    else if (CurrentInstrument is MathInstrument) {
+                        MathExpression.Apply(CurrentWave);
+
+                        if (_time > 1) {
+                            _time -= 1;
+                        }
+
+                        if (stereoPhaseOffset != 0) {
+                            sampleL = EvaluateWaveNoEffects((float)_time - stereoPhaseOffset);
+                            sampleR = EvaluateWaveNoEffects((float)_time + stereoPhaseOffset);
+                        }
+                        else {
+                            sampleR = sampleL = EvaluateWaveNoEffects((float)_time);
                         }
                     }
                 }

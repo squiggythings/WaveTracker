@@ -1216,7 +1216,10 @@ namespace WaveTracker.UI {
                     else if (App.CurrentModule.Instruments[instrumentValue] is NoiseInstrument) {
                         instrumentColor = App.Settings.Colors.Theme["Instrument (noise)"];
                     }
-                    else {
+                    else if (App.CurrentModule.Instruments[instrumentValue] is MathInstrument) {
+                        instrumentColor = App.Settings.Colors.Theme["Instrument (math)"];
+                    }
+                    else { //SampleInstrument
                         instrumentColor = App.Settings.Colors.Theme["Instrument (sample)"];
                     }
                 }

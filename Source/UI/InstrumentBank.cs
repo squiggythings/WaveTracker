@@ -16,7 +16,7 @@ namespace WaveTracker.UI {
             }
         }
 
-        public SpriteButton bNewWave, bNewNoise, bNewSample, bRemove, bDuplicate, bMoveUp, bMoveDown, bRename;
+        public SpriteButton bNewWave, bNewNoise, bNewSample, bNewMath, bRemove, bDuplicate, bMoveUp, bMoveDown, bRename;
         public SpriteButton bEdit;
         public Menu menu;
         public InstrumentBank(int x, int y) : base("Instrument Bank", x, y, 156, 488) {
@@ -29,6 +29,9 @@ namespace WaveTracker.UI {
             buttonX += 15;
             bNewSample = new SpriteButton(buttonX, 10, 15, 15, 240, 0, this);
             bNewSample.SetTooltip("New Sample Instrument", "Add a new sample instrument to the track");
+            buttonX += 15;
+            bNewMath = new SpriteButton(buttonX, 10, 15, 15, 465, 0, this);
+            bNewMath.SetTooltip("New Math Instrument", "Add a new math instrument to the track");
             buttonX += 15;
             bRemove = new SpriteButton(buttonX, 10, 15, 15, 360, 0, this);
             bRemove.SetTooltip("Remove Instrument", "Delete this instrument from the track");
@@ -64,6 +67,7 @@ namespace WaveTracker.UI {
                         new MenuOption("Add wave instrument",AddWave, App.CurrentModule.Instruments.Count < 100 && !App.VisualizerMode),
                         new MenuOption("Add noise instrument",AddNoise,App.CurrentModule.Instruments.Count < 100 && !App.VisualizerMode),
                         new MenuOption("Add sample instrument",AddSample,App.CurrentModule.Instruments.Count < 100 && !App.VisualizerMode),
+                        new MenuOption("Add math instrument",AddMath,App.CurrentModule.Instruments.Count < 100 && !App.VisualizerMode),
                         new MenuOption("Duplicate",DuplicateInstrument,App.CurrentModule.Instruments.Count < 100 && !App.VisualizerMode),
                         new MenuOption("Remove",RemoveInstrument,App.CurrentModule.Instruments.Count > 1 && !App.VisualizerMode)
                    ]);
@@ -138,7 +142,7 @@ namespace WaveTracker.UI {
                 }
 
                 bRemove.enabled = App.CurrentModule.Instruments.Count > 1;
-                bNewWave.enabled = bNewNoise.enabled = bNewSample.enabled = bDuplicate.enabled = App.CurrentModule.Instruments.Count < 100;
+                bNewWave.enabled = bNewNoise.enabled = bNewSample.enabled = bNewMath.enabled = bDuplicate.enabled = App.CurrentModule.Instruments.Count < 100;
                 bMoveDown.enabled = CurrentInstrumentIndex < App.CurrentModule.Instruments.Count - 1;
                 bMoveUp.enabled = CurrentInstrumentIndex > 0;
                 if (bNewWave.Clicked) {
@@ -149,6 +153,9 @@ namespace WaveTracker.UI {
                 }
                 if (bNewSample.Clicked) {
                     AddSample();
+                }
+                if (bNewMath.Clicked) {
+                    AddMath();
                 }
                 if (bRemove.Clicked) {
                     RemoveInstrument();
@@ -195,6 +202,13 @@ namespace WaveTracker.UI {
 
         public void AddSample() {
             App.CurrentModule.Instruments.Add(new SampleInstrument());
+            App.CurrentModule.SetDirty();
+            CurrentInstrumentIndex = App.CurrentModule.Instruments.Count - 1;
+            Goto(App.CurrentModule.Instruments.Count - 1);
+        }
+
+        public void AddMath() {
+            App.CurrentModule.Instruments.Add(new MathInstrument());
             App.CurrentModule.SetDirty();
             CurrentInstrumentIndex = App.CurrentModule.Instruments.Count - 1;
             Goto(App.CurrentModule.Instruments.Count - 1);
@@ -276,7 +290,10 @@ namespace WaveTracker.UI {
                     else if (App.CurrentModule.Instruments[i] is NoiseInstrument) {
                         DrawSprite(3, 30 + y * 11, new Rectangle(88, 87, 8, 7));
                     }
-                    else {
+                    else if (App.CurrentModule.Instruments[i] is MathInstrument) {
+                        DrawSprite(3, 30 + y * 11, new Rectangle(88, 101, 8, 7));
+                    }
+                    else { //SampleInstrument Icon
                         DrawSprite(3, 30 + y * 11, new Rectangle(88, 94, 8, 7));
                     }
                 }
@@ -293,6 +310,7 @@ namespace WaveTracker.UI {
             bNewWave.Draw();
             bNewNoise.Draw();
             bNewSample.Draw();
+            bNewMath.Draw();
             bRemove.Draw();
             bDuplicate.Draw();
             bMoveUp.Draw();

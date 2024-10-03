@@ -6,17 +6,16 @@ namespace WaveTracker.UI {
         protected Wave waveToEdit;
         protected byte[] originalData;
         private Button ok, cancel;
-
-        protected int previewAnchorX = 121;
-        protected int previewAnchorY = 15;
+        protected Point previewAnchor;
 
         public WaveModifyDialog(string name) : base(name, 258, 113, false) {
+            previewAnchor = new Point(258 - 137, 15);
             cancel = AddNewBottomButton("Cancel", this);
             ok = AddNewBottomButton("OK", this);
         }
 
         public WaveModifyDialog(string name, int width) : base(name, width, 113, false) {
-            previewAnchorX = width - 137;
+            previewAnchor = new Point(width - 137, 15);
             cancel = AddNewBottomButton("Cancel", this);
             ok = AddNewBottomButton("OK", this);
         }
@@ -73,12 +72,12 @@ namespace WaveTracker.UI {
                 base.Draw();
 
                 Write("Parameters", 8, 15, UIColors.labelLight);
-                Write("Preview", previewAnchorX, previewAnchorY, UIColors.labelLight);
+                Write("Preview", previewAnchor.X, previewAnchor.Y, UIColors.labelLight);
 
                 Color waveColor = new Color(200, 212, 93);
                 Color waveBG = new Color(59, 125, 79, 150);
-                Rectangle waveRegion = new Rectangle(previewAnchorX, previewAnchorY + 10, 128, 64);
-                DrawRect(previewAnchorX - 1, previewAnchorY + 9, 130, 66, UIColors.black);
+                Rectangle waveRegion = new Rectangle(previewAnchor.X, previewAnchor.Y + 10, 128, 64);
+                DrawRect(previewAnchor.X - 1, previewAnchor.Y + 9, 130, 66, UIColors.black);
                 for (int i = 0; i < 64; ++i) {
                     int samp = waveToEdit.GetSample(i);
 
