@@ -22,7 +22,27 @@ namespace WaveTracker.Source {
         public double ticks = App.CurrentModule.TickRate;
         public double frame = Playback.position.Frame;
         public double row = Playback.position.Row;
+        public double dtime = DateTime.UtcNow.Second;
         //public double t = Playback.GetTimeFromStart();
+
+        public double Rand() {
+            return Random.Shared.Next(-byte.MaxValue, byte.MaxValue + 1) / 255.0;
+        }
+        public double Randb() {
+            return Random.Shared.Next(byte.MinValue, byte.MaxValue + 1);
+        }
+        public double Randuc() {
+            return Random.Shared.Next();
+        }
+        public double Deg2rad(double d) {
+            return Math.PI * d / 180.0;
+        }
+        public double Rad2deg(double r) {
+            return r * (180.0 / Math.PI);
+        }
+        public double Mod(double a, double b) {
+            return a - b * Math.Floor(a / b);
+        }
     }
 
     [ProtoContract(SkipConstructor = true)]
