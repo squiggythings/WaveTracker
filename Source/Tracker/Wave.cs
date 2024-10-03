@@ -8,8 +8,8 @@ namespace WaveTracker.Tracker {
     [ProtoContract(SkipConstructor = true)]
     [Serializable]
     public class Wave {
-        private const byte MinSampleValue = byte.MinValue;
-        private const byte MaxSampleValue = 31;
+        public const byte MinSampleValue = byte.MinValue;
+        public const byte MaxSampleValue = 31;
 
         [ProtoMember(31)]
         public ResamplingMode resamplingMode;

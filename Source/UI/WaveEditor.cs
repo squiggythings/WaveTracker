@@ -71,7 +71,7 @@ namespace WaveTracker.UI {
 
             ModifyButton = new DropdownButton("Modify...", buttonX, buttonY, buttonWidth, this);
             ModifyButton.LabelIsCentered = true;
-            ModifyButton.SetMenuItems(["Smooth...", "Add Fuzz...", "Sync...", "Sample and hold..."]);
+            ModifyButton.SetMenuItems(["Smooth...", "Add Fuzz...", "Sync...", "Sample and hold...", "Math expression"]);
 
             presetSine = new SpriteButton(17, 215, 18, 12, 104, 80, this);
             presetSine.SetTooltip("Sine", "Sine wave preset");
@@ -291,6 +291,10 @@ namespace WaveTracker.UI {
                             case 3:
                                 currentDialog = Dialogs.waveSampleAndHoldDialog;
                                 Dialogs.waveSampleAndHoldDialog.Open(CurrentWave);
+                                break;
+                            case 4:
+                                currentDialog = Dialogs.waveMathExpressionDialog;
+                                Dialogs.waveMathExpressionDialog.Open(CurrentWave);
                                 break;
                         }
                         App.CurrentModule.SetDirty();
