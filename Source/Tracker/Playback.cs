@@ -70,7 +70,6 @@ namespace WaveTracker.Tracker {
             IsPlaying = true;
             ResetPlaybackTickCounters();
             ChannelManager.Reset();
-            ChannelManager.PreviewChannel.Reset();
             position.Frame = App.PatternEditor.cursorPosition.Frame;
             position.Row = 0;
             if (App.PatternEditor.FollowMode && !AudioEngine.IsRendering) {
