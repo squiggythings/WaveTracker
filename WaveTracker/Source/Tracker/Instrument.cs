@@ -8,6 +8,7 @@ namespace WaveTracker.Tracker {
     [ProtoContract]
     [ProtoInclude(10, typeof(WaveInstrument))]
     [ProtoInclude(20, typeof(SampleInstrument))]
+    [ProtoInclude(30, typeof(NoiseInstrument))]
     public abstract class Instrument {
         [ProtoMember(1)]
         public string name;

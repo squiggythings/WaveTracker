@@ -56,8 +56,9 @@ namespace WaveTracker.UI {
             bDown = new SpriteButton(width - 10, 7, 10, 6, 416, 176, this);
         }
 
-        public void EnableScrolling() { canScroll = true; }
-        public void DisableScrolling() { canScroll = false; }
+        public void SetLabel(string label) {
+            this.label = label;
+        }
 
         public void SetValueLimits(int min, int max) {
             this.min = min;
@@ -73,6 +74,7 @@ namespace WaveTracker.UI {
         }
 
         public void Update() {
+            ValueWasChangedInternally = false;
             bUp.enabled = enabled && Value < max;
             bDown.enabled = enabled && Value > min;
             if (enabled && InFocus) {

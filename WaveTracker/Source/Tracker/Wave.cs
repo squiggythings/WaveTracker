@@ -8,6 +8,9 @@ namespace WaveTracker.Tracker {
     [ProtoContract(SkipConstructor = true)]
     [Serializable]
     public class Wave {
+        private const byte MinSampleValue = byte.MinValue;
+        private const byte MaxSampleValue = 31;
+
         [ProtoMember(31)]
         public ResamplingMode resamplingMode;
         [ProtoMember(32)]
@@ -111,7 +114,7 @@ namespace WaveTracker.Tracker {
         /// <param name="amt"></param>
         public void Move(int amt) {
             for (int i = 0; i < 64; ++i) {
-                samples[i] = (byte)Math.Clamp(samples[i] + amt, 0, 31);
+                samples[i] = (byte)Math.Clamp(samples[i] + amt, MinSampleValue, MaxSampleValue);
             }
         }
 
@@ -120,7 +123,7 @@ namespace WaveTracker.Tracker {
         /// </summary>
         public void Invert() {
             for (int i = 0; i < 64; ++i) {
-                samples[i] = (byte)Math.Clamp(31 - samples[i], 0, 31);
+                samples[i] = (byte)Math.Clamp(MaxSampleValue - samples[i], MinSampleValue, MaxSampleValue);
             }
         }
 
@@ -155,7 +158,7 @@ namespace WaveTracker.Tracker {
             }
 
             for (int i = 0; i < 64; ++i) {
-                samples[i] = (byte)Math.Clamp(samples[i] + mod[i] + 0.5f, 0, 31);
+                samples[i] = (byte)Math.Clamp(samples[i] + mod[i] + 0.5f, MinSampleValue, MaxSampleValue);
             }
 
         }
@@ -174,8 +177,8 @@ namespace WaveTracker.Tracker {
         /// Make the wave fill the whole vertical range
         /// </summary>
         public void Normalize() {
-            float max = 0;
-            float min = 31;
+            float max = MinSampleValue;
+            float min = MaxSampleValue;
             foreach (byte sample in samples) {
                 if (sample > max) {
                     max = sample;
@@ -187,7 +190,7 @@ namespace WaveTracker.Tracker {
             }
 
             for (int i = 0; i < 64; ++i) {
-                samples[i] = (byte)Helpers.MapClamped(samples[i], min, max, 0, 31);
+                samples[i] = (byte)Helpers.MapClamped(samples[i], min, max, MinSampleValue, MaxSampleValue);
             }
         }
 
@@ -214,7 +217,7 @@ namespace WaveTracker.Tracker {
             string[] nums = s.Split(' ');
             for (int i = 0; i < nums.Length && i < 64; i++) {
                 if (byte.TryParse(nums[i], out byte num)) {
-                    samples[i] = num;
+                    samples[i] = Math.Min(num, MaxSampleValue);
                 }
             }
         }
@@ -314,11 +317,11 @@ namespace WaveTracker.Tracker {
 
             float sampDifference = MathF.Abs(samples[index1] - samples[index2]);
 
-            return MathHelper.Lerp(lerpedSample, nearestSample, sampDifference / 31f);
+            return MathHelper.Lerp(lerpedSample, nearestSample, sampDifference / MaxSampleValue);
         }
 
         private static byte ConvertCharToDecimal(char c) { return (byte)"0123456789ABCDEFGHIJKLMNOPQRSTUV".IndexOf(c); }
 
-        private static char ConvertDecimalToChar(int i) { return "0123456789ABCDEFGHIJKLMNOPQRSTUV"[Math.Clamp(i, 0, 31)]; }
+        private static char ConvertDecimalToChar(int i) { return "0123456789ABCDEFGHIJKLMNOPQRSTUV"[Math.Clamp(i, MinSampleValue, MaxSampleValue)]; }
     }
 }

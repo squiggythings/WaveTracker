@@ -92,9 +92,14 @@ namespace WaveTracker.UI {
 
         public void Update() {
             // if the user is editing this header's channel, render the preview channel instead
-            channelToDisplay = parentEditor.cursorPosition.Channel == channelNum && !ChannelManager.Channels[channelNum].IsPlaying && !Playback.IsPlaying
-                ? ChannelManager.PreviewChannel
-                : ChannelManager.Channels[channelNum];
+            if (parentEditor.cursorPosition.Channel == channelNum && !ChannelManager.Channels[channelNum].IsPlaying && !Playback.IsPlaying) {
+                // if the user is editing this header's channel, render the preview channel instead
+                channelToDisplay = ChannelManager.PreviewChannel;
+            }
+            else {
+                // if the user is editing this header's channel, render the preview channel instead
+                channelToDisplay = ChannelManager.Channels[channelNum];
+            }
             UpdateAmplitude(channelToDisplay);
             if (enabled && !App.VisualizerMode) {
                 if (Input.focusTimer > 1) {

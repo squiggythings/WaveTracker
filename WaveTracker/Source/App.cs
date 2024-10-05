@@ -261,6 +261,8 @@ namespace WaveTracker {
                 new MenuOption("Open manual...", OpenHelp),
                 new MenuOption("Effect list...", OpenEffectList),
                 null,
+                new SubMenu("Recover files...", SaveLoad.CreateAutosavesMenu()),
+                null,
                 new MenuOption("Reset audio", ResetAudio),
             ]));
 
