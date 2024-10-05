@@ -8,20 +8,19 @@ using System.Threading.Tasks;
 using WaveTracker.Tracker;
 
 namespace WaveTracker.Source {
+#pragma warning disable CA1822 // Mark members as static (NCalc can't find static functions)
+#pragma warning disable CS0414 // The field is assigned but its value is never used (NCalc can't find const fields)
+#pragma warning disable IDE0051 // Remove unused private members (NCalc can't find const fields)
     public class EvaluationContext {
-        //NCalc can't find const fields so the next best option was to make them private
-#pragma warning disable CS0414 // The field is assigned but its value is never used
-#pragma warning disable IDE0051 // Remove unused private members
         private double pi = Math.PI;
         private double e = Math.E;
         private double tau = Math.Tau;
-#pragma warning restore IDE0051 // Remove unused private members
-#pragma warning restore CS0414 // The field is assigned but its value is never used
 
-        public double x; //"wave radian" maps the waves domain (0-64) to (0-2pi)
+        public double x = 0; //"wave radian" maps the waves domain (0-64) to (0-2pi)
+        public double a = 0;
+        public double b = 0;
+        public double c = 0;
 
-        //NCalc can't find static functions so they must be left as member functions
-#pragma warning disable CA1822 // Mark members as static
         public double Rand() {
             return Random.Shared.Next(-byte.MaxValue, byte.MaxValue + 1) / 255.0;
         }
@@ -40,12 +39,14 @@ namespace WaveTracker.Source {
         public double Mod(double a, double b) {
             return a - b * Math.Floor(a / b);
         }
-#pragma warning restore CA1822 // Mark members as static
     }
+#pragma warning restore IDE0051 // Remove unused private members
+#pragma warning restore CS0414 // The field is assigned but its value is never used
+#pragma warning restore CA1822 // Mark members as static
 
     [ProtoContract(SkipConstructor = true)]
     [Serializable]
-    public class MathExpression {
+    public class WaveExpression {
         [ProtoIgnore]
         private Func<EvaluationContext, double> func;
 
@@ -64,11 +65,11 @@ namespace WaveTracker.Source {
         [ProtoMember(3)]
         public bool WaveFold = false;
 
-        public MathExpression() {
+        public WaveExpression() {
             Expression = "0";
         }
 
-        public MathExpression(string expression) {
+        public WaveExpression(string expression) {
             Expression = expression;
         }
 
@@ -80,22 +81,23 @@ namespace WaveTracker.Source {
             func = expression.ToLambda<EvaluationContext, double>();
         }
 
-        public MathExpression Clone() {
-            MathExpression newMathExpression = new MathExpression(Expression);
+        public WaveExpression Clone() {
+            WaveExpression newMathExpression = new WaveExpression(Expression);
             newMathExpression.WaveFold = WaveFold;
             return newMathExpression;
         }
-        public void Apply(Wave wave) {
+
+        public void Apply(Wave wave, EvaluationContext context) {
             for (int i = 0; i < 64; ++i) {
-                wave.samples[i] = GetSampleValue(i, wave.samples.Length);
+                wave.samples[i] = GetSampleValue(context);
             }
         }
-        public byte GetSampleValue(int index, int length) {
-            EvaluationContext context = new() {
-                x = (index << 1) * Math.PI / length
-            };
+
+        public byte GetSampleValue(EvaluationContext context) {
+            
             return NormalizeExpressionOutput(func.Invoke(context), WaveFold);
         }
+
         public static byte NormalizeExpressionOutput(double d, bool fold = false) {
             if (fold) {
                 // Thanks to https://www.kvraudio.com/forum/viewtopic.php?t=501471 for the dFolded code

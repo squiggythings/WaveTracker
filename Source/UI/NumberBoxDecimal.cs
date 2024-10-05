@@ -9,27 +9,28 @@ namespace WaveTracker.UI {
         private string label;
         private float min = float.MinValue;
         private float max = float.MaxValue;
-        private int valueSaved;
+        private float valueSaved;
         private bool canScroll = true;
         public enum DisplayMode { Number, Note, NoteOnly, PlusMinus }
         public DisplayMode displayMode = DisplayMode.Number;
         public bool ValueWasChanged { get; private set; }
         public bool ValueWasChangedInternally { get; private set; }
 
-        private int lastValue;
-        private int _value;
+        private int lastMouseY;
+        private float lastValue;
+        private float _value;
 
         private int DecimalPlaces { get; set; }
-        public float Value { get { return _value / powersOfTen[DecimalPlaces]; } set { _value = (int)Math.Clamp(value * powersOfTen[DecimalPlaces], min * powersOfTen[DecimalPlaces], max * powersOfTen[DecimalPlaces]); } }
+        private float Step { get; set; }
+        public float Value { get { return _value; } set { _value = Math.Clamp(value, min, max); } }
 
-        private static int[] powersOfTen = { 1, 10, 100, 1000, 10000, 100000 };
-
-        public NumberBoxDecimal(string label, int x, int y, int width, int boxWidth, Element parent, int decimalPlaces = 2) {
+        public NumberBoxDecimal(string label, int x, int y, int width, int boxWidth, Element parent, float step = 0.01f, int decimalPlaces = 2) {
             this.label = label;
             this.x = x;
             this.y = y;
             this.width = width;
             this.boxWidth = boxWidth;
+            Step = step;
             DecimalPlaces = decimalPlaces;
             height = 13;
             canScroll = true;
@@ -38,12 +39,13 @@ namespace WaveTracker.UI {
             bDown = new SpriteButton(width - 10, 7, 10, 6, 416, 176, this);
         }
 
-        public NumberBoxDecimal(string label, int x, int y, Element parent, int decimalPlaces = 2) {
+        public NumberBoxDecimal(string label, int x, int y, Element parent, float step = 0.01f, int decimalPlaces = 2) {
             this.label = label;
             this.x = x;
             this.y = y;
             width = Helpers.GetWidthOfText(label) + 46;
             boxWidth = 38;
+            Step = step;
             DecimalPlaces = decimalPlaces;
             height = 13;
             canScroll = true;
@@ -62,34 +64,38 @@ namespace WaveTracker.UI {
 
         public void Update() {
             if (enabled && InFocus) {
-                int valueBeforeUpdate = _value;
+                float valueBeforeUpdate = _value;
                 if (DoubleClicked && MouseX < width - 10) {
                     // edit text 
                 }
+
+                //Dragging
                 if (LastClickPos.X >= 0 && LastClickPos.Y >= 0) {
                     if (LastClickPos.X <= width - 10 && LastClickPos.Y <= height) {
-                        if (Input.GetClickDown(KeyModifier.None)) {
-                            valueSaved = _value;
+                        if (Input.GetClick(KeyModifier.None)) {
+                            Value -= (MouseY - lastMouseY) * Step;
+                            App.MouseCursorArrow = 2;
                         }
 
-                        if (Input.GetClick(KeyModifier.None)) {
-                            _value = valueSaved - (MouseY - LastClickPos.Y) / 2;
+                        if (Input.GetClick(KeyModifier.Shift)) {
+                            Value -= (MouseY - lastMouseY) * Step * 4;
                             App.MouseCursorArrow = 2;
                         }
                     }
                 }
-                bUp.enabled = Value < max;
-                bDown.enabled = Value > min;
+
+                //Scrolling
                 if (IsHovered && canScroll) {
                     Value += Input.MouseScrollWheel(KeyModifier.None);
                 }
 
+                bUp.enabled = Value < max;
+                bDown.enabled = Value > min;
                 if (bUp.Clicked) {
-                    Value++;
+                    Value += Step;
                 }
-
                 if (bDown.Clicked) {
-                    Value--;
+                    Value -= Step;
                 }
 
                 if (_value != lastValue) {
@@ -101,6 +107,7 @@ namespace WaveTracker.UI {
                 }
 
                 ValueWasChangedInternally = _value != valueBeforeUpdate;
+                lastMouseY = MouseY;
             }
         }
 
@@ -121,7 +128,7 @@ namespace WaveTracker.UI {
             DrawRect(boxStart + 1, boxStartY + 1, bWidth - 2, boxHeight - 2, Color.White);
             DrawRect(boxStart + 1, boxStartY + 1, bWidth - 2, 1, new Color(193, 196, 213));
             DrawRect(width, boxStartY + 6, -10, 1, ButtonColors.backgroundColor);
-            Write(Value.ToString("D" + DecimalPlaces), boxStart + 4, height / 2 - 3, text);
+            Write(Value.ToString("F" + DecimalPlaces), boxStart + 4, height / 2 - 3, text);
             bUp.Draw();
             bDown.Draw();
         }
