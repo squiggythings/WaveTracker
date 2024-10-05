@@ -249,6 +249,9 @@ namespace WaveTracker.Audio.Interop.Windows {
         public static extern MmResult waveOutPrepareHeader(nint hWaveOut, ref WaveHeader lpWaveOutHdr, int uSize);
 
         [DllImport("winmm")]
+        public static extern MmResult waveOutUnprepareHeader(nint hWaveOut, ref WaveHeader lpWaveOutHdr, int uSize);
+
+        [DllImport("winmm")]
         public static extern MmResult waveOutWrite(nint hWaveOut, ref WaveHeader lpWaveOutHdr, int uSize);
 
         [DllImport("winmm")]

@@ -25,7 +25,7 @@ namespace WaveTracker.Audio {
         [SupportedOSPlatform("Windows")]
         internal static AudioDevice DefaultWindowsOutputDevice => new AudioDevice {
             Name = "default",
-            DeviceNumber = 0,
+            DeviceNumber = 0xffffffff, // WAVE_MAPPER
         };
 
         [SupportedOSPlatform("Macos")]

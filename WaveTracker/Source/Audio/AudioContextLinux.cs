@@ -107,15 +107,15 @@ namespace WaveTracker.Audio {
             this.latency = (uint)latency;
         }
 
-        public bool IsAvailable() {
+        public int AvailableFrames() {
             if (isOpen) {
-                long frame_count = Alsa.snd_pcm_avail(_pcm);
+                int frame_count = (int)Alsa.snd_pcm_avail(_pcm);
                 if (frame_count < 0)
-                    Alsa.snd_pcm_recover(_pcm, (int)frame_count, 0);
-                return frame_count > 0;
+                    Alsa.snd_pcm_recover(_pcm, frame_count, 0);
+                return frame_count;
             }
             else {
-                return false;
+                return 0;
             }
         }
 
