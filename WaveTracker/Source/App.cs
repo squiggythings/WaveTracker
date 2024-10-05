@@ -157,6 +157,7 @@ namespace WaveTracker {
             graphics.ApplyChanges();
             Window.AllowUserResizing = true;
             Window.AllowAltF4 = true;
+            Window.Position = Point.Zero;
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
 
