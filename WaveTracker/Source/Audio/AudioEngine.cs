@@ -178,9 +178,7 @@ namespace WaveTracker.Audio {
             Dialogs.exportingDialog.TotalRows = RenderTotalRows;
             bool overwriting = File.Exists(filepath);
 
-            bool b = await Task.Run(() => {
-                return WriteToWaveFile(filepath + ".temp");
-            });
+            bool b = await Task.Run(() => WriteToWaveFile(filepath + ".temp"));
             Debug.WriteLine("Exported!");
             if (b) {
                 if (overwriting) {
@@ -268,7 +266,7 @@ namespace WaveTracker.Audio {
 
                 audioCtx.Close();
             } catch (Exception e) {
-                Console.Error.WriteLine("Audio context error: " + e.Message);
+                Console.Error.WriteLine("Audio context error: " + e);
 
                 // make sure audio is still read even when audio context is not present
                 while (!doStopAudioThread) {
