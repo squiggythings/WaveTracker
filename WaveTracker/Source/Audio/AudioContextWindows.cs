@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
@@ -97,7 +98,7 @@ namespace WaveTracker.Audio {
         }
 
         private void reset() {
-            bufferLength = (int)((SampleRate / 1000.0) * (Latency / 1000.0));
+            bufferLength = Math.Max(256, (int)((SampleRate / 1000.0) * (Latency / 1000.0)));
             queueBuffer = new Queue<float>(bufferLength);
 
             for (int i = 0; i < bufferHandles.Length; i++) {
