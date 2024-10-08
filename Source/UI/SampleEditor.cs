@@ -125,7 +125,7 @@ namespace WaveTracker.UI {
                 lastMouseHoverSample = MouseSampleIndexClamped;
             }
             if (!browser.InFocus && Input.focusTimer > 2) {
-                if (Input.CurrentModifier == KeyModifier.None && Sample.Length > 0) {
+                if (Sample.Length > 0) {
                     if (waveformRegion.DidClickInRegionM(KeyModifier.None)) {
                         if (waveformRegion.ClickedDown) {
                             selectionStartIndex = MouseSampleIndexClamped;
@@ -139,6 +139,31 @@ namespace WaveTracker.UI {
                         ViewportOffset = Math.Clamp(ViewportOffset, 0, Sample.Length - ViewportSize);
                         selectionEndIndex = MouseSampleIndexClamped;
                         SelectionIsActive = selectionStartIndex != selectionEndIndex;
+                    }
+                    if (waveformRegion.DidClickInRegionM(KeyModifier.Shift)) {
+                        if (waveformRegion.MouseXPercentage < 0) {
+                            ViewportOffset -= Math.Max(1, (int)(Sample.Length / 100 / zoomLevel));
+                        }
+                        if (waveformRegion.MouseXPercentage > 1f) {
+                            ViewportOffset += Math.Max(1, (int)(Sample.Length / 100 / zoomLevel));
+                        }
+                        if (MouseSampleIndexClamped - (selectionStartIndex + selectionEndIndex) / 2 < 0) {
+                            if (selectionStartIndex < selectionEndIndex) {
+                                selectionStartIndex = MouseSampleIndexClamped;
+                            }
+                            else {
+                                selectionEndIndex = MouseSampleIndexClamped;
+                            }
+                        }
+                        else {
+                            if (selectionStartIndex > selectionEndIndex) {
+                                selectionStartIndex = MouseSampleIndexClamped;
+                            }
+                            else {
+                                selectionEndIndex = MouseSampleIndexClamped;
+                            }
+                        }
+
                     }
                     if (waveformRegion.Clicked) {
                         if (selectionStartIndex == selectionEndIndex) {
@@ -501,13 +526,13 @@ namespace WaveTracker.UI {
                 if (Sample.loopType != Sample.LoopType.OneShot) {
                     DrawRect(x + loopPosition, y, 1, height, Color.Yellow);
                 }
-                if (Sample.currentPlaybackPosition < data.Length && Audio.ChannelManager.PreviewChannel.IsPlaying) {
+                if (Sample.currentPlaybackPosition < data.Length && ChannelManager.PreviewChannel.IsPlaying) {
                     DrawRect(x + GetXPositionOfSample(Sample.currentPlaybackPosition, width), y, 1, height, Color.Aqua);
                 }
                 if (waveformRegion.IsHovered) {
                     DrawRect(x + GetXPositionOfSample(MouseSampleIndex, width), y, 1, height, Helpers.Alpha(Color.White, 128));
                 }
-                else if (!InFocus && !browser.InFocus) {
+                else if (!InFocus && !browser.InFocus && !SelectionIsActive) {
                     DrawRect(x + GetXPositionOfSample(lastMouseHoverSample, width), y, 1, height, Helpers.Alpha(Color.White, 64));
                 }
             }
