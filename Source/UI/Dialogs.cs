@@ -1,4 +1,7 @@
-﻿namespace WaveTracker.UI {
+﻿using System;
+using System.Collections.Generic;
+
+namespace WaveTracker.UI {
     public static class Dialogs {
         public static ModuleSettingsDialog moduleSettings;
         public static ColorPickerDialog colorPicker;
@@ -12,8 +15,8 @@
         public static WaveSmoothDialog waveSmoothDialog;
         public static WaveSyncDialog waveSyncDialog;
         public static ConfigurationDialog configurationDialog;
-
-        public static MessageDialog messageDialog;
+        private static MessageDialog currentMessageDialog;
+        private static Queue<MessageDialog> messageDialogs;
 
         public static void Initialize() {
             moduleSettings = new ModuleSettingsDialog();
@@ -29,7 +32,36 @@
             waveSyncDialog = new WaveSyncDialog();
             configurationDialog = new ConfigurationDialog();
 
-            messageDialog = new MessageDialog();
+            messageDialogs = new Queue<MessageDialog>();
+        }
+        /// <summary>
+        /// Opens a message dialog
+        /// </summary>
+        /// <param name="message"></param>
+        /// <param name="icon"></param>
+        /// <param name="buttonNames"></param>
+        /// <param name="playSound"></param>
+        public static void OpenMessageDialog(string message, MessageDialog.Icon icon, string[] buttonNames, Action<string> onExitCallback, bool playSound = true) {
+            messageDialogs.Enqueue(new MessageDialog(message, icon, buttonNames, onExitCallback, playSound));
+            if (currentMessageDialog == null) {
+                currentMessageDialog = messageDialogs.Dequeue();
+                currentMessageDialog.Open();
+            }
+        }
+
+        /// <summary>
+        /// Opens a message dialog
+        /// </summary>
+        /// <param name="message"></param>
+        /// <param name="icon"></param>
+        /// <param name="buttonName"></param>
+        /// <param name="playSound"></param>
+        public static void OpenMessageDialog(string message, MessageDialog.Icon icon, string buttonName, bool playSound = true) {
+            messageDialogs.Enqueue(new MessageDialog(message, icon, [buttonName], null, playSound));
+            if (currentMessageDialog == null) {
+                currentMessageDialog = messageDialogs.Dequeue();
+                currentMessageDialog.Open();
+            }
         }
 
         public static void Update() {
@@ -45,8 +77,19 @@
             waveSyncDialog.Update();
             configurationDialog.Update();
             colorPicker.Update();
+            if (currentMessageDialog != null && currentMessageDialog.WindowIsOpen) {
+                currentMessageDialog.Update();
+            }
+            else {
+                if (messageDialogs.TryDequeue(out MessageDialog dialog)) {
+                    currentMessageDialog = dialog;
+                    currentMessageDialog.Open();
+                }
+                else {
+                    currentMessageDialog = null;
+                }
+            }
 
-            messageDialog.Update();
         }
 
         public static void Draw() {
@@ -63,7 +106,7 @@
             configurationDialog.Draw();
             colorPicker.Draw();
 
-            messageDialog.Draw();
+            currentMessageDialog?.Draw();
         }
     }
 }

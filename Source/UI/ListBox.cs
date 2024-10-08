@@ -87,7 +87,7 @@ namespace WaveTracker.UI {
                 DrawRect(0, rowNum * 11, width, 11, rowColor);
                 if (items.Count > i && i >= 0) {
                     string text = ShowItemNumbers ? "#" + (i + 1) + " " + items[i].ToString() : items[i].ToString();
-                    Write(Helpers.TrimTextToWidth(width - 7, Helpers.FlushString(text)), 3, rowNum * 11 + 2, Color.White);
+                    Write(Helpers.TrimTextToWidth(width - 7, text), 3, rowNum * 11 + 2, Color.White);
 
                 }
                 ++rowNum;

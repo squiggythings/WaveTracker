@@ -43,16 +43,16 @@ namespace WaveTracker.UI {
         /// </summary>
         public bool DidClickInRegion {
             get {
-                return Input.GetClick(KeyModifier._Any) && GlobalPointIsInBounds(Input.LastClickLocation) && IsInHierarchy(Input.lastClickFocus);
+                return Input.GetClick(KeyModifier._Any) && GlobalPointIsInBounds(Input.LastClickLocation) && IsMeOrAParent(Input.lastClickFocus);
             }
         }
 
         public bool ClickedDownM(KeyModifier keyModifier) {
-            return Input.GetClickDown(keyModifier) && GlobalPointIsInBounds(Input.LastClickLocation) && IsInHierarchy(Input.lastClickFocus);
+            return Input.GetClickDown(keyModifier) && GlobalPointIsInBounds(Input.LastClickLocation) && IsMeOrAParent(Input.lastClickFocus);
         }
 
         public bool DidClickInRegionM(KeyModifier keyModifier) {
-            return Input.GetClick(keyModifier) && GlobalPointIsInBounds(Input.LastClickLocation) && IsInHierarchy(Input.lastClickFocus);
+            return Input.GetClick(keyModifier) && GlobalPointIsInBounds(Input.LastClickLocation) && IsMeOrAParent(Input.lastClickFocus);
         }
     }
 }

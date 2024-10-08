@@ -8,7 +8,6 @@ namespace WaveTracker.UI {
         private WaveBankElement[] waveBankElements;
         public static int currentWaveID;
         public static int lastSelectedWave;
-        private int maxVisibleWaves;
         private ScrollbarHorizontal scrollbar;
         public WaveBank(int x, int y) : base("Wave Bank", x, y, MAX_WIDTH, 130) {
             waveBankElements = new WaveBankElement[100];

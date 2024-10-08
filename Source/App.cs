@@ -13,11 +13,10 @@ using WaveTracker.UI;
 namespace WaveTracker {
     public class App : Game {
 
-        public const string VERSION = "1.0.3";
+        public const string VERSION = "1.0.4";
         private static App instance;
 
         private GraphicsDeviceManager graphics;
-        private SpriteBatch targetBatch;
 
         /// <summary>
         /// The height of the app in scaled pixels
@@ -114,6 +113,12 @@ namespace WaveTracker {
             }
         }
 
+        public static GraphicsDevice GameGraphicsDevice {
+            get {
+                return instance.GraphicsDevice;
+            }
+        }
+
         /// <summary>
         /// Height of the menustrip
         /// </summary>
@@ -134,10 +139,14 @@ namespace WaveTracker {
         /// </summary>
         private string inputFilepath;
 
+        public static GameTime GameTime { get; private set; }
+
         public App(string[] args) {
             instance = this;
             if (args.Length > 0) {
-                inputFilepath = args[0];
+                if (Path.Exists(inputFilepath)) {
+                    inputFilepath = args[0];
+                }
             }
 
             graphics = new GraphicsDeviceManager(this);
@@ -160,8 +169,9 @@ namespace WaveTracker {
                 File.WriteAllText(Path.Combine(SaveLoad.ThemeFolderPath, "Neon.wttheme"), ColorTheme.CreateString(ColorTheme.Neon));
             }
             Input.Intialize();
-
             Settings = SettingsProfile.ReadFromDisk();
+            Graphics.Initialize(Content, GraphicsDevice);
+
             SaveLoad.ReadRecentFiles();
         }
 
@@ -193,8 +203,22 @@ namespace WaveTracker {
             ]);
         }
 
-        protected override void Initialize() {
+        private void OpenHelp() {
+            try {
+                Process.Start("explorer", "https://wavetracker.org/documentation");
+            } catch {
+                Dialogs.OpenMessageDialog("Could not open help!", MessageDialog.Icon.Error, "OK");
+            }
+        }
 
+        private void OpenEffectList() {
+            try {
+                Process.Start("explorer", "https://wavetracker.org/documentation/effect-list");
+            } catch {
+                Dialogs.OpenMessageDialog("Could not open help!", MessageDialog.Icon.Error, "OK");
+            }
+        }
+        protected override void Initialize() {
             CurrentModule = new WTModule();
             WaveBank = new WaveBank(510, 18 + MENUSTRIP_HEIGHT);
             ChannelManager.Initialize(WTModule.MAX_CHANNEL_COUNT);
@@ -228,9 +252,14 @@ namespace WaveTracker {
                 null,
                 new MenuOption("Toggle channel", ChannelManager.ToggleCurrentChannel),
                 new MenuOption("Solo channel", ChannelManager.SoloCurrentChannel),
+            ]));
+            MenuStrip.AddButton("Help", new Menu([
+                new MenuOption("Open manual...", OpenHelp),
+                new MenuOption("Effect list...", OpenEffectList),
+                null,
+                new SubMenu("Recover files...", SaveLoad.CreateAutosavesMenu()),
                 null,
                 new MenuOption("Reset audio", ResetAudio),
-
             ]));
 
             base.Initialize();
@@ -238,41 +267,34 @@ namespace WaveTracker {
         }
 
         protected override void LoadContent() {
-
-            Graphics.defaultFont = Content.Load<SpriteFont>("custom_font");
-            Graphics.highResFonts = new SpriteFont[5];
-            for (int i = 0; i < 5; ++i) {
-                Graphics.highResFonts[i] = Content.Load<SpriteFont>("highres_font_" + (i + 1));
-            }
-            Graphics.img = Content.Load<Texture2D>("img");
-            Graphics.pixel = new Texture2D(GraphicsDevice, 1, 1);
-            Graphics.pixel.SetData(new[] { Color.White });
-            targetBatch = new SpriteBatch(GraphicsDevice);
             SaveLoad.NewFile();
             SaveLoad.LoadFile(inputFilepath);
         }
 
-        private int midiDelay = 0;
+        private int dialogDelay = 0;
         protected override void Update(GameTime gameTime) {
+            GameTime = gameTime;
             Window.Title = SaveLoad.FileNameWithoutExtension + (SaveLoad.IsSaved ? "" : "*") + " [#" + (CurrentSongIndex + 1) + " " + CurrentSong.ToString() + "] - WaveTracker " + VERSION;
             WindowHeight = Window.ClientBounds.Height / Settings.General.ScreenScale;
             WindowWidth = Window.ClientBounds.Width / Settings.General.ScreenScale;
-            if (midiDelay < 2) {
-                midiDelay++;
-                if (midiDelay == 2) {
+            if (dialogDelay < 2) {
+                dialogDelay++;
+                if (dialogDelay == 2) {
+                    SaveLoad.CheckCrashPath();
+                    SaveLoad.SetCrashFlag(true);
                     PianoInput.Initialize();
                 }
             }
 
             if (IsActive) {
-                Input.GetState(gameTime);
+                Input.GetState();
                 PianoInput.Update();
             }
             else {
                 Input.windowFocusTimer = 5;
                 Input.dialogOpenCooldown = 3;
             }
-
+            SaveLoad.AutosaveTick();
             if (Input.dialogOpenCooldown == 0) {
                 if (Input.MousePositionX > 1 && Input.MousePositionX < WindowWidth - 1) {
                     if (Input.MousePositionY > 1 && Input.MousePositionY < WindowHeight - 1) {
@@ -287,7 +309,7 @@ namespace WaveTracker {
                 }
             }
 
-            Tooltip.Update(gameTime);
+            Tooltip.Update();
             if (Shortcuts["General\\Reset audio"].IsPressedDown) {
                 ResetAudio();
             }
@@ -331,6 +353,7 @@ namespace WaveTracker {
         }
 
         protected override void Draw(GameTime gameTime) {
+            GameTime = gameTime;
             graphics.PreferredBackBufferWidth = Window.ClientBounds.Width;
             graphics.PreferredBackBufferHeight = Window.ClientBounds.Height;
             graphics.ApplyChanges();
@@ -338,31 +361,15 @@ namespace WaveTracker {
             GraphicsDevice.SetRenderTarget(null);
             GraphicsDevice.Clear(UIColors.black);
 
-            targetBatch.Begin(SpriteSortMode.Deferred,
-                new BlendState {
-                    ColorSourceBlend = Blend.SourceAlpha,
-                    ColorDestinationBlend = Blend.InverseSourceAlpha,
-                    AlphaSourceBlend = Blend.One,
-                    AlphaDestinationBlend = Blend.InverseSourceAlpha,
-                },
-                SamplerState.PointClamp,
-                DepthStencilState.Default,
+            Graphics.spriteBatch.Begin(SpriteSortMode.Deferred,
+                Graphics.BlendState,
+                Graphics.SamplerState,
+                Graphics.DepthStencilState,
                 RasterizerState.CullNone
             );
-
-            Graphics.batch = targetBatch;
             Graphics.Scale = Settings.General.ScreenScale;
 
-            if (Settings.General.UseHighResolutionText) {
-                Graphics.currentFont = Graphics.highResFonts[Settings.General.ScreenScale - 1];
-                Graphics.fontOffsetY = 2;
-                Graphics.fontScale = 1;
-            }
-            else {
-                Graphics.currentFont = Graphics.defaultFont;
-                Graphics.fontOffsetY = 5;
-                Graphics.fontScale = Settings.General.ScreenScale;
-            }
+            Graphics.SetFont();
 
             if (!VisualizerMode) {
                 // draw pattern editor
@@ -414,7 +421,7 @@ namespace WaveTracker {
             ContextMenu.Draw();
             Tooltip.Draw();
 
-            targetBatch.End();
+            Graphics.spriteBatch.End();
 
             base.Draw(gameTime);
         }
@@ -433,7 +440,6 @@ namespace WaveTracker {
         /// </summary>
         public static void ExitApplication() {
             System.Windows.Forms.Form form = (System.Windows.Forms.Form)System.Windows.Forms.Control.FromHandle(instance.Window.Handle);
-
             form.Close();
         }
 
@@ -443,9 +449,10 @@ namespace WaveTracker {
         /// <param name="sender"></param>
         /// <param name="e"></param>
         public void ClosingForm(object sender, System.ComponentModel.CancelEventArgs e) {
+            ContextMenu.CloseCurrent();
+
             if (!SaveLoad.IsSaved) {
                 e.Cancel = true;
-                ContextMenu.CloseCurrent();
                 SaveLoad.DoSaveChangesDialog(UnsavedChangesCallback);
             }
 
@@ -467,6 +474,7 @@ namespace WaveTracker {
 
         protected override void OnExiting(object sender, EventArgs args) {
             Debug.WriteLine("Closing WaveTracker...");
+            SaveLoad.SetCrashFlag(false);
             AudioEngine.Stop();
             PianoInput.StopMIDI();
             SettingsProfile.WriteToDisk(Settings);

@@ -203,6 +203,12 @@ namespace WaveTracker.UI {
                 CurrentOctave++;
                 PianoInput.ClearAllNotes();
             }
+            for (int i = 0; i < 9; ++i) {
+                if (App.Shortcuts["General\\Set octave " + i].IsPressedRepeat) {
+                    CurrentOctave = i;
+                    PianoInput.ClearAllNotes();
+                }
+            }
             CurrentOctave = Math.Clamp(CurrentOctave, 0, 9);
             #endregion
 
@@ -314,7 +320,7 @@ namespace WaveTracker.UI {
             if (ClickedDown) {
                 CancelSelection();
             }
-            if (SingleClickedM(KeyModifier._Any) && Input.CurrentModifier != KeyModifier.Shift && MouseX <= LastChannelEndPos && !Input.MouseJustEndedDragging) {
+            if (ClickedM(KeyModifier._Any) && Input.CurrentModifier != KeyModifier.Shift && MouseX <= LastChannelEndPos && !Input.MouseJustEndedDragging) {
                 if (MouseX > ROW_COLUMN_WIDTH && MouseX < width) {
                     cursorPosition = GetCursorPositionFromPoint(MouseX, MouseY);
                     MakeCursorVisibleInBounds();
@@ -456,7 +462,7 @@ namespace WaveTracker.UI {
                 }
                 SetSelectionEnd(GetCursorPositionFromPointClampedToFrame(MouseX, MouseY, cursorPosition.Frame, GetMouseLineNumber() > NumVisibleLines / 2));
             }
-            if (DoubleClicked) {
+            if (DoubleClicked && GetMouseLineNumber() == NumVisibleLines / 2) {
                 selection.IsActive = true;
                 SetSelectionStart(cursorPosition);
                 selectionStart.Row = 0;
@@ -1013,6 +1019,7 @@ namespace WaveTracker.UI {
                 SnapToPlaybackPosition();
             }
             renderCursorPos = cursorPosition;
+            renderCursorPos.Normalize(App.CurrentSong);
             DrawRect(0, 0, width, height, App.Settings.Colors.Theme["Row background"]);
 
             DrawHeaderRect(0, -32, width);
@@ -1054,7 +1061,7 @@ namespace WaveTracker.UI {
             }
 
             // draw cursor behind text if the cursor cel is not empty
-            if (!CurrentPattern.CellIsEmpty(renderCursorPos.Row, renderCursorPos.Channel, renderCursorPos.Column.ToCellType())) {
+            if (!App.CurrentSong[renderCursorPos.Frame].CellIsEmpty(renderCursorPos.Row, renderCursorPos.Channel, renderCursorPos.Column.ToCellType())) {
                 DrawCursor(ref renderCursorPos);
             }
 
@@ -1099,7 +1106,7 @@ namespace WaveTracker.UI {
             }
 
             // draw cursor infront of text if the cursor cel is empty
-            if (CurrentPattern.CellIsEmpty(renderCursorPos.Row, renderCursorPos.Channel, renderCursorPos.Column.ToCellType())) {
+            if (App.CurrentSong[renderCursorPos.Frame].CellIsEmpty(renderCursorPos.Row, renderCursorPos.Channel, renderCursorPos.Column.ToCellType())) {
                 DrawCursor(ref renderCursorPos);
             }
 
@@ -1182,7 +1189,12 @@ namespace WaveTracker.UI {
             }
             else {
                 string noteName = Helpers.MIDINoteToText(noteValue);
-                if (noteName.Contains('#')) {
+                if (instrumentValue < App.CurrentModule.Instruments.Count && App.CurrentModule.Instruments[instrumentValue] is NoiseInstrument) {
+                    noteName = ((noteValue + 12) % 24).ToString("D2");
+                    WriteMonospaced("#", x + 2, y, rowTextColor, 4);
+                    WriteMonospaced(noteName, x + 8, y, rowTextColor, 4);
+                }
+                else if (noteName.Contains('#')) {
                     Write(noteName, x + 2, y, rowTextColor);
                 }
                 else {
@@ -1200,6 +1212,9 @@ namespace WaveTracker.UI {
                 if (instrumentValue < App.CurrentModule.Instruments.Count) {
                     if (App.CurrentModule.Instruments[instrumentValue] is WaveInstrument) {
                         instrumentColor = App.Settings.Colors.Theme["Instrument (wave)"];
+                    }
+                    else if (App.CurrentModule.Instruments[instrumentValue] is NoiseInstrument) {
+                        instrumentColor = App.Settings.Colors.Theme["Instrument (noise)"];
                     }
                     else {
                         instrumentColor = App.Settings.Colors.Theme["Instrument (sample)"];
@@ -1234,7 +1249,7 @@ namespace WaveTracker.UI {
                     WriteMonospaced("···", x + 48 + 18 * i, y, emptyColor, 4);
                 }
                 else {
-                    Write(Helpers.FlushString((char)thisEffectType + ""), x + 47 + 18 * i, y, App.Settings.Colors.Theme["Effect"]);
+                    Write((char)thisEffectType + "", x + 47 + 18 * i, y, App.Settings.Colors.Theme["Effect"]);
                     if (Helpers.IsEffectHex((char)thisEffectType)) {
                         WriteMonospaced(thisEffectParameter.ToString("X2"), x + 52 + 18 * i, y, App.Settings.Colors.Theme["Effect parameter"], 4);
                     }
@@ -1615,7 +1630,7 @@ namespace WaveTracker.UI {
                 if (!InstrumentMask) {
                     CurrentPattern[cursorPosition.Row, cursorPosition.Channel, CellType.Instrument] = (byte)App.InstrumentBank.CurrentInstrumentIndex;
                 }
-                if (volume.HasValue && App.Settings.MIDI.RecordNoteVelocity) {
+                if (volume.HasValue) {
                     CurrentPattern[cursorPosition.Row, cursorPosition.Channel, CellType.Volume] = (byte)volume.Value;
                 }
                 MoveToRow(cursorPosition.Row + InputStep);
@@ -1722,7 +1737,7 @@ namespace WaveTracker.UI {
                         SelectionPattern[cursorPosition.Row, column + 1] = WTPattern.EVENT_EMPTY;
                     }
                 }
-                MoveToRow(cursorPosition.Row + 1);
+                MoveToRow(cursorPosition.Row + InputStep);
             }
             AddToUndoHistory();
         }
@@ -2145,7 +2160,12 @@ namespace WaveTracker.UI {
         /// </summary>
         public void InsertNewFrame() {
             App.CurrentSong.InsertNewFrame(cursorPosition.Frame + 1);
-            MoveToFrame(cursorPosition.Frame + 1);
+            if (Playback.IsPlaying && App.PatternEditor.FollowMode) {
+                Playback.GotoNextFrame();
+            }
+            else {
+                MoveToFrame(cursorPosition.Frame + 1);
+            }
         }
 
         /// <summary>
@@ -2153,7 +2173,12 @@ namespace WaveTracker.UI {
         /// </summary>
         public void DuplicateFrame() {
             App.CurrentSong.DuplicateFrame(cursorPosition.Frame);
-            MoveToFrame(cursorPosition.Frame + 1);
+            if (Playback.IsPlaying && App.PatternEditor.FollowMode) {
+                Playback.GotoNextFrame();
+            }
+            else {
+                MoveToFrame(cursorPosition.Frame + 1);
+            }
         }
 
         /// <summary>
@@ -2163,6 +2188,9 @@ namespace WaveTracker.UI {
             App.CurrentSong.RemoveFrame(cursorPosition.Frame);
             if (cursorPosition.Frame > 0) {
                 MoveToFrame(cursorPosition.Frame - 1);
+                if (Playback.IsPlaying && App.PatternEditor.FollowMode) {
+                    Playback.GotoPreviousFrame();
+                }
             }
         }
 
@@ -2201,6 +2229,7 @@ namespace WaveTracker.UI {
         /// </summary>
         public void SnapToPlaybackPosition() {
             if (FollowMode) {
+                Playback.position.Normalize(App.CurrentSong);
                 cursorPosition.Frame = Playback.position.Frame;
                 cursorPosition.Row = Playback.position.Row;
             }
@@ -2511,42 +2540,6 @@ namespace WaveTracker.UI {
         private readonly Dictionary<string, int> KeyInputs_Piano = new Dictionary<string, int>() {
             { "Piano\\Note off", WTPattern.EVENT_NOTE_CUT },
             { "Piano\\Note release", WTPattern.EVENT_NOTE_RELEASE },
-
-            { "Piano\\Lower C-1", 0 },
-            { "Piano\\Lower C#1", 1 },
-            {"Piano\\Lower D-1", 2 },
-            { "Piano\\Lower D#1", 3 },
-            { "Piano\\Lower E-1", 4 },
-            { "Piano\\Lower F-1", 5 },
-            { "Piano\\Lower F#1", 6 },
-            { "Piano\\Lower G-1", 7 },
-            { "Piano\\Lower G#1", 8 },
-            { "Piano\\Lower A-1", 9 },
-            { "Piano\\Lower A#1", 10 },
-            { "Piano\\Lower B-1", 11 },
-            { "Piano\\Lower C-2", 12 },
-            { "Piano\\Lower C#2", 13 },
-            { "Piano\\Lower D-2", 14 },
-            { "Piano\\Lower D#2", 15 },
-            { "Piano\\Lower E-2", 16 },
-
-            { "Piano\\Upper C-2", 12 },
-            { "Piano\\Upper C#2", 13 },
-            { "Piano\\Upper D-2", 14 },
-            { "Piano\\Upper D#2", 15 },
-            { "Piano\\Upper E-2", 16 },
-            { "Piano\\Upper F-2", 17 },
-            { "Piano\\Upper F#2", 18 },
-            { "Piano\\Upper G-2", 19 },
-            { "Piano\\Upper G#2", 20 },
-            { "Piano\\Upper A-2", 21 },
-            { "Piano\\Upper A#2", 22 },
-            { "Piano\\Upper B-2", 23 },
-            { "Piano\\Upper C-3", 24 },
-            { "Piano\\Upper C#3", 25 },
-            { "Piano\\Upper D-3", 26 },
-            { "Piano\\Upper D#3", 27 },
-            { "Piano\\Upper E-3", 28 },
         };
         private readonly Dictionary<Keys, char> KeyInputs_Effect = new Dictionary<Keys, char>() {
             {Keys.D0, '0'},

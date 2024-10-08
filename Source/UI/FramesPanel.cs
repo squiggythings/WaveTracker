@@ -1,5 +1,4 @@
 ﻿using Microsoft.Xna.Framework;
-using WaveTracker.Tracker;
 
 namespace WaveTracker.UI {
     public class FramesPanel : Panel {
@@ -40,21 +39,6 @@ namespace WaveTracker.UI {
                 bMoveRight.enabled = App.PatternEditor.cursorPosition.Frame < App.CurrentSong.FrameSequence.Count - 1;
                 bMoveLeft.enabled = App.PatternEditor.cursorPosition.Frame > 0;
                 if (scrollRegion.IsHovered && Input.focus == null) {
-                    //if (scrollRegion.RightClicked) {
-                    //    ContextMenu.Open(new Menu([
-                    //    new MenuOption("Insert Frame",App.PatternEditor.InsertNewFrame, bNewFrame.enabled),
-                    //    new MenuOption("Remove Frame",App.PatternEditor.RemoveFrame, bDeleteFrame.enabled),
-                    //    new MenuOption("Duplicate Frame",App.PatternEditor.DuplicateFrame, bDuplicateFrame.enabled),
-                    //    null,
-                    //    new MenuOption("Move Left", App.PatternEditor.MoveFrameLeft, bMoveLeft.enabled),
-                    //    new MenuOption("Move Right", App.PatternEditor.MoveFrameRight, bMoveRight.enabled),
-                    //    null,
-                    //    new MenuOption("Increase Pattern",App.PatternEditor.IncreaseFramePatternIndex),
-                    //    new MenuOption("Decrease Pattern",App.PatternEditor.DecreaseFramePatternIndex),
-                    //    new MenuOption("Make unique",App.PatternEditor.IncreaseFramePatternIndex),
-                    //    new MenuOption("Set pattern...",SetPatternIndex)
-                    //]));
-                    //}
                     if (!Input.GetClick(KeyModifier._Any)) {
                         if (Input.MouseScrollWheel(KeyModifier.None) < 0) {
                             App.PatternEditor.NextFrame();
@@ -64,29 +48,27 @@ namespace WaveTracker.UI {
                         }
                     }
                 }
-                if (!Playback.IsPlaying) {
-                    if (bNewFrame.Clicked) {
-                        App.PatternEditor.InsertNewFrame();
-                    }
-                    if (bDuplicateFrame.Clicked || App.Shortcuts["Frame\\Duplicate frame"].IsPressedRepeat) {
-                        App.PatternEditor.DuplicateFrame();
-                    }
-                    if (bDeleteFrame.Clicked || App.Shortcuts["Frame\\Remove frame"].IsPressedRepeat) {
-                        App.PatternEditor.RemoveFrame();
-                    }
+                if (bNewFrame.Clicked) {
+                    App.PatternEditor.InsertNewFrame();
+                }
+                if (bDuplicateFrame.Clicked || App.Shortcuts["Frame\\Duplicate frame"].IsPressedRepeat) {
+                    App.PatternEditor.DuplicateFrame();
+                }
+                if (bDeleteFrame.Clicked || App.Shortcuts["Frame\\Remove frame"].IsPressedRepeat) {
+                    App.PatternEditor.RemoveFrame();
+                }
 
-                    if (bMoveRight.Clicked) {
-                        App.PatternEditor.MoveFrameRight();
-                    }
-                    if (bMoveLeft.Clicked) {
-                        App.PatternEditor.MoveFrameLeft();
-                    }
-                    if (App.Shortcuts["Frame\\Increase pattern value"].IsPressedRepeat) {
-                        App.PatternEditor.IncreaseFramePatternIndex();
-                    }
-                    if (App.Shortcuts["Frame\\Decrease pattern value"].IsPressedRepeat) {
-                        App.PatternEditor.DecreaseFramePatternIndex();
-                    }
+                if (bMoveRight.Clicked) {
+                    App.PatternEditor.MoveFrameRight();
+                }
+                if (bMoveLeft.Clicked) {
+                    App.PatternEditor.MoveFrameLeft();
+                }
+                if (App.Shortcuts["Frame\\Increase pattern value"].IsPressedRepeat) {
+                    App.PatternEditor.IncreaseFramePatternIndex();
+                }
+                if (App.Shortcuts["Frame\\Decrease pattern value"].IsPressedRepeat) {
+                    App.PatternEditor.DecreaseFramePatternIndex();
                 }
             }
         }

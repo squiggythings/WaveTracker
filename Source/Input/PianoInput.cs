@@ -13,6 +13,7 @@ namespace WaveTracker {
     /// </summary>
     public static class PianoInput {
         public static List<int> currentlyHeldDownNotes = [];
+        public static List<int> currentlyHeldDownChannelIndexes = [];
         public static List<int> keyboardNotes = [];
         public static List<int> midiNotes = [];
         private static int previewNote;
@@ -36,23 +37,24 @@ namespace WaveTracker {
         }
 
         public static void Update() {
-            foreach (KeyValuePair<string, int> binding in PianoKeyInputs) {
-                int midiNote = binding.Value + (App.PatternEditor.CurrentOctave + 1) * 12;
-                if (App.Shortcuts[binding.Key].IsPressedRepeat) {
-                    if (App.PatternEditor.cursorPosition.Column == CursorColumnType.Note || App.VisualizerMode || App.WaveEditor.IsOpen || App.InstrumentEditor.IsOpen) {
-                        if (App.Shortcuts[binding.Key].IsPressedDown) {
-                            KeyboardNoteOn(midiNote);
-                        }
-                        else if (App.Settings.PatternEditor.KeyRepeat) {
-                            App.PatternEditor.TryToEnterNote(midiNote, null);
+            if (!InputField.IsAnInputFieldBeingEdited) {
+                foreach (KeyValuePair<string, int> binding in PianoKeyInputs) {
+                    int midiNote = binding.Value + (App.PatternEditor.CurrentOctave + 1) * 12;
+                    if (App.Shortcuts[binding.Key].IsPressedRepeat) {
+                        if (App.PatternEditor.cursorPosition.Column == CursorColumnType.Note || App.VisualizerMode || App.WaveEditor.IsOpen || App.InstrumentEditor.IsOpen) {
+                            if (App.Shortcuts[binding.Key].IsPressedDown) {
+                                KeyboardNoteOn(midiNote);
+                            }
+                            else if (App.Settings.PatternEditor.KeyRepeat) {
+                                App.PatternEditor.TryToEnterNote(midiNote, null);
+                            }
                         }
                     }
-                }
-                if (App.Shortcuts[binding.Key].WasReleasedThisFrame) {
-                    KeyboardNoteOff(midiNote);
+                    if (App.Shortcuts[binding.Key].WasReleasedThisFrame) {
+                        KeyboardNoteOff(midiNote);
+                    }
                 }
             }
-
         }
 
         public static void ReceivePreviewPianoInput(int previewPianoCurrentNote) {
@@ -94,7 +96,7 @@ namespace WaveTracker {
             } catch {
                 MidiIn_ = null;
                 CurrentMidiDeviceName = "(none)";
-                Dialogs.messageDialog.Open(
+                Dialogs.OpenMessageDialog(
                     "Error opening MIDI device \"" + name + "\"!",
                     MessageDialog.Icon.Error,
                     "OK"
@@ -135,14 +137,23 @@ namespace WaveTracker {
         private static void OnNoteOnEvent(int note, int? velocity, bool enterToPatternEditor = false) {
             if (!currentlyHeldDownNotes.Contains(note)) {
                 currentlyHeldDownNotes.Add(note);
+                int index = currentlyHeldDownNotes.IndexOf(note);
+                for (int i = 0; i < ChannelManager.Channels.Count; ++i) {
+                    if (!currentlyHeldDownChannelIndexes.Contains(i)) {
+                        currentlyHeldDownChannelIndexes.Add(i);
+                        break;
+                    }
+                }
                 CurrentNote = note;
                 CurrentVelocity = velocity ?? 99;
                 if (!Playback.IsPlaying) {
                     AudioEngine.ResetTicks();
                 }
-                ChannelManager.PreviewChannel.SetMacro(App.InstrumentBank.CurrentInstrumentIndex);
-                ChannelManager.PreviewChannel.SetVolume(CurrentVelocity);
-                ChannelManager.PreviewChannel.TriggerNote(CurrentNote);
+                if (currentlyHeldDownNotes.Count > 0) {
+                    ChannelManager.Channels[currentlyHeldDownChannelIndexes[index]].SetMacro(App.InstrumentBank.CurrentInstrumentIndex);
+                    ChannelManager.Channels[currentlyHeldDownChannelIndexes[index]].SetVolume(CurrentVelocity);
+                    ChannelManager.Channels[currentlyHeldDownChannelIndexes[index]].TriggerNote(CurrentNote);
+                }
                 if (enterToPatternEditor) {
                     App.PatternEditor.TryToEnterNote(note, velocity);
                 }
@@ -154,23 +165,27 @@ namespace WaveTracker {
         /// </summary>
         /// <param name="note"></param>
         private static void OnNoteOffEvent(int note) {
-            currentlyHeldDownNotes.Remove(note);
-            if (currentlyHeldDownNotes.Count > 0) {
-                if (CurrentNote != currentlyHeldDownNotes[currentlyHeldDownNotes.Count - 1]) {
-                    CurrentNote = currentlyHeldDownNotes[currentlyHeldDownNotes.Count - 1];
-                    ChannelManager.PreviewChannel.SetMacro(App.InstrumentBank.CurrentInstrumentIndex);
-                    ChannelManager.PreviewChannel.SetVolume(CurrentVelocity);
-                    ChannelManager.PreviewChannel.TriggerNote(CurrentNote);
-                }
+            //if (currentlyHeldDownNotes.Count > 0) {
+            //    if (CurrentNote != currentlyHeldDownNotes[currentlyHeldDownNotes.Count - 1]) {
+            //        CurrentNote = currentlyHeldDownNotes[currentlyHeldDownNotes.Count - 1];
+            //        //ChannelManager.Channels[currentlyHeldDownNotes.Count - 1].SetMacro(App.InstrumentBank.CurrentInstrumentIndex);
+            //        //ChannelManager.PreviewChannel.SetVolume(CurrentVelocity);
+            //        //ChannelManager.PreviewChannel.TriggerNote(CurrentNote);
+            //    }
+            //}
+            //else {
+            //CurrentNote = -1;
+            if (!Playback.IsPlaying) {
+                AudioEngine.ResetTicks();
             }
-            else {
-                CurrentNote = -1;
-                if (!Playback.IsPlaying) {
-                    AudioEngine.ResetTicks();
-                }
+            int index = currentlyHeldDownNotes.IndexOf(note);
+            if (index >= 0) {
+                ChannelManager.Channels[currentlyHeldDownChannelIndexes[index]].PreviewCut();
+                currentlyHeldDownNotes.RemoveAt(index);
+                currentlyHeldDownChannelIndexes.RemoveAt(index);
 
-                ChannelManager.PreviewChannel.PreviewCut();
             }
+            //}
         }
 
         /// <summary>
@@ -182,7 +197,8 @@ namespace WaveTracker {
             note = Math.Clamp(note, 12, 131);
             if (!midiNotes.Contains(note)) {
                 midiNotes.Add(note);
-                OnNoteOnEvent(note, (int)Math.Ceiling(velocity / 127f * 99), true);
+                int? noteVelocity = App.Settings.MIDI.RecordNoteVelocity ? (int?)Math.Ceiling(velocity / 127f * 99) : null;
+                OnNoteOnEvent(note, noteVelocity, true);
             }
         }
         /// <summary>
@@ -219,7 +235,7 @@ namespace WaveTracker {
         }
 
         private static void OnMIDIErrorReceived(object sender, MidiInMessageEventArgs e) {
-            Dialogs.messageDialog.Open(string.Format("Time {0} Message 0x{1:X8} Event {2}", e.Timestamp, e.RawMessage, e.MidiEvent), MessageDialog.Icon.Error, "OK");
+            Dialogs.OpenMessageDialog(string.Format("Time {0} Message 0x{1:X8} Event {2}", e.Timestamp, e.RawMessage, e.MidiEvent), MessageDialog.Icon.Error, "OK");
         }
 
         private static void OnMIDIMessageReceived(object sender, MidiInMessageEventArgs e) {
@@ -288,6 +304,32 @@ namespace WaveTracker {
             { "Piano\\Upper D-3", 26 },
             { "Piano\\Upper D#3", 27 },
             { "Piano\\Upper E-3", 28 },
+
+            { "Piano\\3rd octave C", 24 },
+            { "Piano\\3rd octave C#", 25 },
+            { "Piano\\3rd octave D", 26 },
+            { "Piano\\3rd octave D#", 27 },
+            { "Piano\\3rd octave E", 28 },
+            { "Piano\\3rd octave F", 29 },
+            { "Piano\\3rd octave F#", 30 },
+            { "Piano\\3rd octave G", 31 },
+            { "Piano\\3rd octave G#", 32 },
+            { "Piano\\3rd octave A", 33 },
+            { "Piano\\3rd octave A#", 34 },
+            { "Piano\\3rd octave B", 35 },
+
+            { "Piano\\4th octave C", 36 },
+            { "Piano\\4th octave C#", 37 },
+            { "Piano\\4th octave D", 38 },
+            { "Piano\\4th octave D#", 39 },
+            { "Piano\\4th octave E", 40 },
+            { "Piano\\4th octave F", 41 },
+            { "Piano\\4th octave F#", 42 },
+            { "Piano\\4th octave G", 43 },
+            { "Piano\\4th octave G#", 44 },
+            { "Piano\\4th octave A", 45 },
+            { "Piano\\4th octave A#", 46 },
+            { "Piano\\4th octave B", 47 },
         };
     }
 }

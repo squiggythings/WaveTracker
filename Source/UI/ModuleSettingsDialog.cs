@@ -43,7 +43,6 @@ namespace WaveTracker.UI {
 
             tickSpeedMode = new Dropdown(58, 192, this, scrollWrap: false);
             tickSpeedMode.SetMenuItems(["Default (60 Hz)", "Custom"]);
-
             tickRateSlider = new HorizontalSlider(width - 122, 212, 96, 16, this);
             tickRateSlider.SetValueLimits(16, 400);
             tickRateSlider.CoarseAdjustAmount = 16;
@@ -102,7 +101,7 @@ namespace WaveTracker.UI {
                 }
                 if (ok.Clicked) {
                     if (numberOfChannels.Value < App.CurrentModule.ChannelCount) {
-                        Dialogs.messageDialog.Open(
+                        Dialogs.OpenMessageDialog(
                         "Remove " + (App.CurrentModule.ChannelCount - numberOfChannels.Value) + " channels? There is no undo.",
                         MessageDialog.Icon.Warning,
                         ["Yes", "No"],
@@ -130,7 +129,7 @@ namespace WaveTracker.UI {
                     songsList.SelectedIndex++;
                 }
                 if (removeSong.Clicked) {
-                    Dialogs.messageDialog.Open(
+                    Dialogs.OpenMessageDialog(
                         "Do you want to remove this song from the module? There is no undo.",
                         MessageDialog.Icon.Warning,
                         ["Yes", "No"],
@@ -192,7 +191,6 @@ namespace WaveTracker.UI {
                 removeSong.Draw();
                 moveSongUp.Draw();
                 moveSongDown.Draw();
-
                 DrawHorizontalLabel("Module", 8, 165, width - 16);
                 numberOfChannels.Draw();
                 Write("Tick speed", 8, tickSpeedMode.y + 3, UIColors.label);

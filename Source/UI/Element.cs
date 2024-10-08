@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using WaveTracker.Rendering;
 
 namespace WaveTracker.UI {
@@ -20,8 +21,13 @@ namespace WaveTracker.UI {
             }
         }
 
-        public bool IsInHierarchy(Element element) {
-            return element == this || (parent == null ? element == null : parent.IsInHierarchy(element));
+        public bool IsMeOrAParent(Element element) {
+            if (parent == null) {
+                return element == this || element == null;
+            }
+            else {
+                return element == this || parent.IsMeOrAParent(element);
+            }
         }
 
         public void SetParent(Element parent) {
@@ -29,6 +35,16 @@ namespace WaveTracker.UI {
         }
         protected void Write(string text, int x, int y, Color color) {
             Graphics.Write(text, this.x + x + OffX, this.y + y + OffY, color);
+        }
+        /// <summary>
+        /// Renders text in multicolor, <c>colors</c> indicates a color for each character.
+        /// </summary>
+        /// <param name="text"></param>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <param name="colors"></param>
+        protected void WriteWithHighlight(string text, int x, int y, Color[] colors) {
+            Graphics.Write(text, this.x + x + OffX, this.y + y + OffY, colors);
         }
 
         protected void WriteMultiline(string text, int x, int y, int width, Color color, int lineSpacing = 10) {
@@ -57,9 +73,6 @@ namespace WaveTracker.UI {
                 Write(line, x, y, color);
                 y += lineSpacing;
             }
-        }
-        protected void WriteTwiceAsBig(string text, int x, int y, Color c) {
-            Graphics.WriteTwiceAsBig(text, this.x + x + OffX, this.y + y + OffY, c);
         }
 
         protected void WriteRightAlign(string text, int x, int y, Color color) {
@@ -94,6 +107,43 @@ namespace WaveTracker.UI {
         }
         protected void DrawSprite(int x, int y, int width, int height, Rectangle spriteBounds, Color col) {
             Graphics.DrawSprite(this.x + x + OffX, this.y + y + OffY, width, height, spriteBounds, col);
+        }
+
+        /// <summary>
+        /// Sets drawing to be inside a rectangular mask, anything outside will be clipped.
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <param name="width"></param>
+        /// <param name="height"></param>
+        protected void StartRectangleMask(int x, int y, int width, int height) {
+            // end the batch before this
+            Graphics.spriteBatch.End();
+
+            // begin a new batch using the scissor test masking feature
+            Graphics.spriteBatch.Begin(SpriteSortMode.Deferred,
+                Graphics.BlendState,
+                Graphics.SamplerState,
+                Graphics.DepthStencilState,
+                Graphics.scissorRasterizer);
+
+            // set the scissor rectangle to the bounds of this element on the screen, anything drawn beyond it will be clipped
+            Graphics.spriteBatch.GraphicsDevice.ScissorRectangle = new Rectangle((this.x + x + OffX) * Graphics.Scale, (this.y + y + OffY) * Graphics.Scale, width * Graphics.Scale, height * Graphics.Scale);
+        }
+
+        /// <summary>
+        /// Ends rectangular clipping and resumes regular drawing
+        /// </summary>
+        protected static void EndRectangleMask() {
+            // end the clipped batch
+            Graphics.spriteBatch.End();
+
+            // begin another batch without scissor clipping to resume regular drawing
+            Graphics.spriteBatch.Begin(SpriteSortMode.Deferred,
+                Graphics.BlendState,
+                Graphics.SamplerState,
+                Graphics.DepthStencilState,
+                RasterizerState.CullNone);
         }
 
         public Point GlobalPointToLocalPoint(Point p) {

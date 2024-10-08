@@ -1,4 +1,5 @@
 ﻿using WaveTracker.Audio;
+using WaveTracker.UI;
 
 namespace WaveTracker.Tracker {
     public static class Playback {
@@ -21,38 +22,40 @@ namespace WaveTracker.Tracker {
         }
 
         public static void Update() {
-            if (App.Shortcuts["General\\Play from beginning"].IsPressedDown) {
-                PlayFromBeginning();
-            }
+            if (!InputField.IsAnInputFieldBeingEdited) {
+                if (App.Shortcuts["General\\Play from beginning"].IsPressedDown) {
+                    PlayFromBeginning();
+                }
 
-            if (App.Shortcuts["General\\Play from cursor"].IsPressedDown) {
-                PlayFromCursor();
-            }
+                if (App.Shortcuts["General\\Play from cursor"].IsPressedDown) {
+                    PlayFromCursor();
+                }
 
-            if (App.Shortcuts["General\\Play and loop pattern"].IsPressedDown) {
-                PlayAndLoopPattern();
-            }
+                if (App.Shortcuts["General\\Play and loop pattern"].IsPressedDown) {
+                    PlayAndLoopPattern();
+                }
 
-            if (App.Shortcuts["General\\Stop"].IsPressedDown) {
-                Stop();
-            }
+                if (App.Shortcuts["General\\Stop"].IsPressedDown) {
+                    Stop();
+                }
 
-            if (App.Shortcuts["General\\Play/Stop"].IsPressedDown) {
-                if (Input.windowFocusTimer == 0 && Input.focusTimer > 1) {
-                    if (IsPlaying) {
-                        Stop();
-                    }
-                    else {
-                        Play();
+                if (App.Shortcuts["General\\Play/Stop"].IsPressedDown) {
+                    if (Input.windowFocusTimer == 0 && Input.focusTimer > 1) {
+                        if (IsPlaying) {
+                            Stop();
+                        }
+                        else {
+                            Play();
+                        }
                     }
                 }
-            }
 
-            if (!App.VisualizerMode) {
-                if (App.Shortcuts["General\\Play row"].IsPressedRepeat) {
-                    if (Input.dialogOpenCooldown == 0) {
-                        ChannelManager.PlayRow(App.PatternEditor.cursorPosition.Frame, App.PatternEditor.cursorPosition.Row);
-                        App.PatternEditor.MoveToRow(App.PatternEditor.cursorPosition.Row + 1);
+                if (!App.VisualizerMode) {
+                    if (App.Shortcuts["General\\Play row"].IsPressedRepeat) {
+                        if (Input.dialogOpenCooldown == 0) {
+                            ChannelManager.PlayRow(App.PatternEditor.cursorPosition.Frame, App.PatternEditor.cursorPosition.Row);
+                            App.PatternEditor.MoveToRow(App.PatternEditor.cursorPosition.Row + 1);
+                        }
                     }
                 }
             }
@@ -66,7 +69,6 @@ namespace WaveTracker.Tracker {
             IsPlaying = true;
             tickCounter = 0;
             ChannelManager.Reset();
-            ChannelManager.PreviewChannel.Reset();
             position.Frame = App.PatternEditor.cursorPosition.Frame;
             position.Row = 0;
             if (App.PatternEditor.FollowMode && !AudioEngine.IsRendering) {
@@ -74,7 +76,8 @@ namespace WaveTracker.Tracker {
             }
 
             Restore();
-            PlayRow();
+            AudioEngine.ResetTicks();
+            //PlayRow();
         }
 
         /// <summary>
@@ -90,7 +93,8 @@ namespace WaveTracker.Tracker {
                 App.PatternEditor.SnapToPlaybackPosition();
             }
             Restore();
-            PlayRow();
+            AudioEngine.ResetTicks();
+            //PlayRow();
         }
 
         /// <summary>
@@ -98,6 +102,7 @@ namespace WaveTracker.Tracker {
         /// </summary>
         public static void PlayAndLoopPattern() {
             Stop();
+
             loopCurrentPattern = true;
             IsPlaying = true;
             ChannelManager.Reset();
@@ -108,7 +113,8 @@ namespace WaveTracker.Tracker {
                 App.PatternEditor.SnapToPlaybackPosition();
             }
             Restore();
-            PlayRow();
+            AudioEngine.ResetTicks();
+            //PlayRow();
         }
 
         /// <summary>
@@ -126,6 +132,7 @@ namespace WaveTracker.Tracker {
                 App.PatternEditor.SnapToPlaybackPosition();
             }
             Restore();
+            AudioEngine.ResetTicks();
             PlayRow();
         }
 
@@ -226,12 +233,14 @@ namespace WaveTracker.Tracker {
         public static void GotoNextFrame() {
             position.MoveToFrame(position.Frame + 1, App.CurrentSong);
             position.Row = 0;
+            AudioEngine.ResetTicks();
             PlayRow();
         }
 
         public static void GotoPreviousFrame() {
             position.MoveToFrame(position.Frame - 1, App.CurrentSong);
             position.Row = 0;
+            AudioEngine.ResetTicks();
             PlayRow();
         }
 

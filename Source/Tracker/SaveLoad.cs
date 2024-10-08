@@ -37,6 +37,10 @@ namespace WaveTracker {
         /// </summary>
         public static string ThemeFolderPath { get { return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData, Environment.SpecialFolderOption.Create), "WaveTracker", "Themes"); } }
         /// <summary>
+        /// The path of the folder containing themes
+        /// </summary>
+        public static string AutosavesFolderPath { get { return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData, Environment.SpecialFolderOption.Create), "WaveTracker", "autosaves"); } }
+        /// <summary>
         /// The path of the folder containing the app settings
         /// </summary>
         public static string SettingsFolderPath { get { return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData, Environment.SpecialFolderOption.Create), "WaveTracker"); } }
@@ -57,6 +61,8 @@ namespace WaveTracker {
         /// </summary>
         public static string FileNameWithoutExtension { get { return CurrentFilepath == "" ? "Untitled" : Path.GetFileNameWithoutExtension(CurrentFilepath); } }
         public static int savecooldown = 0;
+        private static bool performedAutosave;
+        private static TimeSpan lastAutosaveTime;
 
         /// <summary>
         /// Writes the current module to <c>path</c>
@@ -75,6 +81,56 @@ namespace WaveTracker {
             Debug.WriteLine("saved in " + stopwatch.ElapsedMilliseconds + " ms");
             return;
 
+        }
+
+        public static void CheckCrashPath() {
+            string crashflagPath = Path.Combine(SettingsFolderPath, "crashflag");
+            if (File.Exists(crashflagPath)) {
+                Dialogs.OpenMessageDialog("WaveTracker quit unexpectedly last time.", MessageDialog.Icon.Warning, ["Locate autosaves folder", "Close"], CrashDialogResult);
+            }
+        }
+
+        private static void CrashDialogResult(string result) {
+            if (result == "Locate autosaves folder") {
+                OpenAutosavesFolder();
+            }
+        }
+
+        public static void SetCrashFlag(bool flag) {
+            string crashflagPath = Path.Combine(SettingsFolderPath, "crashflag");
+            if (flag) {
+                File.Create(crashflagPath).Dispose();
+            }
+            else if (Path.Exists(crashflagPath)) {
+                File.Delete(crashflagPath);
+            }
+        }
+
+        private static void Autosave() {
+            if (!Path.Exists(AutosavesFolderPath)) {
+                Directory.CreateDirectory(AutosavesFolderPath);
+            }
+            string[] files = Directory.GetFiles(AutosavesFolderPath);
+
+            // delete any autosaves older than 3 hours ago.
+            if (files.Length > 36) {
+                File.Delete(files[36]);
+            }
+            lastAutosaveTime = App.GameTime.TotalGameTime;
+            WriteTo(Path.Combine(AutosavesFolderPath, FileNameWithoutExtension + "_autosave_" + string.Format("{0:yyyy-MM-dd_HH-mm-ss-fff}", DateTime.Now) + ".wtm"));
+        }
+
+        public static void AutosaveTick() {
+            // Autosave every 5th minute
+            if ((App.GameTime.TotalGameTime.Minutes + 1) % 5 == 0) {
+                if (!performedAutosave && App.CurrentModule.LastEditedTime > lastAutosaveTime) {
+                    Autosave();
+                    performedAutosave = true;
+                }
+            }
+            else {
+                performedAutosave = false;
+            }
         }
 
         /// <summary>
@@ -149,10 +205,6 @@ namespace WaveTracker {
         /// </summary>
         private static void OpenANewFile() {
             CurrentFilepath = "";
-            //FrameEditor.ClearHistory();
-            //FrameEditor.Goto(0, 0);
-            //FrameEditor.cursorColumn = 0;
-            //FrameEditor.UnmuteAllChannels();
             App.CurrentModule = new WTModule();
             App.CurrentSongIndex = 0;
             App.PatternEditor.OnSwitchSong(true);
@@ -229,10 +281,32 @@ namespace WaveTracker {
                 menu[0] = new MenuOption("Clear", recentFilePaths.Clear);
                 menu[1] = null;
                 for (int i = 0; i < recentFilePaths.Count; i++) {
-                    menu[i + 2] = new MenuOption(i + 1 + ". " + recentFilePaths[i], TryToLoadFile, recentFilePaths[i]);
+                    menu[i + 2] = new MenuOption(i + 1 + ". " + recentFilePaths[i], () => TryToLoadFile(recentFilePaths[i]));
                 }
                 return menu;
             }
+        }
+
+        public static MenuItemBase[] CreateAutosavesMenu() {
+            string[] filepaths = new DirectoryInfo(AutosavesFolderPath).GetFiles("*.wtm").OrderByDescending(f => f.LastWriteTime).Select(f => f.Name).ToArray();
+            if (recentFilePaths.Count == 0) {
+                return [new MenuOption("Open autosaves folder...", OpenAutosavesFolder),
+                        null,
+                        new MenuOption("No autosaves found...", OpenAutosavesFolder,false)];
+            }
+            else {
+                MenuItemBase[] menu = new MenuItemBase[filepaths.Length + 2];
+                menu[0] = new MenuOption("Open autosaves folder...", OpenAutosavesFolder);
+                menu[1] = null;
+                for (int i = 0; i < filepaths.Length; i++) {
+                    menu[i + 2] = new MenuOption(i + 1 + ". " + Path.GetFileName(filepaths[i]), () => TryToLoadFile(recentFilePaths[i]));
+                }
+                return menu;
+            }
+        }
+
+        public static void OpenAutosavesFolder() {
+            Process.Start("explorer.exe", AutosavesFolderPath);
         }
 
         /// <summary>
@@ -279,7 +353,7 @@ namespace WaveTracker {
                 AddPathToRecentFiles(CurrentFilepath);
             }
             else {
-                Dialogs.messageDialog.Open(
+                Dialogs.OpenMessageDialog(
                     "Could not open " + Path.GetFileName(path),
                     MessageDialog.Icon.Error,
                     "OK"
@@ -334,7 +408,7 @@ namespace WaveTracker {
         /// </summary>
         /// <param name="callback"></param>
         public static void DoSaveChangesDialog(Action<string> callback) {
-            Dialogs.messageDialog.Open(
+            Dialogs.OpenMessageDialog(
                     "Save changes to " + FileName + "?",
                     MessageDialog.Icon.Question,
                     ["Yes", "No", "Cancel"],
@@ -621,7 +695,13 @@ namespace WaveTracker {
         public static string ReadPath(string pathName, string defaultPath) {
             string filepath = Path.Combine(PathsFolderPath, pathName + ".path");
             if (File.Exists(filepath)) {
-                return File.ReadAllLines(filepath)[0];
+                string[] lines = File.ReadAllLines(filepath);
+                if (lines.Length > 0) {
+                    return lines[0];
+                }
+                else {
+                    return "";
+                }
             }
             else {
                 SavePath(pathName, defaultPath);

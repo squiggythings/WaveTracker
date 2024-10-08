@@ -63,6 +63,11 @@ namespace WaveTracker.Tracker {
         [ProtoMember(11)]
         public List<Instrument> Instruments { get; set; }
 
+        /// <summary>
+        /// The time this module was last changed
+        /// </summary>
+        public TimeSpan LastEditedTime { get; private set; }
+
         public WTModule() {
             ChannelCount = App.Settings.Files.DefaultNumberOfChannels;
             Author = App.Settings.Files.DefaultAuthorName;
@@ -180,7 +185,7 @@ namespace WaveTracker.Tracker {
                 Instruments.Add(new WaveInstrument());
             }
             App.InstrumentBank.CurrentInstrumentIndex = 0;
-            Dialogs.messageDialog.Open("Removed " + unusedInstruments.Count + " instruments.", MessageDialog.Icon.Information, "OK");
+            Dialogs.OpenMessageDialog("Removed " + unusedInstruments.Count + " instruments.", MessageDialog.Icon.Information, "OK");
         }
 
         public void RemoveUnusedWaves() {
@@ -216,7 +221,7 @@ namespace WaveTracker.Tracker {
             foreach (int i in unusedWaves) {
                 WaveBank[i] = new Wave();
             }
-            Dialogs.messageDialog.Open("Removed " + unusedWaves.Count + " waves.", MessageDialog.Icon.Information, "OK");
+            Dialogs.OpenMessageDialog("Removed " + unusedWaves.Count + " waves.", MessageDialog.Icon.Information, "OK");
         }
 
         /// <summary>
@@ -224,6 +229,7 @@ namespace WaveTracker.Tracker {
         /// </summary>
         public void SetDirty() {
             IsDirty = true;
+            LastEditedTime = App.GameTime.TotalGameTime;
         }
 
         /// <summary>

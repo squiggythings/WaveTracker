@@ -36,7 +36,7 @@ namespace WaveTracker.UI {
 
             Color textColor = (displayColor.R * 30 + displayColor.G * 59 + displayColor.B * 11) / 100 < 128 ? Color.White : Color.Black;
             if (DrawBorder) {
-                DrawRect(0, 0, width, height, ButtonColors.Round.backgroundColor);
+                DrawRect(0, 0, width, height, ButtonColors.backgroundColor);
             }
             DrawSprite(1, 1, width - 2, height - 2, new Rectangle(416, 208, 4, 2), Color.White);
 

@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using System;
+using System.Diagnostics;
 
 namespace WaveTracker.UI {
     public class ModulePanel : Panel {
@@ -9,6 +10,7 @@ namespace WaveTracker.UI {
         private SpriteButton editButton;
         private float ampLeft, ampRight;
         private int ampL, ampR;
+        public new bool InFocus => base.InFocus || selectedSong.InFocus || title.InFocus || author.InFocus || speed.InFocus || rows.InFocus;
 
         public ModulePanel(int x, int y) : base("Module", x, y, 306, 84) {
             title = new Textbox("Title", 4, 12, 155, 110, this);
@@ -17,50 +19,47 @@ namespace WaveTracker.UI {
 
             selectedSong = new Dropdown(34, 42, this, scrollWrap: false);
             selectedSong.width = 125;
-
             speed = new Textbox("Speed (ticks/row)", 167, 12, 132, 40, this);
+            speed.InputField.AllowedCharacters = "0123456789 ";
             rows = new NumberBox("Frame Length", 167, 26, 132, 40, this);
             rows.SetValueLimits(1, 256);
 
             editButton = new SpriteButton(296, 0, 10, 9, 416, 224, this);
-            editButton.SetTooltip("Edit module settings", "Open the module settings window");
+            editButton.SetTooltip("Edit song/module settings", "Open the module settings window");
         }
 
         public void Update() {
-            if (InFocus || selectedSong.InFocus) {
-                if (InFocus) {
-                    title.Text = App.CurrentModule.Title;
-                    title.Update();
-                    if (title.ValueWasChangedInternally) {
-                        App.CurrentModule.Title = title.Text;
-                        App.CurrentModule.SetDirty();
-                    }
+            if (InFocus) {
+                title.Text = App.CurrentModule.Title;
+                title.Update();
+                if (title.ValueWasChangedInternally) {
+                    App.CurrentModule.Title = title.Text;
+                    App.CurrentModule.SetDirty();
+                }
 
-                    author.Text = App.CurrentModule.Author;
-                    author.Update();
-                    if (author.ValueWasChangedInternally) {
-                        App.CurrentModule.Author = author.Text;
-                        App.CurrentModule.SetDirty();
-                    }
+                author.Text = App.CurrentModule.Author;
+                author.Update();
+                if (author.ValueWasChangedInternally) {
+                    App.CurrentModule.Author = author.Text;
+                    App.CurrentModule.SetDirty();
+                }
+                speed.Text = App.CurrentSong.GetTicksAsString();
 
-                    speed.Text = App.CurrentSong.GetTicksAsString();
-                    speed.Update();
-                    if (speed.ValueWasChangedInternally) {
-                        App.CurrentSong.LoadTicksFromString(speed.Text);
-                        App.CurrentModule.SetDirty();
-                    }
+                speed.Update();
+                if (speed.ValueWasChangedInternally) {
+                    App.CurrentSong.LoadTicksFromString(speed.Text);
+                    App.CurrentModule.SetDirty();
+                }
 
-                    rows.Value = App.CurrentSong.RowsPerFrame;
-                    rows.Update();
-                    if (rows.ValueWasChangedInternally) {
-                        App.CurrentSong.RowsPerFrame = rows.Value;
-                        App.PatternEditor.cursorPosition.Normalize(App.CurrentSong);
-                        App.CurrentModule.SetDirty();
 
-                    }
-                    if (editButton.Clicked || App.Shortcuts["General\\Module settings"].IsPressedDown) {
-                        Dialogs.moduleSettings.Open();
-                    }
+                rows.Value = App.CurrentSong.RowsPerFrame;
+                rows.Update();
+                if (rows.ValueWasChangedInternally) {
+                    App.CurrentSong.RowsPerFrame = rows.Value;
+                    App.PatternEditor.cursorPosition.Normalize(App.CurrentSong);
+                    App.CurrentModule.SetDirty();
+                    Debug.WriteLine("set dirty from rows");
+
                 }
                 selectedSong.SetMenuItems(App.CurrentModule.GetSongNames());
                 selectedSong.Value = App.CurrentSongIndex;
@@ -69,6 +68,11 @@ namespace WaveTracker.UI {
                     App.CurrentSongIndex = selectedSong.Value;
                     App.PatternEditor.OnSwitchSong();
                 }
+
+                if (editButton.Clicked || App.Shortcuts["General\\Module settings"].IsPressedDown) {
+                    Dialogs.moduleSettings.Open();
+                }
+
             }
             float meterDecay = 0;
             switch (App.Settings.General.MeterDecayRate) {

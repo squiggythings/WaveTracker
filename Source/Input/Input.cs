@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using WaveTracker.UI;
 
 namespace WaveTracker {
@@ -70,6 +71,7 @@ namespace WaveTracker {
         public static int windowFocusTimer;
 
         public static Keys[] currentPressedKeys;
+        private static List<Keys> cancelledKeys;
         public static Keys CurrentPressedKey { get; private set; }
         public static KeyboardShortcut CurrentPressedShortcut { get; private set; }
         public static void Intialize() {
@@ -77,7 +79,7 @@ namespace WaveTracker {
             foreach (Keys k in Enum.GetValues(typeof(Keys))) {
                 keyTimePairs.Add(k, 0);
             }
-
+            cancelledKeys = new List<Keys>();
             TimeSinceLastClick = 1000;
         }
 
@@ -85,9 +87,10 @@ namespace WaveTracker {
             dialogOpenCooldown = 3;
         }
 
-        public static void GetState(GameTime gameTime) {
-            deltaTime = gameTime.ElapsedGameTime.Milliseconds;
+        public static void GetState() {
+            deltaTime = App.GameTime.ElapsedGameTime.Milliseconds;
             cancelClick = false;
+
             if (windowFocusTimer > 0) {
                 windowFocusTimer--;
             }
@@ -113,6 +116,13 @@ namespace WaveTracker {
             previousKeyState = currentKeyState;
             currentKeyState = Microsoft.Xna.Framework.Input.Keyboard.GetState();
             currentPressedKeys = currentKeyState.GetPressedKeys();
+
+            for (int i = cancelledKeys.Count - 1; i >= 0; i--) {
+                if (!currentPressedKeys.Contains(cancelledKeys[i])) {
+                    cancelledKeys.RemoveAt(i);
+                }
+            }
+
             CurrentModifier = GetCurrentModifier();
             foreach (Keys k in Enum.GetValues(typeof(Keys))) {
                 if (currentKeyState.IsKeyDown(k)) {
@@ -120,7 +130,7 @@ namespace WaveTracker {
                         keyTimePairs[k] -= KEY_REPEAT_TIME;
                     }
 
-                    keyTimePairs[k] += gameTime.ElapsedGameTime.Milliseconds;
+                    keyTimePairs[k] += App.GameTime.ElapsedGameTime.Milliseconds;
                 }
                 else {
                     keyTimePairs[k] = 0;
@@ -143,11 +153,11 @@ namespace WaveTracker {
 
             previousMouseState = currentMouseState;
             currentMouseState = Microsoft.Xna.Framework.Input.Mouse.GetState();
-            TimeSinceLastClick += gameTime.ElapsedGameTime.Milliseconds;
-            TimeSinceLastClickUp += gameTime.ElapsedGameTime.Milliseconds;
-            timeSinceDoubleClick += gameTime.ElapsedGameTime.Milliseconds;
+            TimeSinceLastClick += App.GameTime.ElapsedGameTime.Milliseconds;
+            TimeSinceLastClickUp += App.GameTime.ElapsedGameTime.Milliseconds;
+            timeSinceDoubleClick += App.GameTime.ElapsedGameTime.Milliseconds;
             if (GetClick(KeyModifier._Any)) {
-                ClickTime += gameTime.ElapsedGameTime.Milliseconds;
+                ClickTime += App.GameTime.ElapsedGameTime.Milliseconds;
             }
             else {
                 ClickTime = 0;
@@ -198,18 +208,21 @@ namespace WaveTracker {
             cancelClick = true;
         }
 
+        public static void CancelKey(Keys key) {
+            cancelledKeys.Add(key);
+        }
+
         public static bool GetKey(Keys key, KeyModifier modifier) {
-            return ModifierMatches(modifier) && currentKeyState.IsKeyDown(key);
+            return ModifierMatches(modifier) && currentKeyState.IsKeyDown(key) && !cancelledKeys.Contains(key);
         }
 
         public static bool GetKeyDown(Keys key, KeyModifier modifier) {
-
-            return ModifierMatches(modifier) && currentKeyState.IsKeyDown(key) && !previousKeyState.IsKeyDown(key);
+            return ModifierMatches(modifier) && currentKeyState.IsKeyDown(key) && !previousKeyState.IsKeyDown(key) && !cancelledKeys.Contains(key);
         }
 
         public static bool GetKeyRepeat(Keys key, KeyModifier modifier) {
 
-            return ModifierMatches(modifier) && (currentKeyState.IsKeyDown(key) && !previousKeyState.IsKeyDown(key) || keyTimePairs[key] > KEY_REPEAT_DELAY);
+            return ModifierMatches(modifier) && (currentKeyState.IsKeyDown(key) && !previousKeyState.IsKeyDown(key) || keyTimePairs[key] > KEY_REPEAT_DELAY) && !cancelledKeys.Contains(key);
         }
 
         public static bool GetKeyUp(Keys key, KeyModifier modifier) {
@@ -249,8 +262,12 @@ namespace WaveTracker {
             return ModifierMatches(modifier) && !cancelClick && currentMouseState.RightButton == ButtonState.Pressed && previousMouseState.RightButton == ButtonState.Released;
         }
 
-        public static bool GetDoubleClick(KeyModifier modifier) {
+        public static bool GetDoubleClickDown(KeyModifier modifier) {
             return GetClickDown(modifier) && doubleClick;
+        }
+
+        public static bool GetDoubleClick(KeyModifier modifier) {
+            return GetClick(modifier) && doubleClick;
         }
 
         public static int MousePositionX { get { return currentMouseState.X / App.Settings.General.ScreenScale; } }
@@ -261,15 +278,36 @@ namespace WaveTracker {
         public static int MouseDeltaY { get { return currentMouseState.Y / App.Settings.General.ScreenScale - previousMouseState.Y / App.Settings.General.ScreenScale; } }
 
         public static int MouseScrollWheel(KeyModifier modifier) {
-            return ModifierMatches(modifier)
-                ? currentMouseState.ScrollWheelValue < previousMouseState.ScrollWheelValue
-                    ? -1
-                    : currentMouseState.ScrollWheelValue > previousMouseState.ScrollWheelValue ? 1 : 0
-                : 0;
+            if (ModifierMatches(modifier)) {
+                if (currentMouseState.ScrollWheelValue < previousMouseState.ScrollWheelValue) {
+                    return -1;
+                }
+                else {
+                    if (currentMouseState.ScrollWheelValue > previousMouseState.ScrollWheelValue) {
+                        return 1;
+                    }
+                    else {
+                        return 0;
+                    }
+                }
+            }
+            else {
+                return 0;
+            }
         }
 
         private static bool ModifierMatches(KeyModifier mod) {
             return mod == KeyModifier._Any || CurrentModifier == mod;
+        }
+
+        public static bool IsShiftPressed() {
+            return currentKeyState.IsKeyDown(Keys.LeftShift) || currentKeyState.IsKeyDown(Keys.RightShift);
+        }
+        public static bool IsCtrlPressed() {
+            return currentKeyState.IsKeyDown(Keys.LeftControl) || currentKeyState.IsKeyDown(Keys.RightControl);
+        }
+        public static bool IsAltPressed() {
+            return currentKeyState.IsKeyDown(Keys.LeftAlt) || currentKeyState.IsKeyDown(Keys.RightAlt);
         }
 
         private static KeyModifier GetCurrentModifier() {
@@ -278,15 +316,31 @@ namespace WaveTracker {
             bool alt = currentKeyState.IsKeyDown(Keys.LeftAlt) || currentKeyState.IsKeyDown(Keys.RightAlt);
             bool shift = currentKeyState.IsKeyDown(Keys.LeftShift) || currentKeyState.IsKeyDown(Keys.RightShift);
 
-            return ctrl && alt && shift
-                ? KeyModifier.CtrlShiftAlt
-                : ctrl && alt
-                ? KeyModifier.CtrlAlt
-                : ctrl && shift
-                ? KeyModifier.CtrlShift
-                : alt && shift
-                ? KeyModifier.ShiftAlt
-                : alt ? KeyModifier.Alt : ctrl ? KeyModifier.Ctrl : shift ? KeyModifier.Shift : KeyModifier.None;
+            if (ctrl && alt && shift) {
+                return KeyModifier.CtrlShiftAlt;
+            }
+            else if (ctrl && alt) {
+                return KeyModifier.CtrlAlt;
+            }
+            else if (ctrl && shift) {
+                return KeyModifier.CtrlShift;
+            }
+            else if (alt && shift) {
+                return KeyModifier.ShiftAlt;
+            }
+            else if (alt) {
+                return KeyModifier.Alt;
+            }
+            else if (ctrl) {
+                return KeyModifier.Ctrl;
+            }
+            else if (shift) {
+                return KeyModifier.Shift;
+            }
+            else {
+                return KeyModifier.None;
+            }
+
         }
 
         public static bool MouseIsDragging { get; private set; }

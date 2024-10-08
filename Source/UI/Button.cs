@@ -5,7 +5,6 @@ namespace WaveTracker.UI {
         public string Label { get; private set; }
         public bool LabelIsCentered { get; set; }
 
-        private ButtonColors colors;
         private int labelWidth;
 
         public Button(string label, int x, int y, Element parent) {
@@ -13,7 +12,6 @@ namespace WaveTracker.UI {
             this.x = x;
             this.y = y;
             Label = label;
-            colors = ButtonColors.Round;
             LabelIsCentered = true;
             width = Helpers.GetWidthOfText(label) + 8;
             labelWidth = Helpers.GetWidthOfText(label);
@@ -25,7 +23,6 @@ namespace WaveTracker.UI {
             this.x = x;
             this.y = y;
             Label = label;
-            colors = ButtonColors.Round;
             LabelIsCentered = true;
             this.width = width;
             labelWidth = Helpers.GetWidthOfText(label);
@@ -39,15 +36,26 @@ namespace WaveTracker.UI {
         }
 
         private Color GetBackgroundColor() {
-            return IsPressed ? colors.backgroundColorPressed : IsHovered ? colors.backgroundColorHover : colors.backgroundColor;
+            if (IsPressed) {
+                return ButtonColors.backgroundColorPressed;
+            }
+            else {
+                if (IsHovered) {
+                    return ButtonColors.backgroundColorHover;
+                }
+                else {
+                    return ButtonColors.backgroundColor;
+                }
+            }
         }
 
         private Color GetTextColor() {
-            return IsPressed ? colors.textColorPressed : colors.textColor;
-        }
-
-        private Color GetBorderColor() {
-            return IsPressed ? colors.borderColorPressed : colors.borderColor;
+            if (IsPressed) {
+                return ButtonColors.textColorPressed;
+            }
+            else {
+                return ButtonColors.textColor;
+            }
         }
 
         public void Draw() {
@@ -64,12 +72,12 @@ namespace WaveTracker.UI {
                 }
             }
             else {
-                DrawRoundedRect(0, 0, width, height, colors.backgroundColorDisabled);
+                DrawRoundedRect(0, 0, width, height, ButtonColors.backgroundColorDisabled);
                 if (LabelIsCentered) {
-                    Write(Label, (width - labelWidth) / 2, (height + 1) / 2 - 4, colors.textColorDisabled);
+                    Write(Label, (width - labelWidth) / 2, (height + 1) / 2 - 4, ButtonColors.textColorDisabled);
                 }
                 else {
-                    Write(Label, 4, (height + 1) / 2 - 4, colors.textColorDisabled);
+                    Write(Label, 4, (height + 1) / 2 - 4, ButtonColors.textColorDisabled);
                 }
             }
 
