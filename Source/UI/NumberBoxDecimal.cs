@@ -9,7 +9,6 @@ namespace WaveTracker.UI {
         private string label;
         private float min = float.MinValue;
         private float max = float.MaxValue;
-        private float valueSaved;
         private bool canScroll = true;
         public enum DisplayMode { Number, Note, NoteOnly, PlusMinus }
         public DisplayMode displayMode = DisplayMode.Number;
