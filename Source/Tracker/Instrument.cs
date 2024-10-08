@@ -1,4 +1,5 @@
-﻿using ProtoBuf;
+﻿using NAudio.MediaFoundation;
+using ProtoBuf;
 using System.Collections.Generic;
 
 namespace WaveTracker.Tracker {
@@ -19,6 +20,15 @@ namespace WaveTracker.Tracker {
             name = "New Instrument";
             envelopes = [];
 
+        }
+
+        public bool HasEnvelope(Envelope.EnvelopeType type) {
+            foreach (Envelope envelope in envelopes) {
+                if (envelope.Type == type) {
+                    return true;
+                }
+            }
+            return false;
         }
 
         public abstract Instrument Clone();
