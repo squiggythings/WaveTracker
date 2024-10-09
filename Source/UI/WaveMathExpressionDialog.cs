@@ -9,30 +9,33 @@ namespace WaveTracker.UI {
         public Textbox ExpressionInput;
         public CheckboxLabeled WaveFoldCheckbox;
         public NumberBoxDecimal InputA, InputB, InputC;
+        TextBlock text;
 
         WaveExpression mathExpression;
         private double compileTime = 0;
         private bool compileSuccess = true;
         private string lastCompileError = string.Empty;
 
-        public WaveMathExpressionDialog() : base("Generate from maths expression...", 350) {
-            ExpressionInput = new Textbox("", 8, 25, 169, this);
+        public WaveMathExpressionDialog() : base("Generate from maths expression...", 340) {
+            ExpressionInput = new Textbox("", 8, 25, 170, this);
             ExpressionInput.SetTooltip("", "Expression");
             ExpressionInput.Text = "0";
-
-            WaveFoldCheckbox = new CheckboxLabeled("Wave folding", 7, 42, 40, this);
-            WaveFoldCheckbox.SetTooltip("", "Wraps the waveform");
-            WaveFoldCheckbox.Value = false;
 
             mathExpression = new(ExpressionInput.Text);
             ExpressionInput.Update(); //Unsets ValueWasChanged flag
 
             int inputValueX = 8;
-            InputA = new NumberBoxDecimal("A", inputValueX, 58, this);
+            InputA = new NumberBoxDecimal("A", inputValueX, 42, this);
             inputValueX += 60;
-            InputB = new NumberBoxDecimal("B", inputValueX, 58, this);
+            InputB = new NumberBoxDecimal("B", inputValueX, 42, this);
             inputValueX += 60;
-            InputC = new NumberBoxDecimal("C", inputValueX, 58, this);
+            InputC = new NumberBoxDecimal("C", inputValueX, 42, this);
+
+            WaveFoldCheckbox = new CheckboxLabeled("Wave folding", 7, 59, 40, this);
+            WaveFoldCheckbox.SetTooltip("", "Wraps the waveform");
+            WaveFoldCheckbox.Value = false;
+
+            text = new TextBlock("Hellow i love you", 8, 74, 170, 38, this);
         }
 
         public new void Open(Wave wave) {
@@ -47,6 +50,7 @@ namespace WaveTracker.UI {
                 InputA.Update();
                 InputB.Update();
                 InputC.Update();
+                text.Update();
 
                 if (ExpressionInput.ValueWasChanged) {
                     compileSuccess = true; //Set to true as a catch-all
@@ -96,12 +100,15 @@ namespace WaveTracker.UI {
                 InputB.Draw();
                 InputC.Draw();
 
-                if (compileSuccess) {
-                    Write($"Compilation successful ({Math.Round(compileTime, 3)} ms)", 8, 76, Color.Green);
+                if(compileSuccess) {
+                    text.Text = $"Compilation successful ({Math.Round(compileTime, 3)} ms)";
+                    text.TextColour = Color.Green;
                 }
                 else {
-                    WriteMultiline("Compilation failed: " + lastCompileError, 8, 76, 169, Color.OrangeRed);
+                    text.Text = "Compilation failed: " + lastCompileError;
+                    text.TextColour = Color.OrangeRed;
                 }
+                text.Draw();
             }
         }
     }

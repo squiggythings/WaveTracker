@@ -50,9 +50,8 @@ namespace WaveTracker.Source {
         [ProtoIgnore]
         private Func<EvaluationContext, double> func;
 
-        [ProtoMember(1)]
         private string _expression;
-        [ProtoMember(2)]
+        [ProtoMember(1)]
         public string Expression {
             get {
                 return _expression; 
@@ -62,7 +61,7 @@ namespace WaveTracker.Source {
                 RebuildExpression(); 
             }
         }
-        [ProtoMember(3)]
+        [ProtoMember(2)]
         public bool WaveFold = false;
 
         public WaveExpression() {
