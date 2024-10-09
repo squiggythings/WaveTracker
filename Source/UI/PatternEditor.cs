@@ -591,6 +591,7 @@ namespace WaveTracker.UI {
                 // input effects
                 foreach (Keys k in KeyInputs_Effect.Keys) {
                     if (KeyPress(k, KeyModifier.None)) {
+                        Tooltip.LastEffect = KeyInputs_Effect[k];
                         CurrentPattern[cursorPosition.Row, cursorPosition.CellColumn] = (byte)KeyInputs_Effect[k];
                         switch (App.Settings.PatternEditor.StepAfterNumericInput) {
                             case SettingsProfile.MoveToNextRowBehavior.Always:
@@ -611,11 +612,13 @@ namespace WaveTracker.UI {
                      CursorColumnType.Effect3Param1 or
                      CursorColumnType.Effect4Param1) {
                 // input 10's place effect parameters (or 16's if it is hex)
-                if (Helpers.IsEffectHex((char)CurrentPattern[cursorPosition.Row, cursorPosition.CellColumn - 1])) {
+                char effect = (char)CurrentPattern[cursorPosition.Row, cursorPosition.CellColumn - 1];
+                if (Helpers.IsEffectHex(effect)) {
                     // hex
                     foreach (Keys k in KeyInputs_Hex.Keys) {
                         if (KeyPress(k, KeyModifier.None)) {
                             int val = App.CurrentSong[cursorPosition];
+                            Tooltip.LastEffect = effect;
                             App.CurrentSong[cursorPosition] = (byte)(KeyInputs_Hex[k] * 16 + val % 16);
                             switch (App.Settings.PatternEditor.StepAfterNumericInput) {
                                 case SettingsProfile.MoveToNextRowBehavior.Always:
@@ -639,6 +642,7 @@ namespace WaveTracker.UI {
                     foreach (Keys k in KeyInputs_Decimal.Keys) {
                         if (KeyPress(k, KeyModifier.None)) {
                             int val = App.CurrentSong[cursorPosition];
+                            Tooltip.LastEffect = effect;
                             App.CurrentSong[cursorPosition] = (byte)(KeyInputs_Decimal[k] * 10 + val % 10);
                             switch (App.Settings.PatternEditor.StepAfterNumericInput) {
                                 case SettingsProfile.MoveToNextRowBehavior.Always:
@@ -662,12 +666,14 @@ namespace WaveTracker.UI {
                      CursorColumnType.Effect2Param2 or
                      CursorColumnType.Effect3Param2 or
                      CursorColumnType.Effect4Param2) {
+                char effect = (char)CurrentPattern[cursorPosition.Row, cursorPosition.CellColumn - 1];
                 // input 1's place effect parameters
-                if (Helpers.IsEffectHex((char)CurrentPattern[cursorPosition.Row, cursorPosition.CellColumn - 1])) {
+                if (Helpers.IsEffectHex(effect)) {
                     // hex
                     foreach (Keys k in KeyInputs_Hex.Keys) {
                         if (KeyPress(k, KeyModifier.None)) {
                             int val = App.CurrentSong[cursorPosition];
+                            Tooltip.LastEffect = effect;
                             App.CurrentSong[cursorPosition] = (byte)(val / 16 * 16 + KeyInputs_Hex[k]);
                             switch (App.Settings.PatternEditor.StepAfterNumericInput) {
                                 case SettingsProfile.MoveToNextRowBehavior.Always:
@@ -690,6 +696,7 @@ namespace WaveTracker.UI {
                     foreach (Keys k in KeyInputs_Decimal.Keys) {
                         if (KeyPress(k, KeyModifier.None)) {
                             int val = App.CurrentSong[cursorPosition];
+                            Tooltip.LastEffect = effect;
                             App.CurrentSong[cursorPosition] = (byte)(val / 10 * 10 + KeyInputs_Decimal[k]);
                             switch (App.Settings.PatternEditor.StepAfterNumericInput) {
                                 case SettingsProfile.MoveToNextRowBehavior.Always:
@@ -1009,6 +1016,7 @@ namespace WaveTracker.UI {
                 Humanize();
             }
             #endregion
+
         }
 
         #region Draw Methods
@@ -1355,6 +1363,7 @@ namespace WaveTracker.UI {
         /// Resets the cursor position and view to the beginning of the song, and clears undo history
         /// </summary>
         public void OnSwitchSong(bool haltPlayback = false) {
+            Playback.SetTicksPerRow();
             if (Playback.IsPlaying && !haltPlayback) {
                 Playback.Stop();
                 Playback.Goto(0, 0);

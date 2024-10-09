@@ -1,4 +1,6 @@
-﻿using WaveTracker.Audio;
+﻿using System;
+using System.Diagnostics;
+using WaveTracker.Audio;
 using WaveTracker.UI;
 
 namespace WaveTracker.Tracker {
@@ -12,9 +14,15 @@ namespace WaveTracker.Tracker {
         private static bool hasGotoTriggerFlag;
         private static int tickCounter;
         private static bool loopCurrentPattern;
-        public static int TicksPerRowOverride { get; set; }
+        public static int TicksPerRowOverride { get; set; } = -1;
 
-        private static int ticksPerRow;
+        /// <summary>
+        /// Current playback time in seconds
+        /// </summary>
+        public static DateTime PlaybackTime { get; private set; }
+        public static TimeSpan Time;
+
+        public static int CurrentTicksPerRow { get; private set; }
         public static WTFrame Frame {
             get {
                 return App.CurrentSong.FrameSequence[position.Frame];
@@ -140,6 +148,8 @@ namespace WaveTracker.Tracker {
         /// Stops playback
         /// </summary>
         public static void Stop() {
+            PlaybackTime = new DateTime();
+            TicksPerRowOverride = -1;
             IsPlaying = false;
             foreach (Channel c in ChannelManager.Channels) {
                 c.Cut();
@@ -147,18 +157,27 @@ namespace WaveTracker.Tracker {
             loopCurrentPattern = false;
             ChannelManager.Reset();
         }
-
-        private static void SetTicksPerRow() {
+        public static void SetTicksPerRow() {
             if (TicksPerRowOverride == -1) {
-                ticksPerRow = App.CurrentSong.TicksPerRow[position.Row % App.CurrentSong.TicksPerRow.Length];
+                CurrentTicksPerRow = App.CurrentSong.TicksPerRow[position.Row % App.CurrentSong.TicksPerRow.Length];
             }
             else {
-                ticksPerRow = TicksPerRowOverride;
+                CurrentTicksPerRow = TicksPerRowOverride;
+            }
+        }
+
+        public static void SetTicksPerRow(int row) {
+            if (TicksPerRowOverride == -1) {
+                CurrentTicksPerRow = App.CurrentSong.TicksPerRow[row % App.CurrentSong.TicksPerRow.Length];
+            }
+            else {
+                CurrentTicksPerRow = TicksPerRowOverride;
             }
         }
 
         public static void Tick() {
             if (IsPlaying) {
+                PlaybackTime = PlaybackTime.AddSeconds(AudioEngine.SamplesPerTick / AudioEngine.SampleRate);
                 if (!lastIsPlaying) {
                     // start playback
                     tickCounter = 0;
@@ -168,7 +187,7 @@ namespace WaveTracker.Tracker {
                     PlayRow();
                 }
 
-                if (tickCounter >= ticksPerRow) {
+                if (tickCounter >= CurrentTicksPerRow) {
                     // reached next row
                     tickCounter = 0;
                     if (hasGotoTriggerFlag) {
@@ -282,14 +301,16 @@ namespace WaveTracker.Tracker {
 
         private static void RestoreUntil(int frame, int row) {
             TicksPerRowOverride = -1;
-            SetTicksPerRow();
+            PlaybackTime = new DateTime();
             for (int f = 0; f <= frame; f++) {
                 int frameLength = App.CurrentSong[f].GetModifiedLength();
                 for (int r = 0; r < frameLength; r++) {
                     ChannelManager.RestoreRow(f, r);
+                    SetTicksPerRow(r);
                     if (f == frame && r == row) {
                         return;
                     }
+                    PlaybackTime = PlaybackTime.AddSeconds(AudioEngine.SamplesPerTick / AudioEngine.SampleRate * CurrentTicksPerRow);
                 }
             }
         }
