@@ -236,6 +236,73 @@ namespace WaveTracker {
             };
         }
 
+        public static (string, string, string, string) GetEffectDescription(char effectType) {
+            return effectType switch {
+                '0' => ("0xy", "Arpeggio", "(first note, second note)",
+                "Cycles through notes in a chord every tick, with base + x and base + y semitones. Use 000 to disable."),
+                '1' => ("1xx", "Note rise", "(speed)",
+                "Continuously increase the pitch at speed xx. Use 100 to disable"),
+                '2' => ("2xx", "Note fall", "(speed)",
+                "Continuously decrease the pitch at speed xx. Use 200 to disable"),
+                '3' => ("3xx", "Portamento/Glide", "(speed)",
+                "Automatically glide between notes at speed xx. Use 300 to disable"),
+                '4' => ("4xy", "Vibrato", "(speed, depth)",
+                "Modulates pitch with speed x and depth y. Use 400 to disable"),
+                '7' => ("7xy", "Tremolo", "(speed, depth)",
+                "Modulates volume with speed x and depth y. Use 700 to disable"),
+                '8' => ("8xx", "Pan", "(position)",
+                "Sets the stereo panning of the channel with position xx. 00 is 100% left, 50 is center, 99 is 100% right"),
+                '9' => ("9xx", "Stereo split", "(phase)",
+                "Artificially widens the channel in the stereo field by offsetting the phase of one side xx percent. Use 900 to disable"),
+                'A' => ("Axx", "Volume fade down", "(speed)",
+                "Continuously decreases the channel volume by xx steps every tick"),
+                'W' => ("Wxx", "Volume fade up", "(speed)",
+                "Continuously increases the channel volume by xx steps every tick"),
+                'B' => ("Bxx", "Jump to frame", "(frame #)",
+                "Jumps the playhead to frame xx. Used to create song loops"),
+                'C' => ("Cxx", "Stop", "",
+                "Stops the song. (xx has no effect)"),
+                'D' => ("Dxx", "Skip", "(row #)",
+                "Skips to the next frame at row xx"),
+                'F' => ("Fxx", "Speed change", "(ticks per row)",
+                "Overrides the initial song speed with xx ticks per row"),
+                'G' => ("Gxx", "Speed change", "(ticks per row)",
+                "Delays the channel's row by xx ticks"),
+                'H' => ("Hxy", "Channel filter", "(cutoff, resonance)",
+                "Applies a low pass filter on the output of the channel"),
+                'I' => ("Ixx", "Wave blend", "(blend amount)",
+                "Blends the channel's wave with the next wave in the wave bank. xx controls the amount to blend in. 00 is the original wave, 99 is the next wave"),
+                'J' => ("Jxx", "Wave stretch", "(stretch amount)",
+                "Stretches the shape of the channel's wave from the edges inwards. Acts a bit like a pulse-width modulator. xx controls the amount to stretch"),
+                'M' => ("Mxx", "Wave FM", "(stretch amount)",
+                "Stretches the shape of the channel's wave from the edges inwards. Acts a bit like a pulse-width modulator. xx controls the amount to stretch"),
+                'K' => ("Kxx", "Wave sync", "(intensity)",
+                "Increases the speed of the channel's wave during the wave's cycle"),
+                'P' => ("Pxx", "Fine pitch", "(offset)",
+                "Detunes the current channel. Default is P50"),
+                'Q' => ("Qxy", "Note bend up", "(speed, semitones)",
+                "Bends the current note up by y semitones at speed x"),
+                'R' => ("Rxy", "Note bend down", "(speed, semitones)",
+                "Bends the current note down by y semitones at speed x"),
+                'S' => ("Sxx", "Delayed cut", "(ticks)",
+                "Cuts the note after xx ticks have passed."),
+                'V' => ("Vxx", "Set wave", "(wave #)",
+                "Sets the channel's timbre to wave xx in the wave bank"),
+                'X' => ("Xxx", "Downsample", "(intensity)",
+                "Downsamples the channel's output by a factor of xx. Results in a lo-fi, bitcrushed sound"),
+                'Y' => ("Yxx", "Start sample offset", "(offset percentage)",
+                "Makes any samples start a percentage of the way through their lifetime. xx is how far to start in. Use Y00 to disable"),
+                _ => ("", "", "", "")
+            };
+        }
+
+        public struct EffectDescription {
+            string name;
+            string longerName;
+            string parameterKey;
+            string description;
+        }
+
         /// <summary>
         /// Converts a midi note to a frequency in hertz.
         /// </summary>
@@ -387,7 +454,6 @@ namespace WaveTracker {
                 fileSampleRate = Nreader.WaveFormat.SampleRate;
                 ISampleProvider isp;
                 WaveFormat desiredFormat = new WaveFormat(fileSampleRate, 16, Nreader.WaveFormat.Channels);
-                IWaveProvider waveProvider = Nreader.ToWaveProvider();
                 using (MediaFoundationResampler resampler = new MediaFoundationResampler(Nreader, desiredFormat)) {
                     isp = resampler.ToSampleProvider();
                 }
