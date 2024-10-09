@@ -52,20 +52,37 @@ namespace WaveTracker.UI {
             string[] words = text.Split(' ');
             int w = 0;
             foreach (string word in words) {
-                w += Helpers.GetWidthOfText(word + " ");
-                if (w > width || word == "\n") {
+                int wordWidth = Helpers.GetWidthOfText(word + " ");
+                if (w + wordWidth > width || word == "\n") {
                     if (word == "\n") {
                         str += "\n";
                         w = 0;
                     }
+                    else if (wordWidth > width) {
+                        string subWord = "";
+                        int widthOffset = w;
+
+                        foreach (var c in word) {
+                            if (Helpers.GetWidthOfText(subWord + c + " ") + widthOffset > width) {
+                                str += subWord + "\n";
+                                subWord = "";
+                                widthOffset = 0;
+                            }
+
+                            subWord += c;
+                        }
+
+                        str += subWord + " ";
+                        w = Helpers.GetWidthOfText(subWord + " ");
+                    }
                     else {
                         str += "\n" + word + " ";
-                        w = Helpers.GetWidthOfText(word + " ");
-
+                        w = wordWidth;
                     }
                 }
                 else {
                     str += word + " ";
+                    w += wordWidth;
                 }
             }
             string[] lines = str.Split('\n');
