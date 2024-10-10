@@ -147,7 +147,20 @@ namespace WaveTracker.UI {
                         }));
                     }
                 }
-                if (waveformRegion.DidClickInRegionM(KeyModifier.Shift)) {
+                if (Input.CurrentModifier == KeyModifier.Shift && waveformRegion.IsPressed && Sample.Length > 0) {
+                    int cursorToStartDist = Math.Abs(selectionStartIndex - mouseSampleIndexClamped);
+                    int cursorToEndDist = Math.Abs(selectionEndIndex - mouseSampleIndexClamped);
+
+                    //If cursor is closer to the selection start
+                    if (cursorToStartDist < cursorToEndDist) {
+                        selectionStartIndex = mouseSampleIndexClamped;
+                    }
+                    else {
+                        selectionEndIndex = mouseSampleIndexClamped;
+                    }
+                    SelectionIsActive = selectionStartIndex != selectionEndIndex;
+                }
+                if (waveformRegion.DidClickInRegionM(KeyModifier.Ctrl)) {
                     SetLoopPoint();
                     App.CurrentModule.SetDirty();
                 }
