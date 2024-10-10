@@ -19,12 +19,12 @@ namespace WaveTracker.Tracker {
             foreach (Envelope envelope in envelopes) {
                 m.envelopes.Add(envelope.Clone());
             }
-            m.sample.sampleDataAccessL = new short[sample.sampleDataAccessL.Length];
-            m.sample.sampleDataAccessR = new short[sample.sampleDataAccessR.Length];
-            for (int i = 0; i < sample.sampleDataAccessL.Length; i++) {
-                m.sample.sampleDataAccessL[i] = sample.sampleDataAccessL[i];
-                if (sample.sampleDataAccessR.Length != 0) {
-                    m.sample.sampleDataAccessR[i] = sample.sampleDataAccessR[i];
+            m.sample.sampleDataL = new short[sample.sampleDataL.Length];
+            m.sample.sampleDataR = new short[sample.sampleDataR.Length];
+            for (int i = 0; i < sample.sampleDataL.Length; i++) {
+                m.sample.sampleDataL[i] = sample.sampleDataL[i];
+                if (sample.sampleDataR.Length != 0) {
+                    m.sample.sampleDataR[i] = sample.sampleDataR[i];
                 }
             }
 

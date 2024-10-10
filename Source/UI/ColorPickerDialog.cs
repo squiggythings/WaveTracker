@@ -69,16 +69,16 @@ namespace WaveTracker.UI {
                     }
 
                     if (colorSpectrumRegion.DidClickInRegion) {
-                        hslColor.H = colorSpectrumRegion.MouseXClamped * 360f;
-                        hslColor.L = 1 - colorSpectrumRegion.MouseYClamped;
+                        hslColor.H = colorSpectrumRegion.MouseXPercentageClamped * 360f;
+                        hslColor.L = 1 - colorSpectrumRegion.MouseYPercentageClamped;
                         UpdateColorFromHSL();
                     }
                     if (satSliderRegion.DidClickInRegion) {
-                        hslColor.S = satSliderRegion.MouseXClamped;
+                        hslColor.S = satSliderRegion.MouseXPercentageClamped;
                         UpdateColorFromHSL();
                     }
                     if (alphaSliderRegion.DidClickInRegion) {
-                        hslColor.A = satSliderRegion.MouseXClamped;
+                        hslColor.A = satSliderRegion.MouseXPercentageClamped;
                         UpdateColorFromHSL();
                     }
 

@@ -36,6 +36,11 @@ namespace WaveTracker.UI {
         protected void Write(string text, int x, int y, Color color) {
             Graphics.Write(text, this.x + x + OffX, this.y + y + OffY, color);
         }
+
+        protected void DebugWrite(string text, int x, int y) {
+            DrawRect(x, y, Helpers.GetWidthOfText(text), 10, new Color(0, 0, 0, 128));
+            Write(text, x, y, Color.White);
+        }
         /// <summary>
         /// Renders text in multicolor, <c>colors</c> indicates a color for each character.
         /// </summary>
