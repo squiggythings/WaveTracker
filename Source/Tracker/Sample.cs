@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Windows.Forms;
 using WaveTracker.Audio;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
@@ -174,9 +175,7 @@ namespace WaveTracker.Tracker {
         public void RemoveDC() {
             if(Length > 0) {
                 // Calculate and subtract left channel avg
-                short avgL = (short)sampleDataAccessL.Average(x => {
-                    return x;
-                });
+                short avgL = (short)sampleDataAccessL.Average(x => x);
 
                 for (int i = 0; i < Length; i++) {
                     sampleDataAccessL[i] -= avgL;
@@ -184,9 +183,7 @@ namespace WaveTracker.Tracker {
 
                 // Calculate and subtract right channel avg if stereo
                 if (IsStereo) {
-                    short avgR = (short)sampleDataAccessR.Average(x => {
-                        return x;
-                    });
+                    short avgR = (short)sampleDataAccessR.Average(x => x);
 
                     for (int i = 0; i < Length; i++) {
                         sampleDataAccessR[i] -= avgR;
@@ -197,28 +194,39 @@ namespace WaveTracker.Tracker {
         }
 
         public void ChangeBitDepth(int depth) {
+            short peakL = sampleDataAccessL.Max();
+            short peakR = sampleDataAccessR.Max();
+
             for (int i = 0; i < Length; i++) {
-                sampleDataAccessL[i] = QuantizeSample(depth, sampleDataAccessL[i]);
+                sampleDataAccessL[i] = QuantizeSample(depth, sampleDataAccessL[i], peakL);
             }
 
             if (IsStereo) {
                 for (int i = 0; i < Length; i++) {
-                    sampleDataAccessR[i] = QuantizeSample(depth, sampleDataAccessR[i]);
+                    sampleDataAccessR[i] = QuantizeSample(depth, sampleDataAccessR[i], peakR);
                 }
             }
         }
-        private short QuantizeSample(int bitDepth, short sample) {
+        private short QuantizeSample(int bitDepth, short sample, short peak) {
+            bitDepth = 10;
+            int ditherClamp = (int)Math.Pow(2, 16 - bitDepth) - 1;
 
-            int newDepthMax = (int)Math.Pow(2, bitDepth) - 1;
-            return (short)(Math.Floor(sample / (double)short.MaxValue * newDepthMax) * (short.MaxValue / newDepthMax));
+            short scalar = (short)(short.MaxValue / peak);
+            short outSample = (short)((sample * scalar + (Random.Shared.Next() & ditherClamp) - (Random.Shared.Next() & ditherClamp)) >> 16 - bitDepth);
+            if (outSample < -0x8000) outSample = -0x8000;
+            if (outSample > 0x7fff) outSample = 0x7fff;
+
+            return outSample;
         }
 
         public void MixToMono() {
-            for (int i = 0; i < Length; ++i) {
-                sampleDataAccessL[i] = (short)(sampleDataAccessL[i] / 2 + sampleDataAccessR[i] / 2);
-            }
+            if (IsStereo) {
+                for (int i = 0; i < Length; ++i) {
+                    sampleDataAccessL[i] = (short)(sampleDataAccessL[i] / 2f + sampleDataAccessR[i] / 2f);
+                }
 
-            sampleDataAccessR = [];
+                sampleDataAccessR = [];
+            }
         }
 
         public void Cut(int start, int end) {

@@ -16,6 +16,8 @@ namespace WaveTracker.UI {
         private int selectionStartIndex;
         private int selectionEndIndex;
 
+        private Button[] sampleEditPoints = new Button[100];
+
         private bool SelectionIsActive { get; set; }
 
         private int SelectionMin {
@@ -37,7 +39,7 @@ namespace WaveTracker.UI {
         private Dropdown loopMode;
         private NumberBox loopPoint;
         private SampleBrowser browser;
-        private Button normalize, reverse, fadeIn, fadeOut, amplifyUp, amplifyDown, invert, cut, removeDC, bitCrush;
+        private Button normalize, reverse, fadeIn, fadeOut, amplifyUp, amplifyDown, invert, cut, removeDC, bitCrush, mixToMono;
         private HorizontalSlider bitCrushDepth;
         private CheckboxLabeled showInVisualizer;
         private int lastMouseHoverSample;
@@ -92,10 +94,13 @@ namespace WaveTracker.UI {
             buttonsX = 357;
             buttonsY += 14;
             removeDC = new Button("Remove DC", buttonsX, buttonsY, buttonsWidth, this);
+            buttonsX += buttonsWidth + 1;
+            mixToMono = new Button("Mix mono", buttonsX, buttonsY, buttonsWidth, this);
 
             bitCrush = new Button("Bit Crush", 357, 245, buttonsWidth, this);
             bitCrushDepth = new(357 + buttonsWidth + 10, 245, 48, 16, this);
             bitCrushDepth.SetValueLimits(1, 16);
+
 
             showInVisualizer = new CheckboxLabeled("Show in visualizer", 480, 245, 88, this);
             showInVisualizer.ShowCheckboxOnRight = true;
@@ -229,6 +234,10 @@ namespace WaveTracker.UI {
                 if(removeDC.Clicked) {
                     RemoveDC();
                 }
+                if (mixToMono.Clicked) {
+                    ToMono();
+                }
+
                 bitCrushDepth.Update();
                 if (bitCrush.Clicked) {
                     BitCrush();
@@ -324,6 +333,10 @@ namespace WaveTracker.UI {
             App.CurrentModule.SetDirty();
         }
 
+        public void ToMono() {
+            Sample.MixToMono();
+        }
+
         private void BitCrush() {
             Sample.ChangeBitDepth(bitCrushDepth.Value);
             App.CurrentModule.SetDirty();
@@ -399,6 +412,7 @@ namespace WaveTracker.UI {
             amplifyUp.Draw();
             reverse.Draw();
             removeDC.Draw();
+            mixToMono.Draw();
             bitCrush.Draw();
             bitCrushDepth.Draw();
             showInVisualizer.Draw();
