@@ -14,6 +14,7 @@ namespace WaveTracker.UI {
         public int CoarseStepAmount { get; set; }
 
         private int barClickOffset;
+
         public Scrollbar(int x, int y, int width, int height, Element parent) {
             this.x = x;
             this.y = y;
@@ -57,9 +58,8 @@ namespace WaveTracker.UI {
                             }
                         }
                         if (BarIsPressed) {
-                            bar.Y = MouseY + barClickOffset;
-
-                            ScrollValue = (int)Math.Round(BarValFromPos() * (totalSize - viewportSize));
+                            bar.Y = Math.Clamp(MouseY + barClickOffset, 1, height - bar.Height - 1);
+                            ScrollValue = (int)Math.Round(BarValFromPos() * MaxScrollValue);
                         }
                         else if (IsHovered) {
                             ScrollValue -= Input.MouseScrollWheel(KeyModifier._Any) * CoarseStepAmount;
@@ -99,17 +99,27 @@ namespace WaveTracker.UI {
         /// </summary>
         public void UpdateScrollValue() {
             if (viewportSize < totalSize) {
-                ScrollValue = Math.Clamp(ScrollValue, 0, totalSize - viewportSize);
-                bar.Y = (int)Math.Round(BarPosFromVal() * (height - 2) + 1);
+                ScrollValue = Math.Clamp(ScrollValue, 0, MaxScrollValue);
+                int position = (int)Math.Round(BarPosFromVal() * (height - 2f - bar.Height) + 1);
+                bar.Y = Math.Clamp(position, 1, height - bar.Height - 1);
+
             }
         }
 
+        /// <summary>
+        /// 0.0-1.0 of how scrolled the bar is from the y position
+        /// </summary>
+        /// <returns></returns>
         private float BarValFromPos() {
-            return (bar.Y - 1) / (float)(height - 2 - bar.Height);
+            return (bar.Y - 1f) / (height - bar.Height - 2f);
         }
 
+        /// <summary>
+        /// 0.0-1.0 of how scrolled the bar is from the scrollValue
+        /// </summary>
+        /// <returns></returns>
         private float BarPosFromVal() {
-            return ScrollValue / (float)totalSize;
+            return ScrollValue / (float)MaxScrollValue;
 
         }
 

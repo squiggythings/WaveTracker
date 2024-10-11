@@ -73,6 +73,7 @@ namespace WaveTracker.UI {
                 tabGroup.AddTab("Sample", false);
                 tabGroup.AddTab("Envelopes", false);
                 sampleEditor.Sample = instrument.sample;
+                sampleEditor.Reset();
             }
             else {
                 tabGroup.AddTab("Envelopes", false);

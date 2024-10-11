@@ -281,7 +281,7 @@ namespace WaveTracker {
                 menu[0] = new MenuOption("Clear", recentFilePaths.Clear);
                 menu[1] = null;
                 for (int i = 0; i < recentFilePaths.Count; i++) {
-                    menu[i + 2] = new MenuOption(i + 1 + ". " + recentFilePaths[i], () => TryToLoadFile(recentFilePaths[i]));
+                    menu[i + 2] = new MenuOption(i + 1 + ". " + recentFilePaths[i], TryToLoadFile, recentFilePaths[i]);
                 }
                 return menu;
             }
@@ -299,7 +299,7 @@ namespace WaveTracker {
                 menu[0] = new MenuOption("Open autosaves folder...", OpenAutosavesFolder);
                 menu[1] = null;
                 for (int i = 0; i < filepaths.Length; i++) {
-                    menu[i + 2] = new MenuOption(i + 1 + ". " + Path.GetFileName(filepaths[i]), () => TryToLoadFile(recentFilePaths[i]));
+                    menu[i + 2] = new MenuOption(i + 1 + ". " + Path.GetFileName(filepaths[i]), TryToLoadFile, filepaths[i]);
                 }
                 return menu;
             }
