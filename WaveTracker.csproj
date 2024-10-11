@@ -41,11 +41,11 @@
     <None Remove="Source\UI\WaveEditor.cs~RFd26000b.TMP" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="FontStashSharp.MonoGame" Version="1.3.7" />
-    <PackageReference Include="MonoGame.Framework.WindowsDX" Version="3.8.1.303" />
-    <PackageReference Include="MonoGame.Content.Builder.Task" Version="3.8.1.303" />
-    <PackageReference Include="NAudio" Version="2.1.0" />
-    <PackageReference Include="protobuf-net" Version="3.2.26" />
+    <PackageReference Include="FontStashSharp.MonoGame" Version="1.3.9" />
+    <PackageReference Include="MonoGame.Framework.WindowsDX" Version="3.8.2.1105" />
+    <PackageReference Include="MonoGame.Content.Builder.Task" Version="3.8.2.1105" />
+    <PackageReference Include="NAudio" Version="2.2.1" />
+    <PackageReference Include="protobuf-net" Version="3.2.30" />
     <PackageReference Include="TextCopy" Version="6.2.1" />
   </ItemGroup>
   <Target Name="RestoreDotnetTools" BeforeTargets="Restore">

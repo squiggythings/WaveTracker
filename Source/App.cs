@@ -95,6 +95,7 @@ namespace WaveTracker {
         /// </summary>
         public static SettingsProfile Settings { get; private set; }
 
+
         /// <summary>
         /// A reference to the settings' keyboard shortcuts
         /// </summary>
@@ -119,6 +120,7 @@ namespace WaveTracker {
             }
         }
 
+        private bool discardUnsavedChanges = false;
         /// <summary>
         /// Height of the menustrip
         /// </summary>
@@ -159,7 +161,6 @@ namespace WaveTracker {
 
             System.Windows.Forms.Form form = (System.Windows.Forms.Form)System.Windows.Forms.Control.FromHandle(Window.Handle);
             form.WindowState = System.Windows.Forms.FormWindowState.Maximized;
-            form.FormClosing += ClosingForm;
             if (!Directory.Exists(SaveLoad.ThemeFolderPath)) {
                 Directory.CreateDirectory(SaveLoad.ThemeFolderPath);
                 File.WriteAllText(Path.Combine(SaveLoad.ThemeFolderPath, "Default.wttheme"), ColorTheme.CreateString(ColorTheme.Default));
@@ -439,23 +440,7 @@ namespace WaveTracker {
         /// Closes WaveTracker
         /// </summary>
         public static void ExitApplication() {
-            System.Windows.Forms.Form form = (System.Windows.Forms.Form)System.Windows.Forms.Control.FromHandle(instance.Window.Handle);
-            form.Close();
-        }
-
-        /// <summary>
-        /// Called before the app closes
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        public void ClosingForm(object sender, System.ComponentModel.CancelEventArgs e) {
-            ContextMenu.CloseCurrent();
-
-            if (!SaveLoad.IsSaved) {
-                e.Cancel = true;
-                SaveLoad.DoSaveChangesDialog(UnsavedChangesCallback);
-            }
-
+            instance.Exit();
         }
 
         /// <summary>
@@ -469,16 +454,33 @@ namespace WaveTracker {
             else if (result == "Cancel") {
                 return;
             }
+            else if (result == "No") {
+                discardUnsavedChanges = true;
+            }
             Exit();
         }
 
-        protected override void OnExiting(object sender, EventArgs args) {
-            Debug.WriteLine("Closing WaveTracker...");
-            SaveLoad.SetCrashFlag(false);
-            AudioEngine.Stop();
-            PianoInput.StopMIDI();
-            SettingsProfile.WriteToDisk(Settings);
-            base.OnExiting(sender, args);
+
+        /// <summary>
+        /// Catches before closing the app, in case any unsaved changes are present
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="args"></param>
+        protected override void OnExiting(object sender, ExitingEventArgs args) {
+            ContextMenu.CloseCurrent();
+            if (!SaveLoad.IsSaved && !discardUnsavedChanges) {
+                args.Cancel = true;
+                SaveLoad.DoSaveChangesDialog(UnsavedChangesCallback);
+                return;
+            }
+            else {
+                Debug.WriteLine("Closing WaveTracker...");
+                SaveLoad.SetCrashFlag(false);
+                AudioEngine.Stop();
+                PianoInput.StopMIDI();
+                SettingsProfile.WriteToDisk(Settings);
+                base.OnExiting(sender, args);
+            }
         }
     }
 }
