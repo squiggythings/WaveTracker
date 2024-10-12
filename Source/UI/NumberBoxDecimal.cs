@@ -147,7 +147,6 @@ namespace WaveTracker.UI {
             DrawRect(boxStart + 1, boxStartY + 1, bWidth - 2, boxHeight - 2, Color.White);
             DrawRect(boxStart + 1, boxStartY + 1, bWidth - 2, 1, new Color(193, 196, 213));
             DrawRect(width, boxStartY + 6, -10, 1, ButtonColors.backgroundColor);
-            //Write(Value.ToString("F" + DecimalPlaces), boxStart + 4, height / 2 - 3, text);
 
             string text = "";
             switch (DisplayMode) {

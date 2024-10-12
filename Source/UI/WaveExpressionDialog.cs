@@ -13,7 +13,7 @@ namespace WaveTracker.UI {
 
         private WaveExpression waveExpression;
 
-        public WaveExpressionDialog() : base("Generate from maths expression...", 340) {
+        public WaveExpressionDialog() : base("Wave expression...", 340) {
             ExpressionInput = new Textbox("", 8, 25, 170, this);
             ExpressionInput.SetTooltip("", "Expression");
             ExpressionInput.Text = "sin(x)";
