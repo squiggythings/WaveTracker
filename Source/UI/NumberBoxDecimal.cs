@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using System;
+using static WaveTracker.UI.NumberBox;
 
 namespace WaveTracker.UI {
     public class NumberBoxDecimal : Clickable {
@@ -10,8 +11,8 @@ namespace WaveTracker.UI {
         private float min = float.MinValue;
         private float max = float.MaxValue;
         private bool canScroll = true;
-        public enum DisplayMode { Number, Note, NoteOnly, PlusMinus }
-        public DisplayMode displayMode = DisplayMode.Number;
+        public enum NumberDisplayMode { Number, PlusMinus, Percent, Milliseconds }
+        public NumberDisplayMode DisplayMode = NumberDisplayMode.Number;
         public bool ValueWasChanged { get; private set; }
         public bool ValueWasChangedInternally { get; private set; }
 
@@ -147,7 +148,24 @@ namespace WaveTracker.UI {
             DrawRect(boxStart + 1, boxStartY + 1, bWidth - 2, 1, new Color(193, 196, 213));
             DrawRect(width, boxStartY + 6, -10, 1, ButtonColors.backgroundColor);
             //Write(Value.ToString("F" + DecimalPlaces), boxStart + 4, height / 2 - 3, text);
-            InputField.Draw(Value.ToString("F" + DecimalPlaces));
+
+            string text = "";
+            switch (DisplayMode) {
+                case NumberDisplayMode.Number:
+                    text = MathF.Round(Value, DecimalPlaces) + "";
+                    break;
+                case NumberDisplayMode.PlusMinus:
+                    text = (Value <= 0 ? Value : "+" + Value) + "";
+                    break;
+                case NumberDisplayMode.Percent:
+                    text = Value + "%";
+                    break;
+                case NumberDisplayMode.Milliseconds:
+                    text = Value + "ms";
+                    break;
+            }
+            InputField.Draw(text);
+
             bUp.Draw();
             bDown.Draw();
         }
