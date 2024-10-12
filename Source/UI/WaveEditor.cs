@@ -69,7 +69,7 @@ namespace WaveTracker.UI {
             NormalizeButton.SetTooltip("", "Make the wave maximum amplitude");
             buttonY += 18;
 
-            ModifyButton = new DropdownButton("More...", buttonX, buttonY, buttonWidth, this);
+            ModifyButton = new DropdownButton("Modify...", buttonX, buttonY, buttonWidth, this);
             ModifyButton.LabelIsCentered = true;
             ModifyButton.SetMenuItems(["Smooth...", "Add Fuzz...", "Sync...", "Sample and hold...", "Wave expression..."]);
 
