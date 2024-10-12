@@ -8,13 +8,15 @@ using System.Threading.Tasks;
 using WaveTracker.Tracker;
 
 namespace WaveTracker.Source {
+    public class EvaluationContext {
 #pragma warning disable CA1822 // Mark members as static (NCalc can't find static functions)
 #pragma warning disable CS0414 // The field is assigned but its value is never used (NCalc can't find const fields)
 #pragma warning disable IDE0051 // Remove unused private members (NCalc can't find const fields)
-    public class EvaluationContext {
         private double pi = Math.PI;
         private double e = Math.E;
         private double tau = Math.Tau;
+
+        public bool wavefold = false;
 
         public double x = 0; //"wave radian" maps the waves domain (0-64) to (0-2pi)
         public double a = 0;
@@ -39,30 +41,23 @@ namespace WaveTracker.Source {
         public double Mod(double a, double b) {
             return a - b * Math.Floor(a / b);
         }
-    }
 #pragma warning restore IDE0051 // Remove unused private members
 #pragma warning restore CS0414 // The field is assigned but its value is never used
 #pragma warning restore CA1822 // Mark members as static
+    }
 
-    [ProtoContract(SkipConstructor = true)]
-    [Serializable]
     public class WaveExpression {
-        [ProtoIgnore]
-        private Func<EvaluationContext, double> func;
-
+        private Func<EvaluationContext, double> lambda;
         private string _expression;
-        [ProtoMember(1)]
         public string Expression {
             get {
                 return _expression; 
             }
             set { 
+                TryUpdateExpression(value); 
                 _expression = value; 
-                RebuildExpression(); 
             }
         }
-        [ProtoMember(2)]
-        public bool WaveFold = false;
 
         public WaveExpression() {
             Expression = "0";
@@ -72,29 +67,23 @@ namespace WaveTracker.Source {
             Expression = expression;
         }
 
-        private void RebuildExpression() {
-            Expression expression = new Expression(Expression);
+        private void TryUpdateExpression(string str) {
+            Expression expression = new Expression(str);
             if (expression.HasErrors()) {
                 throw expression.Error;
             }
-            func = expression.ToLambda<EvaluationContext, double>();
-        }
-
-        public WaveExpression Clone() {
-            WaveExpression newMathExpression = new WaveExpression(Expression);
-            newMathExpression.WaveFold = WaveFold;
-            return newMathExpression;
+            lambda = expression.ToLambda<EvaluationContext, double>();
         }
 
         public void Apply(Wave wave, EvaluationContext context) {
             for (int i = 0; i < 64; ++i) {
-                wave.samples[i] = GetSampleValue(context);
+                wave.samples[i] = Evaluate(context);
             }
         }
 
-        public byte GetSampleValue(EvaluationContext context) {
+        public byte Evaluate(EvaluationContext context) {
             
-            return NormalizeExpressionOutput(func.Invoke(context), WaveFold);
+            return NormalizeExpressionOutput(lambda.Invoke(context), context.wavefold);
         }
 
         public static byte NormalizeExpressionOutput(double d, bool fold = false) {
@@ -112,6 +101,11 @@ namespace WaveTracker.Source {
                 Wave.MinSampleValue,
                 Wave.MaxSampleValue);
             }
+        }
+
+        public WaveExpression Clone() {
+            WaveExpression newMathExpression = new WaveExpression(Expression);
+            return newMathExpression;
         }
     }
 }

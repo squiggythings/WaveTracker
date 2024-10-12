@@ -5,23 +5,20 @@ using WaveTracker.Tracker;
 using WaveTracker.Source;
 
 namespace WaveTracker.UI {
-    public class WaveMathExpressionDialog : WaveModifyDialog {
-        public Textbox ExpressionInput;
-        public CheckboxLabeled WaveFoldCheckbox;
-        public NumberBoxDecimal InputA, InputB, InputC;
-        TextBlock text;
+    public class WaveExpressionDialog : WaveModifyDialog {
+        private Textbox ExpressionInput;
+        private CheckboxLabeled WaveFoldCheckbox;
+        private NumberBoxDecimal InputA, InputB, InputC;
+        private TextBlock compileMessage;
 
-        WaveExpression mathExpression;
-        private double compileTime = 0;
-        private bool compileSuccess = true;
-        private string lastCompileError = string.Empty;
+        private WaveExpression waveExpression;
 
-        public WaveMathExpressionDialog() : base("Generate from maths expression...", 340) {
+        public WaveExpressionDialog() : base("Generate from maths expression...", 340) {
             ExpressionInput = new Textbox("", 8, 25, 170, this);
             ExpressionInput.SetTooltip("", "Expression");
-            ExpressionInput.Text = "0";
+            ExpressionInput.Text = "sin(x)";
 
-            mathExpression = new(ExpressionInput.Text);
+            waveExpression = new(ExpressionInput.Text);
             ExpressionInput.Update(); //Unsets ValueWasChanged flag
 
             int inputValueX = 8;
@@ -35,7 +32,7 @@ namespace WaveTracker.UI {
             WaveFoldCheckbox.SetTooltip("", "Wraps the waveform");
             WaveFoldCheckbox.Value = false;
 
-            text = new TextBlock("Hellow i love you", 8, 74, 170, 38, this);
+            compileMessage = new TextBlock("", 8, 74, 170, 38, this);
         }
 
         public new void Open(Wave wave) {
@@ -50,29 +47,36 @@ namespace WaveTracker.UI {
                 InputA.Update();
                 InputB.Update();
                 InputC.Update();
-                text.Update();
+                compileMessage.Update();
 
                 if (ExpressionInput.ValueWasChanged) {
-                    compileSuccess = true; //Set to true as a catch-all
                     try {
                         Stopwatch sw = Stopwatch.StartNew();
 
-                        mathExpression.Expression = ExpressionInput.Text;
+                        waveExpression.Expression = ExpressionInput.Text;
 
-                        compileTime = sw.Elapsed.TotalMilliseconds;
+                        SetCompileMessage($"Compilation successful ({Math.Round(sw.Elapsed.TotalMilliseconds, 3)} ms)", Color.Green);
                         Apply();
                     } catch (Exception e) {
-                        compileSuccess = false;
-                        if(e.InnerException != null) {
-                            lastCompileError = e.InnerException.Message;
+                        //In the case the expression cannot be parsed (exception),
+                        //the previous expression will still be valid.
+                        //This might be a little weird sofeel free to reset it here
+                        /*mathExpression = new("sin(x)");
+                        Apply();*/
+
+                        //Somtimes NCalc hides the important error in an inner exception
+                        string errorMessage;
+                        if (e.InnerException != null) {
+                            errorMessage = e.InnerException.Message;
                         }
                         else {
-                            lastCompileError = e.Message;
+                            errorMessage = e.Message;
                         }
+
+                        SetCompileMessage("Compilation failed: " + errorMessage, Color.OrangeRed);
                     }
                 }
                 if (WaveFoldCheckbox.Clicked) {
-                    mathExpression.WaveFold = WaveFoldCheckbox.Value;
                     Apply();
                 }
                 if (InputA.ValueWasChanged || InputB.ValueWasChanged || InputC.ValueWasChanged) {
@@ -83,12 +87,13 @@ namespace WaveTracker.UI {
 
         protected override byte GetSampleValue(int index) {
             EvaluationContext context = new() {
+                wavefold = WaveFoldCheckbox.Value,
                 x = (index << 1) * Math.PI / waveToEdit.samples.Length,
                 a = InputA.Value,
                 b = InputB.Value,
                 c = InputC.Value
             };
-            return mathExpression.GetSampleValue(context);
+            return waveExpression.Evaluate(context);
         }
 
         public new void Draw() {
@@ -99,17 +104,13 @@ namespace WaveTracker.UI {
                 InputA.Draw();
                 InputB.Draw();
                 InputC.Draw();
-
-                if(compileSuccess) {
-                    text.Text = $"Compilation successful ({Math.Round(compileTime, 3)} ms)";
-                    text.TextColour = Color.Green;
-                }
-                else {
-                    text.Text = "Compilation failed: " + lastCompileError;
-                    text.TextColour = Color.OrangeRed;
-                }
-                text.Draw();
+                compileMessage.Draw();
             }
+        }
+
+        private void SetCompileMessage(string message, Color textColor) {
+            compileMessage.Text = message;
+            compileMessage.TextColour = textColor;
         }
     }
 }

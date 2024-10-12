@@ -71,7 +71,7 @@ namespace WaveTracker.UI {
 
             ModifyButton = new DropdownButton("Modify...", buttonX, buttonY, buttonWidth, this);
             ModifyButton.LabelIsCentered = true;
-            ModifyButton.SetMenuItems(["Smooth...", "Add Fuzz...", "Sync...", "Sample and hold...", "Math expression"]);
+            ModifyButton.SetMenuItems(["Smooth...", "Add Fuzz...", "Sync...", "Sample and hold...", "Wave expression..."]);
 
             presetSine = new SpriteButton(17, 215, 18, 12, 104, 80, this);
             presetSine.SetTooltip("Sine", "Sine wave preset");

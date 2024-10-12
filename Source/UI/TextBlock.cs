@@ -34,7 +34,7 @@ namespace WaveTracker.UI {
         }
 
         public void Update() {
-            if (MouseX < width && MouseY < height && MouseX >= 0 && MouseY >= 0) {
+            if (IsMouseOverRegion) {
                 if (TooltipTextLong != "") {
                     Tooltip.TooltipTextLong = Text;
                 }
