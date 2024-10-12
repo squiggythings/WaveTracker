@@ -131,6 +131,8 @@ namespace WaveTracker {
         /// </summary>
         public static int MouseCursorArrow { get; set; }
 
+        public static MouseCursor MouseCursor { get; set; }
+
         /// <summary>
         /// The menustrip at the top of the screen
         /// </summary>
@@ -278,6 +280,7 @@ namespace WaveTracker {
             Window.Title = SaveLoad.FileNameWithoutExtension + (SaveLoad.IsSaved ? "" : "*") + " [#" + (CurrentSongIndex + 1) + " " + CurrentSong.ToString() + "] - WaveTracker " + VERSION;
             WindowHeight = Window.ClientBounds.Height / Settings.General.ScreenScale;
             WindowWidth = Window.ClientBounds.Width / Settings.General.ScreenScale;
+            MouseCursor = MouseCursor.Arrow;
             if (dialogDelay < 2) {
                 dialogDelay++;
                 if (dialogDelay == 2) {
@@ -296,19 +299,6 @@ namespace WaveTracker {
                 Input.dialogOpenCooldown = 3;
             }
             SaveLoad.AutosaveTick();
-            if (Input.dialogOpenCooldown == 0) {
-                if (Input.MousePositionX > 1 && Input.MousePositionX < WindowWidth - 1) {
-                    if (Input.MousePositionY > 1 && Input.MousePositionY < WindowHeight - 1) {
-                        if (MouseCursorArrow == 0) {
-                            Mouse.SetCursor(MouseCursor.Arrow);
-                        }
-                        else {
-                            Mouse.SetCursor(MouseCursor.SizeNS);
-                            MouseCursorArrow--;
-                        }
-                    }
-                }
-            }
 
             Tooltip.Update();
             if (Shortcuts["General\\Reset audio"].IsPressedDown) {
@@ -350,6 +340,14 @@ namespace WaveTracker {
             }
 
             ContextMenu.Update();
+
+            if (Input.dialogOpenCooldown == 0) {
+                if (Input.MousePositionX > 1 && Input.MousePositionX < WindowWidth - 1) {
+                    if (Input.MousePositionY > 1 && Input.MousePositionY < WindowHeight - 1) {
+                        Mouse.SetCursor(MouseCursor);
+                    }
+                }
+            }
             base.Update(gameTime);
         }
 
