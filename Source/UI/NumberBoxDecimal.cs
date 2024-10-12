@@ -23,6 +23,9 @@ namespace WaveTracker.UI {
         private float Step { get; set; }
         public float Value { get { return _value; } set { _value = Math.Clamp(value, min, max); } }
 
+        private InputField InputField { get; set; }
+        public new bool InFocus => base.InFocus || InputField.InFocus;
+
         public NumberBoxDecimal(string label, int x, int y, int width, int boxWidth, Element parent, float step = 0.01f, int decimalPlaces = 2) {
             this.label = label;
             this.x = x;
@@ -34,6 +37,10 @@ namespace WaveTracker.UI {
             height = 13;
             canScroll = true;
             SetParent(parent);
+
+            InputField = new InputField(width - boxWidth, 0, boxWidth - 10, this);
+            InputField.AllowedCharacters = "-0123456789.";
+
             bUp = new SpriteButton(width - 10, 0, 10, 6, 416, 144, this);
             bDown = new SpriteButton(width - 10, 7, 10, 6, 416, 176, this);
         }
@@ -49,6 +56,10 @@ namespace WaveTracker.UI {
             height = 13;
             canScroll = true;
             SetParent(parent);
+
+            InputField = new InputField(width - boxWidth, 0, boxWidth - 10, this);
+            InputField.AllowedCharacters = "-0123456789.";
+
             bUp = new SpriteButton(width - 10, 0, 10, 6, 416, 144, this);
             bDown = new SpriteButton(width - 10, 7, 10, 6, 416, 176, this);
         }
@@ -64,8 +75,17 @@ namespace WaveTracker.UI {
         public void Update() {
             if (enabled && InFocus) {
                 float valueBeforeUpdate = _value;
-                if (DoubleClicked && MouseX < width - 10) {
-                    // edit text 
+
+                //Input field text editing
+                if (InputField.DoubleClicked) {
+                    Input.CancelClick();
+                    InputField.Open(Value + "", selectAll: true);
+                }
+                InputField.Update();
+                if (InputField.ValueWasChangedInternally) {
+                    if (float.TryParse(InputField.EditedText, out float num)) {
+                        Value = num;
+                    }
                 }
 
                 //Dragging
@@ -112,7 +132,6 @@ namespace WaveTracker.UI {
 
         public void Draw() {
             Color dark = UIColors.label;
-            Color text = UIColors.black;
             Color labelCol = UIColors.labelDark;
             if (IsHovered) {
                 labelCol = Color.Black;
@@ -127,7 +146,8 @@ namespace WaveTracker.UI {
             DrawRect(boxStart + 1, boxStartY + 1, bWidth - 2, boxHeight - 2, Color.White);
             DrawRect(boxStart + 1, boxStartY + 1, bWidth - 2, 1, new Color(193, 196, 213));
             DrawRect(width, boxStartY + 6, -10, 1, ButtonColors.backgroundColor);
-            Write(Value.ToString("F" + DecimalPlaces), boxStart + 4, height / 2 - 3, text);
+            //Write(Value.ToString("F" + DecimalPlaces), boxStart + 4, height / 2 - 3, text);
+            InputField.Draw(Value.ToString("F" + DecimalPlaces));
             bUp.Draw();
             bDown.Draw();
         }
