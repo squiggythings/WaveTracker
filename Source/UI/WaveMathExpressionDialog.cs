@@ -11,7 +11,6 @@ namespace WaveTracker.UI {
 
         private MathExpression mathExpression;
         private bool compileSuccess = true;
-        private string lastCompileError = string.Empty;
 
         public WaveMathExpressionDialog() : base("Generate from maths expression...", 300) {
             expression = new Textbox("", 8, 25, 145, this);
@@ -41,14 +40,8 @@ namespace WaveTracker.UI {
                     try {
                         mathExpression.Expression = expression.Text;
                         Apply();
-                    } catch (Exception e) {
+                    } catch {
                         compileSuccess = false;
-                        if(e.InnerException != null) {
-                            lastCompileError = e.InnerException.Message;
-                        }
-                        else {
-                            lastCompileError = e.Message;
-                        }
                     }
                 }
                 if (waveFold.Clicked) {
