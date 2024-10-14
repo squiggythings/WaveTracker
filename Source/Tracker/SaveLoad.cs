@@ -68,7 +68,7 @@ namespace WaveTracker {
         /// Writes the current module to <c>path</c>
         /// </summary>
         /// <param name="path"></param>
-        private static void WriteTo(string path) {
+        private static void WriteTo(string path, bool markAsSaved = true) {
             Debug.WriteLine("Saving to: " + path);
             Stopwatch stopwatch = Stopwatch.StartNew();
 
@@ -77,7 +77,9 @@ namespace WaveTracker {
             }
 
             stopwatch.Stop();
-            App.CurrentModule.OnSaveModule();
+            if (markAsSaved) {
+                App.CurrentModule.OnSaveModule();
+            }
             Debug.WriteLine("saved in " + stopwatch.ElapsedMilliseconds + " ms");
             return;
 
@@ -106,23 +108,27 @@ namespace WaveTracker {
             }
         }
 
+        /// <summary>
+        /// Writes a copy of the current module to the autosaves folder
+        /// </summary>
         private static void Autosave() {
             if (!Path.Exists(AutosavesFolderPath)) {
                 Directory.CreateDirectory(AutosavesFolderPath);
             }
             string[] files = Directory.GetFiles(AutosavesFolderPath);
 
-            // delete any autosaves older than 3 hours ago.
+            // prevent auto saves folder from growing too large, at a minimum will be the last 3 hours of work
             if (files.Length > 36) {
                 File.Delete(files[36]);
             }
             lastAutosaveTime = App.GameTime.TotalGameTime;
-            WriteTo(Path.Combine(AutosavesFolderPath, FileNameWithoutExtension + "_autosave_" + string.Format("{0:yyyy-MM-dd_HH-mm-ss-fff}", DateTime.Now) + ".wtm"));
+            WriteTo(Path.Combine(AutosavesFolderPath, FileNameWithoutExtension + "_autosave_" + string.Format("{0:yyyy-MM-dd_HH-mm-ss-fff}", DateTime.Now) + ".wtm"), markAsSaved: false);
         }
 
         public static void AutosaveTick() {
             // Autosave every 5th minute
             if ((App.GameTime.TotalGameTime.Minutes + 1) % 5 == 0) {
+                // and only if the module was edited since the last autosave
                 if (!performedAutosave && App.CurrentModule.LastEditedTime > lastAutosaveTime) {
                     Autosave();
                     performedAutosave = true;
