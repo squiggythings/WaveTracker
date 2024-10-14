@@ -16,6 +16,15 @@ namespace WaveTracker.UI {
             SetParent(parent);
         }
 
+        public CheckboxLabeled(string label, int x, int y, Element parent) {
+            this.x = x;
+            this.y = y;
+            width = 16 + Helpers.GetWidthOfText(label);
+            this.label = label;
+            height = 11;
+            SetParent(parent);
+        }
+
         public void Update() {
             if (Clicked) {
                 Value = !Value;
