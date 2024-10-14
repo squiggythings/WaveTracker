@@ -139,7 +139,7 @@ namespace WaveTracker.UI {
             }
         }
 
-        int lastCanvasPosX, lastCanvasPosY;
+        private int lastCanvasPosX, lastCanvasPosY;
 
         private void ToggleDisplayMode() {
             displayAsLines = !displayAsLines;
@@ -328,7 +328,7 @@ namespace WaveTracker.UI {
             }
         }
 
-        void LineBetween(int sample1, int value1, int sample2, int value2) {
+        private void LineBetween(int sample1, int value1, int sample2, int value2) {
             int diff = Math.Abs(sample1 - sample2);
             if (diff > 0) {
                 if (sample1 < sample2) {

@@ -1,5 +1,4 @@
-﻿using Microsoft.VisualBasic.ApplicationServices;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using NAudio.Wave;
 using ProtoBuf;
 using System;
@@ -143,7 +142,6 @@ namespace WaveTracker.Tracker {
                 }
             }
         }
-
 
         public void RemoveDCOffset() {
             RemoveDCOffset(0, Length);

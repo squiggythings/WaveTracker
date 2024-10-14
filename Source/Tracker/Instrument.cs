@@ -1,5 +1,4 @@
-﻿using NAudio.MediaFoundation;
-using ProtoBuf;
+﻿using ProtoBuf;
 using System.Collections.Generic;
 
 namespace WaveTracker.Tracker {

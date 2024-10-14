@@ -122,9 +122,7 @@ namespace WaveTracker.Audio {
             Dialogs.exportingDialog.TotalRows = RenderTotalRows;
             bool overwriting = File.Exists(filepath);
 
-            bool b = await Task.Run(() => {
-                return WriteToWaveFile(filepath + ".temp", audioProvider);
-            });
+            bool b = await Task.Run(() => WriteToWaveFile(filepath + ".temp", audioProvider));
             Debug.WriteLine("Exported!");
             if (b) {
                 if (overwriting) {

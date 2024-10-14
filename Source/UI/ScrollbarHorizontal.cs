@@ -33,8 +33,6 @@ namespace WaveTracker.UI {
             UpdateScrollValue();
         }
 
-
-
         public void Update() {
             if (InFocus) {
                 if (enabled) {

@@ -1,9 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using WaveTracker.UI;
 using WaveTracker.Tracker;
 
 namespace WaveTracker.UI {
@@ -26,7 +21,7 @@ namespace WaveTracker.UI {
         }
 
         public void Open(SampleEditor opened, int start, int end) {
-            this.openedEditor = opened;
+            openedEditor = opened;
             sampleToEdit = opened.Sample;
             originalDataL = new short[end - start];
             startIndex = start;

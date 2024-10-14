@@ -1,6 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
 using System;
-using static WaveTracker.UI.Dropdown;
 
 namespace WaveTracker.UI {
     public class DropdownButton : Clickable {

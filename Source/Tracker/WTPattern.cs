@@ -343,7 +343,6 @@ namespace WaveTracker.Tracker {
             }
         }
 
-
         /// <summary>
         /// Returns true if the cell at the given location is empty
         /// </summary>

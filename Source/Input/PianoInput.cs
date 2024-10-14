@@ -149,7 +149,6 @@ namespace WaveTracker {
                 ChannelManager.PreviewChannel.SetVolume(CurrentVelocity);
                 ChannelManager.PreviewChannel.TriggerNote(CurrentNote);
 
-
                 if (enterToPatternEditor) {
                     App.PatternEditor.TryToEnterNote(note, velocity);
                 }
@@ -169,9 +168,6 @@ namespace WaveTracker {
                     ChannelManager.PreviewChannel.SetVolume(CurrentVelocity);
                     ChannelManager.PreviewChannel.TriggerNote(CurrentNote);
                 }
-
-
-
 
             }
             else {

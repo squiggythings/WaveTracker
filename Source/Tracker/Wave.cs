@@ -262,15 +262,6 @@ namespace WaveTracker.Tracker {
         }
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static float GetBentTime(float t, float bendAmt) {
-            //bendAmt = bendAmt * bendAmt * 50;
-            //bendAmt += 1;
-            //float c = (1 - bendAmt) / (bendAmt - 3);
-            //if (t > 0.5f) {
-            //    return 1 - (1 - t) * (((1 - t) * (1 + c)) / ((1 - t) + (1 - 0.5f) * c)) * (((1 - t) * (1 + c)) / ((1 - t) + (1 - 0.5f) * c));
-            //}
-            //else {
-            //    return t * ((t * (1 + c)) / (t + 0.5f * c)) * ((t * (1 + c)) / (t + 0.5f * c));
-            //}
             bendAmt = -25 * bendAmt * bendAmt;
             float exp = 1 - 0.8f * bendAmt;
             if (t > 0.5f) {

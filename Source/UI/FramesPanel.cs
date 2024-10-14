@@ -5,9 +5,8 @@ namespace WaveTracker.UI {
         private FrameButton[] frames;
         public SpriteButton bNewFrame, bDeleteFrame, bDuplicateFrame, bMoveLeft, bMoveRight;
 
-        //public Button increasePattern, decreasePattern;
         private MouseRegion scrollRegion;
-        //Menu contextMenu;
+
         public FramesPanel(int x, int y, int width, int height) : base("Frames", x, y, width, height) {
             bNewFrame = new SpriteButton(4, 10, 15, 15, 285, 0, this);
             bNewFrame.SetTooltip("Insert Frame", "Insert a new frame after this one");

@@ -1,7 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -94,7 +93,6 @@ namespace WaveTracker {
         /// The App's currently loaded settings
         /// </summary>
         public static SettingsProfile Settings { get; private set; }
-
 
         /// <summary>
         /// A reference to the settings' keyboard shortcuts
@@ -457,7 +455,6 @@ namespace WaveTracker {
             }
             Exit();
         }
-
 
         /// <summary>
         /// Catches before closing the app, in case any unsaved changes are present

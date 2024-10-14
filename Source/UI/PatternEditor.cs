@@ -1054,7 +1054,6 @@ namespace WaveTracker.UI {
             }
             frame = renderCursorPos.Frame;
             row = renderCursorPos.Row;
-            //length = App.CurrentSong[frame].GetModifiedLength();
             frameWrap = 0;
             for (int i = NumVisibleLines / 2; i >= 0; i--) {
                 if (frameWrap == 0 || App.Settings.PatternEditor.ShowPreviousNextFrames) {
@@ -1520,7 +1519,6 @@ namespace WaveTracker.UI {
 
         private void RecordOriginalSelectionContents() {
             scaleClipboard = new float[selection.Height, selection.Width];
-            //clipboardStartCellType = selection.min.Column.ToCellType();
             for (int row = 0; row < selection.Height; row++) {
                 for (int column = 0; column < selection.Width; column++) {
                     scaleClipboard[row, column] = (byte)SelectionPattern[selection.min.Row + row, selection.min.CellColumn + column];
@@ -2459,18 +2457,10 @@ namespace WaveTracker.UI {
         /// <returns></returns>
         private Rectangle GetRectFromCursorPos(ref CursorPos position) {
 
-            //position.Normalize(CurrentSong);
             int x = ChannelHeaders[position.Channel].x + GetColumnStartPositionOffset(position.Column);
 
             int lineNumber = NumVisibleLines / 2;
-            //while (p.IsBelow(position)) {
-            //    p.MoveToRow(p.Row - 1, App.CurrentSong);
-            //    lineNumber--;
-            //}
-            //while (p.IsAbove(position)) {
-            //    p.MoveToRow(p.Row + 1, App.CurrentSong);
-            //    lineNumber++;
-            //}
+          
             return new Rectangle(x, lineNumber * ROW_HEIGHT, GetWidthOfCursorColumn(position.Column), ROW_HEIGHT);
         }
 

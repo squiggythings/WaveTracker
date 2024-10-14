@@ -254,7 +254,7 @@ namespace WaveTracker.Tracker {
             get {
                 return Channel * 11 + (int)Column.ToCellType();
             }
-        } 
+        }
     }
 
     public enum CursorColumnType {

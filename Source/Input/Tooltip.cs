@@ -68,7 +68,6 @@ namespace WaveTracker {
                 lasttooltip = TooltipText;
             }
 
-
             if (TooltipText != "" && TooltipText != null) {
                 hoverTime += elapsedMS;
                 if (hoverTime > 500) {

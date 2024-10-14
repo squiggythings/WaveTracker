@@ -1,8 +1,8 @@
 ﻿using Microsoft.Xna.Framework;
 using System;
+using System.Collections.Generic;
 using WaveTracker.Audio;
 using WaveTracker.Tracker;
-using System.Collections.Generic;
 
 namespace WaveTracker.UI {
     public class SampleEditor : Element {
@@ -21,9 +21,8 @@ namespace WaveTracker.UI {
 
         private List<SampleEditorState> history;
         private int historyIndex;
-
-        float zoomLevel = 1;
-        float zoomLevelVertical = 1;
+        private float zoomLevel = 1;
+        private float zoomLevelVertical = 1;
         private int ViewportSize { get { return (int)(Sample.Length / zoomLevel); } }
         private int ViewportOffset { get; set; }
 
@@ -55,7 +54,6 @@ namespace WaveTracker.UI {
         private Dropdown loopMode;
         private NumberBox loopPoint;
         private SampleBrowser browser;
-        // private Button normalize, reverse, fadeIn, fadeOut, amplifyUp, amplifyDown, invert, cut;
         private CheckboxLabeled showInVisualizer;
         private int lastMouseHoverSample;
         private ScrollbarHorizontal viewportScrollbar;
@@ -64,7 +62,6 @@ namespace WaveTracker.UI {
 
         public new bool InFocus => base.InFocus || Dialogs.currentSampleModifyDialog != null && Dialogs.currentSampleModifyDialog.InFocus;
 
-
         public SampleEditor(int x, int y, Element parent) {
             this.x = x;
             this.y = y;
@@ -72,7 +69,6 @@ namespace WaveTracker.UI {
             history = new List<SampleEditorState>();
 
             waveformRegion = new MouseRegion(0, 10, 568, 175 - 4, this);
-
 
             importSample = new Button("Import Sample    ", 0, 188, this);
             importSample.SetTooltip("", "Import an audio file into the instrument");
@@ -402,6 +398,64 @@ namespace WaveTracker.UI {
             browser.Update();
         }
 
+        private void ZoomInCentered() {
+            int oldCenter = ViewportOffset + ViewportSize / 2;
+            zoomLevel *= 1.1f;
+            if (zoomLevel > Math.Max(Sample.Length / (float)waveformRegion.width * 25, 1)) {
+                zoomLevel = Math.Max(Sample.Length / (float)waveformRegion.width * 25, 1);
+            }
+            ViewportOffset -= ViewportOffset + ViewportSize / 2 - oldCenter;
+            ViewportOffset = Math.Clamp(ViewportOffset, 0, Sample.Length - ViewportSize);
+
+        }
+
+        private void ZoomIn() {
+            zoomLevel *= 1.1f;
+            if (zoomLevel > Math.Max(Sample.Length / (float)waveformRegion.width * 25, 1)) {
+                zoomLevel = Math.Max(Sample.Length / (float)waveformRegion.width * 25, 1);
+            }
+        }
+
+        private void ZoomOutCentered() {
+            int oldCenter = ViewportOffset + ViewportSize / 2;
+            zoomLevel /= 1.1f;
+            if (zoomLevel < 1f) {
+                zoomLevel = 1f;
+            }
+            ViewportOffset -= ViewportOffset + ViewportSize / 2 - oldCenter;
+            ViewportOffset = Math.Clamp(ViewportOffset, 0, Sample.Length - ViewportSize);
+        }
+
+        private void ZoomOut() {
+            zoomLevel /= 1.1f;
+            if (zoomLevel < 1f) {
+                zoomLevel = 1f;
+            }
+        }
+
+        private void ZoomInVertical() {
+            zoomLevelVertical *= 1.25f;
+            if (zoomLevelVertical > 50) {
+                zoomLevelVertical = 50;
+            }
+
+        }
+
+        private void ZoomOutVertical() {
+            zoomLevelVertical /= 1.25f;
+            if (zoomLevelVertical < 1) {
+                zoomLevelVertical = 1;
+            }
+        }
+
+        private void ResetZoom() {
+            zoomLevel = 1;
+            zoomLevelVertical = 1;
+            ViewportOffset = 0;
+            viewportScrollbar.SetSize(Sample.Length, ViewportSize);
+            viewportScrollbar.ScrollValue = 0;
+        }
+
         private void OpenBitcrusher() {
             Dialogs.currentSampleModifyDialog = new SampleBitcrushDialog();
             if (SelectionIsActive) {
@@ -411,6 +465,7 @@ namespace WaveTracker.UI {
                 Dialogs.currentSampleModifyDialog.Open(this, 0, Sample.Length);
             }
         }
+
         private void OpenAmplifier() {
             Dialogs.currentSampleModifyDialog = new SampleAmplifyDialog();
             if (SelectionIsActive) {
@@ -435,59 +490,6 @@ namespace WaveTracker.UI {
                 Sample.Normalize();
             }
             AddToUndoHistory();
-        }
-
-        private void ZoomInCentered() {
-            int oldCenter = ViewportOffset + ViewportSize / 2;
-            zoomLevel *= 1.1f;
-            if (zoomLevel > Math.Max(Sample.Length / (float)waveformRegion.width * 25, 1)) {
-                zoomLevel = Math.Max(Sample.Length / (float)waveformRegion.width * 25, 1);
-            }
-            ViewportOffset -= ViewportOffset + ViewportSize / 2 - oldCenter;
-            ViewportOffset = Math.Clamp(ViewportOffset, 0, Sample.Length - ViewportSize);
-
-        }
-        private void ZoomIn() {
-            zoomLevel *= 1.1f;
-            if (zoomLevel > Math.Max(Sample.Length / (float)waveformRegion.width * 25, 1)) {
-                zoomLevel = Math.Max(Sample.Length / (float)waveformRegion.width * 25, 1);
-            }
-        }
-        private void ZoomOutCentered() {
-            int oldCenter = ViewportOffset + ViewportSize / 2;
-            zoomLevel /= 1.1f;
-            if (zoomLevel < 1f) {
-                zoomLevel = 1f;
-            }
-            ViewportOffset -= ViewportOffset + ViewportSize / 2 - oldCenter;
-            ViewportOffset = Math.Clamp(ViewportOffset, 0, Sample.Length - ViewportSize);
-        }
-        private void ZoomOut() {
-            zoomLevel /= 1.1f;
-            if (zoomLevel < 1f) {
-                zoomLevel = 1f;
-            }
-        }
-        private void ResetZoom() {
-            zoomLevel = 1;
-            zoomLevelVertical = 1;
-            ViewportOffset = 0;
-            viewportScrollbar.SetSize(Sample.Length, ViewportSize);
-            viewportScrollbar.ScrollValue = 0;
-        }
-
-        private void ZoomInVertical() {
-            zoomLevelVertical *= 1.25f;
-            if (zoomLevelVertical > 50) {
-                zoomLevelVertical = 50;
-            }
-
-        }
-        private void ZoomOutVertical() {
-            zoomLevelVertical /= 1.25f;
-            if (zoomLevelVertical < 1) {
-                zoomLevelVertical = 1;
-            }
         }
 
         private void FadeIn() {
@@ -656,6 +658,8 @@ namespace WaveTracker.UI {
                     float min = 1;
                     float max = -1;
                     float average = 0;
+
+                    // if we are far enough zoomed out, skip a few samples to optimize rendering, the detail in the averages is not needed
                     uint underflowSkip = (uint)((nextSampleIndex - sampleIndex) / (width * 2));
                     for (uint j = sampleIndex; j <= nextSampleIndex; ++j) {
                         float value;
@@ -698,7 +702,6 @@ namespace WaveTracker.UI {
                 }
                 EndRectangleMask();
 
-
                 if (Sample.loopType != Sample.LoopType.OneShot) {
                     DrawRect(x + loopPosition, y, 1, height, Color.Yellow);
                 }
@@ -715,17 +718,22 @@ namespace WaveTracker.UI {
         }
 
         private int GetXPositionOfSample(int sampleIndex, int windowWidth) {
-            return (int)Math.Clamp((float)(sampleIndex - ViewportOffset) / (ViewportSize) * windowWidth, 0, windowWidth);
+            return (int)Math.Clamp((float)(sampleIndex - ViewportOffset) / ViewportSize * windowWidth, 0, windowWidth);
         }
 
+        /// <summary>
+        /// Clears the undo history
+        /// </summary>
         public void ClearHistory() {
             history.Clear();
             history.Add(new SampleEditorState(Sample));
             historyIndex = 0;
         }
-
+        /// <summary>
+        /// Adds the current state to the undo history
+        /// </summary>
         public void AddToUndoHistory() {
-            // initialize 
+            // initialize if necessary
             if (history.Count == 0) {
                 history.Add(new SampleEditorState(Sample));
                 historyIndex = 0;
@@ -746,7 +754,6 @@ namespace WaveTracker.UI {
 
         public void Undo() {
             if (CanUndo) {
-                // set selection
                 SelectionIsActive = false;
 
                 historyIndex--;
@@ -768,21 +775,20 @@ namespace WaveTracker.UI {
 
                 history[historyIndex].RestoreIntoSample(Sample);
 
-                // set selection
                 SelectionIsActive = false;
 
                 App.CurrentModule.SetDirty();
             }
         }
 
-
-
-
+        /// <summary>
+        /// Stores the state of a sample to be used in sample editor undo history
+        /// </summary>
         public record SampleEditorState {
-            short[] channelLeft;
-            short[] channelRight;
-            Sample.LoopType loopType;
-            int loopPoint;
+            private short[] channelLeft;
+            private short[] channelRight;
+            private Sample.LoopType loopType;
+            private int loopPoint;
 
             public SampleEditorState(Sample sample) {
                 channelLeft = new short[sample.sampleDataL.Length];

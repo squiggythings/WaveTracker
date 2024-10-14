@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 using WaveTracker.Audio;
 using WaveTracker.UI;
 
