@@ -11,12 +11,12 @@
   <PropertyGroup>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <ApplicationIcon>Icon.ico</ApplicationIcon>
-    <ProductVersion>1.0.4</ProductVersion>
+    <ProductVersion>1.1.0</ProductVersion>
     <PackageVersion>$(ProductVersion)</PackageVersion>
     <Version>$(ProductVersion)</Version>
     <VersionPrefix>$(ProductVersion)</VersionPrefix>
     <AssemblyVersion>$(ProductVersion)</AssemblyVersion>
-    <FileVersion>1.0.4</FileVersion>
+    <FileVersion>1.1.0</FileVersion>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <DebugType>portable</DebugType>
