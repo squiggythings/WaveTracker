@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using System;
+using System.Linq;
 
 namespace WaveTracker.UI {
     public class Dropdown : Clickable {
@@ -51,7 +52,6 @@ namespace WaveTracker.UI {
             SetParent(parent);
 
         }
-
         public void SetMenuItems(string[] items) {
             int maxlength = 0;
             options = new string[items.Length];
@@ -174,5 +174,6 @@ namespace WaveTracker.UI {
                 }
             }
         }
+
     }
 }

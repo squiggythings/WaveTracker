@@ -135,15 +135,11 @@ namespace WaveTracker {
         /// <param name="note"></param>
         /// <param name="velocity"></param>
         private static void OnNoteOnEvent(int note, int? velocity, bool enterToPatternEditor = false) {
+            if (Dialogs.currentSampleModifyDialog != null && Dialogs.currentSampleModifyDialog.WindowIsOpen) {
+                return;
+            }
             if (!currentlyHeldDownNotes.Contains(note)) {
                 currentlyHeldDownNotes.Add(note);
-
-
-
-
-
-
-
                 CurrentNote = note;
                 CurrentVelocity = velocity ?? 99;
                 if (!Playback.IsPlaying) {

@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using Microsoft.VisualBasic.ApplicationServices;
+using Microsoft.Xna.Framework;
 using NAudio.Wave;
 using ProtoBuf;
 using System;
@@ -143,6 +144,27 @@ namespace WaveTracker.Tracker {
             }
         }
 
+
+        public void RemoveDCOffset() {
+            RemoveDCOffset(0, Length);
+        }
+
+        public void RemoveDCOffset(int start, int end) {
+            float avgL = 0;
+            float avgR = 0;
+            for (int i = start; i < end; i++) {
+                avgL += sampleDataL[i] / (float)(end - start);
+                if (IsStereo) {
+                    avgR += sampleDataR[i] / (float)(end - start);
+                }
+            }
+            for (int i = start; i < end; i++) {
+                sampleDataL[i] -= (short)avgL;
+                if (IsStereo) {
+                    sampleDataR[i] -= (short)avgR;
+                }
+            }
+        }
         public void Invert() {
             Invert(0, Length);
         }
@@ -172,11 +194,10 @@ namespace WaveTracker.Tracker {
             for (int i = 0; i < Length; ++i) {
                 sampleDataL[i] = (short)(sampleDataL[i] / 2 + sampleDataR[i] / 2);
             }
-
             sampleDataR = [];
         }
 
-        public void Cut(int start, int end) {
+        public void Delete(int start, int end) {
             short[] newSampleDataL = new short[Length - (end - start)];
             short[] newSampleDataR = new short[IsStereo ? Length - (end - start) : 0];
 
@@ -328,13 +349,12 @@ namespace WaveTracker.Tracker {
                 return 0;
             }
 
-            if (index >= sampleDataL.Length) {
-                index = sampleDataL.Length - 1;
+            if (chan == 0 || !IsStereo) {
+                return (float)(sampleDataL[index] / (float)short.MaxValue);
             }
-
-            return chan == 0 || sampleDataL.Length != sampleDataR.Length
-                ? sampleDataL[index] / (float)short.MaxValue
-                : sampleDataR[index] / (float)short.MaxValue;
+            else {
+                return (float)(sampleDataR[index] / (float)short.MaxValue);
+            }
         }
 
         public void SaveToDisk() {

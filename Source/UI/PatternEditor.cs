@@ -212,7 +212,9 @@ namespace WaveTracker.UI {
             CurrentOctave = Math.Clamp(CurrentOctave, 0, 9);
             #endregion
 
-            FirstVisibleChannel -= Input.MouseScrollWheel(KeyModifier.Alt);
+            if (Input.focus == null && !App.VisualizerMode) {
+                FirstVisibleChannel -= Input.MouseScrollWheel(KeyModifier.Alt);
+            }
             FirstVisibleChannel = Math.Clamp(FirstVisibleChannel, 0, App.CurrentModule.ChannelCount - 1);
 
             CalculateChannelPositioning(false);

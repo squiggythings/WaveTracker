@@ -296,13 +296,6 @@ namespace WaveTracker {
             };
         }
 
-        public struct EffectDescription {
-            string name;
-            string longerName;
-            string parameterKey;
-            string description;
-        }
-
         /// <summary>
         /// Converts a midi note to a frequency in hertz.
         /// </summary>

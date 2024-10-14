@@ -3,7 +3,6 @@ using System;
 using WaveTracker.Audio;
 using WaveTracker.Tracker;
 using System.Collections.Generic;
-using SharpDX.DirectWrite;
 
 namespace WaveTracker.UI {
     public class SampleEditor : Element {
@@ -24,22 +23,30 @@ namespace WaveTracker.UI {
         private int historyIndex;
 
         float zoomLevel = 1;
-        int ViewportSize => (int)(Sample.Length / zoomLevel);
-        int ViewportOffset { get; set; }
+        float zoomLevelVertical = 1;
+        private int ViewportSize { get { return (int)(Sample.Length / zoomLevel); } }
+        private int ViewportOffset { get; set; }
 
         private bool SelectionIsActive { get; set; }
 
-        private int SelectionMin {
-            get {
-                return Math.Min(selectionStartIndex, selectionEndIndex);
-            }
-        }
+        private int SelectionMin { get { return Math.Min(selectionStartIndex, selectionEndIndex); } }
 
-        private int SelectionMax {
-            get {
-                return Math.Max(selectionStartIndex, selectionEndIndex);
-            }
-        }
+        private int SelectionMax { get { return Math.Max(selectionStartIndex, selectionEndIndex); } }
+
+        /// <summary>
+        /// Returns true if there are any actions that can be undone
+        /// </summary>
+        /// <returns></returns>
+        private bool CanUndo { get { return historyIndex > 0; } }
+
+        /// <summary>
+        /// Returns true if there are any actions that can be redone.
+        /// </summary>
+        /// <returns></returns>
+        private bool CanRedo { get { return historyIndex < history.Count - 1; } }
+
+        private bool CanZoomIn { get { return zoomLevel < Math.Max(Sample.Length / (float)waveformRegion.width * 25, 1); } }
+        private bool CanZoomOut { get { return zoomLevel > 1; } }
 
         private NumberBox baseKey;
         private NumberBox fineTune;
@@ -48,10 +55,14 @@ namespace WaveTracker.UI {
         private Dropdown loopMode;
         private NumberBox loopPoint;
         private SampleBrowser browser;
-        private Button normalize, reverse, fadeIn, fadeOut, amplifyUp, amplifyDown, invert, cut;
+        // private Button normalize, reverse, fadeIn, fadeOut, amplifyUp, amplifyDown, invert, cut;
         private CheckboxLabeled showInVisualizer;
         private int lastMouseHoverSample;
         private ScrollbarHorizontal viewportScrollbar;
+        private SpriteButton undo, redo, delete, zoomIn, zoomOut, zoomInVertical, zoomOutVertical, fadeIn, fadeOut, reverse;
+        private DropdownButton tools;
+
+        public new bool InFocus => base.InFocus || Dialogs.currentSampleModifyDialog != null && Dialogs.currentSampleModifyDialog.InFocus;
 
 
         public SampleEditor(int x, int y, Element parent) {
@@ -85,25 +96,52 @@ namespace WaveTracker.UI {
             loopMode = new Dropdown(282, 188, this, false);
             loopMode.SetMenuItems(["One-shot", "Forward", "Ping-pong"]);
 
-            int buttonsX = 357;
+            int buttonsX = 351;
             int buttonsY = 188;
-            int buttonsWidth = 50;
-            normalize = new Button("Normalize", buttonsX, buttonsY, buttonsWidth, this);
-            buttonsX += buttonsWidth + 1;
-            fadeIn = new Button("Fade in", buttonsX, buttonsY, buttonsWidth, this);
-            buttonsX += buttonsWidth + 1;
-            amplifyUp = new Button("Amplify+", buttonsX, buttonsY, buttonsWidth, this);
-            buttonsX += buttonsWidth + 1;
-            invert = new Button("Invert", buttonsX, buttonsY, buttonsWidth, this);
-            buttonsX = 357;
-            buttonsY += 14;
-            reverse = new Button("Reverse", buttonsX, buttonsY, buttonsWidth, this);
-            buttonsX += buttonsWidth + 1;
-            fadeOut = new Button("Fade out", buttonsX, buttonsY, buttonsWidth, this);
-            buttonsX += buttonsWidth + 1;
-            amplifyDown = new Button("Amplify-", buttonsX, buttonsY, buttonsWidth, this);
-            buttonsX += buttonsWidth + 1;
-            cut = new Button("Cut", buttonsX, buttonsY, buttonsWidth, this);
+            undo = new SpriteButton(buttonsX, buttonsY, 15, 15, 390, 0, this);
+            undo.SetTooltip("Undo", "Undo the last action");
+            buttonsX += 15;
+            redo = new SpriteButton(buttonsX, buttonsY, 15, 15, 405, 0, this);
+            redo.SetTooltip("Redo", "Redo the last action");
+            buttonsX += 18;
+            delete = new SpriteButton(buttonsX, buttonsY, 15, 15, 360, 0, this);
+            delete.SetTooltip("Delete", "Delete the selected audio");
+            buttonsX += 18;
+            zoomIn = new SpriteButton(buttonsX, buttonsY, 15, 15, 465, 0, this);
+            zoomIn.SetTooltip("Zoom in (horizontal)", "Zoom into the audio view horizontally");
+            buttonsX += 15;
+            zoomOut = new SpriteButton(buttonsX, buttonsY, 15, 15, 480, 0, this);
+            zoomOut.SetTooltip("Zoom out (horizontal)", "Zoom out of the audio view horizontally");
+            buttonsX += 15;
+            zoomInVertical = new SpriteButton(buttonsX, buttonsY, 15, 15, 495, 0, this);
+            zoomInVertical.SetTooltip("Zoom in (vertical)", "Zoom into the audio view vertically");
+            buttonsX += 15;
+            zoomOutVertical = new SpriteButton(buttonsX, buttonsY, 15, 15, 510, 0, this);
+            zoomOutVertical.SetTooltip("Zoom out (vertical)", "Zoom out of the audio view vertically");
+            buttonsX += 18;
+            fadeIn = new SpriteButton(buttonsX, buttonsY, 15, 15, 525, 0, this);
+            fadeIn.SetTooltip("Fade in", "Apply a fade-in on the selected audio");
+            buttonsX += 15;
+            fadeOut = new SpriteButton(buttonsX, buttonsY, 15, 15, 540, 0, this);
+            fadeOut.SetTooltip("Fade out", "Apply a fade-out on the selected audio");
+            buttonsX += 15;
+            reverse = new SpriteButton(buttonsX, buttonsY, 15, 15, 555, 0, this);
+            reverse.SetTooltip("Reverse", "Reverse the selected audio");
+            buttonsX += 18;
+
+            tools = new DropdownButton("Tools...", buttonsX, buttonsY, 50, this);
+            tools.SetMenuItems([
+                new DropdownButton.Option("Delete", () => SelectionIsActive),
+                new DropdownButton.Option("Fade in",() => Sample.Length > 0),
+                new DropdownButton.Option("Fade out",() => Sample.Length > 0),
+                new DropdownButton.Option("Reverse",() => Sample.Length > 0),
+                new DropdownButton.Option("Invert",() => Sample.Length > 0),
+                new DropdownButton.Option("Normalize",() => Sample.Length > 0),
+                new DropdownButton.Option("Remove DC offset", () => Sample.Length > 0),
+                new DropdownButton.Option("Mix to mono", () => Sample.IsStereo),
+                new DropdownButton.Option("Amplify...", () => Sample.Length > 0),
+                new DropdownButton.Option("Bitcrush...", () => Sample.Length > 0)
+                ]);
 
             showInVisualizer = new CheckboxLabeled("Show in visualizer", 480, 245, 88, this);
             showInVisualizer.ShowCheckboxOnRight = true;
@@ -112,8 +150,7 @@ namespace WaveTracker.UI {
         }
 
         public void Reset() {
-            zoomLevel = 1;
-            ViewportOffset = 0;
+            ResetZoom();
             selectionStartIndex = 0;
             selectionEndIndex = 0;
             SelectionIsActive = false;
@@ -124,6 +161,15 @@ namespace WaveTracker.UI {
             if (InFocus) {
                 lastMouseHoverSample = MouseSampleIndexClamped;
             }
+            undo.enabled = CanUndo;
+            redo.enabled = CanRedo;
+            delete.enabled = SelectionIsActive;
+            zoomIn.enabled = CanZoomIn && Sample.Length > 0;
+            zoomOut.enabled = CanZoomOut && Sample.Length > 0;
+            zoomInVertical.enabled = zoomLevelVertical < 50 && Sample.Length > 0;
+            zoomOutVertical.enabled = zoomLevelVertical > 1 && Sample.Length > 0;
+            fadeIn.enabled = fadeOut.enabled = reverse.enabled = tools.enabled = Sample.Length > 0;
+
             if (!browser.InFocus && Input.focusTimer > 2) {
                 if (Sample.Length > 0) {
                     if (waveformRegion.DidClickInRegionM(KeyModifier.None)) {
@@ -172,28 +218,36 @@ namespace WaveTracker.UI {
                     }
                     if (waveformRegion.RightClicked) {
                         ContextMenu.Open(new Menu(new MenuItemBase[] {
+                            new MenuOption("Undo", Undo, CanUndo),
+                            new MenuOption("Redo", Redo, CanRedo),
+                            null,
+                            new MenuOption("Zoom in", ZoomInCentered, CanZoomIn),
+                            new MenuOption("Zoom out", ZoomOutCentered, CanZoomOut),
+                            new MenuOption("Zoom in vertical", ZoomInVertical, zoomLevelVertical < 50),
+                            new MenuOption("Zoom out vertical", ZoomOutVertical, zoomLevelVertical > 1),
+                            new MenuOption("Reset zoom", ResetZoom, zoomLevel != 1 || zoomLevelVertical != 1),
+                            null,
                             new MenuOption("Select all", SelectAll),
                             new MenuOption("Deselect", Deselect, SelectionIsActive),
-                            null,
-                            new MenuOption("Cut", Cut, SelectionIsActive),
                             null,
                             new MenuOption("Set loop point", SetLoopPoint),
                             null,
                             new SubMenu("Tools", new MenuItemBase[] {
+                                new MenuOption("Delete", Delete, SelectionIsActive),
+                                new MenuOption("Fade In", FadeIn),
+                                new MenuOption("Fade Out", FadeOut),
                                 new MenuOption("Reverse", Reverse),
                                 new MenuOption("Normalize", Normalize),
                                 new MenuOption("Invert", Invert),
-                                new MenuOption("Fade In", FadeIn),
-                                new MenuOption("Fade Out", FadeOut),
-                                new MenuOption("Amplify+", AmplifyUp),
-                                new MenuOption("Amplify-", AmplifyDown),
+                                new MenuOption("Amplify...", OpenAmplifier),
+                                new MenuOption("Bitcrush...", OpenBitcrusher),
                             }),
                             null,
                             new MenuOption("Export...", Sample.SaveToDisk),
                         }));
                     }
                 }
-                if (waveformRegion.DidClickInRegionM(KeyModifier.Alt)) {
+                if (waveformRegion.DidClickInRegionM(KeyModifier.Ctrl)) {
                     SetLoopPoint();
                 }
 
@@ -235,8 +289,23 @@ namespace WaveTracker.UI {
                     AddToUndoHistory();
                 }
 
-                if (normalize.Clicked) {
-                    Normalize();
+                if (undo.Clicked) {
+                    Undo();
+                }
+                if (redo.Clicked) {
+                    Redo();
+                }
+                if (zoomIn.Clicked) {
+                    ZoomInCentered();
+                }
+                if (zoomOut.Clicked) {
+                    ZoomOutCentered();
+                }
+                if (zoomInVertical.Clicked) {
+                    ZoomInVertical();
+                }
+                if (zoomOutVertical.Clicked) {
+                    ZoomOutVertical();
                 }
                 if (fadeIn.Clicked) {
                     FadeIn();
@@ -244,21 +313,48 @@ namespace WaveTracker.UI {
                 if (fadeOut.Clicked) {
                     FadeOut();
                 }
-                if (amplifyUp.Clicked) {
-                    AmplifyUp();
-                }
-                if (amplifyDown.Clicked) {
-                    AmplifyDown();
-                }
-                if (invert.Clicked) {
-                    Invert();
-                }
                 if (reverse.Clicked) {
                     Reverse();
                 }
-                cut.enabled = SelectionIsActive;
-                if (cut.Clicked) {
-                    Cut();
+                if (delete.Clicked) {
+                    Delete();
+                }
+
+                tools.Update();
+                if (tools.SelectedAnItem) {
+                    switch (tools.SelectedIndex) {
+                        case 0:
+                            Delete();
+                            break;
+                        case 1:
+                            FadeIn();
+                            break;
+                        case 2:
+                            FadeOut();
+                            break;
+                        case 3:
+                            Reverse();
+                            break;
+                        case 4:
+                            Invert();
+                            break;
+                        case 5:
+                            Normalize();
+                            break;
+                        case 6:
+                            RemoveDCOffset();
+                            break;
+                        case 7:
+                            MixToMono();
+                            break;
+                        case 8:
+                            OpenAmplifier();
+                            break;
+                        case 9:
+                            OpenBitcrusher();
+                            break;
+
+                    }
                 }
 
                 if (App.Shortcuts["Edit\\Undo"].IsPressedDown) {
@@ -268,23 +364,22 @@ namespace WaveTracker.UI {
                     Redo();
                 }
                 if (waveformRegion.IsHovered) {
-                    float oldZoomlevel = zoomLevel;
                     int oldMouse = MouseSampleIndex;
-                    if (Input.MouseScrollWheel(KeyModifier.Ctrl) > 0) {
-                        zoomLevel *= 1.1f;
+                    if (Input.MouseScrollWheel(KeyModifier.Ctrl) > 0 || Input.MouseScrollWheel(KeyModifier.CtrlShift) > 0) {
+                        ZoomIn();
                     }
-                    else if (Input.MouseScrollWheel(KeyModifier.Ctrl) < 0) {
-                        zoomLevel /= 1.1f;
+                    else if (Input.MouseScrollWheel(KeyModifier.Ctrl) < 0 || Input.MouseScrollWheel(KeyModifier.CtrlShift) < 0) {
+                        ZoomOut();
                     }
-                    if (zoomLevel < 1f) {
-                        zoomLevel = 1f;
-                    }
-                    if (zoomLevel > Math.Max(Sample.Length / (float)waveformRegion.width * 25, 1)) {
-                        zoomLevel = Math.Max(Sample.Length / (float)waveformRegion.width * 25, 1);
-                    }
-                    float delta = zoomLevel - oldZoomlevel;
-                    //ViewportOffset += (int)(delta * waveformRegion.MouseXClamped);
                     ViewportOffset -= MouseSampleIndex - oldMouse;
+
+                    if (Input.MouseScrollWheel(KeyModifier.Alt) > 0) {
+                        ZoomInVertical();
+                    }
+                    else if (Input.MouseScrollWheel(KeyModifier.Alt) < 0) {
+                        ZoomOutVertical();
+                    }
+
                     // panning
                     ViewportOffset -= (int)(Input.MouseScrollWheel(KeyModifier.Shift) * (Sample.Length / 100 / zoomLevel));
                 }
@@ -307,8 +402,27 @@ namespace WaveTracker.UI {
             browser.Update();
         }
 
-        private void Cut() {
-            Sample.Cut(SelectionMin, SelectionMax);
+        private void OpenBitcrusher() {
+            Dialogs.currentSampleModifyDialog = new SampleBitcrushDialog();
+            if (SelectionIsActive) {
+                Dialogs.currentSampleModifyDialog.Open(this, selectionStartIndex, selectionEndIndex);
+            }
+            else {
+                Dialogs.currentSampleModifyDialog.Open(this, 0, Sample.Length);
+            }
+        }
+        private void OpenAmplifier() {
+            Dialogs.currentSampleModifyDialog = new SampleAmplifyDialog();
+            if (SelectionIsActive) {
+                Dialogs.currentSampleModifyDialog.Open(this, selectionStartIndex, selectionEndIndex);
+            }
+            else {
+                Dialogs.currentSampleModifyDialog.Open(this, 0, Sample.Length);
+            }
+        }
+
+        private void Delete() {
+            Sample.Delete(SelectionMin, SelectionMax);
             SelectionIsActive = false;
             AddToUndoHistory();
         }
@@ -321,6 +435,59 @@ namespace WaveTracker.UI {
                 Sample.Normalize();
             }
             AddToUndoHistory();
+        }
+
+        private void ZoomInCentered() {
+            int oldCenter = ViewportOffset + ViewportSize / 2;
+            zoomLevel *= 1.1f;
+            if (zoomLevel > Math.Max(Sample.Length / (float)waveformRegion.width * 25, 1)) {
+                zoomLevel = Math.Max(Sample.Length / (float)waveformRegion.width * 25, 1);
+            }
+            ViewportOffset -= ViewportOffset + ViewportSize / 2 - oldCenter;
+            ViewportOffset = Math.Clamp(ViewportOffset, 0, Sample.Length - ViewportSize);
+
+        }
+        private void ZoomIn() {
+            zoomLevel *= 1.1f;
+            if (zoomLevel > Math.Max(Sample.Length / (float)waveformRegion.width * 25, 1)) {
+                zoomLevel = Math.Max(Sample.Length / (float)waveformRegion.width * 25, 1);
+            }
+        }
+        private void ZoomOutCentered() {
+            int oldCenter = ViewportOffset + ViewportSize / 2;
+            zoomLevel /= 1.1f;
+            if (zoomLevel < 1f) {
+                zoomLevel = 1f;
+            }
+            ViewportOffset -= ViewportOffset + ViewportSize / 2 - oldCenter;
+            ViewportOffset = Math.Clamp(ViewportOffset, 0, Sample.Length - ViewportSize);
+        }
+        private void ZoomOut() {
+            zoomLevel /= 1.1f;
+            if (zoomLevel < 1f) {
+                zoomLevel = 1f;
+            }
+        }
+        private void ResetZoom() {
+            zoomLevel = 1;
+            zoomLevelVertical = 1;
+            ViewportOffset = 0;
+            viewportScrollbar.SetSize(Sample.Length, ViewportSize);
+            viewportScrollbar.ScrollValue = 0;
+        }
+
+        private void ZoomInVertical() {
+            zoomLevelVertical *= 1.25f;
+            if (zoomLevelVertical > 50) {
+                zoomLevelVertical = 50;
+            }
+
+        }
+        private void ZoomOutVertical() {
+            zoomLevelVertical /= 1.25f;
+            if (zoomLevelVertical < 1) {
+                zoomLevelVertical = 1;
+            }
         }
 
         private void FadeIn() {
@@ -353,23 +520,18 @@ namespace WaveTracker.UI {
             AddToUndoHistory();
         }
 
-        private void AmplifyUp() {
+        private void RemoveDCOffset() {
             if (SelectionIsActive) {
-                Sample.Amplify(1.1f, SelectionMin, SelectionMax);
+                Sample.RemoveDCOffset(SelectionMin, SelectionMax);
             }
             else {
-                Sample.Amplify(1.1f);
+                Sample.RemoveDCOffset();
             }
             AddToUndoHistory();
         }
 
-        private void AmplifyDown() {
-            if (SelectionIsActive) {
-                Sample.Amplify(0.9090909f, SelectionMin, SelectionMax);
-            }
-            else {
-                Sample.Amplify(0.9090909f);
-            }
+        private void MixToMono() {
+            Sample.MixToMono();
             AddToUndoHistory();
         }
 
@@ -429,6 +591,13 @@ namespace WaveTracker.UI {
             else {
                 DrawWaveform(waveformRegion.x, waveformRegion.y, Sample.sampleDataL, waveformRegion.width, waveformRegion.height);
             }
+            if (zoomLevelVertical != 1) {
+                string text = "Zoom: " + (int)(zoomLevelVertical * 100) + "%";
+                int boxwidth = Helpers.GetWidthOfText(text) + 4;
+                int boxX = waveformRegion.x + waveformRegion.width / 2 - boxwidth / 2;
+                DrawRect(boxX, y + 1, boxwidth, 10, Helpers.Alpha(UIColors.black, 0.5f));
+                Write(text, boxX + 2, y + 2, Color.Yellow);
+            }
             viewportScrollbar.Draw();
             importSample.Draw();
             DrawSprite(importSample.x + importSample.width - 14, importSample.y + (importSample.IsPressed ? 3 : 2), new Rectangle(72, 81, 12, 9));
@@ -443,14 +612,17 @@ namespace WaveTracker.UI {
             WriteRightAlign("Resampling Mode", resamplingMode.x - 4, resamplingMode.y + 4, UIColors.label);
             loopMode.Draw();
             DrawRect(348, 188, 1, 66, UIColors.label);
-            normalize.Draw();
-            invert.Draw();
-            cut.Draw();
+            undo.Draw();
+            redo.Draw();
+            delete.Draw();
+            zoomIn.Draw();
+            zoomOut.Draw();
+            zoomInVertical.Draw();
+            zoomOutVertical.Draw();
             fadeIn.Draw();
             fadeOut.Draw();
-            amplifyDown.Draw();
-            amplifyUp.Draw();
             reverse.Draw();
+            tools.Draw();
             showInVisualizer.Draw();
             browser.Draw();
         }
@@ -460,19 +632,21 @@ namespace WaveTracker.UI {
             uint nextSampleIndex;
             uint sampleIndex;
             Color sampleColor = new Color(207, 117, 43);
+
             DrawRect(x, y, width, height, UIColors.black);
             if (data.Length > 0) {
                 DrawRect(x, startY, width, 1, UIColors.labelDark);
+                int selectionMinX = GetXPositionOfSample(SelectionMin, width);
+                int selectionMaxX = GetXPositionOfSample(SelectionMax, width);
                 if (SelectionIsActive) {
-                    int x1 = GetXPositionOfSample(SelectionMin, width);
-                    int x2 = GetXPositionOfSample(SelectionMax, width);
-                    DrawRect(x + x1, y, x2 - x1, height, Helpers.Alpha(UIColors.selection, 128));
+                    DrawRect(x + selectionMinX, y, selectionMaxX - selectionMinX, height, Helpers.Alpha(UIColors.selection, 128));
                 }
                 int loopPosition = GetXPositionOfSample(Sample.loopPoint, width);
                 if (Sample.loopType != Sample.LoopType.OneShot) {
                     DrawRect(x + loopPosition, y, width - loopPosition, height, Helpers.Alpha(Color.Yellow, 50));
                 }
 
+                StartRectangleMask(x, y, width, height);
                 for (int wx = 0; wx < width; wx++) {
                     sampleIndex = (uint)(ViewportOffset + wx / (double)width * ViewportSize);
                     nextSampleIndex = (uint)(ViewportOffset + (wx + 1) / (double)width * ViewportSize);
@@ -491,6 +665,7 @@ namespace WaveTracker.UI {
                         else {
                             value = 0;
                         }
+                        value *= zoomLevelVertical;
                         average += MathF.Abs(value);
                         if (value < min) {
                             min = value;
@@ -510,7 +685,7 @@ namespace WaveTracker.UI {
                     int rectEnd = (int)(min * height / 2);
                     int avgStart = (int)(average * height / -2);
                     int avgEnd = (int)(average * height / 2);
-                    if (SelectionIsActive && sampleIndex >= SelectionMin && nextSampleIndex < SelectionMax) {
+                    if (SelectionIsActive && wx >= selectionMinX && wx < selectionMaxX) {
                         DrawRect(x + wx, startY - rectStart, 1, rectStart - rectEnd + 1, Color.LightGray);
                     }
                     else {
@@ -521,6 +696,7 @@ namespace WaveTracker.UI {
                     DrawRect(x + wx, startY - avgStart, 1, avgStart - avgEnd + 1, Helpers.Alpha(Color.White, 90));
 
                 }
+                EndRectangleMask();
 
 
                 if (Sample.loopType != Sample.LoopType.OneShot) {
@@ -569,29 +745,34 @@ namespace WaveTracker.UI {
         }
 
         public void Undo() {
-            // set selection
+            if (CanUndo) {
+                // set selection
+                SelectionIsActive = false;
 
-            historyIndex--;
-            if (historyIndex < 0) {
-                historyIndex = 0;
+                historyIndex--;
+                if (historyIndex < 0) {
+                    historyIndex = 0;
+                }
+
+                history[historyIndex].RestoreIntoSample(Sample);
+
+                App.CurrentModule.SetDirty();
             }
-
-            history[historyIndex].RestoreIntoSample(Sample);
-
-            App.CurrentModule.SetDirty();
         }
         public void Redo() {
+            if (CanRedo) {
+                historyIndex++;
+                if (historyIndex >= history.Count) {
+                    historyIndex = history.Count - 1;
+                }
 
-            historyIndex++;
-            if (historyIndex >= history.Count) {
-                historyIndex = history.Count - 1;
+                history[historyIndex].RestoreIntoSample(Sample);
+
+                // set selection
+                SelectionIsActive = false;
+
+                App.CurrentModule.SetDirty();
             }
-
-            history[historyIndex].RestoreIntoSample(Sample);
-
-            // set selection
-
-            App.CurrentModule.SetDirty();
         }
 
 
