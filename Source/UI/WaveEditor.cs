@@ -24,7 +24,7 @@ namespace WaveTracker.UI {
         private bool displayAsLines;
         private WaveModifyDialog currentDialog;
 
-        private Wave CurrentWave {
+        private static Wave CurrentWave {
             get {
                 return App.CurrentModule.WaveBank[WaveBank.currentWaveID];
             }
@@ -71,7 +71,7 @@ namespace WaveTracker.UI {
 
             ModifyButton = new DropdownButton("Modify...", buttonX, buttonY, buttonWidth, this);
             ModifyButton.LabelIsCentered = true;
-            ModifyButton.SetMenuItems(["Smooth...", "Add Fuzz...", "Sync...", "Sample and hold...", "Math expression"]);
+            ModifyButton.SetMenuItems(["Smooth...", "Add Fuzz...", "Sync...", "Sample and hold...", "Math expression..."]);
 
             presetSine = new SpriteButton(17, 215, 18, 12, 104, 80, this);
             presetSine.SetTooltip("Sine", "Sine wave preset");
@@ -332,7 +332,7 @@ namespace WaveTracker.UI {
             }
         }
 
-        private void LineBetween(int sample1, int value1, int sample2, int value2) {
+        private static void LineBetween(int sample1, int value1, int sample2, int value2) {
             int diff = Math.Abs(sample1 - sample2);
             if (diff > 0) {
                 if (sample1 < sample2) {

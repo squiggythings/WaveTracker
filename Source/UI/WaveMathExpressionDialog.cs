@@ -6,24 +6,24 @@ using WaveTracker.Source;
 
 namespace WaveTracker.UI {
     public class WaveMathExpressionDialog : WaveModifyDialog {
-        public Textbox MathExpressionInput;
-        public CheckboxLabeled WaveFoldCheckbox;
+        public Textbox expression;
+        public CheckboxLabeled waveFold;
 
-        MathExpression mathExpression;
-        private double compileTime = 0;
+        private MathExpression mathExpression;
         private bool compileSuccess = true;
         private string lastCompileError = string.Empty;
 
         public WaveMathExpressionDialog() : base("Generate from maths expression...", 300) {
-            MathExpressionInput = new Textbox("", 8, 25, 145, this);
-            MathExpressionInput.Text = "0";
+            expression = new Textbox("", 8, 25, 145, this);
+            expression.Text = "0";
+            expression.InputField.UpdateLive = true;
 
-            WaveFoldCheckbox = new CheckboxLabeled("Wave folding", 7, 42, 40, this);
-            WaveFoldCheckbox.SetTooltip("", "Wraps the waveform");
-            WaveFoldCheckbox.Value = false;
+            waveFold = new CheckboxLabeled("Wave folding", 7, 42, 40, this);
+            waveFold.SetTooltip("", "Wraps the waveform");
+            waveFold.Value = false;
 
-            mathExpression = new(MathExpressionInput.Text);
-            MathExpressionInput.Update(); //Unsets ValueWasChanged flag
+            mathExpression = new(expression.Text);
+            expression.Update(); //Unsets ValueWasChanged flag
         }
 
         public new void Open(Wave wave) {
@@ -33,17 +33,13 @@ namespace WaveTracker.UI {
         public override void Update() {
             if (WindowIsOpen) {
                 base.Update();
-                MathExpressionInput.Update();
-                WaveFoldCheckbox.Update();
+                expression.Update();
+                waveFold.Update();
 
-                if (MathExpressionInput.ValueWasChanged) {
+                if (expression.ValueWasChanged) {
                     compileSuccess = true; //Set to true as a catch-all
                     try {
-                        Stopwatch sw = Stopwatch.StartNew();
-
-                        mathExpression.Expression = MathExpressionInput.Text;
-
-                        compileTime = sw.Elapsed.TotalMilliseconds;
+                        mathExpression.Expression = expression.Text;
                         Apply();
                     } catch (Exception e) {
                         compileSuccess = false;
@@ -55,8 +51,8 @@ namespace WaveTracker.UI {
                         }
                     }
                 }
-                if (WaveFoldCheckbox.Clicked) {
-                    mathExpression.WaveFold = WaveFoldCheckbox.Value;
+                if (waveFold.Clicked) {
+                    mathExpression.WaveFold = waveFold.Value;
                     Apply();
                 }
             }
@@ -69,14 +65,11 @@ namespace WaveTracker.UI {
         public new void Draw() {
             if (WindowIsOpen) {
                 base.Draw();
-                MathExpressionInput.Draw();
-                WaveFoldCheckbox.Draw();
+                expression.Draw();
+                waveFold.Draw();
 
-                if (compileSuccess) {
-                    Write($"Compilation successful ({Math.Round(compileTime, 3)} ms)", 8, 59, Color.Green);
-                }
-                else {
-                    WriteMultiline("Compilation failed: " + lastCompileError, 8, 59, 145, Color.OrangeRed);
+                if (!compileSuccess) {
+                    WriteMultiline("Invalid expression!", 8, 59, 145, Color.DarkRed);
                 }
             }
         }

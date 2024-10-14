@@ -45,6 +45,7 @@
     <PackageReference Include="MonoGame.Framework.WindowsDX" Version="3.8.2.1105" />
     <PackageReference Include="MonoGame.Content.Builder.Task" Version="3.8.2.1105" />
     <PackageReference Include="NAudio" Version="2.2.1" />
+    <PackageReference Include="NCalcSync" Version="5.2.10" />
     <PackageReference Include="protobuf-net" Version="3.2.30" />
     <PackageReference Include="TextCopy" Version="6.2.1" />
   </ItemGroup>

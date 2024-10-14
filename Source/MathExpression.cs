@@ -18,7 +18,8 @@ namespace WaveTracker.Source {
 #pragma warning restore IDE0051 // Remove unused private members
 #pragma warning restore CS0414 // The field is assigned but its value is never used
 
-        public double x; //"wave radian" maps the waves domain (0-64) to (0-2pi)
+        public double x;
+        public double t;
 
         //NCalc can't find static functions so they must be left as member functions
 #pragma warning disable CA1822 // Mark members as static
@@ -40,8 +41,42 @@ namespace WaveTracker.Source {
         public double Mod(double a, double b) {
             return a - b * Math.Floor(a / b);
         }
-#pragma warning restore CA1822 // Mark members as static
+
+        public double Sin(double x) {
+            return Math.Sin(x * 2.0 * Math.PI);
+        }
+        public double Sine(double x) {
+            return Math.Sin(x * 2.0 * Math.PI);
+        }
+        public double Cos(double x) {
+            return Math.Cos(x * 2.0 * Math.PI);
+        }
+        public double Cosine(double x) {
+            return Math.Cos(x * 2.0 * Math.PI);
+        }
+        public double Sqr(double x) {
+            return (Mod(x, 1) < 0.5) ? -1 : 1;
+        }
+        public double Square(double x) {
+            return (Mod(x, 1) < 0.5) ? -1 : 1;
+        }
+        public double Pulse(double x, double width) {
+            return (Mod(x, 1) < width) ? -1 : 1;
+        }
+        public double Saw(double x) {
+            return Mod(x + 0.5, 1) * 2 - 1;
+        }
+        public double Sawtooth(double x) {
+            return Mod(x + 0.5, 1) * 2 - 1;
+        }
+        public double Tri(double x) {
+            return Math.Abs(Mod(2 * x - 0.5, 2) * 2 - 2) - 1;
+        }
+        public double Triangle(double x) {
+            return Math.Abs(Mod(2 * x - 0.5, 2) * 2 - 2) - 1;
+        }
     }
+#pragma warning restore CA1822 // Mark members as static
 
     [ProtoContract(SkipConstructor = true)]
     [Serializable]
@@ -54,11 +89,11 @@ namespace WaveTracker.Source {
         [ProtoMember(2)]
         public string Expression {
             get {
-                return _expression; 
+                return _expression;
             }
-            set { 
-                _expression = value; 
-                RebuildExpression(); 
+            set {
+                _expression = value;
+                RebuildExpression();
             }
         }
         [ProtoMember(3)]
@@ -92,7 +127,8 @@ namespace WaveTracker.Source {
         }
         public byte GetSampleValue(int index, int length) {
             EvaluationContext context = new() {
-                x = (index << 1) * Math.PI / length
+                x = (double)index / length,
+                t = (double)index / length
             };
             return NormalizeExpressionOutput(func.Invoke(context), WaveFold);
         }
@@ -100,16 +136,12 @@ namespace WaveTracker.Source {
             if (fold) {
                 // Thanks to https://www.kvraudio.com/forum/viewtopic.php?t=501471 for the dFolded code
                 double dFolded = 4.0 * (Math.Abs(0.25 * d + 0.25 - Math.Round(0.25 * d + 0.25)) - 0.25);
-                double dScaled = Math.Round((dFolded + 1) * (Wave.MaxSampleValue / 2f));
 
-                return (byte)dScaled;
+                return Math.Clamp((byte)Helpers.MapClamped((float)dFolded, -1, 1, Wave.MinSampleValue, Wave.MaxSampleValue + 1), Wave.MinSampleValue, Wave.MaxSampleValue);
             }
             else {
-                double dScaled = Math.Round((d + 1) * (Wave.MaxSampleValue / 2f));
-                return (byte)Math.Clamp(
-                dScaled,
-                Wave.MinSampleValue,
-                Wave.MaxSampleValue);
+                //double dScaled = Math.Floor(d * (Wave.MaxSampleValue / 2f));
+                return Math.Clamp((byte)Helpers.MapClamped((float)d, -1, 1, Wave.MinSampleValue, Wave.MaxSampleValue + 1), Wave.MinSampleValue, Wave.MaxSampleValue);
             }
         }
     }
