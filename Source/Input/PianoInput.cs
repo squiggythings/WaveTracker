@@ -13,6 +13,7 @@ namespace WaveTracker {
     /// </summary>
     public static class PianoInput {
         public static List<int> currentlyHeldDownNotes = [];
+
         public static List<int> keyboardNotes = [];
         public static List<int> midiNotes = [];
         private static int previewNote;
@@ -134,6 +135,9 @@ namespace WaveTracker {
         /// <param name="note"></param>
         /// <param name="velocity"></param>
         private static void OnNoteOnEvent(int note, int? velocity, bool enterToPatternEditor = false) {
+            if (Dialogs.currentSampleModifyDialog != null && Dialogs.currentSampleModifyDialog.WindowIsOpen) {
+                return;
+            }
             if (!currentlyHeldDownNotes.Contains(note)) {
                 currentlyHeldDownNotes.Add(note);
                 CurrentNote = note;
@@ -144,6 +148,7 @@ namespace WaveTracker {
                 ChannelManager.PreviewChannel.SetMacro(App.InstrumentBank.CurrentInstrumentIndex);
                 ChannelManager.PreviewChannel.SetVolume(CurrentVelocity);
                 ChannelManager.PreviewChannel.TriggerNote(CurrentNote);
+
                 if (enterToPatternEditor) {
                     App.PatternEditor.TryToEnterNote(note, velocity);
                 }
@@ -163,6 +168,7 @@ namespace WaveTracker {
                     ChannelManager.PreviewChannel.SetVolume(CurrentVelocity);
                     ChannelManager.PreviewChannel.TriggerNote(CurrentNote);
                 }
+
             }
             else {
                 CurrentNote = -1;
@@ -172,6 +178,7 @@ namespace WaveTracker {
 
                 ChannelManager.PreviewChannel.PreviewCut();
             }
+
         }
 
         /// <summary>

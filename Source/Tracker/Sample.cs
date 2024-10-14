@@ -30,11 +30,11 @@ namespace WaveTracker.Tracker {
 
         public float BaseFrequency { get; private set; }
         [ProtoMember(8)]
-        public short[] sampleDataAccessL = [];
+        public short[] sampleDataL = [];
         [ProtoMember(9)]
-        public short[] sampleDataAccessR = [];
-        public int Length { get { return sampleDataAccessL.Length; } }
-        public bool IsStereo { get { return sampleDataAccessR.Length > 0; } }
+        public short[] sampleDataR = [];
+        public int Length { get { return sampleDataL.Length; } }
+        public bool IsStereo { get { return sampleDataR.Length > 0; } }
         [ProtoMember(10)]
         public int sampleRate;
         [ProtoMember(11)]
@@ -44,8 +44,8 @@ namespace WaveTracker.Tracker {
             loopPoint = 0;
 
             useInVisualization = false;
-            sampleDataAccessL = [];
-            sampleDataAccessR = [];
+            sampleDataL = [];
+            sampleDataR = [];
             loopType = LoopType.OneShot;
             resampleMode = App.Settings.SamplesWaves.DefaultResampleModeSample;
             BaseKey = App.Settings.SamplesWaves.DefaultSampleBaseKey;
@@ -87,14 +87,14 @@ namespace WaveTracker.Tracker {
         public void Normalize(int start, int end) {
             float maxAmplitude = 0;
             for (int i = start; i < end; ++i) {
-                short sample = sampleDataAccessL[i];
+                short sample = sampleDataL[i];
                 float val = Math.Abs(sample / (float)short.MaxValue);
                 if (val > maxAmplitude) {
                     maxAmplitude = val;
                 }
 
                 if (IsStereo) {
-                    sample = sampleDataAccessR[i];
+                    sample = sampleDataR[i];
                     val = Math.Abs(sample / (float)short.MaxValue);
                     if (val > maxAmplitude) {
                         maxAmplitude = val;
@@ -103,9 +103,9 @@ namespace WaveTracker.Tracker {
             }
 
             for (int i = start; i < end; i++) {
-                sampleDataAccessL[i] = (short)(sampleDataAccessL[i] / maxAmplitude);
+                sampleDataL[i] = (short)(sampleDataL[i] / maxAmplitude);
                 if (IsStereo) {
-                    sampleDataAccessR[i] = (short)(sampleDataAccessR[i] / maxAmplitude);
+                    sampleDataR[i] = (short)(sampleDataR[i] / maxAmplitude);
                 }
             }
         }
@@ -113,9 +113,9 @@ namespace WaveTracker.Tracker {
             Reverse(0, Length);
         }
         public void Reverse(int start, int end) {
-            Array.Reverse(sampleDataAccessL, start, end - start);
+            Array.Reverse(sampleDataL, start, end - start);
             if (IsStereo) {
-                Array.Reverse(sampleDataAccessR, start, end - start);
+                Array.Reverse(sampleDataR, start, end - start);
             }
         }
         public void FadeIn() {
@@ -124,9 +124,9 @@ namespace WaveTracker.Tracker {
         public void FadeIn(int start, int end) {
             int length = end - start + 1;
             for (int i = start; i < end; i++) {
-                sampleDataAccessL[i] = (short)(sampleDataAccessL[i] * (float)(i - start) / length);
+                sampleDataL[i] = (short)(sampleDataL[i] * (float)(i - start) / length);
                 if (IsStereo) {
-                    sampleDataAccessR[i] = (short)(sampleDataAccessR[i] * (float)(i - start) / length);
+                    sampleDataR[i] = (short)(sampleDataR[i] * (float)(i - start) / length);
                 }
             }
         }
@@ -136,21 +136,41 @@ namespace WaveTracker.Tracker {
         public void FadeOut(int start, int end) {
             int length = end - start + 1;
             for (int i = start; i < end; i++) {
-                sampleDataAccessL[i] = (short)(sampleDataAccessL[i] * (1 - (float)(i - start) / length));
+                sampleDataL[i] = (short)(sampleDataL[i] * (1 - (float)(i - start) / length));
                 if (IsStereo) {
-                    sampleDataAccessR[i] = (short)(sampleDataAccessR[i] * (1 - (float)(i - start) / length));
+                    sampleDataR[i] = (short)(sampleDataR[i] * (1 - (float)(i - start) / length));
                 }
             }
         }
 
+        public void RemoveDCOffset() {
+            RemoveDCOffset(0, Length);
+        }
+
+        public void RemoveDCOffset(int start, int end) {
+            float avgL = 0;
+            float avgR = 0;
+            for (int i = start; i < end; i++) {
+                avgL += sampleDataL[i] / (float)(end - start);
+                if (IsStereo) {
+                    avgR += sampleDataR[i] / (float)(end - start);
+                }
+            }
+            for (int i = start; i < end; i++) {
+                sampleDataL[i] -= (short)avgL;
+                if (IsStereo) {
+                    sampleDataR[i] -= (short)avgR;
+                }
+            }
+        }
         public void Invert() {
             Invert(0, Length);
         }
         public void Invert(int start, int end) {
             for (int i = start; i < end; i++) {
-                sampleDataAccessL[i] *= -1;
+                sampleDataL[i] *= -1;
                 if (IsStereo) {
-                    sampleDataAccessR[i] *= -1;
+                    sampleDataR[i] *= -1;
                 }
             }
         }
@@ -161,31 +181,30 @@ namespace WaveTracker.Tracker {
 
         public void Amplify(float factor, int start, int end) {
             for (int i = start; i < end; i++) {
-                sampleDataAccessL[i] = (short)Math.Clamp(sampleDataAccessL[i] * factor, short.MinValue, short.MaxValue);
+                sampleDataL[i] = (short)Math.Clamp(sampleDataL[i] * factor, short.MinValue, short.MaxValue);
                 if (IsStereo) {
-                    sampleDataAccessR[i] = (short)Math.Clamp(sampleDataAccessR[i] * factor, short.MinValue, short.MaxValue);
+                    sampleDataR[i] = (short)Math.Clamp(sampleDataR[i] * factor, short.MinValue, short.MaxValue);
                 }
             }
         }
 
         public void MixToMono() {
             for (int i = 0; i < Length; ++i) {
-                sampleDataAccessL[i] = (short)(sampleDataAccessL[i] / 2 + sampleDataAccessR[i] / 2);
+                sampleDataL[i] = (short)(sampleDataL[i] / 2 + sampleDataR[i] / 2);
             }
-
-            sampleDataAccessR = [];
+            sampleDataR = [];
         }
 
-        public void Cut(int start, int end) {
+        public void Delete(int start, int end) {
             short[] newSampleDataL = new short[Length - (end - start)];
             short[] newSampleDataR = new short[IsStereo ? Length - (end - start) : 0];
 
             int index = 0;
             int newIndex = 0;
             while (index < start) {
-                newSampleDataL[newIndex] = sampleDataAccessL[index];
+                newSampleDataL[newIndex] = sampleDataL[index];
                 if (IsStereo) {
-                    newSampleDataR[newIndex] = sampleDataAccessR[index];
+                    newSampleDataR[newIndex] = sampleDataR[index];
                 }
 
                 index++;
@@ -194,17 +213,17 @@ namespace WaveTracker.Tracker {
 
             index = end;
             while (index < Length) {
-                newSampleDataL[newIndex] = sampleDataAccessL[index];
+                newSampleDataL[newIndex] = sampleDataL[index];
                 if (IsStereo) {
-                    newSampleDataR[newIndex] = sampleDataAccessR[index];
+                    newSampleDataR[newIndex] = sampleDataR[index];
                 }
 
                 index++;
                 newIndex++;
             }
 
-            sampleDataAccessL = newSampleDataL;
-            sampleDataAccessR = newSampleDataR;
+            sampleDataL = newSampleDataL;
+            sampleDataR = newSampleDataR;
             if (loopPoint >= Length) {
                 loopPoint = 0;
                 loopType = LoopType.OneShot;
@@ -212,8 +231,8 @@ namespace WaveTracker.Tracker {
         }
 
         public void TrimSilence() {
-            List<short> sampleDataLeft = sampleDataAccessL.ToList();
-            List<short> sampleDataRight = sampleDataAccessR.ToList();
+            List<short> sampleDataLeft = sampleDataL.ToList();
+            List<short> sampleDataRight = sampleDataR.ToList();
             if (sampleDataLeft.Count > 1000) {
                 if (IsStereo) {
                     for (int i = 0; i < sampleDataLeft.Count; ++i) {
@@ -253,8 +272,8 @@ namespace WaveTracker.Tracker {
                 }
             }
 
-            sampleDataAccessL = sampleDataLeft.ToArray();
-            sampleDataAccessR = sampleDataRight.ToArray();
+            sampleDataL = sampleDataLeft.ToArray();
+            sampleDataR = sampleDataRight.ToArray();
         }
 
         public float GetMonoSample(float time, float startPercentage) {
@@ -316,7 +335,7 @@ namespace WaveTracker.Tracker {
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private float GetSampleAt(int chan, int index) {
-            if (sampleDataAccessL.Length == 0) {
+            if (sampleDataL.Length == 0) {
                 return 0;
             }
 
@@ -324,17 +343,16 @@ namespace WaveTracker.Tracker {
                 return 0;
             }
 
-            if (index >= sampleDataAccessL.Length) {
+            if (index >= sampleDataL.Length) {
                 return 0;
             }
 
-            if (index >= sampleDataAccessL.Length) {
-                index = sampleDataAccessL.Length - 1;
+            if (chan == 0 || !IsStereo) {
+                return (float)(sampleDataL[index] / (float)short.MaxValue);
             }
-
-            return chan == 0 || sampleDataAccessL.Length != sampleDataAccessR.Length
-                ? sampleDataAccessL[index] / (float)short.MaxValue
-                : sampleDataAccessR[index] / (float)short.MaxValue;
+            else {
+                return (float)(sampleDataR[index] / (float)short.MaxValue);
+            }
         }
 
         public void SaveToDisk() {
@@ -346,9 +364,9 @@ namespace WaveTracker.Tracker {
             WaveFormat format = new WaveFormat(sampleRate, channels);
             using (WaveFileWriter writer = new WaveFileWriter(filepath, format)) {
                 for (int i = 0; i < Length; ++i) {
-                    writer.WriteSample(sampleDataAccessL[i] / (float)short.MaxValue);
+                    writer.WriteSample(sampleDataL[i] / (float)short.MaxValue);
                     if (IsStereo) {
-                        writer.WriteSample(sampleDataAccessR[i] / (float)short.MaxValue);
+                        writer.WriteSample(sampleDataR[i] / (float)short.MaxValue);
                     }
                 }
             }

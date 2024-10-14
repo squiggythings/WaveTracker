@@ -20,19 +20,30 @@ namespace WaveTracker.UI {
             }
         }
 
+        public float MouseXPercentage {
+            get {
+                return MouseX / (float)(width - 1);
+            }
+        }
+
         public new int MouseY {
             get {
                 return base.MouseY;
             }
         }
+        public float MouseYPercentage {
+            get {
+                return MouseY / (float)(height - 1);
+            }
+        }
 
-        public float MouseXClamped {
+        public float MouseXPercentageClamped {
             get {
                 return Math.Clamp(MouseX / (float)(width - 1), 0f, 1f);
             }
         }
 
-        public float MouseYClamped {
+        public float MouseYPercentageClamped {
             get {
                 return Math.Clamp(MouseY / (float)(height - 1), 0f, 1f);
             }

@@ -51,7 +51,6 @@ namespace WaveTracker.UI {
                     App.CurrentModule.SetDirty();
                 }
 
-
                 rows.Value = App.CurrentSong.RowsPerFrame;
                 rows.Update();
                 if (rows.ValueWasChangedInternally) {

@@ -1,7 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -119,6 +118,7 @@ namespace WaveTracker {
             }
         }
 
+        private bool discardUnsavedChanges = false;
         /// <summary>
         /// Height of the menustrip
         /// </summary>
@@ -128,6 +128,8 @@ namespace WaveTracker {
         /// The timer to set the mouse cursor to an directional arrow instead of the default
         /// </summary>
         public static int MouseCursorArrow { get; set; }
+
+        public static MouseCursor MouseCursor { get; set; }
 
         /// <summary>
         /// The menustrip at the top of the screen
@@ -159,7 +161,6 @@ namespace WaveTracker {
 
             System.Windows.Forms.Form form = (System.Windows.Forms.Form)System.Windows.Forms.Control.FromHandle(Window.Handle);
             form.WindowState = System.Windows.Forms.FormWindowState.Maximized;
-            form.FormClosing += ClosingForm;
             if (!Directory.Exists(SaveLoad.ThemeFolderPath)) {
                 Directory.CreateDirectory(SaveLoad.ThemeFolderPath);
                 File.WriteAllText(Path.Combine(SaveLoad.ThemeFolderPath, "Default.wttheme"), ColorTheme.CreateString(ColorTheme.Default));
@@ -257,6 +258,8 @@ namespace WaveTracker {
                 new MenuOption("Open manual...", OpenHelp),
                 new MenuOption("Effect list...", OpenEffectList),
                 null,
+                new SubMenu("Recover files...", SaveLoad.CreateAutosavesMenu()),
+                null,
                 new MenuOption("Reset audio", ResetAudio),
             ]));
 
@@ -275,6 +278,7 @@ namespace WaveTracker {
             Window.Title = SaveLoad.FileNameWithoutExtension + (SaveLoad.IsSaved ? "" : "*") + " [#" + (CurrentSongIndex + 1) + " " + CurrentSong.ToString() + "] - WaveTracker " + VERSION;
             WindowHeight = Window.ClientBounds.Height / Settings.General.ScreenScale;
             WindowWidth = Window.ClientBounds.Width / Settings.General.ScreenScale;
+            MouseCursor = MouseCursor.Arrow;
             if (dialogDelay < 2) {
                 dialogDelay++;
                 if (dialogDelay == 2) {
@@ -293,19 +297,6 @@ namespace WaveTracker {
                 Input.dialogOpenCooldown = 3;
             }
             SaveLoad.AutosaveTick();
-            if (Input.dialogOpenCooldown == 0) {
-                if (Input.MousePositionX > 1 && Input.MousePositionX < WindowWidth - 1) {
-                    if (Input.MousePositionY > 1 && Input.MousePositionY < WindowHeight - 1) {
-                        if (MouseCursorArrow == 0) {
-                            Mouse.SetCursor(MouseCursor.Arrow);
-                        }
-                        else {
-                            Mouse.SetCursor(MouseCursor.SizeNS);
-                            MouseCursorArrow--;
-                        }
-                    }
-                }
-            }
 
             Tooltip.Update();
             if (Shortcuts["General\\Reset audio"].IsPressedDown) {
@@ -347,6 +338,14 @@ namespace WaveTracker {
             }
 
             ContextMenu.Update();
+
+            if (Input.dialogOpenCooldown == 0) {
+                if (Input.MousePositionX > 1 && Input.MousePositionX < WindowWidth - 1) {
+                    if (Input.MousePositionY > 1 && Input.MousePositionY < WindowHeight - 1) {
+                        Mouse.SetCursor(MouseCursor);
+                    }
+                }
+            }
             base.Update(gameTime);
         }
 
@@ -437,23 +436,7 @@ namespace WaveTracker {
         /// Closes WaveTracker
         /// </summary>
         public static void ExitApplication() {
-            System.Windows.Forms.Form form = (System.Windows.Forms.Form)System.Windows.Forms.Control.FromHandle(instance.Window.Handle);
-            form.Close();
-        }
-
-        /// <summary>
-        /// Called before the app closes
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        public void ClosingForm(object sender, System.ComponentModel.CancelEventArgs e) {
-            ContextMenu.CloseCurrent();
-
-            if (!SaveLoad.IsSaved) {
-                e.Cancel = true;
-                SaveLoad.DoSaveChangesDialog(UnsavedChangesCallback);
-            }
-
+            instance.Exit();
         }
 
         /// <summary>
@@ -467,16 +450,32 @@ namespace WaveTracker {
             else if (result == "Cancel") {
                 return;
             }
+            else if (result == "No") {
+                discardUnsavedChanges = true;
+            }
             Exit();
         }
 
-        protected override void OnExiting(object sender, EventArgs args) {
-            Debug.WriteLine("Closing WaveTracker...");
-            SaveLoad.SetCrashFlag(false);
-            AudioEngine.Stop();
-            PianoInput.StopMIDI();
-            SettingsProfile.WriteToDisk(Settings);
-            base.OnExiting(sender, args);
+        /// <summary>
+        /// Catches before closing the app, in case any unsaved changes are present
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="args"></param>
+        protected override void OnExiting(object sender, ExitingEventArgs args) {
+            ContextMenu.CloseCurrent();
+            if (!SaveLoad.IsSaved && !discardUnsavedChanges) {
+                args.Cancel = true;
+                SaveLoad.DoSaveChangesDialog(UnsavedChangesCallback);
+                return;
+            }
+            else {
+                Debug.WriteLine("Closing WaveTracker...");
+                SaveLoad.SetCrashFlag(false);
+                AudioEngine.Stop();
+                PianoInput.StopMIDI();
+                SettingsProfile.WriteToDisk(Settings);
+                base.OnExiting(sender, args);
+            }
         }
     }
 }

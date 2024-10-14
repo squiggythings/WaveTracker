@@ -171,11 +171,11 @@ namespace WaveTracker {
                 LastClickLocation = new Point(MousePositionX, MousePositionY);
                 lastClickFocus = focus;
                 if (!doubleClick && TimeSinceLastClick < DOUBLE_CLICK_TIME && Vector2.Distance(LastClickReleaseLocation.ToVector2(), MousePos) < MOUSE_DRAG_DISTANCE) {
-                    //this is a double click
+                    // this is a double click
                     doubleClick = true;
                 }
                 else {
-                    //this is a normal click
+                    // this is a normal click
                     doubleClick = false;
                 }
 

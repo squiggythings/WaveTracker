@@ -79,53 +79,6 @@ namespace WaveTracker.UI {
             DrawRect(93, 14, 1, 63, new Color(163, 167, 194));
             Write("Note Input", 5, 15, new Color(163, 167, 194));
             Write("Row Highlight", 100, 15, new Color(163, 167, 194));
-
-            ////*********************************************************
-            //int winW = 300;
-            //int winH = 400;
-            //DrawRect(0, 0, winW, winH, Color.Red);
-            //int numChannels = App.CurrentSong.RowsPerFrame;
-            //int desiredNumX = 2;
-            //int desiredNumY = 4;
-            //int numX = 2;
-            //int numY = numChannels / 2;
-            //float prevDiff = 9999999999;
-            //List<int> factors = new List<int>();
-            //int max = (int)Math.Sqrt(24);  // Round down
-
-            //for (int factor = 1; factor <= max; ++factor) // Test from 1 to the square root, or the int below it, inclusive.
-            //{
-            //    if (numChannels % factor == 0) {
-            //        int w = factor;
-            //        int h = numChannels / factor;
-            //        if (Math.Abs((w / (float)h) - (desiredNumX / (float)desiredNumY)) < prevDiff) {
-            //            prevDiff = Math.Abs((w / (float)h) - (desiredNumX / (float)desiredNumY));
-            //            numX = w;
-            //            numY = h;
-            //        }
-
-            //        factors.Add(factor);
-            //        if (factor != numChannels / factor) // Don't add the square root twice!  Thanks Jon
-            //            factors.Add(numChannels / factor);
-            //    }
-            //    if (factor >= numChannels)
-            //        break;
-            //}
-
-            //int subWidth = winW / numX;
-            //int subHeight = winH / numY;
-
-            //int num = 0;
-            //for (int r = 0; r < numY; ++r) {
-            //    for (int c = 0; c < numX; ++c) {
-            //        DrawRect(c * subWidth, r * subHeight, subWidth - 1, subHeight - 1, Color.Green);
-            //        num++;
-            //        if (num >= numChannels)
-            //            break;
-            //    }
-            //    if (num >= numChannels)
-            //        break;
-            //}
         }
     }
 }

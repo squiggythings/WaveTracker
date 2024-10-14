@@ -75,6 +75,9 @@ namespace WaveTracker.UI {
 
         public void Update() {
             ValueWasChangedInternally = false;
+            if (IsHovered && InFocus) {
+                App.MouseCursor = MouseCursor.IBeam;
+            }
             if (IsBeingEdited && InFocus) {
                 caretFlashTimer += (float)App.GameTime.ElapsedGameTime.TotalSeconds;
                 mouseCursorCaret = GetMouseCaretPosition();

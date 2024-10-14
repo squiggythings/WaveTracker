@@ -113,7 +113,6 @@ namespace WaveTracker.Audio {
         private float _filterCutoffFrequency;
         private int currentInstrumentID;
 
-        private static Random random = new Random();
         private double _noiseTime;
         private float noiseValueC;
         private float noiseValueL;
@@ -130,6 +129,13 @@ namespace WaveTracker.Audio {
 
         private static Envelope[] defaultEnvelopes;
 
+        public static void InitializeNoise() {
+            noiseSample = new float[44100 * 4];
+            for (int i = 0; i < noiseSample.Length; i++) {
+                noiseSample[i] = (Random.Shared.Next() % 4 / 3f - 0.5f) * 1.5f;
+            }
+        }
+
         public Channel(int id) {
             this.id = id;
             tickEvents = [];
@@ -143,11 +149,7 @@ namespace WaveTracker.Audio {
                     defaultEnvelopes[i] = new Envelope((Envelope.EnvelopeType)i);
                 }
             }
-            noiseSample = new float[44100 * 4];
             noiseLength = noiseSample.Length;
-            for (int i = 0; i < noiseSample.Length; i++) {
-                noiseSample[i] = (random.Next() % 4 / 3f - 0.5f) * 1.5f;
-            }
             stereoBiQuadFilter = new StereoBiQuadFilter();
             Reset();
         }
@@ -729,7 +731,7 @@ namespace WaveTracker.Audio {
                     else if (CurrentInstrument is NoiseInstrument) {
                         double pitchIndex = CurrentPitch / 24f;
                         double factor = (1 - pitchIndex) * 9 + 1;
-                        factor = Math.Pow(2.0, factor) - 1;
+                        factor = Helpers.FasterPower(2.0, factor) - 1;
                         _noiseTime += 192000f / AudioEngine.TrueSampleRate / factor;
                         if (_noiseTime > noiseLength) {
                             _noiseTime -= (int)(_noiseTime / noiseLength) * noiseLength;

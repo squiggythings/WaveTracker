@@ -122,9 +122,7 @@ namespace WaveTracker.Audio {
             Dialogs.exportingDialog.TotalRows = RenderTotalRows;
             bool overwriting = File.Exists(filepath);
 
-            bool b = await Task.Run(() => {
-                return WriteToWaveFile(filepath + ".temp", audioProvider);
-            });
+            bool b = await Task.Run(() => WriteToWaveFile(filepath + ".temp", audioProvider));
             Debug.WriteLine("Exported!");
             if (b) {
                 if (overwriting) {
@@ -168,11 +166,19 @@ namespace WaveTracker.Audio {
                     rightSum += r;
                 }
 
-                ChannelManager.PreviewChannel.ProcessSingleSample(out l, out r, delta);
-                leftSum += l;
-                rightSum += r;
+                if (!IsRendering) {
+                    ChannelManager.PreviewChannel.ProcessSingleSample(out l, out r, delta);
+                    leftSum += l;
+                    rightSum += r;
+                }
                 left = leftSum;
                 right = rightSum;
+            }
+
+            if (Dialogs.currentSampleModifyDialog != null && Dialogs.currentSampleModifyDialog.WindowIsOpen) {
+                Dialogs.currentSampleModifyDialog.GetPreviewSample(out leftSum, out rightSum);
+                left += leftSum;
+                right += rightSum;
             }
 
             left = Math.Clamp(left * (App.Settings.Audio.MasterVolume / 100f), -1, 1);

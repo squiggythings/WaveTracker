@@ -10,6 +10,7 @@ namespace WaveTracker.Audio {
         public static List<Channel> Channels { get; private set; }
 
         public static void Initialize(int numChannels) {
+            Channel.InitializeNoise();
             PreviewChannel = new Channel(-1);
             Channels = [];
             for (int i = 0; i < numChannels; i++) {

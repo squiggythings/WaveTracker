@@ -182,9 +182,6 @@ namespace WaveTracker.UI {
                 if (writeIndex >= channelStates.GetLength(0)) {
                     writeIndex = 0;
                 }
-
-                //while (states.Count > height - 24)
-                //    states.RemoveAt(states.Count - 1);
             }
 
             public void Draw() {

@@ -100,7 +100,7 @@ namespace WaveTracker.UI {
                                         if ((MouseY - LastClickPos.Y) / 4 != 0) {
                                             isDragging = true;
                                         }
-                                        App.MouseCursorArrow = 2;
+                                        App.MouseCursor = Microsoft.Xna.Framework.Input.MouseCursor.SizeNS;
                                     }
                                     if (isDragging) {
                                         ThisFrame.PatternIndex = valueSaved - (MouseY - LastClickPos.Y) / 4;

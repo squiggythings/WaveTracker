@@ -8,20 +8,20 @@ namespace WaveTracker.UI {
         public Rectangle bar;
         private bool lastClickWasOnScrollbar;
         public int ScrollValue { get; set; }
+        public int MaxScrollValue { get { return totalSize - viewportSize; } }
+        public bool IsVisible { get { return viewportSize < totalSize; } }
+
         public int CoarseStepAmount { get; set; }
 
         private int barClickOffset;
 
-        public bool IsVisible { get { return viewportSize < totalSize; } }
         public ScrollbarHorizontal(int x, int y, int width, int height, Element parent) {
             this.x = x;
             this.y = y;
             this.width = width;
             this.height = height;
             CoarseStepAmount = 1;
-            if (parent != null) {
-                SetParent(parent);
-            }
+            SetParent(parent);
         }
 
         public void SetSize(int totalSize, int viewportSize) {
@@ -58,7 +58,7 @@ namespace WaveTracker.UI {
                             }
                         }
                         if (BarIsPressed) {
-                            bar.X = MouseX + barClickOffset;
+                            bar.X = Math.Clamp(MouseX + barClickOffset, 1, width - bar.Width - 1);
                             ScrollValue = (int)Math.Round(BarValFromPos() * (totalSize - viewportSize));
                         }
                         else if (IsHovered) {
@@ -98,22 +98,32 @@ namespace WaveTracker.UI {
         /// <summary>
         /// Clamps the scroll value if the scroll value is out of range
         /// </summary>
-        public void UpdateScrollValue() {
+        private void UpdateScrollValue() {
             if (IsVisible) {
-                ScrollValue = Math.Clamp(ScrollValue, 0, totalSize - viewportSize);
-                bar.X = (int)Math.Round(BarPosFromVal() * (width - 2) + 1);
+                ScrollValue = Math.Clamp(ScrollValue, 0, MaxScrollValue);
+                int position = (int)Math.Round(BarPosFromVal() * (width - 2f - bar.Width) + 1);
+                bar.X = Math.Clamp(position, 1, width - bar.Width - 1);
             }
             else {
                 ScrollValue = 0;
             }
         }
 
+        /// <summary>
+        /// 0.0-1.0 of how scrolled the bar is from the x position
+        /// </summary>
+        /// <returns></returns>
         private float BarValFromPos() {
-            return (bar.X - 1) / (float)(width - 2 - bar.Width);
+            return (bar.X - 1f) / (width - bar.Width - 2f);
         }
 
+        /// <summary>
+        /// 0.0-1.0 of how scrolled the bar is from the scrollValue
+        /// </summary>
+        /// <returns></returns>
         private float BarPosFromVal() {
-            return ScrollValue / (float)totalSize;
+            return ScrollValue / (float)MaxScrollValue;
+
         }
 
         private bool BarisHovered {
