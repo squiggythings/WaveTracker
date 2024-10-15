@@ -1,7 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
-using WaveTracker.Tracker;
 using NCalc;
 using System;
+using WaveTracker.Tracker;
 
 namespace WaveTracker.UI {
     public class WaveMathExpressionDialog : WaveModifyDialog {

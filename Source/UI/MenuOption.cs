@@ -42,7 +42,7 @@ namespace WaveTracker.UI {
             width = Math.Min(Helpers.GetWidthOfText(name) + MARGIN_LEFT + MARGIN_RIGHT + PADDING_LEFT + PADDING_RIGHT, MAX_WIDTH);
         }
         public MenuOption(string name, Action<string> onClick, string arg) {
-            Name = Name = name;
+            Name = name;
             OnClickArg = onClick;
             args = arg;
             height = OPTION_HEIGHT;

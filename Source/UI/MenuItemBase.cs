@@ -7,7 +7,7 @@ namespace WaveTracker.UI {
     public abstract class MenuItemBase : Clickable {
         public Menu parentMenu;
 
-        public const int MAX_WIDTH = 400;
+        public const int MAX_WIDTH = 600;
         public const int PADDING_LEFT = 2;
         public const int MARGIN_LEFT = 12;
 
