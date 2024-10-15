@@ -132,7 +132,7 @@ namespace WaveTracker.Audio {
         public static void InitializeNoise() {
             noiseSample = new float[44100 * 4];
             for (int i = 0; i < noiseSample.Length; i++) {
-                noiseSample[i] = (Random.Shared.Next() % 4 / 3f - 0.5f) * 1.5f;
+                noiseSample[i] = (Random.Shared.Next() % 4 / 3f - 0.5f) * 2.25f;
             }
         }
 
