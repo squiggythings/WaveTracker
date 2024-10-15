@@ -102,7 +102,7 @@ namespace WaveTracker.UI {
 
                             if (Input.GetClick(KeyModifier.None) && !ValueWasChangedInternally) {
                                 Value = valueSaved - (MouseY - LastClickPos.Y) / 2;
-                                App.MouseCursorArrow = 2;
+                                App.MouseCursor = Microsoft.Xna.Framework.Input.MouseCursor.SizeNS;
                             }
                         }
                     }

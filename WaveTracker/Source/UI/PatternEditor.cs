@@ -212,7 +212,9 @@ namespace WaveTracker.UI {
             CurrentOctave = Math.Clamp(CurrentOctave, 0, 9);
             #endregion
 
-            FirstVisibleChannel -= Input.MouseScrollWheel(KeyModifier.Alt);
+            if (Input.focus == null && !App.VisualizerMode) {
+                FirstVisibleChannel -= Input.MouseScrollWheel(KeyModifier.Alt);
+            }
             FirstVisibleChannel = Math.Clamp(FirstVisibleChannel, 0, App.CurrentModule.ChannelCount - 1);
 
             CalculateChannelPositioning(false);
@@ -591,6 +593,7 @@ namespace WaveTracker.UI {
                 // input effects
                 foreach (Keys k in KeyInputs_Effect.Keys) {
                     if (KeyPress(k, KeyModifier.None)) {
+                        Tooltip.LastEffect = KeyInputs_Effect[k];
                         CurrentPattern[cursorPosition.Row, cursorPosition.CellColumn] = (byte)KeyInputs_Effect[k];
                         switch (App.Settings.PatternEditor.StepAfterNumericInput) {
                             case SettingsProfile.MoveToNextRowBehavior.Always:
@@ -611,11 +614,13 @@ namespace WaveTracker.UI {
                      CursorColumnType.Effect3Param1 or
                      CursorColumnType.Effect4Param1) {
                 // input 10's place effect parameters (or 16's if it is hex)
-                if (Helpers.IsEffectHex((char)CurrentPattern[cursorPosition.Row, cursorPosition.CellColumn - 1])) {
+                char effect = (char)CurrentPattern[cursorPosition.Row, cursorPosition.CellColumn - 1];
+                if (Helpers.IsEffectHex(effect)) {
                     // hex
                     foreach (Keys k in KeyInputs_Hex.Keys) {
                         if (KeyPress(k, KeyModifier.None)) {
                             int val = App.CurrentSong[cursorPosition];
+                            Tooltip.LastEffect = effect;
                             App.CurrentSong[cursorPosition] = (byte)(KeyInputs_Hex[k] * 16 + val % 16);
                             switch (App.Settings.PatternEditor.StepAfterNumericInput) {
                                 case SettingsProfile.MoveToNextRowBehavior.Always:
@@ -639,6 +644,7 @@ namespace WaveTracker.UI {
                     foreach (Keys k in KeyInputs_Decimal.Keys) {
                         if (KeyPress(k, KeyModifier.None)) {
                             int val = App.CurrentSong[cursorPosition];
+                            Tooltip.LastEffect = effect;
                             App.CurrentSong[cursorPosition] = (byte)(KeyInputs_Decimal[k] * 10 + val % 10);
                             switch (App.Settings.PatternEditor.StepAfterNumericInput) {
                                 case SettingsProfile.MoveToNextRowBehavior.Always:
@@ -662,12 +668,14 @@ namespace WaveTracker.UI {
                      CursorColumnType.Effect2Param2 or
                      CursorColumnType.Effect3Param2 or
                      CursorColumnType.Effect4Param2) {
+                char effect = (char)CurrentPattern[cursorPosition.Row, cursorPosition.CellColumn - 1];
                 // input 1's place effect parameters
-                if (Helpers.IsEffectHex((char)CurrentPattern[cursorPosition.Row, cursorPosition.CellColumn - 1])) {
+                if (Helpers.IsEffectHex(effect)) {
                     // hex
                     foreach (Keys k in KeyInputs_Hex.Keys) {
                         if (KeyPress(k, KeyModifier.None)) {
                             int val = App.CurrentSong[cursorPosition];
+                            Tooltip.LastEffect = effect;
                             App.CurrentSong[cursorPosition] = (byte)(val / 16 * 16 + KeyInputs_Hex[k]);
                             switch (App.Settings.PatternEditor.StepAfterNumericInput) {
                                 case SettingsProfile.MoveToNextRowBehavior.Always:
@@ -690,6 +698,7 @@ namespace WaveTracker.UI {
                     foreach (Keys k in KeyInputs_Decimal.Keys) {
                         if (KeyPress(k, KeyModifier.None)) {
                             int val = App.CurrentSong[cursorPosition];
+                            Tooltip.LastEffect = effect;
                             App.CurrentSong[cursorPosition] = (byte)(val / 10 * 10 + KeyInputs_Decimal[k]);
                             switch (App.Settings.PatternEditor.StepAfterNumericInput) {
                                 case SettingsProfile.MoveToNextRowBehavior.Always:
@@ -1009,6 +1018,7 @@ namespace WaveTracker.UI {
                 Humanize();
             }
             #endregion
+
         }
 
         #region Draw Methods
@@ -1044,7 +1054,6 @@ namespace WaveTracker.UI {
             }
             frame = renderCursorPos.Frame;
             row = renderCursorPos.Row;
-            //length = App.CurrentSong[frame].GetModifiedLength();
             frameWrap = 0;
             for (int i = NumVisibleLines / 2; i >= 0; i--) {
                 if (frameWrap == 0 || App.Settings.PatternEditor.ShowPreviousNextFrames) {
@@ -1355,6 +1364,7 @@ namespace WaveTracker.UI {
         /// Resets the cursor position and view to the beginning of the song, and clears undo history
         /// </summary>
         public void OnSwitchSong(bool haltPlayback = false) {
+            Playback.SetTicksPerRow();
             if (Playback.IsPlaying && !haltPlayback) {
                 Playback.Stop();
                 Playback.Goto(0, 0);
@@ -1509,7 +1519,6 @@ namespace WaveTracker.UI {
 
         private void RecordOriginalSelectionContents() {
             scaleClipboard = new float[selection.Height, selection.Width];
-            //clipboardStartCellType = selection.min.Column.ToCellType();
             for (int row = 0; row < selection.Height; row++) {
                 for (int column = 0; column < selection.Width; column++) {
                     scaleClipboard[row, column] = (byte)SelectionPattern[selection.min.Row + row, selection.min.CellColumn + column];
@@ -2448,18 +2457,10 @@ namespace WaveTracker.UI {
         /// <returns></returns>
         private Rectangle GetRectFromCursorPos(ref CursorPos position) {
 
-            //position.Normalize(CurrentSong);
             int x = ChannelHeaders[position.Channel].x + GetColumnStartPositionOffset(position.Column);
 
             int lineNumber = NumVisibleLines / 2;
-            //while (p.IsBelow(position)) {
-            //    p.MoveToRow(p.Row - 1, App.CurrentSong);
-            //    lineNumber--;
-            //}
-            //while (p.IsAbove(position)) {
-            //    p.MoveToRow(p.Row + 1, App.CurrentSong);
-            //    lineNumber++;
-            //}
+
             return new Rectangle(x, lineNumber * ROW_HEIGHT, GetWidthOfCursorColumn(position.Column), ROW_HEIGHT);
         }
 

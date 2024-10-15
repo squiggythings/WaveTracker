@@ -13,8 +13,6 @@ namespace WaveTracker.UI {
             this.y = y;
             this.label = label;
             width = Helpers.GetWidthOfText(label) + 8;
-            //if (width < 30)
-            //    width = 30;
             labelWidth = Helpers.GetWidthOfText(label);
             height = 13;
             SetParent(parent);

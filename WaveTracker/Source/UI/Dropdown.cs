@@ -51,7 +51,6 @@ namespace WaveTracker.UI {
             SetParent(parent);
 
         }
-
         public void SetMenuItems(string[] items) {
             int maxlength = 0;
             options = new string[items.Length];
@@ -174,5 +173,6 @@ namespace WaveTracker.UI {
                 }
             }
         }
+
     }
 }

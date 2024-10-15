@@ -182,9 +182,6 @@ namespace WaveTracker.UI {
                 if (writeIndex >= channelStates.GetLength(0)) {
                     writeIndex = 0;
                 }
-
-                //while (states.Count > height - 24)
-                //    states.RemoveAt(states.Count - 1);
             }
 
             public void Draw() {
@@ -359,8 +356,8 @@ namespace WaveTracker.UI {
                     if (enabled) {
                         if (App.Settings.Visualizer.OscilloscopeBorders) {
                             DrawRect(-borderWidth, -borderWidth, width + borderWidth * 2, height + borderWidth * 2, Color.White);
+                            DrawRect(0, 0, width, height, UIColors.black);
                         }
-                        DrawRect(0, 0, width, height, UIColors.black);
                         if (App.Settings.Visualizer.OscilloscopeCrosshairs > 0) {
                             DrawRect(0, height / 2, width, 1, new Color(44, 53, 77));
                             if (App.Settings.Visualizer.OscilloscopeCrosshairs > 1) {
@@ -391,7 +388,7 @@ namespace WaveTracker.UI {
                                     first = false;
                                 }
                                 int px = (int)Math.Round(i + width / 2);
-                                if (px <= width - 1) {
+                                if (px <= width - App.Settings.Visualizer.OscilloscopeThickness - 1) {
                                     DrawOscCol(px, 0, lastSample, sample, Color.White, App.Settings.Visualizer.OscilloscopeThickness + 1);
                                 }
                                 lastSample = sample;
@@ -406,7 +403,7 @@ namespace WaveTracker.UI {
                                     first = false;
                                 }
                                 int px = (int)Math.Round(i + width / 2);
-                                if (px <= width - 1) {
+                                if (px <= width - App.Settings.Visualizer.OscilloscopeThickness - 1) {
                                     DrawOscCol(px, 0, lastSample, sample, waveColor, App.Settings.Visualizer.OscilloscopeThickness + 1);
                                 }
                                 lastSample = sample;
@@ -421,7 +418,7 @@ namespace WaveTracker.UI {
                                     first = false;
                                 }
                                 int px = (int)Math.Round(i + width / 2);
-                                if (px <= width - 1) {
+                                if (px <= width - App.Settings.Visualizer.OscilloscopeThickness - 1) {
                                     DrawOscCol(px, 0, lastSample, sample, Color.White, App.Settings.Visualizer.OscilloscopeThickness + 1);
                                 }
                                 lastSample = sample;

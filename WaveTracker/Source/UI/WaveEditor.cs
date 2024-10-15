@@ -24,7 +24,7 @@ namespace WaveTracker.UI {
         private bool displayAsLines;
         private WaveModifyDialog currentDialog;
 
-        private Wave CurrentWave {
+        private static Wave CurrentWave {
             get {
                 return App.CurrentModule.WaveBank[WaveBank.currentWaveID];
             }
@@ -71,7 +71,7 @@ namespace WaveTracker.UI {
 
             ModifyButton = new DropdownButton("Modify...", buttonX, buttonY, buttonWidth, this);
             ModifyButton.LabelIsCentered = true;
-            ModifyButton.SetMenuItems(["Smooth...", "Add Fuzz...", "Sync...", "Sample and hold..."]);
+            ModifyButton.SetMenuItems(["Smooth...", "Add Fuzz...", "Sync...", "Sample and hold...", "Math expression..."]);
 
             presetSine = new SpriteButton(17, 215, 18, 12, 104, 80, this);
             presetSine.SetTooltip("Sine", "Sine wave preset");
@@ -129,15 +129,17 @@ namespace WaveTracker.UI {
 
         private int CanvasPosX {
             get {
-                return drawingRegion.MouseX / 6;
+                return Math.Clamp(drawingRegion.MouseX / 6, 0, 63);
             }
         }
 
         private int CanvasPosY {
             get {
-                return 31 - drawingRegion.MouseY / 5;
+                return Math.Clamp(31 - drawingRegion.MouseY / 5, 0, 31);
             }
         }
+
+        private int lastCanvasPosX, lastCanvasPosY;
 
         private void ToggleDisplayMode() {
             displayAsLines = !displayAsLines;
@@ -153,29 +155,29 @@ namespace WaveTracker.UI {
                 if (WaveBank.currentWaveID > 99) {
                     return;
                 }
-
-                if (Input.GetKeyRepeat(Keys.Left, KeyModifier.None)) {
-                    WaveBank.currentWaveID--;
-                    if (WaveBank.currentWaveID < 0) {
-                        WaveBank.currentWaveID += 100;
+                if (!InputField.IsAnInputFieldBeingEdited) {
+                    if (Input.GetKeyRepeat(Keys.Left, KeyModifier.None)) {
+                        WaveBank.currentWaveID--;
+                        if (WaveBank.currentWaveID < 0) {
+                            WaveBank.currentWaveID += 100;
+                        }
+                        id = WaveBank.currentWaveID;
                     }
-                    id = WaveBank.currentWaveID;
-                }
-                if (Input.GetKeyRepeat(Keys.Right, KeyModifier.None)) {
-                    WaveBank.currentWaveID++;
-                    if (WaveBank.currentWaveID >= 100) {
-                        WaveBank.currentWaveID -= 100;
-                    }
-                    id = WaveBank.currentWaveID;
+                    if (Input.GetKeyRepeat(Keys.Right, KeyModifier.None)) {
+                        WaveBank.currentWaveID++;
+                        if (WaveBank.currentWaveID >= 100) {
+                            WaveBank.currentWaveID -= 100;
+                        }
+                        id = WaveBank.currentWaveID;
 
+                    }
                 }
                 if (WaveBank.lastSelectedWave != id) {
                     WaveBank.lastSelectedWave = id;
-                    ChannelManager.PreviewChannel.SetWave(WaveBank.currentWaveID);
                 }
 
                 //Temp fix for PreviewChannel wave being changed when song is played
-                if(ChannelManager.PreviewChannel.WaveIndex != id) {
+                if (ChannelManager.PreviewChannel.WaveIndex != id && !ChannelManager.PreviewChannel.CurrentInstrument.HasEnvelope(Envelope.EnvelopeType.Wave)) {
                     ChannelManager.PreviewChannel.SetWave(id);
                 }
 
@@ -188,15 +190,11 @@ namespace WaveTracker.UI {
                     if (InFocus && (ExitButton.Clicked || Input.GetKeyDown(Keys.Escape, KeyModifier.None))) {
                         Close();
                     }
+                    waveText.Text = CurrentWave.ToNumberString();
                     waveText.Update();
                     if (waveText.ValueWasChangedInternally) {
-                        App.CurrentModule.SetDirty();
-                    }
-                    if (waveText.ValueWasChanged) {
                         CurrentWave.SetFromNumberString(waveText.Text);
-                    }
-                    else {
-                        waveText.Text = CurrentWave.ToNumberString();
+                        App.CurrentModule.SetDirty();
                     }
 
                     resampleDropdown.Update();
@@ -297,6 +295,10 @@ namespace WaveTracker.UI {
                                 currentDialog = Dialogs.waveSampleAndHoldDialog;
                                 Dialogs.waveSampleAndHoldDialog.Open(CurrentWave);
                                 break;
+                            case 4:
+                                currentDialog = Dialogs.waveMathExpressionDialog;
+                                Dialogs.waveMathExpressionDialog.Open(CurrentWave);
+                                break;
                         }
                         App.CurrentModule.SetDirty();
                     }
@@ -315,31 +317,37 @@ namespace WaveTracker.UI {
                         }
 
                         if (drawingRegion.DidClickInRegionM(KeyModifier.None)) {
-                            CurrentWave.samples[CanvasPosX] = (byte)CanvasPosY;
+                            LineBetween(CanvasPosX, CanvasPosY, lastCanvasPosX, lastCanvasPosY);
+                            System.Diagnostics.Debug.WriteLine(lastCanvasPosX + "," + lastCanvasPosY + " | " + CanvasPosX + "," + CanvasPosY);
                             App.CurrentModule.SetDirty();
                         }
                         if (drawingRegion.ClickedM(KeyModifier.Shift)) {
-                            int diff = Math.Abs(holdPosX - CanvasPosX);
-                            if (diff > 0) {
-                                if (holdPosX < CanvasPosX) {
-                                    for (int i = holdPosX; i <= CanvasPosX; ++i) {
-                                        CurrentWave.samples[i] = (byte)Math.Round(MathHelper.Lerp(holdPosY, CanvasPosY, (float)(i - holdPosX) / diff));
-                                    }
-                                }
-                                else {
-                                    for (int i = CanvasPosX; i <= holdPosX; ++i) {
-                                        CurrentWave.samples[i] = (byte)Math.Round(MathHelper.Lerp(CanvasPosY, holdPosY, (float)(i - CanvasPosX) / diff));
-                                    }
-                                }
-                                App.CurrentModule.SetDirty();
-                            }
-                            else {
-                                CurrentWave.samples[CanvasPosX] = (byte)CanvasPosY;
-                                App.CurrentModule.SetDirty();
-                            }
+                            LineBetween(holdPosX, holdPosY, CanvasPosX, CanvasPosY);
+                            App.CurrentModule.SetDirty();
                         }
                     }
                 }
+                lastCanvasPosX = CanvasPosX;
+                lastCanvasPosY = CanvasPosY;
+            }
+        }
+
+        private static void LineBetween(int sample1, int value1, int sample2, int value2) {
+            int diff = Math.Abs(sample1 - sample2);
+            if (diff > 0) {
+                if (sample1 < sample2) {
+                    for (int i = sample1; i <= sample2; ++i) {
+                        CurrentWave.samples[i] = (byte)Math.Round(MathHelper.Lerp(value1, value2, (float)(i - sample1) / diff));
+                    }
+                }
+                else {
+                    for (int i = sample2; i <= sample1; ++i) {
+                        CurrentWave.samples[i] = (byte)Math.Round(MathHelper.Lerp(value2, value1, (float)(i - sample2) / diff));
+                    }
+                }
+            }
+            else {
+                CurrentWave.samples[sample1] = (byte)value1;
             }
         }
 

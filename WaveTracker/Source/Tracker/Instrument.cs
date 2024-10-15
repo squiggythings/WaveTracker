@@ -21,6 +21,15 @@ namespace WaveTracker.Tracker {
 
         }
 
+        public bool HasEnvelope(Envelope.EnvelopeType type) {
+            foreach (Envelope envelope in envelopes) {
+                if (envelope.Type == type) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
         public abstract Instrument Clone();
         public override string ToString() {
             return name;

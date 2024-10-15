@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
+using System;
 
 namespace WaveTracker.UI {
     public class DropdownButton : Clickable {
@@ -21,7 +22,7 @@ namespace WaveTracker.UI {
         private string label;
         private int labelWidth;
         private int hoveredValue;
-        private string[] options;
+        private Option[] options;
         private int cooldown;
 
         public DropdownButton(string label, int x, int y, Element parent) {
@@ -45,13 +46,24 @@ namespace WaveTracker.UI {
             SetParent(parent);
         }
 
-        public void SetMenuItems(string[] items) {
+        public void SetMenuItems(Option[] items) {
             int maxlength = 0;
-            options = new string[items.Length];
+            options = new Option[items.Length];
             for (int i = 0; i < items.Length; i++) {
                 options[i] = items[i];
-                if (Helpers.GetWidthOfText(options[i]) > maxlength) {
-                    maxlength = Helpers.GetWidthOfText(options[i]);
+                if (Helpers.GetWidthOfText(options[i].Name) > maxlength) {
+                    maxlength = Helpers.GetWidthOfText(options[i].Name);
+                }
+            }
+            menuWidth = maxlength + 18;
+        }
+        public void SetMenuItems(string[] items) {
+            int maxlength = 0;
+            options = new Option[items.Length];
+            for (int i = 0; i < items.Length; i++) {
+                options[i] = new Option(items[i]);
+                if (Helpers.GetWidthOfText(options[i].Name) > maxlength) {
+                    maxlength = Helpers.GetWidthOfText(options[i].Name);
                 }
             }
             menuWidth = maxlength + 18;
@@ -70,9 +82,11 @@ namespace WaveTracker.UI {
                         if (MouseY >= y && MouseY <= y + 11) {
                             hoveredValue = i;
                             if (Input.GetClickUp(KeyModifier.None)) {
-                                SelectedIndex = i;
-                                SelectedAnItem = true;
-                                CloseMenu();
+                                if (options[hoveredValue].Enabled) {
+                                    SelectedIndex = i;
+                                    SelectedAnItem = true;
+                                    CloseMenu();
+                                }
                                 Input.CancelClick();
                                 return;
                             }
@@ -138,10 +152,10 @@ namespace WaveTracker.UI {
             DrawRoundedRect(0, 0, width, height, GetBackgroundColor());
 
             if (LabelIsCentered) {
-                Write(label, (width - labelWidth) / 2, (height + 1) / 2 - 4 + textOffset, ButtonColors.textColor);
+                Write(label, (width - labelWidth) / 2, (height + 1) / 2 - 4 + textOffset, GetTextColor());
             }
             else {
-                Write(label, 4, (height + 1) / 2 - 4 + textOffset, ButtonColors.textColor);
+                Write(label, 4, (height + 1) / 2 - 4 + textOffset, GetTextColor());
             }
 
             DrawRect(width - 9, 5 + textOffset, 5, 1, GetTextColor());
@@ -157,14 +171,43 @@ namespace WaveTracker.UI {
             DrawRect(menuX, menuY, menuWidth, 11 * options.Length + 2, UIColors.labelDark);
             for (int i = 0; i < options.Length; i++) {
                 int y = i * 11 + menuY + 1;
-                if (i == hoveredValue) {
-                    DrawRect(menuX + 1, y, menuWidth - 2, 11, UIColors.selection.Lerp(Color.White, 0.7f));
-                    Write(Helpers.TrimTextToWidth(menuWidth - 8, options[i]), menuX + 4, y + 2, UIColors.black);
+                if (options[i].Enabled) {
+                    if (i == hoveredValue) {
+                        DrawRect(menuX + 1, y, menuWidth - 2, 11, UIColors.selection.Lerp(Color.White, 0.7f));
+                        Write(Helpers.TrimTextToWidth(menuWidth - 8, options[i].Name), menuX + 4, y + 2, UIColors.black);
+                    }
+                    else {
+                        DrawRect(menuX + 1, y, menuWidth - 2, 11, Color.White);
+                        Write(Helpers.TrimTextToWidth(menuWidth - 8, options[i].Name), menuX + 4, y + 2, UIColors.labelDark);
+                    }
                 }
                 else {
                     DrawRect(menuX + 1, y, menuWidth - 2, 11, Color.White);
-                    Write(Helpers.TrimTextToWidth(menuWidth - 8, options[i]), menuX + 4, y + 2, UIColors.labelDark);
+                    Write(Helpers.TrimTextToWidth(menuWidth - 8, options[i].Name), menuX + 4, y + 2, UIColors.panel);
                 }
+            }
+        }
+        public struct Option {
+            public string Name { get; private set; }
+            private Func<bool> enabledOrNot;
+
+            public bool Enabled {
+                get {
+                    if (enabledOrNot == null) {
+                        return true;
+                    }
+                    else {
+                        return enabledOrNot();
+                    }
+                }
+            }
+            public Option(string name, Func<bool> enabledOrNot) {
+                Name = name;
+                this.enabledOrNot = enabledOrNot;
+            }
+            public Option(string name) {
+                Name = name;
+                enabledOrNot = null;
             }
         }
     }

@@ -1,5 +1,4 @@
 ﻿using FontStashSharp;
-using FontStashSharp.RichText;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
@@ -91,16 +90,13 @@ namespace WaveTracker.Rendering {
         /// <param name="y"></param>
         /// <param name="colors"></param>
         public static void Write(string text, int x, int y, Color[] colors) {
+
             if (IsUsingCustomFont) {
-                string newText = "";
-                for (int i = 0; i < text.Length; ++i) {
-                    newText += "/c[" + colors[i].ToHexString() + "]" + text[i];
+                float xpos = x;
+                for (int i = 0; i < colors.Length; i++) {
+                    customFont.DrawText(spriteBatch, text[i] + "", new Vector2(xpos * Scale, (y - fontOffsetY) * Scale), colors[i]);
+                    xpos += customFont.MeasureString(text[i] + "").X / Scale;
                 }
-                RichTextLayout layout = new RichTextLayout {
-                    Font = loadedFont.GetFont(9 * App.Settings.General.ScreenScale),
-                    Text = newText,
-                };
-                layout.Draw(spriteBatch, new Vector2(x * Scale, (y - fontOffsetY) * Scale), Color.Black);
             }
             else {
                 for (int i = 0; i < colors.Length; i++) {

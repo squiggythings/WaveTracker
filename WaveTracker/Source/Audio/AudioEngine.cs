@@ -300,11 +300,19 @@ namespace WaveTracker.Audio {
                     rightSum += r;
                 }
 
-                ChannelManager.PreviewChannel.ProcessSingleSample(out l, out r, delta);
-                leftSum += l;
-                rightSum += r;
+                if (!IsRendering) {
+                    ChannelManager.PreviewChannel.ProcessSingleSample(out l, out r, delta);
+                    leftSum += l;
+                    rightSum += r;
+                }
                 left = leftSum;
                 right = rightSum;
+            }
+
+            if (Dialogs.currentSampleModifyDialog != null && Dialogs.currentSampleModifyDialog.WindowIsOpen) {
+                Dialogs.currentSampleModifyDialog.GetPreviewSample(out leftSum, out rightSum);
+                left += leftSum;
+                right += rightSum;
             }
 
             left = Math.Clamp(left * (App.Settings.Audio.MasterVolume / 100f), -1, 1);
