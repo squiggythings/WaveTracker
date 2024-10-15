@@ -115,11 +115,12 @@ namespace WaveTracker {
             if (!Path.Exists(AutosavesFolderPath)) {
                 Directory.CreateDirectory(AutosavesFolderPath);
             }
-            string[] files = Directory.GetFiles(AutosavesFolderPath);
+            string[] files = new DirectoryInfo(AutosavesFolderPath).GetFiles("*.wtm").OrderByDescending(f => f.LastWriteTime).Select(f => f.FullName).ToArray();
 
             // prevent auto saves folder from growing too large, at a minimum will be the last 3 hours of work
             while (files.Length > 36) {
-                File.Delete(files[36]);
+                File.Delete(files[files.Length - 1]);
+                files = new DirectoryInfo(AutosavesFolderPath).GetFiles("*.wtm").OrderByDescending(f => f.LastWriteTime).Select(f => f.FullName).ToArray();
             }
             lastAutosaveTime = App.GameTime.TotalGameTime;
             WriteTo(Path.Combine(AutosavesFolderPath, FileNameWithoutExtension + "_autosave_" + string.Format("{0:yyyy-MM-dd_HH-mm-ss-fff}", DateTime.Now) + ".wtm"), markAsSaved: false);
@@ -129,7 +130,7 @@ namespace WaveTracker {
             // Autosave every 5th minute
             if ((App.GameTime.TotalGameTime.Minutes + 1) % 5 == 0) {
                 // and only if the module was edited since the last autosave
-                if (!performedAutosave && App.CurrentModule.LastEditedTime > lastAutosaveTime) {
+                if (!performedAutosave) {
                     Autosave();
                     performedAutosave = true;
                 }
