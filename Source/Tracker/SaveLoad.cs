@@ -294,18 +294,21 @@ namespace WaveTracker {
         }
 
         public static MenuItemBase[] CreateAutosavesMenu() {
-            string[] filepaths = new DirectoryInfo(AutosavesFolderPath).GetFiles("*.wtm").OrderByDescending(f => f.LastWriteTime).Select(f => f.Name).ToArray();
-            if (recentFilePaths.Count == 0) {
+            string[] filepaths = new DirectoryInfo(AutosavesFolderPath).GetFiles("*.wtm").OrderByDescending(f => f.LastWriteTime).Select(f => f.FullName).ToArray();
+            if (filepaths.Length == 0) {
                 return [new MenuOption("Open autosaves folder...", OpenAutosavesFolder),
                         null,
-                        new MenuOption("No autosaves found...", OpenAutosavesFolder,false)];
+                        new MenuOption("No autosaves found...", OpenAutosavesFolder, false)];
             }
             else {
-                MenuItemBase[] menu = new MenuItemBase[filepaths.Length + 2];
+                MenuItemBase[] menu = new MenuItemBase[Math.Min(filepaths.Length, 36) + 2];
                 menu[0] = new MenuOption("Open autosaves folder...", OpenAutosavesFolder);
                 menu[1] = null;
                 for (int i = 0; i < filepaths.Length; i++) {
-                    menu[i + 2] = new MenuOption(i + 1 + ". " + Path.GetFileName(filepaths[i]), TryToLoadFile, Path.Combine(AutosavesFolderPath, filepaths[i]));
+                    if (i >= 36) {
+                        break;
+                    }
+                    menu[i + 2] = new MenuOption(i + 1 + ". " + Path.GetFileName(filepaths[i]), TryToLoadFile, filepaths[i]);
                 }
                 return menu;
             }
