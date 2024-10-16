@@ -295,6 +295,9 @@ namespace WaveTracker {
         }
 
         public static MenuItemBase[] CreateAutosavesMenu() {
+            if (!Path.Exists(AutosavesFolderPath)) {
+                Directory.CreateDirectory(AutosavesFolderPath);
+            }
             string[] filepaths = new DirectoryInfo(AutosavesFolderPath).GetFiles("*.wtm").OrderByDescending(f => f.LastWriteTime).Select(f => f.FullName).ToArray();
             if (filepaths.Length == 0) {
                 return [new MenuOption("Open autosaves folder...", OpenAutosavesFolder),
