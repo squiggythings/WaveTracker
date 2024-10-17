@@ -51,6 +51,9 @@ namespace WaveTracker {
 
         public class CategoryAppearance {
             public ColorTheme Theme { get; set; } = ColorTheme.Default;
+            public void Validate() {
+                Theme.Validate();
+            }
         }
 
         public class CategoryPatternEditor {
@@ -279,6 +282,8 @@ namespace WaveTracker {
             PatternEditor ??= new();
             SamplesWaves ??= new();
             MIDI ??= new();
+            Colors ??= new();
+            Colors.Validate();
             Audio ??= new();
             Visualizer ??= new();
             Keyboard ??= new();
