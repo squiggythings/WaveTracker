@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text.Json.Serialization;
 
 namespace WaveTracker {
@@ -72,6 +73,22 @@ namespace WaveTracker {
             }
             return theme;
         }
+
+        /// <summary>
+        /// Checks if any colors are missing and if so replaces them with that color from the default theme
+        /// </summary>
+        public void Validate() {
+            Dictionary<string, Color> newColors = Default.Colors;
+
+            foreach (KeyValuePair<string, Color> pair in Colors) {
+                if (newColors.ContainsKey(pair.Key)) {
+                    newColors[pair.Key] = pair.Value;
+                }
+            }
+
+            Colors = newColors;
+        }
+
         public static ColorTheme Default { get { return new ColorTheme(); } }
 
         public static ColorTheme Famitracker {
