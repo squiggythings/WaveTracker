@@ -101,7 +101,7 @@ namespace WaveTracker.UI {
             if (viewportSize < totalSize) {
                 ScrollValue = Math.Clamp(ScrollValue, 0, MaxScrollValue);
                 int position = (int)Math.Round(BarPosFromVal() * (height - 2f - bar.Height) + 1);
-                bar.Y = Math.Clamp(position, 1, height - bar.Height - 1);
+                bar.Y = Math.Clamp(position, 1, Math.Max(1, height - bar.Height - 1));
 
             }
         }
