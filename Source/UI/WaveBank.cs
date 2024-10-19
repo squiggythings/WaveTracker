@@ -45,14 +45,13 @@ namespace WaveTracker.UI {
                 waveButton.x = (i % 20 - scrollbar.ScrollValue) * 22 + 4;
 
                 if (waveButton.x > 0 && waveButton.BoundsRight < width - 4) {
-                    waveButton.Update();
-                }
-                if (waveButton.Clicked) {
-                    currentWaveID = i;
-                    lastSelectedWave = i;
-                    App.WaveEditor.Open(i);
-                    if (!ChannelManager.PreviewChannel.envelopePlayers[Envelope.EnvelopeType.Wave].HasActiveEnvelopeData) {
-                        ChannelManager.PreviewChannel.SetWave(i);
+                    if (waveButton.Clicked) {
+                        currentWaveID = i;
+                        lastSelectedWave = i;
+                        App.WaveEditor.Open(i);
+                        if (!ChannelManager.PreviewChannel.envelopePlayers[Envelope.EnvelopeType.Wave].HasActiveEnvelopeData) {
+                            ChannelManager.PreviewChannel.SetWave(i);
+                        }
                     }
                 }
                 i++;

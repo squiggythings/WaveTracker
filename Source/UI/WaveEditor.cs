@@ -406,7 +406,7 @@ namespace WaveTracker.UI {
                         DrawRect(drawingRegion.x + i * 6, drawingRegion.y + drawingRegion.height - samp * 5, 6, -5, waveColor);
                     }
                 }
-                phase += App.GameTime.ElapsedGameTime.TotalMilliseconds / 16f;
+                phase += App.GameTime.ElapsedGameTime.TotalMilliseconds / 16.66667f;
                 if (phase > 128) {
                     phase -= 64;
                 }
