@@ -26,6 +26,7 @@ namespace WaveTracker.Audio {
                 channel.Reset();
             }
             PreviewChannel.Reset();
+            PreviewChannel.SetWave(UI.WaveBank.lastSelectedWave);
         }
 
         /// <summary>
