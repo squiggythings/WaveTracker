@@ -573,9 +573,12 @@ namespace WaveTracker.UI {
                         }
                         switch (App.Settings.PatternEditor.StepAfterNumericInput) {
                             case SettingsProfile.MoveToNextRowBehavior.Always:
+                                MoveToRow(cursorPosition.Row + InputStep);
+                                break;
                             case SettingsProfile.MoveToNextRowBehavior.AfterCell:
                             case SettingsProfile.MoveToNextRowBehavior.AfterCellIncludingEffect:
                                 MoveToRow(cursorPosition.Row + InputStep);
+                                MoveCursorLeft();
                                 break;
                             case SettingsProfile.MoveToNextRowBehavior.Never:
                                 App.CurrentSong[cursorPosition] = (byte)(val % 10 * 10 + KeyInputs_Decimal[k]);
@@ -679,9 +682,15 @@ namespace WaveTracker.UI {
                             App.CurrentSong[cursorPosition] = (byte)(val / 16 * 16 + KeyInputs_Hex[k]);
                             switch (App.Settings.PatternEditor.StepAfterNumericInput) {
                                 case SettingsProfile.MoveToNextRowBehavior.Always:
+                                    MoveToRow(cursorPosition.Row + InputStep);
+                                    break;
                                 case SettingsProfile.MoveToNextRowBehavior.AfterCell:
+                                    MoveToRow(cursorPosition.Row + InputStep);
+                                    MoveCursorLeft(); //Reset to the next effect param 1 cell
+                                    break;
                                 case SettingsProfile.MoveToNextRowBehavior.AfterCellIncludingEffect:
                                     MoveToRow(cursorPosition.Row + InputStep);
+                                    MoveCursorLeft(2); //Reset to the next effect cell
                                     break;
                                 case SettingsProfile.MoveToNextRowBehavior.Never:
                                     App.CurrentSong[cursorPosition] = (byte)(val % 16 * 16 + KeyInputs_Hex[k]);
@@ -702,14 +711,19 @@ namespace WaveTracker.UI {
                             App.CurrentSong[cursorPosition] = (byte)(val / 10 * 10 + KeyInputs_Decimal[k]);
                             switch (App.Settings.PatternEditor.StepAfterNumericInput) {
                                 case SettingsProfile.MoveToNextRowBehavior.Always:
+                                    MoveToRow(cursorPosition.Row + InputStep);
+                                    break;
                                 case SettingsProfile.MoveToNextRowBehavior.AfterCell:
+                                    MoveToRow(cursorPosition.Row + InputStep);
+                                    MoveCursorLeft(); //Reset to the next effect param 1 cell
+                                    break;
                                 case SettingsProfile.MoveToNextRowBehavior.AfterCellIncludingEffect:
                                     MoveToRow(cursorPosition.Row + InputStep);
+                                    MoveCursorLeft(2); //Reset to the next effect cell
                                     break;
                                 case SettingsProfile.MoveToNextRowBehavior.Never:
                                     App.CurrentSong[cursorPosition] = (byte)(val % 10 * 10 + KeyInputs_Decimal[k]);
                                     break;
-
                             }
                             AddToUndoHistory();
                             break;
@@ -1425,6 +1439,20 @@ namespace WaveTracker.UI {
         }
 
         /// <summary>
+        /// Moves the cursor to the left by a number of columns
+        /// </summary>
+        private void MoveCursorLeft(int columns) {
+            for (int i = 0; i < columns; i++) {
+                int channel = cursorPosition.Channel;
+                cursorPosition.MoveLeft(App.CurrentSong);
+                if (!App.Settings.PatternEditor.WrapCursorHorizontally && cursorPosition.Channel > channel) {
+                    cursorPosition.MoveRight(App.CurrentSong);
+                    break;
+                }
+            }
+        }
+
+        /// <summary>
         /// Moves the cursor one column to the right
         /// </summary>
         private void MoveCursorRight() {
@@ -1432,6 +1460,20 @@ namespace WaveTracker.UI {
             cursorPosition.MoveRight(App.CurrentSong);
             if (!App.Settings.PatternEditor.WrapCursorHorizontally && cursorPosition.Channel < channel) {
                 cursorPosition.MoveLeft(App.CurrentSong);
+            }
+        }
+
+        /// <summary>
+        /// Moves the cursor to the right by a number of columns
+        /// </summary>
+        private void MoveCursorRight(int columns) {
+            for (int i = 0; i < columns; i++) {
+                int channel = cursorPosition.Channel;
+                cursorPosition.MoveRight(App.CurrentSong);
+                if (!App.Settings.PatternEditor.WrapCursorHorizontally && cursorPosition.Channel < channel) {
+                    cursorPosition.MoveLeft(App.CurrentSong);
+                    break;
+                }
             }
         }
 
