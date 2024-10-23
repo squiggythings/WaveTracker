@@ -19,7 +19,21 @@ namespace WaveTracker.Audio.Native {
         public WavFormatException(string message) : base(message) { }
     }
 
-    public class WaveStream : MemoryStream {
+    public interface IWaveStream {
+        public int NumChannels { get; }
+        public int SampleRate { get; }
+        public TimeSpan Duration { get; }
+
+        /// <summary>
+        /// Read 
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <param name="sampleCount"></param>
+        /// <returns></returns>
+        public int ReadSamples(float[] buffer, int sampleCount);
+    }
+
+    public class WaveStream : MemoryStream, IWaveStream {
         public readonly Wav SourceWav;
 
         private byte[] byteBuffer = new byte[4096];
@@ -28,6 +42,10 @@ namespace WaveTracker.Audio.Native {
         public WaveStream(Wav wav) : base(wav.SoundData) {
             SourceWav = wav;
         }
+
+        public int NumChannels => SourceWav.NumChannels;
+        public int SampleRate => (int)SourceWav.SampleRate;
+        public TimeSpan Duration => SourceWav.Duration;
 
         public int ReadSamples(float[] buffer, int sampleCount) {
             int byteCount = sampleCount * SourceWav.BytesPerSample;
@@ -51,7 +69,7 @@ namespace WaveTracker.Audio.Native {
         public readonly ushort BitsPerSample;
         public readonly byte[] SoundData;
 
-        public double TotalSecs => SoundData.Length / (double)ByteRate;
+        public TimeSpan Duration { get; init; }
         public int BytesPerSample => BitsPerSample / 8;
 
         private static readonly char[] MAGIC_RIFF = ['R', 'I', 'F', 'F'];
@@ -119,6 +137,7 @@ namespace WaveTracker.Audio.Native {
             uint subchunk2Size = reader.ReadUInt32();
 
             SoundData = reader.ReadBytes((int)subchunk2Size);
+            Duration = TimeSpan.FromSeconds(SoundData.Length / (double)ByteRate);
         }
 
         public Wav(short[] pcm16Samples, ushort numChannels, uint sampleRate) {

@@ -125,7 +125,7 @@ namespace WaveTracker.Audio {
 
             unsafe {
                 fixed (float* bufferPtr = buffer) {
-                    long frame_count = Alsa.snd_pcm_writei(_pcm, bufferPtr, (ulong)buffer.Length / channels);
+                    long frame_count = Alsa.snd_pcm_writei(_pcm, bufferPtr, (ulong)(buffer.Length / channels));
                     if (frame_count < 0)
                         Alsa.snd_pcm_recover(_pcm, (int)frame_count, 0);
                 }

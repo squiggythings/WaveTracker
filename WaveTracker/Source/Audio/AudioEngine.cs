@@ -39,12 +39,12 @@ namespace WaveTracker.Audio {
         public static List<AudioDevice> OutputDevices { get; private set; }
         public static string[] OutputDeviceNames { get; private set; }
 
-        private static WaveStream previewStream = null;
-        public static WaveStream PreviewStream {
+        private static IWaveStream previewStream = null;
+        public static IWaveStream PreviewStream {
             get => previewStream;
             set {
                 if (value != null)
-                    SetSampleRate((int)value.SourceWav.SampleRate, App.Settings.Audio.Oversampling);
+                    SetSampleRate((int)value.SampleRate, App.Settings.Audio.Oversampling);
                 else
                     SetSampleRate(SampleRateToInt(App.Settings.Audio.SampleRate), App.Settings.Audio.Oversampling);
 
@@ -237,7 +237,7 @@ namespace WaveTracker.Audio {
                         if (PreviewStream != null) {
                             float previewVolume = 0.75f * App.Settings.Audio.MasterVolume / 100f;
 
-                            if (PreviewStream.SourceWav.NumChannels == 1) {
+                            if (PreviewStream.NumChannels == 1) {
                                 int previewSamplesCount = PreviewStream.ReadSamples(previewBuffer, previewBuffer.Length / 2);
 
                                 for (int i = 0; i < previewSamplesCount; i++) {

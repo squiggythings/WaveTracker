@@ -27,8 +27,8 @@ namespace WaveTracker.UI {
         private int width = 500;
         private int height = 320;
 
-        private string wavFilePath;
-        private Wav wav;
+        private string audioFilePath;
+        private AudioReader audioFile;
 
         private enum SortingMethod { ByName, ByType };
 
@@ -36,7 +36,7 @@ namespace WaveTracker.UI {
 
         private bool SelectedAnAudioFile {
             get {
-                return wav != null && selectedFileIndex >= 0 && selectedFileIndex < entriesInDirectory.Length && File.Exists(entriesInDirectory[selectedFileIndex]);
+                return audioFile != null && selectedFileIndex >= 0 && selectedFileIndex < entriesInDirectory.Length && File.Exists(entriesInDirectory[selectedFileIndex]);
             }
         }
 
@@ -187,14 +187,9 @@ namespace WaveTracker.UI {
             if (App.Settings.SamplesWaves.PreviewSamplesInBrowser) {
                 if (File.Exists(entriesInDirectory[selectedFileIndex])) {
                     try {
-                        using FileStream wavFile = File.OpenRead(entriesInDirectory[selectedFileIndex]);
-                        wav = new Wav(wavFile);
-                        wavFilePath = entriesInDirectory[selectedFileIndex];
-
-                        if (loopPreview.Value)
-                            AudioEngine.PreviewStream = new LoopStream(wav);
-                        else
-                            AudioEngine.PreviewStream = new WaveStream(wav);
+                        audioFilePath = entriesInDirectory[selectedFileIndex];
+                        audioFile = new AudioReader(audioFilePath, loopPreview.Value);
+                        AudioEngine.PreviewStream = audioFile;
                     } catch {
 
                     }
@@ -382,47 +377,15 @@ namespace WaveTracker.UI {
 
                 if (SelectedAnAudioFile) {
                     // write file name
-                    if (wav != null) {
-                        Write(Helpers.TrimTextToWidth(105, Path.GetFileName(wavFilePath)), width - 104, 85, UIColors.label);
-                        Write(wav.NumChannels == 1 ? "Mono" : "Stereo", width - 104, 95, UIColors.label);
-                        Write(wav.SampleRate + " Hz", width - 104, 105, UIColors.label);
-                        Write(wav.TotalSecs + " sec", width - 104, 115, UIColors.label);
+                    if (audioFile != null) {
+                        Write(Helpers.TrimTextToWidth(105, Path.GetFileName(audioFilePath)), width - 104, 85, UIColors.label);
+                        Write(audioFile.NumChannels == 1 ? "Mono" : "Stereo", width - 104, 95, UIColors.label);
+                        Write(audioFile.SampleRate + " Hz", width - 104, 105, UIColors.label);
+                        Write(audioFile.Duration.TotalSeconds + " sec", width - 104, 115, UIColors.label);
                         loopPreview.Draw();
                     }
                 }
             }
-        }
-    }
-
-    public class LoopStream : WaveStream {
-        /// <summary>
-        /// Creates a new Loop stream
-        /// </summary>
-        public LoopStream(Wav wav) : base(wav) {
-            EnableLooping = true;
-        }
-
-        /// <summary>
-        /// Use this to turn looping on or off
-        /// </summary>
-        public bool EnableLooping { get; set; }
-
-        public override int Read(byte[] buffer, int offset, int count) {
-            int totalBytesRead = 0;
-
-            while (totalBytesRead < count) {
-                int bytesRead = base.Read(buffer, offset + totalBytesRead, count - totalBytesRead);
-                if (bytesRead == 0) {
-                    if (Position == 0 || !EnableLooping) {
-                        // something wrong with the source stream
-                        break;
-                    }
-                    // loop
-                    Position = 0;
-                }
-                totalBytesRead += bytesRead;
-            }
-            return totalBytesRead;
         }
     }
 }

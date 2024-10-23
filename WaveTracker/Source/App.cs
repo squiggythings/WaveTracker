@@ -1,6 +1,8 @@
-﻿using Microsoft.Xna.Framework;
+﻿using FFmpeg.AutoGen;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -174,6 +176,16 @@ namespace WaveTracker {
             Input.Intialize();
             Settings = SettingsProfile.ReadFromDisk();
             Graphics.Initialize(Content, GraphicsDevice);
+
+            // init FFmpeg
+            string assemblyDirectory = Path.GetDirectoryName(typeof(App).Assembly.Location);
+            string os = OperatingSystem.IsWindows() ? "win"
+                : OperatingSystem.IsLinux() ? "linux"
+                : OperatingSystem.IsMacOS() ? "osx"
+                : throw new PlatformNotSupportedException();
+            string arch = Environment.Is64BitProcess ? "x64" : "x86";
+            ffmpeg.RootPath = Path.Combine(assemblyDirectory, "runtimes", $"{os}-{arch}", "native");
+            Console.WriteLine($"FFmpeg {ffmpeg.av_version_info()}");
 
             SaveLoad.ReadRecentFiles();
         }
