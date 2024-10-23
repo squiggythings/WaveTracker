@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using WaveTracker.Audio;
 using WaveTracker.Tracker;
 
@@ -170,6 +171,15 @@ namespace WaveTracker.UI {
                                 new MenuOption("Decrease note", DecreaseNote, !App.VisualizerMode),
                                 new MenuOption("Increase octave", IncreaseOctave, !App.VisualizerMode),
                                 new MenuOption("Decrease octave", DecreaseOctave, !App.VisualizerMode),
+                            ]),
+                            new SubMenu("Generate", [
+                                new MenuOption("Random notes (C-0 to B-9)", () => { GenerateRandomNotes(); }, SelectionIsActive && !App.VisualizerMode),
+                                new MenuOption("Random notes (C-4 to B-4)", () => { GenerateRandomNotes(12*5, 12*6); }, SelectionIsActive && !App.VisualizerMode),
+                                new SubMenu("Arpeggio", [
+                                    new MenuOption("Up", () => { GenerateArpeggio(ArpeggioType.Up); }, SelectionIsActive && !App.VisualizerMode),
+                                    new MenuOption("Down", () => { GenerateArpeggio(ArpeggioType.Down); }, SelectionIsActive && !App.VisualizerMode),
+                                    new MenuOption("Random", () => { GenerateArpeggio(ArpeggioType.Random); }, SelectionIsActive && !App.VisualizerMode)
+                                ])
                             ])
 
                         ]),
@@ -177,6 +187,69 @@ namespace WaveTracker.UI {
                         new MenuOption("Preferences...", Dialogs.configurationDialog.Open),
                     ]);
         }
+
+        private void GenerateArpeggio(ArpeggioType type) {
+            var random = new Random();
+            var noteValues = new HashSet<int>();
+            bool didSomething = false;
+            var qtd = 0;
+            for (int r = selection.min.Row; r <= selection.max.Row; ++r) {
+                for (int c = selection.min.CellColumn; c <= selection.max.CellColumn; ++c) {
+                    if (WTPattern.GetCellTypeFromCellColumn(c) == CellType.Note) {
+                        if (!SelectionPattern.CellIsEmptyOrNoteCutRelease(r, c)) {
+                            noteValues.Add(SelectionPattern[r, c]);
+                        }
+                        ++qtd;
+                    }
+                }
+            }
+            if (!noteValues.Any())
+                return;
+
+            var notesArray = noteValues.Order().ToArray();
+            var i = 0;
+            for (int r = selection.min.Row; r <= selection.max.Row; ++r) {
+                for (int c = selection.min.CellColumn; c <= selection.max.CellColumn; ++c) {
+                    if (WTPattern.GetCellTypeFromCellColumn(c) == CellType.Note) {
+                        var note = 0;
+                        if (type == ArpeggioType.Up)
+                            note = notesArray[i % notesArray.Length];
+                        else if (type == ArpeggioType.Down)
+                            note = notesArray[((qtd - 1) - i) % notesArray.Length];
+                        else if (type == ArpeggioType.Random)
+                            note = notesArray[random.Next() % notesArray.Length];
+
+                        if (note != 0) {
+                            SelectionPattern[r, c] = note;
+                            didSomething = true;
+                        }
+                        ++i;
+                    }
+                }
+            }
+
+            if (didSomething) {
+                AddToUndoHistory();
+            }
+        }
+
+
+        private void GenerateRandomNotes(int min = 12, int max = 11 * 12) {
+            var random = new Random();
+            bool didSomething = false;
+            for (int r = selection.min.Row; r <= selection.max.Row; ++r) {
+                for (int c = selection.min.CellColumn; c <= selection.max.CellColumn; ++c) {
+                    if (WTPattern.GetCellTypeFromCellColumn(c) == CellType.Note) {
+                        SelectionPattern[r, c] = (random.Next() % (max - min)) + min;
+                        didSomething = true;
+                    }
+                }
+            }
+            if (didSomething) {
+                AddToUndoHistory();
+            }
+        }
+
         public void Update() {
 
             if (history.Count < 1) {
@@ -2631,5 +2704,9 @@ namespace WaveTracker.UI {
             {Keys.NumPad9, 9},
         };
         #endregion
+
+        private enum ArpeggioType {
+            Up, Down, Random
+        }
     }
 }
