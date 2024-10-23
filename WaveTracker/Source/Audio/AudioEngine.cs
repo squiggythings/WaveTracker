@@ -44,7 +44,7 @@ namespace WaveTracker.Audio {
             get => previewStream;
             set {
                 if (value != null)
-                    SetSampleRate((int)value.SampleRate, App.Settings.Audio.Oversampling);
+                    SetSampleRate(value.SampleRate, App.Settings.Audio.Oversampling);
                 else
                     SetSampleRate(SampleRateToInt(App.Settings.Audio.SampleRate), App.Settings.Audio.Oversampling);
 
