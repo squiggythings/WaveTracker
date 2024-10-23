@@ -1,5 +1,3 @@
-using System;
-
 namespace WaveTracker.Midi.Interop.Windows {
     /// <summary>
     /// Manufacturer codes from mmreg.h

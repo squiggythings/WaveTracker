@@ -1,7 +1,5 @@
 // https://github.com/naudio/NAudio/blob/f8568cd4ad20c0683389cc9bc878beb945528047/NAudio.Core/MmResult.cs
 
-using System;
-
 namespace WaveTracker.Midi.Interop.Windows {
     /// <summary>
     /// Windows multimedia error codes from mmsystem.h.

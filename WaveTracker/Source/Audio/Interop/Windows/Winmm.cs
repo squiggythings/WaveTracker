@@ -2,7 +2,6 @@
 // https://github.com/zserge/fenster/blob/e700581dfb7956dd161aee44fc0cff0663e789a1/fenster_audio.h#L97-L128
 
 using System;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
 

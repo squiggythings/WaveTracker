@@ -1,5 +1,3 @@
-using System;
-
 namespace WaveTracker.Midi {
     /// <summary>
     /// MIDI MetaEvent Type

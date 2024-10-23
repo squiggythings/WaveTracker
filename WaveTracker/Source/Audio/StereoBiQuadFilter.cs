@@ -1,5 +1,4 @@
-﻿
-using WaveTracker.Audio.NAudio.Dsp;
+﻿using WaveTracker.Audio.NAudio.Dsp;
 
 namespace WaveTracker.Audio {
     public class StereoBiQuadFilter {

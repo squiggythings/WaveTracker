@@ -1,5 +1,3 @@
-using System;
-
 namespace WaveTracker.Midi {
     /// <summary>
     /// MidiController enumeration

@@ -1,5 +1,3 @@
-using System;
-
 namespace WaveTracker.Midi {
     /// <summary>
     /// Represents the different types of technology used by a MIDI out device
