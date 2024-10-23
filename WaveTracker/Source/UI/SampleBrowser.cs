@@ -187,6 +187,12 @@ namespace WaveTracker.UI {
                 if (File.Exists(entriesInDirectory[selectedFileIndex])) {
                     try {
                         audioFilePath = entriesInDirectory[selectedFileIndex];
+
+                        if (audioFile != null) {
+                            audioFile.Dispose();
+                            audioFile = null;
+                        }
+
                         audioFile = new AudioReader(audioFilePath, loopPreview.Value);
                         AudioEngine.PreviewStream = audioFile;
                     } catch {
