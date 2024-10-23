@@ -1,3 +1,5 @@
+// https://github.com/naudio/NAudio/blob/f8568cd4ad20c0683389cc9bc878beb945528047/NAudio.Core/MmException.cs
+
 using System;
 
 namespace WaveTracker.Audio.Interop.Windows {
