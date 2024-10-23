@@ -178,14 +178,23 @@ namespace WaveTracker {
             Graphics.Initialize(Content, GraphicsDevice);
 
             // init FFmpeg
-            string assemblyDirectory = Path.GetDirectoryName(typeof(App).Assembly.Location);
-            string os = OperatingSystem.IsWindows() ? "win"
-                : OperatingSystem.IsLinux() ? "linux"
-                : OperatingSystem.IsMacOS() ? "osx"
-                : throw new PlatformNotSupportedException();
-            string arch = Environment.Is64BitProcess ? "x64" : "x86";
-            ffmpeg.RootPath = Path.Combine(assemblyDirectory, "runtimes", $"{os}-{arch}", "native");
-            Console.WriteLine($"FFmpeg {ffmpeg.av_version_info()}");
+            {
+                string assemblyDirectory = Path.GetDirectoryName(typeof(App).Assembly.Location);
+                string arch = Environment.Is64BitProcess ? "x64" : "x86";
+
+                string os = OperatingSystem.IsWindows() ? "win7"
+                    : OperatingSystem.IsLinux() ? "linux"
+                    : OperatingSystem.IsMacOS() ? "osx"
+                    : throw new PlatformNotSupportedException();
+                ffmpeg.RootPath = Path.Combine(assemblyDirectory, "runtimes", $"{os}-{arch}", "native");
+
+                if (OperatingSystem.IsWindows()) {
+                    // Windows is incapable of finding the FFmpeg libraries if we don't do this.
+                    Environment.SetEnvironmentVariable("PATH", Environment.GetEnvironmentVariable("PATH") + ";" + ffmpeg.RootPath);
+                }
+
+                Debug.WriteLine($"FFmpeg {ffmpeg.av_version_info()}");
+            }
 
             SaveLoad.ReadRecentFiles();
         }
