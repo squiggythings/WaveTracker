@@ -102,7 +102,7 @@ namespace WaveTracker.UI {
             if (IsVisible) {
                 ScrollValue = Math.Clamp(ScrollValue, 0, MaxScrollValue);
                 int position = (int)Math.Round(BarPosFromVal() * (width - 2f - bar.Width) + 1);
-                bar.X = Math.Clamp(position, 1, width - bar.Width - 1);
+                bar.X = Math.Clamp(position, 1, Math.Max(1, width - bar.Width - 1));
             }
             else {
                 ScrollValue = 0;

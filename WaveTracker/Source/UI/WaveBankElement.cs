@@ -20,12 +20,6 @@ namespace WaveTracker.UI {
         }
 
         public void Update() {
-            if (IsHovered || WaveBank.currentWaveID == id) {
-                phase += 4 * App.GameTime.ElapsedGameTime.TotalMilliseconds / 16f;
-            }
-            else {
-                phase = 1;
-            }
 
         }
 
@@ -33,26 +27,29 @@ namespace WaveTracker.UI {
             if (WaveBank.lastSelectedWave == id) {
                 DrawRoundedRect(0, 0, 22, 22, new Color(68, 75, 120));
             }
-            if (IsHovered || WaveEditor.enabled && WaveBank.currentWaveID == id) {
+            if (IsHovered || WaveBank.currentWaveID == id) {
                 if (WaveEditor.enabled) {
-                    phase -= 2 * App.GameTime.ElapsedGameTime.TotalMilliseconds / 16f;
+                    phase += 2 * App.GameTime.ElapsedGameTime.TotalMilliseconds / 16.66667f;
+                }
+                else {
+                    phase += 4 * App.GameTime.ElapsedGameTime.TotalMilliseconds / 16.66667f;
                 }
                 DrawRoundedRect(0, 0, 22, 22, new Color(104, 111, 153));
             }
-
-            bool isEmpty = true;
-            foreach (int sample in Wave.samples) {
-                if (sample != 16) {
-                    isEmpty = false;
-                }
+            else {
+                phase = 1;
             }
+            if (phase > 64) {
+                phase -= 64;
+            }
+
             DrawRect(3, 4, 16, 8, new Color(20, 24, 46));
 
-            if (!isEmpty) {
+            if (!Wave.IsEmpty()) {
                 int wx = 3;
                 int wy;
                 for (int i = 0; i < Wave.samples.Length; i += 4) {
-                    int sum = Wave.GetSample((int)(i + phase + 0));
+                    int sum = Wave.GetSample((i + (int)(phase / 4) * 4) + 1);
 
                     wy = (31 - sum) / 4;
 
