@@ -10,6 +10,7 @@ namespace WaveTracker.Audio {
     internal class AudioContextWindows : IAudioContext {
         private nint _hWaveOut;
         private bool isOpen;
+        private AudioDevice currentDevice = null;
 
         private Winmm.WaveHeader[] waveHeaders = new Winmm.WaveHeader[2];
         private GCHandle waveHeadersHandle;
@@ -27,7 +28,24 @@ namespace WaveTracker.Audio {
             reset();
         }
 
+        /// <summary>
+        /// Open this audio device and set it as current.
+        /// </summary>
+        /// <returns>Whether it successfully opened.</returns>
         public bool Open(AudioDevice device) {
+            currentDevice = device;
+            return open();
+        }
+
+        /// <summary>
+        /// Open the current audio device.
+        /// Does nothing if there is no current device.
+        /// </summary>
+        /// <returns>Whether it successfully opened.</returns>
+        private bool open() {
+            if (currentDevice == null)
+                return false;
+
             short nChannels = 2;
             short wBitsPerSample = 16;
             short nBlockAlign = (short)(nChannels * wBitsPerSample / 8);
@@ -44,7 +62,7 @@ namespace WaveTracker.Audio {
             };
 
             MmException.Try(
-                Winmm.waveOutOpen(out nint hWaveOut, device.DeviceNumber, ref waveFormat, null, 0,
+                Winmm.waveOutOpen(out nint hWaveOut, currentDevice.DeviceNumber, ref waveFormat, null, 0,
                     Winmm.WaveInOutOpenFlags.CallbackNull), "waveOutOpen");
 
             for (int i = 0; i < 2; i++) {
@@ -97,7 +115,14 @@ namespace WaveTracker.Audio {
             reset();
         }
 
+        /// <summary>
+        /// Close, reset, and reopen the current device.
+        /// Does nothing if there is no current device.
+        /// It's easier to close and reopen the device than to manage its individual resources when setting config like sample rate and latency.
+        /// </summary>
         private void reset() {
+            close();
+
             bufferLength = Math.Max(256, (int)((SampleRate / 1000.0) * (Latency / 1000.0)));
             queueBuffer = new Queue<float>(bufferLength);
 
@@ -107,6 +132,8 @@ namespace WaveTracker.Audio {
                 buffers[i] = new short[bufferLength];
                 bufferHandles[i] = GCHandle.Alloc(buffers[i], GCHandleType.Pinned);
             }
+
+            open();
         }
 
         public int AvailableFrames() {
@@ -139,7 +166,22 @@ namespace WaveTracker.Audio {
             }
         }
 
+        /// <summary>
+        /// Close the current device and unset it as current.
+        /// </summary>
         public void Close() {
+            close();
+            currentDevice = null;
+        }
+
+        /// <summary>
+        /// Close the current device. It is still left set as current so that we can reopen it privately in other methods like reset().
+        /// Does nothing if there is no current device.
+        /// </summary>
+        private void close() {
+            if (currentDevice == null)
+                return;
+
             if (isOpen) {
                 for (int bufferIdx = 0; bufferIdx < waveHeaders.Length; bufferIdx++) {
                     waveHeaders[bufferIdx].dataBuffer = 0;
