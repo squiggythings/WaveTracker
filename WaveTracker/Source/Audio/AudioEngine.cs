@@ -266,7 +266,7 @@ namespace WaveTracker.Audio {
 
                 audioCtx.Close();
             } catch (Exception e) {
-                Console.Error.WriteLine("Audio context error: " + e);
+                Debug.WriteLine("Audio context error: " + e);
 
                 // make sure audio is still read even when audio context is not present
                 while (!doStopAudioThread) {

@@ -24,8 +24,6 @@ namespace WaveTracker.Audio {
             if (isOpen)
                 Close();
 
-            Console.Error.WriteLine($"opening {device.Name}");
-
             nint pcm;
             unsafe {
                 int status = Alsa.snd_pcm_open(&pcm, device.ID, Alsa.snd_pcm_stream_t.PLAYBACK, 0);
@@ -34,7 +32,6 @@ namespace WaveTracker.Audio {
 
                 _pcm = pcm;
                 isOpen = true;
-                Console.Error.WriteLine($"{device.Name} is opened as {_pcm}");
 
                 return Alsa.snd_pcm_set_params(pcm, sample_format, access, channels,
                                           sample_rate, soft_resample ? 1 : 0, latency) == 0;
@@ -136,7 +133,6 @@ namespace WaveTracker.Audio {
             if (!isOpen)
                 return;
 
-            Console.Error.WriteLine($"closing device {_pcm}");
             Alsa.snd_pcm_close(_pcm);
             isOpen = false;
         }
