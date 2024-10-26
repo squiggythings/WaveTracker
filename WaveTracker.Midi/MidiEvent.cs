@@ -50,18 +50,18 @@ namespace WaveTracker.Midi {
                         me = new NoteEvent(absoluteTime, channel, commandCode, data1, data2);
                     }
                     break;
-                case MidiCommandCode.ControlChange:
-                    me = new ControlChangeEvent(absoluteTime, channel, (MidiController)data1, data2);
-                    break;
+                // case MidiCommandCode.ControlChange:
+                //     me = new ControlChangeEvent(absoluteTime, channel, (MidiController)data1, data2);
+                //     break;
                 case MidiCommandCode.PatchChange:
                     me = new PatchChangeEvent(absoluteTime, channel, data1);
                     break;
-                case MidiCommandCode.ChannelAfterTouch:
-                    me = new ChannelAfterTouchEvent(absoluteTime, channel, data1);
-                    break;
-                case MidiCommandCode.PitchWheelChange:
-                    me = new PitchWheelChangeEvent(absoluteTime, channel, data1 + (data2 << 7));
-                    break;
+                // case MidiCommandCode.ChannelAfterTouch:
+                //     me = new ChannelAfterTouchEvent(absoluteTime, channel, data1);
+                //     break;
+                // case MidiCommandCode.PitchWheelChange:
+                //     me = new PitchWheelChangeEvent(absoluteTime, channel, data1 + (data2 << 7));
+                //     break;
                 case MidiCommandCode.TimingClock:
                 case MidiCommandCode.StartSequence:
                 case MidiCommandCode.ContinueSequence:
@@ -115,30 +115,30 @@ namespace WaveTracker.Midi {
                 case MidiCommandCode.KeyAfterTouch:
                     me = new NoteEvent(br);
                     break;
-                case MidiCommandCode.ControlChange:
-                    me = new ControlChangeEvent(br);
-                    break;
+                // case MidiCommandCode.ControlChange:
+                //     me = new ControlChangeEvent(br);
+                //     break;
                 case MidiCommandCode.PatchChange:
                     me = new PatchChangeEvent(br);
                     break;
-                case MidiCommandCode.ChannelAfterTouch:
-                    me = new ChannelAfterTouchEvent(br);
-                    break;
-                case MidiCommandCode.PitchWheelChange:
-                    me = new PitchWheelChangeEvent(br);
-                    break;
+                // case MidiCommandCode.ChannelAfterTouch:
+                //     me = new ChannelAfterTouchEvent(br);
+                //     break;
+                // case MidiCommandCode.PitchWheelChange:
+                //     me = new PitchWheelChangeEvent(br);
+                //     break;
                 case MidiCommandCode.TimingClock:
                 case MidiCommandCode.StartSequence:
                 case MidiCommandCode.ContinueSequence:
                 case MidiCommandCode.StopSequence:
                     me = new MidiEvent();
                     break;
-                case MidiCommandCode.Sysex:
-                    me = SysexEvent.ReadSysexEvent(br);
-                    break;
-                case MidiCommandCode.MetaEvent:
-                    me = MetaEvent.ReadMetaEvent(br);
-                    break;
+                // case MidiCommandCode.Sysex:
+                //     me = SysexEvent.ReadSysexEvent(br);
+                //     break;
+                // case MidiCommandCode.MetaEvent:
+                //     me = MetaEvent.ReadMetaEvent(br);
+                //     break;
                 default:
                     throw new FormatException(String.Format("Unsupported MIDI Command Code {0:X2}", (byte)commandCode));
             }
@@ -254,18 +254,18 @@ namespace WaveTracker.Midi {
             return false;
         }
 
-        /// <summary>
-        /// Determines if this is an end track event
-        /// </summary>
-        public static bool IsEndTrack(MidiEvent midiEvent) {
-            if (midiEvent != null) {
-                MetaEvent me = midiEvent as MetaEvent;
-                if (me != null) {
-                    return me.MetaEventType == MetaEventType.EndTrack;
-                }
-            }
-            return false;
-        }
+        // /// <summary>
+        // /// Determines if this is an end track event
+        // /// </summary>
+        // public static bool IsEndTrack(MidiEvent midiEvent) {
+        //     if (midiEvent != null) {
+        //         MetaEvent me = midiEvent as MetaEvent;
+        //         if (me != null) {
+        //             return me.MetaEventType == MetaEventType.EndTrack;
+        //         }
+        //     }
+        //     return false;
+        // }
 
 
         /// <summary>

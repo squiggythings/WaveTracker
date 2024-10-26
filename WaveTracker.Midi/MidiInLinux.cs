@@ -116,14 +116,6 @@ namespace WaveTracker.Midi {
                     int timestampMillis = (int)timestamp.tv_sec * 1000 + (int)(timestamp.tv_nsec / 1_000_000);
                     
                     switch (seqEvent->type) {
-                        // case Alsa.snd_seq_event_type.SYSTEM: {
-                        //     var ev = seqEventPtr->data.result;
-                        //     break;
-                        // }
-                        // case Alsa.snd_seq_event_type.RESULT: {
-                        //     var ev = seqEventPtr->data.result;
-                        //     break;
-                        // }
                         case Alsa.snd_seq_event_type.NOTE: {
                             var ev = seqEvent->data.note;
                             var midiEvent = new NoteOnEvent(0, ev.channel + 1, ev.note, ev.velocity, (int)ev.duration);
@@ -143,159 +135,10 @@ namespace WaveTracker.Midi {
                             MessageReceived(this, new MidiInMessageEventArgs(midiEvent, timestampMillis));
                             break;
                         }
-                        // case Alsa.snd_seq_event_type.CONTROLLER: {
-                        //     var ev = seqEventPtr->data.control;
-                        //     break;
-                        // }
-                        // case Alsa.snd_seq_event_type.PGMCHANGE: {
-                        //     var ev = seqEventPtr->data.control;
-                        //     break;
-                        // }
-                        // case Alsa.snd_seq_event_type.CHANPRESS: {
-                        //     var ev = seqEventPtr->data.control;
-                        //     break;
-                        // }
-                        // case Alsa.snd_seq_event_type.PITCHBEND: {
-                        //     var ev = seqEventPtr->data.control;
-                        //     break;
-                        // }
-                        // case Alsa.snd_seq_event_type.CONTROL14: {
-                        //     var ev = seqEventPtr->data.control;
-                        //     break;
-                        // }
-                        // case Alsa.snd_seq_event_type.NONREGPARAM: {
-                        //     var ev = seqEventPtr->data.control;
-                        //     break;
-                        // }
-                        // case Alsa.snd_seq_event_type.REGPARAM: {
-                        //     var ev = seqEventPtr->data.control;
-                        //     break;
-                        // }
-                        // case Alsa.snd_seq_event_type.SONGPOS: {
-                        //     var ev = seqEventPtr->data.control;
-                        //     break;
-                        // }
-                        // case Alsa.snd_seq_event_type.SONGSEL: {
-                        //     var ev = seqEventPtr->data.control;
-                        //     break;
-                        // }
-                        // case Alsa.snd_seq_event_type.QFRAME: {
-                        //     var ev = seqEventPtr->data.control;
-                        //     break;
-                        // }
-                        // case Alsa.snd_seq_event_type.TIMESIGN: {
-                        //     var ev = seqEventPtr->data.control;
-                        //     break;
-                        // }
-                        // case Alsa.snd_seq_event_type.KEYSIGN: {
-                        //     var ev = seqEventPtr->data.control;
-                        //     break;
-                        // }
-                        // case Alsa.snd_seq_event_type.START: {
-                        //     var ev = seqEventPtr->data.queue;
-                        //     break;
-                        // }
-                        // case Alsa.snd_seq_event_type.CONTINUE: {
-                        //     var ev = seqEventPtr->data.queue;
-                        //     break;
-                        // }
-                        // case Alsa.snd_seq_event_type.STOP: {
-                        //     var ev = seqEventPtr->data.queue;
-                        //     break;
-                        // }
-                        // case Alsa.snd_seq_event_type.SETPOS_TICK: {
-                        //     var ev = seqEventPtr->data.queue;
-                        //     break;
-                        // }
-                        // case Alsa.snd_seq_event_type.SETPOS_TIME: {
-                        //     var ev = seqEventPtr->data.queue;
-                        //     break;
-                        // }
-                        case Alsa.snd_seq_event_type.TEMPO: {
-                            var ev = seqEvent->data.queue;
-                            var midiEvent = new TempoEvent(ev.param.value, 0);
-                            MessageReceived(this, new MidiInMessageEventArgs(midiEvent, timestampMillis));
-                            break;
-                        }
-                        // case Alsa.snd_seq_event_type.CLOCK: {
-                        //     var ev = seqEventPtr->data.queue;
-                        //     break;
-                        // }
-                        // case Alsa.snd_seq_event_type.TICK: {
-                        //     var ev = seqEventPtr->data.queue;
-                        //     break;
-                        // }
-                        // case Alsa.snd_seq_event_type.QUEUE_SKEW: {
-                        //     var ev = seqEventPtr->data.queue;
-                        //     break;
-                        // }
-                        // case Alsa.snd_seq_event_type.SYNC_POS: {
-                        //     var ev = seqEventPtr->data.queue;
-                        //     break;
-                        // }
-                        // case Alsa.snd_seq_event_type.TUNE_REQUEST: {
-                        //     // no event data
-                        //     break;
-                        // }
-                        // case Alsa.snd_seq_event_type.RESET: {
-                        //     // no event data
-                        //     break;
-                        // }
-                        // case Alsa.snd_seq_event_type.SENSING: {
-                        //     // no event data
-                        //     break;
-                        // }
-                        // case Alsa.snd_seq_event_type.ECHO: {
-                        //     // event data of any type
-                        //     break;
-                        // }
-                        // case Alsa.snd_seq_event_type.OSS: {
-                        //     // event data of any type
-                        //     break;
-                        // }
-                        // case Alsa.snd_seq_event_type.CLIENT_START: {
-                        //     var ev = seqEventPtr->data.addr;
-                        //     break;
-                        // }
-                        // case Alsa.snd_seq_event_type.CLIENT_EXIT: {
-                        //     var ev = seqEventPtr->data.addr;
-                        //     break;
-                        // }
-                        // case Alsa.snd_seq_event_type.CLIENT_CHANGE: {
-                        //     var ev = seqEventPtr->data.addr;
-                        //     break;
-                        // }
-                        // case Alsa.snd_seq_event_type.PORT_START: {
-                        //     var ev = seqEventPtr->data.addr;
-                        //     break;
-                        // }
-                        // case Alsa.snd_seq_event_type.PORT_EXIT: {
-                        //     var ev = seqEventPtr->data.addr;
-                        //     break;
-                        // }
-                        // case Alsa.snd_seq_event_type.PORT_CHANGE: {
-                        //     var ev = seqEventPtr->data.addr;
-                        //     break;
-                        // }
-                        // case Alsa.snd_seq_event_type.PORT_SUBSCRIBED: {
-                        //     var ev = seqEventPtr->data.connect;
-                        //     break;
-                        // }
-                        // case Alsa.snd_seq_event_type.PORT_UNSUBSCRIBED: {
-                        //     var ev = seqEventPtr->data.connect;
-                        //     break;
-                        // }
-                        // case Alsa.snd_seq_event_type.USR0:
-                        // case Alsa.snd_seq_event_type.USR1:
-                        // case Alsa.snd_seq_event_type.USR2:
-                        // case Alsa.snd_seq_event_type.USR3:
-                        // case Alsa.snd_seq_event_type.USR4:
-                        // case Alsa.snd_seq_event_type.USR5:
-                        // case Alsa.snd_seq_event_type.USR6:
-                        // case Alsa.snd_seq_event_type.USR7:
-                        // case Alsa.snd_seq_event_type.USR8:
-                        // case Alsa.snd_seq_event_type.USR9: {
-                        //     // event data is any (fixed size)
+                        // case Alsa.snd_seq_event_type.TEMPO: {
+                        //     var ev = seqEvent->data.queue;
+                        //     var midiEvent = new TempoEvent(ev.param.value, 0);
+                        //     MessageReceived(this, new MidiInMessageEventArgs(midiEvent, timestampMillis));
                         //     break;
                         // }
                         case Alsa.snd_seq_event_type.SYSEX: {
@@ -307,23 +150,6 @@ namespace WaveTracker.Midi {
                             SysexMessageReceived(this, new MidiInSysexMessageEventArgs(sysexBytes, timestampMillis));
                             break;
                         }
-                        // case Alsa.snd_seq_event_type.BOUNCE: {
-                        //     var ev = seqEventPtr->data.ext;
-                        //     break;
-                        // }
-                        // case Alsa.snd_seq_event_type.USR_VAR0:
-                        // case Alsa.snd_seq_event_type.USR_VAR1:
-                        // case Alsa.snd_seq_event_type.USR_VAR2:
-                        // case Alsa.snd_seq_event_type.USR_VAR3:
-                        // case Alsa.snd_seq_event_type.USR_VAR4:
-                        // {
-                        //     var ev = seqEventPtr->data.ext;
-                        //     break;
-                        // }
-                        // case Alsa.snd_seq_event_type.NONE: {
-                        //     // nop
-                        //     break;
-                        // }
                         default:
                             break;
                     }
