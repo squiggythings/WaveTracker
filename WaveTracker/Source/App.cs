@@ -229,7 +229,7 @@ namespace WaveTracker {
 
         private void OpenHelp() {
             try {
-                Process.Start("explorer", "https://wavetracker.org/documentation");
+                Helpers.OpenExternally("https://wavetracker.org/documentation");
             } catch {
                 Dialogs.OpenMessageDialog("Could not open help!", MessageDialog.Icon.Error, "OK");
             }
@@ -237,7 +237,7 @@ namespace WaveTracker {
 
         private void OpenEffectList() {
             try {
-                Process.Start("explorer", "https://wavetracker.org/documentation/effect-list");
+                Helpers.OpenExternally("https://wavetracker.org/documentation/effect-list");
             } catch {
                 Dialogs.OpenMessageDialog("Could not open help!", MessageDialog.Icon.Error, "OK");
             }

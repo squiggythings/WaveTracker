@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -449,7 +450,8 @@ namespace WaveTracker {
                             LChannel.Add(sample);
                             RChannel.Add(sample);
                         }
-                    } else {
+                    }
+                    else {
                         // stereo
                         while (frameSampleBuffer.Count >= 2) {
                             LChannel.Add((short)(frameSampleBuffer.Dequeue() * 32767));
@@ -471,6 +473,15 @@ namespace WaveTracker {
                 fileSampleRate = 44100;
                 return false;
             }
+        }
+
+        public static void OpenExternally(string filepath) {
+            if (OperatingSystem.IsWindows())
+                Process.Start("explorer", filepath);
+            else if (OperatingSystem.IsLinux())
+                Process.Start("xdg-open", filepath);
+            else
+                throw new PlatformNotSupportedException();
         }
 
         /// <summary>

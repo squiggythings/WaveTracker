@@ -472,7 +472,11 @@ namespace WaveTracker.UI {
             public override void Update() {
                 base.Update();
                 if (openThemeFiles.Clicked) {
-                    System.Diagnostics.Process.Start("explorer.exe", SaveLoad.ThemeFolderPath);
+                    try {
+                        Helpers.OpenExternally(SaveLoad.ThemeFolderPath);
+                    } catch (Exception e) {
+                        Dialogs.OpenMessageDialog("Could not open file manager!\n" + e.Message, MessageDialog.Icon.Error, "OK");
+                    }
                 }
                 if (loadTheme.Clicked) {
                     if (SaveLoad.GetThemePathThroughOpenDialog(out string filepath)) {

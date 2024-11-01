@@ -319,7 +319,7 @@ namespace WaveTracker {
         }
 
         public static void OpenAutosavesFolder() {
-            Process.Start("explorer.exe", AutosavesFolderPath);
+            Helpers.OpenExternally(AutosavesFolderPath);
         }
 
         /// <summary>
