@@ -345,26 +345,25 @@ namespace WaveTracker.Audio {
         }
 
         private static int readSamples(float[] buffer, int offset, int sampleCount) {
+            if (IsRendering) {
+                if (RenderProcessedRows >= RenderTotalRows || CancelRenderFlag) {
+                    Playback.Stop();
+                    IsRendering = false;
+                    return 0;
+                }
+            }
+            for (int n = 0; n < sampleCount; n += 2) {
+                ProcessSingleSample(out buffer[n + offset], out buffer[n + offset + 1]);
+
                 if (IsRendering) {
                     if (RenderProcessedRows >= RenderTotalRows || CancelRenderFlag) {
-                        Playback.Stop();
-                        IsRendering = false;
-                        return 0;
+                        return n;
                     }
                 }
-                for (int n = 0; n < sampleCount; n += 2) {
-
-                    ProcessSingleSample(out buffer[n + offset], out buffer[n + offset + 1]);
-
-                    if (IsRendering) {
-                        if (RenderProcessedRows >= RenderTotalRows || CancelRenderFlag) {
-                            return n;
-                        }
-                    }
-                }
-
-                return sampleCount;
             }
+
+            return sampleCount;
+        }
 
         /// <summary>
         /// Converts a sample rate enum into its actual numerical sample rate in Hz.
