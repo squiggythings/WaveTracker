@@ -26,7 +26,7 @@ namespace WaveTracker.Audio {
 
             nint pcm;
             unsafe {
-                int status = Alsa.snd_pcm_open(&pcm, device.ID, Alsa.snd_pcm_stream_t.PLAYBACK, 0);
+                int status = Alsa.snd_pcm_open(&pcm, device.ID, Alsa.snd_pcm_stream_t.PLAYBACK, Alsa.SndPcmMode.NONBLOCK);
                 if (status != 0)
                     throw new IOException($"Cannot open PCM audio device ({device.Name})");
 
@@ -121,6 +121,8 @@ namespace WaveTracker.Audio {
                 return;
 
             unsafe {
+                Alsa.snd_pcm_wait(_pcm, (int)latency / 1000);
+
                 fixed (float* bufferPtr = buffer) {
                     long frame_count = Alsa.snd_pcm_writei(_pcm, bufferPtr, (ulong)(buffer.Length / channels));
                     if (frame_count < 0)

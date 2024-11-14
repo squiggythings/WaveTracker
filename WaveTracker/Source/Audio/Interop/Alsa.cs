@@ -1,3 +1,4 @@
+using System;
 using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
 
@@ -5,6 +6,32 @@ namespace WaveTracker.Audio.Interop {
     [SupportedOSPlatform("Linux")]
     internal static class Alsa {
         private const string alsa_library = "asound";
+
+        [Flags]
+        public enum SndPcmMode : int {
+            NONE = 0x0000_0000,
+            NONBLOCK = 0x0000_0001,
+            ASYNC = 0x0000_0002,
+            /// Return EINTR instead blocking (wait operation)
+            EINTR = 0x0000_0080,
+            /// In an abort state (internal, not allowed for open)
+            ABORT = 0x0000_8000,
+            /// Disable automatic (but not forced!) rate resamplinig
+            NO_AUTO_RESAMPLE = 0x0001_0000,
+            /// Disable automatic (but not forced!) channel conversion
+            NO_AUTO_CHANNELS = 0x0002_0000,
+            /// Disable automatic (but not forced!) format conversion
+            NO_AUTO_FORMAT = 0x0004_0000,
+            /// Disable soft volume control
+            NO_SOFTVOL = 0x0008_0000,
+        }
+
+        /// Infinite wait for snd_pcm_wait()
+        public const int SND_PCM_WAIT_INFINITE = -1;
+        /// Wait for next i/o in snd_pcm_wait()
+        public const int SND_PCM_WAIT_IO = -10001;
+        /// Wait for drain in snd_pcm_wait()
+        public const int SND_PCM_WAIT_DRAIN = -10002;
 
         public enum snd_pcm_stream_t : int {
             /// Playback stream
@@ -143,10 +170,13 @@ namespace WaveTracker.Audio.Interop {
         public unsafe static extern sbyte* snd_device_name_get_hint(sbyte* hint, string id);
 
         [DllImport(alsa_library)]
-        public unsafe static extern int snd_pcm_open(nint* pcm, string name, snd_pcm_stream_t stream, int mode);
+        public unsafe static extern int snd_pcm_open(nint* pcm, string name, snd_pcm_stream_t stream, SndPcmMode mode);
 
         [DllImport(alsa_library)]
         public unsafe static extern int snd_pcm_set_params(nint pcm, snd_pcm_format_t format, snd_pcm_access_t access, uint channels, uint rate, int soft_resample, uint latency);
+
+        [DllImport(alsa_library)]
+        public unsafe static extern int snd_pcm_wait(nint pcm, int timeout);
 
         [DllImport(alsa_library)]
         public unsafe static extern long snd_pcm_avail(nint pcm);
