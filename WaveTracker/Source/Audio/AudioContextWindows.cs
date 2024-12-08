@@ -13,6 +13,8 @@ namespace WaveTracker.Audio {
         private bool isOpen;
         private AudioDevice currentDevice = null;
 
+        private const int N_CHANNELS = 2;
+
         // Having only one buffer would work, but 2 buffers prevents temporary clipping.
         private const int N_BUFFERS = 2;
         private int currBufferIdx = 0;
@@ -53,14 +55,13 @@ namespace WaveTracker.Audio {
             if (currentDevice == null)
                 return false;
 
-            short nChannels = 2;
             short wBitsPerSample = 16;
-            short nBlockAlign = (short)(nChannels * wBitsPerSample / 8);
+            short nBlockAlign = (short)(N_CHANNELS * wBitsPerSample / 8);
             int nAvgBytesPerSec = SampleRate * nBlockAlign;
 
             Winmm.WaveFormatEx waveFormat = new Winmm.WaveFormatEx {
                 wFormatTag = Winmm.WaveFormatEncoding.Pcm,
-                nChannels = nChannels,
+                nChannels = N_CHANNELS,
                 nSamplesPerSec = SampleRate,
                 nAvgBytesPerSec = nAvgBytesPerSec,
                 nBlockAlign = nBlockAlign,
@@ -68,19 +69,13 @@ namespace WaveTracker.Audio {
                 cbSize = 0,
             };
 
-            MmException.Try(
-                Winmm.waveOutOpen(out nint hWaveOut, currentDevice.DeviceNumber, ref waveFormat, null, 0,
-                    Winmm.WaveInOutOpenFlags.CallbackNull), "waveOutOpen");
+            MmException.Try(Winmm.waveOutOpen(out nint hWaveOut, currentDevice.DeviceNumber, ref waveFormat, null, 0, Winmm.WaveInOutOpenFlags.CallbackNull), "waveOutOpen");
 
             for (int i = 0; i < N_BUFFERS; i++) {
                 waveHeaders[i].dataBuffer = bufferHandles[i].AddrOfPinnedObject();
                 waveHeaders[i].bufferLength = buffers[i].Length * sizeof(short);
-                MmException.Try(
-                    Winmm.waveOutPrepareHeader(hWaveOut, ref waveHeaders[i], Marshal.SizeOf(typeof(Winmm.WaveHeader))),
-                    "waveOutPrepareHeader");
-                MmException.Try(
-                    Winmm.waveOutWrite(hWaveOut, ref waveHeaders[i], Marshal.SizeOf(typeof(Winmm.WaveHeader))),
-                    "waveOutWrite");
+                MmException.Try(Winmm.waveOutPrepareHeader(hWaveOut, ref waveHeaders[i], Marshal.SizeOf(typeof(Winmm.WaveHeader))), "waveOutPrepareHeader");
+                MmException.Try(Winmm.waveOutWrite(hWaveOut, ref waveHeaders[i], Marshal.SizeOf(typeof(Winmm.WaveHeader))), "waveOutWrite");
             }
 
             _hWaveOut = hWaveOut;
@@ -97,9 +92,7 @@ namespace WaveTracker.Audio {
             for (int deviceNumber = 0; deviceNumber < deviceCount; deviceNumber++) {
                 unsafe {
                     Winmm.WaveOutCaps caps = new Winmm.WaveOutCaps();
-                    MmException.Try(
-                        Winmm.waveOutGetDevCaps((uint)deviceNumber, ref caps,
-                            (uint)Marshal.SizeOf(typeof(Winmm.WaveOutCaps))), "waveOutGetDevCaps");
+                    MmException.Try(Winmm.waveOutGetDevCaps((uint)deviceNumber, ref caps, (uint)Marshal.SizeOf(typeof(Winmm.WaveOutCaps))), "waveOutGetDevCaps");
 
                     devices.Add(new AudioDevice {
                         Name = new string(caps.szPname),
@@ -130,7 +123,7 @@ namespace WaveTracker.Audio {
         private void reset() {
             close();
 
-            bufferLength = Math.Max(256, (int)((2 * SampleRate / 1000.0) * (Latency / 1000.0)));
+            bufferLength = Math.Max(256, (int)((SampleRate / 1000.0) * (Latency / 1000.0)));
             queueBuffer = new Queue<float>(bufferLength);
 
             for (int i = 0; i < N_BUFFERS; i++) {
@@ -144,7 +137,7 @@ namespace WaveTracker.Audio {
         }
 
         public int AvailableFrames() {
-            for (int i = 0; i < 2; i++) {
+            for (int i = 0; i < N_BUFFERS; i++) {
                 if (waveHeaders[i].flags.HasFlag(Winmm.WaveHeaderFlags.Done))
                     return bufferLength;
             }
@@ -175,11 +168,11 @@ namespace WaveTracker.Audio {
 
             // We have to guarantee that the time it spends on an audio frame is not instantaneous,
             // otherwise it will create staggering later while waiting for one buffer to finish.
-            double currAudioFrameTimeMs = 1000.0 * buffer.Length / (SampleRate * 2.0);
+            double currAudioFrameTimeMs = 1000.0 * buffer.Length / (SampleRate * N_CHANNELS);
             TimeSpan timeToWait = TimeSpan.FromMilliseconds(currAudioFrameTimeMs) - watch.Elapsed;
 
             if (hasWritten)
-                timeToWait -= TimeSpan.FromMilliseconds(2);
+                timeToWait -= TimeSpan.FromMilliseconds(1);
 
             if (timeToWait > TimeSpan.Zero)
                 Thread.Sleep(timeToWait);
@@ -209,8 +202,7 @@ namespace WaveTracker.Audio {
                     waveHeaders[bufferIdx].bufferLength = 0;
 
                     while (true) {
-                        MmResult result = Winmm.waveOutUnprepareHeader(_hWaveOut, ref waveHeaders[bufferIdx],
-                            Marshal.SizeOf(typeof(Winmm.WaveHeader)));
+                        MmResult result = Winmm.waveOutUnprepareHeader(_hWaveOut, ref waveHeaders[bufferIdx], Marshal.SizeOf(typeof(Winmm.WaveHeader)));
                         if (result == MmResult.NoError)
                             break;
                         else
@@ -225,7 +217,7 @@ namespace WaveTracker.Audio {
 
         ~AudioContextWindows() {
             waveHeadersHandle.Free();
-            for (int i = 0; i < bufferHandles.Length; i++) {
+            for (int i = 0; i < N_BUFFERS; i++) {
                 bufferHandles[i].Free();
             }
         }
