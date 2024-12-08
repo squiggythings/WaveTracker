@@ -172,7 +172,7 @@ namespace WaveTracker.Audio {
             TimeSpan timeToWait = TimeSpan.FromMilliseconds(currAudioFrameTimeMs) - watch.Elapsed;
 
             if (hasWritten)
-                timeToWait -= TimeSpan.FromMilliseconds(1);
+                timeToWait -= TimeSpan.FromMilliseconds(5);
 
             if (timeToWait > TimeSpan.Zero)
                 Thread.Sleep(timeToWait);

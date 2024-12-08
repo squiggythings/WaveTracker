@@ -221,8 +221,8 @@ namespace WaveTracker.Audio {
         }
 
         private static void audioOutLoop() {
-            float[] buffer = new float[1024];
-            float[] previewBuffer = new float[1024];
+            float[] buffer = new float[256];
+            float[] previewBuffer = new float[256];
 
             try {
                 audioCtx.Open(CurrentOutputDevice);
