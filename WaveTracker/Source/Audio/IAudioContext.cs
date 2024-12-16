@@ -15,7 +15,6 @@ namespace WaveTracker.Audio {
         /// </summary>
         public void SetLatency(int latency);
 
-        public int AvailableFrames();
         public void Write(float[] buffer);
         public void Close();
     }

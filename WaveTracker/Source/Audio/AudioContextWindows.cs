@@ -136,15 +136,6 @@ namespace WaveTracker.Audio {
             open();
         }
 
-        public int AvailableFrames() {
-            for (int i = 0; i < N_BUFFERS; i++) {
-                if (waveHeaders[i].flags.HasFlag(Winmm.WaveHeaderFlags.Done))
-                    return bufferLength;
-            }
-
-            return 0;
-        }
-
         public void Write(float[] buffer) {
             if (bufferLength == 0)
                 return;
