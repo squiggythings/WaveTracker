@@ -55,6 +55,9 @@ namespace WaveTracker.Audio {
             if (currentDevice == null)
                 return false;
 
+            if (isOpen)
+                Close();
+
             short wBitsPerSample = 16;
             short nBlockAlign = (short)(N_CHANNELS * wBitsPerSample / 8);
             int nAvgBytesPerSec = SampleRate * nBlockAlign;
