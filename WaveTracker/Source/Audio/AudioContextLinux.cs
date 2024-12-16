@@ -18,7 +18,7 @@ namespace WaveTracker.Audio {
         /// required overall latency in us 
         public uint latency = 10_000;
 
-        private bool isOpen;
+        private bool isOpen = false;
 
         public bool Open(AudioDevice device) {
             if (isOpen)
