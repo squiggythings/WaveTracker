@@ -1,4 +1,4 @@
-using ProtoBuf;
+﻿using ProtoBuf;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -269,7 +269,7 @@ namespace WaveTracker.Audio {
                 Debug.WriteLine("Audio context error: " + e);
 
                 // make sure audio is still read even when audio context is not present
-                    if (!doStopAudioThread) {
+                if (!doStopAudioThread) {
                     if (doPauseAudioThread) {
                         Thread.Sleep(10);
                     }
@@ -277,10 +277,8 @@ namespace WaveTracker.Audio {
                         readSamples(buffer, 0, buffer.Length);
                         Thread.Sleep(10);
                     }
-                    }
 
                     audioCtx.Close();
-                    continue;
                 }
             }
         }
