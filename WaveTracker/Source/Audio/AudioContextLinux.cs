@@ -91,13 +91,11 @@ namespace WaveTracker.Audio {
         public bool SetSampleRate(int sampleRate) {
             sample_rate = (uint)sampleRate;
 
-            if (isOpen) {
-                return Alsa.snd_pcm_set_params(_pcm, sample_format, access, channels,
-                                              sample_rate, soft_resample ? 1 : 0, latency) == 0;
-            }
-            else {
+            if (!isOpen)
                 return true;
-            }
+
+            return Alsa.snd_pcm_set_params(_pcm, sample_format, access, channels,
+                    sample_rate, soft_resample ? 1 : 0, latency) == 0;
         }
 
         public void SetLatency(int latency) {
