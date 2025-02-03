@@ -148,8 +148,11 @@ namespace WaveTracker.Audio {
         /// Stop outputting sound to the audio thread and close it
         /// </summary>
         private static void stopAudioThread() {
-            audioCommandChannel.Writer.TryWrite(AudioCommand.Stop);
-            audioOutThread?.Join();
+            if (audioOutThread != null) {
+                audioCommandChannel.Writer.TryWrite(AudioCommand.Stop);
+                audioOutThread.Join();
+                audioOutThread = null;
+            }
         }
 
         /// <summary>
