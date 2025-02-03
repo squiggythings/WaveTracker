@@ -146,8 +146,6 @@ namespace WaveTracker.Audio {
             foreach (var sample in buffer)
                 queueBuffer.Enqueue(sample);
 
-            bool hasWritten = false;
-
             while (queueBuffer.Count >= bufferLength) {
                 if (waveHeaders[currBufferIdx].flags.HasFlag(Winmm.WaveHeaderFlags.Done)) {
                     for (int i = 0; i < buffers[currBufferIdx].Length; i++)
@@ -155,7 +153,6 @@ namespace WaveTracker.Audio {
 
                     Winmm.waveOutWrite(_hWaveOut, ref waveHeaders[currBufferIdx], Marshal.SizeOf(typeof(Winmm.WaveHeader)));
                     currBufferIdx = (currBufferIdx + 1) % N_BUFFERS;
-                    hasWritten = true;
                     break;
                 }
             }
@@ -163,10 +160,7 @@ namespace WaveTracker.Audio {
             // We have to guarantee that the time it spends on an audio frame is not instantaneous,
             // otherwise it will create staggering later while waiting for one buffer to finish.
             double currAudioFrameTimeMs = 1000.0 * buffer.Length / (SampleRate * N_CHANNELS);
-            TimeSpan timeToWait = TimeSpan.FromMilliseconds(currAudioFrameTimeMs) - watch.Elapsed;
-
-            if (hasWritten)
-                timeToWait -= TimeSpan.FromMilliseconds(5);
+            TimeSpan timeToWait = TimeSpan.FromMilliseconds(currAudioFrameTimeMs / 1.5) - watch.Elapsed;
 
             if (timeToWait > TimeSpan.Zero)
                 Thread.Sleep(timeToWait);
