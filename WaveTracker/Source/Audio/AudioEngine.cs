@@ -5,6 +5,8 @@ using System.Diagnostics;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Threading;
+using System.Threading.Channels;
+using ThreadChannel = System.Threading.Channels.Channel;
 using System.Threading.Tasks;
 using WaveTracker.Audio.Native;
 using WaveTracker.Tracker;
@@ -54,8 +56,15 @@ namespace WaveTracker.Audio {
 
         private static IAudioContext audioCtx;
         private static Thread audioOutThread;
-        private static bool doPauseAudioThread = false;
-        private static bool doStopAudioThread = false;
+
+        enum AudioCommand {
+            SetSampleRate,
+            Resume,
+            Pause,
+            Stop,
+        }
+
+        private static Channel<AudioCommand> audioCommandChannel = ThreadChannel.CreateUnbounded<AudioCommand>();
 
         public static void ResetTicks() {
             _tickCounter = 0;
@@ -88,7 +97,7 @@ namespace WaveTracker.Audio {
         public static void SetSampleRate(int sampleRate, int oversampling) {
             SampleRate = sampleRate;
             TrueSampleRate = SampleRate * oversampling;
-            audioCtx.SetSampleRate(SampleRate);
+            audioCommandChannel.Writer.TryWrite(AudioCommand.SetSampleRate);
             foreach (Channel chan in ChannelManager.Channels) {
                 chan.UpdateFilter();
             }
@@ -116,21 +125,20 @@ namespace WaveTracker.Audio {
         /// Resume outputting sound to the audio thread
         /// </summary>
         private static void resumeAudioThread() {
-            doPauseAudioThread = false;
+            audioCommandChannel.Writer.TryWrite(AudioCommand.Resume);
         }
 
         /// <summary>
         /// Pause outputting sound to the audio thread
         /// </summary>
         private static void pauseAudioThread() {
-            doPauseAudioThread = true;
+            audioCommandChannel.Writer.TryWrite(AudioCommand.Pause);
         }
 
         /// <summary>
         /// Open the audio thread and start outputting sound to it
         /// </summary>
         private static void startAudioThread() {
-            doStopAudioThread = false;
             audioOutThread = new Thread(audioOutLoop);
             audioOutThread.Name = "Audio Output";
             audioOutThread.Start();
@@ -140,7 +148,7 @@ namespace WaveTracker.Audio {
         /// Stop outputting sound to the audio thread and close it
         /// </summary>
         private static void stopAudioThread() {
-            doStopAudioThread = true;
+            audioCommandChannel.Writer.TryWrite(AudioCommand.Stop);
             audioOutThread?.Join();
         }
 
@@ -224,60 +232,78 @@ namespace WaveTracker.Audio {
             float[] buffer = new float[256];
             float[] previewBuffer = new float[256];
 
-            try {
-                audioCtx.Open(CurrentOutputDevice);
+            bool isPaused = false;
 
-                while (!doStopAudioThread) {
-                    if (doPauseAudioThread) {
-                        Thread.Sleep(10);
-                    }
-                    else {
-                        int samplesCount;
+            while (true) {
+                try {
+                    audioCtx.Open(CurrentOutputDevice);
 
-                        if (PreviewStream != null) {
-                            float previewVolume = 0.75f * App.Settings.Audio.MasterVolume / 100f;
+                    bool isRunning = true;
 
-                            if (PreviewStream.NumChannels == 1) {
-                                int previewSamplesCount = PreviewStream.ReadSamples(previewBuffer, previewBuffer.Length / 2);
-
-                                for (int i = 0; i < previewSamplesCount; i++) {
-                                    buffer[2 * i] = previewVolume * previewBuffer[i];
-                                    buffer[2 * i + 1] = previewVolume * previewBuffer[i];
-                                }
-
-                                samplesCount = previewSamplesCount * 2;
+                    while (isRunning) {
+                        if (audioCommandChannel.Reader.TryRead(out AudioCommand audioCommand)) {
+                            switch (audioCommand) {
+                                case AudioCommand.SetSampleRate:
+                                    audioCtx.SetSampleRate(SampleRate);
+                                    break;
+                                case AudioCommand.Resume:
+                                    isPaused = false;
+                                    break;
+                                case AudioCommand.Pause:
+                                    isPaused = true;
+                                    break;
+                                case AudioCommand.Stop:
+                                    isRunning = false;
+                                    break;
                             }
-                            else {
-                                samplesCount = PreviewStream.ReadSamples(previewBuffer, previewBuffer.Length);
-                                for (int i = 0; i < samplesCount; i++)
-                                    buffer[i] = previewVolume * previewBuffer[i];
-                            }
+                        }
+
+                        if (isPaused) {
+                            Thread.Sleep(10);
                         }
                         else {
-                            samplesCount = readSamples(buffer, 0, buffer.Length);
-                            if (samplesCount == 0) {
-                                PreviewStream = null;
+                            int samplesCount;
+
+                            if (PreviewStream != null) {
+                                float previewVolume = 0.75f * App.Settings.Audio.MasterVolume / 100f;
+
+                                if (PreviewStream.NumChannels == 1) {
+                                    int previewSamplesCount = PreviewStream.ReadSamples(previewBuffer, previewBuffer.Length / 2);
+
+                                    for (int i = 0; i < previewSamplesCount; i++) {
+                                        buffer[2 * i] = previewVolume * previewBuffer[i];
+                                        buffer[2 * i + 1] = previewVolume * previewBuffer[i];
+                                    }
+
+                                    samplesCount = previewSamplesCount * 2;
+                                }
+                                else {
+                                    samplesCount = PreviewStream.ReadSamples(previewBuffer, previewBuffer.Length);
+                                    for (int i = 0; i < samplesCount; i++)
+                                        buffer[i] = previewVolume * previewBuffer[i];
+                                }
                             }
+                            else {
+                                samplesCount = readSamples(buffer, 0, buffer.Length);
+                                if (samplesCount == 0) {
+                                    PreviewStream = null;
+                                }
+                            }
+
+                            audioCtx.Write(buffer[..samplesCount]);
                         }
-
-                        audioCtx.Write(buffer[..samplesCount]);
                     }
-                }
 
-                audioCtx.Close();
-            } catch (Exception e) {
-                Debug.WriteLine("Audio context error: " + e);
+                    audioCtx.Close();
+                    break;
+                } catch (Exception e) {
+                    Debug.WriteLine("Audio context error: " + e);
 
-                // make sure audio is still read even when audio context is not present
-                if (!doStopAudioThread) {
-                    if (doPauseAudioThread) {
-                        Thread.Sleep(10);
-                    }
-                    else {
+                    // make sure audio is still read even when audio context is not present
+                    if (!isPaused)
                         readSamples(buffer, 0, buffer.Length);
-                        Thread.Sleep(10);
-                    }
 
+                    Thread.Sleep(10);
                     audioCtx.Close();
                 }
             }
